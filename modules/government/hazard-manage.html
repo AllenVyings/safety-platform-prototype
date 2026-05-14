@@ -1,0 +1,309 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐患管理 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .page-container { 
+      padding: var(--spacing-lg); 
+      background: var(--bg-page);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .page-title { font-size: var(--font-size-lg); font-weight: 600; }
+    
+    /* ========== 统计卡片 ========== */
+    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    .stat-card { 
+      flex: 1; 
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+      border: 1px solid var(--border-light); 
+      border-radius: var(--radius-lg); 
+      padding: var(--spacing-md) var(--spacing-lg); 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+    .stat-card:hover { 
+      background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%);
+      box-shadow: var(--shadow-md);
+    }
+    .stat-value { font-size: 24px; font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+    
+    /* ========== 筛选栏 ========== */
+    .filter-bar { 
+      display: flex; 
+      gap: var(--spacing-sm); 
+      margin-bottom: var(--spacing-md); 
+      align-items: center; 
+      flex-wrap: wrap;
+      background: var(--bg-section);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+    }
+    .filter-item select, .filter-item input { 
+      padding: 6px 10px; 
+      border: 1px solid var(--border); 
+      border-radius: var(--radius-md); 
+      font-size: var(--font-size-sm); 
+      background: var(--bg-primary);
+    }
+    .filter-item select:focus, .filter-item input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    
+    /* ========== 表格容器 ========== */
+    .table-wrap { 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
+      overflow: hidden; 
+      box-shadow: var(--shadow-card);
+    }
+    .table-scroll { overflow-x: auto; }
+    .table-scroll table { width: 100%; min-width: 900px; border-collapse: collapse; }
+    .table-scroll thead tr { background: var(--bg-section); }
+    .table-scroll th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
+    .table-scroll td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
+    .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover td { background: var(--bg-hover); }
+    .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; }
+    .table-scroll tbody tr:nth-child(even) .action-col { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover .action-col { background: var(--bg-hover); }
+    
+    /* ========== 分页 ========== */
+    .pagination-wrap { 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-end; 
+      gap: 4px; 
+      padding: 12px var(--spacing-md);
+      background: var(--bg-section);
+      border-top: 1px solid var(--border-light);
+    }
+    .pg-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--bg-primary); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
+    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
+    /* ========== 标签样式 ========== */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 12px; }
+    .tag-green { background: var(--success-light); color: var(--success); }
+    .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
+    .tag-orange { background: var(--warning-light); color: var(--warning); }
+    .tag-red { background: var(--error-light); color: var(--error); }
+    .tag-blue { background: var(--info-light); color: var(--info); }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="gov-hazard-manage">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item current">政府端</span>
+    </div>
+
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-value" style="color: var(--primary);">156</div><div class="stat-label">隐患总数</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--warning);">23</div><div class="stat-label">待整改</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--success);">128</div><div class="stat-label">已整改</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--error);">5</div><div class="stat-label">超期未整改</div></div>
+    </div>
+    
+    <div class="filter-bar">
+      <div class="filter-item"><label>隐患状态：</label><select id="filterStatus"><option>全部</option><option>待整改</option><option>整改中</option><option>已整改</option><option>超期</option></select></div>
+      <div class="filter-item"><label>隐患等级：</label><select id="filterLevel"><option>全部</option><option>一般隐患</option><option>较大隐患</option><option>重大隐患</option></select></div>
+      <div class="filter-item"><label>所属领域：</label><select id="filterDomain"><option>全部</option><option>充换电设施</option><option>危险化学品</option><option>建筑施工</option></select></div>
+      <div class="filter-item"><input type="text" id="searchInput" placeholder="搜索企业名称"></div>
+      <button class="btn btn-default" onclick="resetFilter()">重置</button>
+      <div style="flex: 1;"></div>
+      <button class="btn btn-default" onclick="exportReport()">导出报表</button>
+      <button class="btn btn-primary" onclick="addHazard()">+ 新增隐患</button>
+    </div>
+    
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>隐患编号</th>
+              <th>企业名称</th>
+              <th>隐患描述</th>
+              <th>隐患等级</th>
+              <th>发现日期</th>
+              <th>整改期限</th>
+              <th>状态</th>
+              <th class="action-col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="hazardTableBody">
+            <tr>
+              <td>HD2026040201</td>
+              <td class="ellipsis-col" title="创安电子科技有限公司">创安电子科技有限公司</td>
+              <td class="ellipsis-col" title="电动车充电区消防器材过期">电动车充电区消防器材过期</td>
+              <td><span class="tag tag-orange">较大隐患</span></td>
+              <td>2026-04-02</td>
+              <td>2026-04-09</td>
+              <td><span class="tag tag-green">待整改</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewHazard('HD2026040201')">查看</button><button class="btn-link" onclick="superviseHazard('HD2026040201')">督办</button></td>
+            </tr>
+            <tr>
+              <td>HD2026040101</td>
+              <td class="ellipsis-col" title="深圳港物流有限公司">深圳港物流有限公司</td>
+              <td class="ellipsis-col" title="危化品仓库通风设备故障">危化品仓库通风设备故障</td>
+              <td><span class="tag tag-red">重大隐患</span></td>
+              <td>2026-04-01</td>
+              <td>2026-04-05</td>
+              <td><span class="tag tag-orange">整改中</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewHazard('HD2026040101')">查看</button><button class="btn-link" onclick="urgeHazard('HD2026040101')">催办</button></td>
+            </tr>
+            <tr>
+              <td>HD2026032801</td>
+              <td class="ellipsis-col" title="安达运输公司">安达运输公司</td>
+              <td class="ellipsis-col" title="停车场安全标识缺失">停车场安全标识缺失</td>
+              <td><span class="tag tag-blue">一般隐患</span></td>
+              <td>2026-03-28</td>
+              <td>2026-04-04</td>
+              <td><span class="tag tag-green">已整改</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewHazard('HD2026032801')">查看</button><button class="btn-link" onclick="reviewHazard('HD2026032801')">复查</button></td>
+            </tr>
+            <tr>
+              <td>HD2026032001</td>
+              <td class="ellipsis-col" title="新兴化工有限公司">新兴化工有限公司</td>
+              <td class="ellipsis-col" title="安全通道堆放杂物">安全通道堆放杂物</td>
+              <td><span class="tag tag-blue">一般隐患</span></td>
+              <td>2026-03-20</td>
+              <td>2026-03-27</td>
+              <td><span class="tag tag-red">超期</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewHazard('HD2026032001')">查看</button><button class="btn-link danger" onclick="superviseHazard('HD2026032001')">督办</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap">
+        <button class="pg-btn" onclick="prevPage()">上一页</button>
+        <button class="pg-btn active">1</button>
+        <button class="pg-btn" onclick="goPage(2)">2</button>
+        <button class="pg-btn" onclick="goPage(3)">3</button>
+        <button class="pg-btn" onclick="nextPage()">下一页</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'gov-hazard-manage',
+        moduleName: '隐患管理'
+      };
+      
+      let state = {
+        initialized: false,
+        currentPage: 1
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      // 查看隐患
+      window.viewHazard = function(id) {
+        console.log('查看隐患：' + id);
+        alert('查看隐患详情：' + id);
+      };
+      
+      // 督办
+      window.superviseHazard = function(id) {
+        console.log('督办隐患：' + id);
+        alert('已发起督办：' + id);
+      };
+      
+      // 催办
+      window.urgeHazard = function(id) {
+        console.log('催办隐患：' + id);
+        alert('已发送催办通知：' + id);
+      };
+      
+      // 复查
+      window.reviewHazard = function(id) {
+        console.log('复查隐患：' + id);
+        alert('复查隐患：' + id);
+      };
+      
+      // 新增隐患
+      window.addHazard = function() {
+        console.log('新增隐患');
+        alert('打开新增隐患弹窗');
+      };
+      
+      // 导出报表
+      window.exportReport = function() {
+        console.log('导出报表');
+        alert('导出隐患报表');
+      };
+      
+      // 重置筛选
+      window.resetFilter = function() {
+        document.getElementById('filterStatus').value = '全部';
+        document.getElementById('filterLevel').value = '全部';
+        document.getElementById('filterDomain').value = '全部';
+        document.getElementById('searchInput').value = '';
+        console.log('重置筛选条件');
+      };
+      
+      // 分页
+      window.prevPage = function() {
+        if (state.currentPage > 1) {
+          state.currentPage--;
+          console.log('切换到第' + state.currentPage + '页');
+        }
+      };
+      
+      window.nextPage = function() {
+        state.currentPage++;
+        console.log('切换到第' + state.currentPage + '页');
+      };
+      
+      window.goPage = function(page) {
+        state.currentPage = page;
+        console.log('切换到第' + page + '页');
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

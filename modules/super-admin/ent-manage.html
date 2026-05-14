@@ -1,0 +1,1356 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业基本信息 - 超管端</title>
+  
+  <style>
+    /* ========== 页面背景 ========== */
+    .page-container { 
+      padding: 20px; 
+      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
+      min-height: 100vh;
+    }
+    
+    /* 面包屑由 framework.css 提供，无需额外样式 */
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 16px;
+      background: #fff;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title { font-size: 18px; font-weight: 600; }
+    
+    /* ========== 主体布局 ========== */
+    .page-body {
+      display: flex;
+      gap: 16px;
+    }
+    
+    /* ========== 左侧树状列表 ========== */
+    .left-panel {
+      width: 260px;
+      flex-shrink: 0;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 180px);
+    }
+    
+    /* 搜索框 */
+    .tree-search {
+      padding: 12px;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .tree-search input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fafbfc;
+    }
+    .tree-search input:focus {
+      outline: none;
+      border-color: #1677ff;
+      background: #fff;
+    }
+    
+    /* 页签切换 */
+    .tree-tabs {
+      display: flex;
+      padding: 12px 12px 0;
+      gap: 8px;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .tree-tab {
+      flex: 1;
+      padding: 8px 0;
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tree-tab:hover {
+      color: #1677ff;
+    }
+    .tree-tab.active {
+      color: #1677ff;
+      border-bottom-color: #1677ff;
+      font-weight: 600;
+    }
+    
+    /* 树内容区 */
+    .tree-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    
+    /* 树节点 */
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+    .tree-node:hover {
+      background: #f0f7ff;
+    }
+    .tree-node.selected {
+      background: #e6f4ff;
+      color: #1677ff;
+    }
+    .tree-node .expand-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 10px;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .tree-node .expand-icon.expanded {
+      transform: rotate(90deg);
+    }
+    .tree-node .node-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+    .tree-node .node-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tree-node .node-count {
+      font-size: 12px;
+      color: #1677ff;
+      margin-left: 8px;
+    }
+    
+    /* 子节点 */
+    .tree-children {
+      display: none;
+    }
+    .tree-children.show {
+      display: block;
+    }
+    
+    /* ========== 右侧内容区 ========== */
+    .right-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* ========== 统计卡片 ========== */
+    .stat-cards { display: flex; gap: 16px; margin-bottom: 16px; }
+    .stat-card { 
+      flex: 1; 
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+      border: 1px solid #e2e8f0; 
+      border-radius: 8px; 
+      padding: 16px 20px; 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+    }
+    .stat-card:hover { 
+      background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    .stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .stat-icon.blue { background: #dbeafe; color: #2563eb; }
+    .stat-icon.green { background: #dcfce7; color: #16a34a; }
+    .stat-icon.orange { background: #fed7aa; color: #ea580c; }
+    .stat-icon.gray { background: #f1f5f9; color: #64748b; }
+    .stat-content { flex: 1; }
+    .stat-label { font-size: 13px; color: #64748b; margin-bottom: 4px; }
+    .stat-value { font-size: 24px; font-weight: 600; color: #1e293b; }
+    
+    /* ========== 筛选栏 ========== */
+    .filter-bar { 
+      display: flex; 
+      gap: 12px; 
+      margin-bottom: 16px; 
+      align-items: center; 
+      flex-wrap: wrap;
+      background: #fafbfc;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #e8eaed;
+    }
+    .filter-item select, .filter-item input { 
+      padding: 6px 10px; 
+      border: 1px solid #d9d9d9; 
+      border-radius: 6px; 
+      font-size: 13px; 
+      background: #fff;
+    }
+    .filter-item select:focus, .filter-item input:focus {
+      outline: none;
+      border-color: #1677ff;
+    }
+    
+    /* ========== 表格容器 ========== */
+    .table-wrap { 
+      background: #fff; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .table-scroll { overflow-x: auto; flex: 1; }
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+    thead tr { background: #fafafa; }
+    th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #1f1f1f; border-bottom: 1px solid #e8eaed; white-space: nowrap; }
+    td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* 列宽固定 */
+    th:nth-child(1), td:nth-child(1) { width: 60px; max-width: 60px; }  /* 序号 */
+    th:nth-child(2), td:nth-child(2) { min-width: 180px; max-width: 250px; }  /* 企业名称 */
+    th:nth-child(3), td:nth-child(3) { min-width: 160px; max-width: 200px; }  /* 统一社会信用代码 */
+    th:nth-child(4), td:nth-child(4) { width: 100px; max-width: 100px; }  /* 领域小类 */
+    th:nth-child(5), td:nth-child(5) { width: 120px; max-width: 120px; }  /* 所属网格 */
+    th:nth-child(6), td:nth-child(6) { width: 80px; max-width: 80px; }  /* 超管账号 */
+    th:nth-child(7), td:nth-child(7) { width: 60px; max-width: 60px; }  /* 状态 */
+    th:nth-child(8), td:nth-child(8) { width: 100px; max-width: 100px; }  /* 注册时间 */
+    tbody tr:nth-child(even) { background: #fafbfc; }
+    tbody tr:hover td { background: #f0f7ff; }
+    /* 操作列固定在右侧 */
+    th.operation-col, td.operation-col { position: sticky; right: 0; z-index: 10; white-space: nowrap; width: 200px; box-shadow: -2px 0 8px rgba(0,0,0,0.08); }
+    thead tr th.operation-col { background: #fafafa; text-align: center; }
+    tbody tr td.operation-col { background: #fff; }
+    tbody tr:nth-child(even) td.operation-col { background: #fafbfc; }
+    tbody tr:hover td.operation-col { background: #f0f7ff; }
+    td.operation-col .btn-link { margin-right: 8px; }
+    td.operation-col .btn-link:last-child { margin-right: 0; }
+    
+    /* ========== 分页 ========== */
+    .pagination-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 12px 16px; border-top: 1px solid #f0f0f0; background: #fafafa; }
+    .pagination-info { font-size: 13px; color: #666; }
+    .pagination-size select { padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
+    .pagination-btns { display: flex; gap: 4px; }
+    .pagination-btns button { min-width: 28px; height: 28px; padding: 0 8px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .pagination-btns button:hover:not(:disabled) { border-color: #1677ff; color: #1677ff; }
+    .pagination-btns button.active { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .pagination-btns button:disabled { cursor: not-allowed; color: #bbb; background: #f5f5f5; }
+    .pagination-jump { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666; }
+    .pagination-jump input { width: 40px; height: 28px; padding: 0 6px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; text-align: center; outline: none; }
+    .pagination-jump input:focus { border-color: #1677ff; }
+    
+    
+    /* ========== 按钮样式 ========== */
+    .btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid #d9d9d9}
+    .btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+    .btn-default:hover{color:#1677ff;border-color:#1677ff}
+    .btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+    .btn-primary:hover{background:#4096ff}
+    .btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+    .btn-link:hover{color:#4096ff}
+    .btn-link.btn-sm{font-size:12px;padding:1px 4px}
+    .btn-danger{padding:4px 15px;border:1px solid #ffccc7;color:#ff4d4f;background:#fff;border-radius:6px;cursor:pointer;font-size:13px}
+    .btn-danger:hover{background:#fff2f0;border-color:#ff4d4f}
+
+    /* ========== 带角标的按钮 ========== */
+    .btn-with-badge { position: relative; }
+    .btn-badge { position: absolute; top: -8px; right: -8px; min-width: 18px; height: 18px; padding: 0 5px; background: #ff4d4f; color: #fff; font-size: 11px; font-weight: 600; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+    
+    /* ========== 弹窗样式 ========== */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.show { display: flex; }
+    .modal-dialog { background: #fff; border-radius: 8px; width: 600px; max-width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid #e8eaed; display: flex; justify-content: space-between; align-items: center; background: #fafbfc; border-radius: 8px 8px 0 0; }
+    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-close { width: 32px; height: 32px; border: none; background: none; font-size: 20px; cursor: pointer; color: #999; border-radius: 4px; transition: all 0.2s; }
+    .modal-close:hover { background: #f0f0f0; color: #1f1f1f; }
+    .modal-body { padding: 20px; background: #fff; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid #e8eaed; display: flex; justify-content: flex-end; gap: 12px; background: #fafbfc; border-radius: 0 0 8px 8px; }
+    
+    /* ========== 表单样式 ========== */
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    .form-label { display: block; font-size: 13px; color: #1f1f1f; margin-bottom: 6px; }
+    .form-label .required { color: #ff4d4f; margin-left: 2px; }
+    .form-input, .form-select { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; background: #fff; transition: all 0.2s; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .form-input:disabled { background: #f5f5f5; color: #999; cursor: not-allowed; }
+    .form-hint { font-size: 12px; color: #999; margin-top: 4px; }
+    
+    /* ========== 操作区按钮间距 ========== */
+    .action-buttons { display: flex; gap: 12px; }
+    .action-buttons .btn-link { margin: 0; }
+    
+    /* ========== 信息板块（弹窗内） ========== */
+    .info-section { 
+      margin-bottom: 20px; 
+      background: #fafbfc;
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid #e8eaed;
+    }
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-label { font-size: 12px; color: #64748b; }
+    .info-value { font-size: 14px; color: #1f1f1f; }
+    
+    /* ========== 模块标题样式 ========== */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin: -16px -16px 16px;
+      padding: 12px 16px;
+      background: #fff;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: #1677ff;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    
+    /* ========== 账号卡片 ========== */
+    .account-card { background: #fff; border: 1px solid #e8eaed; border-radius: 8px; padding: 16px; }
+    .account-row { display: flex; justify-content: space-between; align-items: center; }
+    .account-info { display: flex; flex-direction: column; gap: 4px; }
+    
+    /* ========== 级联选择器 ========== */
+    .cascade-selects { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cascade-selects .form-select { flex: 1; min-width: 100px; }
+    
+    /* ========== 开关组件 ========== */
+    .switch-wrapper { display: flex; align-items: center; gap: 8px; }
+    .switch { position: relative; width: 44px; height: 22px; background: #ccc; border-radius: 11px; cursor: pointer; transition: background 0.3s; }
+    .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .switch.active { background: #1677ff; }
+    /* ========== 地图选点按钮 ========== */
+    .map-picker-btn { padding: 8px 12px; }
+    .map-modal-content { height: 400px; background: #f5f5f5; display: flex; flex-direction: column; }
+    .map-search-bar { padding: 12px; background: #fff; border-bottom: 1px solid #e8eaed; display: flex; gap: 8px; }
+    .map-search-bar input { flex: 1; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; }
+    .map-canvas { flex: 1; background: #e8f4fc; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; position: relative; }
+    .map-marker { position: absolute; font-size: 32px; color: #f5222d; animation: bounce 1s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .map-coord { margin-top: 8px; font-size: 12px; color: #666; }
+    .map-actions { padding: 12px; background: #fff; border-top: 1px solid #e8eaed; display: flex; justify-content: flex-end; gap: 8px; }
+
+    .switch.active::after { transform: translateX(22px); }
+    .switch-input { display: none; }
+    .switch-label { font-size: 13px; color: #666; }
+    
+    /* ========== 标签样式 ========== */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .tag-green { background: #dcfce7; color: #16a34a; }
+    .tag-gray { background: #f1f5f9; color: #64748b; }
+    
+    /* ========== 树节点样式（参考 gov-org.html） ========== */
+    .tree-node { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; transition: all 0.15s; user-select: none; }
+    .tree-node:hover { background: #f5f5f5; }
+    .tree-node.active { background: #e6f7ff; }
+    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-right: 4px; font-size: 10px; color: #999; cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
+    .tree-toggle.expanded { transform: rotate(90deg); }
+    .tree-toggle.leaf { visibility: hidden; }
+    .tree-node-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; margin-right: 8px; font-size: 14px; flex-shrink: 0; }
+    .tree-node-label { flex: 1; font-size: 13px; color: #1f1f1f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tree-node-count { font-size: 12px; color: #1677ff; margin-left: 8px; flex-shrink: 0; }
+    .tree-children { display: none; }
+    .tree-children.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="page-container" data-module="sa-ent-manage">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb"></div>
+    
+    <div class="page-header" style="display: none;">
+    </div>
+    
+    <div class="page-body">
+      <!-- 左侧树状列表 -->
+      <div class="left-panel">
+        <div class="tree-search">
+          <input type="text" placeholder="搜索企业名称..." id="treeSearchInput">
+        </div>
+        <div class="tree-tabs">
+          <div class="tree-tab active" id="tabDistrict">区划</div>
+          <div class="tree-tab" id="tabIndustry">领域</div>
+        </div>
+        <div class="tree-content" id="treeContent"></div>
+      </div>
+      
+      <!-- 右侧内容区 -->
+      <div class="right-content">
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-icon blue">🏢</div>
+            <div class="stat-content">
+              <div class="stat-value">156</div>
+              <div class="stat-label">企业总数</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <div class="stat-content">
+              <div class="stat-value">142</div>
+              <div class="stat-label">已启用</div>
+            </div>
+          </div>
+          <div class="stat-card" style="cursor: pointer;" onclick="showAuditList()">
+            <div class="stat-icon orange">⏳</div>
+            <div class="stat-content">
+              <div class="stat-value">8</div>
+              <div class="stat-label">待审核 <span style="font-size: 12px; color: #1677ff;">查看 ></span></div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon gray">⊘</div>
+            <div class="stat-content">
+              <div class="stat-value">6</div>
+              <div class="stat-label">已禁用</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="filter-bar">
+          <div class="filter-item"><label>状态：</label><select><option>全部</option><option>已激活</option><option>待审核</option><option>已禁用</option></select></div>
+          <div class="filter-item"><label>领域小类：</label><select><option>全部</option><option>充换电设施</option><option>危险化学品</option><option>工业制造</option></select></div>
+          <div class="filter-item"><label>所属网格：</label><select><option>全部</option><option>南山区</option><option>福田区</option></select></div>
+          <div class="filter-item"><input type="text" placeholder="搜索企业名称/统一信用代码"></div>
+          <button class="btn btn-default">重置</button>
+          <div style="flex: 1;"></div>
+          <button class="btn btn-primary" onclick="showAddModal()">+ 新增企业</button>
+        </div>
+        
+        <div class="table-wrap">
+          <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:60px">序号</th>
+                <th>企业名称</th>
+                <th>统一社会信用代码</th>
+                <th>领域小类</th>
+                <th>所属网格</th>
+                <th>超管账号</th>
+                <th>状态</th>
+                <th>注册时间</th>
+                <th class="operation-col">操作</th>
+              </tr>
+            </thead>
+            <tbody id="entTableBody">
+              <!-- 动态生成 -->
+            </tbody>
+          </table>
+          </div>
+          <div class="pagination-wrap">
+            <span class="pagination-info">共 <span id="pgTotal">0</span> 条，第 <span id="pgCurrentPage">1</span> 页/共 <span id="pgTotalPages">1</span> 页</span>
+            <div class="pagination-size">
+              <select id="pgSize" onchange="changePageSize()">
+                <option value="10">10条/页</option>
+                <option value="20">20条/页</option>
+                <option value="50">50条/页</option>
+              </select>
+            </div>
+            <div class="pagination-btns" id="pgBtns"></div>
+            <div class="pagination-jump">
+              跳至 <input type="number" id="pgJump" min="1"> 页 <button class="btn btn-default" onclick="jumpToPage()">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 新增企业弹窗 -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal-dialog" style="width: 700px;">
+      <div class="modal-header">
+        <span class="modal-title">新增企业</span>
+        <button class="modal-close" onclick="closeModal('addModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="entForm">
+          <div class="info-section" style="margin-bottom: 24px;">
+            <div class="section-title">基本信息</div>
+            <div class="form-group">
+              <label class="form-label">企业名称<span class="required">*</span></label>
+              <input type="text" class="form-input" id="formName" placeholder="请输入企业名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">统一社会信用代码<span class="required">*</span></label>
+              <input type="text" class="form-input" id="formCode" placeholder="请输入18位统一社会信用代码" maxlength="18">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">法定代表人</label>
+                <input type="text" class="form-input" placeholder="请输入法定代表人">
+              </div>
+              <div class="form-group">
+                <label class="form-label">联系电话</label>
+                <input type="text" class="form-input" placeholder="请输入联系电话">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">归属网格</label>
+              <div class="cascade-selects">
+                <select class="form-select" id="formGrid1" onchange="loadStreets()">
+                  <option value="">选择区</option>
+                  <option value="NS">南山区</option>
+                  <option value="FT">福田区</option>
+                  <option value="LH">罗湖区</option>
+                </select>
+                <select class="form-select" id="formGrid2">
+                  <option value="">选择街道</option>
+                </select>
+                <select class="form-select" id="formGrid3">
+                  <option value="">选择社区</option>
+                </select>
+                <select class="form-select" id="formGrid4">
+                  <option value="">选择网格</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">注册地址</label>
+                <div style="display:flex;gap:8px;">
+                  <input type="text" class="form-input" placeholder="请输入注册地址" id="formRegAddr" style="flex:1;">
+                  <button type="button" class="btn btn-default map-picker-btn" onclick="openMapPicker('formRegAddr')" title="地图选点">📍</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">经营地址</label>
+                <div style="display:flex;gap:8px;">
+                  <input type="text" class="form-input" placeholder="请输入经营地址" id="formBizAddr" style="flex:1;">
+                  <button type="button" class="btn btn-default map-picker-btn" onclick="openMapPicker('formBizAddr')" title="地图选点">📍</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">状态<span class="required">*</span></label>
+                <div class="switch-wrapper">
+                  <div class="switch active" onclick="toggleSwitch(this)"></div>
+                  <span class="switch-label">启用</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">企业图片</label>
+                <input type="file" class="form-input" style="padding: 6px 12px;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">备注</label>
+              <textarea class="form-input" rows="3" placeholder="请输入备注信息" style="resize: vertical;"></textarea>
+            </div>
+          </div>
+          <div class="info-section">
+            <div class="section-title">账号信息</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">账号名<span class="required">*</span></label>
+                <input type="text" class="form-input" placeholder="请输入账号名">
+              </div>
+              <div class="form-group">
+                <label class="form-label">密码<span class="required">*</span></label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" class="form-input" value="Abc@123456" style="flex: 1;">
+                  <button type="button" class="btn btn-default" onclick="generatePassword()" style="white-space: nowrap;">随机生成</button>
+                </div>
+                <div class="form-hint">默认密码：Abc@123456，可点击随机生成</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveEnterprise()">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 查看详情弹窗 -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-dialog" style="width: 700px;">
+      <div class="modal-header">
+        <span class="modal-title">企业详情</span>
+        <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-section">
+          <div class="section-title">基本信息</div>
+          <div class="info-grid">
+            <div class="info-item"><span class="info-label">企业名称</span><span class="info-value">创安电子科技有限公司</span></div>
+            <div class="info-item"><span class="info-label">统一社会信用代码</span><span class="info-value">91440300MA5DQ2XXXX</span></div>
+            <div class="info-item"><span class="info-label">法定代表人</span><span class="info-value">王建国</span></div>
+            <div class="info-item"><span class="info-label">联系电话</span><span class="info-value">138****8000</span></div>
+            <div class="info-item"><span class="info-label">归属网格</span><span class="info-value">南山区-南山街道-荔湾社区-第1网格</span></div>
+            <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">已激活</span></span></div>
+            <div class="info-item"><span class="info-label">注册地址</span><span class="info-value">深圳市南山区科技园南区</span></div>
+            <div class="info-item"><span class="info-label">经营地址</span><span class="info-value">深圳市南山区科技园北区</span></div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="section-title">关联领域小类</div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span class="tag" style="background: #e6f7ff; color: #1890ff; padding: 4px 12px;">充换电设施</span>
+            <span class="tag" style="background: #e6f7ff; color: #1890ff; padding: 4px 12px;">危险化学品</span>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="section-title">监管信息</div>
+          <div class="info-grid">
+            <div class="info-item"><span class="info-label">行业监管单位</span><span class="info-value">南山区工业和信息化局</span></div>
+            <div class="info-item"><span class="info-label">专业监管单位</span><span class="info-value">南山区应急管理局</span></div>
+            <div class="info-item" style="grid-column: span 2;"><span class="info-label">属地监管单位</span><span class="info-value">南山区南山街道办</span></div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="section-title">账号信息</div>
+          <div class="account-card">
+            <div class="account-row">
+              <div class="account-info">
+                <div><strong>超管账号：</strong>ca888</div>
+                <div style="font-size: 12px; color: #999; margin-top: 4px;">最后登录：2026-04-02 09:30</div>
+              </div>
+              <span class="tag tag-green">已激活</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('detailModal')">关闭</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 编辑企业弹窗 -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-dialog" style="width: 750px;">
+      <div class="modal-header">
+        <span class="modal-title">编辑企业</span>
+        <button class="modal-close" onclick="closeModal('editModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-section" style="margin-bottom: 24px;">
+          <div class="section-title">基本信息</div>
+          <div class="form-group">
+            <label class="form-label">企业名称<span class="required">*</span></label>
+            <input type="text" class="form-input" value="创安电子科技有限公司">
+          </div>
+          <div class="form-group">
+            <label class="form-label">统一社会信用代码<span class="required">*</span></label>
+            <input type="text" class="form-input" value="91440300MA5DQ2XXXX" disabled style="background: #f5f5f5;">
+            <div class="form-hint">统一社会信用代码不可修改</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">法定代表人</label>
+              <input type="text" class="form-input" value="王建国">
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系电话</label>
+              <input type="text" class="form-input" value="13800138000">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">归属网格</label>
+            <div class="cascade-selects">
+              <select class="form-select"><option>南山区</option></select>
+              <select class="form-select"><option>南山街道</option></select>
+              <select class="form-select"><option>荔湾社区</option></select>
+              <select class="form-select"><option>第1网格</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">注册地址</label>
+              <div style="display:flex;gap:8px;">
+                <input type="text" class="form-input" value="深圳市南山区科技园南区" id="editRegAddr" style="flex:1;">
+                <button type="button" class="btn btn-default map-picker-btn" onclick="openMapPicker('editRegAddr')" title="地图选点">📍</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">经营地址</label>
+              <div style="display:flex;gap:8px;">
+                <input type="text" class="form-input" value="深圳市南山区科技园北区" id="editBizAddr" style="flex:1;">
+                <button type="button" class="btn btn-default map-picker-btn" onclick="openMapPicker('editBizAddr')" title="地图选点">📍</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">状态<span class="required">*</span></label>
+              <div class="switch-wrapper">
+                <div class="switch active" onclick="toggleSwitch(this)"></div>
+                <span class="switch-label">启用</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">企业图片</label>
+              <input type="file" class="form-input" style="padding: 6px 12px;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <textarea class="form-input" rows="2" style="resize: vertical;"></textarea>
+          </div>
+        </div>
+        <div class="info-section" style="margin-bottom: 24px;">
+          <div class="section-title">关联领域小类</div>
+          <div class="form-group">
+            <label class="form-label">选择领域小类</label>
+            <select class="form-select" id="editDomainSelect" onchange="addDomain()">
+              <option value="">请选择领域小类</option>
+              <option value="1">工业制造类 - 充换电设施</option>
+              <option value="2">危险化学品类 - 危化品生产</option>
+              <option value="3">商贸服务类 - 农贸市场</option>
+              <option value="4">建筑施工类 - 建筑工地</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;" id="selectedDomains">
+            <span class="domain-tag" style="background: #e6f7ff; color: #1890ff; padding: 4px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+              充换电设施 <button type="button" onclick="removeDomain(this)" style="background: none; border: none; color: #1890ff; cursor: pointer; font-size: 14px;">×</button>
+            </span>
+            <span class="domain-tag" style="background: #e6f7ff; color: #1890ff; padding: 4px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+              危险化学品 <button type="button" onclick="removeDomain(this)" style="background: none; border: none; color: #1890ff; cursor: pointer; font-size: 14px;">×</button>
+            </span>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="section-title">监管信息<span style="font-size: 12px; color: #999; font-weight: normal; margin-left: 8px;">（自动带出，不可编辑）</span></div>
+          <div class="info-grid">
+            <div class="info-item"><span class="info-label">行业监管单位</span><span class="info-value">南山区工业和信息化局</span></div>
+            <div class="info-item"><span class="info-label">专业监管单位</span><span class="info-value">南山区应急管理局</span></div>
+            <div class="info-item" style="grid-column: span 2;"><span class="info-label">属地监管单位</span><span class="info-value">南山区南山街道办</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('editModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveEdit()">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 审核列表弹窗 -->
+  <div class="modal-overlay" id="auditModal">
+    <div class="modal-dialog" style="width: 800px;">
+      <div class="modal-header">
+        <span class="modal-title">审核列表（8条待审核）</span>
+        <button class="modal-close" onclick="closeModal('auditModal')">×</button>
+      </div>
+      <div class="modal-body" style="padding: 0;">
+        <table style="margin: 0;">
+          <thead>
+            <tr>
+              <th>企业名称</th>
+              <th>统一社会信用代码</th>
+              <th>提交时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>深圳新能科技有限公司</td>
+              <td>91440300MA5DQ6****</td>
+              <td>2026-04-02 10:30</td>
+              <td>
+                <button class="btn-link" onclick="approveEnt('深圳新能科技有限公司')">通过</button>
+                <button class="btn-link" onclick="rejectEnt('深圳新能科技有限公司')">拒绝</button>
+              </td>
+            </tr>
+            <tr>
+              <td>鹏城安全设备公司</td>
+              <td>91440300MA5DQ7****</td>
+              <td>2026-04-02 09:15</td>
+              <td>
+                <button class="btn-link" onclick="approveEnt('鹏城安全设备公司')">通过</button>
+                <button class="btn-link" onclick="rejectEnt('鹏城安全设备公司')">拒绝</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding: 12px 16px; border-top: 1px solid #e8eaed; text-align: center; color: #999; font-size: 13px;">
+          显示 1-2 条，共 8 条
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 区划树数据
+    const districtData = [
+      {
+        id: 'NS',
+        name: '南山区',
+        count: 68,
+        children: [
+          {
+            id: 'NS-NS001',
+            name: '南山街道',
+            count: 32,
+            children: [
+              { id: 'NS-NS001-01', name: '荔湾社区', count: 15 },
+              { id: 'NS-NS001-02', name: '学府社区', count: 17 }
+            ]
+          },
+          {
+            id: 'NS-NS002',
+            name: '粤海街道',
+            count: 25,
+            children: [
+              { id: 'NS-NS002-01', name: '海珠社区', count: 12 },
+              { id: 'NS-NS002-02', name: '创业路社区', count: 13 }
+            ]
+          },
+          {
+            id: 'NS-NS003',
+            name: '西丽街道',
+            count: 11,
+            children: [
+              { id: 'NS-NS003-01', name: '西丽社区', count: 11 }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'FT',
+        name: '福田区',
+        count: 52,
+        children: [
+          {
+            id: 'FT-FT001',
+            name: '福田街道',
+            count: 30,
+            children: [
+              { id: 'FT-FT001-01', name: '福华社区', count: 30 }
+            ]
+          },
+          {
+            id: 'FT-FT002',
+            name: '华强北街道',
+            count: 22,
+            children: [
+              { id: 'FT-FT002-01', name: '华航社区', count: 22 }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'LH',
+        name: '罗湖区',
+        count: 36,
+        children: [
+          {
+            id: 'LH-LH001',
+            name: '桂园街道',
+            count: 36,
+            children: [
+              { id: 'LH-LH001-01', name: '桂木园社区', count: 36 }
+            ]
+          }
+        ]
+      }
+    ];
+
+    // 领域树数据
+    const industryData = [
+      {
+        id: 'IND-PUBLIC',
+        name: '公共场所类',
+        count: 28,
+        children: [
+          { id: 'IND-PUBLIC-01', name: '农贸市场', count: 10 },
+          { id: 'IND-PUBLIC-02', name: '大型商业综合体', count: 8 },
+          { id: 'IND-PUBLIC-03', name: '医院', count: 5 },
+          { id: 'IND-PUBLIC-04', name: '学校', count: 5 }
+        ]
+      },
+      {
+        id: 'IND-CONSTRUCTION',
+        name: '建设工程类',
+        count: 15,
+        children: [
+          { id: 'IND-CONSTRUCTION-01', name: '建筑施工', count: 12 },
+          { id: 'IND-CONSTRUCTION-02', name: '桥梁隧道', count: 3 }
+        ]
+      },
+      {
+        id: 'IND-TRANSPORT',
+        name: '交通运输类',
+        count: 22,
+        children: [
+          { id: 'IND-TRANSPORT-01', name: '港口码头', count: 8 },
+          { id: 'IND-TRANSPORT-02', name: '危货运输', count: 14 }
+        ]
+      },
+      {
+        id: 'IND-INDUSTRY',
+        name: '工业制造类',
+        count: 45,
+        children: [
+          { id: 'IND-INDUSTRY-01', name: '充换电设施', count: 25 },
+          { id: 'IND-INDUSTRY-02', name: '工业制造其他', count: 20 }
+        ]
+      },
+      {
+        id: 'IND-CITY',
+        name: '城市运行类',
+        count: 18,
+        children: [
+          { id: 'IND-CITY-01', name: '燃气管道', count: 8 },
+          { id: 'IND-CITY-02', name: '供水设施', count: 10 }
+        ]
+      },
+      {
+        id: 'IND-CHEMICAL',
+        name: '危险化学品类',
+        count: 20,
+        children: [
+          { id: 'IND-CHEMICAL-01', name: '危化品生产', count: 8 },
+          { id: 'IND-CHEMICAL-02', name: '危化品仓储', count: 12 }
+        ]
+      },
+      {
+        id: 'IND-OTHER',
+        name: '其他类',
+        count: 8,
+        children: [
+          { id: 'IND-OTHER-01', name: '其他行业', count: 8 }
+        ]
+      }
+    ];
+
+    let currentTab = 'district';
+    let selectedNode = null;
+
+    // 企业数据（模拟）
+    const enterpriseData = [
+      { name: '创安电子科技有限公司', code: '91440300MA5DQ2****', domain: '充换电设施', grid: '南山区-南山街道', account: 'ca888', status: '启用', date: '2026-03-15', gridId: 'NS-NS001-01', domainId: 'IND-INDUSTRY-01' },
+      { name: '深圳港物流有限公司', code: '91440300MA5DQ3****', domain: '危险化学品', grid: '南山区-蛇口街道', account: 'szg567', status: '启用', date: '2026-03-18', gridId: 'NS-NS001-02', domainId: 'IND-CHEMICAL-01' },
+      { name: '安达运输公司', code: '91440300MA5DQ4****', domain: '危货运输', grid: '福田区-华强北街道', account: 'ad234', status: '禁用', date: '2026-03-20', gridId: 'FT-FT002-01', domainId: 'IND-TRANSPORT-02' },
+      { name: '新兴化工有限公司', code: '91440300MA5DQ5****', domain: '危化品生产', grid: '南山区-西丽街道', account: 'xx789', status: '启用', date: '2026-03-22', gridId: 'NS-NS003-01', domainId: 'IND-CHEMICAL-01' },
+      { name: '华强电子市场', code: '91440300MA5DQ6****', domain: '大型商业综合体', grid: '福田区-福田街道', account: 'hq888', status: '启用', date: '2026-03-25', gridId: 'FT-FT001-01', domainId: 'IND-PUBLIC-02' },
+      { name: '南山医院', code: '91440300MA5DQ7****', domain: '医院', grid: '南山区-粤海街道', account: 'nsyy', status: '启用', date: '2026-03-26', gridId: 'NS-NS002-01', domainId: 'IND-PUBLIC-03' },
+      { name: '深圳中学', code: '91440300MA5DQ8****', domain: '学校', grid: '南山区-南山街道', account: 'szxy', status: '启用', date: '2026-03-27', gridId: 'NS-NS001-01', domainId: 'IND-PUBLIC-04' },
+      { name: '前海物流园', code: '91440300MA5DQ9****', domain: '港口码头', grid: '南山区-粤海街道', account: 'qhwl', status: '启用', date: '2026-03-28', gridId: 'NS-NS002-02', domainId: 'IND-TRANSPORT-01' },
+      { name: '罗湖批发市场', code: '91440300MA5DQ0****', domain: '农贸市场', grid: '罗湖区-桂园街道', account: 'lhpfs', status: '启用', date: '2026-03-29', gridId: 'LH-LH001-01', domainId: 'IND-PUBLIC-01' },
+      { name: '福田科技园', code: '91440300MA5DQ1****', domain: '充换电设施', grid: '福田区-福田街道', account: 'ftkj', status: '启用', date: '2026-03-30', gridId: 'FT-FT001-01', domainId: 'IND-INDUSTRY-01' },
+      { name: '宝安建材市场', code: '91440300MA5DR1****', domain: '建材市场', grid: '宝安区-新安街道', account: 'bajc', status: '启用', date: '2026-04-01', gridId: 'BA-BA001-01', domainId: 'IND-PUBLIC-01' },
+      { name: '龙华汽修厂', code: '91440300MA5DR2****', domain: '汽修行业', grid: '龙华区-民治街道', account: 'lhqx', status: '启用', date: '2026-04-02', gridId: 'LH-LH002-01', domainId: 'IND-INDUSTRY-02' },
+      { name: '光明食品厂', code: '91440300MA5DR3****', domain: '食品生产', grid: '光明区-公明街道', account: 'gmsp', status: '启用', date: '2026-04-03', gridId: 'GM-GM001-01', domainId: 'IND-INDUSTRY-03' },
+      { name: '坪山加油站', code: '91440300MA5DR4****', domain: '加油站', grid: '坪山区-坪山街道', account: 'psjy', status: '启用', date: '2026-04-04', gridId: 'PS-PS001-01', domainId: 'IND-CHEMICAL-02' },
+      { name: '盐田货运公司', code: '91440300MA5DR5****', domain: '港口码头', grid: '盐田区-盐田街道', account: 'ythu', status: '启用', date: '2026-04-05', gridId: 'YT-YT001-01', domainId: 'IND-TRANSPORT-01' },
+      { name: '龙岗印刷厂', code: '91440300MA5DR6****', domain: '印刷行业', grid: '龙岗区-龙城街道', account: 'lgys', status: '禁用', date: '2026-04-06', gridId: 'LG-LG001-01', domainId: 'IND-INDUSTRY-04' },
+      { name: '大鹏旅游公司', code: '91440300MA5DR7****', domain: '旅游景区', grid: '大鹏区-大鹏街道', account: 'dply', status: '启用', date: '2026-04-07', gridId: 'DP-DP001-01', domainId: 'IND-PUBLIC-05' },
+      { name: '南山科技园', code: '91440300MA5DR8****', domain: '电子制造', grid: '南山区-粤海街道', account: 'nskj', status: '启用', date: '2026-04-08', gridId: 'NS-NS002-01', domainId: 'IND-INDUSTRY-01' },
+      { name: '福田金融中心', code: '91440300MA5DR9****', domain: '金融机构', grid: '福田区-福田街道', account: 'ftjr', status: '启用', date: '2026-04-09', gridId: 'FT-FT001-02', domainId: 'IND-PUBLIC-06' },
+      { name: '罗湖商业城', code: '91440300MA5DR0****', domain: '大型商业综合体', grid: '罗湖区-东门街道', account: 'lhsy', status: '启用', date: '2026-04-10', gridId: 'LH-LH002-01', domainId: 'IND-PUBLIC-02' }
+    ];
+
+    // 切换页签
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabDistrict').classList.toggle('active', tab === 'district');
+      document.getElementById('tabIndustry').classList.toggle('active', tab === 'industry');
+      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+      selectedNode = null;
+      renderTable();
+    }
+
+    // 渲染树
+    function renderTree() {
+      const treeContainer = document.getElementById('treeContent');
+      const data = currentTab === 'district' ? districtData : industryData;
+      treeContainer.innerHTML = renderNodes(data, 0);
+      bindTreeEvents();
+    }
+
+    function renderNodes(nodes, level) {
+      let html = '';
+      nodes.forEach(node => {
+        const hasChildren = node.children && node.children.length > 0;
+        const icon = hasChildren ? '📁' : '📄';
+        
+        html += `
+          <div class="tree-node" data-id="${node.id}" data-name="${node.name}" style="padding-left: ${12 + level * 20}px">
+            <span class="tree-toggle ${hasChildren ? '' : 'leaf'}" data-id="${node.id}">▶</span>
+            <span class="tree-node-icon">${icon}</span>
+            <span class="tree-node-label">${node.name}</span>
+            <span class="tree-node-count">${node.count}</span>
+          </div>
+        `;
+        
+        if (hasChildren) {
+          html += `<div class="tree-children" data-parent="${node.id}">${renderNodes(node.children, level + 1)}</div>`;
+        }
+      });
+      return html;
+    }
+
+    function bindTreeEvents() {
+      // 点击节点选中
+      document.querySelectorAll('.tree-node').forEach(node => {
+        node.addEventListener('click', function(e) {
+          if (!e.target.classList.contains('tree-toggle')) {
+            selectTreeNode(this.dataset.id, this.dataset.name);
+          }
+        });
+      });
+      
+      // 点击展开/收起
+      document.querySelectorAll('.tree-toggle:not(.leaf)').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleTreeNode(this.dataset.id);
+        });
+      });
+    }
+
+    function toggleTreeNode(nodeId) {
+      const toggle = document.querySelector(`.tree-toggle[data-id="${nodeId}"]`);
+      const children = document.querySelector(`.tree-children[data-parent="${nodeId}"]`);
+      
+      if (toggle && children) {
+        toggle.classList.toggle('expanded');
+        children.classList.toggle('show');
+      }
+    }
+
+    function selectTreeNode(nodeId, nodeName) {
+      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+      const nodeEl = document.querySelector(`.tree-node[data-id="${nodeId}"]`);
+      if (nodeEl) nodeEl.classList.add('active');
+      selectedNode = { id: nodeId, name: nodeName };
+      
+      // 根据选中节点筛选右侧列表
+      renderTable();
+    }
+
+    // 分页状态
+    var pgState = { page: 1, size: 10, total: 0 };
+
+    // 渲染企业列表
+    function renderTable() {
+      let filteredData = [...enterpriseData];
+      
+      // 根据选中的树节点筛选
+      if (selectedNode) {
+        if (currentTab === 'district') {
+          // 区划筛选：筛选该区划下的企业
+          filteredData = filteredData.filter(e => e.gridId.startsWith(selectedNode.id));
+        } else {
+          // 领域筛选：筛选该领域下的企业
+          filteredData = filteredData.filter(e => e.domainId.startsWith(selectedNode.id));
+        }
+      }
+      
+      // 分页
+      pgState.total = filteredData.length;
+      const start = (pgState.page - 1) * pgState.size;
+      const pageData = filteredData.slice(start, start + pgState.size);
+      
+      // 渲染表格
+      const tbody = document.getElementById('entTableBody');
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #999; padding: 40px;">暂无数据</td></tr>`;
+        renderPagination(0);
+        return;
+      }
+      
+      tbody.innerHTML = pageData.map((e, idx) => `
+        <tr>
+          <td>${start + idx + 1}</td>
+          <td title="${e.name}">${e.name}</td>
+          <td title="${e.code}">${e.code}</td>
+          <td title="${e.domain}">${e.domain}</td>
+          <td title="${e.grid}">${e.grid}</td>
+          <td title="${e.account}">${e.account}</td>
+          <td><span class="tag ${e.status === '启用' ? 'tag-green' : 'tag-gray'}">${e.status}</span></td>
+          <td title="${e.date}">${e.date}</td>
+          <td class="operation-col">
+            <button class="btn-link" onclick="showEditModal('${e.name}')">编辑</button>
+            <button class="btn-link" onclick="deleteEnt('${e.name}')">删除</button>
+            <button class="btn-link" onclick="showDetailModal('${e.name}')">查看</button>
+            <button class="btn-link" onclick="resetPassword('${e.account}')">重置密码</button>
+          </td>
+        </tr>
+      `).join('');
+      
+      // 更新统计卡片
+      document.querySelectorAll('.stat-card')[0].querySelector('.stat-value').textContent = filteredData.length;
+      renderPagination(Math.ceil(pgState.total / pgState.size));
+    }
+
+    function renderPagination(totalPages) {
+      document.getElementById('pgTotal').textContent = pgState.total;
+      document.getElementById('pgCurrentPage').textContent = pgState.page;
+      document.getElementById('pgTotalPages').textContent = totalPages || 1;
+      var btns = document.getElementById('pgBtns');
+      if (totalPages <= 1) { btns.innerHTML = ''; return; }
+      var html = '';
+      html += '<button onclick="goPage(' + (pgState.page - 1) + ')" ' + (pgState.page === 1 ? 'disabled' : '') + '>&lt;</button>';
+      for (var i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= pgState.page - 2 && i <= pgState.page + 2)) {
+          html += '<button class="' + (i === pgState.page ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+        } else if (i === pgState.page - 3 || i === pgState.page + 3) {
+          html += '<span>...</span>';
+        }
+      }
+      html += '<button onclick="goPage(' + (pgState.page + 1) + ')" ' + (pgState.page === totalPages ? 'disabled' : '') + '>&gt;</button>';
+      btns.innerHTML = html;
+      document.getElementById('pgJump').max = totalPages;
+    }
+
+    function goPage(p) {
+      var totalPages = Math.ceil(pgState.total / pgState.size);
+      if (p < 1 || p > totalPages) return;
+      pgState.page = p;
+      renderTable();
+    }
+
+    function changePageSize() {
+      pgState.size = parseInt(document.getElementById('pgSize').value);
+      pgState.page = 1;
+      renderTable();
+    }
+
+    function jumpToPage() {
+      var p = parseInt(document.getElementById('pgJump').value);
+      if (p) goPage(p);
+    }
+
+    // 展开全部
+    function expandAll() {
+      document.querySelectorAll('.tree-toggle').forEach(t => t.classList.add('expanded'));
+      document.querySelectorAll('.tree-children').forEach(c => c.classList.add('show'));
+    }
+
+    // 收起全部
+    function collapseAll() {
+      document.querySelectorAll('.tree-toggle').forEach(t => t.classList.remove('expanded'));
+      document.querySelectorAll('.tree-children').forEach(c => c.classList.remove('show'));
+    }
+
+    // 初始化
+    document.getElementById('tabDistrict').addEventListener('click', () => { currentTab = 'district'; switchTab('district'); renderTree(); });
+    document.getElementById('tabIndustry').addEventListener('click', () => { currentTab = 'industry'; switchTab('industry'); renderTree(); });
+    renderTree();
+    renderTable();
+    renderBreadcrumb();
+    
+    // 渲染面包屑导航
+    function renderBreadcrumb() {
+      // 当前页面配置（可动态获取）
+      // menuCategory: 菜单分类名称，如果没有则填 null
+      const currentPage = {
+        pageName: '企业基本信息',
+        menuCategory: null  // 如果没有菜单分类，设为 null
+      };
+      
+      const breadcrumb = document.getElementById('breadcrumb');
+      if (!breadcrumb) return;
+      
+      let html = '<span class="breadcrumb-prefix">当前位置：</span>';
+      
+      // 固定显示：端名称
+      html += '<span class="breadcrumb-item current">超管端</span>';
+      
+      // 如果有菜单分类，显示分类名称
+      if (currentPage.menuCategory) {
+        html += '<span class="breadcrumb-separator">&gt;</span>';
+        html += `<span class="breadcrumb-item current">${currentPage.menuCategory}</span>`;
+      }
+      
+      // 显示当前页面名称
+      html += '<span class="breadcrumb-separator">&gt;</span>';
+      html += `<span class="breadcrumb-item current">${currentPage.pageName}</span>`;
+      
+      breadcrumb.innerHTML = html;
+    }
+
+    // 默认展开第一个节点
+    setTimeout(() => {
+      const firstToggle = document.querySelector('.tree-toggle:not(.leaf)');
+      if (firstToggle) toggleTreeNode(firstToggle.dataset.id);
+    }, 100);
+
+    // 弹窗操作
+    function showAddModal() { document.getElementById('addModal').classList.add('show'); }
+    function showDetailModal(name) { document.getElementById('detailModal').classList.add('show'); }
+    function showEditModal(name) { document.getElementById('editModal').classList.add('show'); }
+    function showAuditList() { document.getElementById('auditModal').classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+    
+    function toggleSwitch(el) {
+      el.classList.toggle('active');
+      el.nextElementSibling.textContent = el.classList.contains('active') ? '启用' : '停用';
+    }
+    
+    function saveEnterprise() { alert('新增企业成功！'); closeModal('addModal'); }
+    function saveEdit() { alert('保存成功！'); closeModal('editModal'); }
+    
+    function addDomain() {
+      const select = document.getElementById('editDomainSelect');
+      if (!select.value) return;
+      select.value = '';
+    }
+    function removeDomain(btn) { btn.parentElement.remove(); }
+    
+    function resetPassword(account) {
+      if (confirm('确定要重置账号"' + account + '"的密码吗？')) {
+        alert('密码已重置为系统默认密码。');
+      }
+    }
+    
+    function deleteEnt(name) {
+      if (confirm('确定要删除企业"' + name + '"吗？')) {
+        alert('企业已删除。');
+      }
+    }
+    
+    function approveEnt(name) {
+      if (confirm('确定通过"' + name + '"的注册申请吗？')) {
+        alert('审核通过！');
+      }
+    }
+    
+    function rejectEnt(name) {
+      const reason = prompt('请输入拒绝原因：');
+      if (reason) { alert('已拒绝。'); }
+    }
+  </script>
+<script>
+// ========== 地图选点功能 ==========
+var _mapTargetInput = "";
+
+function openMapPicker(targetInputId) {
+    _mapTargetInput = targetInputId;
+    document.getElementById('mapPickerModal').classList.add('show');
+    document.getElementById('mapCoord').textContent = '当前坐标：未选择';
+    document.getElementById('mapMarker').style.display = 'none';
+    document.getElementById('mapConfirmBtn').disabled = true;
+    document.getElementById('mapSearchInput').value = '';
+}
+
+function closeMapPicker() {
+    document.getElementById('mapPickerModal').classList.remove('show');
+}
+
+function searchAddress() {
+    var addr = document.getElementById('mapSearchInput').value;
+    if (!addr) { alert('请输入地址'); return; }
+    // 模拟搜索结果
+    var mockCoords = [
+        {lat: 22.5431, lng: 114.0579, addr: '深圳市南山区科技园'},
+        {lat: 22.5312, lng: 114.0544, addr: '深圳市南山区南山街道'},
+        {lat: 22.5553, lng: 114.0603, addr: '深圳市南山区深圳湾口岸'}
+    ];
+    var result = mockCoords[Math.floor(Math.random() * mockCoords.length)];
+    document.getElementById('mapCoord').textContent = '当前坐标：' + result.lat.toFixed(4) + ', ' + result.lng.toFixed(4);
+    document.getElementById('mapMarker').style.display = 'block';
+    document.getElementById('mapMarker').style.left = '50%';
+    document.getElementById('mapMarker').style.top = '50%';
+    document.getElementById('mapConfirmBtn').disabled = false;
+    document.getElementById('mapMarker').dataset.addr = result.addr;
+}
+
+function confirmMapSelect() {
+    var addr = document.getElementById('mapMarker').dataset.addr || document.getElementById('mapSearchInput').value;
+    if (_mapTargetInput && addr) {
+        document.getElementById(_mapTargetInput).value = addr;
+        closeMapPicker();
+    }
+}
+
+// 点击地图模拟选点（确保元素存在后再绑定）
+(function() {
+    var mapCanvas = document.getElementById('mapCanvas');
+    if (mapCanvas) {
+        mapCanvas.addEventListener('click', function(e) {
+            if (e.target === this || e.target.closest('div[style*="text-align:center"]')) {
+                var lat = (22.53 + Math.random() * 0.03).toFixed(4);
+                var lng = (114.05 + Math.random() * 0.02).toFixed(4);
+                document.getElementById('mapCoord').textContent = '当前坐标：' + lat + ', ' + lng;
+                document.getElementById('mapMarker').style.display = 'block';
+                document.getElementById('mapMarker').style.left = '50%';
+                document.getElementById('mapMarker').style.top = '50%';
+                document.getElementById('mapConfirmBtn').disabled = false;
+                document.getElementById('mapMarker').dataset.addr = '选点位置';
+            }
+        });
+    }
+})();
+</script>
+
+
+  <!-- 地图选点弹窗 -->
+  <div class="modal-overlay" id="mapPickerModal">
+    <div class="modal-dialog" style="width: 800px;">
+      <div class="modal-header">
+        <span class="modal-title">📍 地图选点</span>
+        <button class="modal-close" onclick="closeMapPicker()">×</button>
+      </div>
+      <div class="modal-body" style="padding:0;">
+        <div class="map-modal-content">
+          <div class="map-search-bar">
+            <input type="text" id="mapSearchInput" placeholder="请输入地址搜索...">
+            <button class="btn btn-primary" onclick="searchAddress()">搜索</button>
+          </div>
+          <div class="map-canvas" id="mapCanvas">
+            <div style="text-align:center;">
+              <div style="font-size:48px;margin-bottom:12px;">🗺️</div>
+              <div>点击地图或搜索地址选点</div>
+              <div class="map-coord" id="mapCoord">当前坐标：未选择</div>
+            </div>
+            <div class="map-marker" id="mapMarker" style="display:none;">📍</div>
+          </div>
+          <div class="map-actions">
+            <button class="btn btn-default" onclick="closeMapPicker()">取消</button>
+            <button class="btn btn-primary" id="mapConfirmBtn" onclick="confirmMapSelect()" disabled>确认选点</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-ent-manage', moduleName: '企业基本信息' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

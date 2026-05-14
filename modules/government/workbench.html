@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作台 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .workbench-page {
+      padding: var(--spacing-lg);
+      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header {
+      margin-bottom: var(--spacing-md);
+      background: #fff;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+    
+    /* ========== 统计卡片 ========== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    .stat-card {
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+      transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .stat-title {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .stat-value.warning { color: #faad14; }
+    .stat-value.danger { color: #ff4d4f; }
+    .stat-value.success { color: #52c41a; }
+    
+    /* ========== 快捷操作区 ========== */
+    .quick-actions {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+      margin-bottom: var(--spacing-md);
+    }
+    .quick-actions-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-primary);
+    }
+    .action-buttons {
+      display: flex;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    
+    /* ========== 今日任务 ========== */
+    .task-section {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+    }
+    .task-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-primary);
+    }
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      background: #fafbfc;
+      border-radius: 6px;
+      border: 1px solid #e8eaed;
+    }
+    .task-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-size: 16px;
+    }
+    .task-icon.warning { background: #fff7e6; color: #faad14; }
+    .task-icon.danger { background: #fff1f0; color: #ff4d4f; }
+    .task-content {
+      flex: 1;
+    }
+    .task-name {
+      font-size: 14px;
+      color: #1f1f1f;
+      margin-bottom: 2px;
+    }
+    .task-desc {
+      font-size: 12px;
+      color: #999;
+    }
+    .task-action {
+      margin-left: 12px;
+    }
+    
+    /* ========== 通知公告 ========== */
+    .notice-section {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+      margin-top: var(--spacing-md);
+    }
+    .notice-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-primary);
+    }
+    .notice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .notice-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      background: #fafbfc;
+      border-radius: 6px;
+      border: 1px solid #e8eaed;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .notice-item:hover {
+      background: #f0f7ff;
+      border-color: #1677ff;
+    }
+    .notice-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff4d4f;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .notice-dot.read {
+      background: #d9d9d9;
+    }
+    .notice-content {
+      flex: 1;
+    }
+    .notice-name {
+      font-size: 14px;
+      color: #1f1f1f;
+      margin-bottom: 2px;
+    }
+    .notice-desc {
+      font-size: 12px;
+      color: #999;
+    }
+    .notice-time {
+      font-size: 12px;
+      color: #999;
+      margin-left: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="module-page workbench-page" data-module="gov-workbench">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item" onclick="goToHome()">首页</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">政府端</span>
+    </div>
+    
+    <!-- 页面标题 -->
+    <header class="page-header" style="display: none;">
+      <h1 class="page-title">工作台</h1>
+    </header>
+    
+    <!-- 统计卡片 -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">监管企业</div>
+        <div class="stat-value">328</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">今日巡查</div>
+        <div class="stat-value" style="color: #faad14;">12</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">待整改隐患</div>
+        <div class="stat-value" style="color: #ff4d4f;">5</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">履职率</div>
+        <div class="stat-value" style="color: #52c41a;">98%</div>
+      </div>
+    </section>
+    
+    <!-- 快捷操作 -->
+    <section class="quick-actions">
+      <h2 class="quick-actions-title">快捷操作</h2>
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="goToModule('gov-quick-check')">
+          🔍 一键巡查
+        </button>
+        <button class="btn btn-primary" onclick="goToModule('gov-check-task')">
+          📋 检查任务
+        </button>
+        <button class="btn btn-primary" onclick="goToModule('gov-key-place')">
+          🏭 重点场所
+        </button>
+        <button class="btn btn-primary" onclick="goToModule('gov-hazard-manage')">
+          ⚠️ 隐患管理
+        </button>
+      </div>
+    </section>
+    
+    <!-- 今日任务 -->
+    <section class="task-section">
+      <div class="task-title">今日任务</div>
+      <div class="task-list" id="taskList">
+        <div class="task-item">
+          <div class="task-icon warning">📋</div>
+          <div class="task-content">
+            <div class="task-name">南山区月度巡查</div>
+            <div class="task-desc">计划检查15家企业，已完成3家</div>
+          </div>
+          <div class="task-action">
+            <button class="btn btn-primary btn-sm" onclick="continueTask('task1')">继续</button>
+          </div>
+        </div>
+        <div class="task-item">
+          <div class="task-icon danger">🔴</div>
+          <div class="task-content">
+            <div class="task-name">隐患复查 - 创安电子</div>
+            <div class="task-desc">消防通道隐患整改复查</div>
+          </div>
+          <div class="task-action">
+            <button class="btn btn-primary btn-sm" onclick="reviewHazard('hd1')">去复查</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 通知公告 -->
+    <section class="notice-section">
+      <div class="notice-title">通知公告</div>
+      <div class="notice-list" id="noticeList">
+        <div class="notice-item" onclick="viewNotice('n1')">
+          <div class="notice-dot"></div>
+          <div class="notice-content">
+            <div class="notice-name">关于开展充换电设施专项检查的通知</div>
+            <div class="notice-desc">区应急管理局 · 2026-04-01</div>
+          </div>
+          <div class="notice-time">2天前</div>
+        </div>
+        <div class="notice-item" onclick="viewNotice('n2')">
+          <div class="notice-dot read"></div>
+          <div class="notice-content">
+            <div class="notice-name">4月份安全生产工作会议纪要</div>
+            <div class="notice-desc">区安委会 · 2026-03-28</div>
+          </div>
+          <div class="notice-time">5天前</div>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'gov-workbench',
+        moduleName: '工作台'
+      };
+      
+      let state = {
+        initialized: false
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      // 面包屑导航
+      window.goToHome = function() {
+        console.log('导航到首页');
+        alert('导航到：首页');
+      };
+      
+      // 模块导航
+      window.goToModule = function(moduleId) {
+        console.log('导航到模块：' + moduleId);
+        alert('导航到：' + moduleId);
+      };
+      
+      // 任务操作
+      window.continueTask = function(taskId) {
+        console.log('继续任务：' + taskId);
+        alert('继续任务：' + taskId);
+      };
+      
+      window.reviewHazard = function(hazardId) {
+        console.log('复查隐患：' + hazardId);
+        alert('复查隐患：' + hazardId);
+      };
+      
+      // 通知操作
+      window.viewNotice = function(noticeId) {
+        console.log('查看通知：' + noticeId);
+        alert('查看通知：' + noticeId);
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

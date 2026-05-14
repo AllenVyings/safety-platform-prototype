@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>项目信息管理 - 政府端</title>
+
+<style>
+.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
+.breadcrumb-item:hover{color:#1677ff}
+.main-layout{display:flex;flex-direction:column;gap:16px;margin-top:16px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-card-label{font-size:12px;color:#888;margin-bottom:6px}
+.stat-card-value{font-size:22px;font-weight:700;color:#1f1f1f}
+.stat-card-sub{font-size:11px;color:#bbb;margin-top:2px}
+.query-bar{background:#fff;border-radius:8px;padding:16px 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.query-bar .q-item{display:flex;align-items:center;gap:6px}
+.query-bar label{font-size:13px;color:#666;white-space:nowrap}
+.query-bar select,.query-bar input{padding:5px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .2s}
+.query-bar select:focus,.query-bar input:focus{border-color:#1677ff}
+.btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+.btn-default:hover{color:#1677ff;border-color:#1677ff}
+.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+.btn-primary:hover{background:#4096ff}
+.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+.btn-link:hover{color:#4096ff}
+.btn-link.btn-sm{font-size:12px;padding:1px 4px}
+.btn-danger{padding:4px 15px;border:1px solid #ffccc7;color:#ff4d4f;background:#fff;border-radius:6px;cursor:pointer;font-size:14px;transition:all .2s}
+.btn-danger:hover{background:#fff2f0;border-color:#ff4d4f}
+.table-card{background:#fff;border-radius:8px;padding:16px;flex:1;overflow:hidden}
+.table-container{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px}
+thead th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;white-space:nowrap;position:relative}
+tbody td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333;max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tbody tr:hover{background:#f8fafc}
+tbody tr:last-child td{border-bottom:none}
+/* 列宽固定 */
+thead th:nth-child(1),tbody td:nth-child(1){width:50px;max-width:50px;text-align:center}
+thead th:nth-child(2),tbody td:nth-child(2){width:180px;max-width:180px}
+thead th:nth-child(3),tbody td:nth-child(3){width:120px;max-width:120px}
+thead th:nth-child(4),tbody td:nth-child(4){width:120px;max-width:120px}
+thead th:nth-child(5),tbody td:nth-child(5){width:100px;max-width:100px}
+thead th:nth-child(6),tbody td:nth-child(6){width:80px;max-width:80px;text-align:center}
+thead th:nth-child(7),tbody td:nth-child(7){width:100px;max-width:100px}
+thead th:nth-child(8),tbody td:nth-child(8){width:80px;max-width:80px;text-align:center}
+thead th:nth-child(9),tbody td:nth-child(9){width:120px;max-width:120px}
+/* 操作列 */
+thead th:nth-child(10){text-align:center;width:240px;max-width:240px;position:sticky;right:0;background:#fafafa;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10}
+tbody td:nth-child(10){width:240px;max-width:240px;position:sticky;right:0;background:#fff;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10;white-space:nowrap}
+tbody td:nth-child(10) .btn-link{margin-right:8px}
+tbody td:nth-child(10) .btn-link:last-child{margin-right:0}
+/* 分页 */
+.pagination-wrap{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:12px 16px;border-top:1px solid #f0f0f0;background:#fafafa}
+.pagination-info{font-size:13px;color:#666}
+.pagination-size select{padding:4px 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;outline:none}
+.pagination-btns{display:flex;gap:4px}
+.pagination-btns button{min-width:28px;height:28px;padding:0 8px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;font-size:13px;cursor:pointer;transition:all .2s}
+.pagination-btns button:hover:not(:disabled){border-color:#1677ff;color:#1677ff}
+.pagination-btns button.active{background:#1677ff;color:#fff;border-color:#1677ff}
+.pagination-btns button:disabled{cursor:not-allowed;color:#bbb;background:#f5f5f5}
+.pagination-jump{display:flex;align-items:center;gap:6px;font-size:13px;color:#666}
+.pagination-jump input{width:40px;height:28px;padding:0 6px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;text-align:center;outline:none}
+.pagination-jump input:focus{border-color:#1677ff}
+/* 标签 */
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
+.tag-success{background:#f6ffed;color:#52c41a}
+.tag-warning{background:#fffbe6;color:#faad14}
+.tag-error{background:#fff2f0;color:#ff4d4f}
+.tag-info{background:#e6f4ff;color:#52c41a}
+.tag-default{background:#f5f5f5;color:#999}
+/* 弹窗 */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:10px;width:900px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.modal-title{font-size:16px;font-weight:600;color:#1e293b}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:14px;color:#999;transition:all .2s}
+.modal-close:hover{background:#f5f5f5;color:#666}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #f0f0f0;flex-shrink:0}
+/* 表单 */
+.form-section{margin-bottom:16px}
+.form-section-title{font-size:13px;font-weight:600;color:#1f1f1f;padding:0 0 10px;margin-bottom:10px;border-bottom:1px solid #f0f0f0}
+.form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;flex:1;min-width:160px}
+.form-label{font-size:13px;color:#333;margin-bottom:5px;font-weight:500}
+.form-label .required{color:#ff4d4f;margin-right:2px}
+.form-control{padding:6px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-control:focus{border-color:#1677ff}
+.form-control:disabled{background:#f5f5f5;color:#999;cursor:not-allowed}
+textarea.form-control{min-height:60px;resize:vertical}
+/* 详情 */
+.detail-row{display:flex;border-bottom:1px solid #f0f0f0;line-height:44px}
+.detail-row:last-child{border-bottom:none}
+.detail-label{width:100px;flex-shrink:0;color:#888;font-size:13px;padding-left:4px}
+.detail-value{flex:1;color:#1f1f1f;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px}
+.detail-section-title{padding:0 4px 10px;margin-bottom:4px;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:600;color:#1f1f1f}
+.detail-section{margin-bottom:14px}
+/* 四方责任体 */
+.party-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5}
+.party-row:last-child{border-bottom:none}
+.party-label{width:80px;flex-shrink:0;font-size:13px;color:#333;font-weight:500}
+.party-inputs{display:flex;gap:12px;flex:1}
+.party-inputs .form-group{flex:1;min-width:120px;margin-bottom:0}
+/* 分包操作 */
+.subcontract-btns{display:flex;gap:8px;margin-top:8px}
+.subcontract-btns .btn{font-size:12px;padding:4px 10px}
+/* Toast */
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+.no-data td{text-align:center;color:#bbb;padding:40px 0}
+/* 安全码图标 */
+.safety-code-icon{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:4px;cursor:pointer}
+.safety-code-icon:hover{background:#e6f7ff}
+.safety-code-icon svg{width:20px;height:20px}
+/* 辖区提示 */
+.region-tag{display:inline-flex;align-items:center;padding:2px 8px;background:#e6f7ff;color:#1677ff;border-radius:4px;font-size:12px;margin-left:8px}
+</style>
+</head>
+<body>
+<div class="page-container" data-module="gov-project-manage">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">政府端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">项目信息管理</span>
+    <span class="region-tag">辖区：南山区</span>
+  </div>
+  <div class="main-layout">
+    <!-- 统计卡片 -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-card-label">辖区项目总数</div><div class="stat-card-value" id="statTotal">0</div><div class="stat-card-sub">南山区全部项目</div></div>
+      <div class="stat-card"><div class="stat-card-label">在建项目</div><div class="stat-card-value" id="statBuilding" style="color:#52c41a">0</div><div class="stat-card-sub">进行中</div></div>
+      <div class="stat-card"><div class="stat-card-label">停工项目</div><div class="stat-card-value" id="statStopped" style="color:#faad14">0</div><div class="stat-card-sub">暂停中</div></div>
+      <div class="stat-card"><div class="stat-card-label">竣工项目</div><div class="stat-card-value" id="statCompleted" style="color:#1677ff">0</div><div class="stat-card-sub">已完成</div></div>
+    </div>
+    <!-- 查询条件 -->
+    <div class="query-bar">
+      <div class="q-item"><label>项目类型</label>
+        <select id="filterType"><option value="">全部</option><option value="1">在建项目</option><option value="2">运营项目</option></select>
+      </div>
+      <div class="q-item"><label>项目状态</label>
+        <select id="filterStatus"><option value="">全部</option><option value="1">未开工</option><option value="2">在建</option><option value="3">停工</option><option value="4">竣工</option></select>
+      </div>
+      <div class="q-item"><label>领域小类</label>
+        <select id="filterDomain"><option value="">全部</option></select>
+      </div>
+      <div class="q-item"><label></label>
+        <input id="filterKeyword" placeholder="搜索项目名称/编号..." style="width:180px">
+      </div>
+      <button class="btn btn-default" onclick="renderTable()">搜索</button>
+      <button class="btn btn-default" onclick="resetFilters()">重置</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-primary" onclick="openAddModal()">+ 新增项目</button>
+    </div>
+    <!-- 项目列表 -->
+    <div class="table-card">
+      <div class="table-container">
+        <table>
+          <thead><tr>
+            <th>序号</th><th>项目名称</th><th>项目编号</th><th>领域小类</th><th>项目小类</th>
+            <th>项目状态</th><th>所属区域</th><th>安全码</th><th>创建时间</th><th>操作</th>
+          </tr></thead>
+          <tbody id="projectTableBody"><tr><td colspan="10" class="no-data">加载中...</td></tr></tbody>
+        </table>
+      </div>
+      <!-- 分页 -->
+      <div class="pagination-wrap" id="paginationWrap">
+        <span class="pagination-info">共 <span id="pgTotal">0</span> 条，第 <span id="pgCurrentPage">1</span> 页/共 <span id="pgTotalPages">1</span> 页</span>
+        <div class="pagination-size">
+          <select id="pgSize" onchange="changePageSize()">
+            <option value="10">10条/页</option>
+            <option value="20">20条/页</option>
+            <option value="50">50条/页</option>
+          </select>
+        </div>
+        <div class="pagination-btns" id="pgBtns"></div>
+        <div class="pagination-jump">
+          跳至 <input type="number" id="pgJump" min="1"> 页 <button class="btn btn-default" onclick="jumpToPage()">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增/编辑项目弹窗 -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">新增项目</span>
+      <div class="modal-close" onclick="closeModal('editModal')">&#x2715;</div>
+    </div>
+    <div class="modal-body">
+      <!-- 基础信息 -->
+      <div class="form-section">
+        <div class="form-section-title">基础信息</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>项目编号</label><input class="form-control" id="fProjectNo" type="text" placeholder="请输入施工许可证号"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>项目名称</label><input class="form-control" id="fProjectName" type="text" placeholder="请输入项目全称"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>领域小类</label>
+            <select class="form-control" id="fDomain" onchange="onDomainChange()"><option value="">请选择领域小类</option></select>
+          </div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>项目小类</label>
+            <select class="form-control" id="fProjectType"><option value="">请先选择领域小类</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>项目状态</label>
+            <select class="form-control" id="fProjectStatus">
+              <option value="">请选择项目状态</option><option value="1">未开工</option><option value="2">在建</option><option value="3">停工</option><option value="4">竣工</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>所属区划</label>
+            <select class="form-control" id="fRegion" disabled>
+              <option value="440305" selected>南山区</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1;min-width:300px"><label class="form-label"><span class="required">*</span>详细地址</label><input class="form-control" id="fAddress" type="text" placeholder="请输入具体施工地址"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">所属督导组</label>
+            <select class="form-control" id="fSupervisionGroup"><option value="">请选择督导组（选填）</option>
+              <option value="1">第一督导组</option><option value="2">第二督导组</option><option value="3">第三督导组</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;min-width:300px"><label class="form-label">项目描述</label><textarea class="form-control" id="fDescription" placeholder="请输入项目概况说明（选填）"></textarea></div>
+        </div>
+      </div>
+      <!-- 四方责任体 -->
+      <div class="form-section">
+        <div class="form-section-title">四方责任体</div>
+        <div class="party-row">
+          <div class="party-label"><span class="required">*</span>建设单位</div>
+          <div class="party-inputs">
+            <div class="form-group"><input class="form-control" id="fParty1Name" placeholder="单位名称"></div>
+            <div class="form-group"><input class="form-control" id="fParty1Contact" placeholder="负责人姓名"></div>
+            <div class="form-group"><input class="form-control" id="fParty1Phone" placeholder="联系电话"></div>
+          </div>
+        </div>
+        <div class="party-row">
+          <div class="party-label"><span class="required">*</span>施工单位</div>
+          <div class="party-inputs">
+            <div class="form-group"><input class="form-control" id="fParty2Name" placeholder="单位名称"></div>
+            <div class="form-group"><input class="form-control" id="fParty2Contact" placeholder="负责人姓名"></div>
+            <div class="form-group"><input class="form-control" id="fParty2Phone" placeholder="联系电话"></div>
+          </div>
+        </div>
+        <div class="party-row">
+          <div class="party-label"><span class="required">*</span>监理单位</div>
+          <div class="party-inputs">
+            <div class="form-group"><input class="form-control" id="fParty3Name" placeholder="单位名称"></div>
+            <div class="form-group"><input class="form-control" id="fParty3Contact" placeholder="负责人姓名"></div>
+            <div class="form-group"><input class="form-control" id="fParty3Phone" placeholder="联系电话"></div>
+          </div>
+        </div>
+        <div id="subcontractRows"></div>
+        <div class="subcontract-btns">
+          <button class="btn btn-default" onclick="addSubcontractor()">+ 添加分包单位</button>
+        </div>
+      </div>
+      <!-- 账号信息 -->
+      <div class="form-section">
+        <div class="form-section-title">账号信息</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>登录账号</label><input class="form-control" id="fLoginAccount" type="text" placeholder="4-32位字母或数字"></div>
+          <div class="form-group"><label class="form-label" id="pwdLabel"><span class="required">*</span>初始密码</label><input class="form-control" id="fLoginPwd" type="password" placeholder="默认123456"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('editModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveProject()">确认保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header">
+      <span class="modal-title">确认删除</span>
+      <div class="modal-close" onclick="closeModal('deleteModal')">&#x2715;</div>
+    </div>
+    <div class="modal-body" style="padding:28px 24px;text-align:center">
+      <div style="width:48px;height:48px;margin:0 auto 16px;background:#fff2f0;border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#ff4d4f"/></svg>
+      </div>
+      <p style="font-size:15px;color:#1f1f1f;margin:0 0 6px;font-weight:500" id="deleteMsg">确定要删除该项目吗？</p>
+      <p style="font-size:13px;color:#888;margin:0">删除后数据无法恢复，请谨慎操作</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center">
+      <button class="btn btn-default" onclick="closeModal('deleteModal')">取消</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="width:640px">
+    <div class="modal-header">
+      <span class="modal-title">项目详情</span>
+      <div class="modal-close" onclick="closeModal('detailModal')">&#x2715;</div>
+    </div>
+    <div class="modal-body" style="padding:20px 24px" id="detailBody"></div>
+    <div class="modal-footer" style="justify-content:center">
+      <button class="btn btn-default" onclick="closeModal('detailModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重置密码确认弹窗 -->
+<div class="modal-overlay" id="resetPwdModal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header">
+      <span class="modal-title">重置密码</span>
+      <div class="modal-close" onclick="closeModal('resetPwdModal')">&#x2715;</div>
+    </div>
+    <div class="modal-body" style="padding:28px 24px;text-align:center">
+      <div style="width:48px;height:48px;margin:0 auto 16px;background:#fffbe6;border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="#faad14"/></svg>
+      </div>
+      <p style="font-size:15px;color:#1f1f1f;margin:0 0 6px;font-weight:500" id="resetPwdMsg">确定要重置该项目密码吗？</p>
+      <p style="font-size:13px;color:#888;margin:0">密码将重置为默认密码：<strong style="color:#1677ff">123456</strong></p>
+    </div>
+    <div class="modal-footer" style="justify-content:center">
+      <button class="btn btn-default" onclick="closeModal('resetPwdModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmResetPwd()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== 政府端配置 ====================
+// 当前政府用户辖区（模拟南山区政府用户）
+var GOV_REGION_CODE = '440305';
+var GOV_REGION_NAME = '南山区';
+
+// ==================== 数据 ====================
+var _pid = 100;
+function _pidGen(){return 'p' + (_pid++);}
+
+// 领域小类与项目小类映射
+var domainTypeMap = {
+  '房屋建设工程': ['主体','桩基础','总包','二次装修','装饰装修','幕墙'],
+  '市政工程': ['道路','桥梁','隧道','管网','绿化'],
+  '公路工程': ['路基','路面','桥梁','隧道','交安设施'],
+  '水利工程': ['水库','堤防','水闸','泵站','河道整治']
+};
+
+// 领域小类数据
+var domainList = [
+  {id:'d1',name:'房屋建设工程'},
+  {id:'d2',name:'市政工程'},
+  {id:'d3',name:'公路工程'},
+  {id:'d4',name:'水利工程'}
+];
+
+// 区划数据
+var regionMap = {
+  '440305':'南山区','440306':'宝安区','440307':'龙岗区','440308':'盐田区',
+  '440309':'龙华区','440310':'坪山区','440311':'光明区'
+};
+
+// 状态映射
+var statusMap = {'1':'未开工','2':'在建','3':'停工','4':'竣工'};
+var statusTagMap = {'1':'tag-default','2':'tag-success','3':'tag-warning','4':'tag-info'};
+
+// 模拟项目数据（只包含南山区项目）
+var allProjects = [
+  {id:_pidGen(),projectNo:'2024-001',projectName:'XX大厦建设工程',domainId:'d1',domainName:'房屋建设工程',projectType:'主体',projectStatus:'2',regionCode:'440305',regionName:'南山区',address:'深圳市南山区科技园南路88号',supervisionGroupId:'1',supervisionGroupName:'第一督导组',description:'高层商业综合体建设项目',parties:[
+    {partyType:1,partyTypeName:'建设单位',partyName:'XX建设集团',contactName:'张三',contactPhone:'13800138001'},
+    {partyType:2,partyTypeName:'施工单位',partyName:'XX建筑工程有限公司',contactName:'李四',contactPhone:'13900139001'},
+    {partyType:3,partyTypeName:'监理单位',partyName:'XX监理咨询有限公司',contactName:'王五',contactPhone:'13700137001'}
+  ],loginAccount:'project_001',safetyCode:'P202401001',createTime:'2024-01-15'},
+  {id:_pidGen(),projectNo:'2024-005',projectName:'XX商业广场装修工程',domainId:'d1',domainName:'房屋建设工程',projectType:'装饰装修',projectStatus:'4',regionCode:'440305',regionName:'南山区',address:'深圳市南山区海岸城购物中心',supervisionGroupId:'2',supervisionGroupName:'第二督导组',description:'商场内部整体装修升级',parties:[
+    {partyType:1,partyTypeName:'建设单位',partyName:'XX商业管理有限公司',contactName:'刘十五',contactPhone:'13800138005'},
+    {partyType:2,partyTypeName:'施工单位',partyName:'XX装饰工程有限公司',contactName:'陈十六',contactPhone:'13900139005'},
+    {partyType:3,partyTypeName:'监理单位',partyName:'XX装饰监理公司',contactName:'杨十七',contactPhone:'13700137005'}
+  ],loginAccount:'project_005',safetyCode:'P202405001',createTime:'2024-05-12'},
+  {id:_pidGen(),projectNo:'2024-009',projectName:'XX河道整治工程',domainId:'d4',domainName:'水利工程',projectType:'河道整治',projectStatus:'1',regionCode:'440305',regionName:'南山区',address:'深圳市南山区大沙河下游段',supervisionGroupId:'3',supervisionGroupName:'第三督导组',description:'河道清淤、护岸及生态修复',parties:[
+    {partyType:1,partyTypeName:'建设单位',partyName:'XX水务局',contactName:'郭二十七',contactPhone:'13800138009'},
+    {partyType:2,partyTypeName:'施工单位',partyName:'XX河道工程有限公司',contactName:'梁二十八',contactPhone:'13900139009'},
+    {partyType:3,partyTypeName:'监理单位',partyName:'XX水利监理公司',contactName:'宋二十九',contactPhone:'13700137009'}
+  ],loginAccount:'project_009',safetyCode:'P202409001',createTime:'2024-09-15'}
+];
+
+// ==================== 初始化领域下拉 ====================
+function initDomainSelect(){
+  var sel = document.getElementById('filterDomain');
+  domainList.forEach(function(d){
+    var opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.name;
+    sel.appendChild(opt);
+  });
+  var modalSel = document.getElementById('fDomain');
+  domainList.forEach(function(d){
+    var opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.name;
+    modalSel.appendChild(opt);
+  });
+}
+
+// ==================== 统计（只统计辖区项目） ====================
+function updateStats(){
+  var regionProjects = allProjects.filter(function(p){return p.regionCode === GOV_REGION_CODE;});
+  document.getElementById('statTotal').textContent = regionProjects.length;
+  document.getElementById('statBuilding').textContent = regionProjects.filter(function(p){return p.projectStatus === '2';}).length;
+  document.getElementById('statStopped').textContent = regionProjects.filter(function(p){return p.projectStatus === '3';}).length;
+  document.getElementById('statCompleted').textContent = regionProjects.filter(function(p){return p.projectStatus === '4';}).length;
+}
+
+// ==================== 分页状态 ====================
+var pgState = { page: 1, size: 10, total: 0 };
+
+function renderTable(){
+  var typeVal = document.getElementById('filterType').value;
+  var statusVal = document.getElementById('filterStatus').value;
+  var domainVal = document.getElementById('filterDomain').value;
+  var kw = document.getElementById('filterKeyword').value.trim().toLowerCase();
+  // 政府端：只显示辖区项目
+  var rows = allProjects.filter(function(p){
+    if(p.regionCode !== GOV_REGION_CODE) return false;
+    if(typeVal && p.projectType !== typeVal) return false;
+    if(statusVal && p.projectStatus !== statusVal) return false;
+    if(domainVal && p.domainId !== domainVal) return false;
+    if(kw && !(p.projectName.toLowerCase().includes(kw) || p.projectNo.toLowerCase().includes(kw))) return false;
+    return true;
+  });
+  pgState.total = rows.length;
+  var start = (pgState.page - 1) * pgState.size;
+  var pageRows = rows.slice(start, start + pgState.size);
+  var tbody = document.getElementById('projectTableBody');
+  if(pageRows.length === 0){
+    tbody.innerHTML = '<tr><td colspan="10" class="no-data">暂无数据</td></tr>';
+    renderPagination(0);
+    return;
+  }
+  tbody.innerHTML = pageRows.map(function(p, idx){
+    var statusCls = statusTagMap[p.projectStatus] || 'tag-default';
+    var statusName = statusMap[p.projectStatus] || '—';
+    var seq = start + idx + 1;
+    return '<tr>' +
+      '<td>' + seq + '</td>' +
+      '<td title="' + p.projectName + '">' + p.projectName + '</td>' +
+      '<td title="' + p.projectNo + '">' + p.projectNo + '</td>' +
+      '<td>' + (p.domainName||'') + '</td>' +
+      '<td>' + (p.projectType||'') + '</td>' +
+      '<td><span class="tag ' + statusCls + '">' + statusName + '</span></td>' +
+      '<td>' + (p.regionName||'') + '</td>' +
+      '<td><div class="safety-code-icon" title="安全码：' + p.safetyCode + '" onclick="showToast(\'安全码：' + p.safetyCode + '\')"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" fill="#52c41a"/><rect x="14" y="3" width="7" height="7" rx="1" fill="#52c41a"/><rect x="3" y="14" width="7" height="7" rx="1" fill="#52c41a"/><rect x="14" y="14" width="7" height="7" rx="1" fill="#52c41a"/></svg></div></td>' +
+      '<td>' + (p.createTime||'') + '</td>' +
+      '<td style="white-space:nowrap"><button class="btn btn-link" onclick="viewDetail(\'' + p.id + '\')">查看</button> <button class="btn btn-link" onclick="openEditModal(\'' + p.id + '\')">编辑</button> <button class="btn btn-link" onclick="deleteProject(\'' + p.id + '\')">删除</button> <button class="btn btn-link" onclick="resetPwd(\'' + p.id + '\')">重置密码</button></td>' +
+      '</tr>';
+  }).join('');
+  renderPagination(Math.ceil(pgState.total / pgState.size));
+}
+
+function renderPagination(totalPages){
+  document.getElementById('pgTotal').textContent = pgState.total;
+  document.getElementById('pgCurrentPage').textContent = pgState.page;
+  document.getElementById('pgTotalPages').textContent = totalPages || 1;
+  var btns = document.getElementById('pgBtns');
+  if(totalPages <= 1){ btns.innerHTML = ''; return; }
+  var html = '';
+  html += '<button onclick="goPage(' + (pgState.page - 1) + ')" ' + (pgState.page === 1 ? 'disabled' : '') + '>&lt;</button>';
+  for(var i = 1; i <= totalPages; i++){
+    if(i === 1 || i === totalPages || (i >= pgState.page - 2 && i <= pgState.page + 2)){
+      html += '<button class="' + (i === pgState.page ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+    }else if(i === pgState.page - 3 || i === pgState.page + 3){
+      html += '<span>...</span>';
+    }
+  }
+  html += '<button onclick="goPage(' + (pgState.page + 1) + ')" ' + (pgState.page === totalPages ? 'disabled' : '') + '>&gt;</button>';
+  btns.innerHTML = html;
+  document.getElementById('pgJump').max = totalPages;
+}
+
+function goPage(p){
+  var totalPages = Math.ceil(pgState.total / pgState.size);
+  if(p < 1 || p > totalPages) return;
+  pgState.page = p;
+  renderTable();
+}
+
+function changePageSize(){
+  pgState.size = parseInt(document.getElementById('pgSize').value);
+  pgState.page = 1;
+  renderTable();
+}
+
+function jumpToPage(){
+  var p = parseInt(document.getElementById('pgJump').value);
+  if(p) goPage(p);
+}
+
+function resetFilters(){
+  document.getElementById('filterType').value = '';
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterDomain').value = '';
+  document.getElementById('filterKeyword').value = '';
+  pgState.page = 1;
+  renderTable();
+}
+
+// ==================== 新增/编辑弹窗 ====================
+var currentEditProject = null;
+var _subcontractCount = 0;
+
+function openAddModal(){
+  currentEditProject = null;
+  _subcontractCount = 0;
+  document.getElementById('modalTitle').textContent = '新增项目';
+  ['fProjectNo','fProjectName','fAddress','fDescription','fLoginAccount','fLoginPwd'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('fDomain').value = '';
+  document.getElementById('fProjectType').innerHTML = '<option value="">请先选择领域小类</option>';
+  document.getElementById('fProjectStatus').value = '';
+  // 政府端：区划固定为当前辖区
+  document.getElementById('fRegion').value = GOV_REGION_CODE;
+  document.getElementById('fSupervisionGroup').value = '';
+  document.getElementById('fParty1Name').value=''; document.getElementById('fParty1Contact').value=''; document.getElementById('fParty1Phone').value='';
+  document.getElementById('fParty2Name').value=''; document.getElementById('fParty2Contact').value=''; document.getElementById('fParty2Phone').value='';
+  document.getElementById('fParty3Name').value=''; document.getElementById('fParty3Contact').value=''; document.getElementById('fParty3Phone').value='';
+  document.getElementById('subcontractRows').innerHTML = '';
+  document.getElementById('fLoginAccount').disabled = false;
+  document.getElementById('fLoginPwd').value = '123456';
+  document.getElementById('pwdLabel').innerHTML = '<span class="required">*</span>初始密码 <span style="color:#999;font-weight:normal">（默认123456）</span>';
+  document.getElementById('editModal').classList.add('show');
+}
+
+function openEditModal(id){
+  var p = allProjects.find(function(x){return x.id === id;});
+  if(!p) return;
+  currentEditProject = p;
+  _subcontractCount = 0;
+  document.getElementById('modalTitle').textContent = '编辑项目';
+  document.getElementById('fProjectNo').value = p.projectNo;
+  document.getElementById('fProjectName').value = p.projectName;
+  document.getElementById('fDomain').value = p.domainId;
+  onDomainChange();
+  setTimeout(function(){document.getElementById('fProjectType').value = p.projectType;},0);
+  document.getElementById('fProjectStatus').value = p.projectStatus;
+  // 政府端：区划固定
+  document.getElementById('fRegion').value = p.regionCode || GOV_REGION_CODE;
+  document.getElementById('fAddress').value = p.address || '';
+  document.getElementById('fSupervisionGroup').value = p.supervisionGroupId || '';
+  document.getElementById('fDescription').value = p.description || '';
+  // 四方责任体
+  var parties = p.parties || [];
+  var p1 = parties.find(function(x){return x.partyType===1;})||{};
+  var p2 = parties.find(function(x){return x.partyType===2;})||{};
+  var p3 = parties.find(function(x){return x.partyType===3;})||{};
+  var subs = parties.filter(function(x){return x.partyType===4;});
+  document.getElementById('fParty1Name').value = p1.partyName||'';
+  document.getElementById('fParty1Contact').value = p1.contactName||'';
+  document.getElementById('fParty1Phone').value = p1.contactPhone||'';
+  document.getElementById('fParty2Name').value = p2.partyName||'';
+  document.getElementById('fParty2Contact').value = p2.contactName||'';
+  document.getElementById('fParty2Phone').value = p2.contactPhone||'';
+  document.getElementById('fParty3Name').value = p3.partyName||'';
+  document.getElementById('fParty3Contact').value = p3.contactName||'';
+  document.getElementById('fParty3Phone').value = p3.contactPhone||'';
+  // 分包
+  document.getElementById('subcontractRows').innerHTML = '';
+  subs.forEach(function(s, idx){
+    addSubcontractor(s.partyName||'', s.contactName||'', s.contactPhone||'');
+  });
+  document.getElementById('fLoginAccount').value = p.loginAccount;
+  document.getElementById('fLoginAccount').disabled = true;
+  document.getElementById('fLoginPwd').value = '';
+  document.getElementById('pwdLabel').innerHTML = '<span class="required">*</span>登录密码 <span style="color:#999;font-weight:normal">（留空则不修改）</span>';
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+// ==================== 领域小类联动 ====================
+function onDomainChange(){
+  var domainId = document.getElementById('fDomain').value;
+  var domain = domainList.find(function(d){return d.id === domainId;});
+  var typeSel = document.getElementById('fProjectType');
+  if(!domain){
+    typeSel.innerHTML = '<option value="">请先选择领域小类</option>';
+    return;
+  }
+  var types = domainTypeMap[domain.name] || [];
+  typeSel.innerHTML = '<option value="">请选择项目小类</option>' + types.map(function(t){return '<option value="' + t + '">' + t + '</option>';}).join('');
+}
+
+// ==================== 分包单位 ====================
+function addSubcontractor(name, contact, phone){
+  _subcontractCount++;
+  var row = document.createElement('div');
+  row.className = 'party-row';
+  row.id = 'sub_' + _subcontractCount;
+  row.innerHTML = '<div class="party-label">分包单位</div>' +
+    '<div class="party-inputs">' +
+      '<div class="form-group"><input class="form-control" id="fSubName_' + _subcontractCount + '" placeholder="单位名称" value="' + (name||'') + '"></div>' +
+      '<div class="form-group"><input class="form-control" id="fSubContact_' + _subcontractCount + '" placeholder="负责人姓名" value="' + (contact||'') + '"></div>' +
+      '<div class="form-group"><input class="form-control" id="fSubPhone_' + _subcontractCount + '" placeholder="联系电话" value="' + (phone||'') + '"></div>' +
+    '</div>' +
+    '<button class="btn btn-link btn-sm" style="color:#ff4d4f" onclick="removeSubcontractor(\'sub_' + _subcontractCount + '\')">删除</button>';
+  document.getElementById('subcontractRows').appendChild(row);
+}
+
+function removeSubcontractor(id){
+  var row = document.getElementById(id);
+  if(row) row.remove();
+}
+
+// ==================== 保存项目 ====================
+function saveProject(){
+  var projectNo = document.getElementById('fProjectNo').value.trim();
+  var projectName = document.getElementById('fProjectName').value.trim();
+  var domainId = document.getElementById('fDomain').value;
+  var projectType = document.getElementById('fProjectType').value;
+  var projectStatus = document.getElementById('fProjectStatus').value;
+  var regionCode = GOV_REGION_CODE; // 政府端固定辖区
+  var address = document.getElementById('fAddress').value.trim();
+  var loginAccount = document.getElementById('fLoginAccount').value.trim();
+  if(!projectNo || !projectName || !domainId || !projectType || !projectStatus || !address || !loginAccount){
+    showToast('请填写所有必填项'); return;
+  }
+  var domain = domainList.find(function(d){return d.id === domainId;});
+  var regionName = GOV_REGION_NAME;
+  var parties = [
+    {partyType:1,partyTypeName:'建设单位',partyName:document.getElementById('fParty1Name').value.trim(),contactName:document.getElementById('fParty1Contact').value.trim(),contactPhone:document.getElementById('fParty1Phone').value.trim()},
+    {partyType:2,partyTypeName:'施工单位',partyName:document.getElementById('fParty2Name').value.trim(),contactName:document.getElementById('fParty2Contact').value.trim(),contactPhone:document.getElementById('fParty2Phone').value.trim()},
+    {partyType:3,partyTypeName:'监理单位',partyName:document.getElementById('fParty3Name').value.trim(),contactName:document.getElementById('fParty3Contact').value.trim(),contactPhone:document.getElementById('fParty3Phone').value.trim()}
+  ];
+  // 收集分包
+  for(var i = 1; i <= _subcontractCount; i++){
+    var sName = document.getElementById('fSubName_' + i);
+    if(sName && sName.closest('.party-row')){
+      parties.push({
+        partyType:4,partyTypeName:'分包单位',
+        partyName:sName.value.trim(),
+        contactName:document.getElementById('fSubContact_' + i).value.trim(),
+        contactPhone:document.getElementById('fSubPhone_' + i).value.trim()
+      });
+    }
+  }
+  if(currentEditProject){
+    currentEditProject.projectNo = projectNo;
+    currentEditProject.projectName = projectName;
+    currentEditProject.domainId = domainId;
+    currentEditProject.domainName = domain ? domain.name : '';
+    currentEditProject.projectType = projectType;
+    currentEditProject.projectStatus = projectStatus;
+    currentEditProject.regionCode = regionCode;
+    currentEditProject.regionName = regionName;
+    currentEditProject.address = address;
+    currentEditProject.supervisionGroupId = document.getElementById('fSupervisionGroup').value;
+    currentEditProject.supervisionGroupName = document.getElementById('fSupervisionGroup').options[document.getElementById('fSupervisionGroup').selectedIndex].text;
+    currentEditProject.description = document.getElementById('fDescription').value.trim();
+    currentEditProject.parties = parties;
+    showToast('项目信息已更新');
+  }else{
+    var newProject = {
+      id: _pidGen(),
+      projectNo: projectNo,
+      projectName: projectName,
+      domainId: domainId,
+      domainName: domain ? domain.name : '',
+      projectType: projectType,
+      projectStatus: projectStatus,
+      regionCode: regionCode,
+      regionName: regionName,
+      address: address,
+      supervisionGroupId: document.getElementById('fSupervisionGroup').value,
+      supervisionGroupName: document.getElementById('fSupervisionGroup').options[document.getElementById('fSupervisionGroup').selectedIndex].text,
+      description: document.getElementById('fDescription').value.trim(),
+      parties: parties,
+      loginAccount: loginAccount,
+      safetyCode: 'P' + new Date().getFullYear() + String(Math.floor(Math.random()*900)+100).padStart(3,'0'),
+      createTime: new Date().toISOString().slice(0,10)
+    };
+    allProjects.unshift(newProject);
+    showToast('项目新增成功');
+  }
+  closeModal('editModal');
+  updateStats();
+  renderTable();
+}
+
+// ==================== 删除确认 ====================
+var _pendingDeleteId = null;
+function deleteProject(id){
+  _pendingDeleteId = id;
+  var p = allProjects.find(function(x){return x.id === id;});
+  document.getElementById('deleteMsg').textContent = '确定要删除项目「' + (p ? p.projectName : '') + '」吗？';
+  document.getElementById('deleteModal').classList.add('show');
+}
+function confirmDelete(){
+  var id = _pendingDeleteId;
+  _pendingDeleteId = null;
+  if(!id) return;
+  allProjects = allProjects.filter(function(p){return p.id !== id;});
+  closeModal('deleteModal');
+  updateStats();
+  renderTable();
+  showToast('项目已删除');
+}
+
+// ==================== 项目详情 ====================
+function viewDetail(id){
+  var p = allProjects.find(function(x){return x.id === id;});
+  if(!p) return;
+  var statusCls = statusTagMap[p.projectStatus] || 'tag-default';
+  var statusName = statusMap[p.projectStatus] || '—';
+  var html = '<div class="detail-section">';
+  html += '<div class="detail-section-title">基础信息</div>';
+  html += '<div class="detail-row"><div class="detail-label">项目编号</div><div class="detail-value">' + p.projectNo + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">项目名称</div><div class="detail-value">' + p.projectName + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">领域小类</div><div class="detail-value">' + (p.domainName||'—') + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">项目小类</div><div class="detail-value">' + (p.projectType||'—') + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">项目状态</div><div class="detail-value"><span class="tag ' + statusCls + '">' + statusName + '</span></div></div>';
+  html += '<div class="detail-row"><div class="detail-label">所属区域</div><div class="detail-value">' + (p.regionName||'—') + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">详细地址</div><div class="detail-value">' + (p.address||'—') + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">所属督导组</div><div class="detail-value">' + (p.supervisionGroupName||'—') + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">项目描述</div><div class="detail-value">' + (p.description||'—') + '</div></div>';
+  html += '</div>';
+  html += '<div class="detail-section">';
+  html += '<div class="detail-section-title">四方责任体</div>';
+  (p.parties||[]).forEach(function(pt){
+    html += '<div class="detail-row"><div class="detail-label">' + pt.partyTypeName + '</div><div class="detail-value">' + (pt.partyName||'') + ' / ' + (pt.contactName||'') + ' / ' + (pt.contactPhone||'') + '</div></div>';
+  });
+  html += '</div>';
+  html += '<div class="detail-section">';
+  html += '<div class="detail-section-title">账号信息</div>';
+  html += '<div class="detail-row"><div class="detail-label">登录账号</div><div class="detail-value">' + (p.loginAccount||'—') + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">安全码</div><div class="detail-value">' + (p.safetyCode||'—') + '</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">创建时间</div><div class="detail-value">' + (p.createTime||'—') + '</div></div>';
+  html += '</div>';
+  document.getElementById('detailBody').innerHTML = html;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+// ==================== 重置密码 ====================
+var _pendingResetId = null;
+function resetPwd(id){
+  _pendingResetId = id;
+  var p = allProjects.find(function(x){return x.id === id;});
+  document.getElementById('resetPwdMsg').textContent = '确定要重置项目「' + (p ? p.projectName : '') + '」的密码吗？';
+  document.getElementById('resetPwdModal').classList.add('show');
+}
+function confirmResetPwd(){
+  _pendingResetId = null;
+  closeModal('resetPwdModal');
+  showToast('密码已重置为 123456');
+}
+
+// ==================== Toast ====================
+function showToast(msg){
+  var el = document.getElementById('_toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = '_toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  setTimeout(function(){el.style.opacity = '0';}, 2500);
+}
+
+// ==================== 初始化 ====================
+initDomainSelect();
+updateStats();
+renderTable();
+</script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'gov-project-manage', moduleName: '项目信息管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

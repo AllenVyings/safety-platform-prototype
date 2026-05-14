@@ -1,0 +1,451 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>统计分析 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .page-container { 
+      padding: var(--spacing-lg); 
+      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 16px;
+      background: #fff;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title { font-size: 18px; font-weight: 600; }
+    
+    /* ========== 统计卡片 ========== */
+    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    .stat-card { 
+      flex: 1; 
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%); 
+      border: 1px solid var(--border-card); 
+      border-radius: var(--radius-lg); 
+      padding: var(--spacing-md) var(--spacing-lg); 
+      box-shadow: var(--shadow-card);
+      transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+    }
+    .stat-card:hover { 
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .stat-value { font-size: 24px; font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+    .stat-trend { font-size: 12px; margin-top: 4px; }
+    .stat-trend.up { color: var(--success); }
+    .stat-trend.down { color: var(--danger); }
+    
+    /* ========== 时间筛选 ========== */
+    .time-filter {
+      display: flex;
+      gap: 8px;
+      margin-bottom: var(--spacing-md);
+    }
+    .time-filter .btn {
+      padding: 6px 16px;
+      border: 1px solid #d9d9d9;
+      background: var(--bg-primary);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      transition: all 0.2s;
+    }
+    .time-filter .btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .time-filter .btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    
+    /* ========== 图表网格 ========== */
+    .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    
+    /* ========== 图表卡片 ========== */
+    .chart-card { 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
+      overflow: hidden; 
+      box-shadow: var(--shadow-card);
+    }
+    .chart-header { 
+      padding: var(--spacing-md) var(--spacing-lg); 
+      border-bottom: 1px solid var(--border-light); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      background: var(--bg-section);
+    }
+    .chart-title { font-size: var(--font-size-base); font-weight: 600; }
+    .chart-body { padding: var(--spacing-lg); min-height: 200px; }
+    
+    /* ========== 柱状图 ========== */
+    .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+    .bar-item { display: flex; align-items: center; gap: 12px; }
+    .bar-label { width: 100px; font-size: var(--font-size-sm); color: var(--text-secondary); }
+    .bar-track { flex: 1; height: 24px; background: var(--bg-section); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 12px; color: #fff; }
+    
+    /* ========== 饼图 ========== */
+    .pie-chart { display: flex; align-items: center; justify-content: center; gap: 40px; }
+    .pie-visual { width: 160px; height: 160px; border-radius: 50%; background: conic-gradient(#1677ff 0% 35%, #52c41a 35% 60%, #faad14 60% 80%, #999 80% 100%); }
+    .pie-legend { display: flex; flex-direction: column; gap: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 2px; }
+    
+    /* ========== 排名列表 ========== */
+    .rank-list { display: flex; flex-direction: column; gap: 8px; }
+    .rank-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-light); }
+    .rank-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; background: var(--bg-section); color: var(--text-secondary); }
+    .rank-num.top3 { background: var(--primary); color: #fff; }
+    .rank-name { flex: 1; font-size: var(--font-size-sm); }
+    .rank-value { font-size: var(--font-size-sm); font-weight: 600; color: var(--primary); }
+    
+    /* ========== 数据表格 ========== */
+    .table-section {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      margin-top: var(--spacing-md);
+    }
+    .table-section-header {
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-section);
+    }
+    .table-section-title { font-size: var(--font-size-base); font-weight: 600; }
+    .table-scroll { overflow-x: auto; }
+    .table-scroll table { width: 100%; min-width: 800px; border-collapse: collapse; }
+    .table-scroll thead tr { background: var(--bg-section); }
+    .table-scroll th { padding: 12px 16px; text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
+    .table-scroll td { padding: 12px 16px; font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
+    .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover td { background: var(--bg-hover); }
+    .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; }
+    .table-scroll tbody tr:nth-child(even) .action-col { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover .action-col { background: var(--bg-hover); }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .tag-green { background: #dcfce7; color: #16a34a; }
+    .tag-orange { background: #fed7aa; color: #ea580c; }
+    .tag-red { background: #fee2e2; color: #dc2626; }
+    .tag-blue { background: #dbeafe; color: #2563eb; }
+    .btn-link { padding: 4px 8px; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .btn-link:hover { text-decoration: underline; }
+    .pagination-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 16px; background: var(--bg-section); border-top: 1px solid var(--border-light); }
+    .pg-btn { padding: 6px 12px; border: 1px solid #d9d9d9; background: var(--bg-primary); border-radius: 6px; cursor: pointer; font-size: var(--font-size-sm); }
+    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="gov-analytics">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item current">政府端</span>
+    </div>
+    
+    <!-- 页面标题栏 -->
+    <header class="page-header" style="display: none;">
+      <h1 class="page-title">统计分析</h1>
+    </header>
+    
+    <!-- 时间筛选 -->
+    <div class="time-filter" id="timeFilter">
+      <button class="btn active" onclick="switchTimeRange('month', this)">本月</button>
+      <button class="btn" onclick="switchTimeRange('quarter', this)">本季度</button>
+      <button class="btn" onclick="switchTimeRange('year', this)">本年</button>
+    </div>
+    
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-value" style="color: #1677ff;">156</div>
+        <div class="stat-label">监管企业数</div>
+        <div class="stat-trend up">↑ 12% 较上月</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: #52c41a;">89%</div>
+        <div class="stat-label">检查覆盖率</div>
+        <div class="stat-trend up">↑ 5% 较上月</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: #faad14;">156</div>
+        <div class="stat-label">隐患总数</div>
+        <div class="stat-trend down">↓ 8% 较上月</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: #1677ff;">92%</div>
+        <div class="stat-label">整改完成率</div>
+        <div class="stat-trend up">↑ 3% 较上月</div>
+      </div>
+    </div>
+    
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">各领域检查完成情况</span>
+          <select id="chartTimeSelect" onchange="updateChartTime(this.value)" style="padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 12px;">
+            <option value="month">本月</option>
+            <option value="quarter">本季度</option>
+            <option value="year">本年</option>
+          </select>
+        </div>
+        <div class="chart-body">
+          <div class="bar-chart">
+            <div class="bar-item">
+              <span class="bar-label">充换电设施</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 95%; background: #52c41a;">95%</div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">危险化学品</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 88%; background: #52c41a;">88%</div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">建筑施工</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 76%; background: #faad14;">76%</div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">工业制造</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 92%; background: #52c41a;">92%</div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">农贸市场</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 85%; background: #52c41a;">85%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">隐患类型分布</span>
+        </div>
+        <div class="chart-body">
+          <div class="pie-chart">
+            <div class="pie-visual"></div>
+            <div class="pie-legend">
+              <div class="legend-item"><div class="legend-dot" style="background: #1677ff;"></div><span>消防安全隐患 35%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background: #52c41a;"></div><span>设备设施隐患 25%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background: #faad14;"></div><span>作业环境隐患 20%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background: #999;"></div><span>其他隐患 20%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">企业隐患排名（TOP 5）</span>
+        </div>
+        <div class="chart-body">
+          <div class="rank-list">
+            <div class="rank-item">
+              <span class="rank-num top3">1</span>
+              <span class="rank-name">新兴化工有限公司</span>
+              <span class="rank-value">23 个</span>
+            </div>
+            <div class="rank-item">
+              <span class="rank-num top3">2</span>
+              <span class="rank-name">深圳港物流有限公司</span>
+              <span class="rank-value">18 个</span>
+            </div>
+            <div class="rank-item">
+              <span class="rank-num top3">3</span>
+              <span class="rank-name">安达运输公司</span>
+              <span class="rank-value">15 个</span>
+            </div>
+            <div class="rank-item">
+              <span class="rank-num">4</span>
+              <span class="rank-name">创安电子科技有限公司</span>
+              <span class="rank-value">12 个</span>
+            </div>
+            <div class="rank-item">
+              <span class="rank-num">5</span>
+              <span class="rank-name">西部建材市场</span>
+              <span class="rank-value">10 个</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">监管单位履职排名</span>
+        </div>
+        <div class="chart-body">
+          <div class="rank-list">
+            <div class="rank-item">
+              <span class="rank-num top3">1</span>
+              <span class="rank-name">危化品监管科</span>
+              <span class="rank-value">98%</span>
+            </div>
+            <div class="rank-item">
+              <span class="rank-num top3">2</span>
+              <span class="rank-name">基础安全监管科</span>
+              <span class="rank-value">95%</span>
+            </div>
+            <div class="rank-item">
+              <span class="rank-num top3">3</span>
+              <span class="rank-name">执法监督科</span>
+              <span class="rank-value">92%</span>
+            </div>
+            <div class="rank-item">
+              <span class="rank-num">4</span>
+              <span class="rank-name">综合协调科</span>
+              <span class="rank-value">88%</span>
+            </div>
+            <div class="rank-item">
+              <span class="rank-num">5</span>
+              <span class="rank-name">应急救援科</span>
+              <span class="rank-value">85%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 详细数据表格 -->
+    <div class="table-section">
+      <div class="table-section-header">
+        <span class="table-section-title">企业检查明细</span>
+        <button class="btn btn-default" onclick="exportData()">📥 导出数据</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>企业名称</th>
+              <th>所属领域</th>
+              <th>检查次数</th>
+              <th>隐患数</th>
+              <th>整改率</th>
+              <th>安全码</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="detailTableBody">
+            <tr>
+              <td>1</td>
+              <td class="ellipsis-col" title="新兴化工有限公司">新兴化工有限公司</td>
+              <td>危险化学品</td>
+              <td>12</td>
+              <td>23</td>
+              <td><span class="tag tag-orange">78%</span></td>
+              <td><span class="tag tag-red">红码</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewDetail('ent1')">详情</button></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="ellipsis-col" title="深圳港物流有限公司">深圳港物流有限公司</td>
+              <td>交通运输</td>
+              <td>8</td>
+              <td>18</td>
+              <td><span class="tag tag-orange">82%</span></td>
+              <td><span class="tag tag-orange">黄码</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewDetail('ent2')">详情</button></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td class="ellipsis-col" title="创安电子科技有限公司">创安电子科技有限公司</td>
+              <td>工业制造</td>
+              <td>15</td>
+              <td>12</td>
+              <td><span class="tag tag-green">95%</span></td>
+              <td><span class="tag tag-green">绿码</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewDetail('ent3')">详情</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap">
+        <span class="pagination-info">共 <span id="pgTotal">3</span> 条</span>
+        <div class="pagination-btns">
+          <button class="pg-btn active">1</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'gov-analytics',
+        moduleName: '统计分析'
+      };
+      
+      let state = {
+        initialized: false,
+        timeRange: 'month'
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      // 时间范围切换
+      window.switchTimeRange = function(range, btn) {
+        state.timeRange = range;
+        document.querySelectorAll('.time-filter .btn').forEach(function(b) {
+          b.classList.remove('active');
+        });
+        btn.classList.add('active');
+        console.log('切换时间范围：' + range);
+        // 这里可以触发数据刷新
+      };
+      
+      // 图表时间切换
+      window.updateChartTime = function(value) {
+        console.log('图表时间切换：' + value);
+      };
+      
+      // 导出数据
+      window.exportData = function() {
+        console.log('导出数据');
+        alert('导出数据');
+      };
+      
+      // 查看详情
+      window.viewDetail = function(entId) {
+        console.log('查看企业详情：' + entId);
+        alert('查看企业详情：' + entId);
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

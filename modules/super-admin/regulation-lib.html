@@ -1,0 +1,1907 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>法规库管理 - 超管端</title>
+  
+  <style>
+        /* ========== 按钮样式 ========== */
+    .btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid #d9d9d9}
+    .btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+    .btn-default:hover{color:#1677ff;border-color:#1677ff}
+    .btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+    .btn-primary:hover{background:#4096ff}
+    .btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+    .btn-link:hover{color:#4096ff}
+    .btn-link.btn-sm{font-size:12px;padding:1px 4px}
+    .btn-danger{padding:4px 15px;border:1px solid #ffccc7;color:#ff4d4f;background:#fff;border-radius:6px;cursor:pointer;font-size:13px}
+    .btn-danger:hover{background:#fff2f0;border-color:#ff4d4f}
+
+/* ========== 页面背景 ========== */
+    .page-container { 
+      padding: 20px; 
+      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
+      height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    /* 面包屑由 framework.css 提供，无需额外样式 */
+    
+    /* ========== 主内容区 ========== */
+    .main-content { 
+      flex: 1; 
+      background: #fff; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* ========== 统计卡片区 ========== */
+    .stats-cards {
+      display: flex;
+      gap: 16px;
+      padding: 16px 20px;
+      background: #fafbfc;
+      border-bottom: 1px solid #e8eaed;
+      flex-shrink: 0;
+    }
+    .stat-card {
+      flex: 1;
+      padding: 16px 20px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stat-card.blue { background: #e6f7ff; }
+    .stat-card.green { background: #f6ffed; }
+    .stat-card.gray { background: #f5f5f5; }
+    .stat-label {
+      font-size: 13px;
+      color: #666;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+    .stat-card.blue .stat-value { color: #1677ff; }
+    .stat-card.green .stat-value { color: #52c41a; }
+    .stat-card.gray .stat-value { color: #8c8c8c; }
+    
+    /* ========== 筛选栏 ========== */
+    .filter-bar {
+      padding: 12px 20px;
+      border-bottom: 1px solid #e8eaed;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-item label {
+      font-size: 13px;
+      color: #666;
+      white-space: nowrap;
+    }
+    .filter-item select,
+    .filter-item input {
+      padding: 6px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      min-width: 120px;
+    }
+    .filter-item input {
+      min-width: 180px;
+    }
+    .filter-item select:focus,
+    .filter-item input:focus {
+      border-color: #1677ff;
+    }
+    
+    /* ========== 操作栏 ========== */
+    .action-bar {
+      padding: 12px 20px;
+      border-bottom: 1px solid #e8eaed;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .action-left {
+      display: flex;
+      gap: 8px;
+    }
+    .action-right {
+      display: flex;
+      gap: 8px;
+    }
+    
+    /* ========== 批量操作栏 ========== */
+    .batch-bar {
+      padding: 10px 20px;
+      background: #e6f7ff;
+      border-bottom: 1px solid #bae0ff;
+      display: none;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .batch-bar.show {
+      display: flex;
+    }
+    .batch-info {
+      font-size: 13px;
+      color: #1677ff;
+    }
+    .batch-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    /* ========== 数据表格 ========== */
+    .table-container {
+      flex: 1;
+      overflow: auto;
+      padding: 0;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table th {
+      background: #fafbfc;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: #1f1f1f;
+      border-bottom: 1px solid #e8eaed;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+    }
+    .data-table tr:hover td {
+      background: #f5f7fa;
+    }
+    .data-table .checkbox-col {
+      width: 40px;
+      text-align: center;
+    }
+    .data-table .action-col {
+      width: 200px;
+      position: sticky;
+      right: 0;
+      background: #fff;
+      box-shadow: -2px 0 8px rgba(0,0,0,0.05);
+      white-space: nowrap;
+      text-align: center;
+      z-index: 10;
+    }
+    .data-table tr:hover .action-col {
+      background: #f5f7fa;
+    }
+    .data-table th.action-col {
+      background: #fafbfc;
+    }
+    .data-table td.action-col .btn-link { margin-right: 8px; }
+    .data-table td.action-col .btn-link:last-child { margin-right: 0; }
+    
+    /* ========== 状态标签 ========== */
+    .status-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-tag.active {
+      background: #f6ffed;
+      color: #52c41a;
+    }
+    .status-tag.repealed {
+      background: #f5f5f5;
+      color: #8c8c8c;
+    }
+    .status-tag.revising {
+      background: #fff7e6;
+      color: #fa8c16;
+    }
+    
+    /* ========== 法规类型标签 ========== */
+    .type-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #e6f7ff;
+      color: #1677ff;
+    }
+    
+    /* ========== 分页 ========== */
+    /* ========== 分页 ========== */
+    .pagination-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 12px 16px; border-top: 1px solid #f0f0f0; background: #fafafa; }
+    .pagination-info { font-size: 13px; color: #666; }
+    .pagination-size select { padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
+    .pagination-btns { display: flex; gap: 4px; }
+    .pagination-btns button { min-width: 28px; height: 28px; padding: 0 8px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .pagination-btns button:hover:not(:disabled) { border-color: #1677ff; color: #1677ff; }
+    .pagination-btns button.active { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .pagination-btns button:disabled { cursor: not-allowed; color: #bbb; background: #f5f5f5; }
+    .pagination-jump { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666; }
+    .pagination-jump input { width: 40px; height: 28px; padding: 0 6px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; text-align: center; outline: none; }
+    .pagination-jump input:focus { border-color: #1677ff; }
+    
+    /* ========== 弹窗样式 ========== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 8px;
+      width: 640px;
+      max-width: 90%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e8eaed;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+    .modal-close {
+      font-size: 20px;
+      color: #999;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .modal-close:hover {
+      color: #333;
+    }
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid #e8eaed;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    
+    /* ========== Tab切换 ========== */
+    .modal-tabs {
+      display: flex;
+      border-bottom: 1px solid #e8eaed;
+      margin-bottom: 20px;
+    }
+    .modal-tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #666;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .modal-tab:hover {
+      color: #1677ff;
+    }
+    .modal-tab.active {
+      color: #1677ff;
+      border-bottom-color: #1677ff;
+      font-weight: 500;
+    }
+    
+    /* ========== 表单样式 ========== */
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-item {
+      flex: 1;
+    }
+    .form-item.full-width {
+      width: 100%;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .form-label .required {
+      color: #ff4d4f;
+      margin-left: 2px;
+    }
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: #1677ff;
+    }
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* ========== 领域选择器 ========== */
+    .domain-selector {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      box-sizing: border-box;
+    }
+    .domain-selector:hover {
+      border-color: #1677ff;
+    }
+    .domain-placeholder {
+      color: #999;
+    }
+    .domain-selector.has-value .domain-placeholder {
+      color: #333;
+    }
+    .domain-arrow {
+      color: #999;
+      font-size: 12px;
+    }
+    .domain-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .domain-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: #e6f7ff;
+      color: #1677ff;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .domain-tag-remove {
+      cursor: pointer;
+      color: #1677ff;
+      font-weight: bold;
+    }
+    .domain-tag-remove:hover {
+      color: #ff4d4f;
+    }
+
+    /* ========== 领域树弹窗 ========== */
+    .domain-tree-modal .modal-content {
+      width: 480px;
+    }
+    .domain-tree-search {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .domain-tree-search input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .domain-tree-content {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 12px 16px;
+    }
+    .domain-tree-category {
+      margin-bottom: 8px;
+    }
+    .domain-tree-category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: 500;
+      color: #1f1f1f;
+    }
+    .domain-tree-category-header:hover {
+      background: #f5f7fa;
+    }
+    .domain-tree-toggle {
+      font-size: 10px;
+      color: #999;
+      transition: transform 0.2s;
+    }
+    .domain-tree-toggle.expanded {
+      transform: rotate(90deg);
+    }
+    .domain-tree-children {
+      padding-left: 24px;
+    }
+    .domain-tree-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .domain-tree-item:hover {
+      background: #f5f7fa;
+    }
+    .domain-tree-checkbox {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .domain-tree-label {
+      flex: 1;
+      font-size: 13px;
+      color: #333;
+    }
+    .domain-tree-empty {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    /* ========== 附件上传 ========== */
+    .upload-area {
+      border: 2px dashed #d9d9d9;
+      border-radius: 6px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .upload-area:hover {
+      border-color: #1677ff;
+    }
+    .upload-icon {
+      font-size: 32px;
+      color: #999;
+      margin-bottom: 8px;
+    }
+    .upload-text {
+      font-size: 13px;
+      color: #666;
+    }
+    .upload-hint {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+    
+    /* ========== 条款列表 ========== */
+    .clause-section {
+      margin-top: 20px;
+    }
+    .clause-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .clause-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+    .clause-list {
+      border: 1px solid #e8eaed;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .clause-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      align-items: flex-start;
+    }
+    .clause-item:last-child {
+      border-bottom: none;
+    }
+    .clause-num {
+      width: 40px;
+      font-size: 13px;
+      color: #666;
+      flex-shrink: 0;
+      padding-top: 8px;
+    }
+    .clause-fields {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .clause-row {
+      display: flex;
+      gap: 12px;
+    }
+    .clause-input {
+      flex: 1;
+    }
+    .clause-input.number {
+      flex: 0 0 100px;
+    }
+    .clause-input.title {
+      flex: 1;
+    }
+    .clause-input.content {
+      flex: 1;
+    }
+    .clause-delete {
+      color: #ff4d4f;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 6px;
+      flex-shrink: 0;
+    }
+    .clause-delete:hover {
+      background: #fff1f0;
+      border-radius: 4px;
+    }
+    
+    /* ========== 详情弹窗特殊样式 ========== */
+    .detail-section {
+      margin-bottom: 20px;
+    }
+    .detail-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .detail-item {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    .detail-label {
+      width: 100px;
+      font-size: 13px;
+      color: #666;
+      flex-shrink: 0;
+    }
+    .detail-value {
+      flex: 1;
+      font-size: 13px;
+      color: #333;
+    }
+    .clause-collapse {
+      border: 1px solid #e8eaed;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .clause-collapse-header {
+      padding: 12px 16px;
+      background: #fafbfc;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .clause-collapse-content {
+      padding: 12px 16px;
+      display: none;
+    }
+    .clause-collapse-content.show {
+      display: block;
+    }
+    .clause-collapse-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .clause-collapse-item:last-child {
+      border-bottom: none;
+    }
+    
+    /* ========== 按钮样式 ========== */
+    .btn {
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-primary {
+      background: #1677ff;
+      color: #fff;
+      border-color: #1677ff;
+    }
+    .btn-primary:hover {
+      background: #4096ff;
+      border-color: #4096ff;
+    }
+    .btn-default {
+      background: #fff;
+      color: #333;
+      border-color: #d9d9d9;
+    }
+    .btn-default:hover {
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+    .btn-danger {
+      background: #ff4d4f;
+      color: #fff;
+      border-color: #ff4d4f;
+    }
+    .btn-danger:hover {
+      background: #ff7875;
+      border-color: #ff7875;
+    }
+    .btn-link {
+      background: transparent;
+      color: #1677ff;
+      border: none;
+      padding: 4px 8px;
+    }
+    .btn-link:hover {
+      background: #e6f7ff;
+    }
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 12px;
+    }
+    
+    /* ========== 空状态 ========== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .empty-text {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ========== 页面容器 ========== -->
+  <div class="page-container" data-module="sa-regulation-lib">
+    <!-- 面包屑 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">超管端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">法规库管理</span>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+      <!-- 统计卡片区 -->
+      <div class="stats-cards">
+        <div class="stat-card blue">
+          <div class="stat-label">法规总数</div>
+          <div class="stat-value" id="statTotal">156</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">现行法规</div>
+          <div class="stat-value" id="statActive">142</div>
+        </div>
+        <div class="stat-card gray">
+          <div class="stat-label">废止法规</div>
+          <div class="stat-value" id="statRepealed">14</div>
+        </div>
+      </div>
+      
+      <!-- 筛选栏 -->
+      <div class="filter-bar">
+        <div class="filter-item">
+          <label>法规类型</label>
+          <select id="filterType">
+            <option value="">全部</option>
+            <option value="law">法律</option>
+            <option value="admin_regulation">行政法规</option>
+            <option value="dept_rule">部门规章</option>
+            <option value="local_regulation">地方性法规</option>
+            <option value="national_standard">国家标准</option>
+            <option value="industry_standard">行业标准</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>关键词</label>
+          <input type="text" id="filterKeyword" placeholder="搜索法规名称">
+        </div>
+        <div class="filter-item">
+          <label>状态</label>
+          <select id="filterStatus">
+            <option value="">全部</option>
+            <option value="active">现行</option>
+            <option value="repealed">废止</option>
+            <option value="revising">修订中</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="searchRegulations()">搜索</button>
+        <button class="btn btn-default btn-sm" onclick="resetFilters()">重置</button>
+      </div>
+      
+      <!-- 批量操作栏 -->
+      <div class="batch-bar" id="batchBar">
+        <span class="batch-info">已选择 <strong id="batchCount">0</strong> 项</span>
+        <div class="batch-actions">
+          <button class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button>
+          <button class="btn btn-default btn-sm" onclick="clearSelection()">取消选择</button>
+        </div>
+      </div>
+      
+      <!-- 操作栏 -->
+      <div class="action-bar">
+        <div class="action-left">
+          <button class="btn btn-primary" onclick="openAddModal()">
+            <span>+</span> 新增法规文件
+          </button>
+        </div>
+        <div class="action-right">
+          <button class="btn btn-default" onclick="batchImport()">批量导入</button>
+          <button class="btn btn-default" onclick="batchExport()">批量导出</button>
+        </div>
+      </div>
+      
+      <!-- 数据表格 -->
+      <div class="table-container">
+        <table class="data-table" id="regulationTable">
+          <thead>
+            <tr>
+              <th class="checkbox-col">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+              </th>
+              <th style="width:60px">序号</th>
+              <th>法规名称</th>
+              <th>法规类型</th>
+              <th>发布日期</th>
+              <th>生效日期</th>
+              <th>状态</th>
+              <th>条款数量</th>
+              <th class="action-col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- 动态渲染 -->
+          </tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">📋</div>
+          <div class="empty-text">暂无数据</div>
+        </div>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="pagination-wrap">
+        <span class="pagination-info">共 <span id="pgTotal">0</span> 条，第 <span id="pgCurrentPage">1</span> 页/共 <span id="pgTotalPages">1</span> 页</span>
+        <div class="pagination-size">
+          <select id="pgSize" onchange="changePageSize()">
+            <option value="10">10条/页</option>
+            <option value="20">20条/页</option>
+            <option value="50">50条/页</option>
+          </select>
+        </div>
+        <div class="pagination-btns" id="pgBtns"></div>
+        <div class="pagination-jump">
+          跳至 <input type="number" id="pgJump" min="1"> 页 <button class="btn btn-default" onclick="jumpToPage()">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ========== 新增/编辑弹窗 ========== -->
+  <div class="modal-overlay" id="regulationModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">新增法规文件</span>
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-item">
+            <label class="form-label">法规名称<span class="required">*</span></label>
+            <input type="text" class="form-input" id="regulationName" placeholder="请输入法规名称">
+          </div>
+          <div class="form-item">
+            <label class="form-label">法规类型<span class="required">*</span></label>
+            <select class="form-select" id="regulationType" onchange="handleRegulationTypeChange()">
+              <option value="">请选择</option>
+              <option value="law">法律</option>
+              <option value="admin_regulation">行政法规</option>
+              <option value="dept_rule">部门规章</option>
+              <option value="local_regulation">地方性法规</option>
+              <option value="national_standard">国家标准</option>
+              <option value="industry_standard">行业标准</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-item">
+            <label class="form-label">发布日期<span class="required">*</span></label>
+            <input type="date" class="form-input" id="publishDate">
+          </div>
+          <div class="form-item">
+            <label class="form-label">生效日期</label>
+            <input type="date" class="form-input" id="effectiveDate">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-item">
+            <label class="form-label">状态<span class="required">*</span></label>
+            <select class="form-select" id="regulationStatus">
+              <option value="active" selected>现行</option>
+              <option value="repealed">废止</option>
+              <option value="revising">修订中</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label class="form-label">适用领域</label>
+            <div class="domain-selector" id="domainSelector" onclick="openDomainSelector()">
+              <span class="domain-placeholder" id="domainPlaceholder">点击选择适用领域</span>
+              <span class="domain-arrow">▼</span>
+            </div>
+            <div class="domain-tags" id="domainTags"></div>
+          </div>
+        </div>
+        <div class="form-item full-width" style="margin-bottom: 16px;">
+          <label class="form-label" id="attachmentLabel">全文内容（附件）</label>
+          <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">📎</div>
+            <div class="upload-text" id="uploadText">点击上传或拖拽文件至此</div>
+            <div class="upload-hint" id="uploadHint">支持PDF、Word格式，最大20MB</div>
+          </div>
+          <input type="file" id="fileInput" style="display: none;" accept=".pdf,.doc,.docx" onchange="handleFileSelect(this)">
+          <div id="uploadedFile" style="display:none; margin-top: 8px; padding: 8px 12px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 13px; display: flex; align-items: center; justify-content: space-between;"></div>
+        </div>
+
+        <!-- 条款管理 -->
+        <div class="clause-section">
+          <div class="clause-header">
+            <span class="clause-title">条款列表</span>
+            <button class="btn btn-primary btn-sm" onclick="addClauseRow()">+ 新增条款</button>
+          </div>
+          <div class="clause-list" id="clauseList">
+            <!-- 动态渲染 -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveRegulation()">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ========== 详情弹窗 ========== -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-title">法规详情</span>
+        <span class="modal-close" onclick="closeDetailModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="detail-section">
+          <div class="detail-section-title">基本信息</div>
+          <div class="detail-item">
+            <div class="detail-label">法规名称</div>
+            <div class="detail-value" id="detailName">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">法规类型</div>
+            <div class="detail-value" id="detailType">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">发布日期</div>
+            <div class="detail-value" id="detailPublishDate">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">生效日期</div>
+            <div class="detail-value" id="detailEffectiveDate">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">状态</div>
+            <div class="detail-value" id="detailStatus">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">适用领域</div>
+            <div class="detail-value" id="detailDomains">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">更新时间</div>
+            <div class="detail-value" id="detailUpdateTime">-</div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="detail-section-title">条款列表（<span id="detailClauseCount">0</span>条）</div>
+          <div class="clause-collapse">
+            <div class="clause-collapse-header" onclick="toggleClauses()">
+              <span>点击展开查看全部条款</span>
+              <span id="clauseToggleIcon">▼</span>
+            </div>
+            <div class="clause-collapse-content" id="clauseCollapseContent">
+              <!-- 动态渲染 -->
+            </div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="detail-section-title">全文附件</div>
+          <div id="detailAttachment">
+            <div class="detail-value">暂无附件</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeDetailModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ========== 领域选择弹窗 ========== -->
+  <div class="modal-overlay domain-tree-modal" id="domainTreeModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-title">选择适用领域</span>
+        <span class="modal-close" onclick="closeDomainSelector()">&times;</span>
+      </div>
+      <div class="domain-tree-search">
+        <input type="text" id="domainSearchInput" placeholder="搜索领域名称" oninput="filterDomainTree()">
+      </div>
+      <div class="domain-tree-content" id="domainTreeContent">
+        <!-- 动态渲染 -->
+      </div>
+      <div class="modal-footer">
+        <span id="domainSelectCount" style="flex:1;font-size:13px;color:#666;"></span>
+        <button class="btn btn-default" onclick="closeDomainSelector()">取消</button>
+        <button class="btn btn-primary" onclick="confirmDomainSelect()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 删除确认弹窗 ========== -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-content" style="width: 400px;">
+      <div class="modal-header">
+        <span class="modal-title">删除确认</span>
+        <span class="modal-close" onclick="closeDeleteModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p id="deleteMessage">确定要删除该法规文件吗？</p>
+        <p id="deleteWarning" style="color: #fa8c16; font-size: 13px; margin-top: 8px;"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeDeleteModal()">取消</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // ========== 数据模拟 ==========
+    const regulationTypes = {
+      law: '法律',
+      admin_regulation: '行政法规',
+      dept_rule: '部门规章',
+      local_regulation: '地方性法规',
+      national_standard: '国家标准',
+      industry_standard: '行业标准'
+    };
+    
+    const statusMap = {
+      active: { text: '现行', class: 'active' },
+      repealed: { text: '废止', class: 'repealed' },
+      revising: { text: '修订中', class: 'revising' }
+    };
+
+    // ========== 领域分类数据（从领域小类中提取，与domain-manage.html一致） ==========
+    const domainCategoryData = [
+      {
+        category: 'IND', categoryName: '工业制造',
+        children: [
+          { id: 'MANUFACTURING_001', name: '生产车间' },
+          { id: 'CHEM_001', name: '危险化学品仓储' },
+          { id: 'IND_OTHER_001', name: '其他工业制造' }
+        ]
+      },
+      {
+        category: 'CITY', categoryName: '城市运行',
+        children: [
+          { id: 'CITY_001', name: '充换电设施' },
+          { id: 'CITY_OTHER_001', name: '其他城市运行' }
+        ]
+      },
+      {
+        category: 'TRANS', categoryName: '交通运输',
+        children: [
+          { id: 'TRANS_001', name: '道路运输' },
+          { id: 'TRANS_OTHER_001', name: '其他交通运输' }
+        ]
+      },
+      {
+        category: 'CONS', categoryName: '建设工程',
+        children: [
+          { id: 'CONS_001', name: '建筑施工现场' },
+          { id: 'CONS_OTHER_001', name: '其他建设工程' }
+        ]
+      },
+      {
+        category: 'COMM', categoryName: '公共场所',
+        children: [
+          { id: 'EXHIBITION_001', name: '大型展会' },
+          { id: 'COMM_OTHER_001', name: '其他公共场所' }
+        ]
+      },
+      {
+        category: 'ENV', categoryName: '生态环境',
+        children: [
+          { id: 'ENV_001', name: '环境治理设施' },
+          { id: 'ENV_OTHER_001', name: '其他生态环境' }
+        ]
+      },
+      {
+        category: 'OTH', categoryName: '其他',
+        children: [
+          { id: 'CUSTOM_001', name: '定制业务' }
+        ]
+      }
+    ];
+
+    // 领域选择状态
+    let selectedDomainIds = new Set();
+    let tempSelectedDomainIds = new Set();
+    let domainTreeExpanded = {};
+
+    // ========== 领域选择器 ==========
+    function openDomainSelector() {
+      tempSelectedDomainIds = new Set(selectedDomainIds);
+      renderDomainTree();
+      document.getElementById('domainTreeModal').classList.add('active');
+    }
+
+    function closeDomainSelector() {
+      document.getElementById('domainTreeModal').classList.remove('active');
+    }
+
+    function renderDomainTree() {
+      const container = document.getElementById('domainTreeContent');
+      const searchKeyword = document.getElementById('domainSearchInput').value.toLowerCase().trim();
+
+      let html = '';
+      let hasResults = false;
+
+      domainCategoryData.forEach(cat => {
+        let filteredChildren = cat.children;
+        const catMatch = cat.categoryName.toLowerCase().includes(searchKeyword);
+        if (searchKeyword && !catMatch) {
+          filteredChildren = cat.children.filter(child => child.name.toLowerCase().includes(searchKeyword));
+          if (filteredChildren.length === 0) return;
+        }
+
+        hasResults = true;
+        const isExpanded = domainTreeExpanded[cat.category] !== false;
+
+        html += `
+          <div class="domain-tree-category">
+            <div class="domain-tree-category-header" onclick="toggleDomainCategory('${cat.category}')">
+              <span class="domain-tree-toggle ${isExpanded ? 'expanded' : ''}">▶</span>
+              <input type="checkbox" class="domain-tree-checkbox"
+                ${filteredChildren.every(c => tempSelectedDomainIds.has(c.id)) ? 'checked' : ''}
+                onclick="event.stopPropagation(); toggleCategoryAll('${cat.category}', this.checked)">
+              <span>${cat.categoryName}</span>
+              <span style="color:#999;font-size:12px;margin-left:4px;">(${filteredChildren.length}/${cat.children.length})</span>
+            </div>
+            <div class="domain-tree-children" style="display: ${isExpanded ? 'block' : 'none'};">
+              ${filteredChildren.map(child => `
+                <div class="domain-tree-item">
+                  <input type="checkbox" class="domain-tree-checkbox" value="${child.id}"
+                    ${tempSelectedDomainIds.has(child.id) ? 'checked' : ''}
+                    onclick="toggleDomainItem('${child.id}', this.checked)">
+                  <span class="domain-tree-label">${child.name}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      if (!hasResults) {
+        html = '<div class="domain-tree-empty">未找到匹配的领域</div>';
+      }
+
+      container.innerHTML = html;
+      updateDomainSelectCount();
+    }
+
+    function toggleDomainCategory(category) {
+      domainTreeExpanded[category] = domainTreeExpanded[category] === false ? true : false;
+      renderDomainTree();
+    }
+
+    function toggleCategoryAll(category, checked) {
+      const cat = domainCategoryData.find(c => c.category === category);
+      if (!cat) return;
+      cat.children.forEach(child => {
+        if (checked) {
+          tempSelectedDomainIds.add(child.id);
+        } else {
+          tempSelectedDomainIds.delete(child.id);
+        }
+      });
+      renderDomainTree();
+    }
+
+    function toggleDomainItem(id, checked) {
+      if (checked) {
+        tempSelectedDomainIds.add(id);
+      } else {
+        tempSelectedDomainIds.delete(id);
+      }
+      renderDomainTree();
+    }
+
+    function filterDomainTree() {
+      renderDomainTree();
+    }
+
+    function updateDomainSelectCount() {
+      const count = tempSelectedDomainIds.size;
+      document.getElementById('domainSelectCount').textContent =
+        count > 0 ? `已选择 ${count} 个领域` : '未选择任何领域';
+    }
+
+    function confirmDomainSelect() {
+      selectedDomainIds = new Set(tempSelectedDomainIds);
+      renderDomainTags();
+      closeDomainSelector();
+    }
+
+    function renderDomainTags() {
+      const tagsContainer = document.getElementById('domainTags');
+      const placeholder = document.getElementById('domainPlaceholder');
+      const selector = document.getElementById('domainSelector');
+
+      if (selectedDomainIds.size === 0) {
+        tagsContainer.innerHTML = '';
+        placeholder.textContent = '点击选择适用领域';
+        placeholder.style.color = '#999';
+        selector.classList.remove('has-value');
+        return;
+      }
+
+      placeholder.textContent = `已选择 ${selectedDomainIds.size} 个领域`;
+      placeholder.style.color = '#333';
+      selector.classList.add('has-value');
+
+      let tagsHtml = '';
+      selectedDomainIds.forEach(id => {
+        for (const cat of domainCategoryData) {
+          const child = cat.children.find(c => c.id === id);
+          if (child) {
+            tagsHtml += `
+              <span class="domain-tag" data-id="${child.id}">
+                ${child.name}
+                <span class="domain-tag-remove" onclick="removeDomainTag('${child.id}')">×</span>
+              </span>
+            `;
+            break;
+          }
+        }
+      });
+      tagsContainer.innerHTML = tagsHtml;
+    }
+
+    function removeDomainTag(id) {
+      selectedDomainIds.delete(id);
+      renderDomainTags();
+    }
+
+    // 初始化领域标签
+    function initDomainTags(domains) {
+      selectedDomainIds = new Set(domains || []);
+      renderDomainTags();
+    }
+
+    // 模拟数据
+    let regulationData = [
+      {
+        id: '1',
+        name: '中华人民共和国安全生产法',
+        type: 'law',
+        publishDate: '2021-06-10',
+        effectiveDate: '2021-09-01',
+        status: 'active',
+        domains: ['industrial', 'energy'],
+        clauseCount: 32,
+        clauses: [
+          { number: '第一条', title: '立法目的', content: '为了加强安全生产工作，防止和减少生产安全事故...' },
+          { number: '第二条', title: '适用范围', content: '在中华人民共和国领域内从事生产经营活动的单位...' }
+        ],
+        attachment: { name: '安全生产法（2021修订版）.pdf', url: '#' },
+        updateTime: '2026-04-20 14:30:00'
+      },
+      {
+        id: '2',
+        name: '中华人民共和国消防法',
+        type: 'law',
+        publishDate: '2021-04-29',
+        effectiveDate: '2021-04-29',
+        status: 'active',
+        domains: ['public', 'construction'],
+        clauseCount: 28,
+        clauses: [],
+        attachment: null,
+        updateTime: '2026-04-19 10:15:00'
+      },
+      {
+        id: '3',
+        name: '生产安全事故应急条例',
+        type: 'admin_regulation',
+        publishDate: '2019-02-17',
+        effectiveDate: '2019-04-01',
+        status: 'active',
+        domains: ['industrial'],
+        clauseCount: 15,
+        clauses: [],
+        attachment: null,
+        updateTime: '2026-04-18 09:00:00'
+      },
+      {
+        id: '4',
+        name: 'GB 50016-2014 建筑设计防火规范',
+        type: 'national_standard',
+        publishDate: '2014-08-27',
+        effectiveDate: '2015-05-01',
+        status: 'revising',
+        domains: ['construction'],
+        clauseCount: 156,
+        clauses: [],
+        attachment: { name: 'GB50016-2014.pdf', url: '#' },
+        updateTime: '2026-04-17 16:45:00'
+      },
+      {
+        id: '5',
+        name: '危险化学品安全管理条例',
+        type: 'admin_regulation',
+        publishDate: '2011-03-02',
+        effectiveDate: '2011-12-01',
+        status: 'repealed',
+        domains: ['industrial', 'environment'],
+        clauseCount: 45,
+        clauses: [],
+        attachment: null,
+        updateTime: '2026-04-16 11:20:00'
+      },
+      { id: '6', name: '消防法', type: 'law', publishDate: '2008-10-28', effectiveDate: '2009-05-01', status: 'active', domains: ['public'], clauseCount: 28, clauses: [], attachment: { name: '消防法.pdf', url: '#' }, updateTime: '2026-04-15 10:00:00' },
+      { id: '7', name: '特种设备安全法', type: 'law', publishDate: '2013-06-29', effectiveDate: '2014-01-01', status: 'active', domains: ['industrial'], clauseCount: 35, clauses: [], attachment: { name: '特种设备安全法.pdf', url: '#' }, updateTime: '2026-04-14 15:30:00' },
+      { id: '8', name: 'GB 13495-1992 消防安全标志', type: 'national_standard', publishDate: '1992-04-10', effectiveDate: '1992-10-01', status: 'active', domains: ['public'], clauseCount: 18, clauses: [], attachment: null, updateTime: '2026-04-13 11:45:00' },
+      { id: '9', name: 'AQ/T 9006-2010 企业安全生产标准化基本规范', type: 'industry_standard', publishDate: '2010-04-15', effectiveDate: '2010-06-01', status: 'active', domains: ['industrial'], clauseCount: 42, clauses: [], attachment: { name: 'AQ_T9006-2010.pdf', url: '#' }, updateTime: '2026-04-12 09:20:00' },
+      { id: '10', name: '建设项目安全设施“三同时”监督管理办法', type: 'admin_regulation', publishDate: '2010-12-14', effectiveDate: '2011-02-01', status: 'active', domains: ['construction'], clauseCount: 25, clauses: [], attachment: null, updateTime: '2026-04-11 14:10:00' },
+      { id: '11', name: '生产安全事故报告和调查处理条例', type: 'admin_regulation', publishDate: '2007-04-09', effectiveDate: '2007-06-01', status: 'active', domains: ['industrial'], clauseCount: 30, clauses: [], attachment: { name: '事故报告条例.pdf', url: '#' }, updateTime: '2026-04-10 16:55:00' },
+      { id: '12', name: 'GB/T 29510-2013 企业安全生产标准化评审工作管理办法', type: 'national_standard', publishDate: '2013-09-06', effectiveDate: '2013-12-01', status: 'repealed', domains: ['industrial'], clauseCount: 22, clauses: [], attachment: null, updateTime: '2026-04-09 10:30:00' },
+      { id: '13', name: '生产经营单位安全培训规定', type: 'admin_regulation', publishDate: '2005-12-28', effectiveDate: '2006-03-01', status: 'active', domains: ['industrial'], clauseCount: 38, clauses: [], attachment: { name: '安全培训规定.pdf', url: '#' }, updateTime: '2026-04-08 11:15:00' },
+      { id: '14', name: '危险化学品目录（2015版）', type: 'admin_regulation', publishDate: '2015-02-27', effectiveDate: '2015-05-01', status: 'active', domains: ['industrial', 'environment'], clauseCount: 15, clauses: [], attachment: { name: '危化品目录2015.pdf', url: '#' }, updateTime: '2026-04-07 15:40:00' },
+      { id: '15', name: 'GB 50067-2014 汽车库、修车库、停车场设计防火规范', type: 'national_standard', publishDate: '2014-09-03', effectiveDate: '2015-05-01', status: 'active', domains: ['construction'], clauseCount: 85, clauses: [], attachment: null, updateTime: '2026-04-06 09:50:00' },
+      { id: '16', name: '易制爆危险化学品名录', type: 'admin_regulation', publishDate: '2017-05-11', effectiveDate: '2017-05-11', status: 'active', domains: ['industrial'], clauseCount: 12, clauses: [], attachment: null, updateTime: '2026-04-05 14:25:00' },
+      { id: '17', name: 'GB 15603-1995 常用化学危险品贮存通则', type: 'national_standard', publishDate: '1995-12-04', effectiveDate: '1996-10-01', status: 'revising', domains: ['industrial'], clauseCount: 28, clauses: [], attachment: { name: 'GB15603-1995.pdf', url: '#' }, updateTime: '2026-04-04 10:35:00' },
+      { id: '18', name: '特种作业人员安全技术培训考核管理规定', type: 'admin_regulation', publishDate: '2010-05-24', effectiveDate: '2010-07-01', status: 'active', domains: ['industrial'], clauseCount: 45, clauses: [], attachment: null, updateTime: '2026-04-03 16:20:00' },
+      { id: '19', name: 'GB 50116-2013 火灾自动报警系统设计规范', type: 'national_standard', publishDate: '2013-07-26', effectiveDate: '2014-05-01', status: 'active', domains: ['construction'], clauseCount: 92, clauses: [], attachment: { name: 'GB50116-2013.pdf', url: '#' }, updateTime: '2026-04-02 11:45:00' },
+      { id: '20', name: '工贸企业有限空间作业安全管理与监督暂行规定', type: 'admin_regulation', publishDate: '2013-05-20', effectiveDate: '2013-07-01', status: 'active', domains: ['industrial'], clauseCount: 33, clauses: [], attachment: null, updateTime: '2026-04-01 09:10:00' },
+      { id: '21', name: 'GB 50019-2015 工业建筑供暖通风与空气调节设计规范', type: 'national_standard', publishDate: '2015-05-22', effectiveDate: '2016-04-01', status: 'active', domains: ['industrial'], clauseCount: 120, clauses: [], attachment: null, updateTime: '2026-03-31 15:55:00' }
+    ];
+    
+    // ========== 状态变量 ==========
+    // ========== 分页状态 ==========
+    var pgState = { page: 1, size: 10, total: 0 };
+    let selectedIds = new Set();
+    let editingId = null;
+    let deleteTargetId = null;
+    let currentClauses = [];
+    
+    // ========== 初始化 ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      renderTable();
+      updateStats();
+    });
+    
+    // ========== 统计卡 ==========
+    function updateStats() {
+      const total = regulationData.length;
+      const active = regulationData.filter(r => r.status === 'active').length;
+      const repealed = regulationData.filter(r => r.status === 'repealed').length;
+      
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statActive').textContent = active;
+      document.getElementById('statRepealed').textContent = repealed;
+    }
+    
+    // ========== 表格渲染 ==========
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const filteredData = getFilteredData();
+      
+      if (filteredData.length === 0) {
+        tbody.innerHTML = '';
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('regulationTable').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('regulationTable').style.display = 'table';
+      
+      // 分页计算
+      pgState.total = filteredData.length;
+      const start = (pgState.page - 1) * pgState.size;
+      const end = start + pgState.size;
+      const pageData = filteredData.slice(start, end);
+      
+      tbody.innerHTML = pageData.map((item, idx) => `
+        <tr>
+          <td class="checkbox-col">
+            <input type="checkbox" ${selectedIds.has(item.id) ? 'checked' : ''} onchange="toggleSelect('${item.id}')">
+          </td>
+          <td>${start + idx + 1}</td>
+          <td title="${item.name}">${item.name}</td>
+          <td><span class="type-tag">${regulationTypes[item.type]}</span></td>
+          <td>${item.publishDate}</td>
+          <td>${item.effectiveDate || '—'}</td>
+          <td><span class="status-tag ${statusMap[item.status].class}">${statusMap[item.status].text}</span></td>
+          <td>${item.clauseCount}</td>
+          <td class="action-col">
+            <button class="btn btn-link" onclick="openEditModal('${item.id}')">编辑</button>
+            <button class="btn btn-link" onclick="openDeleteModal('${item.id}')">删除</button>
+            <button class="btn btn-link" onclick="openDetailModal('${item.id}')">详情</button>
+          </td>
+        </tr>
+      `).join('');
+      
+      renderPagination(Math.ceil(pgState.total / pgState.size));
+    }
+    
+    // ========== 筛选逻辑 ==========
+    function getFilteredData() {
+      const type = document.getElementById('filterType').value;
+      const keyword = document.getElementById('filterKeyword').value.toLowerCase();
+      const status = document.getElementById('filterStatus').value;
+      
+      return regulationData.filter(item => {
+        if (type && item.type !== type) return false;
+        if (status && item.status !== status) return false;
+        if (keyword && !item.name.toLowerCase().includes(keyword)) return false;
+        return true;
+      });
+    }
+    
+    function searchRegulations() {
+      pgState.page = 1;
+      renderTable();
+    }
+    
+    function resetFilters() {
+      document.getElementById('filterType').value = '';
+      document.getElementById('filterKeyword').value = '';
+      document.getElementById('filterStatus').value = '';
+      pgState.page = 1;
+      renderTable();
+    }
+    
+    // ========== 分页 ==========
+    function renderPagination(totalPages) {
+      document.getElementById('pgTotal').textContent = pgState.total;
+      document.getElementById('pgCurrentPage').textContent = pgState.page;
+      document.getElementById('pgTotalPages').textContent = totalPages || 1;
+      var btns = document.getElementById('pgBtns');
+      if (totalPages <= 1) { btns.innerHTML = ''; return; }
+      var html = '';
+      html += '<button onclick="goPage(' + (pgState.page - 1) + ')" ' + (pgState.page === 1 ? 'disabled' : '') + '>&lt;</button>';
+      for (var i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= pgState.page - 2 && i <= pgState.page + 2)) {
+          html += '<button class="' + (i === pgState.page ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+        } else if (i === pgState.page - 3 || i === pgState.page + 3) {
+          html += '<span>...</span>';
+        }
+      }
+      html += '<button onclick="goPage(' + (pgState.page + 1) + ')" ' + (pgState.page === totalPages ? 'disabled' : '') + '>&gt;</button>';
+      btns.innerHTML = html;
+      document.getElementById('pgJump').max = totalPages;
+    }
+
+    function goPage(p) {
+      var totalPages = Math.ceil(pgState.total / pgState.size);
+      if (p < 1 || p > totalPages) return;
+      pgState.page = p;
+      renderTable();
+    }
+
+    function changePageSize() {
+      pgState.size = parseInt(document.getElementById('pgSize').value);
+      pgState.page = 1;
+      renderTable();
+    }
+
+    function jumpToPage() {
+      var p = parseInt(document.getElementById('pgJump').value);
+      if (p) goPage(p);
+    }
+    
+    // ========== 选择功能 ==========
+    function toggleSelectAll() {
+      const checked = document.getElementById('selectAll').checked;
+      const filteredData = getFilteredData();
+      
+      if (checked) {
+        filteredData.forEach(item => selectedIds.add(item.id));
+      } else {
+        filteredData.forEach(item => selectedIds.delete(item.id));
+      }
+      
+      updateBatchBar();
+      renderTable();
+    }
+    
+    function toggleSelect(id) {
+      if (selectedIds.has(id)) {
+        selectedIds.delete(id);
+      } else {
+        selectedIds.add(id);
+      }
+      updateBatchBar();
+    }
+    
+    function updateBatchBar() {
+      const count = selectedIds.size;
+      document.getElementById('batchCount').textContent = count;
+      document.getElementById('batchBar').classList.toggle('show', count > 0);
+    }
+    
+    function clearSelection() {
+      selectedIds.clear();
+      document.getElementById('selectAll').checked = false;
+      updateBatchBar();
+      renderTable();
+    }
+    
+    // ========== 批量操作 ==========
+    function batchDelete() {
+      if (selectedIds.size === 0) return;
+      
+      if (confirm(`确定要删除选中的 ${selectedIds.size} 个法规文件吗？`)) {
+        regulationData = regulationData.filter(item => !selectedIds.has(item.id));
+        selectedIds.clear();
+        updateBatchBar();
+        updateStats();
+        renderTable();
+      }
+    }
+    
+    function batchImport() {
+      alert('批量导入功能开发中...');
+    }
+    
+    function batchExport() {
+      alert('批量导出功能开发中...');
+    }
+    
+    // ========== 法规附件必填控制 ==========
+    const STANDARD_TYPES = ['national_standard', 'industry_standard']; // 标准库类型
+
+    function resetAttachmentArea() {
+      const uploaded = document.getElementById('uploadedFile');
+      if (uploaded) {
+        uploaded.style.display = 'none';
+        uploaded.innerHTML = '';
+      }
+      const uploadArea = document.querySelector('#regulationModal .upload-area');
+      if (uploadArea) uploadArea.style.display = '';
+      document.getElementById('fileInput').value = '';
+    }
+
+    function handleRegulationTypeChange() {
+      const type = document.getElementById('regulationType').value;
+      const label = document.getElementById('attachmentLabel');
+      const uploadHint = document.getElementById('uploadHint');
+      const isStandard = STANDARD_TYPES.includes(type);
+
+      if (isStandard) {
+        label.innerHTML = '全文内容（附件）<span style="color:#ff4d4f;margin-left:2px;">*</span>';
+        uploadHint.textContent = '国家标准/行业标准必填；支持PDF、Word，最大20MB';
+      } else {
+        label.innerHTML = '全文内容（附件）';
+        uploadHint.textContent = '支持PDF、Word格式，最大20MB';
+      }
+    }
+
+    function handleFileSelect(fileInput) {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const uploaded = document.getElementById('uploadedFile');
+      const uploadArea = document.querySelector('#regulationModal .upload-area');
+      uploaded.style.display = 'flex';
+      uploaded.innerHTML = `
+        <span>📄 <strong>${file.name}</strong></span>
+        <button onclick="removeAttachment()" style="color:#ff4d4f;padding:0;border:none;background:none;cursor:pointer;font-size:13px;">删除</button>
+      `;
+      uploadArea.style.display = 'none';
+    }
+
+    function removeAttachment() {
+      resetAttachmentArea();
+      handleRegulationTypeChange();
+    }
+
+    // ========== 弹窗控制 ==========
+    function openAddModal() {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '新增法规文件';
+      document.getElementById('regulationName').value = '';
+      document.getElementById('regulationType').value = '';
+      document.getElementById('publishDate').value = '';
+      document.getElementById('effectiveDate').value = '';
+      document.getElementById('regulationStatus').value = 'active';
+      initDomainTags([]);
+      currentClauses = [];
+      renderClauseList();
+      // 重置附件
+      resetAttachmentArea();
+      handleRegulationTypeChange();
+      document.getElementById('regulationModal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      const item = regulationData.find(r => r.id === id);
+      if (!item) return;
+
+      editingId = id;
+      document.getElementById('modalTitle').textContent = '编辑法规文件';
+      document.getElementById('regulationName').value = item.name;
+      document.getElementById('regulationType').value = item.type;
+      document.getElementById('publishDate').value = item.publishDate;
+      document.getElementById('effectiveDate').value = item.effectiveDate || '';
+      document.getElementById('regulationStatus').value = item.status;
+
+      // 设置适用领域（从领域小类中选择）
+      initDomainTags(item.domains);
+
+      currentClauses = item.clauses.map((c, i) => ({ ...c, id: i + 1 }));
+      renderClauseList();
+      // 重置附件并根据类型更新UI
+      resetAttachmentArea();
+      handleRegulationTypeChange();
+      // 编辑时回显已有附件
+      if (item.attachment) {
+        const uploaded = document.getElementById('uploadedFile');
+        uploaded.style.display = 'flex';
+        uploaded.innerHTML = `<span>📄 <strong>${item.attachment.name}</strong></span><button class="btn btn-link btn-sm" onclick="removeAttachment()" style="color:#ff4d4f;padding:0;border:none;background:none;cursor:pointer;">删除</button>`;
+        document.querySelector('.upload-area').style.display = 'none';
+      }
+      document.getElementById('regulationModal').classList.add('active');
+    }
+    
+    function closeModal() {
+      document.getElementById('regulationModal').classList.remove('active');
+    }
+    
+    // ========== 条款管理 ==========
+    function renderClauseList() {
+      const container = document.getElementById('clauseList');
+      
+      if (currentClauses.length === 0) {
+        container.innerHTML = '<div style="padding: 40px; text-align: center; color: #999;">暂无条款，点击"新增条款"添加</div>';
+        return;
+      }
+      
+      container.innerHTML = currentClauses.map((clause, index) => `
+        <div class="clause-item" data-id="${clause.id}">
+          <div class="clause-num">${index + 1}</div>
+          <div class="clause-fields">
+            <div class="clause-row">
+              <input type="text" class="form-input clause-input number" placeholder="条款编号" value="${clause.number}" onchange="updateClause(${clause.id}, 'number', this.value)">
+              <input type="text" class="form-input clause-input title" placeholder="条款标题" value="${clause.title}" onchange="updateClause(${clause.id}, 'title', this.value)">
+            </div>
+            <textarea class="form-input clause-input content" placeholder="条款内容" rows="2" onchange="updateClause(${clause.id}, 'content', this.value)">${clause.content}</textarea>
+          </div>
+          <span class="clause-delete" onclick="deleteClause(${clause.id})">&times;</span>
+        </div>
+      `).join('');
+    }
+    
+    function addClauseRow() {
+      const newId = currentClauses.length > 0 ? Math.max(...currentClauses.map(c => c.id)) + 1 : 1;
+      currentClauses.push({ id: newId, number: '', title: '', content: '' });
+      renderClauseList();
+    }
+    
+    function updateClause(id, field, value) {
+      const clause = currentClauses.find(c => c.id === id);
+      if (clause) {
+        clause[field] = value;
+      }
+    }
+    
+    function deleteClause(id) {
+      currentClauses = currentClauses.filter(c => c.id !== id);
+      renderClauseList();
+    }
+    
+    // ========== 保存 ==========
+    function saveRegulation() {
+      const name = document.getElementById('regulationName').value.trim();
+      const type = document.getElementById('regulationType').value;
+      const publishDate = document.getElementById('publishDate').value;
+      const effectiveDate = document.getElementById('effectiveDate').value;
+      const status = document.getElementById('regulationStatus').value;
+      
+      // 校验
+      if (!name) {
+        alert('请输入法规名称');
+        return;
+      }
+      if (!type) {
+        alert('请选择法规类型');
+        return;
+      }
+      if (!publishDate) {
+        alert('请选择发布日期');
+        return;
+      }
+      // 标准库附件必填校验
+      if (STANDARD_TYPES.includes(type)) {
+        const hasNewFile = document.getElementById('uploadedFile').style.display !== 'none' &&
+                          document.getElementById('uploadedFile').innerHTML.trim() !== '';
+        let hasExistingFile = false;
+        if (editingId) {
+          const item = regulationData.find(r => r.id === editingId);
+          hasExistingFile = !!(item && item.attachment);
+        }
+        if (!hasNewFile && !hasExistingFile) {
+          alert('国家标准/行业标准必须上传全文附件');
+          return;
+        }
+      }
+      // 获取适用领域（从领域小类中选择）
+      const domains = Array.from(selectedDomainIds);
+      
+      // 过滤空条款
+      const validClauses = currentClauses.filter(c => c.number.trim() || c.title.trim());
+      
+      if (editingId) {
+        // 编辑
+        const index = regulationData.findIndex(r => r.id === editingId);
+        if (index !== -1) {
+          regulationData[index] = {
+            ...regulationData[index],
+            name,
+            type,
+            publishDate,
+            effectiveDate,
+            status,
+            domains,
+            clauseCount: validClauses.length,
+            clauses: validClauses,
+            updateTime: new Date().toLocaleString('zh-CN')
+          };
+        }
+      } else {
+        // 新增
+        const newId = String(regulationData.length + 1);
+        regulationData.unshift({
+          id: newId,
+          name,
+          type,
+          publishDate,
+          effectiveDate,
+          status,
+          domains,
+          clauseCount: validClauses.length,
+          clauses: validClauses,
+          attachment: null,
+          updateTime: new Date().toLocaleString('zh-CN')
+        });
+      }
+      
+      closeModal();
+      updateStats();
+      renderTable();
+      alert('保存成功');
+    }
+    
+    // ========== 详情弹窗 ==========
+    function openDetailModal(id) {
+      const item = regulationData.find(r => r.id === id);
+      if (!item) return;
+      
+      document.getElementById('detailName').textContent = item.name;
+      document.getElementById('detailType').textContent = regulationTypes[item.type];
+      document.getElementById('detailPublishDate').textContent = item.publishDate;
+      document.getElementById('detailEffectiveDate').textContent = item.effectiveDate || '—';
+      document.getElementById('detailStatus').innerHTML = `<span class="status-tag ${statusMap[item.status].class}">${statusMap[item.status].text}</span>`;
+
+      const domainNames = {
+        industrial: '工业制造',
+        energy: '能源电力',
+        transport: '交通运输',
+        construction: '建设工程',
+        public: '公共场所',
+        environment: '生态环境'
+      };
+      // 详情展示：优先用领域小类名称，找不到则用领域大类名称
+      const detailDomainNames = item.domains.map(d => {
+        for (const cat of domainCategoryData) {
+          const child = cat.children.find(c => c.id === d);
+          if (child) return child.name;
+        }
+        return domainNames[d] || d;
+      });
+      document.getElementById('detailDomains').textContent = detailDomainNames.join('、') || '—';
+      document.getElementById('detailUpdateTime').textContent = item.updateTime;
+      document.getElementById('detailClauseCount').textContent = item.clauseCount;
+      
+      // 渲染条款列表
+      const clauseContent = document.getElementById('clauseCollapseContent');
+      if (item.clauses.length === 0) {
+        clauseContent.innerHTML = '<div style="color: #999;">暂无条款</div>';
+      } else {
+        clauseContent.innerHTML = item.clauses.map((c, i) => `
+          <div class="clause-collapse-item">
+            <strong>${c.number} ${c.title}</strong>
+            <div style="color: #666; margin-top: 4px;">${c.content}</div>
+          </div>
+        `).join('');
+      }
+      
+      // 附件
+      const attachmentDiv = document.getElementById('detailAttachment');
+      if (item.attachment) {
+        attachmentDiv.innerHTML = `
+          <div class="detail-value">
+            📄 ${item.attachment.name}
+          </div>
+          <div class="detail-value" style="margin-top:8px;">
+            <button class="btn btn-default btn-sm" onclick="toggleAttachmentPreview()">
+              <span id="previewBtnText">📖 预览附件</span>
+            </button>
+          </div>
+          <div id="attachmentPreviewArea" style="display:none; margin-top:10px;">
+            <iframe id="attachmentPdfFrame" src="${item.attachment.url || ''}" 
+              style="width:100%;height:500px;border:1px solid #e8eaed;border-radius:6px;"
+              onerror="this.outerHTML='<div style=&quot;color:#999;padding:20px;text-align:center;&quot;>⚠️ 预览加载失败，请确认文件存在或下载后查看</div>'">
+            </iframe>
+          </div>
+        `;
+      } else {
+        attachmentDiv.innerHTML = '<div class="detail-value">暂无附件</div>';
+      }
+      
+      document.getElementById('detailModal').classList.add('active');
+    }
+    
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.remove('active');
+      // 关闭详情时重置预览区域状态，避免下次打开残留显示
+      const previewArea = document.getElementById('attachmentPreviewArea');
+      if (previewArea) previewArea.style.display = 'none';
+      const previewBtn = document.getElementById('previewBtnText');
+      if (previewBtn) previewBtn.textContent = '📖 预览附件';
+    }
+    
+    function toggleAttachmentPreview() {
+      const previewArea = document.getElementById('attachmentPreviewArea');
+      const previewBtn = document.getElementById('previewBtnText');
+      if (!previewArea) return;
+      const isVisible = previewArea.style.display !== 'none';
+      previewArea.style.display = isVisible ? 'none' : 'block';
+      if (previewBtn) previewBtn.textContent = isVisible ? '📖 预览附件' : '🔽 收起预览';
+    }
+    
+    function toggleClauses() {
+      const content = document.getElementById('clauseCollapseContent');
+      const icon = document.getElementById('clauseToggleIcon');
+      content.classList.toggle('show');
+      icon.textContent = content.classList.contains('show') ? '▲' : '▼';
+    }
+    
+    // ========== 删除 ==========
+    function openDeleteModal(id) {
+      deleteTargetId = id;
+      const item = regulationData.find(r => r.id === id);
+      document.getElementById('deleteMessage').textContent = `确定要删除《${item.name}》吗？`;
+      
+      // 模拟关联提示
+      const hasRelations = Math.random() > 0.5;
+      const warningEl = document.getElementById('deleteWarning');
+      if (hasRelations) {
+        warningEl.textContent = `⚠️ 该法规包含 ${item.clauseCount} 条条款，部分条款已被引用，删除后将自动解除关联关系。`;
+      } else {
+        warningEl.textContent = '';
+      }
+      
+      document.getElementById('deleteModal').classList.add('active');
+    }
+    
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('active');
+      deleteTargetId = null;
+    }
+    
+    function confirmDelete() {
+      if (deleteTargetId) {
+        regulationData = regulationData.filter(r => r.id !== deleteTargetId);
+        updateStats();
+        renderTable();
+        closeDeleteModal();
+        alert('删除成功');
+      }
+    }
+  </script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-regulation-lib', moduleName: '法规库管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

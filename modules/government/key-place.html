@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>重点场所管理 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .page-container { 
+      padding: var(--spacing-lg); 
+      background: var(--bg-page);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .page-title { font-size: var(--font-size-lg); font-weight: 600; }
+    
+    /* ========== 统计卡片 ========== */
+    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    .stat-card { 
+      flex: 1; 
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+      border: 1px solid var(--border-light); 
+      border-radius: var(--radius-lg); 
+      padding: var(--spacing-md) var(--spacing-lg); 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+    .stat-card:hover { 
+      background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%);
+      box-shadow: var(--shadow-md);
+    }
+    .stat-value { font-size: 24px; font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+    
+    /* ========== 筛选栏 ========== */
+    .filter-bar { 
+      display: flex; 
+      gap: var(--spacing-sm); 
+      margin-bottom: var(--spacing-md); 
+      align-items: center; 
+      flex-wrap: wrap;
+      background: var(--bg-section);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+    }
+    .filter-item select, .filter-item input { 
+      padding: 6px 10px; 
+      border: 1px solid var(--border); 
+      border-radius: var(--radius-md); 
+      font-size: var(--font-size-sm); 
+      background: var(--bg-primary);
+    }
+    .filter-item select:focus, .filter-item input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    
+    /* ========== 表格容器 ========== */
+    .table-wrap { 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
+      overflow: hidden; 
+      box-shadow: var(--shadow-card);
+    }
+    .table-scroll { overflow-x: auto; }
+    .table-scroll table { width: 100%; min-width: 900px; border-collapse: collapse; }
+    .table-scroll thead tr { background: var(--bg-section); }
+    .table-scroll th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
+    .table-scroll td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
+    .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover td { background: var(--bg-hover); }
+    .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; }
+    .table-scroll tbody tr:nth-child(even) .action-col { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover .action-col { background: var(--bg-hover); }
+    
+    /* ========== 分页 ========== */
+    .pagination-wrap { 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-end; 
+      gap: 4px; 
+      padding: 12px var(--spacing-md);
+      background: var(--bg-section);
+      border-top: 1px solid var(--border-light);
+    }
+    .pg-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--bg-primary); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
+    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
+    /* ========== 标签样式 ========== */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 12px; }
+    .tag-green { background: var(--success-light); color: var(--success); }
+    .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
+    .tag-orange { background: var(--warning-light); color: var(--warning); }
+    .tag-red { background: var(--error-light); color: var(--error); }
+    .tag-blue { background: var(--info-light); color: var(--info); }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="gov-key-place">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item current">政府端</span>
+    </div>
+
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-value" style="color: var(--primary);">45</div><div class="stat-label">重点场所总数</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--success);">38</div><div class="stat-label">正常运营</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--warning);">5</div><div class="stat-label">整改中</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--text-tertiary);">2</div><div class="stat-label">停业整顿</div></div>
+    </div>
+    
+    <div class="filter-bar">
+      <div class="filter-item"><label>领域小类：</label><select id="filterDomain"><option>全部</option><option>充换电设施</option><option>农贸市场</option><option>危险化学品</option></select></div>
+      <div class="filter-item"><label>状态：</label><select id="filterStatus"><option>全部</option><option>正常运营</option><option>整改中</option><option>停业整顿</option></select></div>
+      <div class="filter-item"><input type="text" id="searchInput" placeholder="搜索场所名称"></div>
+      <button class="btn btn-default" onclick="resetFilter()">重置</button>
+      <div style="flex: 1;"></div>
+      <button class="btn btn-primary" onclick="addKeyPlace()">+ 新增重点场所</button>
+    </div>
+    
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>场所编码</th>
+              <th>场所名称</th>
+              <th>领域小类</th>
+              <th>所属企业</th>
+              <th>监管单位</th>
+              <th>状态</th>
+              <th class="action-col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="keyPlaceTableBody">
+            <tr>
+              <td>KP2026001</td>
+              <td class="ellipsis-col" title="2号充换电站">2号充换电站</td>
+              <td>充换电设施</td>
+              <td class="ellipsis-col" title="创安电子科技有限公司">创安电子科技有限公司</td>
+              <td>南山区应急管理局</td>
+              <td><span class="tag tag-green">正常运营</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026001')">查看</button><button class="btn-link" onclick="editKeyPlace('KP2026001')">编辑</button></td>
+            </tr>
+            <tr>
+              <td>KP2026002</td>
+              <td class="ellipsis-col" title="西丽农贸市场">西丽农贸市场</td>
+              <td>农贸市场</td>
+              <td class="ellipsis-col" title="深圳市场管理公司">深圳市场管理公司</td>
+              <td>南山区应急管理局</td>
+              <td><span class="tag tag-green">正常运营</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026002')">查看</button><button class="btn-link" onclick="editKeyPlace('KP2026002')">编辑</button></td>
+            </tr>
+            <tr>
+              <td>KP2026003</td>
+              <td class="ellipsis-col" title="蛇口港危化品仓库">蛇口港危化品仓库</td>
+              <td>危险化学品</td>
+              <td class="ellipsis-col" title="深圳港物流有限公司">深圳港物流有限公司</td>
+              <td>深圳市应急管理局</td>
+              <td><span class="tag tag-orange">整改中</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026003')">查看</button><button class="btn-link" onclick="editKeyPlace('KP2026003')">编辑</button></td>
+            </tr>
+            <tr>
+              <td>KP2026004</td>
+              <td class="ellipsis-col" title="福田交通枢纽充电站">福田交通枢纽充电站</td>
+              <td>充换电设施</td>
+              <td class="ellipsis-col" title="安达运输公司">安达运输公司</td>
+              <td>福田区应急管理局</td>
+              <td><span class="tag tag-green">正常运营</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026004')">查看</button><button class="btn-link" onclick="editKeyPlace('KP2026004')">编辑</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap">
+        <button class="pg-btn" onclick="prevPage()">上一页</button>
+        <button class="pg-btn active">1</button>
+        <button class="pg-btn" onclick="goPage(2)">2</button>
+        <button class="pg-btn" onclick="goPage(3)">3</button>
+        <button class="pg-btn" onclick="nextPage()">下一页</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'gov-key-place',
+        moduleName: '重点场所管理'
+      };
+      
+      let state = {
+        initialized: false,
+        currentPage: 1
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      // 查看重点场所
+      window.viewKeyPlace = function(id) {
+        console.log('查看重点场所：' + id);
+        alert('查看重点场所详情：' + id);
+      };
+      
+      // 编辑重点场所
+      window.editKeyPlace = function(id) {
+        console.log('编辑重点场所：' + id);
+        alert('编辑重点场所：' + id);
+      };
+      
+      // 新增重点场所
+      window.addKeyPlace = function() {
+        console.log('新增重点场所');
+        alert('打开新增重点场所弹窗');
+      };
+      
+      // 重置筛选
+      window.resetFilter = function() {
+        document.getElementById('filterDomain').value = '全部';
+        document.getElementById('filterStatus').value = '全部';
+        document.getElementById('searchInput').value = '';
+        console.log('重置筛选条件');
+      };
+      
+      // 分页
+      window.prevPage = function() {
+        if (state.currentPage > 1) {
+          state.currentPage--;
+          console.log('切换到第' + state.currentPage + '页');
+        }
+      };
+      
+      window.nextPage = function() {
+        state.currentPage++;
+        console.log('切换到第' + state.currentPage + '页');
+      };
+      
+      window.goPage = function(page) {
+        state.currentPage = page;
+        console.log('切换到第' + page + '页');
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

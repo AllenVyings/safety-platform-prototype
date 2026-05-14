@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作台 - 企业端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .workbench-page {
+      padding: var(--spacing-lg);
+      background: var(--bg-page);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header {
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-header);
+    }
+    .page-title {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    /* ========== 统计卡片 ========== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    .stat-card {
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+      transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .stat-title {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .stat-value.warning { color: var(--warning); }
+    .stat-value.danger { color: var(--danger); }
+    .stat-value.success { color: var(--success); }
+    
+    /* ========== 快捷操作区 ========== */
+    .quick-actions {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+      margin-bottom: var(--spacing-md);
+    }
+    .quick-actions-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-primary);
+    }
+    .action-buttons {
+      display: flex;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    
+    /* ========== 待办事项 ========== */
+    .todo-section {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+    }
+    .todo-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-primary);
+    }
+    .todo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--bg-section);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+    .todo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-size: 16px;
+    }
+    .todo-icon.warning { background: var(--warning-light); color: var(--warning); }
+    .todo-icon.danger { background: var(--error-light); color: var(--error); }
+    .todo-content {
+      flex: 1;
+    }
+    .todo-name {
+      font-size: var(--font-size-base);
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .todo-desc {
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+    }
+    .todo-action {
+      margin-left: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="module-page workbench-page" data-module="ent-workbench">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">企业端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">工作台</span>
+    </div>
+    
+    <!-- 页面标题栏已隐藏 -->
+    
+    <!-- 统计卡片 -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">管控对象</div>
+        <div class="stat-value">24</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">待自查</div>
+        <div class="stat-value warning">3</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">待整改隐患</div>
+        <div class="stat-value danger">2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">安全得分</div>
+        <div class="stat-value success">92</div>
+      </div>
+    </section>
+    
+    <!-- 快捷操作 -->
+    <section class="quick-actions">
+      <div class="quick-actions-title">快捷操作</div>
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="startSelfCheck()">开始自查</button>
+        <button class="btn btn-default" onclick="viewHazards()">查看隐患</button>
+        <button class="btn btn-default" onclick="viewRecords()">检查记录</button>
+        <button class="btn btn-default" onclick="updateInfo()">更新信息</button>
+      </div>
+    </section>
+    
+    <!-- 待办事项 -->
+    <section class="todo-section">
+      <div class="todo-title">待办事项</div>
+      <div class="todo-list">
+        <div class="todo-item">
+          <div class="todo-icon warning">⚠️</div>
+          <div class="todo-content">
+            <div class="todo-name">月度安全自查</div>
+            <div class="todo-desc">截止日期：2026-04-05</div>
+          </div>
+          <div class="todo-action">
+            <button class="btn btn-primary btn-sm" onclick="handleTodo('月度安全自查')">去处理</button>
+          </div>
+        </div>
+        <div class="todo-item">
+          <div class="todo-icon danger">🔴</div>
+          <div class="todo-content">
+            <div class="todo-name">消防通道隐患整改</div>
+            <div class="todo-desc">逾期2天，请立即处理</div>
+          </div>
+          <div class="todo-action">
+            <button class="btn btn-primary btn-sm" onclick="handleTodo('消防通道隐患整改')">去整改</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'ent-workbench',
+        moduleName: '企业工作台'
+      };
+      
+      let state = {
+        initialized: false
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        renderBreadcrumb();
+        state.initialized = true;
+      }
+      
+      // 渲染面包屑
+      function renderBreadcrumb() {
+        document.getElementById('breadcrumb').innerHTML = `
+          <span class="breadcrumb-prefix">当前位置：</span>
+          <span class="breadcrumb-item" onclick="goToHome()">首页</span>
+          <span class="breadcrumb-separator">&gt;</span>
+          <span class="breadcrumb-item current">企业端</span>
+        `;
+      }
+      
+      // 导航到首页
+      window.goToHome = function() {
+        console.log('导航到首页');
+        alert('导航到：首页');
+      };
+      
+      // 快捷操作
+      window.startSelfCheck = function() { 
+        console.log('开始自查');
+        alert('开始自查');
+      };
+      window.viewHazards = function() { 
+        console.log('查看隐患');
+        alert('查看隐患');
+      };
+      window.viewRecords = function() { 
+        console.log('查看记录');
+        alert('查看记录');
+      };
+      window.updateInfo = function() { 
+        console.log('更新信息');
+        alert('更新信息');
+      };
+      
+      // 待办事项处理
+      window.handleTodo = function(todoName) {
+        console.log('处理待办：' + todoName);
+        alert('处理待办：' + todoName);
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

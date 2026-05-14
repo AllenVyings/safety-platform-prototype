@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>项目工作台 - 企业端</title>
+
+<style>
+.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
+.breadcrumb-item:hover{color:#1677ff}
+.main-layout{display:flex;flex-direction:column;gap:16px;margin-top:16px}
+
+/* 项目信息卡片 */
+.project-header{background:#fff;border-radius:8px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:flex-start}
+.project-info{flex:1}
+.project-name{font-size:18px;font-weight:600;color:#1f1f1f;margin-bottom:8px}
+.project-meta{display:flex;gap:16px;flex-wrap:wrap}
+.project-meta-item{font-size:13px;color:#666}
+.project-meta-item .label{color:#999;margin-right:4px}
+.project-meta-item .value{color:#333;font-weight:500}
+.project-status{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.status-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:6px;font-size:13px;font-weight:500}
+.status-building{background:#f6ffed;color:#52c41a}
+.status-stopped{background:#fffbe6;color:#faad14}
+.status-completed{background:#e6f4ff;color:#1677ff}
+.status-notstarted{background:#f5f5f5;color:#999}
+.safety-code{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#f0f7ff;border-radius:6px}
+.safety-code-label{font-size:12px;color:#666}
+.safety-code-value{font-size:14px;font-weight:600;color:#1677ff;font-family:monospace}
+
+/* 快捷操作 */
+.quick-actions{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.quick-actions-title{font-size:14px;font-weight:600;color:#1f1f1f;margin-bottom:12px}
+.actions-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.action-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 12px;border-radius:8px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.action-item:hover{background:#f5f7fa;border-color:#e8e8e8}
+.action-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.action-icon.blue{background:#e6f4ff}
+.action-icon.green{background:#f6ffed}
+.action-icon.orange{background:#fff7e6}
+.action-icon.red{background:#fff2f0}
+.action-icon.purple{background:#f0f5ff}
+.action-icon.cyan{background:#e6fffb}
+.action-name{font-size:13px;color:#333}
+
+/* 统计卡片 */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-card-label{font-size:12px;color:#888;margin-bottom:6px}
+.stat-card-value{font-size:22px;font-weight:700;color:#1f1f1f}
+.stat-card-sub{font-size:11px;color:#bbb;margin-top:2px}
+
+/* 内容区 */
+.content-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.content-card{background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:600;color:#1f1f1f}
+.card-more{font-size:12px;color:#1677ff;cursor:pointer}
+.card-more:hover{color:#4096ff}
+
+/* 任务列表 */
+.task-list{display:flex;flex-direction:column;gap:8px}
+.task-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:6px;background:#fafafa;cursor:pointer;transition:background .2s}
+.task-item:hover{background:#f0f2f5}
+.task-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.task-icon.check{background:#e6f4ff;color:#1677ff}
+.task-icon.hazard{background:#fff2f0;color:#ff4d4f}
+.task-icon.duty{background:#f6ffed;color:#52c41a}
+.task-info{flex:1;min-width:0}
+.task-name{font-size:13px;color:#333;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-meta{font-size:11px;color:#999}
+.task-status{font-size:12px;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.task-status.pending{background:#fffbe6;color:#faad14}
+.task-status.done{background:#f6ffed;color:#52c41a}
+
+/* 隐患列表 */
+.hazard-list{display:flex;flex-direction:column;gap:8px}
+.hazard-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:6px;background:#fafafa}
+.hazard-level{width:4px;height:36px;border-radius:2px;flex-shrink:0}
+.hazard-level.major{background:#ff4d4f}
+.hazard-level.general{background:#faad14}
+.hazard-info{flex:1;min-width:0}
+.hazard-desc{font-size:13px;color:#333;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hazard-meta{font-size:11px;color:#999}
+.hazard-status{font-size:12px;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.hazard-status.pending{background:#fff2f0;color:#ff4d4f}
+.hazard-status.processing{background:#e6f4ff;color:#1677ff}
+.hazard-status.done{background:#f6ffed;color:#52c41a}
+
+/* 通知公告 */
+.notice-list{display:flex;flex-direction:column;gap:8px}
+.notice-item{padding:10px 12px;border-radius:6px;background:#fafafa;cursor:pointer;transition:background .2s}
+.notice-item:hover{background:#f0f2f5}
+.notice-title{font-size:13px;color:#333;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notice-meta{display:flex;gap:12px;font-size:11px;color:#999}
+.notice-tag{font-size:11px;padding:1px 6px;border-radius:3px}
+.notice-tag.urgent{background:#fff2f0;color:#ff4d4f}
+.notice-tag.normal{background:#e6f4ff;color:#1677ff}
+
+/* 四方责任体 */
+.party-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.party-card{padding:12px;border-radius:6px;background:#fafafa}
+.party-type{font-size:12px;color:#999;margin-bottom:4px}
+.party-name{font-size:13px;color:#333;font-weight:500;margin-bottom:2px}
+.party-contact{font-size:12px;color:#666}
+
+/* 按钮 */
+.btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+.btn-default:hover{color:#1677ff;border-color:#1677ff}
+.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+.btn-primary:hover{background:#4096ff}
+.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+.btn-link:hover{color:#4096ff}
+
+/* 标签 */
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
+.tag-success{background:#f6ffed;color:#52c41a}
+.tag-warning{background:#fffbe6;color:#faad14}
+.tag-error{background:#fff2f0;color:#ff4d4f}
+.tag-info{background:#e6f4ff;color:#52c41a}
+.tag-default{background:#f5f5f5;color:#999}
+
+/* Toast */
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="page-container" data-module="enterprise/project-workbench">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">企业端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">工作台</span>
+  </div>
+  
+  <div class="main-layout">
+    <!-- 项目信息头部 -->
+    <div class="project-header">
+      <div class="project-info">
+        <div class="project-name">XX大厦建设工程</div>
+        <div class="project-meta">
+          <div class="project-meta-item"><span class="label">项目编号</span><span class="value">2024-001</span></div>
+          <div class="project-meta-item"><span class="label">领域小类</span><span class="value">房屋建设工程</span></div>
+          <div class="project-meta-item"><span class="label">项目小类</span><span class="value">主体</span></div>
+          <div class="project-meta-item"><span class="label">所属区域</span><span class="value">南山区</span></div>
+          <div class="project-meta-item"><span class="label">详细地址</span><span class="value">深圳市南山区科技园南路88号</span></div>
+          <div class="project-meta-item"><span class="label">所属督导组</span><span class="value">第一督导组</span></div>
+        </div>
+      </div>
+      <div class="project-status">
+        <div class="status-badge status-building">在建</div>
+        <div class="safety-code">
+          <span class="safety-code-label">安全码</span>
+          <span class="safety-code-value">P202401001</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 快捷操作 -->
+    <div class="quick-actions">
+      <div class="quick-actions-title">快捷操作</div>
+      <div class="actions-grid">
+        <div class="action-item" onclick="showToast('进入安全检查')">
+          <div class="action-icon blue">📋</div>
+          <div class="action-name">安全检查</div>
+        </div>
+        <div class="action-item" onclick="showToast('进入隐患上报')">
+          <div class="action-icon red">⚠️</div>
+          <div class="action-name">隐患上报</div>
+        </div>
+        <div class="action-item" onclick="showToast('进入履职任务')">
+          <div class="action-icon green">✓</div>
+          <div class="action-name">履职任务</div>
+        </div>
+        <div class="action-item" onclick="showToast('进入检查记录')">
+          <div class="action-icon orange">📊</div>
+          <div class="action-name">检查记录</div>
+        </div>
+        <div class="action-item" onclick="showToast('进入项目组织')">
+          <div class="action-icon purple">🏗️</div>
+          <div class="action-name">项目组织</div>
+        </div>
+        <div class="action-item" onclick="showToast('进入人员管理')">
+          <div class="action-icon cyan">👥</div>
+          <div class="action-name">人员管理</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-label">今日待检查</div>
+        <div class="stat-card-value" style="color:#1677ff">5</div>
+        <div class="stat-card-sub">项检查任务</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">待整改隐患</div>
+        <div class="stat-card-value" style="color:#ff4d4f">3</div>
+        <div class="stat-card-sub">项待处理</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">履职任务</div>
+        <div class="stat-card-value" style="color:#52c41a">8/10</div>
+        <div class="stat-card-sub">本月完成率80%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">检查记录</div>
+        <div class="stat-card-value">128</div>
+        <div class="stat-card-sub">累计检查次数</div>
+      </div>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content-grid">
+      <!-- 待办任务 -->
+      <div class="content-card">
+        <div class="card-header">
+          <div class="card-title">📋 待办任务</div>
+          <div class="card-more" onclick="showToast('查看全部任务')">查看全部 &gt;</div>
+        </div>
+        <div class="task-list">
+          <div class="task-item" onclick="showToast('进入检查任务详情')">
+            <div class="task-icon check">📋</div>
+            <div class="task-info">
+              <div class="task-name">每日安全巡查 - 施工现场</div>
+              <div class="task-meta">截止时间：今日 18:00</div>
+            </div>
+            <div class="task-status pending">待执行</div>
+          </div>
+          <div class="task-item" onclick="showToast('进入隐患整改')">
+            <div class="task-icon hazard">⚠️</div>
+            <div class="task-info">
+              <div class="task-name">隐患整改 - 临边防护缺失</div>
+              <div class="task-meta">整改期限：2024-04-28</div>
+            </div>
+            <div class="task-status pending">待整改</div>
+          </div>
+          <div class="task-item" onclick="showToast('进入履职任务')">
+            <div class="task-icon duty">✓</div>
+            <div class="task-info">
+              <div class="task-name">项目经理月度履职报告</div>
+              <div class="task-meta">截止时间：2024-04-30</div>
+            </div>
+            <div class="task-status pending">待提交</div>
+          </div>
+          <div class="task-item" onclick="showToast('进入检查任务详情')">
+            <div class="task-icon check">📋</div>
+            <div class="task-info">
+              <div class="task-name">消防设施专项检查</div>
+              <div class="task-meta">截止时间：明日 12:00</div>
+            </div>
+            <div class="task-status pending">待执行</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 隐患动态 -->
+      <div class="content-card">
+        <div class="card-header">
+          <div class="card-title">⚠️ 隐患动态</div>
+          <div class="card-more" onclick="showToast('查看全部隐患')">查看全部 &gt;</div>
+        </div>
+        <div class="hazard-list">
+          <div class="hazard-item">
+            <div class="hazard-level major"></div>
+            <div class="hazard-info">
+              <div class="hazard-desc">塔吊基础积水严重，存在倾覆风险</div>
+              <div class="hazard-meta">发现时间：2024-04-20 | 发现人：安全员A</div>
+            </div>
+            <div class="hazard-status pending">待整改</div>
+          </div>
+          <div class="hazard-item">
+            <div class="hazard-level general"></div>
+            <div class="hazard-info">
+              <div class="hazard-desc">配电箱未张贴警示标识</div>
+              <div class="hazard-meta">发现时间：2024-04-22 | 发现人：电工B</div>
+            </div>
+            <div class="hazard-status processing">整改中</div>
+          </div>
+          <div class="hazard-item">
+            <div class="hazard-level major"></div>
+            <div class="hazard-info">
+              <div class="hazard-desc">脚手架连墙件设置不足</div>
+              <div class="hazard-meta">发现时间：2024-04-23 | 发现人：安全员A</div>
+            </div>
+            <div class="hazard-status pending">待整改</div>
+          </div>
+          <div class="hazard-item">
+            <div class="hazard-level general"></div>
+            <div class="hazard-info">
+              <div class="hazard-desc">消防器材过期未更换</div>
+              <div class="hazard-meta">发现时间：2024-04-24 | 发现人：安全员C</div>
+            </div>
+            <div class="hazard-status done">已整改</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通知公告 -->
+      <div class="content-card">
+        <div class="card-header">
+          <div class="card-title">📢 通知公告</div>
+          <div class="card-more" onclick="showToast('查看全部通知')">查看全部 &gt;</div>
+        </div>
+        <div class="notice-list">
+          <div class="notice-item">
+            <div class="notice-title">关于五一劳动节期间停工检查的通知</div>
+            <div class="notice-meta">
+              <span>发布单位：南山区住建局</span>
+              <span>2024-04-25</span>
+              <span class="notice-tag urgent">紧急</span>
+            </div>
+          </div>
+          <div class="notice-item">
+            <div class="notice-title">4月份安全生产例会会议纪要</div>
+            <div class="notice-meta">
+              <span>发布单位：第一督导组</span>
+              <span>2024-04-23</span>
+              <span class="notice-tag normal">普通</span>
+            </div>
+          </div>
+          <div class="notice-item">
+            <div class="notice-title">关于开展汛期安全检查的紧急通知</div>
+            <div class="notice-meta">
+              <span>发布单位：应急管理局</span>
+              <span>2024-04-20</span>
+              <span class="notice-tag urgent">紧急</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 四方责任体 -->
+      <div class="content-card">
+        <div class="card-header">
+          <div class="card-title">🏗️ 四方责任体</div>
+          <div class="card-more" onclick="showToast('进入项目组织')">查看详情 &gt;</div>
+        </div>
+        <div class="party-grid">
+          <div class="party-card">
+            <div class="party-type">建设单位</div>
+            <div class="party-name">XX建设集团</div>
+            <div class="party-contact">张三 13800138001</div>
+          </div>
+          <div class="party-card">
+            <div class="party-type">施工单位</div>
+            <div class="party-name">XX建筑工程有限公司</div>
+            <div class="party-contact">李四 13900139001</div>
+          </div>
+          <div class="party-card">
+            <div class="party-type">监理单位</div>
+            <div class="party-name">XX监理咨询有限公司</div>
+            <div class="party-contact">王五 13700137001</div>
+          </div>
+          <div class="party-card">
+            <div class="party-type">分包单位</div>
+            <div class="party-name">XX装饰工程有限公司</div>
+            <div class="party-contact">赵六 13800138002</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showToast(msg){
+  var el = document.getElementById('_toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = '_toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  setTimeout(function(){el.style.opacity = '0';}, 2500);
+}
+</script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'enterprise/project-workbench', moduleName: '项目工作台' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

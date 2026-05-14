@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>职务管理 - 超管端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .page-container { padding: 20px; background: #f0f2f5; min-height: 100vh; }
+    /* 面包屑由 framework.css 提供，无需额外样式 */
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .page-title { font-size: 18px; font-weight: 600; }
+    .btn { padding: 6px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all .2s; border: 1px solid #d9d9d9; }
+    .btn-primary { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .btn-primary:hover { background: #4096ff; }
+    .btn-default { background: #fff; color: #333; }
+    .btn-default:hover { color: #1677ff; border-color: #1677ff; }
+    .btn-danger { background: #fff; color: #ff4d4f; border-color: #ffccc7; }
+    .btn-danger:hover { background: #fff2f0; border-color: #ff4d4f; }
+    .btn-link { background: none; border: none; padding: 2px 8px; color: #1677ff; cursor: pointer; font-size: 13px; }
+    .btn-link:hover { color: #4096ff; }
+    .btn-sm { padding: 4px 12px; font-size: 12px; }
+
+    .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .stat-value { font-size: 24px; font-weight: 600; color: #1677ff; }
+    .stat-label { font-size: 12px; color: #888; margin-top: 4px; }
+
+    .filter-bar { display: flex; gap: 12px; margin-bottom: 16px; background: #fff; padding: 12px 16px; border-radius: 8px; align-items: center; flex-wrap: wrap; }
+    .filter-item { display: flex; align-items: center; gap: 6px; }
+    .filter-item label { font-size: 13px; color: #666; }
+    .filter-item input, .filter-item select { padding: 6px 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; min-width: 120px; }
+    .filter-item input:focus, .filter-item select:focus { border-color: #1677ff; }
+
+    .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1050px; }
+    thead tr { background: #fafafa; }
+    th { padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #1f1f1f; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+    td { padding: 12px; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    tr:nth-child(even) td { background: #fafafa; }
+    tr:hover td { background: #e6f7ff !important; }
+
+    th:nth-child(1), td:nth-child(1) { width: 50px; }
+    th:nth-child(2), td:nth-child(2) { width: 130px; }
+    th:nth-child(3), td:nth-child(3) { width: 150px; }
+    th:nth-child(4), td:nth-child(4) { width: 90px; }
+    th:nth-child(5), td:nth-child(5) { width: 180px; }
+    th:nth-child(6), td:nth-child(6) { width: 90px; }
+    th:nth-child(7), td:nth-child(7) { width: 140px; }
+    th:nth-child(8), td:nth-child(8) { width: 70px; }
+    th:nth-child(9), td:nth-child(9) { width: 150px; }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; }
+    .tag-project { background: #e6f7ff; color: #1677ff; border: 1px solid #91d5ff; }
+    .tag-enterprise { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+    .tag-government { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+    .tag-level { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+    .tag-status-on { background: #f6ffed; color: #52c41a; }
+    .tag-status-off { background: #f5f5f5; color: #999; }
+
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 12px 16px; background: #fff; border-top: 1px solid #f0f0f0; }
+    .pagination select { padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
+    .pagination button { padding: 4px 12px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .pagination button:hover:not(:disabled) { border-color: #1677ff; color: #1677ff; }
+    .pagination button:disabled { opacity: .5; cursor: not-allowed; }
+    .page-info { font-size: 13px; color: #666; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #fff; border-radius: 8px; width: 700px; max-width: 95vw; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-close { font-size: 20px; color: #999; cursor: pointer; background: none; border: none; }
+    .modal-close:hover { color: #333; }
+    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 10px; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group label { display: block; font-size: 13px; color: #333; margin-bottom: 6px; }
+    .form-group label .required { color: #ff4d4f; margin-right: 4px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1677ff; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-row.three-col { grid-template-columns: 1fr 1fr 1fr; }
+
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 16px; }
+    .checkbox-item { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; }
+    .checkbox-item input { width: auto; margin: 0; }
+
+    /* 检查频次输入样式 */
+    .freq-inputs { display: flex; align-items: center; gap: 8px; }
+    .freq-label { font-size: 13px; color: #666; }
+    .freq-num { width: 70px; text-align: center; }
+    .freq-unit { width: 90px; }
+
+    /* 状态开关样式 */
+    .status-group { display: flex; flex-direction: column; }
+    .status-wrap { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+    .status-text { font-size: 13px; color: #333; }
+
+    .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 22px; transition: .3s; }
+    .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 2px; bottom: 2px; background: #fff; border-radius: 50%; transition: .3s; }
+    .switch input:checked + .slider { background: #1677ff; }
+    .switch input:checked + .slider:before { transform: translateX(22px); }
+
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100%); background: #333; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 2000; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="page-container" data-module="sa-position-manage">
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">首页</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item">系统配置</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">职务管理</span>
+    </div>
+
+    <div class="page-header">
+      <h1 class="page-title">职务管理</h1>
+      <button class="btn btn-primary" onclick="openAddModal()">+ 新增职务</button>
+    </div>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">职务总数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statProject">0</div>
+        <div class="stat-label">项目职务</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statEnterprise">0</div>
+        <div class="stat-label">企业职务</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statGovernment">0</div>
+        <div class="stat-label">政府职务</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>职务名称</label>
+        <input type="text" id="filterName" placeholder="请输入" oninput="applyFilter()">
+      </div>
+      <div class="filter-item">
+        <label>所属场景</label>
+        <select id="filterScene" onchange="applyFilter()">
+          <option value="">全部</option>
+          <option value="PROJECT_CONSTRUCTION">在建项目</option>
+          <option value="PROJECT_OPERATION">运营项目</option>
+          <option value="ENTERPRISE">企业</option>
+          <option value="GOVERNMENT">政府</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>关联单位类型</label>
+        <select id="filterUnitType" onchange="applyFilter()">
+          <option value="">全部</option>
+          <option value="建设单位">建设单位</option>
+          <option value="施工单位">施工单位</option>
+          <option value="监理单位">监理单位</option>
+          <option value="分包单位">分包单位</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>状态</label>
+        <select id="filterStatus" onchange="applyFilter()">
+          <option value="">全部</option>
+          <option value="1">启用</option>
+          <option value="2">停用</option>
+        </select>
+      </div>
+      <button class="btn btn-default" onclick="resetFilter()">重置</button>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>职务编码</th>
+              <th>职务名称</th>
+              <th>所属场景</th>
+              <th>关联单位类型</th>
+              <th>默认层级</th>
+              <th>检查频次</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <!-- 新增/编辑弹窗 -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">新增职务</span>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <input type="hidden" id="editId">
+          <div class="form-row">
+            <div class="form-group">
+              <label><span class="required">*</span>职务编码</label>
+              <input type="text" id="editCode" placeholder="如：PROJECT_MANAGER">
+            </div>
+            <div class="form-group">
+              <label><span class="required">*</span>职务名称</label>
+              <input type="text" id="editName" placeholder="请输入职务名称">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label><span class="required">*</span>所属场景</label>
+              <select id="editScene" onchange="onSceneChange()">
+                <option value="">请选择</option>
+                <option value="PROJECT_CONSTRUCTION">在建项目</option>
+                <option value="PROJECT_OPERATION">运营项目</option>
+                <option value="ENTERPRISE">企业</option>
+                <option value="GOVERNMENT">政府</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>默认层级</label>
+              <select id="editLevel">
+                <option value="">请选择</option>
+                <option value="领导层">领导层</option>
+                <option value="管理层">管理层</option>
+                <option value="员工层">员工层</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" id="unitTypeGroup" style="display:none;">
+            <label><span class="required">*</span>关联单位类型</label>
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox" value="建设单位"> 建设单位</label>
+              <label class="checkbox-item"><input type="checkbox" value="施工单位"> 施工单位</label>
+              <label class="checkbox-item"><input type="checkbox" value="监理单位"> 监理单位</label>
+              <label class="checkbox-item"><input type="checkbox" value="分包单位"> 分包单位</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>职务说明</label>
+            <textarea id="editDesc" placeholder="请输入职务说明（选填）"></textarea>
+          </div>
+          <div class="form-group">
+            <label>检查频次</label>
+            <div class="freq-inputs">
+              <span class="freq-label">每</span>
+              <input type="number" id="editCheckFreqNum" placeholder="1" min="1" class="freq-num">
+              <select id="editCheckFreqUnit" class="freq-unit">
+                <option value="">请选择</option>
+                <option value="日">日</option>
+                <option value="周">周</option>
+                <option value="月">月</option>
+                <option value="季">季</option>
+                <option value="年">年</option>
+              </select>
+              <span class="freq-label">检查</span>
+              <input type="number" id="editCheckFreqCount" placeholder="1" min="1" class="freq-num">
+              <span class="freq-label">次</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>排序号</label>
+              <input type="number" id="editSort" placeholder="999" min="0">
+            </div>
+            <div class="form-group status-group">
+              <label><span class="required">*</span>状态</label>
+              <div class="status-wrap">
+                <label class="switch">
+                  <input type="checkbox" id="editStatus" checked>
+                  <span class="slider"></span>
+                </label>
+                <span class="status-text" id="statusText">启用</span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="savePosition()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div class="modal-overlay" id="delModal">
+    <div class="modal" style="width: 360px;">
+      <div class="modal-header">
+        <span class="modal-title">确认删除</span>
+        <button class="modal-close" onclick="closeDelModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 30px;">
+        <p>确定要删除职务 <strong id="delName"></strong> 吗？</p>
+        <p style="color: #999; font-size: 12px; margin-top: 8px;">删除后不可恢复，请谨慎操作</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeDelModal()">取消</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // 职务数据（真实数据）
+    // checkFreq格式: { num: 数量, unit: '日/周/月/季/年', count: 次数 }
+    // 规则：领导层=1月1次，管理层=1周1次
+    let positions = [
+      // 建设单位（领导层→1月1次）
+      { id: 1, code: 'BUILD_PM', name: '项目经理', scene: 'PROJECT_CONSTRUCTION', unitType: '建设单位', level: '领导层', sortOrder: 1, status: 1, checkFreq: { num: 1, unit: '月', count: 1 } },
+      { id: 2, code: 'BUILD_SAFETY_ENG', name: '安全工程师', scene: 'PROJECT_CONSTRUCTION', unitType: '建设单位', level: '领导层', sortOrder: 2, status: 1, checkFreq: { num: 1, unit: '月', count: 1 } },
+      { id: 3, code: 'BUILD_CIVIL_ENG', name: '土建工程师', scene: 'PROJECT_CONSTRUCTION', unitType: '建设单位', level: '领导层', sortOrder: 3, status: 1, checkFreq: { num: 1, unit: '月', count: 1 } },
+      { id: 4, code: 'BUILD_EQUIP_ENG', name: '设备工程师', scene: 'PROJECT_CONSTRUCTION', unitType: '建设单位', level: '领导层', sortOrder: 4, status: 1, checkFreq: { num: 1, unit: '月', count: 1 } },
+      { id: 5, code: 'BUILD_STAFF', name: '工作人员', scene: 'PROJECT_CONSTRUCTION', unitType: '建设单位', level: '领导层', sortOrder: 5, status: 1, checkFreq: { num: 1, unit: '月', count: 1 } },
+      // 监理单位（领导层→1月1次，管理层→1周1次）
+      { id: 6, code: 'SUPER_CHIEF', name: '监理总监', scene: 'PROJECT_CONSTRUCTION', unitType: '监理单位', level: '领导层', sortOrder: 1, status: 1, checkFreq: { num: 1, unit: '月', count: 1 } },
+      { id: 7, code: 'SUPER_CHIEF_REP', name: '总监代表', scene: 'PROJECT_CONSTRUCTION', unitType: '监理单位', level: '管理层', sortOrder: 2, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 8, code: 'SUPER_SAFETY_SPEC', name: '安全专监', scene: 'PROJECT_CONSTRUCTION', unitType: '监理单位', level: '管理层', sortOrder: 3, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 9, code: 'SUPER_CIVIL_SPEC', name: '土建专监', scene: 'PROJECT_CONSTRUCTION', unitType: '监理单位', level: '管理层', sortOrder: 4, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 10, code: 'SUPER_INSPECTOR', name: '监理员', scene: 'PROJECT_CONSTRUCTION', unitType: '监理单位', level: '管理层', sortOrder: 5, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 11, code: 'SUPER_STAFF', name: '工作人员', scene: 'PROJECT_CONSTRUCTION', unitType: '监理单位', level: '管理层', sortOrder: 6, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      // 施工单位（领导层→1月1次，管理层→1周1次，员工层→无固定频次）
+      { id: 12, code: 'CONST_PM', name: '项目经理', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '领导层', sortOrder: 1, status: 1, checkFreq: { num: 1, unit: '月', count: 1 } },
+      { id: 13, code: 'CONST_CHIEF_ENG', name: '总工程师', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '管理层', sortOrder: 2, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 14, code: 'CONST_SAFETY_DIR', name: '安全总监', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '管理层', sortOrder: 3, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 15, code: 'CONST_DEPUTY_PM', name: '项目副经理', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '管理层', sortOrder: 4, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 16, code: 'CONST_PROD_MGR', name: '生产经理', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '管理层', sortOrder: 5, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 17, code: 'CONST_PARTY_SEC', name: '项目书记', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '管理层', sortOrder: 6, status: 1, checkFreq: { num: 1, unit: '周', count: 1 } },
+      { id: 18, code: 'CONST_SAFETY_OFF', name: '安全员', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '员工层', sortOrder: 7, status: 1, checkFreq: null },
+      { id: 19, code: 'CONST_WORKER', name: '施工员', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '员工层', sortOrder: 8, status: 1, checkFreq: null },
+      { id: 20, code: 'CONST_STAFF', name: '工作人员', scene: 'PROJECT_CONSTRUCTION', unitType: '施工单位', level: '员工层', sortOrder: 9, status: 1, checkFreq: null },
+      // 分包单位（不配置检查频次）
+      { id: 21, code: 'SUB_PM', name: '项目经理', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '领导层', sortOrder: 1, status: 1, checkFreq: null },
+      { id: 22, code: 'SUB_CHIEF_ENG', name: '总工程师', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '管理层', sortOrder: 2, status: 1, checkFreq: null },
+      { id: 23, code: 'SUB_SAFETY_DIR', name: '安全总监', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '管理层', sortOrder: 3, status: 1, checkFreq: null },
+      { id: 24, code: 'SUB_DEPUTY_PM', name: '项目副经理', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '管理层', sortOrder: 4, status: 1, checkFreq: null },
+      { id: 25, code: 'SUB_PROD_MGR', name: '生产经理', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '管理层', sortOrder: 5, status: 1, checkFreq: null },
+      { id: 26, code: 'SUB_PARTY_SEC', name: '项目书记', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '管理层', sortOrder: 6, status: 1, checkFreq: null },
+      { id: 27, code: 'SUB_SAFETY_OFF', name: '安全员', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '员工层', sortOrder: 7, status: 1, checkFreq: null },
+      { id: 28, code: 'SUB_WORKER', name: '施工员', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '员工层', sortOrder: 8, status: 1, checkFreq: null },
+      { id: 29, code: 'SUB_STAFF', name: '工作人员', scene: 'PROJECT_CONSTRUCTION', unitType: '分包单位', level: '员工层', sortOrder: 9, status: 1, checkFreq: null }
+    ];
+
+    let currentPage = 1;
+    let pageSize = 10;
+    let editingId = null;
+    let deletingId = null;
+
+    const sceneMap = { PROJECT_CONSTRUCTION: '在建项目', PROJECT_OPERATION: '运营项目', ENTERPRISE: '企业', GOVERNMENT: '政府' };
+    const sceneClass = { PROJECT_CONSTRUCTION: 'tag-project', PROJECT_OPERATION: 'tag-project', ENTERPRISE: 'tag-enterprise', GOVERNMENT: 'tag-government' };
+
+    function init() {
+      updateStats();
+      renderTable();
+      renderPagination();
+    }
+
+    function updateStats() {
+      document.getElementById('statTotal').textContent = positions.length;
+      document.getElementById('statProject').textContent = positions.filter(p => p.scene === 'PROJECT_CONSTRUCTION' || p.scene === 'PROJECT_OPERATION').length;
+      document.getElementById('statEnterprise').textContent = positions.filter(p => p.scene === 'ENTERPRISE').length;
+      document.getElementById('statGovernment').textContent = positions.filter(p => p.scene === 'GOVERNMENT').length;
+    }
+
+    function getFilteredData() {
+      const name = document.getElementById('filterName').value.trim().toLowerCase();
+      const scene = document.getElementById('filterScene').value;
+      const unitType = document.getElementById('filterUnitType').value;
+      const status = document.getElementById('filterStatus').value;
+
+      return positions.filter(p => {
+        if (name && !p.name.toLowerCase().includes(name)) return false;
+        if (scene && p.scene !== scene) return false;
+        if (unitType && !p.unitType.includes(unitType)) return false;
+        if (status && p.status !== parseInt(status)) return false;
+        return true;
+      });
+    }
+
+    function renderTable() {
+      const data = getFilteredData();
+      const start = (currentPage - 1) * pageSize;
+      const pageData = data.slice(start, start + pageSize);
+      const tbody = document.getElementById('tableBody');
+
+      tbody.innerHTML = pageData.map((p, i) => {
+        const unitTypes = p.unitType ? p.unitType.split(',').map(t => `<span class="tag tag-level" title="${p.unitType}">${t}</span>`).join(' ') : '-';
+        const checkFreqText = p.checkFreq ? `每${p.checkFreq.num}${p.checkFreq.unit}检查${p.checkFreq.count}次` : '-';
+        return `<tr>
+          <td>${start + i + 1}</td>
+          <td>${p.code}</td>
+          <td>${p.name}</td>
+          <td><span class="tag ${sceneClass[p.scene]}">${sceneMap[p.scene]}</span></td>
+          <td>${unitTypes}</td>
+          <td>${p.level || '-'}</td>
+          <td>${checkFreqText}</td>
+          <td><span class="tag ${p.status === 1 ? 'tag-status-on' : 'tag-status-off'}">${p.status === 1 ? '启用' : '停用'}</span></td>
+          <td>
+            <button class="btn-link" onclick="openEditModal(${p.id})">编辑</button>
+            <button class="btn-link" onclick="toggleStatus(${p.id})">${p.status === 1 ? '停用' : '启用'}</button>
+            <button class="btn-link" style="color:#ff4d4f" onclick="openDelModal(${p.id})">删除</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderPagination() {
+      const data = getFilteredData();
+      const total = data.length;
+      const pages = Math.ceil(total / pageSize);
+
+      let html = `<span class="page-info">共 ${total} 条</span>
+        <select onchange="changePageSize(this.value)">
+          <option value="10" ${pageSize === 10 ? 'selected' : ''}>10条/页</option>
+          <option value="20" ${pageSize === 20 ? 'selected' : ''}>20条/页</option>
+          <option value="50" ${pageSize === 50 ? 'selected' : ''}>50条/页</option>
+        </select>
+        <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+        <span class="page-info">${currentPage} / ${pages || 1}</span>
+        <button onclick="changePage(${currentPage + 1})" ${currentPage >= pages ? 'disabled' : ''}>下一页</button>`;
+      document.getElementById('pagination').innerHTML = html;
+    }
+
+    function applyFilter() {
+      currentPage = 1;
+      renderTable();
+      renderPagination();
+    }
+
+    function resetFilter() {
+      document.getElementById('filterName').value = '';
+      document.getElementById('filterScene').value = '';
+      document.getElementById('filterUnitType').value = '';
+      document.getElementById('filterStatus').value = '';
+      applyFilter();
+    }
+
+    function changePage(p) {
+      currentPage = p;
+      renderTable();
+      renderPagination();
+    }
+
+    function changePageSize(size) {
+      pageSize = parseInt(size);
+      currentPage = 1;
+      renderTable();
+      renderPagination();
+    }
+
+    function openAddModal() {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '新增职务';
+      document.getElementById('editForm').reset();
+      document.getElementById('unitTypeGroup').style.display = 'none';
+      document.getElementById('editCheckFreqNum').value = '';
+      document.getElementById('editCheckFreqUnit').value = '';
+      document.getElementById('editCheckFreqCount').value = '';
+      document.getElementById('statusText').textContent = '启用';
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      editingId = id;
+      const p = positions.find(x => x.id === id);
+      if (!p) return;
+
+      document.getElementById('modalTitle').textContent = '编辑职务';
+      document.getElementById('editId').value = p.id;
+      document.getElementById('editCode').value = p.code;
+      document.getElementById('editName').value = p.name;
+      document.getElementById('editScene').value = p.scene;
+      document.getElementById('editLevel').value = p.level || '';
+      document.getElementById('editDesc').value = p.desc || '';
+      document.getElementById('editSort').value = p.sortOrder;
+      document.getElementById('editStatus').checked = p.status === 1;
+      document.getElementById('statusText').textContent = p.status === 1 ? '启用' : '停用';
+
+      // 检查频次回填
+      if (p.checkFreq) {
+        document.getElementById('editCheckFreqNum').value = p.checkFreq.num || '';
+        document.getElementById('editCheckFreqUnit').value = p.checkFreq.unit || '';
+        document.getElementById('editCheckFreqCount').value = p.checkFreq.count || '';
+      } else {
+        document.getElementById('editCheckFreqNum').value = '';
+        document.getElementById('editCheckFreqUnit').value = '';
+        document.getElementById('editCheckFreqCount').value = '';
+      }
+
+      onSceneChange();
+      const checkboxes = document.querySelectorAll('#unitTypeGroup input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = p.unitType.includes(cb.value));
+
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('active');
+    }
+
+    function onSceneChange() {
+      const scene = document.getElementById('editScene').value;
+      // 在建项目显示关联单位类型，运营项目不显示
+      document.getElementById('unitTypeGroup').style.display = scene === 'PROJECT_CONSTRUCTION' ? 'block' : 'none';
+    }
+
+    // 状态开关文字联动
+    document.getElementById('editStatus').addEventListener('change', function() {
+      document.getElementById('statusText').textContent = this.checked ? '启用' : '停用';
+    });
+
+    function savePosition() {
+      const code = document.getElementById('editCode').value.trim();
+      const name = document.getElementById('editName').value.trim();
+      const scene = document.getElementById('editScene').value;
+      const level = document.getElementById('editLevel').value;
+      const desc = document.getElementById('editDesc').value.trim();
+      const sortOrder = parseInt(document.getElementById('editSort').value) || 999;
+      const status = document.getElementById('editStatus').checked ? 1 : 2;
+
+      // 检查频次（非必填）
+      const checkFreqNum = document.getElementById('editCheckFreqNum').value.trim();
+      const checkFreqUnit = document.getElementById('editCheckFreqUnit').value;
+      const checkFreqCount = document.getElementById('editCheckFreqCount').value.trim();
+      let checkFreq = null;
+      if (checkFreqNum && checkFreqUnit && checkFreqCount) {
+        checkFreq = {
+          num: parseInt(checkFreqNum),
+          unit: checkFreqUnit,
+          count: parseInt(checkFreqCount)
+        };
+      }
+
+      if (!code) { showToast('请输入职务编码'); return; }
+      if (!name) { showToast('请输入职务名称'); return; }
+      if (!scene) { showToast('请选择所属场景'); return; }
+
+      let unitType = '';
+      if (scene === 'PROJECT') {
+        const checked = document.querySelectorAll('#unitTypeGroup input:checked');
+        if (checked.length === 0) { showToast('请至少选择一个关联单位类型'); return; }
+        unitType = Array.from(checked).map(cb => cb.value).join(',');
+      }
+
+      // 校验同场景唯一
+      const exists = positions.find(p => p.code === code && p.scene === scene && p.id !== editingId);
+      if (exists) { showToast('该场景下职务编码已存在'); return; }
+      const nameExists = positions.find(p => p.name === name && p.scene === scene && p.id !== editingId);
+      if (nameExists) { showToast('该场景下职务名称已存在'); return; }
+
+      if (editingId) {
+        const idx = positions.findIndex(p => p.id === editingId);
+        positions[idx] = { ...positions[idx], code, name, scene, unitType, level, desc, sortOrder, status, checkFreq };
+        showToast('修改成功');
+      } else {
+        const newId = positions.length > 0 ? Math.max(...positions.map(p => p.id)) + 1 : 1;
+        positions.push({ id: newId, code, name, scene, unitType, level, desc, sortOrder, status, checkFreq });
+        showToast('新增成功');
+      }
+
+      closeModal();
+      updateStats();
+      renderTable();
+      renderPagination();
+    }
+
+    function toggleStatus(id) {
+      const p = positions.find(x => x.id === id);
+      if (p) {
+        p.status = p.status === 1 ? 2 : 1;
+        showToast(p.status === 1 ? '已启用' : '已停用');
+        renderTable();
+      }
+    }
+
+    function openDelModal(id) {
+      deletingId = id;
+      const p = positions.find(x => x.id === id);
+      document.getElementById('delName').textContent = p ? p.name : '';
+      document.getElementById('delModal').classList.add('active');
+    }
+
+    function closeDelModal() {
+      document.getElementById('delModal').classList.remove('active');
+      deletingId = null;
+    }
+
+    function confirmDelete() {
+      if (deletingId) {
+        positions = positions.filter(p => p.id !== deletingId);
+        showToast('删除成功');
+        closeDelModal();
+        updateStats();
+        renderTable();
+        renderPagination();
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // 初始化
+    init();
+  </script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-position-manage', moduleName: '职务管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

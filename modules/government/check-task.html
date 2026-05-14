@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>检查任务管理 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .page-container { 
+      padding: var(--spacing-lg); 
+      background: var(--bg-page);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .page-title { font-size: var(--font-size-lg); font-weight: 600; }
+    
+    /* ========== 统计卡片 ========== */
+    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    .stat-card { 
+      flex: 1; 
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+      border: 1px solid var(--border-light); 
+      border-radius: var(--radius-lg); 
+      padding: var(--spacing-md) var(--spacing-lg); 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+    .stat-card:hover { 
+      background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%);
+      box-shadow: var(--shadow-card);
+    }
+    .stat-value { font-size: 24px; font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+    
+    /* ========== 筛选栏 ========== */
+    .filter-bar { 
+      display: flex; 
+      gap: 12px; 
+      margin-bottom: var(--spacing-md); 
+      align-items: center; 
+      flex-wrap: wrap;
+      background: var(--bg-section);
+      padding: 12px 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+    }
+    .filter-item select, .filter-item input { 
+      padding: 6px 10px; 
+      border: 1px solid #d9d9d9; 
+      border-radius: 6px; 
+      font-size: var(--font-size-sm); 
+      background: var(--bg-primary);
+    }
+    .filter-item select:focus, .filter-item input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    
+    /* ========== 表格容器 ========== */
+    .table-wrap { 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
+      overflow: hidden; 
+      box-shadow: var(--shadow-card);
+    }
+    .table-scroll { overflow-x: auto; }
+    .table-scroll table { width: 100%; min-width: 800px; border-collapse: collapse; }
+    .table-scroll thead tr { background: var(--bg-section); }
+    .table-scroll th { padding: 12px 16px; text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
+    .table-scroll td { padding: 12px 16px; font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
+    .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover td { background: var(--bg-hover); }
+    .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; }
+    .table-scroll tbody tr:nth-child(even) .action-col { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover .action-col { background: var(--bg-hover); }
+    
+    /* ========== 分页 ========== */
+    .pagination-wrap { 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-end; 
+      gap: 8px; 
+      padding: 12px 16px;
+      background: var(--bg-section);
+      border-top: 1px solid var(--border-light);
+    }
+    .pg-btn { padding: 6px 12px; border: 1px solid #d9d9d9; background: var(--bg-primary); border-radius: 6px; cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
+    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
+    /* ========== 标签样式 ========== */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .tag-green { background: #dcfce7; color: #16a34a; }
+    .tag-gray { background: #f1f5f9; color: #64748b; }
+    .tag-orange { background: #fed7aa; color: #ea580c; }
+    .tag-red { background: #fee2e2; color: #dc2626; }
+    .tag-blue { background: #dbeafe; color: #2563eb; }
+    .btn-link { padding: 4px 8px; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .btn-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="gov-check-task">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item current">政府端</span>
+    </div>
+    
+    <!-- 页面标题栏已隐藏 -->
+    
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-value" style="color: var(--blue);">45</div><div class="stat-label">本月任务数</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--green);">32</div><div class="stat-label">已完成</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--orange);">8</div><div class="stat-label">进行中</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--error);">5</div><div class="stat-label">待处理</div></div>
+    </div>
+    
+    <div class="filter-bar">
+      <div class="filter-item"><label>任务状态：</label><select><option>全部</option><option>待处理</option><option>进行中</option><option>已完成</option><option>已超期</option></select></div>
+      <div class="filter-item"><label>任务类型：</label><select><option>全部</option><option>日常检查</option><option>专项检查</option><option>临时检查</option></select></div>
+      <div class="filter-item"><label>执行单位：</label><select><option>全部</option><option>危化品监管科</option><option>基础安全监管科</option></select></div>
+      <div class="filter-item"><input type="text" placeholder="搜索任务名称"></div>
+      <button class="btn btn-default">重置</button>
+      <div style="flex: 1;"></div>
+      <button class="btn btn-primary">+ 下发任务</button>
+    </div>
+    
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>任务编号</th>
+              <th>任务名称</th>
+              <th>任务类型</th>
+              <th>执行单位</th>
+              <th>截止日期</th>
+              <th>检查企业数</th>
+              <th>完成进度</th>
+              <th>状态</th>
+              <th class="action-col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="taskTableBody">
+            <tr>
+              <td>TASK2026040201</td>
+              <td class="ellipsis-col" title="充换电设施专项检查">充换电设施专项检查</td>
+              <td>专项检查</td>
+              <td>危化品监管科</td>
+              <td>2026-04-05</td>
+              <td>12/15</td>
+              <td>80%</td>
+              <td><span class="tag tag-green">进行中</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewTask('TASK2026040201')">查看</button><button class="btn-link" onclick="urgeTask('TASK2026040201')">催办</button></td>
+            </tr>
+            <tr>
+              <td>TASK2026040101</td>
+              <td class="ellipsis-col" title="农贸市场日常巡查">农贸市场日常巡查</td>
+              <td>日常检查</td>
+              <td>综合协调科</td>
+              <td>2026-04-03</td>
+              <td>8/8</td>
+              <td>100%</td>
+              <td><span class="tag tag-green">已完成</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewTask('TASK2026040101')">查看</button><button class="btn-link" onclick="summaryTask('TASK2026040101')">汇总</button></td>
+            </tr>
+            <tr>
+              <td>TASK2026033101</td>
+              <td class="ellipsis-col" title="危化品企业安全检查">危化品企业安全检查</td>
+              <td>专项检查</td>
+              <td>危化品监管科</td>
+              <td>2026-03-31</td>
+              <td>3/5</td>
+              <td>60%</td>
+              <td><span class="tag tag-red">已超期</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewTask('TASK2026033101')">查看</button><button class="btn-link" onclick="superviseTask('TASK2026033101')">督办</button></td>
+            </tr>
+            <tr>
+              <td>TASK2026032801</td>
+              <td class="ellipsis-col" title="建筑施工现场检查">建筑施工现场检查</td>
+              <td>日常检查</td>
+              <td>基础安全监管科</td>
+              <td>2026-04-10</td>
+              <td>0/20</td>
+              <td>0%</td>
+              <td><span class="tag tag-orange">待处理</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewTask('TASK2026032801')">查看</button><button class="btn-link" onclick="startTask('TASK2026032801')">开始</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap">
+        <span class="pagination-info">共 <span id="pgTotal">4</span> 条</span>
+        <div class="pagination-btns">
+          <button class="pg-btn">上一页</button>
+          <button class="pg-btn active">1</button>
+          <button class="pg-btn">2</button>
+          <button class="pg-btn">3</button>
+          <button class="pg-btn">下一页</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'gov-check-task',
+        moduleName: '检查任务管理'
+      };
+      
+      let state = {
+        initialized: false
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      // 查看任务
+      window.viewTask = function(taskId) {
+        console.log('查看任务：' + taskId);
+        alert('查看任务：' + taskId);
+      };
+      
+      // 催办任务
+      window.urgeTask = function(taskId) {
+        console.log('催办任务：' + taskId);
+        alert('催办任务：' + taskId);
+      };
+      
+      // 汇总任务
+      window.summaryTask = function(taskId) {
+        console.log('汇总任务：' + taskId);
+        alert('汇总任务：' + taskId);
+      };
+      
+      // 督办任务
+      window.superviseTask = function(taskId) {
+        console.log('督办任务：' + taskId);
+        alert('督办任务：' + taskId);
+      };
+      
+      // 开始任务
+      window.startTask = function(taskId) {
+        console.log('开始任务：' + taskId);
+        alert('开始任务：' + taskId);
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

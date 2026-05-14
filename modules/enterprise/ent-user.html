@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>企业用户管理 - 企业端</title>
+
+<style>
+.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
+.breadcrumb-item:hover{color:#1677ff}
+.main-layout{display:flex;gap:16px;margin-top:16px}
+
+/* 左侧树 */
+.tree-panel{width:260px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden}
+.tree-header{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:600;color:#1f1f1f}
+.tree-body{flex:1;overflow-y:auto;padding:8px 0}
+.tree-node{display:flex;align-items:center;padding:7px 16px;cursor:pointer;transition:background .2s;gap:6px}
+.tree-node:hover{background:#f5f7fa}
+.tree-node.active{background:#e6f4ff;color:#1677ff}
+.tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;cursor:pointer;flex-shrink:0}
+.tree-node-label{font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-children{padding-left:20px;display:block}
+
+/* 右侧内容 */
+.content-panel{flex:1;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:20px;overflow:auto}
+
+/* 统计卡片 */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:#fafafa;border-radius:8px;padding:12px 14px}
+.stat-card-label{font-size:12px;color:#888;margin-bottom:4px}
+.stat-card-value{font-size:18px;font-weight:700;color:#1f1f1f}
+
+/* 查询区 */
+.query-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.query-bar input,.query-bar select{padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none}
+.query-bar input:focus,.query-bar select:focus{border-color:#1677ff}
+.query-bar input{min-width:160px}
+
+/* 表格 */
+.table-scroll{overflow-x:auto}
+.table-basic{width:100%;border-collapse:collapse;font-size:13px;min-width:800px}
+.table-basic th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;color:#1f1f1f;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+.table-basic td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333}
+.table-basic tr:hover td{background:#fafafa}
+.ellipsis-col{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.action-col{position:sticky;right:0;background:#fff;white-space:nowrap}
+.action-col .btn-link{margin-right:8px}
+
+/* 分页 */
+.pagination-wrap{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid #f0f0f0}
+.pagination-info{font-size:13px;color:#666}
+.pagination-btns{display:flex;gap:4px}
+.page-btn{padding:5px 10px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;font-size:13px;cursor:pointer;color:#666}
+.page-btn:hover{color:#1677ff;border-color:#1677ff}
+.page-btn.active{background:#1677ff;color:#fff;border-color:#1677ff}
+.page-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* 按钮 */
+.btn{padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+.btn-default:hover{color:#1677ff;border-color:#1677ff}
+.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+.btn-primary:hover{background:#4096ff}
+.btn-danger{background:#ff4d4f;color:#fff;border-color:#ff4d4f}
+.btn-danger:hover{background:#ff7875}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+.btn-link:hover{color:#4096ff}
+.btn-link.danger{color:#ff4d4f}
+.btn-link.danger:hover{color:#ff7875}
+
+/* 标签 */
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
+.tag-success{background:#f6ffed;color:#52c41a}
+.tag-error{background:#fff2f0;color:#ff4d4f}
+
+/* 弹窗 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-box{background:#fff;border-radius:8px;width:640px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.modal-header{padding:14px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:15px;font-weight:600;color:#1f1f1f}
+.modal-close{font-size:18px;color:#999;cursor:pointer;background:none;border:none}
+.modal-close:hover{color:#333}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
+.modal-footer{padding:12px 20px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px}
+.form-row{display:flex;gap:12px;margin-bottom:12px}
+.form-group{flex:1}
+.form-group label{display:block;font-size:13px;color:#333;margin-bottom:5px}
+.form-group label .required{color:#ff4d4f;margin-left:2px}
+.form-group input,.form-group select{width:100%;padding:7px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box}
+.form-group input:focus,.form-group select:focus{border-color:#1677ff}
+
+/* Toast */
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="page-container" data-module="ent-user">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">企业端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">用户管理</span>
+  </div>
+
+  <div class="main-layout">
+    <!-- 左侧部门树 -->
+    <div class="tree-panel">
+      <div class="tree-header">🏢 组织架构</div>
+      <div class="tree-body" id="orgTree"></div>
+    </div>
+
+    <!-- 右侧用户列表 -->
+    <div class="content-panel">
+      <!-- 统计卡片 -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-label">用户总数</div>
+          <div class="stat-card-value">25</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">正常账号</div>
+          <div class="stat-card-value" style="color:#52c41a">22</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">停用账号</div>
+          <div class="stat-card-value" style="color:#ff4d4f">3</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">管理员</div>
+          <div class="stat-card-value" style="color:#1677ff">2</div>
+        </div>
+      </div>
+
+      <!-- 查询区 -->
+      <div class="query-bar">
+        <input type="text" placeholder="姓名/手机号" id="searchName">
+        <select id="searchDept">
+          <option value="">全部部门</option>
+          <option value="1">安全部</option>
+          <option value="2">技术部</option>
+          <option value="3">工程部</option>
+        </select>
+        <select id="searchStatus">
+          <option value="">全部状态</option>
+          <option value="normal">正常</option>
+          <option value="disabled">停用</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="showToast('搜索')">🔍 搜索</button>
+        <button class="btn btn-default btn-sm" onclick="showToast('重置')">重置</button>
+        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openAddModal()">+ 新增用户</button>
+      </div>
+
+      <!-- 表格 -->
+      <div class="table-scroll">
+        <table class="table-basic">
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>手机号</th>
+              <th>所属部门</th>
+              <th>职务</th>
+              <th>账号</th>
+              <th>角色</th>
+              <th>状态</th>
+              <th>创建时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr>
+              <td>李四</td>
+              <td>13900139001</td>
+              <td>技术部</td>
+              <td>技术经理</td>
+              <td>tech_mgr</td>
+              <td>管理员</td>
+              <td><span class="tag tag-success">正常</span></td>
+              <td>2024-01-15</td>
+              <td class="action-col">
+                <button class="btn-link" onclick="openEditModal()">编辑</button>
+                <button class="btn-link danger" onclick="showToast('删除')">删除</button>
+                <button class="btn-link" onclick="showToast('详情')">详情</button>
+                <button class="btn-link" onclick="showToast('重置密码')">重置密码</button>
+              </td>
+            </tr>
+            <tr>
+              <td>王五</td>
+              <td>13900139002</td>
+              <td>安全部</td>
+              <td>安全主管</td>
+              <td>safe_mgr</td>
+              <td>普通用户</td>
+              <td><span class="tag tag-success">正常</span></td>
+              <td>2024-01-20</td>
+              <td class="action-col">
+                <button class="btn-link" onclick="openEditModal()">编辑</button>
+                <button class="btn-link danger" onclick="showToast('删除')">删除</button>
+                <button class="btn-link" onclick="showToast('详情')">详情</button>
+                <button class="btn-link" onclick="showToast('重置密码')">重置密码</button>
+              </td>
+            </tr>
+            <tr>
+              <td>赵六</td>
+              <td>13800138002</td>
+              <td>工程部</td>
+              <td>工程师</td>
+              <td>eng_001</td>
+              <td>普通用户</td>
+              <td><span class="tag tag-error">停用</span></td>
+              <td>2024-02-01</td>
+              <td class="action-col">
+                <button class="btn-link" onclick="openEditModal()">编辑</button>
+                <button class="btn-link" onclick="showToast('详情')">详情</button>
+                <button class="btn-link" onclick="showToast('重置密码')">重置密码</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination-wrap">
+        <span class="pagination-info">共 25 条记录，第 1/3 页</span>
+        <div class="pagination-btns">
+          <button class="page-btn" disabled>&lt;</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">&gt;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增/编辑用户弹窗 -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">新增用户</span>
+      <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>姓名 <span class="required">*</span></label>
+          <input type="text" placeholder="请输入姓名">
+        </div>
+        <div class="form-group">
+          <label>手机号 <span class="required">*</span></label>
+          <input type="text" placeholder="请输入手机号">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>所属部门 <span class="required">*</span></label>
+          <select>
+            <option value="">请选择</option>
+            <option value="1">安全部</option>
+            <option value="2">技术部</option>
+            <option value="3">工程部</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>职务 <span class="required">*</span></label>
+          <input type="text" placeholder="请输入职务">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>账号 <span class="required">*</span></label>
+          <input type="text" placeholder="请输入登录账号">
+        </div>
+        <div class="form-group">
+          <label>初始密码 <span class="required">*</span></label>
+          <input type="text" value="123456" readonly>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>角色</label>
+          <select>
+            <option value="user">普通用户</option>
+            <option value="admin">管理员</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>状态</label>
+          <select>
+            <option value="normal">正常</option>
+            <option value="disabled">停用</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('userModal')">取消</button>
+      <button class="btn btn-primary" onclick="showToast('保存成功');closeModal('userModal')">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 模拟部门树数据
+const deptTreeData = [
+  {
+    id: 'root',
+    name: 'XX建筑工程有限公司',
+    type: 'company',
+    expanded: true,
+    children: [
+      {
+        id: 'dept-1',
+        name: '安全部',
+        type: 'dept',
+        expanded: false,
+        children: [
+          { id: 'sub-1', name: '安全一组', type: 'sub-dept' },
+          { id: 'sub-2', name: '安全二组', type: 'sub-dept' }
+        ]
+      },
+      {
+        id: 'dept-2',
+        name: '技术部',
+        type: 'dept',
+        expanded: false,
+        children: [
+          { id: 'sub-3', name: '技术一组', type: 'sub-dept' }
+        ]
+      },
+      {
+        id: 'dept-3',
+        name: '工程部',
+        type: 'dept',
+        expanded: false,
+        children: []
+      },
+      {
+        id: 'dept-4',
+        name: '财务部',
+        type: 'dept',
+        expanded: false,
+        children: []
+      }
+    ]
+  }
+];
+
+let selectedTreeId = 'root';
+
+function renderOrgTree() {
+  const container = document.getElementById('orgTree');
+  container.innerHTML = deptTreeData.map(node => renderTreeNode(node, 0)).join('');
+}
+
+function renderTreeNode(node, level) {
+  const isSelected = node.id === selectedTreeId;
+  const hasChildren = node.children && node.children.length > 0;
+  const indent = level * 16;
+  
+  let icon = '🏢';
+  if (node.type === 'dept') icon = '📁';
+  if (node.type === 'sub-dept') icon = '📂';
+  
+  let html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left:' + (16 + indent) + 'px" onclick="selectTreeNode(\'' + node.id + '\')">';
+  if (hasChildren) {
+    html += '<span class="tree-toggle" onclick="event.stopPropagation();toggleTreeNode(\'' + node.id + '\')">' + (node.expanded ? '▼' : '▶') + '</span>';
+  } else {
+    html += '<span class="tree-toggle"></span>';
+  }
+  html += '<span class="tree-node-label">' + icon + ' ' + node.name + '</span>';
+  html += '</div>';
+  
+  if (hasChildren && node.expanded) {
+    html += '<div class="tree-children">';
+    html += node.children.map(child => renderTreeNode(child, level + 1)).join('');
+    html += '</div>';
+  }
+  
+  return html;
+}
+
+function toggleTreeNode(nodeId) {
+  function toggle(nodes) {
+    for (const node of nodes) {
+      if (node.id === nodeId) {
+        node.expanded = !node.expanded;
+        return true;
+      }
+      if (node.children && toggle(node.children)) return true;
+    }
+    return false;
+  }
+  toggle(deptTreeData);
+  renderOrgTree();
+}
+
+function selectTreeNode(nodeId) {
+  selectedTreeId = nodeId;
+  renderOrgTree();
+}
+
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = '新增用户';
+  document.getElementById('userModal').style.display = 'flex';
+}
+
+function openEditModal() {
+  document.getElementById('modalTitle').textContent = '编辑用户';
+  document.getElementById('userModal').style.display = 'flex';
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function showToast(msg) {
+  var el = document.getElementById('_toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = '_toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  setTimeout(function() { el.style.opacity = '0'; }, 2500);
+}
+
+// 初始化
+renderOrgTree();
+</script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'ent-user', moduleName: '企业用户管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

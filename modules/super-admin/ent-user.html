@@ -1,0 +1,1289 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>企业用户管理 - 超管端</title>
+
+<style>
+.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
+.breadcrumb-item:hover{color:#1677ff}
+.main-layout{display:flex;gap:16px;margin-top:16px;min-height:calc(100vh - 100px)}
+.tree-panel{width:320px;flex-shrink:0;background:#fff;border-radius:8px;padding:16px;height:fit-content;position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto}
+.tree-panel-title{font-size:13px;font-weight:600;color:#1f1f1f;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f0}
+.tree-tabs{display:flex;border-bottom:1px solid #f0f0f0;margin-bottom:12px}
+.tree-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:13px;color:#666;border-bottom:2px solid transparent}
+.tree-tab.active{color:#1677ff;border-bottom-color:#1677ff;font-weight:500}
+.tree-search{width:100%;padding:6px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;margin-bottom:10px;outline:none;transition:border-color .2s}
+.tree-search:focus{border-color:#1677ff}
+.tree-node{padding:7px 8px;border-radius:6px;cursor:pointer;font-size:13px;color:#1f1f1f;display:flex;align-items:center;gap:5px;transition:background .15s;user-select:none}
+.tree-node:hover{background:#f5f5f5}
+.tree-node.active{background:#e6f7ff;color:#1677ff;font-weight:500}
+.tree-node .toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;transition:transform .2s;flex-shrink:0}
+.tree-node .toggle.open{transform:rotate(90deg)}
+.tree-children{padding-left:18px;display:none}
+.tree-children.show{display:block}
+.tree-node-icon{margin-right:4px}
+.tree-node-label{flex:1}
+.tree-node-count{font-size:11px;color:#999;background:#f0f0f0;padding:2px 6px;border-radius:10px}
+.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-card-label{font-size:12px;color:#888;margin-bottom:6px}
+.stat-card-value{font-size:22px;font-weight:700;color:#1f1f1f}
+.stat-card-sub{font-size:11px;color:#bbb;margin-top:2px}
+.query-bar{background:#fff;border-radius:8px;padding:16px 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.query-bar .q-item{display:flex;align-items:center;gap:6px}
+.query-bar label{font-size:13px;color:#666;white-space:nowrap}
+.query-bar select,.query-bar input{padding:5px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .2s}
+.query-bar select:focus,.query-bar input:focus{border-color:#1677ff}
+.btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+.btn-default:hover{color:#1677ff;border-color:#1677ff}
+.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+.btn-primary:hover{background:#4096ff}
+.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+.btn-link:hover{color:#4096ff}
+.btn-link.btn-sm{font-size:12px;padding:1px 4px}
+.btn-danger{padding:4px 15px;border:1px solid #ffccc7;color:#ff4d4f;background:#fff;border-radius:6px;cursor:pointer;font-size:14px;transition:all .2s}
+.btn-danger:hover{background:#fff2f0;border-color:#ff4d4f}
+.table-card{background:#fff;border-radius:8px;padding:16px;flex:1;overflow:hidden}
+.table-container{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
+thead th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;white-space:nowrap;position:relative}
+tbody td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333;max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tbody tr:hover{background:#f8fafc}
+tbody tr:last-child td{border-bottom:none}
+/* 列宽固定 */
+thead th:nth-child(1),tbody td:nth-child(1){width:60px;max-width:60px}   /* 序号 */
+thead th:nth-child(2),tbody td:nth-child(2){width:120px;max-width:120px}  /* 用户姓名 */
+thead th:nth-child(3),tbody td:nth-child(3){width:150px;max-width:150px}  /* 账号 */
+thead th:nth-child(4),tbody td:nth-child(4){width:120px;max-width:120px}  /* 联系电话 */
+thead th:nth-child(5),tbody td:nth-child(5){width:80px;max-width:80px}    /* 职务 */
+thead th:nth-child(6),tbody td:nth-child(6){width:90px;max-width:90px}    /* 管控层级 */
+thead th:nth-child(7),tbody td:nth-child(7){width:80px;max-width:80px;text-align:center}  /* 安全码 */
+thead th:nth-child(8),tbody td:nth-child(8){width:80px;max-width:80px}    /* 启用状态 */
+thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创建时间 */
+/* 操作列固定在右侧，表头居中 */
+thead th:nth-child(10){text-align:center;width:240px;max-width:240px;position:sticky;right:0;background:#fafafa;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10}
+tbody td:nth-child(10){width:240px;max-width:240px;position:sticky;right:0;background:#fff;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10;white-space:nowrap}
+tbody tr:nth-child(even) td:nth-child(10){background:#f9fafb}
+tbody tr:hover td:nth-child(10){background:#f1f5f9}
+tbody td:nth-child(10) .btn-link{margin-right:8px}
+tbody td:nth-child(10) .btn-link:last-child{margin-right:0}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
+.tag-success{background:#f6ffed;color:#52c41a}
+.tag-error{background:#fff2f0;color:#ff4d4f}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:10px;width:640px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.modal-title{font-size:16px;font-weight:600;color:#1e293b}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:14px;color:#999;transition:all .2s}
+.modal-close:hover{background:#f5f5f5;color:#666}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #f0f0f0;flex-shrink:0}
+.form-section{margin-bottom:16px}
+.form-section-title{font-size:13px;font-weight:600;color:#1f1f1f;padding:0 0 10px;margin-bottom:10px;border-bottom:1px solid #f0f0f0}
+.form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;flex:1;min-width:160px}
+.form-label{font-size:13px;color:#333;margin-bottom:5px;font-weight:500}
+.form-label .required{color:#ff4d4f;margin-right:2px}
+.form-control{padding:6px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-control:focus{border-color:#1677ff}
+.no-data td{text-align:center;color:#bbb;padding:40px 0}
+.pagination-wrap{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:12px 16px;border-top:1px solid #f0f0f0;background:#fafafa}
+.pagination-info{font-size:13px;color:#666}
+.pagination-size select{padding:4px 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;outline:none}
+.pagination-btns{display:flex;gap:4px}
+.pagination-btns button{min-width:28px;height:28px;padding:0 8px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;font-size:13px;cursor:pointer;transition:all .2s}
+.pagination-btns button:hover:not(:disabled){border-color:#1677ff;color:#1677ff}
+.pagination-btns button.active{background:#1677ff;color:#fff;border-color:#1677ff}
+.pagination-btns button:disabled{cursor:not-allowed;color:#bbb;background:#f5f5f5}
+.pagination-jump{display:flex;align-items:center;gap:6px;font-size:13px;color:#666}
+.pagination-jump input{width:40px;height:28px;padding:0 6px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;text-align:center;outline:none}
+.pagination-jump input:focus{border-color:#1677ff}
+
+/* 多选下拉框样式 */
+.multi-select{position:relative;width:100%}
+.multi-select-input{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border:1px solid #d9d9d9;border-radius:6px;cursor:pointer;background:#fff;transition:border-color .2s}
+.multi-select-input:hover{border-color:#1677ff}
+.multi-select-placeholder{color:#999;font-size:13px}
+.multi-select-arrow{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid #999;margin-left:8px}
+.multi-select-dropdown{display:none;position:absolute;top:100%;left:0;right:0;margin-top:4px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:100;max-height:200px;overflow-y:auto}
+.multi-select-dropdown.show{display:block}
+.multi-select-actions{display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;color:#1677ff;cursor:pointer}
+.multi-select-actions span:hover{color:#4096ff}
+.multi-select-actions i{margin-right:4px}
+.multi-select-options{padding:4px 0}
+.multi-select-option{padding:6px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center}
+.multi-select-option:hover{background:#f5f5f5}
+.multi-select-option input{margin-right:8px}
+.multi-select-option.disabled{color:#999;cursor:not-allowed}
+.multi-select-tags{display:flex;flex-wrap:wrap;gap:4px;padding:2px 0}
+.multi-select-tag{display:flex;align-items:center;padding:2px 6px;background:#e6f7ff;color:#1677ff;border-radius:4px;font-size:12px}
+.multi-select-tag-close{margin-left:4px;cursor:pointer;font-size:10px}
+</style>
+</head>
+<body>
+<div class="page-container" data-module="sa-ent-user">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">超管端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">企业用户管理</span>
+  </div>
+  <div class="main-layout">
+    <!-- 左侧：企业树 -->
+    <div class="tree-panel">
+      <div class="tree-panel-title">企业组织架构</div>
+      <div class="tree-tabs">
+        <div class="tree-tab active" onclick="switchTab('district')" id="tabDistrict">区划</div>
+        <div class="tree-tab" onclick="switchTab('industry')" id="tabIndustry">领域</div>
+      </div>
+      <input class="tree-search" id="treeSearch" placeholder="搜索企业..." oninput="searchTree()">
+      <div id="orgTree"></div>
+    </div>
+    <!-- 右侧：四区 -->
+    <div class="right-panel">
+      <!-- 统计卡片 -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-card-label">用户总数</div><div class="stat-card-value" id="statTotal">0</div><div class="stat-card-sub">全部用户</div></div>
+        <div class="stat-card"><div class="stat-card-label">红码</div><div class="stat-card-value" id="statRed">0</div><div class="stat-card-sub">高风险</div></div>
+        <div class="stat-card"><div class="stat-card-label">黄码</div><div class="stat-card-value" id="statYellow">0</div><div class="stat-card-sub">中风险</div></div>
+        <div class="stat-card"><div class="stat-card-label">绿码</div><div class="stat-card-value" id="statGreen">0</div><div class="stat-card-sub">正常</div></div>
+      </div>
+      <!-- 查询条件 -->
+      <div class="query-bar">
+        <div class="q-item"><label>姓名</label>
+          <input id="filterName" placeholder="请输入姓名" style="width:120px">
+        </div>
+        <div class="q-item"><label>账号</label>
+          <input id="filterAccount" placeholder="请输入账号" style="width:120px">
+        </div>
+        <div class="q-item"><label>管控层级</label>
+          <select id="filterLevel"><option value="">全部</option><option>领导层</option><option>管理层</option><option>员工层</option></select>
+        </div>
+        <div class="q-item"><label>启用状态</label>
+          <select id="filterStatus"><option value="">全部</option><option>启用</option><option>停用</option></select>
+        </div>
+        <button class="btn btn-default" onclick="renderTable()">搜索</button>
+        <button class="btn btn-default" onclick="resetFilter()">重置</button>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
+      </div>
+      <!-- 用户列表 -->
+      <div class="table-card">
+        <div class="table-container">
+          <table>
+            <thead><tr>
+              <th>序号</th><th>用户姓名</th><th>账号</th><th>联系电话</th><th>职务</th>
+              <th>管控层级</th><th>安全码</th><th>启用状态</th><th>创建时间</th><th>操作</th>
+            </tr></thead>
+            <tbody id="userTableBody"><tr><td colspan="10" class="no-data">加载中...</td></tr></tbody>
+          </table>
+        </div>
+        <!-- 分页 -->
+        <div class="pagination-wrap">
+          <div class="pagination-info">共 <span id="totalCount">0</span> 条，第 <span id="currentPageNum">1</span> 页 / 共 <span id="totalPagesNum">1</span> 页</div>
+          <div class="pagination-size">
+            <select id="pageSize" onchange="changePageSize()">
+              <option value="10">10条/页</option>
+              <option value="20">20条/页</option>
+              <option value="50">50条/页</option>
+            </select>
+          </div>
+          <div class="pagination-btns" id="pageBtns"></div>
+          <div class="pagination-jump">
+            <span>跳至</span>
+            <input type="number" id="jumpPage" min="1" onkeypress="if(event.key==='Enter')jumpToPage()">
+            <span>页</span>
+            <button class="btn btn-default" style="margin-left:4px" onclick="jumpToPage()">确定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增/编辑弹窗 -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">新增用户</span>
+      <div class="modal-close" onclick="closeModal('editModal')">&#x2715;</div>
+    </div>
+    <div class="modal-body">
+      <form id="editForm">
+        <div class="form-section">
+          <div class="form-section-title">基本信息</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><span class="required">*</span>姓名</label>
+              <input class="form-control" name="userName" id="editUserName" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span class="required">*</span>手机号码</label>
+              <input class="form-control" name="userPhone" id="editUserPhone" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">邮箱</label>
+              <input class="form-control" name="userEmail" id="editUserEmail" type="email">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">职务</label>
+              <input class="form-control" name="userPosition" id="editUserPosition">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span class="required">*</span>所属部门</label>
+              <select class="form-control" name="userDept" id="editUserDept" required>
+                <option value="">请选择</option>
+                <option>安全部</option><option>技术部</option><option>生产部</option>
+                <option>质检部</option><option>运营部</option><option>风控部</option>
+                <option>人力资源部</option><option>财务部</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span class="required">*</span>员工层级</label>
+              <select class="form-control" name="userLevel" id="editUserLevel" required onchange="onLevelChange()">
+                <option value="">请选择</option>
+                <option>领导层</option>
+                <option>管理层</option>
+                <option>员工层</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">分管领导</label>
+              <select class="form-control" name="superiorId" id="editSuperiorId">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="form-group" id="manageDeptsGroup" style="display:none">
+              <label class="form-label">管辖部门</label>
+              <div class="multi-select" id="manageDeptsWrap">
+                <div class="multi-select-input" onclick="toggleMultiDropdown()">
+                  <span class="multi-select-placeholder" id="manageDeptsText">请选择管辖部门</span>
+                  <i class="multi-select-arrow"></i>
+                </div>
+                <div class="multi-select-dropdown" id="manageDeptsDropdown">
+                  <div class="multi-select-actions">
+                    <span onclick="selectAllManageDepts()"><i>&#x2713;</i>全选</span>
+                    <span onclick="clearManageDepts()"><i>&#x2715;</i>清空</span>
+                  </div>
+                  <div class="multi-select-options" id="manageDeptsOptions"></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span class="required">*</span>角色类型</label>
+              <select class="form-control" name="userRole" id="editUserRole" required>
+                <option value="">请选择</option>
+                <option>企业管理员</option>
+                <option>普通用户</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><span class="required">*</span>启用状态</label>
+              <select class="form-control" name="userStatus" id="editUserStatus" required>
+                <option value="启用">启用</option>
+                <option value="停用">停用</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:2">
+              <label class="form-label">备注</label>
+              <input class="form-control" name="remark" id="editRemark" placeholder="请输入备注信息（200字以内）">
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">账号信息</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><span class="required">*</span>账号</label>
+              <input class="form-control" name="userAccount" id="editUserAccount" required placeholder="4-20位字母或数字">
+            </div>
+            <div class="form-group">
+              <label class="form-label" id="pwdLabel"><span class="required">*</span>密码</label>
+              <input class="form-control" name="userPassword" id="editUserPassword" type="password" placeholder="默认123456">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('editModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveUser()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 删除弹窗 -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header">
+      <span class="modal-title">确认删除</span>
+      <div class="modal-close" onclick="closeModal('deleteModal')">&#x2715;</div>
+    </div>
+    <div class="modal-body" style="text-align:center;padding:30px">
+      <p>确定要删除用户 <strong id="deleteUserName"></strong> 吗？</p>
+      <p style="color:#999;font-size:13px;margin-top:10px">此操作不可恢复</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('deleteModal')">取消</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重置密码弹窗 -->
+<div class="modal-overlay" id="resetPwdModal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header">
+      <span class="modal-title">重置密码</span>
+      <div class="modal-close" onclick="closeModal('resetPwdModal')">&#x2715;</div>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <p>为用户 <strong id="resetPwdUserName"></strong> 重置密码</p>
+      <div class="form-group" style="margin-top:15px">
+        <label class="form-label">新密码</label>
+        <input class="form-control" id="newPassword" type="password" placeholder="请输入新密码">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('resetPwdModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmResetPwd()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">用户详情</span>
+      <div class="modal-close" onclick="closeModal('detailModal')">&#x2715;</div>
+    </div>
+    <div class="modal-body" id="detailContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('detailModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== 树数据 ==========
+const districtData=[
+  {id:'nanshan',name:'南山区',count:245,children:[
+    {id:'yuehai',name:'粤海街道',count:89,children:[
+      {id:'gaoxin',name:'高新社区',count:45,children:[
+        {id:1,name:'腾讯科技（深圳）有限公司',count:12,isEnterprise:true},
+        {id:4,name:'大疆创新科技有限公司',count:8,isEnterprise:true}
+      ]}
+    ]}
+  ]},
+  {id:'futian',name:'福田区',count:189,children:[
+    {id:'futian-st',name:'福田街道',count:56,children:[
+      {id:5,name:'顺丰速运有限公司',count:15,isEnterprise:true},
+      {id:6,name:'招商银行股份有限公司',count:22,isEnterprise:true}
+    ]}
+  ]},
+  {id:'longgang',name:'龙岗区',count:156,children:[
+    {id:'bantian',name:'坂田街道',count:78,children:[
+      {id:2,name:'华为技术有限公司',count:35,isEnterprise:true}
+    ]}
+  ]},
+  {id:'pingshan',name:'坪山区',count:98,children:[
+    {id:'pingshan-st',name:'坪山街道',count:45,children:[
+      {id:3,name:'比亚迪股份有限公司',count:28,isEnterprise:true}
+    ]}
+  ]}
+];
+
+// 三级领域树：行业大类 -> 领域小类 -> 企业
+// 领域树数据源：从 domain-manage.html 的真实数据构建（行业大类 → 领域小类）
+// 行业大类映射（与 domain-manage.html 一致）
+const industryCategoryMap={
+  'IND':{id:'cat_ind',name:'工业制造类',type:'category'},
+  'CITY':{id:'cat_city',name:'城市运行类',type:'category'},
+  'TRANS':{id:'cat_trans',name:'交通运输类',type:'category'},
+  'CONS':{id:'cat_cons',name:'建设工程类',type:'category'},
+  'COMM':{id:'cat_comm',name:'公共场所类',type:'category'},
+  'ENVI':{id:'cat_envi',name:'生态环境类',type:'category'},
+  'CHEM':{id:'cat_chem',name:'危险化学品类',type:'category'},
+  'OTHE':{id:'cat_othe',name:'其他类',type:'category'}
+};
+
+// 领域小类数据（从 domain-manage.html 同步）
+const domainSubcategories=[
+  {id:'MANUFACTURING_001',name:'生产车间',industry:'IND'},
+  {id:'CITY_001',name:'充换电设施',industry:'CITY'},
+  {id:'TRANS_001',name:'道路运输',industry:'TRANS'},
+  {id:'TRANS_002',name:'港口码头',industry:'TRANS'},
+  {id:'TRANS_003',name:'机场航站楼',industry:'TRANS'},
+  {id:'CONS_001',name:'建筑施工现场',industry:'CONS'},
+  {id:'CONS_002',name:'市政工程',industry:'CONS'},
+  {id:'CONS_003',name:'装修工程',industry:'CONS'},
+  {id:'COMM_001',name:'大型展会',industry:'COMM'},
+  {id:'COMM_002',name:'商场超市',industry:'COMM'},
+  {id:'COMM_003',name:'餐饮场所',industry:'COMM'},
+  {id:'COMM_004',name:'娱乐场所',industry:'COMM'},
+  {id:'COMM_005',name:'体育场馆',industry:'COMM'},
+  {id:'ENVI_002',name:'污水处理厂',industry:'ENVI'},
+  {id:'ENVI_003',name:'垃圾处理场',industry:'ENVI'},
+  {id:'CHEM_001',name:'危险化学品仓储',industry:'CHEM'},
+  {id:'OTHE_001',name:'数据中心',industry:'OTHE'},
+  {id:'OTHE_002',name:'金融机构',industry:'OTHE'},
+  {id:'OTHE_003',name:'科研机构',industry:'OTHE'},
+  {id:'OTHE_004',name:'仓储物流',industry:'OTHE'}
+];
+
+// 动态构建领域树（按行业大类分组）
+function buildIndustryTree(){
+  const tree=[];
+  const categoryMap={};
+  // 先创建所有大类节点
+  for(const[code,cat]of Object.entries(industryCategoryMap)){
+    categoryMap[code]={
+      id:cat.id,
+      name:cat.name,
+      type:'category',
+      count:0,
+      children:[]
+    };
+  }
+  // 再将领域小类挂载到对应大类下
+  for(const sub of domainSubcategories){
+    const cat=categoryMap[sub.industry];
+    if(cat){
+      // 统计该领域小类下的用户数
+      const userCount=allUsers.filter(u=>u.industry===sub.industry).length;
+      cat.children.push({
+        id:sub.id,
+        name:sub.name,
+        type:'subcategory',
+        industry:sub.industry,
+        count:userCount
+      });
+      cat.count+=userCount;
+    }
+  }
+  // 转为数组
+  for(const cat of Object.values(categoryMap)){
+    if(cat.children.length>0){
+      tree.push(cat);
+    }
+  }
+  return tree;
+}
+
+// 旧的静态数据（已废弃，保留结构参考）
+const industryData=[
+  {
+    id:'cat_manufacturing',
+    name:'制造业',
+    level:1,
+    type:'category',
+    count:312,
+    children:[
+      {
+        id:'sub_machinery',
+        name:'机械制造',
+        level:2,
+        type:'subcategory',
+        categoryId:'cat_manufacturing',
+        count:156,
+        children:[
+          {id:1,name:'腾讯科技（深圳）有限公司',level:3,type:'enterprise',subcategoryId:'sub_machinery',count:12,isEnterprise:true},
+          {id:4,name:'大疆创新科技有限公司',level:3,type:'enterprise',subcategoryId:'sub_machinery',count:8,isEnterprise:true}
+        ]
+      },
+      {
+        id:'sub_electronics',
+        name:'电子制造',
+        level:2,
+        type:'subcategory',
+        categoryId:'cat_manufacturing',
+        count:156,
+        children:[
+          {id:2,name:'华为技术有限公司',level:3,type:'enterprise',subcategoryId:'sub_electronics',count:35,isEnterprise:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:'cat_construction',
+    name:'建筑业',
+    level:1,
+    type:'category',
+    count:189,
+    children:[
+      {
+        id:'sub_building',
+        name:'房屋建筑',
+        level:2,
+        type:'subcategory',
+        categoryId:'cat_construction',
+        count:189,
+        children:[
+          {id:3,name:'比亚迪建设工程有限公司',level:3,type:'enterprise',subcategoryId:'sub_building',count:28,isEnterprise:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:'cat_logistics',
+    name:'物流运输',
+    level:1,
+    type:'category',
+    count:156,
+    children:[
+      {
+        id:'sub_express',
+        name:'快递物流',
+        level:2,
+        type:'subcategory',
+        categoryId:'cat_logistics',
+        count:156,
+        children:[
+          {id:5,name:'顺丰速运有限公司',level:3,type:'enterprise',subcategoryId:'sub_express',count:15,isEnterprise:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:'cat_finance',
+    name:'金融服务',
+    level:1,
+    type:'category',
+    count:234,
+    children:[
+      {
+        id:'sub_banking',
+        name:'银行服务',
+        level:2,
+        type:'subcategory',
+        categoryId:'cat_finance',
+        count:234,
+        children:[
+          {id:6,name:'招商银行股份有限公司',level:3,type:'enterprise',subcategoryId:'sub_banking',count:22,isEnterprise:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:'cat_internet',
+    name:'互联网',
+    level:1,
+    type:'category',
+    count:245,
+    children:[
+      {
+        id:'sub_software',
+        name:'软件开发',
+        level:2,
+        type:'subcategory',
+        categoryId:'cat_internet',
+        count:120,
+        children:[
+          {id:7,name:'金蝶软件（中国）有限公司',level:3,type:'enterprise',subcategoryId:'sub_software',count:18,isEnterprise:true}
+        ]
+      },
+      {
+        id:'sub_ecommerce',
+        name:'电子商务',
+        level:2,
+        type:'subcategory',
+        categoryId:'cat_internet',
+        count:125,
+        children:[
+          {id:8,name:'深圳前海微众银行',level:3,type:'enterprise',subcategoryId:'sub_ecommerce',count:25,isEnterprise:true}
+        ]
+      }
+    ]
+  }
+];
+
+// ========== 用户数据 ==========
+// 字段：id, userName, userAccount, userPhone, userEmail, userDept, userPosition, 
+//       userLevel(领导层/管理层/员工层), userRole(企业管理员/普通用户), 
+//       userStatus(启用/停用), createTime, safetyCode(红/黄/绿), 
+//       superiorId(分管领导ID), manageDepts(管辖部门数组), remark
+// 用户数据：enterpriseId 关联区划树企业节点，industry 关联领域树行业大类
+let allUsers=[
+  {id:1,userName:'张三',userAccount:'zhangsan001',userPhone:'13800138001',userEmail:'zhangsan@tencent.com',userDept:'安全部',userPosition:'安全主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-01-15',safetyCode:'绿',superiorId:null,manageDepts:['安全部','技术部'],remark:'',enterpriseId:1,industry:'IND'},
+  {id:2,userName:'李四',userAccount:'lisi002',userPhone:'13800138002',userEmail:'lisi@tencent.com',userDept:'技术部',userPosition:'工程师',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-02-20',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
+  {id:3,userName:'王五',userAccount:'wangwu003',userPhone:'13800138003',userEmail:'wangwu@huawei.com',userDept:'生产部',userPosition:'部门经理',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-03-10',safetyCode:'黄',superiorId:null,manageDepts:['生产部','质检部'],remark:'负责生产安全',enterpriseId:2,industry:'IND'},
+  {id:4,userName:'赵六',userAccount:'zhaoliu004',userPhone:'13800138004',userEmail:'zhaoliu@byd.com',userDept:'质检部',userPosition:'质检员',userLevel:'员工层',userRole:'普通用户',userStatus:'停用',createTime:'2024-04-05',safetyCode:'红',superiorId:3,manageDepts:[],remark:'',enterpriseId:3,industry:'CONS'},
+  {id:5,userName:'钱七',userAccount:'qianqi005',userPhone:'13800138005',userEmail:'qianqi@sf.com',userDept:'运营部',userPosition:'运营专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-05-12',safetyCode:'绿',superiorId:6,manageDepts:[],remark:'',enterpriseId:5,industry:'TRANS'},
+  {id:6,userName:'孙八',userAccount:'sunba006',userPhone:'13800138006',userEmail:'sunba@cmb.com',userDept:'风控部',userPosition:'风控主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-06-18',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'},
+  {id:7,userName:'周九',userAccount:'zhoujiu007',userPhone:'13800138007',userEmail:'zhoujiu@tencent.com',userDept:'技术部',userPosition:'高级工程师',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-07-01',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
+  {id:8,userName:'吴十',userAccount:'wushi008',userPhone:'13800138008',userEmail:'wushi@huawei.com',userDept:'生产部',userPosition:'生产主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-07-15',safetyCode:'黄',superiorId:3,manageDepts:['生产部'],remark:'',enterpriseId:2,industry:'IND'},
+  {id:9,userName:'郑十一',userAccount:'zheng11',userPhone:'13800138009',userEmail:'zheng11@byd.com',userDept:'质检部',userPosition:'质检主管',userLevel:'管理层',userRole:'普通用户',userStatus:'启用',createTime:'2024-08-01',safetyCode:'绿',superiorId:null,manageDepts:['质检部'],remark:'',enterpriseId:3,industry:'CONS'},
+  {id:10,userName:'王十二',userAccount:'wang12',userPhone:'13800138010',userEmail:'wang12@sf.com',userDept:'运营部',userPosition:'运营经理',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-08-10',safetyCode:'绿',superiorId:null,manageDepts:['运营部'],remark:'',enterpriseId:5,industry:'TRANS'},
+  {id:11,userName:'李十三',userAccount:'li13',userPhone:'13800138011',userEmail:'li13@cmb.com',userDept:'风控部',userPosition:'风控专员',userLevel:'员工层',userRole:'普通用户',userStatus:'停用',createTime:'2024-08-20',safetyCode:'黄',superiorId:6,manageDepts:[],remark:'',enterpriseId:6,industry:'OTHE'},
+  {id:12,userName:'张十四',userAccount:'zhang14',userPhone:'13800138012',userEmail:'zhang14@tencent.com',userDept:'安全部',userPosition:'安全员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-01',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
+  {id:13,userName:'刘十五',userAccount:'liu15',userPhone:'13800138013',userEmail:'liu15@huawei.com',userDept:'生产部',userPosition:'生产专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-10',safetyCode:'绿',superiorId:8,manageDepts:[],remark:'',enterpriseId:2,industry:'IND'},
+  {id:14,userName:'陈十六',userAccount:'chen16',userPhone:'13800138014',userEmail:'chen16@byd.com',userDept:'质检部',userPosition:'质检员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-15',safetyCode:'黄',superiorId:9,manageDepts:[],remark:'',enterpriseId:3,industry:'CONS'},
+  {id:15,userName:'杨十七',userAccount:'yang17',userPhone:'13800138015',userEmail:'yang17@sf.com',userDept:'运营部',userPosition:'运营专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-20',safetyCode:'绿',superiorId:10,manageDepts:[],remark:'',enterpriseId:5,industry:'TRANS'},
+  {id:16,userName:'黄十八',userAccount:'huang18',userPhone:'13800138016',userEmail:'huang18@cmb.com',userDept:'风控部',userPosition:'风控经理',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-01',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'},
+  {id:17,userName:'赵十九',userAccount:'zhao19',userPhone:'13800138017',userEmail:'zhao19@tencent.com',userDept:'技术部',userPosition:'技术总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-10',safetyCode:'绿',superiorId:null,manageDepts:['技术部','研发部'],remark:'',enterpriseId:1,industry:'IND'},
+  {id:18,userName:'钱二十',userAccount:'qian20',userPhone:'13800138018',userEmail:'qian20@huawei.com',userDept:'生产部',userPosition:'生产总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-15',safetyCode:'黄',superiorId:null,manageDepts:['生产部','质检部'],remark:'',enterpriseId:2,industry:'IND'},
+  {id:19,userName:'孙二一',userAccount:'sun21',userPhone:'13800138019',userEmail:'sun21@byd.com',userDept:'质检部',userPosition:'质检总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'停用',createTime:'2024-10-20',safetyCode:'红',superiorId:null,manageDepts:['质检部'],remark:'',enterpriseId:3,industry:'CONS'},
+  {id:20,userName:'周二二',userAccount:'zhou22',userPhone:'13800138020',userEmail:'zhou22@sf.com',userDept:'运营部',userPosition:'运营总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-11-01',safetyCode:'绿',superiorId:null,manageDepts:['运营部'],remark:'',enterpriseId:5,industry:'TRANS'},
+  {id:21,userName:'吴二三',userAccount:'wu23',userPhone:'13800138021',userEmail:'wu23@cmb.com',userDept:'风控部',userPosition:'风控总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-11-10',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'}
+];
+
+// 企业组织架构数据（用于所属部门、管辖部门下拉框）
+const enterpriseDepts=[
+  {id:'dept_safe',name:'安全部'},
+  {id:'dept_tech',name:'技术部'},
+  {id:'dept_prod',name:'生产部'},
+  {id:'dept_qc',name:'质检部'},
+  {id:'dept_ops',name:'运营部'},
+  {id:'dept_risk',name:'风控部'},
+  {id:'dept_hr',name:'人力资源部'},
+  {id:'dept_finance',name:'财务部'}
+];
+
+let filteredUsers=[];
+let currentTab='district';
+let selectedNode=null;
+let editingId=null;
+let deletingId=null;
+let resetPwdId=null;
+let currentPage=1;
+let pageSize=10;
+let totalPages=1;
+
+// ========== 初始化 ==========
+window.onload=function(){
+  renderTree();
+  updateStats();
+  renderTable();
+};
+
+// ========== 树操作 ==========
+function switchTab(tab){
+  currentTab=tab;
+  selectedNode=null; // 切换Tab时清空选中节点，显示全部数据
+  document.getElementById('tabDistrict').classList.toggle('active',tab==='district');
+  document.getElementById('tabIndustry').classList.toggle('active',tab==='industry');
+  renderTree();
+  updateStats();
+  renderTable();
+  updateBreadcrumb(null); // 重置面包屑为"全部企业"
+}
+
+function renderTree(){
+  // 区划Tab 用静态 districtData，领域Tab 用动态 buildIndustryTree()
+  const data=currentTab==='district'?districtData:buildIndustryTree();
+  document.getElementById('orgTree').innerHTML=renderNodes(data,0);
+}
+
+function renderNodes(nodes,level){
+  if(!nodes||nodes.length===0)return'';
+  return nodes.map(node=>{
+    const hasChildren=node.children&&node.children.length>0;
+    const isEnterprise=node.isEnterprise;
+    const isSelected=selectedNode&&selectedNode.id===node.id;
+    // 根据节点类型显示不同图标
+    let icon='&#128196;'; // 默认文件图标
+    if(isEnterprise){
+      icon='&#127970;'; // 企业图标
+    }else if(node.type==='category'){
+      icon='&#128188;'; // 行业大类图标（公文包）
+    }else if(node.type==='subcategory'){
+      icon='&#128194;'; // 领域小类图标（文件夹）
+    }else if(hasChildren){
+      icon='&#128193;'; // 有子节点的文件夹
+    }
+    return`<div class="tree-node-wrapper">
+      <div class="tree-node ${isSelected?'active':''}" data-id="${node.id}" data-enterprise="${isEnterprise||false}" data-type="${node.type||''}" onclick="selectTreeNode(${JSON.stringify(node).replace(/"/g,'&quot;')})" style="padding-left:${12+level*16}px">
+        <span class="toggle ${hasChildren?'collapsed':''}" onclick="toggleNode(this,event)">&#9654;</span>
+        <span class="tree-node-icon">${icon}</span>
+        <span class="tree-node-label">${node.name}</span>
+        <span class="tree-node-count">${node.count||0}${isEnterprise?'人':''}</span>
+      </div>
+      ${hasChildren?`<div class="tree-children">${renderNodes(node.children,level+1)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function toggleNode(el,e){
+  e.stopPropagation();
+  const children=el.closest('.tree-node-wrapper').querySelector('.tree-children');
+  if(children){
+    children.classList.toggle('show');
+    el.classList.toggle('open');
+  }
+}
+
+function searchTree(){
+  const keyword=document.getElementById('treeSearch').value.toLowerCase();
+  document.querySelectorAll('.tree-node').forEach(node=>{
+    const name=node.querySelector('.tree-node-label').textContent.toLowerCase();
+    node.style.display=name.includes(keyword)?'flex':'none';
+  });
+}
+
+function selectTreeNode(node){
+  selectedNode=node;
+  // 只更新选中样式，不重新渲染树，保持展开状态
+  document.querySelectorAll('.tree-node').forEach(el=>{
+    el.classList.remove('active');
+    if(el.dataset.id==node.id)el.classList.add('active');
+  });
+  currentPage=1;
+  updateStats();
+  renderTable();
+  
+  // 更新顶部提示栏
+  updateBreadcrumb(node);
+}
+
+// 根据选中节点过滤用户数据
+function getFilteredUsersByNode(){
+  if(!selectedNode)return allUsers;
+  
+  // 区划Tab：按企业ID过滤
+  if(currentTab==='district'){
+    // 如果选中的是企业节点，返回该企业的用户
+    if(selectedNode.isEnterprise){
+      return allUsers.filter(u=>u.enterpriseId===selectedNode.id);
+    }
+    // 如果选中的是区划/街道/社区节点，返回该区域下所有企业的用户
+    // 需要递归查找该节点下所有企业ID
+    const enterpriseIds=getEnterpriseIdsInNode(selectedNode,districtData);
+    if(enterpriseIds.length>0){
+      return allUsers.filter(u=>enterpriseIds.includes(u.enterpriseId));
+    }
+    return allUsers;
+  }
+  
+  // 领域Tab：按行业大类过滤
+  if(currentTab==='industry'){
+    // 如果选中的是大类节点
+    if(selectedNode.type==='category'){
+      // 从节点ID映射到行业代码（cat_ind -> IND）
+      const industryCode=Object.entries(industryCategoryMap).find(([code,cat])=>cat.id===selectedNode.id)?.[0];
+      if(industryCode){
+        return allUsers.filter(u=>u.industry===industryCode);
+      }
+    }
+    // 如果选中的是小类节点
+    if(selectedNode.type==='subcategory'&&selectedNode.industry){
+      return allUsers.filter(u=>u.industry===selectedNode.industry);
+    }
+  }
+  
+  return allUsers;
+}
+
+// 递归获取节点下所有企业ID
+function getEnterpriseIdsInNode(node,data){
+  const ids=[];
+  function traverse(nodes){
+    for(const n of nodes){
+      if(n.id===node.id){
+        // 找到目标节点，收集其下所有企业ID
+        collectEnterpriseIds(n,ids);
+        return true;
+      }
+      if(n.children&&n.children.length>0){
+        if(traverse(n.children))return true;
+      }
+    }
+    return false;
+  }
+  traverse(data);
+  return ids;
+}
+
+// 收集节点下所有企业ID
+function collectEnterpriseIds(node,ids){
+  if(node.isEnterprise){
+    ids.push(node.id);
+  }
+  if(node.children&&node.children.length>0){
+    for(const child of node.children){
+      collectEnterpriseIds(child,ids);
+    }
+  }
+}
+
+// 更新顶部提示栏显示当前选中路径
+function updateBreadcrumb(node){
+  const breadcrumbEl=document.querySelector('.breadcrumb');
+  if(!node){
+    breadcrumbEl.innerHTML='<span class="breadcrumb-item">全部企业</span>';
+    return;
+  }
+  
+  // 区划Tab
+  if(currentTab==='district'){
+    if(node.isEnterprise){
+      const path=findNodePath(districtData,node.id);
+      if(path.length>0){
+        breadcrumbEl.innerHTML=path.map(n=>`<span class="breadcrumb-item">${n.name}</span>`).join('<span class="breadcrumb-separator">&gt;</span>');
+      }
+    }else{
+      // 区划/街道/社区节点
+      breadcrumbEl.innerHTML=`<span class="breadcrumb-item">${node.name}</span>`;
+    }
+    return;
+  }
+  
+  // 领域Tab
+  if(currentTab==='industry'){
+    if(node.type==='category'){
+      breadcrumbEl.innerHTML=`<span class="breadcrumb-item">${node.name}</span>`;
+    }else if(node.type==='subcategory'){
+      // 找到父级大类
+      const cat=industryCategoryMap[node.industry];
+      if(cat){
+        breadcrumbEl.innerHTML=`<span class="breadcrumb-item">${cat.name}</span><span class="breadcrumb-separator">&gt;</span><span class="breadcrumb-item">${node.name}</span>`;
+      }
+    }
+  }
+}
+
+// 在树中查找节点路径
+function findNodePath(nodes,targetId,currentPath=[]){
+  for(let node of nodes){
+    const newPath=[...currentPath,node];
+    if(node.id==targetId)return newPath;
+    if(node.children&&node.children.length>0){
+      const found=findNodePath(node.children,targetId,newPath);
+      if(found)return found;
+    }
+  }
+  return[];
+}
+
+// 安全码图标生成（全局函数，列表和详情共用）
+function getSafetyCodeIcon(code){
+  const colors={'红':'#ff4d4f','黄':'#faad14','绿':'#52c41a'};
+  const color=colors[code]||'#999';
+  // 使用SVG二维码图标
+  return`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle">
+    <rect x="3" y="3" width="7" height="7" rx="1" fill="${color}" opacity="0.3"/>
+    <rect x="14" y="3" width="7" height="7" rx="1" fill="${color}" opacity="0.3"/>
+    <rect x="3" y="14" width="7" height="7" rx="1" fill="${color}" opacity="0.3"/>
+    <rect x="14" y="14" width="7" height="7" rx="1" fill="${color}"/>
+    <rect x="5" y="5" width="3" height="3" fill="${color}"/>
+    <rect x="16" y="5" width="3" height="3" fill="${color}"/>
+    <rect x="5" y="16" width="3" height="3" fill="${color}"/>
+  </svg>`;
+}
+
+// ========== 用户列表 ==========
+function renderTable(){
+  const name=document.getElementById('filterName').value.toLowerCase();
+  const account=document.getElementById('filterAccount').value.toLowerCase();
+  const level=document.getElementById('filterLevel').value;
+  const status=document.getElementById('filterStatus').value;
+
+  // 先根据树节点过滤
+  const nodeFiltered=getFilteredUsersByNode();
+  
+  filteredUsers=nodeFiltered.filter(user=>{
+    if(name&&!user.userName.toLowerCase().includes(name))return false;
+    if(account&&!user.userAccount.toLowerCase().includes(account))return false;
+    if(level&&user.userLevel!==level)return false;
+    if(status&&user.userStatus!==status)return false;
+    return true;
+  });
+
+  // 更新统计卡片
+  updateStats();
+
+  // 分页计算
+  const totalCount=filteredUsers.length;
+  totalPages=Math.ceil(totalCount/pageSize)||1;
+  if(currentPage>totalPages)currentPage=totalPages;
+  if(currentPage<1)currentPage=1;
+  
+  const startIndex=(currentPage-1)*pageSize;
+  const pageData=filteredUsers.slice(startIndex,startIndex+pageSize);
+
+  // 更新分页信息
+  document.getElementById('totalCount').textContent=totalCount;
+  renderPageBtns();
+
+  const tbody=document.getElementById('userTableBody');
+  if(pageData.length===0){
+    tbody.innerHTML='<tr><td colspan="10" class="no-data">暂无数据</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML=pageData.map((user,index)=>`<tr>
+    <td>${startIndex+index+1}</td>
+    <td title="${user.userName}">${user.userName}</td>
+    <td title="${user.userAccount}">${user.userAccount}</td>
+    <td title="${user.userPhone}">${user.userPhone.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2')}</td>
+    <td title="${user.userPosition||''}">${user.userPosition||'-'}</td>
+    <td title="${user.userLevel}">${user.userLevel}</td>
+    <td style="text-align:center" title="安全码：${user.safetyCode}码">${getSafetyCodeIcon(user.safetyCode)}</td>
+    <td title="${user.userStatus}"><span class="tag ${user.userStatus==='启用'?'tag-success':'tag-error'}">${user.userStatus}</span></td>
+    <td title="${user.createTime}">${user.createTime}</td>
+    <td style="white-space:nowrap">
+      <button class="btn-link" onclick="openEditModal(${user.id})">编辑</button>
+      <button class="btn-link" onclick="openDeleteModal(${user.id})">删除</button>
+      <button class="btn-link" onclick="openDetailModal(${user.id})">详情</button>
+      <button class="btn-link" onclick="openResetPwdModal(${user.id})">重置密码</button>
+    </td>
+  </tr>`).join('');
+}
+
+function updateStats(){
+  const filtered=getFilteredUsersByNode();
+  document.getElementById('statTotal').textContent=filtered.length;
+  document.getElementById('statRed').textContent=filtered.filter(u=>u.safetyCode==='红').length;
+  document.getElementById('statYellow').textContent=filtered.filter(u=>u.safetyCode==='黄').length;
+  document.getElementById('statGreen').textContent=filtered.filter(u=>u.safetyCode==='绿').length;
+}
+
+// ========== 分页功能 ==========
+function renderPageBtns(){
+  // 更新页码信息
+  document.getElementById('currentPageNum').textContent=currentPage;
+  document.getElementById('totalPagesNum').textContent=totalPages;
+  
+  const container=document.getElementById('pageBtns');
+  let html='';
+  
+  // 上一页
+  html+=`<button onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>&lt;</button>`;
+  
+  // 页码
+  const maxBtns=5;
+  let start=Math.max(1,currentPage-Math.floor(maxBtns/2));
+  let end=Math.min(totalPages,start+maxBtns-1);
+  if(end-start<maxBtns-1)start=Math.max(1,end-maxBtns+1);
+  
+  if(start>1)html+=`<button onclick="goPage(1)">1</button>`;
+  if(start>2)html+=`<button disabled>...</button>`;
+  
+  for(let i=start;i<=end;i++){
+    html+=`<button class="${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  
+  if(end<totalPages-1)html+=`<button disabled>...</button>`;
+  if(end<totalPages)html+=`<button onclick="goPage(${totalPages})">${totalPages}</button>`;
+  
+  // 下一页
+  html+=`<button onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>&gt;</button>`;
+  
+  container.innerHTML=html;
+}
+
+function goPage(page){
+  if(page<1||page>totalPages)return;
+  currentPage=page;
+  renderTable();
+}
+
+function changePageSize(){
+  pageSize=parseInt(document.getElementById('pageSize').value);
+  currentPage=1;
+  renderTable();
+}
+
+function jumpToPage(){
+  const input=document.getElementById('jumpPage');
+  const page=parseInt(input.value);
+  if(page&&page>=1&&page<=totalPages){
+    goPage(page);
+    input.value='';
+  }else{
+    alert('请输入有效的页码');
+  }
+}
+
+function resetFilter(){
+  document.getElementById('filterName').value='';
+  document.getElementById('filterAccount').value='';
+  document.getElementById('filterLevel').value='';
+  selectedNode=null;
+  currentPage=1;
+  renderTree();
+  renderTable();
+  updateStats();
+}
+
+// ========== 弹窗操作 ==========
+function closeModal(id){
+  document.getElementById(id).classList.remove('show');
+}
+
+function openAddModal(){
+  editingId=null;
+  document.getElementById('modalTitle').textContent='新增用户';
+  document.getElementById('editForm').reset();
+  document.getElementById('pwdLabel').innerHTML='<span class="required">*</span>密码';
+  document.getElementById('editUserPassword').placeholder='默认123456';
+  
+  // 重置管辖部门和分管领导
+  selectedManageDepts=[];
+  updateManageDeptsDisplay();
+  document.getElementById('manageDeptsGroup').style.display='none';
+  document.getElementById('editSuperiorId').innerHTML='<option value="">请选择</option>';
+  
+  document.getElementById('editModal').classList.add('show');
+}
+
+function openEditModal(id){
+  editingId=id;
+  const user=allUsers.find(u=>u.id===id);
+  if(!user)return;
+  document.getElementById('modalTitle').textContent='编辑用户';
+  document.getElementById('editUserName').value=user.userName;
+  document.getElementById('editUserPhone').value=user.userPhone;
+  document.getElementById('editUserEmail').value=user.userEmail||'';
+  document.getElementById('editUserPosition').value=user.userPosition||'';
+  document.getElementById('editUserDept').value=user.userDept||'';
+  document.getElementById('editUserLevel').value=user.userLevel||'';
+  document.getElementById('editUserRole').value=user.userRole;
+  document.getElementById('editUserStatus').value=user.userStatus;
+  document.getElementById('editRemark').value=user.remark||'';
+  document.getElementById('editUserAccount').value=user.userAccount;
+  document.getElementById('editUserPassword').value='********';
+  
+  // 触发层级切换，更新分管领导和管辖部门
+  onLevelChange();
+  
+  // 设置分管领导
+  if(user.superiorId){
+    document.getElementById('editSuperiorId').value=user.superiorId;
+  }
+  
+  // 设置管辖部门
+  selectedManageDepts=user.manageDepts||[];
+  updateManageDeptsDisplay();
+  
+  document.getElementById('editModal').classList.add('show');
+}
+
+function saveUser(){
+  const form=document.getElementById('editForm');
+  const formData=new FormData(form);
+  const data=Object.fromEntries(formData);
+  
+  // 补充管辖部门和分管领导数据
+  data.manageDepts=selectedManageDepts;
+  data.superiorId=data.superiorId||null;
+  
+  // 新增时设置默认安全码
+  if(!editingId){
+    data.safetyCode='绿';
+  }
+
+  if(editingId){
+    const idx=allUsers.findIndex(u=>u.id===editingId);
+    if(idx!==-1){
+      allUsers[idx]={...allUsers[idx],...data};
+    }
+  }else{
+    const newId=allUsers.length>0?Math.max(...allUsers.map(u=>u.id))+1:1;
+    allUsers.push({
+      id:newId,
+      ...data,
+      createTime:new Date().toISOString().split('T')[0]
+    });
+  }
+
+  closeModal('editModal');
+  renderTable();
+  updateStats();
+  alert(editingId?'修改成功':'新增成功');
+}
+
+function openDeleteModal(id){
+  deletingId=id;
+  const user=allUsers.find(u=>u.id===id);
+  if(!user)return;
+  document.getElementById('deleteUserName').textContent=user.userName;
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function confirmDelete(){
+  allUsers=allUsers.filter(u=>u.id!==deletingId);
+  closeModal('deleteModal');
+  renderTable();
+  updateStats();
+  alert('删除成功');
+}
+
+function openResetPwdModal(id){
+  resetPwdId=id;
+  const user=allUsers.find(u=>u.id===id);
+  if(!user)return;
+  document.getElementById('resetPwdUserName').textContent=user.userName;
+  document.getElementById('newPassword').value='';
+  document.getElementById('resetPwdModal').classList.add('show');
+}
+
+function confirmResetPwd(){
+  const pwd=document.getElementById('newPassword').value;
+  if(!pwd){alert('请输入新密码');return;}
+  closeModal('resetPwdModal');
+  alert('密码重置成功');
+}
+
+function openDetailModal(id){
+  const user=allUsers.find(u=>u.id===id);
+  if(!user)return;
+  const superiorUser=allUsers.find(u=>u.id===user.superiorId);
+  const manageDeptsText=user.manageDepts&&user.manageDepts.length>0?user.manageDepts.join('、'):'-';
+  document.getElementById('detailContent').innerHTML=`<div class="form-row">
+    <div class="form-group"><label class="form-label">姓名</label><div class="form-control" style="background:#f5f5f5">${user.userName}</div></div>
+    <div class="form-group"><label class="form-label">账号</label><div class="form-control" style="background:#f5f5f5">${user.userAccount}</div></div>
+    <div class="form-group"><label class="form-label">手机号码</label><div class="form-control" style="background:#f5f5f5">${user.userPhone}</div></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">邮箱</label><div class="form-control" style="background:#f5f5f5">${user.userEmail||'-'}</div></div>
+    <div class="form-group"><label class="form-label">职务</label><div class="form-control" style="background:#f5f5f5">${user.userPosition||'-'}</div></div>
+    <div class="form-group"><label class="form-label">所属部门</label><div class="form-control" style="background:#f5f5f5">${user.userDept||'-'}</div></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">员工层级</label><div class="form-control" style="background:#f5f5f5">${user.userLevel}</div></div>
+    <div class="form-group"><label class="form-label">分管领导</label><div class="form-control" style="background:#f5f5f5">${superiorUser?superiorUser.userName:'-'}</div></div>
+    <div class="form-group"><label class="form-label">管辖部门</label><div class="form-control" style="background:#f5f5f5">${manageDeptsText}</div></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">角色类型</label><div class="form-control" style="background:#f5f5f5">${user.userRole}</div></div>
+    <div class="form-group"><label class="form-label">启用状态</label><div class="form-control" style="background:#f5f5f5"><span class="tag ${user.userStatus==='启用'?'tag-success':'tag-error'}">${user.userStatus}</span></div></div>
+    <div class="form-group"><label class="form-label">安全码</label><div class="form-control" style="background:#f5f5f5;display:flex;align-items:center;gap:8px">${getSafetyCodeIcon(user.safetyCode)}<span style="color:${user.safetyCode==='红'?'#ff4d4f':user.safetyCode==='黄'?'#faad14':'#52c41a'}">${user.safetyCode}码</span></div></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group" style="flex:1"><label class="form-label">备注</label><div class="form-control" style="background:#f5f5f5;min-height:60px">${user.remark||'-'}</div></div>
+    <div class="form-group"><label class="form-label">创建时间</label><div class="form-control" style="background:#f5f5f5">${user.createTime}</div></div>
+  </div>`;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+// ========== 员工层级切换处理 ==========
+function onLevelChange(){
+  const level=document.getElementById('editUserLevel').value;
+  const manageDeptsGroup=document.getElementById('manageDeptsGroup');
+  const superiorSelect=document.getElementById('editSuperiorId');
+  
+  // 显示/隐藏管辖部门
+  if(level==='领导层'||level==='管理层'){
+    manageDeptsGroup.style.display='block';
+  }else{
+    manageDeptsGroup.style.display='none';
+    clearManageDepts();
+  }
+  
+  // 更新分管领导可选范围
+  updateSuperiorOptions(level);
+}
+
+// 更新分管领导下拉选项
+function updateSuperiorOptions(currentLevel){
+  const superiorSelect=document.getElementById('editSuperiorId');
+  let allowedLevels=[];
+  
+  if(currentLevel==='员工层'){
+    allowedLevels=['领导层','管理层'];
+  }else if(currentLevel==='管理层'){
+    allowedLevels=['领导层','管理层'];
+  }else if(currentLevel==='领导层'){
+    allowedLevels=['领导层'];
+  }
+  
+  // 过滤可选用户
+  const options=allUsers
+    .filter(u=>allowedLevels.includes(u.userLevel))
+    .map(u=>`<option value="${u.id}">${u.userName}（${u.userLevel}）</option>`)
+    .join('');
+  
+  superiorSelect.innerHTML='<option value="">请选择</option>'+(options||'<option disabled>暂无数据</option>');
+}
+
+// ========== 多选下拉框操作 ==========
+let selectedManageDepts=[];
+
+function toggleMultiDropdown(){
+  const dropdown=document.getElementById('manageDeptsDropdown');
+  dropdown.classList.toggle('show');
+  if(dropdown.classList.contains('show')){
+    renderManageDeptsOptions();
+  }
+}
+
+function renderManageDeptsOptions(){
+  const container=document.getElementById('manageDeptsOptions');
+  container.innerHTML=enterpriseDepts.map(dept=>`
+    <div class="multi-select-option" onclick="toggleManageDept('${dept.name}')">
+      <input type="checkbox" ${selectedManageDepts.includes(dept.name)?'checked':''} onclick="event.stopPropagation()">
+      ${dept.name}
+    </div>
+  `).join('');
+}
+
+function toggleManageDept(deptName){
+  const idx=selectedManageDepts.indexOf(deptName);
+  if(idx>-1){
+    selectedManageDepts.splice(idx,1);
+  }else{
+    selectedManageDepts.push(deptName);
+  }
+  updateManageDeptsDisplay();
+  renderManageDeptsOptions();
+}
+
+function selectAllManageDepts(){
+  selectedManageDepts=enterpriseDepts.map(d=>d.name);
+  updateManageDeptsDisplay();
+  renderManageDeptsOptions();
+}
+
+function clearManageDepts(){
+  selectedManageDepts=[];
+  updateManageDeptsDisplay();
+}
+
+function updateManageDeptsDisplay(){
+  const textEl=document.getElementById('manageDeptsText');
+  if(selectedManageDepts.length===0){
+    textEl.textContent='请选择管辖部门';
+    textEl.className='multi-select-placeholder';
+  }else{
+    textEl.innerHTML=selectedManageDepts.map(d=>`<span class="multi-select-tag">${d}<span class="multi-select-tag-close" onclick="event.stopPropagation();removeManageDept('${d}')">&times;</span></span>`).join('');
+    textEl.className='multi-select-tags';
+  }
+}
+
+function removeManageDept(deptName){
+  const idx=selectedManageDepts.indexOf(deptName);
+  if(idx>-1){
+    selectedManageDepts.splice(idx,1);
+    updateManageDeptsDisplay();
+    renderManageDeptsOptions();
+  }
+}
+
+// 点击外部关闭下拉框
+document.addEventListener('click',function(e){
+  const wrap=document.getElementById('manageDeptsWrap');
+  if(wrap&&!wrap.contains(e.target)){
+    document.getElementById('manageDeptsDropdown').classList.remove('show');
+  }
+});
+</script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-ent-user', moduleName: '企业用户管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

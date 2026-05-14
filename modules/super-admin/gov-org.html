@@ -1,0 +1,694 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>政府组织架构管理 - 超管端</title>
+  
+    <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* 页面容器 */
+    .page-container { 
+      padding: 20px; 
+      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
+      min-height: 100vh;
+    }
+    
+    /* 页面标题栏 */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 16px;
+      background: #fff;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title { font-size: 18px; font-weight: 600; color: var(--text); }
+    
+    /* 统计卡片 */
+    .stat-cards { display: flex; gap: 16px; margin-bottom: 16px; }
+    .stat-card { 
+      flex: 1; 
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+      border: 1px solid #e2e8f0; 
+      border-radius: 8px; 
+      padding: 16px 20px; 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+    }
+    .stat-card:hover { 
+      background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    .stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .stat-icon.blue { background: #dbeafe; color: #2563eb; }
+    .stat-icon.green { background: #dcfce7; color: #16a34a; }
+    .stat-icon.orange { background: #fed7aa; color: #ea580c; }
+    .stat-icon.gray { background: #f1f5f9; color: #64748b; }
+    .stat-content { flex: 1; }
+    .stat-label { font-size: 13px; color: #64748b; margin-bottom: 4px; }
+    .stat-value { font-size: 24px; font-weight: 600; color: #1e293b; }
+    
+    /* 分屏视图 */
+    .split-view { display: flex; gap: 20px; height: calc(100vh - 240px); }
+    
+    /* 左侧树形面板 */
+    .tree-panel { 
+      width: 320px; 
+      flex-shrink: 0; 
+      background: #fff; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .tree-header { padding: 16px; border-bottom: 1px solid #e8eaed; display: flex; justify-content: space-between; align-items: center; background: #fafbfc; }
+    .tree-title { font-size: 14px; font-weight: 600; }
+    .tree-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+    
+    /* 右侧详情面板 */
+    .detail-panel { 
+      flex: 1; 
+      background: #fff; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .detail-header { padding: 16px 20px; border-bottom: 1px solid #e8eaed; display: flex; justify-content: space-between; align-items: center; background: #fafbfc; }
+    .detail-title { font-size: 16px; font-weight: 600; }
+    .detail-body { flex: 1; overflow-y: auto; padding: 20px; }
+    
+    /* 树节点样式 */
+    .tree-node { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; transition: all 0.15s; user-select: none; }
+    .tree-node:hover { background: #f5f5f5; }
+    .tree-node.active { background: #e6f7ff; }
+    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-right: 4px; font-size: 10px; color: var(--text3); cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
+    .tree-toggle.expanded { transform: rotate(90deg); }
+    .tree-toggle.leaf { visibility: hidden; }
+    .tree-node-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; margin-right: 8px; font-size: 14px; flex-shrink: 0; }
+    .tree-node-label { flex: 1; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tree-node-status { width: 8px; height: 8px; border-radius: 50%; margin-left: 8px; flex-shrink: 0; }
+    .tree-node-status.enabled { background: var(--green); }
+    .tree-node-status.disabled { background: var(--text3); }
+    
+    .tree-children { display: none; }
+    .tree-children.show { display: block; }
+    
+    /* 详情区域信息板块 */
+    .info-section { margin-bottom: 24px; background: #fafbfc; border-radius: 8px; padding: 16px; border: 1px solid #e8eaed; }
+    .info-section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e8eaed; }
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-item.full { grid-column: span 2; }
+    .info-label { font-size: 12px; color: #64748b; }
+    .info-value { font-size: 14px; color: var(--text); }
+    
+    /* 账号信息卡片 */
+    .account-card { background: #fff; border: 1px solid #e8eaed; border-radius: 8px; padding: 16px; margin-top: 12px; }
+    .account-card-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+    .account-info { display: flex; align-items: center; justify-content: space-between; }
+    .account-detail { display: flex; flex-direction: column; gap: 4px; }
+    .account-actions { display: flex; gap: 8px; }
+    
+    /* 操作栏 */
+    .action-bar { display: flex; gap: 12px; }
+    .action-bar .btn-link { margin: 0; }
+    .empty-detail { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text3); }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    
+    /* 弹窗样式 */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.show { display: flex; }
+    
+    /* 表格容器滚动 */
+    .table-scroll { overflow-x: auto; }
+    .table-scroll table { min-width: 1000px; }
+    
+    /* 操作列固定 */
+    .action-col { position: sticky; right: 0; z-index: 10; background: #fff; white-space: nowrap; }
+    .action-col .btn-link { margin-right: 8px; }
+    
+    /* 字段列省略 */
+    .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .modal-dialog { background: #fff; border-radius: 8px; width: 520px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid #e8eaed; display: flex; justify-content: space-between; align-items: center; background: #fafbfc; border-radius: 8px 8px 0 0; }
+    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-close { width: 32px; height: 32px; border: none; background: none; font-size: 20px; cursor: pointer; color: var(--text3); border-radius: 4px; transition: all 0.2s; }
+    .modal-close:hover { background: #f0f0f0; color: var(--text); }
+    .modal-body { padding: 20px; background: #fff; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid #e8eaed; display: flex; justify-content: flex-end; gap: 12px; background: #fafbfc; border-radius: 0 0 8px 8px; }
+    
+    /* 表单样式 */
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    .form-label { display: block; font-size: 13px; color: var(--text); margin-bottom: 6px; }
+    .form-label .required { color: var(--error); margin-left: 2px; }
+    .form-input, .form-select { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; background: #fff; transition: all 0.2s; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .form-checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .form-checkbox input { width: 16px; height: 16px; }
+    .form-hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
+    
+    /* 标签样式 */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .tag-green { background: #dcfce7; color: #16a34a; }
+    .tag-gray { background: #f1f5f9; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="page-container" data-module="sa-gov-org">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item current">超管端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">组织管理</span>
+    </div>
+    
+    <div class="page-header" style="display: none;">
+    </div>
+    
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-icon blue">🏛️</div>
+        <div class="stat-content">
+          <div class="stat-value">1</div>
+          <div class="stat-label">区</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">🏢</div>
+        <div class="stat-content">
+          <div class="stat-value">8</div>
+          <div class="stat-label">单位</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">📋</div>
+        <div class="stat-content">
+          <div class="stat-value">24</div>
+          <div class="stat-label">科室</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gray">👤</div>
+        <div class="stat-content">
+          <div class="stat-value">8</div>
+          <div class="stat-label">超管账号</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="split-view">
+      <!-- 左侧树形面板 -->
+      <div class="tree-panel">
+        <div class="tree-header">
+          <span class="tree-title">组织架构树</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-link" onclick="expandAll()">展开</button>
+            <button class="btn btn-link" onclick="collapseAll()">收起</button>
+            <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 新增</button>
+          </div>
+        </div>
+        <div class="tree-body" id="orgTree"></div>
+      </div>
+      
+      <!-- 右侧详情面板 -->
+      <div class="detail-panel">
+        <div class="detail-header">
+          <span class="detail-title" id="detailTitle">详情信息</span>
+          <div class="action-bar" id="detailActions" style="display: none;">
+            <button class="btn-link" onclick="showEditModal()">编辑</button>
+            <button class="btn-link" onclick="deleteNode()">删除</button>
+            <button class="btn-link" onclick="showAddChildModal()">新增下级</button>
+          </div>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 新增/编辑弹窗 -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">新增组织</span>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="orgForm">
+          <div class="form-group">
+            <label class="form-label">组织类型<span class="required">*</span></label>
+            <select class="form-select" id="formType" onchange="onTypeChange()">
+              <option value="unit">单位</option>
+              <option value="dept">科室</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">名称<span class="required">*</span></label>
+            <input type="text" class="form-input" id="formName" placeholder="请输入名称">
+          </div>
+          <div class="form-group">
+            <label class="form-label">上级组织</label>
+            <select class="form-select" id="formParent">
+              <option value="">无（作为根节点）</option>
+            </select>
+            <div class="form-hint" id="parentHint">单位可挂在区或单位下；科室只能挂在单位下</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">状态<span class="required">*</span></label>
+              <select class="form-select" id="formStatus">
+                <option value="enabled">启用</option>
+                <option value="disabled">停用</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">排序<span class="required">*</span></label>
+              <input type="number" class="form-input" id="formSort" value="1" min="1">
+            </div>
+          </div>
+          
+          <!-- 单位特有：生成账号选项 -->
+          <div class="form-group" id="accountOption" style="background: #f5f5f5; padding: 12px; border-radius: 6px;">
+            <label class="form-checkbox">
+              <input type="checkbox" id="formCreateAccount" checked>
+              <span>生成该单位超管账号</span>
+            </label>
+            <div class="form-hint">勾选后将自动生成该单位的超管账号，账号密码将通过短信发送给联系人</div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveForm()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 组织架构数据（根节点为区）
+    const orgData = [
+      {
+        id: 'NS',
+        name: '南山区',
+        type: 'district',
+        status: 'enabled',
+        sort: 1,
+        parentId: null,
+        account: null,
+        children: [
+          {
+            id: 'NS-AMB',
+            name: '南山区应急管理局',
+            type: 'unit',
+            status: 'enabled',
+            sort: 1,
+            parentId: 'NS',
+            account: { username: 'nsamb-admin', status: 'enabled', lastLogin: '2026-04-02 09:30' },
+            children: [
+              { id: 'NS-AMB-01', name: '综合协调科', type: 'dept', status: 'enabled', sort: 1, parentId: 'NS-AMB', account: null, children: [] },
+              { id: 'NS-AMB-02', name: '危化品监管科', type: 'dept', status: 'enabled', sort: 2, parentId: 'NS-AMB', account: null, children: [] },
+              { id: 'NS-AMB-03', name: '基础安全监管科', type: 'dept', status: 'enabled', sort: 3, parentId: 'NS-AMB', account: null, children: [] },
+              { id: 'NS-AMB-04', name: '执法监督科', type: 'dept', status: 'enabled', sort: 4, parentId: 'NS-AMB', account: null, children: [] }
+            ]
+          },
+          {
+            id: 'NS-STREET-01',
+            name: '桃源街道办',
+            type: 'unit',
+            status: 'enabled',
+            sort: 2,
+            parentId: 'NS',
+            account: { username: 'tyjd-admin', status: 'enabled', lastLogin: '2026-04-01 14:20' },
+            children: [
+              { id: 'NS-STREET-01-01', name: '安监科', type: 'dept', status: 'enabled', sort: 1, parentId: 'NS-STREET-01', account: null, children: [] }
+            ]
+          },
+          {
+            id: 'NS-STREET-02',
+            name: '粤海街道办',
+            type: 'unit',
+            status: 'enabled',
+            sort: 3,
+            parentId: 'NS',
+            account: { username: 'yhjd-admin', status: 'disabled', lastLogin: '2026-03-28 10:15' },
+            children: []
+          }
+        ]
+      }
+    ];
+    
+    let selectedNode = null;
+    let isEditing = false;
+    let editParentId = null;
+    
+    // 渲染树
+    function renderTree() {
+      const treeContainer = document.getElementById('orgTree');
+      treeContainer.innerHTML = renderNodes(orgData, 0);
+      bindTreeEvents();
+    }
+    
+    function renderNodes(nodes, level) {
+      let html = '';
+      nodes.forEach(node => {
+        const hasChildren = node.children && node.children.length > 0;
+        const icon = getNodeIcon(node.type);
+        const statusClass = node.status === 'enabled' ? 'enabled' : 'disabled';
+        
+        html += `
+          <div class="tree-node" data-id="${node.id}" style="padding-left: ${12 + level * 20}px">
+            <span class="tree-toggle ${hasChildren ? '' : 'leaf'}" data-id="${node.id}">▶</span>
+            <span class="tree-node-icon">${icon}</span>
+            <span class="tree-node-label">${node.name}</span>
+            <span class="tree-node-status ${statusClass}"></span>
+          </div>
+        `;
+        
+        if (hasChildren) {
+          html += `<div class="tree-children" data-parent="${node.id}">${renderNodes(node.children, level + 1)}</div>`;
+        }
+      });
+      return html;
+    }
+    
+    function getNodeIcon(type) {
+      const icons = {
+        'district': '🏛️',
+        'unit': '🏢',
+        'dept': '📋'
+      };
+      return icons[type] || '📁';
+    }
+    
+    function bindTreeEvents() {
+      // 点击节点选中
+      document.querySelectorAll('.tree-node').forEach(node => {
+        node.addEventListener('click', function(e) {
+          if (!e.target.classList.contains('tree-toggle')) {
+            selectNode(this.dataset.id);
+          }
+        });
+      });
+      
+      // 点击展开/收起
+      document.querySelectorAll('.tree-toggle:not(.leaf)').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleNode(this.dataset.id);
+        });
+      });
+    }
+    
+    function toggleNode(nodeId) {
+      const toggle = document.querySelector(`.tree-toggle[data-id="${nodeId}"]`);
+      const children = document.querySelector(`.tree-children[data-parent="${nodeId}"]`);
+      
+      if (toggle && children) {
+        toggle.classList.toggle('expanded');
+        children.classList.toggle('show');
+      }
+    }
+    
+    function selectNode(nodeId) {
+      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+      const nodeEl = document.querySelector(`.tree-node[data-id="${nodeId}"]`);
+      if (nodeEl) nodeEl.classList.add('active');
+      
+      selectedNode = findNode(orgData, nodeId);
+      renderDetail();
+    }
+    
+    function findNode(nodes, id) {
+      for (const node of nodes) {
+        if (node.id === id) return node;
+        if (node.children) {
+          const found = findNode(node.children, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+    
+    function findParentNode(nodes, id, parent = null) {
+      for (const node of nodes) {
+        if (node.id === id) return parent;
+        if (node.children) {
+          const found = findParentNode(node.children, id, node);
+          if (found !== undefined) return found;
+        }
+      }
+      return undefined;
+    }
+    
+    function renderDetail() {
+      const detailBody = document.getElementById('detailBody');
+      const detailTitle = document.getElementById('detailTitle');
+      const detailActions = document.getElementById('detailActions');
+      
+      if (!selectedNode) {
+        detailTitle.textContent = '详情信息';
+        detailActions.style.display = 'none';
+        detailBody.innerHTML = '<div class="empty-detail"><div class="empty-icon">🏛️</div><div>请在左侧选择组织节点查看详情</div></div>';
+        return;
+      }
+      
+      detailTitle.textContent = selectedNode.name;
+      detailActions.style.display = 'flex';
+      
+      const typeText = { 'district': '区', 'unit': '单位', 'dept': '科室' }[selectedNode.type];
+      const statusText = selectedNode.status === 'enabled' ? '<span class="tag tag-green">启用</span>' : '<span class="tag" style="background:#f5f5f5;color:var(--text3);">停用</span>';
+      const parent = findParentNode(orgData, selectedNode.id);
+      
+      let html = `
+        <div class="info-section">
+          <div class="info-section-title">基本信息</div>
+          <div class="info-grid">
+            <div class="info-item"><span class="info-label">组织类型</span><span class="info-value">${typeText}</span></div>
+            <div class="info-item"><span class="info-label">名称</span><span class="info-value">${selectedNode.name}</span></div>
+            <div class="info-item"><span class="info-label">上级组织</span><span class="info-value">${parent ? parent.name : '无'}</span></div>
+            <div class="info-item"><span class="info-label">状态</span><span class="info-value">${statusText}</span></div>
+            <div class="info-item"><span class="info-label">排序</span><span class="info-value">${selectedNode.sort}</span></div>
+            <div class="info-item"><span class="info-label">下级数量</span><span class="info-value">${selectedNode.children ? selectedNode.children.length : 0}</span></div>
+          </div>
+        </div>
+      `;
+      
+      // 账号信息（仅单位类型显示）
+      if (selectedNode.type === 'unit') {
+        const account = selectedNode.account;
+        if (account) {
+          const accountStatus = account.status === 'enabled' 
+            ? '<span class="tag tag-green">已启用</span>' 
+            : '<span class="tag" style="background:#fff1f0;color:var(--error);">已禁用</span>';
+          html += `
+            <div class="info-section">
+              <div class="info-section-title">超管账号</div>
+              <div class="account-card">
+                <div class="account-info">
+                  <div class="account-detail">
+                    <div><strong>账号：</strong>${account.username}</div>
+                    <div style="font-size: 12px; color: var(--text3); margin-top: 4px;">最后登录：${account.lastLogin}</div>
+                  </div>
+                  <div class="account-actions">
+                    ${accountStatus}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="info-section">
+              <div class="info-section-title">超管账号</div>
+              <div class="account-card" style="text-align: center; color: var(--text3);">
+                暂无账号，<button class="btn-link" onclick="generateAccount()">点击生成</button>
+              </div>
+            </div>
+          `;
+        }
+      }
+      
+      detailBody.innerHTML = html;
+    }
+    
+    // 展开/收起全部
+    function expandAll() {
+      document.querySelectorAll('.tree-toggle').forEach(t => t.classList.add('expanded'));
+      document.querySelectorAll('.tree-children').forEach(c => c.classList.add('show'));
+    }
+    
+    function collapseAll() {
+      document.querySelectorAll('.tree-toggle').forEach(t => t.classList.remove('expanded'));
+      document.querySelectorAll('.tree-children').forEach(c => c.classList.remove('show'));
+    }
+    
+    // 弹窗操作
+    function showAddModal() {
+      isEditing = false;
+      editParentId = null;
+      document.getElementById('modalTitle').textContent = '新增组织';
+      document.getElementById('formType').value = 'unit';
+      document.getElementById('formName').value = '';
+      document.getElementById('formParent').innerHTML = buildParentOptions();
+      document.getElementById('formStatus').value = 'enabled';
+      document.getElementById('formSort').value = '1';
+      document.getElementById('formCreateAccount').checked = true;
+      document.getElementById('accountOption').style.display = 'block';
+      document.getElementById('modal').style.display = 'flex';
+      onTypeChange();
+    }
+    
+    function showEditModal() {
+      if (!selectedNode) return;
+      isEditing = true;
+      document.getElementById('modalTitle').textContent = '编辑组织';
+      document.getElementById('formType').value = selectedNode.type;
+      document.getElementById('formName').value = selectedNode.name;
+      document.getElementById('formParent').innerHTML = buildParentOptions(selectedNode.id);
+      document.getElementById('formStatus').value = selectedNode.status;
+      document.getElementById('formSort').value = selectedNode.sort;
+      document.getElementById('accountOption').style.display = selectedNode.type === 'unit' ? 'block' : 'none';
+      document.getElementById('formCreateAccount').checked = false;
+      document.getElementById('modal').style.display = 'flex';
+      onTypeChange();
+    }
+    
+    function showAddChildModal() {
+      if (!selectedNode) return;
+      showAddModal();
+      // 设置父节点为当前选中节点
+      document.getElementById('formParent').value = selectedNode.id;
+      // 根据父节点类型限制子节点类型
+      if (selectedNode.type === 'dept') {
+        alert('科室下不能再添加下级组织');
+        closeModal();
+        return;
+      }
+      onTypeChange();
+    }
+    
+    function buildParentOptions(excludeId = null) {
+      let options = '<option value="">无（作为根节点）</option>';
+      
+      function addOptions(nodes, level = 0) {
+        nodes.forEach(node => {
+          if (node.id !== excludeId) {
+            const prefix = '　'.repeat(level);
+            const typeLabel = node.type === 'district' ? '[区]' : node.type === 'unit' ? '[单位]' : '[科室]';
+            options += `<option value="${node.id}">${prefix}${typeLabel} ${node.name}</option>`;
+            if (node.children && node.children.length > 0) {
+              addOptions(node.children, level + 1);
+            }
+          }
+        });
+      }
+      
+      addOptions(orgData);
+      return options;
+    }
+    
+    function onTypeChange() {
+      const type = document.getElementById('formType').value;
+      const accountOption = document.getElementById('accountOption');
+      const parentSelect = document.getElementById('formParent');
+      const parentHint = document.getElementById('parentHint');
+      
+      // 只有单位类型才显示生成账号选项
+      accountOption.style.display = type === 'unit' ? 'block' : 'none';
+      
+      // 更新提示文字
+      if (type === 'unit') {
+        parentHint.textContent = '单位可挂在区或单位下';
+      } else {
+        parentHint.textContent = '科室只能挂在单位下';
+      }
+    }
+    
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+    
+    function saveForm() {
+      const type = document.getElementById('formType').value;
+      const name = document.getElementById('formName').value.trim();
+      const parent = document.getElementById('formParent').value;
+      const status = document.getElementById('formStatus').value;
+      const sort = parseInt(document.getElementById('formSort').value) || 1;
+      const createAccount = document.getElementById('formCreateAccount').checked;
+      
+      if (!name) {
+        alert('请输入名称');
+        return;
+      }
+      
+      // 模拟保存
+      const action = isEditing ? '编辑' : '新增';
+      let message = `${action}成功！\n\n类型：${type === 'unit' ? '单位' : '科室'}\n名称：${name}\n状态：${status === 'enabled' ? '启用' : '停用'}`;
+      
+      if (type === 'unit' && createAccount && !isEditing) {
+        message += '\n\n已自动生成超管账号，密码将通过短信发送';
+      }
+      
+      alert(message);
+      closeModal();
+    }
+    
+    function deleteNode() {
+      if (!selectedNode) return;
+      
+      // 检查是否有下级
+      if (selectedNode.children && selectedNode.children.length > 0) {
+        alert('该组织下有下级组织，请先删除下级组织');
+        return;
+      }
+      
+      if (confirm(`确定要删除"${selectedNode.name}"吗？`)) {
+        alert('删除成功');
+        selectedNode = null;
+        renderDetail();
+      }
+    }
+    
+    function generateAccount() {
+      if (!selectedNode || selectedNode.type !== 'unit') return;
+      
+      const username = selectedNode.id.toLowerCase().replace(/-/g, '') + '-admin';
+      alert(`账号生成成功！\n\n账号：${username}\n密码将通过短信发送给联系人`);
+      
+      // 更新显示
+      selectedNode.account = {
+        username: username,
+        status: 'enabled',
+        lastLogin: '从未登录'
+      };
+      renderDetail();
+    }
+    
+    // 初始化
+    renderTree();
+    // 默认展开第一个节点
+    setTimeout(() => {
+      const firstToggle = document.querySelector('.tree-toggle:not(.leaf)');
+      if (firstToggle) toggleNode(firstToggle.dataset.id);
+      selectNode('NS');
+    }, 100);
+  </script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-gov-org', moduleName: '政府组织架构管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

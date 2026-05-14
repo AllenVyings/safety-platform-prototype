@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全码综合管理平台 V5.0</title>
+  
+  <!-- CSS 样式 -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/framework.css">
+  <link rel="stylesheet" href="css/annotations.css">
+  
+  <!-- 配置文件 -->
+  <script src="config/constants.js"></script>
+  <script src="config/menus.js"></script>
+  <script src="config/annotations.js"></script>
+  
+  <!-- 核心脚本 -->
+  <script src="js/utils.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/app.js"></script>
+  
+  <style>
+    /* 页面初始加载样式 */
+    body {
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    body.loaded {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 顶部导航栏 -->
+    <header class="top-nav">
+      <div class="top-nav-left">
+        <div class="logo">
+          <span class="logo-icon">🔐</span>
+          <span class="logo-text">安全码综合管理平台</span>
+        </div>
+        <nav class="portal-tabs">
+          <button class="portal-tab active" data-portal="super-admin">
+            <span class="icon">⚙️</span>
+            <span class="text">超管端</span>
+          </button>
+          <button class="portal-tab" data-portal="government">
+            <span class="icon">🏛️</span>
+            <span class="text">政府端</span>
+          </button>
+          <button class="portal-tab" data-portal="enterprise-basic">
+            <span class="icon">🏢</span>
+            <span class="text">企业端-基础</span>
+          </button>
+          <button class="portal-tab" data-portal="enterprise-project">
+            <span class="icon">🏗️</span>
+            <span class="text">企业端-项目</span>
+          </button>
+        </nav>
+      </div>
+      <div class="top-nav-right">
+        <button class="ann-catalog-toggle" id="catalogToggleBtn" onclick="toggleAnnotationCatalog()">
+          <span>📋</span><span>标注</span>
+        </button>
+        <div class="mode-toggle" id="modeToggle">
+          <button class="mode-toggle-btn active-demo" id="modeDemoBtn" onclick="switchMode('demo')">
+            <span>🎬</span><span>演示</span>
+          </button>
+          <button class="mode-toggle-btn" id="modeDevBtn" onclick="switchMode('dev')">
+            <span>🔧</span><span>开发</span>
+          </button>
+        </div>
+        <span class="user-info">管理员</span>
+        <button class="btn-logout" onclick="alert('退出功能开发中')">退出</button>
+      </div>
+    </header>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+      <!-- 左侧菜单 -->
+      <aside class="side-menu" id="side-menu">
+        <!-- 动态渲染菜单 -->
+      </aside>
+      
+      <!-- 内容区域 -->
+      <main class="content-area" id="content-area">
+        <iframe id="module-frame" src="" frameborder="0" style="width:100%;height:100%;border:none;"></iframe>
+      </main>
+    </div>
+  </div>
+  
+  <!-- 公共弹窗容器 -->
+  <div id="global-modal" class="modal-container">
+    <div class="modal-overlay" onclick="Modal.close()"></div>
+    <div class="modal-dialog" id="modal-dialog" style="width: 520px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">标题</h3>
+        <button class="modal-close" onclick="Modal.close()">×</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- 动态内容 -->
+      </div>
+      <div class="modal-footer" id="modal-footer">
+        <button class="btn btn-default" onclick="Modal.close()">取消</button>
+        <button class="btn btn-primary" id="modal-confirm-btn" onclick="Modal.confirm()">确定</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 加载动画 -->
+  <div id="global-loading" class="loading-container hidden">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">加载中...</div>
+  </div>
+  
+  <script>
+    // 页面加载完成后显示
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+  </script>
+
+  <!-- 演示/开发模式切换 -->
+  <script>
+  (function() {
+    var currentMode = 'demo';
+
+    function initMode() {
+      var saved = null;
+      try { saved = localStorage.getItem('prototype-mode'); } catch(e) {}
+      currentMode = saved || 'demo';
+      updateToggleUI();
+      broadcastToIframe();
+    }
+
+    window.switchMode = function(mode) {
+      currentMode = mode;
+      try { localStorage.setItem('prototype-mode', mode); } catch(e) {}
+      updateToggleUI();
+      broadcastToIframe();
+    };
+
+    function updateToggleUI() {
+      var demoBtn = document.getElementById('modeDemoBtn');
+      var devBtn = document.getElementById('modeDevBtn');
+      if (!demoBtn || !devBtn) return;
+      demoBtn.className = 'mode-toggle-btn' + (currentMode === 'demo' ? ' active-demo' : '');
+      devBtn.className = 'mode-toggle-btn' + (currentMode === 'dev' ? ' active-dev' : '');
+    }
+
+    function broadcastToIframe() {
+      var iframe = document.getElementById('module-frame');
+      if (!iframe || !iframe.contentWindow) return;
+      try {
+        iframe.contentWindow.postMessage({
+          type: 'annotations-toggle',
+          mode: currentMode
+        }, '*');
+      } catch(e) {}
+    }
+
+    // 监听 iframe 加载，模块切换后重发模式
+    var iframe = document.getElementById('module-frame');
+    if (iframe) {
+      iframe.addEventListener('load', function() {
+        setTimeout(function() { broadcastToIframe(); }, 150);
+      });
+    }
+
+    // 初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMode);
+    } else {
+      initMode();
+    }
+  })();
+  </script>
+
+  <!-- 标注总览面板 -->
+  <div class="ann-catalog-overlay hidden" id="annCatalogOverlay" onclick="if(event.target===this)toggleAnnotationCatalog()">
+    <div class="ann-catalog-panel">
+      <div class="ann-catalog-header">
+        <h3>标注总览</h3>
+        <button class="ann-catalog-close" onclick="toggleAnnotationCatalog()">&times;</button>
+      </div>
+      <div class="ann-catalog-filters" id="annCatalogFilters">
+        <button class="ann-catalog-filter-btn active" data-filter="all" onclick="filterCatalog('all',this)">全部</button>
+        <button class="ann-catalog-filter-btn" data-filter="交互说明" onclick="filterCatalog('交互说明',this)">交互说明</button>
+        <button class="ann-catalog-filter-btn" data-filter="业务规则" onclick="filterCatalog('业务规则',this)">业务规则</button>
+        <button class="ann-catalog-filter-btn" data-filter="验收标准" onclick="filterCatalog('验收标准',this)">验收标准</button>
+        <button class="ann-catalog-filter-btn" data-filter="数据约束" onclick="filterCatalog('数据约束',this)">数据约束</button>
+      </div>
+      <div class="ann-catalog-list" id="annCatalogList"></div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    var catalogOpen = false;
+    var moduleMap = null; // moduleId -> {portal, menuId, name, path}
+    var currentFilter = 'all';
+
+    /**
+     * 构建 module ID → 菜单信息映射
+     */
+    function buildModuleMap() {
+      if (moduleMap) return moduleMap;
+      moduleMap = {};
+      var portals = Object.keys(MENU_CONFIG);
+      for (var p = 0; p < portals.length; p++) {
+        var portal = portals[p];
+        var items = MENU_CONFIG[portal];
+        for (var i = 0; i < items.length; i++) {
+          var item = items[i];
+          if (item.module) {
+            moduleMap[item.module] = { portal: portal, menuId: item.id, name: item.name, path: item.path };
+          }
+          if (item.children) {
+            for (var c = 0; c < item.children.length; c++) {
+              var child = item.children[c];
+              if (child.module) {
+                moduleMap[child.module] = { portal: portal, menuId: child.id, name: child.name, path: child.path };
+              }
+            }
+          }
+        }
+      }
+      return moduleMap;
+    }
+
+    /**
+     * 切换面板开关
+     */
+    window.toggleAnnotationCatalog = function() {
+      catalogOpen = !catalogOpen;
+      var overlay = document.getElementById('annCatalogOverlay');
+      var btn = document.getElementById('catalogToggleBtn');
+      if (catalogOpen) {
+        renderCatalog();
+        overlay.classList.remove('hidden');
+        if (btn) btn.classList.add('active');
+      } else {
+        overlay.classList.add('hidden');
+        if (btn) btn.classList.remove('active');
+      }
+    };
+
+    /**
+     * 渲染总览列表
+     */
+    function renderCatalog() {
+      var map = buildModuleMap();
+      var container = document.getElementById('annCatalogList');
+      if (!container || typeof ANNOTATIONS_CONFIG === 'undefined') {
+        if (container) container.innerHTML = '<div class="ann-catalog-empty">暂无标注数据</div>';
+        return;
+      }
+
+      var html = '';
+      var moduleIds = Object.keys(ANNOTATIONS_CONFIG);
+
+      for (var m = 0; m < moduleIds.length; m++) {
+        var moduleId = moduleIds[m];
+        var annotations = ANNOTATIONS_CONFIG[moduleId];
+        var info = map[moduleId] || { name: moduleId, portal: '', menuId: '' };
+
+        // 按筛选过滤
+        var filtered = [];
+        for (var a = 0; a < annotations.length; a++) {
+          if (currentFilter === 'all' || annotations[a].category === currentFilter) {
+            filtered.push(annotations[a]);
+          }
+        }
+        if (filtered.length === 0) continue;
+
+        // 端标识图标
+        var portalIcon = '';
+        if (info.portal === 'super-admin') portalIcon = '⚙️';
+        else if (info.portal === 'government') portalIcon = '🏛️';
+        else if (info.portal.indexOf('enterprise') === 0) portalIcon = '🏗️';
+
+        html += '<div class="ann-catalog-group" data-module="' + moduleId + '">';
+        html += '<div class="ann-catalog-group-header">';
+        html += '<span class="ann-catalog-group-icon">' + portalIcon + '</span>';
+        html += '<span>' + escHtml(info.name) + '</span>';
+        html += '<span class="ann-catalog-group-count">' + filtered.length + ' 项</span>';
+        html += '</div>';
+
+        for (var f = 0; f < filtered.length; f++) {
+          var ann = filtered[f];
+          var idx = annotations.indexOf(ann) + 1;
+          html += '<div class="ann-catalog-item" onclick="navigateToAnnotation(\'' + moduleId + '\',\'' + ann.id + '\')">';
+          html += '<span class="ann-catalog-item-badge">' + idx + '</span>';
+          html += '<div class="ann-catalog-item-content">';
+          html += '<div class="ann-catalog-item-title">' + escHtml(ann.title) + '</div>';
+          html += '<div class="ann-catalog-item-meta">';
+          html += '<span class="ann-catalog-item-category cat-' + (ann.categoryColor || 'info') + '">' + escHtml(ann.category) + '</span>';
+          html += '<span class="ann-catalog-item-desc">' + escHtml(ann.description) + '</span>';
+          html += '</div>';
+          html += '</div>';
+          html += '</div>';
+        }
+
+        html += '</div>';
+      }
+
+      if (!html) {
+        html = '<div class="ann-catalog-empty">没有匹配的标注</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    /**
+     * 筛选
+     */
+    window.filterCatalog = function(category, btnEl) {
+      currentFilter = category;
+      var btns = document.querySelectorAll('.ann-catalog-filter-btn');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.toggle('active', btns[i] === btnEl);
+      }
+      renderCatalog();
+    };
+
+    /**
+     * 导航到标注所在模块和视图
+     */
+    window.navigateToAnnotation = function(moduleId, annId) {
+      var map = buildModuleMap();
+      var info = map[moduleId];
+      if (!info) {
+        console.warn('[Catalog] Module not found: ' + moduleId);
+        return;
+      }
+
+      // 查找标注的 selector
+      var selector = '';
+      if (typeof ANNOTATIONS_CONFIG !== 'undefined' && ANNOTATIONS_CONFIG[moduleId]) {
+        var ann = ANNOTATIONS_CONFIG[moduleId].find(function(a) { return a.id === annId; });
+        if (ann) selector = ann.selector || '';
+      }
+
+      // 关闭面板
+      catalogOpen = false;
+      document.getElementById('annCatalogOverlay').classList.add('hidden');
+      var btn = document.getElementById('catalogToggleBtn');
+      if (btn) btn.classList.remove('active');
+
+      // 自动切换到开发模式
+      switchMode('dev');
+
+      var needPortalSwitch = info.portal && info.portal !== router.currentPortal;
+      var isAlreadyOnModule = router.currentModule === info.menuId;
+
+      function sendViewNav() {
+        // 通过 postMessage 通知 iframe 切换到目标视图/弹窗
+        if (!selector) return;
+        var iframe = document.getElementById('module-frame');
+        if (iframe && iframe.contentWindow) {
+          try {
+            iframe.contentWindow.postMessage({
+              type: 'navigate-to-annotation',
+              selector: selector
+            }, '*');
+          } catch(e) {}
+        }
+      }
+
+      if (needPortalSwitch) {
+        var tab = document.querySelector('.portal-tab[data-portal="' + info.portal + '"]');
+        if (tab) tab.click();
+
+        var iframe = document.getElementById('module-frame');
+        var onceLoad = function() {
+          iframe.removeEventListener('load', onceLoad);
+          setTimeout(function() {
+            router.navigate(info.menuId);
+            // 等目标模块加载完成后发视图导航
+            var navOnceLoad = function() {
+              iframe.removeEventListener('load', navOnceLoad);
+              setTimeout(sendViewNav, 300);
+            };
+            iframe.addEventListener('load', navOnceLoad);
+          }, 100);
+        };
+        iframe.addEventListener('load', onceLoad);
+      } else if (!isAlreadyOnModule) {
+        router.navigate(info.menuId);
+        var iframe2 = document.getElementById('module-frame');
+        var navOnceLoad2 = function() {
+          iframe2.removeEventListener('load', navOnceLoad2);
+          setTimeout(sendViewNav, 300);
+        };
+        iframe2.addEventListener('load', navOnceLoad2);
+      } else {
+        // 已在目标模块，直接发视图导航
+        setTimeout(sendViewNav, 100);
+      }
+    };
+
+    function escHtml(str) {
+      if (!str) return '';
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作台</title>
+  
+    <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .workbench-page {
+      padding: var(--spacing-lg);
+      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header {
+      margin-bottom: var(--spacing-lg);
+      background: #fff;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+    
+    /* ========== 统计卡片 ========== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    .stat-card {
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+      transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .stat-title {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    /* ========== 快捷操作 ========== */
+    .quick-actions {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-card);
+    }
+    .quick-actions-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-primary);
+    }
+    .action-buttons {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="module-page workbench-page" data-module="sa-workbench">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item" onclick="goToHome()">首页</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">超管端</span>
+    </div>
+    
+    <!-- 页面标题 -->
+    <header class="page-header" style="display: none;">
+      <h1 class="page-title">工作台</h1>
+    </header>
+    
+    <!-- 统计卡片 -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">监管企业总数</div>
+        <div class="stat-value">1,248</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">今日巡查任务</div>
+        <div class="stat-value" style="color: var(--warning);">23</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">待处理隐患</div>
+        <div class="stat-value" style="color: var(--danger);">8</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">监管覆盖率</div>
+        <div class="stat-value" style="color: var(--success);">96.5%</div>
+      </div>
+    </section>
+    
+    <!-- 快捷操作 -->
+    <section class="quick-actions">
+      <h2 class="quick-actions-title">快捷操作</h2>
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="goToModule('sa-gov-org')">
+          🏛️ 政府组织架构
+        </button>
+        <button class="btn btn-primary" onclick="goToModule('sa-ent-manage')">
+          🏢 企业注册管理
+        </button>
+        <button class="btn btn-primary" onclick="goToModule('sa-domain-manage')">
+          🏷️ 领域小类管理
+        </button>
+      </div>
+    </section>
+  </div>
+  
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'sa-workbench',
+        moduleName: '工作台'
+      };
+      
+      let state = {
+        initialized: false
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      // 面包屑导航函数
+      window.goToHome = function() {
+        console.log('导航到首页');
+        alert('导航到：首页');
+      };
+      
+      window.goToModule = function(moduleId) {
+        console.log('导航到模块：' + moduleId);
+        alert('导航到：' + moduleId);
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

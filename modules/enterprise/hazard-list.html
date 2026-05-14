@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管控对象列表 - 企业端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .page-container { 
+      padding: var(--spacing-lg); 
+      background: var(--bg-page);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-header);
+    }
+    .page-title { font-size: var(--font-size-xl); font-weight: 600; color: var(--text-primary); }
+    
+    /* ========== 分屏视图 ========== */
+    .split-view { display: flex; gap: var(--spacing-lg); height: calc(100vh - 180px); }
+    
+    /* ========== 左侧树形面板 ========== */
+    .tree-panel { 
+      width: 320px; 
+      flex-shrink: 0; 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column;
+      box-shadow: var(--shadow-card);
+    }
+    .tree-header { padding: var(--spacing-md); border-bottom: 1px solid var(--border-light); background: var(--bg-section); }
+    .tree-stats { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }
+    .tree-stat { font-size: var(--font-size-xs); color: var(--text-secondary); }
+    .tree-stat-value { font-weight: 600; color: var(--text-primary); margin-left: 4px; }
+    .tree-body { flex: 1; overflow-y: auto; padding: var(--spacing-xs) 0; }
+    
+    /* ========== 右侧详情面板 ========== */
+    .detail-panel { 
+      flex: 1; 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column;
+      box-shadow: var(--shadow-card);
+    }
+    
+    /* ========== 树形节点 ========== */
+    .tree-node { display: flex; align-items: center; padding: var(--spacing-xs) var(--spacing-sm); cursor: pointer; transition: all 0.15s; }
+    .tree-node:hover { background: var(--primary-light); }
+    .tree-node.active { background: var(--primary-light); }
+    .tree-node-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-sm); font-size: var(--font-size-sm); }
+    .tree-node-label { flex: 1; font-size: var(--font-size-xs); }
+    .tree-node-type { font-size: var(--font-size-xs); color: var(--text-secondary); background: var(--bg-section-alt); padding: 2px 6px; border-radius: var(--radius-sm); }
+    
+    .detail-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); }
+    .detail-title { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
+    .detail-body { flex: 1; overflow-y: auto; padding: var(--spacing-lg); }
+    
+    /* ========== 信息板块 ========== */
+    .info-section { margin-bottom: var(--spacing-xl); }
+    
+    /* 模块标题样式 */
+    .info-section-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: var(--font-size-md);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+      padding-bottom: var(--spacing-xs);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .info-section-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--primary);
+      border-radius: var(--radius-sm);
+    }
+    
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
+    .info-value { font-size: var(--font-size-sm); color: var(--text-primary); }
+    
+    /* ========== 空状态 ========== */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); }
+    .empty-icon { font-size: 48px; margin-bottom: var(--spacing-sm); }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="ent-hazard-list">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">企业端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">管控对象</span>
+    </div>
+    
+    <!-- 页面标题栏已隐藏 -->
+    
+    <div class="split-view">
+      <div class="tree-panel">
+        <div class="tree-header">
+          <div style="font-size: 14px; font-weight: 600;">管控对象树</div>
+          <div class="tree-stats">
+            <span class="tree-stat">场所码<span class="tree-stat-value">5</span></span>
+            <span class="tree-stat">危险源码<span class="tree-stat-value">2</span></span>
+          </div>
+        </div>
+        <div class="tree-body">
+          <div class="tree-node active"><span class="tree-node-icon">🏢</span><span class="tree-node-label">创安电子科技有限公司</span></div>
+          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">📍</span><span class="tree-node-label">1号生产车间</span><span class="tree-node-type">场所</span></div>
+          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">📍</span><span class="tree-node-label">原料仓库</span><span class="tree-node-type">场所</span></div>
+          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">📍</span><span class="tree-node-label">成品仓库</span><span class="tree-node-type">场所</span></div>
+          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">⚡</span><span class="tree-node-label">电动车充电区</span><span class="tree-node-type">危险源</span></div>
+          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">⚡</span><span class="tree-node-label">危化品暂存间</span><span class="tree-node-type">危险源</span></div>
+          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">🏭</span><span class="tree-node-label">重点场所</span></div>
+          <div class="tree-node" style="padding-left: 44px;"><span class="tree-node-icon">🔌</span><span class="tree-node-label">2号充换电站</span><span class="tree-node-type">重点</span></div>
+        </div>
+      </div>
+      
+      <div class="detail-panel">
+        <div class="detail-header">
+          <span class="detail-title">1号生产车间</span>
+          <div>
+            <button class="btn btn-sm btn-default" onclick="editPlace('PS-2026-001')">编辑</button>
+            <button class="btn btn-sm btn-default" onclick="configChecklist('PS-2026-001')">配置检查表</button>
+            <button class="btn btn-sm btn-link danger" onclick="deletePlace('PS-2026-001')">删除</button>
+          </div>
+        </div>
+        <div class="detail-body">
+          <div class="info-section">
+            <div class="info-section-title">基本信息</div>
+            <div class="info-grid">
+              <div class="info-item"><span class="info-label">场所名称</span><span class="info-value">1号生产车间</span></div>
+              <div class="info-item"><span class="info-label">场所编码</span><span class="info-value">PS-2026-001</span></div>
+              <div class="info-item"><span class="info-label">场所类型</span><span class="info-value">生产车间</span></div>
+              <div class="info-item"><span class="info-label">所属领域</span><span class="info-value">工业制造</span></div>
+              <div class="info-item"><span class="info-label">位置</span><span class="info-value">A区1栋1层</span></div>
+              <div class="info-item"><span class="info-label">面积</span><span class="info-value">2000 m²</span></div>
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <div class="info-section-title">扫码配置</div>
+            <div class="info-grid">
+              <div class="info-item"><span class="info-label">扫码责任人</span><span class="info-value">张三、李四</span></div>
+              <div class="info-item"><span class="info-label">检查频次</span><span class="info-value">每周1次</span></div>
+              <div class="info-item"><span class="info-label">检查表</span><span class="info-value">生产车间日常安全检查表</span></div>
+              <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">正常</span></span></div>
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <div class="info-section-title">最近检查记录</div>
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead><tr style="background: #fafafa;"><th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">检查日期</th><th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">检查人</th><th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">结果</th></tr></thead>
+              <tbody>
+                <tr><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;">2026-04-01</td><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;">张三</td><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;"><span class="tag tag-green">正常</span></td></tr>
+                <tr><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;">2026-03-25</td><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;">李四</td><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;"><span class="tag tag-orange">有隐患</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'ent-hazard-list',
+        moduleName: '管控对象列表'
+      };
+      
+      let state = {
+        initialized: false
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      window.addPlace = function() { alert('新增场所'); };
+      window.addHazard = function() { alert('新增危险源'); };
+      
+      window.editPlace = function(id) {
+        console.log('编辑场所：' + id);
+        alert('编辑场所：' + id);
+      };
+      
+      window.configChecklist = function(id) {
+        console.log('配置检查表：' + id);
+        alert('配置检查表：' + id);
+      };
+      
+      window.deletePlace = function(id) {
+        console.log('删除场所：' + id);
+        if (confirm('确认删除该场所？')) {
+          alert('删除成功：' + id);
+        }
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

@@ -1,0 +1,1749 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐患库管理 - 超管端</title>
+  
+  <style>
+        /* ========== 按钮样式 ========== */
+    .btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid #d9d9d9}
+    .btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+    .btn-default:hover{color:#1677ff;border-color:#1677ff}
+    .btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+    .btn-primary:hover{background:#4096ff}
+    .btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+    .btn-link:hover{color:#4096ff}
+    .btn-link.btn-sm{font-size:12px;padding:1px 4px}
+    .btn-danger{padding:4px 15px;border:1px solid #ffccc7;color:#ff4d4f;background:#fff;border-radius:6px;cursor:pointer;font-size:13px}
+    .btn-danger:hover{background:#fff2f0;border-color:#ff4d4f}
+
+/* ========== 页面背景 ========== */
+    .page-container { 
+      padding: 20px; 
+      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
+      height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    /* 面包屑由 framework.css 提供，无需额外样式 */
+    
+    /* ========== 分屏布局 ========== */
+    .layout-split { 
+      display: flex; 
+      gap: 20px; 
+      flex: 1; 
+      min-height: 0; 
+    }
+    
+    /* ========== 左侧面板 ========== */
+    .left-panel { 
+      width: 260px; 
+      height: 100%;
+      background: #fff; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* ========== 右侧面板 ========== */
+    .right-panel { 
+      flex: 1; 
+      background: #fff; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* ========== 面板头部 ========== */
+    .panel-header { 
+      padding: 14px 16px; 
+      border-bottom: 1px solid #e8eaed; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      background: #fafbfc;
+    }
+    .panel-title { font-size: 14px; font-weight: 600; color: #1f1f1f; }
+    
+    /* ========== 树搜索框 ========== */
+    .tree-search {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .tree-search input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .tree-search input:focus {
+      border-color: #1677ff;
+    }
+    
+    /* ========== 树形列表 ========== */
+    .tree-content { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 8px 0; 
+      min-height: 0;
+    }
+    
+    /* 树节点 */
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+    .tree-node:hover { background: #f0f7ff; }
+    .tree-node.selected { background: #e6f4ff; color: #1677ff; }
+    
+    .tree-node .expand-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 10px;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      cursor: pointer;
+      margin-right: 4px;
+    }
+    .tree-node .expand-icon.expanded { transform: rotate(90deg); }
+    .tree-node .expand-icon.leaf { visibility: hidden; }
+    
+    .tree-node .node-icon {
+      width: 18px;
+      height: 18px;
+      margin-right: 6px;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    
+    .tree-node .node-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .tree-node .node-count {
+      font-size: 12px;
+      color: #1677ff;
+      margin-left: 8px;
+      background: #e6f4ff;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+    
+    .tree-node.is-category { font-weight: 600; }
+    
+    /* 子节点 */
+    .tree-children { display: none; }
+    .tree-children.show { display: block; }
+    
+    /* ========== 右侧内容区 ========== */
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    
+    /* ========== 统计卡片区 ========== */
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      padding: 16px 20px;
+      background: #fafbfc;
+      border-bottom: 1px solid #e8eaed;
+      flex-shrink: 0;
+    }
+    
+    .stat-card {
+      flex: 1;
+      padding: 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .stat-card.blue { background: #e6f7ff; }
+    .stat-card.orange { background: #fff7e6; }
+    .stat-card.red { background: #fff1f0; }
+    
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .stat-card.blue .stat-icon { background: #bae7ff; color: #1677ff; }
+    .stat-card.orange .stat-icon { background: #ffe7ba; color: #fa8c16; }
+    .stat-card.red .stat-icon { background: #ffccc7; color: #ff4d4f; }
+    
+    .stat-info { flex: 1; }
+    .stat-value { font-size: 24px; font-weight: 600; color: #1f1f1f; }
+    .stat-label { font-size: 13px; color: #666; margin-top: 2px; }
+    
+    /* ========== 筛选条件栏 ========== */
+    .filter-bar {
+      padding: 12px 20px;
+      border-bottom: 1px solid #e8eaed;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    
+    .filter-bar select,
+    .filter-bar input[type="text"] {
+      padding: 6px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .filter-bar select:focus,
+    .filter-bar input[type="text"]:focus {
+      border-color: #1677ff;
+    }
+    
+    .filter-bar select { min-width: 120px; }
+    .filter-bar input[type="text"] { width: 180px; }
+    
+    /* ========== 操作按钮栏 ========== */
+    .action-bar {
+      padding: 12px 20px;
+      border-bottom: 1px solid #e8eaed;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    
+    .action-bar .left-actions { display: flex; gap: 10px; }
+    .action-bar .right-actions { display: flex; gap: 10px; }
+    
+    /* 批量操作栏 */
+    .batch-bar {
+      padding: 10px 20px;
+      background: #f6f8fa;
+      border-bottom: 1px solid #e8eaed;
+      display: none;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .batch-bar.show { display: flex; }
+    .batch-bar .selected-info { font-size: 13px; color: #1677ff; }
+    .batch-bar .batch-actions { display: flex; gap: 8px; margin-left: auto; }
+    
+    /* ========== 数据表格 ========== */
+    .table-container {
+      flex: 1;
+      overflow: auto;
+      min-height: 0;
+    }
+    
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    
+    .data-table th,
+    .data-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e8eaed;
+      white-space: nowrap;
+    }
+    
+    .data-table th {
+      background: #fafbfc;
+      font-weight: 600;
+      color: #1f1f1f;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .data-table tbody tr:hover {
+      background: #f5f7fa;
+    }
+    
+    .data-table .checkbox-col { width: 40px; }
+    .data-table .hazard-name { min-width: 200px; max-width: 300px; }
+    .data-table .hazard-category { width: 100px; }
+    .data-table .hazard-level { width: 90px; }
+    .data-table .hazard-domain { min-width: 150px; max-width: 200px; }
+    .data-table .hazard-checkitems { width: 100px; }
+    .data-table .hazard-regulations { width: 100px; }
+    .data-table .hazard-status { width: 70px; }
+    .data-table .hazard-time { width: 140px; }
+    .data-table .operation-col { 
+      width: 200px; 
+      position: sticky;
+      right: 0;
+      background: #fff;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.06);
+      white-space: nowrap;
+      text-align: center;
+      z-index: 10;
+    }
+    .data-table th.operation-col {
+      background: #fafbfc;
+    }
+    .data-table td.operation-col .btn-link { margin-right: 8px; }
+    .data-table td.operation-col .btn-link:last-child { margin-right: 0; }
+    
+    /* 截断文本 */
+    .truncate-cell {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    
+    /* ========== 标签样式 ========== */
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .tag-orange { background: #fff7e6; color: #fa8c16; }
+    .tag-red { background: #fff1f0; color: #ff4d4f; }
+    .tag-green { background: #f6ffed; color: #52c41a; }
+    .tag-gray { background: #f5f5f5; color: #8c8c8c; }
+    .tag-blue { background: #e6f7ff; color: #1677ff; }
+    
+    /* ========== 分页 ========== */
+    .pagination-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 12px 16px; border-top: 1px solid #f0f0f0; background: #fafafa; }
+    .pagination-info { font-size: 13px; color: #666; }
+    .pagination-size select { padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
+    .pagination-btns { display: flex; gap: 4px; }
+    .pagination-btns button { min-width: 28px; height: 28px; padding: 0 8px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .pagination-btns button:hover:not(:disabled) { border-color: #1677ff; color: #1677ff; }
+    .pagination-btns button.active { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .pagination-btns button:disabled { cursor: not-allowed; color: #bbb; background: #f5f5f5; }
+    .pagination-jump { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666; }
+    .pagination-jump input { width: 40px; height: 28px; padding: 0 6px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; text-align: center; outline: none; }
+    .pagination-jump input:focus { border-color: #1677ff; }
+    
+    /* ========== 模态框 ========== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    
+    .modal-dialog {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e8eaed;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #999;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: #f5f5f5; color: #1f1f1f; }
+    
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #e8eaed;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    /* ========== 表单样式 ========== */
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .form-group {
+      flex: 1;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: #1f1f1f;
+      margin-bottom: 6px;
+    }
+    
+    .form-label .required {
+      color: #ff4d4f;
+      margin-left: 2px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #1677ff;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    /* 单选组 */
+    .radio-group {
+      display: flex;
+      gap: 20px;
+    }
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .radio-item input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    
+    /* ========== 关联选择区 ========== */
+    .association-section {
+      margin-bottom: 16px;
+    }
+    
+    .association-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .association-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+    
+    /* 精准推荐结果 */
+    .recommend-result {
+      background: #f6f8fa;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .recommend-header {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .recommend-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      background: #fff;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    .recommend-item:last-child { margin-bottom: 0; }
+    .recommend-match {
+      width: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1677ff;
+    }
+    .recommend-name {
+      flex: 1;
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .recommend-action {
+      margin-left: 8px;
+    }
+    
+    /* 已添加列表 */
+    .added-list {
+      background: #f6f8fa;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+    .added-item {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .added-item:last-child { border-bottom: none; }
+    .added-item .item-name {
+      flex: 1;
+      font-size: 13px;
+    }
+    .added-item .item-tag {
+      margin-right: 8px;
+    }
+    .added-item .item-remove {
+      color: #999;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .added-item .item-remove:hover { color: #ff4d4f; }
+    
+    /* ========== 详情弹窗 ========== */
+    .detail-section {
+      margin-bottom: 20px;
+    }
+    .detail-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .detail-row {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .detail-label {
+      width: 80px;
+      color: #666;
+      flex-shrink: 0;
+    }
+    .detail-value {
+      flex: 1;
+      color: #1f1f1f;
+    }
+    
+    /* 详情关联列表 */
+    .detail-list {
+      background: #f6f8fa;
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .detail-list-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #e8eaed;
+      font-size: 13px;
+    }
+    .detail-list-item:last-child { border-bottom: none; }
+    .detail-list-item .item-dot {
+      width: 6px;
+      height: 6px;
+      background: #1677ff;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    /* ========== 删除确认弹窗 ========== */
+    .delete-warning {
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+    .delete-warning-icon {
+      color: #fa8c16;
+      margin-right: 8px;
+    }
+    .delete-detail-list {
+      background: #fafafa;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+    
+    /* ========== 按钮样式 ========== */
+    .btn {
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    
+    .btn-primary {
+      background: #1677ff;
+      color: #fff;
+      border-color: #1677ff;
+    }
+    .btn-primary:hover { background: #4096ff; border-color: #4096ff; }
+    
+    .btn-secondary {
+      background: #fff;
+      color: #1f1f1f;
+      border-color: #d9d9d9;
+    }
+    .btn-secondary:hover { border-color: #1677ff; color: #1677ff; }
+    
+    .btn-success {
+      background: #52c41a;
+      color: #fff;
+      border-color: #52c41a;
+    }
+    .btn-success:hover { background: #73d13d; }
+    
+    .btn-danger {
+      background: #ff4d4f;
+      color: #fff;
+      border-color: #ff4d4f;
+    }
+    .btn-danger:hover { background: #ff7875; }
+    
+    .btn-link {
+      background: none;
+      border: none;
+      color: #1677ff;
+      padding: 0 4px;
+    }
+    .btn-link:hover { color: #4096ff; text-decoration: underline; }
+    
+    /* ========== 空状态 ========== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #999;
+      padding: 40px;
+    }
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .empty-state .text {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container" data-module="sa-hazard-lib">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">超管端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">隐患库管理</span>
+    </div>
+    
+    <!-- 分屏布局 -->
+    <div class="layout-split">
+      <!-- 左侧行业领域树 -->
+      <div class="left-panel">
+        <div class="panel-header">
+          <span class="panel-title">行业领域</span>
+        </div>
+        <div class="tree-search">
+          <input type="text" placeholder="搜索领域..." id="treeSearchInput">
+        </div>
+        <div class="tree-content" id="treeContent">
+          <!-- 树节点由JS生成 -->
+        </div>
+      </div>
+      
+      <!-- 右侧隐患列表 -->
+      <div class="right-panel">
+        <div class="content-area">
+          <!-- 统计卡片 -->
+          <div class="stats-row">
+            <div class="stat-card blue">
+              <div class="stat-icon">📊</div>
+              <div class="stat-info">
+                <div class="stat-value" id="totalCount">245</div>
+                <div class="stat-label">隐患总数</div>
+              </div>
+            </div>
+            <div class="stat-card orange">
+              <div class="stat-icon">⚠️</div>
+              <div class="stat-info">
+                <div class="stat-value" id="normalCount">198</div>
+                <div class="stat-label">一般隐患</div>
+              </div>
+            </div>
+            <div class="stat-card red">
+              <div class="stat-icon">🔴</div>
+              <div class="stat-info">
+                <div class="stat-value" id="majorCount">47</div>
+                <div class="stat-label">重大隐患</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 筛选条件 -->
+          <div class="filter-bar">
+            <select id="filterCategory">
+              <option value="">全部类别</option>
+              <option value="设备类">设备类</option>
+              <option value="管理类">管理类</option>
+              <option value="作业类">作业类</option>
+              <option value="环境类">环境类</option>
+            </select>
+            <select id="filterLevel">
+              <option value="">全部级别</option>
+              <option value="一般隐患">一般隐患</option>
+              <option value="重大隐患">重大隐患</option>
+            </select>
+            <select id="filterStatus">
+              <option value="">全部状态</option>
+              <option value="启用">启用</option>
+              <option value="停用">停用</option>
+            </select>
+            <input type="text" placeholder="搜索隐患名称..." id="searchInput">
+            <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+          </div>
+          
+          <!-- 操作按钮 -->
+          <div class="action-bar">
+            <div class="left-actions">
+              <button class="btn btn-primary" onclick="openAddModal()">+ 新增隐患</button>
+              <button class="btn btn-secondary" onclick="openImportModal()">批量导入</button>
+              <button class="btn btn-secondary" onclick="exportData()">批量导出</button>
+            </div>
+          </div>
+          
+          <!-- 批量操作栏 -->
+          <div class="batch-bar" id="batchBar">
+            <span class="selected-info">已选择 <span id="selectedCount">0</span> 条</span>
+            <div class="batch-actions">
+              <button class="btn btn-secondary" onclick="batchEnable()">批量启用</button>
+              <button class="btn btn-secondary" onclick="batchDisable()">批量停用</button>
+              <button class="btn btn-danger" onclick="batchDelete()">批量删除</button>
+              <button class="btn btn-link" onclick="clearSelection()">取消选择</button>
+            </div>
+          </div>
+          
+          <!-- 数据表格 -->
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="checkbox-col"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                  <th style="width:60px">序号</th>
+                  <th class="hazard-name">隐患名称</th>
+                  <th class="hazard-category">隐患类别</th>
+                  <th class="hazard-level">隐患级别</th>
+                  <th class="hazard-domain">适用领域</th>
+                  <th class="hazard-checkitems">关联检查项</th>
+                  <th class="hazard-regulations">关联法规</th>
+                  <th class="hazard-status">状态</th>
+                  <th class="hazard-time">更新时间</th>
+                  <th class="operation-col">操作</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <!-- 数据由JS生成 -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- 分页 -->
+          <div class="pagination-wrap">
+            <span class="pagination-info">共 <span id="pgTotal">0</span> 条，第 <span id="pgCurrentPage">1</span> 页/共 <span id="pgTotalPages">1</span> 页</span>
+            <div class="pagination-size">
+              <select id="pgSize" onchange="changePageSize()">
+                <option value="10">10条/页</option>
+                <option value="20">20条/页</option>
+                <option value="50">50条/页</option>
+              </select>
+            </div>
+            <div class="pagination-btns" id="pgBtns"></div>
+            <div class="pagination-jump">
+              跳至 <input type="number" id="pgJump" min="1"> 页 <button class="btn btn-default" onclick="jumpToPage()">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 新增/编辑隐患弹窗 -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-dialog" style="width: 680px;">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">新增隐患</span>
+        <button class="modal-close" onclick="closeModal('editModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- 基本信息 -->
+        <div class="detail-section">
+          <div class="detail-section-title">基本信息</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">隐患名称<span class="required">*</span></label>
+              <input type="text" id="hazardName" placeholder="请输入隐患名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">隐患类别<span class="required">*</span></label>
+              <select id="hazardCategory">
+                <option value="">请选择类别</option>
+                <option value="设备类">设备类</option>
+                <option value="管理类">管理类</option>
+                <option value="作业类">作业类</option>
+                <option value="环境类">环境类</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">隐患级别<span class="required">*</span></label>
+              <div class="radio-group">
+                <label class="radio-item">
+                  <input type="radio" name="hazardLevel" value="一般隐患" checked>
+                  <span>一般隐患</span>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" name="hazardLevel" value="重大隐患">
+                  <span>重大隐患</span>
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">状态<span class="required">*</span></label>
+              <div class="radio-group">
+                <label class="radio-item">
+                  <input type="radio" name="hazardStatus" value="启用" checked>
+                  <span>启用</span>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" name="hazardStatus" value="停用">
+                  <span>停用</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label">隐患描述</label>
+            <textarea id="hazardDesc" placeholder="请输入隐患描述" rows="3"></textarea>
+          </div>
+        </div>
+        
+        <!-- 适用领域 -->
+        <div class="association-section">
+          <div class="association-header">
+            <span class="association-title">适用领域<span class="required">*</span></span>
+          </div>
+          <div class="added-list" id="domainList">
+            <div class="added-item">
+              <span class="item-name">生产车间</span>
+              <span class="item-remove" onclick="removeDomain(this)">×</span>
+            </div>
+            <div class="added-item">
+              <span class="item-name">充换电设施</span>
+              <span class="item-remove" onclick="removeDomain(this)">×</span>
+            </div>
+          </div>
+          <button class="btn btn-link" onclick="openDomainSelect()" style="margin-top: 8px;">+ 添加领域</button>
+        </div>
+        
+        <!-- 关联检查项 -->
+        <div class="association-section">
+          <div class="association-header">
+            <span class="association-title">关联检查项</span>
+          </div>
+          <!-- 精准推荐结果 -->
+          <div class="recommend-result" id="recommendResult">
+            <div class="recommend-header">精准推荐（根据隐患内容自动推荐）</div>
+            <div class="recommend-item">
+              <span class="recommend-match">92%</span>
+              <span class="recommend-name">电梯年度检验是否在有效期内</span>
+              <button class="btn btn-link recommend-action" onclick="addCheckItem(this)">+添加</button>
+            </div>
+            <div class="recommend-item">
+              <span class="recommend-match">85%</span>
+              <span class="recommend-name">电梯内是否张贴检验合格标志</span>
+              <button class="btn btn-link recommend-action" onclick="addCheckItem(this)">+添加</button>
+            </div>
+            <div class="recommend-item">
+              <span class="recommend-match">78%</span>
+              <span class="recommend-name">电梯维保记录是否完整</span>
+              <button class="btn btn-link recommend-action" onclick="addCheckItem(this)">+添加</button>
+            </div>
+          </div>
+          <!-- 已添加检查项 -->
+          <div class="added-list" id="checkItemList">
+            <div class="added-item">
+              <span class="item-name">电梯年度检验是否在有效期内</span>
+              <span class="tag tag-red item-tag">重点项</span>
+              <span class="item-remove" onclick="removeCheckItem(this)">×</span>
+            </div>
+            <div class="added-item">
+              <span class="item-name">电梯内是否张贴检验合格标志</span>
+              <span class="tag tag-gray item-tag">常规项</span>
+              <span class="item-remove" onclick="removeCheckItem(this)">×</span>
+            </div>
+          </div>
+          <button class="btn btn-link" onclick="openCheckItemSelect()" style="margin-top: 8px;">+ 手动添加检查项</button>
+        </div>
+        
+        <!-- 关联法规条款 -->
+        <div class="association-section">
+          <div class="association-header">
+            <span class="association-title">关联法规条款</span>
+            <button class="btn btn-link" onclick="openRegulationAdvanced()">高级选择</button>
+          </div>
+          <div class="added-list" id="regulationList">
+            <div class="added-item">
+              <span class="item-name">《特种设备安全法》第二十五条 - 检验要求</span>
+              <span class="item-remove" onclick="removeRegulation(this)">×</span>
+            </div>
+          </div>
+          <button class="btn btn-link" onclick="openRegulationSelect()" style="margin-top: 8px;">+ 添加法规条款</button>
+        </div>
+        
+        <!-- 整改建议 -->
+        <div class="form-group">
+          <label class="form-label">整改建议</label>
+          <textarea id="rectifySuggestion" placeholder="请输入整改建议" rows="4"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('editModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveHazard()">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 详情弹窗 -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-dialog" style="width: 680px;">
+      <div class="modal-header">
+        <span class="modal-title">隐患详情</span>
+        <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- 基本信息 -->
+        <div class="detail-section">
+          <div class="detail-section-title">基本信息</div>
+          <div class="detail-row">
+            <span class="detail-label">隐患名称</span>
+            <span class="detail-value">电梯未按规定进行年度检验</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">隐患类别</span>
+            <span class="detail-value"><span class="tag tag-blue">设备类</span></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">隐患级别</span>
+            <span class="detail-value"><span class="tag tag-red">重大隐患</span></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">状态</span>
+            <span class="detail-value"><span class="tag tag-green">启用</span></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">适用领域</span>
+            <span class="detail-value">特种设备、人员密集场所</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">更新时间</span>
+            <span class="detail-value">2026-04-18 10:30:00</span>
+          </div>
+        </div>
+        
+        <!-- 隐患描述 -->
+        <div class="detail-section">
+          <div class="detail-section-title">隐患描述</div>
+          <p style="font-size: 13px; color: #1f1f1f; line-height: 1.6;">电梯超过检验有效期仍在使用，存在重大安全隐患。可能导致电梯故障、人员被困或伤亡事故。</p>
+        </div>
+        
+        <!-- 关联检查项 -->
+        <div class="detail-section">
+          <div class="detail-section-title" onclick="toggleDetailSection('checkItems')" style="cursor:pointer;user-select:none;">
+            <span id="detailCiToggle">▼</span>&nbsp;关联检查项（<span id="detailCiCount">3</span>个）
+          </div>
+          <div class="detail-list" id="detailCiList">
+            <div class="detail-list-item">
+              <span class="item-dot"></span>
+              <span>电梯年度检验是否在有效期内</span>
+              <span class="tag tag-red" style="margin-left: 8px;">重点项</span>
+            </div>
+            <div class="detail-list-item">
+              <span class="item-dot"></span>
+              <span>电梯内是否张贴检验合格标志</span>
+              <span class="tag tag-gray" style="margin-left: 8px;">常规项</span>
+            </div>
+            <div class="detail-list-item">
+              <span class="item-dot"></span>
+              <span>电梯维保记录是否完整</span>
+              <span class="tag tag-gray" style="margin-left: 8px;">常规项</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 关联法规条款 -->
+        <div class="detail-section">
+          <div class="detail-section-title" onclick="toggleDetailSection('regulations')" style="cursor:pointer;user-select:none;">
+            <span id="detailRegToggle">▼</span>&nbsp;关联法规条款（<span id="detailRegCount">2</span>条）
+          </div>
+          <div class="detail-list" id="detailRegList">
+            <div class="detail-reg-item" onclick="toggleRegDetailItem(this, 'reg-001')" style="cursor:pointer;">
+              <div class="detail-reg-header">
+                <span class="detail-reg-toggle">▶</span>
+                <span class="detail-reg-name">《特种设备安全法》第二十五条 - 检验要求</span>
+              </div>
+              <div class="detail-reg-content" style="display:none;">
+                <div style="font-size:12px;color:#666;line-height:1.8;padding:8px 12px;">
+                  <p><strong>条款编号：</strong>第二十五条</p>
+                  <p><strong>条款标题：</strong>检验要求</p>
+                  <p><strong>条款内容：</strong>特种设备应当按照规定进行定期检验，未经定期检验或者检验不合格的特种设备，不得继续使用。</p>
+                </div>
+              </div>
+            </div>
+            <div class="detail-reg-item" onclick="toggleRegDetailItem(this, 'reg-002')" style="cursor:pointer;">
+              <div class="detail-reg-header">
+                <span class="detail-reg-toggle">▶</span>
+                <span class="detail-reg-name">《安全生产法》第三十六条 - 设备管理</span>
+              </div>
+              <div class="detail-reg-content" style="display:none;">
+                <div style="font-size:12px;color:#666;line-height:1.8;padding:8px 12px;">
+                  <p><strong>条款编号：</strong>第三十六条</p>
+                  <p><strong>条款标题：</strong>设备管理</p>
+                  <p><strong>条款内容：</strong>生产经营单位应当对特种设备进行经常性维护、保养和定期检测，保证正常运转。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 整改建议 -->
+        <div class="detail-section">
+          <div class="detail-section-title">整改建议</div>
+          <div style="font-size: 13px; color: #1f1f1f; line-height: 1.8;">
+            1. 立即停用超期电梯，设置警示标志<br>
+            2. 联系有资质的检验机构进行检验<br>
+            3. 检验合格后方可恢复使用<br>
+            4. 建立电梯检验台账，提前30天申请复检
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('detailModal')">关闭</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 删除确认弹窗 -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-dialog" style="width: 460px;">
+      <div class="modal-header">
+        <span class="modal-title">删除确认</span>
+        <button class="modal-close" onclick="closeModal('deleteModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="delete-warning">
+          <span class="delete-warning-icon">⚠️</span>
+          <span>该隐患已关联：</span>
+        </div>
+        <div class="delete-detail-list">
+          <div>• 3 个检查项</div>
+          <div>• 2 条法规条款</div>
+        </div>
+        <p style="margin: 16px 0 8px; font-size: 13px; color: #666;">删除后将自动解除所有关联关系，已生成的检查记录不受影响。</p>
+        <p style="font-size: 14px; color: #1f1f1f;">确定要删除"<strong>电梯未年检</strong>"吗？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('deleteModal')">取消</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 批量删除确认弹窗 -->
+  <div class="modal-overlay" id="batchDeleteModal">
+    <div class="modal-dialog" style="width: 520px;">
+      <div class="modal-header">
+        <span class="modal-title">批量删除确认</span>
+        <button class="modal-close" onclick="closeModal('batchDeleteModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px; font-size: 14px;">已选择 <strong>5</strong> 条隐患，其中：</p>
+        <ul style="margin: 0 0 16px 20px; font-size: 13px; color: #666; line-height: 1.8;">
+          <li>3 条无关联，可直接删除</li>
+          <li>2 条有关联，删除后自动解除关联</li>
+        </ul>
+        <div class="delete-warning" style="margin-bottom: 12px;">
+          <span class="delete-warning-icon">⚠️</span>
+          <span>关联详情：</span>
+        </div>
+        <div class="delete-detail-list">
+          <div>电梯未年检：关联3个检查项、2条法规</div>
+          <div>消防通道堵塞：关联2个检查项、1条法规</div>
+        </div>
+        <p style="margin-top: 16px; font-size: 14px;">确定删除选中的 5 条隐患吗？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('batchDeleteModal')">取消</button>
+        <button class="btn btn-danger" onclick="confirmBatchDelete()">确认删除</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // ========== 数据定义 ==========
+    
+    // 行业领域树数据（与领域小类管理 domain-manage.html 保持一致）
+    const domainTreeData = [
+      {
+        id: 'IND',
+        name: '工业制造类',
+        isCategory: true,
+        children: [
+          { id: 'IND_001', name: '生产车间', count: 45 },
+          { id: 'IND_002', name: '充换电设施', count: 32 }
+        ]
+      },
+      {
+        id: 'CITY',
+        name: '城市运行类',
+        isCategory: true,
+        children: [
+          { id: 'CITY_001', name: '超高层建筑', count: 28 },
+          { id: 'CITY_002', name: '大型综合体', count: 35 }
+        ]
+      },
+      {
+        id: 'CONS',
+        name: '建设工程类',
+        isCategory: true,
+        children: [
+          { id: 'CONS_001', name: '建筑施工现场', count: 20 }
+        ]
+      },
+      {
+        id: 'CHEM',
+        name: '危险化学品类',
+        isCategory: true,
+        children: [
+          { id: 'CHEM_001', name: '危化品仓储', count: 15 }
+        ]
+      },
+      {
+        id: 'TRANS',
+        name: '交通运输类',
+        isCategory: true,
+        children: [
+          { id: 'TRANS_001', name: '道路运输', count: 22 },
+          { id: 'TRANS_002', name: '轨道交通', count: 18 }
+        ]
+      },
+      {
+        id: 'COMM',
+        name: '公共场所类',
+        isCategory: true,
+        children: [
+          { id: 'COMM_001', name: '人员密集场所', count: 40 },
+          { id: 'COMM_002', name: '特种设备', count: 25 }
+        ]
+      },
+      {
+        id: 'OTH',
+        name: '其他类',
+        isCategory: true,
+        children: [
+          { id: 'OTH_001', name: '定制业务', count: 8 }
+        ]
+      }
+    ];
+    
+    // 隐患数据
+    const hazardData = [
+      { id: 'HZ001', name: '电梯未按规定进行年度检验', category: '设备类', level: '重大隐患', domains: ['特种设备'], checkItems: 3, regulations: 2, status: '启用', updateTime: '2026-04-18 10:30' },
+      { id: 'HZ002', name: '消防通道被堵塞', category: '管理类', level: '重大隐患', domains: ['公共场所'], checkItems: 2, regulations: 1, status: '启用', updateTime: '2026-04-17 14:20' },
+      { id: 'HZ003', name: '安全出口上锁', category: '管理类', level: '重大隐患', domains: ['人员密集场所'], checkItems: 1, regulations: 1, status: '启用', updateTime: '2026-04-17 09:15' },
+      { id: 'HZ004', name: '灭火器超过有效期', category: '设备类', level: '一般隐患', domains: ['消防设施'], checkItems: 2, regulations: 3, status: '停用', updateTime: '2026-04-16 16:45' },
+      { id: 'HZ005', name: '配电箱无接地保护', category: '设备类', level: '一般隐患', domains: ['电气设施'], checkItems: 1, regulations: 2, status: '启用', updateTime: '2026-04-16 11:30' },
+      { id: 'HZ006', name: '特种作业人员无证上岗', category: '管理类', level: '重大隐患', domains: ['特种设备'], checkItems: 3, regulations: 2, status: '启用', updateTime: '2026-04-15 15:20' },
+      { id: 'HZ007', name: '安全警示标识缺失', category: '管理类', level: '一般隐患', domains: ['生产车间'], checkItems: 2, regulations: 1, status: '启用', updateTime: '2026-04-15 10:10' },
+      { id: 'HZ008', name: '应急预案未备案', category: '管理类', level: '一般隐患', domains: ['所有场所'], checkItems: 1, regulations: 2, status: '启用', updateTime: '2026-04-14 14:30' },
+      { id: 'HZ009', name: '高处作业无防护措施', category: '作业类', level: '重大隐患', domains: ['建筑施工现场'], checkItems: 2, regulations: 3, status: '启用', updateTime: '2026-04-14 09:25' },
+      { id: 'HZ010', name: '化学品存放不规范', category: '环境类', level: '重大隐患', domains: ['危化品仓储'], checkItems: 4, regulations: 2, status: '启用', updateTime: '2026-04-13 16:40' },
+      { id: 'HZ011', name: '消防栓无水', category: '设备类', level: '重大隐患', domains: ['消防设施'], checkItems: 2, regulations: 1, status: '启用', updateTime: '2026-04-12 11:20' },
+      { id: 'HZ012', name: '应急照明灯故障', category: '设备类', level: '一般隐患', domains: ['公共场所'], checkItems: 1, regulations: 1, status: '启用', updateTime: '2026-04-12 09:45' },
+      { id: 'HZ013', name: '压力容器未年检', category: '设备类', level: '重大隐患', domains: ['特种设备'], checkItems: 3, regulations: 2, status: '启用', updateTime: '2026-04-11 15:30' },
+      { id: 'HZ014', name: '安全培训记录缺失', category: '管理类', level: '一般隐患', domains: ['所有场所'], checkItems: 1, regulations: 1, status: '启用', updateTime: '2026-04-11 10:15' },
+      { id: 'HZ015', name: '燃气管道泄漏', category: '设备类', level: '重大隐患', domains: ['燃气设施'], checkItems: 2, regulations: 3, status: '启用', updateTime: '2026-04-10 16:50' },
+      { id: 'HZ016', name: '脚手架搭设不规范', category: '作业类', level: '重大隐患', domains: ['建筑施工现场'], checkItems: 3, regulations: 2, status: '启用', updateTime: '2026-04-10 14:20' },
+      { id: 'HZ017', name: '电气线路老化', category: '设备类', level: '一般隐患', domains: ['电气设施'], checkItems: 2, regulations: 1, status: '启用', updateTime: '2026-04-09 11:40' },
+      { id: 'HZ018', name: '防护栏杆缺失', category: '作业类', level: '重大隐患', domains: ['建筑施工现场'], checkItems: 1, regulations: 2, status: '启用', updateTime: '2026-04-09 09:30' },
+      { id: 'HZ019', name: '有限空间未通风', category: '作业类', level: '重大隐患', domains: ['工业生产'], checkItems: 2, regulations: 3, status: '启用', updateTime: '2026-04-08 15:10' },
+      { id: 'HZ020', name: '安全帽未佩戴', category: '管理类', level: '一般隐患', domains: ['生产车间'], checkItems: 1, regulations: 1, status: '启用', updateTime: '2026-04-08 10:25' },
+      { id: 'HZ021', name: '叉车超载作业', category: '作业类', level: '重大隐患', domains: ['物流仓储'], checkItems: 2, regulations: 2, status: '启用', updateTime: '2026-04-07 14:55' }
+    ];
+    
+    // 当前状态
+    let selectedDomain = null;
+    let selectedHazards = new Set();
+    let currentPage = 1;
+    
+    // ========== 树渲染 ==========
+    
+    function renderTree() {
+      const container = document.getElementById('treeContent');
+      let html = `
+        <div class="tree-node" data-id="all" onclick="selectDomain('all')">
+          <span class="expand-icon leaf"></span>
+          <span class="node-icon">📂</span>
+          <span class="node-name">全部</span>
+          <span class="node-count">245</span>
+        </div>
+      `;
+      
+      domainTreeData.forEach(category => {
+        html += `
+          <div class="tree-node is-category" data-id="${category.id}" onclick="toggleTree(this)">
+            <span class="expand-icon">▶</span>
+            <span class="node-icon">🏭</span>
+            <span class="node-name">${category.name}</span>
+          </div>
+          <div class="tree-children">
+        `;
+        
+        category.children.forEach(domain => {
+          html += `
+            <div class="tree-node" data-id="${domain.id}" onclick="selectDomain('${domain.id}')">
+              <span class="expand-icon leaf"></span>
+              <span class="node-icon">📄</span>
+              <span class="node-name">${domain.name}</span>
+              <span class="node-count">${domain.count}</span>
+            </div>
+          `;
+        });
+        
+        html += '</div>';
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    function toggleTree(node) {
+      const icon = node.querySelector('.expand-icon');
+      const children = node.nextElementSibling;
+      
+      if (icon.classList.contains('expanded')) {
+        icon.classList.remove('expanded');
+        children.classList.remove('show');
+      } else {
+        icon.classList.add('expanded');
+        children.classList.add('show');
+      }
+    }
+    
+    function selectDomain(domainId) {
+      selectedDomain = domainId;
+      
+      // 更新选中状态
+      document.querySelectorAll('.tree-node').forEach(node => {
+        node.classList.remove('selected');
+        if (node.dataset.id === domainId) {
+          node.classList.add('selected');
+        }
+      });
+      
+      // 筛选数据
+      filterHazardList();
+    }
+    
+    // ========== 分页状态 ==========
+    var pgState = { page: 1, size: 10, total: 0 };
+    
+    // ========== 表格渲染 ==========
+    
+    function renderTable(data) {
+      pgState.total = data.length;
+      const start = (pgState.page - 1) * pgState.size;
+      const pageData = data.slice(start, start + pgState.size);
+      
+      const tbody = document.getElementById('tableBody');
+      let html = '';
+      
+      pageData.forEach((hazard, idx) => {
+        const levelClass = hazard.level === '重大隐患' ? 'tag-red' : 'tag-orange';
+        const statusClass = hazard.status === '启用' ? 'tag-green' : 'tag-gray';
+        
+        html += `
+          <tr data-id="${hazard.id}">
+            <td class="checkbox-col">
+              <input type="checkbox" onchange="toggleSelect('${hazard.id}')" ${selectedHazards.has(hazard.id) ? 'checked' : ''}>
+            </td>
+            <td>${start + idx + 1}</td>
+            <td class="hazard-name">
+              <span class="truncate-cell" title="${hazard.name}">${hazard.name}</span>
+            </td>
+            <td class="hazard-category">
+              <span class="tag tag-blue">${hazard.category}</span>
+            </td>
+            <td class="hazard-level">
+              <span class="tag ${levelClass}">${hazard.level}</span>
+            </td>
+            <td class="hazard-domain">
+              <span class="truncate-cell" title="${hazard.domains.join('、')}">${hazard.domains.join('、')}</span>
+            </td>
+            <td class="hazard-checkitems">
+              <a href="#" class="btn-link" onclick="showCheckItems('${hazard.id}')">${hazard.checkItems}个</a>
+            </td>
+            <td class="hazard-regulations">
+              <a href="#" class="btn-link" onclick="showRegulations('${hazard.id}')">${hazard.regulations}条</a>
+            </td>
+            <td class="hazard-status">
+              <span class="tag ${statusClass}">${hazard.status}</span>
+            </td>
+            <td class="hazard-time">${hazard.updateTime}</td>
+            <td class="operation-col">
+              <button class="btn btn-link" onclick="openEditModal('${hazard.id}')">编辑</button>
+              <button class="btn btn-link" onclick="openDeleteModal('${hazard.id}')">删除</button>
+              <button class="btn btn-link" onclick="openDetailModal('${hazard.id}')">详情</button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      tbody.innerHTML = html;
+      updateStats(data);
+      renderPagination(Math.ceil(pgState.total / pgState.size));
+    }
+    
+    function updateStats(data) {
+      document.getElementById('totalCount').textContent = data.length;
+      document.getElementById('normalCount').textContent = data.filter(h => h.level === '一般隐患').length;
+      document.getElementById('majorCount').textContent = data.filter(h => h.level === '重大隐患').length;
+    }
+    
+    function filterHazardList() {
+      let filtered = [...hazardData];
+      
+      // 领域筛选
+      if (selectedDomain && selectedDomain !== 'all') {
+        filtered = filtered.filter(h => h.domains.some(d => d.includes(selectedDomain)));
+      }
+      
+      // 类别筛选
+      const category = document.getElementById('filterCategory').value;
+      if (category) {
+        filtered = filtered.filter(h => h.category === category);
+      }
+      
+      // 级别筛选
+      const level = document.getElementById('filterLevel').value;
+      if (level) {
+        filtered = filtered.filter(h => h.level === level);
+      }
+      
+      // 状态筛选
+      const status = document.getElementById('filterStatus').value;
+      if (status) {
+        filtered = filtered.filter(h => h.status === status);
+      }
+      
+      // 关键词搜索
+      const keyword = document.getElementById('searchInput').value.toLowerCase();
+      if (keyword) {
+        filtered = filtered.filter(h => h.name.toLowerCase().includes(keyword));
+      }
+      
+      renderTable(filtered);
+    }
+    
+    function resetFilters() {
+      document.getElementById('filterCategory').value = '';
+      document.getElementById('filterLevel').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('searchInput').value = '';
+      selectedDomain = null;
+      document.querySelectorAll('.tree-node').forEach(node => node.classList.remove('selected'));
+      pgState.page = 1;
+      filterHazardList();
+    }
+    
+    // ========== 分页函数 ==========
+    
+    function renderPagination(totalPages) {
+      document.getElementById('pgTotal').textContent = pgState.total;
+      document.getElementById('pgCurrentPage').textContent = pgState.page;
+      document.getElementById('pgTotalPages').textContent = totalPages || 1;
+      var btns = document.getElementById('pgBtns');
+      if (totalPages <= 1) { btns.innerHTML = ''; return; }
+      var html = '';
+      html += '<button onclick="goPage(' + (pgState.page - 1) + ')" ' + (pgState.page === 1 ? 'disabled' : '') + '>&lt;</button>';
+      for (var i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= pgState.page - 2 && i <= pgState.page + 2)) {
+          html += '<button class="' + (i === pgState.page ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+        } else if (i === pgState.page - 3 || i === pgState.page + 3) {
+          html += '<span>...</span>';
+        }
+      }
+      html += '<button onclick="goPage(' + (pgState.page + 1) + ')" ' + (pgState.page === totalPages ? 'disabled' : '') + '>&gt;</button>';
+      btns.innerHTML = html;
+      document.getElementById('pgJump').max = totalPages;
+    }
+
+    function goPage(p) {
+      var totalPages = Math.ceil(pgState.total / pgState.size);
+      if (p < 1 || p > totalPages) return;
+      pgState.page = p;
+      filterHazardList();
+    }
+
+    function changePageSize() {
+      pgState.size = parseInt(document.getElementById('pgSize').value);
+      pgState.page = 1;
+      filterHazardList();
+    }
+
+    function jumpToPage() {
+      var p = parseInt(document.getElementById('pgJump').value);
+      if (p) goPage(p);
+    }
+    
+    // ========== 选择与批量操作 ==========
+    
+    function toggleSelect(id) {
+      if (selectedHazards.has(id)) {
+        selectedHazards.delete(id);
+      } else {
+        selectedHazards.add(id);
+      }
+      updateBatchBar();
+    }
+    
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAll');
+      const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
+      
+      if (selectAll.checked) {
+        checkboxes.forEach(cb => {
+          const id = cb.closest('tr').dataset.id;
+          selectedHazards.add(id);
+          cb.checked = true;
+        });
+      } else {
+        selectedHazards.clear();
+        checkboxes.forEach(cb => cb.checked = false);
+      }
+      updateBatchBar();
+    }
+    
+    function updateBatchBar() {
+      const batchBar = document.getElementById('batchBar');
+      const selectedCount = document.getElementById('selectedCount');
+      
+      if (selectedHazards.size > 0) {
+        batchBar.classList.add('show');
+        selectedCount.textContent = selectedHazards.size;
+      } else {
+        batchBar.classList.remove('show');
+      }
+    }
+    
+    function clearSelection() {
+      selectedHazards.clear();
+      document.querySelectorAll('#tableBody input[type="checkbox"]').forEach(cb => cb.checked = false);
+      document.getElementById('selectAll').checked = false;
+      updateBatchBar();
+    }
+    
+    function batchEnable() {
+      selectedHazards.forEach(id => {
+        const hazard = hazardData.find(h => h.id === id);
+        if (hazard) hazard.status = '启用';
+      });
+      clearSelection();
+      filterHazardList();
+      alert('批量启用成功');
+    }
+    
+    function batchDisable() {
+      selectedHazards.forEach(id => {
+        const hazard = hazardData.find(h => h.id === id);
+        if (hazard) hazard.status = '停用';
+      });
+      clearSelection();
+      filterHazardList();
+      alert('批量停用成功');
+    }
+    
+    function batchDelete() {
+      openModal('batchDeleteModal');
+    }
+    
+    // ========== 弹窗操作 ==========
+    
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('show');
+    }
+    
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+    
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = '新增隐患';
+      document.getElementById('hazardName').value = '';
+      document.getElementById('hazardCategory').value = '';
+      document.getElementById('hazardDesc').value = '';
+      document.getElementById('rectifySuggestion').value = '';
+      // 清空关联数据
+      document.getElementById('domainList').innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">暂无领域</div>';
+      document.getElementById('checkItemList').innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">暂无关联检查项</div>';
+      document.getElementById('regulationList').innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">暂无关联法规</div>';
+      document.getElementById('recommendResult').style.display = 'none';
+      // 重置单选
+      document.querySelector('input[name="hazardLevel"][value="一般隐患"]').checked = true;
+      document.querySelector('input[name="hazardStatus"][value="启用"]').checked = true;
+      openModal('editModal');
+    }
+    
+    function openEditModal(id) {
+      document.getElementById('modalTitle').textContent = '编辑隐患';
+      const hazard = hazardData.find(h => h.id === id);
+      if (hazard) {
+        document.getElementById('hazardName').value = hazard.name;
+        document.getElementById('hazardCategory').value = hazard.category;
+        document.getElementById('hazardDesc').value = hazard.name;
+      }
+      openModal('editModal');
+    }
+    
+    function openDetailModal(id) {
+      // 重置展开状态（每次打开详情时回到展开态）
+      detailCiExpanded = true;
+      detailRegExpanded = true;
+      updateDetailSectionUI();
+      openModal('detailModal');
+    }
+
+    // 详情弹窗关联项展开/收起状态
+    let detailCiExpanded = true;
+    let detailRegExpanded = true;
+
+    function toggleDetailSection(type) {
+      if (type === 'checkItems') {
+        detailCiExpanded = !detailCiExpanded;
+      } else if (type === 'regulations') {
+        detailRegExpanded = !detailRegExpanded;
+      }
+      updateDetailSectionUI();
+    }
+
+    function toggleRegDetailItem(itemEl, regId) {
+      const content = itemEl.querySelector('.detail-reg-content');
+      const toggle = itemEl.querySelector('.detail-reg-toggle');
+      const isOpen = content.style.display !== 'none';
+      content.style.display = isOpen ? 'none' : 'block';
+      toggle.textContent = isOpen ? '▶' : '▼';
+      // 关闭其他已展开项
+      itemEl.parentElement.querySelectorAll('.detail-reg-item').forEach(el => {
+        if (el !== itemEl) {
+          el.querySelector('.detail-reg-content').style.display = 'none';
+          el.querySelector('.detail-reg-toggle').textContent = '▶';
+        }
+      });
+    }
+
+    function updateDetailSectionUI() {
+      // 关联检查项
+      const ciToggle = document.getElementById('detailCiToggle');
+      const ciList = document.getElementById('detailCiList');
+      if (ciToggle) ciToggle.textContent = detailCiExpanded ? '▼' : '▶';
+      if (ciList) ciList.style.display = detailCiExpanded ? '' : 'none';
+
+      // 关联法规条款
+      const regToggle = document.getElementById('detailRegToggle');
+      const regList = document.getElementById('detailRegList');
+      if (regToggle) regToggle.textContent = detailRegExpanded ? '▼' : '▶';
+      if (regList) regList.style.display = detailRegExpanded ? '' : 'none';
+    }
+    
+    function openDeleteModal(id) {
+      openModal('deleteModal');
+    }
+    
+    function confirmDelete() {
+      closeModal('deleteModal');
+      alert('删除成功');
+      filterHazardList();
+    }
+    
+    function confirmBatchDelete() {
+      selectedHazards.clear();
+      closeModal('batchDeleteModal');
+      clearSelection();
+      filterHazardList();
+      alert('批量删除成功');
+    }
+    
+    function saveHazard() {
+      const name = document.getElementById('hazardName').value;
+      const category = document.getElementById('hazardCategory').value;
+      
+      if (!name) {
+        alert('请输入隐患名称');
+        return;
+      }
+      if (!category) {
+        alert('请选择隐患类别');
+        return;
+      }
+      
+      closeModal('editModal');
+      alert('保存成功');
+      filterHazardList();
+    }
+    
+    // ========== 其他操作 ==========
+    
+    function openImportModal() {
+      alert('批量导入功能开发中');
+    }
+    
+    function exportData() {
+      alert('正在导出Excel文件...');
+    }
+    
+    function showCheckItems(id) {
+      alert('显示关联检查项列表');
+    }
+    
+    function showRegulations(id) {
+      alert('显示关联法规条款列表');
+    }
+    
+    function openDomainSelect() {
+      alert('选择适用领域');
+    }
+    
+    function openCheckItemSelect() {
+      alert('选择关联检查项');
+    }
+    
+    function openRegulationSelect() {
+      alert('选择关联法规条款');
+    }
+    
+    function openRegulationAdvanced() {
+      alert('打开法规高级选择弹窗（树形）');
+    }
+    
+    function removeDomain(btn) {
+      btn.closest('.added-item').remove();
+    }
+    
+    function removeCheckItem(btn) {
+      btn.closest('.added-item').remove();
+    }
+    
+    function removeRegulation(btn) {
+      btn.closest('.added-item').remove();
+    }
+    
+    function addCheckItem(btn) {
+      const item = btn.closest('.recommend-item');
+      const name = item.querySelector('.recommend-name').textContent;
+      alert('添加检查项: ' + name);
+    }
+    
+    function goToPage(page) {
+      currentPage = page;
+      alert('跳转到第 ' + page + ' 页');
+    }
+    
+    // ========== 初始化 ==========
+    
+    window.onload = function() {
+      renderTree();
+      renderTable(hazardData);
+      
+      // 绑定筛选事件
+      document.getElementById('filterCategory').addEventListener('change', filterHazardList);
+      document.getElementById('filterLevel').addEventListener('change', filterHazardList);
+      document.getElementById('filterStatus').addEventListener('change', filterHazardList);
+      document.getElementById('searchInput').addEventListener('input', filterHazardList);
+      
+      // 默认选中"全部"
+      selectDomain('all');
+    };
+  </script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-hazard-lib', moduleName: '隐患库管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

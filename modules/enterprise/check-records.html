@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>检查记录管理 - 企业端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .page-container { 
+      padding: var(--spacing-lg); 
+      background: var(--bg-page);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-header);
+    }
+    .page-title { font-size: var(--font-size-xl); font-weight: 600; color: var(--text-primary); }
+    
+    /* ========== 统计卡片 ========== */
+    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    .stat-card { 
+      flex: 1; 
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%); 
+      border: 1px solid var(--border-card); 
+      border-radius: var(--radius-lg); 
+      padding: var(--spacing-md) var(--spacing-lg); 
+      box-shadow: var(--shadow-card);
+      transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+    }
+    .stat-card:hover { 
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .stat-value { font-size: 24px; font-weight: 600; color: var(--text-primary); }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+    
+    /* ========== 筛选栏 ========== */
+    .filter-bar { 
+      display: flex; 
+      gap: var(--spacing-sm); 
+      margin-bottom: var(--spacing-md); 
+      align-items: center; 
+      flex-wrap: wrap;
+      background: var(--bg-section);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+    }
+    .filter-item select, .filter-item input { 
+      padding: 6px 10px; 
+      border: 1px solid var(--border-input); 
+      border-radius: var(--radius-sm); 
+      font-size: var(--font-size-sm); 
+      background: var(--bg-primary);
+    }
+    .filter-item select:focus, .filter-item input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    
+    /* ========== 表格容器 ========== */
+    .table-wrap { 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
+      overflow: hidden; 
+      box-shadow: var(--shadow-card);
+    }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    thead tr { background: var(--bg-section-alt); }
+    th { padding: 12px 16px; text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap; }
+    td { padding: 12px 16px; font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
+    .ellipsis-col { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; width: 200px; }
+    tbody tr:nth-child(even) { background: var(--bg-section-alt); }
+    tbody tr:hover td { background: var(--bg-hover); }
+    tbody tr:hover .action-col { background: var(--bg-hover); }
+    
+    /* ========== 分页 ========== */
+    .pagination-wrap { 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-end; 
+      gap: 4px; 
+      padding: 12px 16px;
+      background: var(--bg-section);
+      border-top: 1px solid var(--border-light);
+    }
+    .pg-btn { padding: 6px 12px; border: 1px solid var(--border-input); background: var(--bg-primary); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
+    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
+    /* ========== 标签样式 ========== */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .tag-green { background: var(--success-light); color: var(--success); }
+    .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
+    .tag-orange { background: var(--warning-light); color: var(--warning); }
+    .tag-red { background: var(--error-light); color: var(--error); }
+    .tag-blue { background: var(--info-light); color: var(--info); }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="ent-check-records">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-item">企业端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">检查记录</span>
+    </div>
+    
+    <!-- 页面标题栏已隐藏 -->
+    
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-value" style="color: var(--blue);">68</div><div class="stat-label">检查总次数</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--green);">52</div><div class="stat-label">自查次数</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--orange);">16</div><div class="stat-label">政府检查</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--green);">95%</div><div class="stat-label">合格率</div></div>
+    </div>
+    
+    <div class="filter-bar">
+      <div class="filter-item"><label>检查类型：</label><select><option>全部</option><option>日常自查</option><option>政府检查</option><option>专项检查</option></select></div>
+      <div class="filter-item"><label>检查结果：</label><select><option>全部</option><option>合格</option><option>有隐患</option><option>不合格</option></select></div>
+      <div class="filter-item"><label>时间范围：</label><input type="date"></div>
+      <button class="btn btn-default" onclick="resetFilters()">重置</button>
+      <div style="flex: 1;"></div>
+      <button class="btn btn-primary" onclick="openAddModal()">+ 新增自查</button>
+    </div>
+    
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>检查编号</th>
+              <th>检查类型</th>
+              <th>检查对象</th>
+              <th>检查日期</th>
+              <th>检查人</th>
+              <th>检查项数</th>
+              <th>结果</th>
+              <th class="action-col">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CR2026040201</td>
+              <td>日常自查</td>
+              <td class="ellipsis-col" title="1号生产车间">1号生产车间</td>
+              <td>2026-04-02</td>
+              <td>张三</td>
+              <td>15</td>
+              <td><span class="tag tag-green">合格</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewDetail('CR2026040201')">查看详情</button></td>
+            </tr>
+            <tr>
+              <td>CR2026040101</td>
+              <td>政府检查</td>
+              <td class="ellipsis-col" title="电动车充电区">电动车充电区</td>
+              <td>2026-04-01</td>
+              <td>南山区应急管理局</td>
+              <td>20</td>
+              <td><span class="tag tag-orange">有隐患</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewDetail('CR2026040101')">查看详情</button><button class="btn-link" onclick="rectify('CR2026040101')">整改</button></td>
+            </tr>
+            <tr>
+              <td>CR2026032801</td>
+              <td>日常自查</td>
+              <td class="ellipsis-col" title="原料仓库">原料仓库</td>
+              <td>2026-03-28</td>
+              <td>李四</td>
+              <td>12</td>
+              <td><span class="tag tag-green">合格</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewDetail('CR2026032801')">查看详情</button></td>
+            </tr>
+            <tr>
+              <td>CR2026032501</td>
+              <td>专项检查</td>
+              <td class="ellipsis-col" title="危化品暂存间">危化品暂存间</td>
+              <td>2026-03-25</td>
+              <td>深圳市应急管理局</td>
+              <td>25</td>
+              <td><span class="tag tag-green">合格</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewDetail('CR2026032501')">查看详情</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap">
+        <button class="pg-btn">上一页</button>
+        <button class="pg-btn active">1</button>
+        <button class="pg-btn">2</button>
+        <button class="pg-btn">3</button>
+        <button class="pg-btn">下一页</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'ent-check-records',
+        moduleName: '检查记录管理'
+      };
+      
+      let state = {
+        initialized: false
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      window.viewDetail = function(id) {
+        console.log('查看详情：' + id);
+        alert('查看详情：' + id);
+      };
+      
+      window.rectify = function(id) {
+        console.log('整改：' + id);
+        alert('整改：' + id);
+      };
+      
+      window.resetFilters = function() {
+        console.log('重置筛选');
+        alert('重置筛选条件');
+      };
+      
+      window.openAddModal = function() {
+        console.log('新增自查');
+        alert('打开新增自查弹窗');
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

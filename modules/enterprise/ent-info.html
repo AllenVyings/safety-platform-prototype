@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业基本信息 - 企业端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .page-container { 
+      padding: var(--spacing-lg); 
+      background: var(--bg-page);
+      min-height: 100vh;
+    }
+    
+    /* ========== 页面标题栏 ========== */
+    .page-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-header);
+    }
+    .page-title { font-size: var(--font-size-xl); font-weight: 600; color: var(--text-primary); }
+    
+    /* ========== 信息卡片 ========== */
+    .info-card { 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
+      overflow: hidden; 
+      box-shadow: var(--shadow-card);
+    }
+    .info-header { 
+      padding: var(--spacing-md) var(--spacing-lg); 
+      border-bottom: 1px solid var(--border-light); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      background: var(--bg-section);
+    }
+    .info-title { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
+    .info-body { padding: var(--spacing-lg); }
+    
+    /* ========== 信息板块 ========== */
+    .info-section { margin-bottom: var(--spacing-xl); }
+    .info-section:last-child { margin-bottom: 0; }
+    
+    .info-section-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: var(--font-size-md);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .info-section-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md); }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
+    .info-value { font-size: var(--font-size-sm); color: var(--text-primary); }
+    
+    .tag-list { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .tag-item { background: var(--info-light); color: var(--info); padding: 4px 12px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
+    
+    .readonly-field { background: var(--bg-section-alt); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-secondary); }
+    .editable-field { background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-input); outline: none; }
+    .editable-field:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="ent-info">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">企业端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">企业信息</span>
+    </div>
+    
+    <!-- 页面标题栏已隐藏 -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: var(--spacing-md);">
+      <button class="btn btn-primary" id="editBtn" onclick="toggleEdit()">编辑</button>
+    </div>
+    
+    <div class="info-card">
+      <div class="info-header">
+        <span class="info-title">基础信息</span>
+      </div>
+      <div class="info-body">
+        <div class="info-section">
+          <div class="info-section-title">基本信息</div>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">企业名称</span>
+              <span class="info-value readonly-field">创安电子科技有限公司</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">统一社会信用代码</span>
+              <span class="info-value readonly-field">91440300MA5DQ2XXXX</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">法定代表人</span>
+              <span class="info-value editable-field">王建国</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">联系电话</span>
+              <span class="info-value editable-field">13800138000</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">注册地址</span>
+              <span class="info-value readonly-field">深圳市南山区科技园南区</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">经营地址</span>
+              <span class="info-value editable-field">深圳市南山区科技园南区A栋</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">所属网格</span>
+              <span class="info-value readonly-field">南山区-南山街道-第12网格</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">监管单位</span>
+              <span class="info-value readonly-field">南山区应急管理局</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">企业状态</span>
+              <span class="info-value"><span class="tag tag-green">正常</span></span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <div class="info-section-title">关联领域小类</div>
+          <div class="tag-list">
+            <span class="tag-item">充换电设施</span>
+            <span class="tag-item">工业制造</span>
+            <span class="tag-item">危险化学品使用</span>
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <div class="info-section-title">账号信息</div>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">登录账号</span>
+              <span class="info-value readonly-field">ca888</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">登录密码</span>
+              <span class="info-value readonly-field">••••••••</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">账号状态</span>
+              <span class="info-value"><span class="tag tag-green">正常</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    (function() {
+      'use strict';
+      
+      const CONFIG = {
+        moduleId: 'ent-info',
+        moduleName: '企业基本信息'
+      };
+      
+      let state = {
+        initialized: false,
+        isEditing: false
+      };
+      
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+      }
+      
+      window.toggleEdit = function() {
+        state.isEditing = !state.isEditing;
+        const btn = document.getElementById('editBtn');
+        const editableFields = document.querySelectorAll('.editable-field');
+        
+        if (state.isEditing) {
+          btn.textContent = '保存';
+          btn.className = 'btn btn-primary';
+          editableFields.forEach(f => f.contentEditable = 'true');
+        } else {
+          btn.textContent = '编辑';
+          btn.className = 'btn btn-default';
+          editableFields.forEach(f => f.contentEditable = 'false');
+          alert('保存成功！');
+        }
+      };
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        state.initialized = false;
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

@@ -1,0 +1,498 @@
+<!-- 检查表配置弹框 - checklist-modal.html -->
+<div class="modal-overlay" id="checklistModal">
+  <div class="modal" style="width: 800px; max-height: 90vh;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="checklistModalTitle">新增检查表配置</h3>
+      <button class="modal-close" onclick="closeChecklistModal()">&times;</button>
+    </div>
+    <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 140px);">
+      <!-- 基础信息 -->
+      <div class="form-section">
+        <div class="section-title">基础信息</div>
+        <div class="form-row">
+          <div class="form-item full-width">
+            <label class="form-label">检查表名称 <span class="required">*</span></label>
+            <input type="text" class="form-input" id="checklistName" placeholder="如：生产车间日常检查表">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-item">
+            <label class="form-label">检查频次 <span class="required">*</span></label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>每</span>
+              <input type="number" class="form-input" id="checklistInterval" value="1" style="width: 60px; text-align: center;">
+              <select class="form-select" id="checklistUnit" style="width: 100px;">
+                <option value="day">日</option>
+                <option value="week">周</option>
+                <option value="month">月</option>
+                <option value="quarter">季</option>
+                <option value="year">年</option>
+              </select>
+              <span>检查</span>
+              <input type="number" class="form-input" id="checklistTimes" value="1" style="width: 60px; text-align: center;">
+              <span>次</span>
+            </div>
+          </div>
+          <div class="form-item">
+            <label class="form-label">过滤节假日</label>
+            <div class="switch-wrapper">
+              <div class="switch" id="holidaySwitch" onclick="toggleSwitch(this)"></div>
+              <span class="switch-label">开启后节假日不生成检查任务</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 检查内容 -->
+      <div class="form-section">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div class="section-title">检查内容</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-default btn-sm" onclick="showChecklistLibModal()">检查库引用</button>
+            <button class="btn btn-primary btn-sm" onclick="addCheckItem()">+ 新增检查项</button>
+          </div>
+        </div>
+        
+        <!-- 检查内容列表 -->
+        <div class="checkitem-list" id="checkitemList">
+          <!-- 示例检查项 -->
+          <div class="checkitem-group" data-id="1">
+            <div class="checkitem-header">
+              <span class="checkitem-number">1</span>
+              <span class="checkitem-name">安全设施检查</span>
+              <span class="checkitem-type">检查项</span>
+              <div class="checkitem-actions">
+                <button class="btn-link btn-sm" onclick="addCheckContent(1)">添加内容</button>
+                <button class="btn-link btn-sm danger" onclick="deleteCheckItem(1)">删除</button>
+                <button class="btn-link btn-sm" onclick="moveCheckItem(1, 'up')">↑</button>
+                <button class="btn-link btn-sm" onclick="moveCheckItem(1, 'down')">↓</button>
+              </div>
+            </div>
+            <div class="checkitem-contents">
+              <div class="checkitem-content" data-id="1-1">
+                <span class="content-bullet">├─</span>
+                <span class="content-text" onclick="editContent(this)">安全设施是否完备</span>
+                <span class="help-icon" title="灭火器在有效期内；压力表指针在绿区；安全警示标识清晰可见">?
+                  <span class="help-tooltip">灭火器在有效期内；压力表指针在绿区；安全警示标识清晰可见</span>
+                </span>
+                <div class="content-actions">
+                  <button class="btn-link btn-sm danger" onclick="deleteCheckContent('1-1')">删除</button>
+                  <button class="btn-link btn-sm" onclick="moveCheckContent('1-1', 'up')">↑</button>
+                  <button class="btn-link btn-sm" onclick="moveCheckContent('1-1', 'down')">↓</button>
+                </div>
+              </div>
+              <div class="checkitem-content" data-id="1-2">
+                <span class="content-bullet">├─</span>
+                <span class="content-text" onclick="editContent(this)">消防器材是否齐全</span>
+                <span class="help-icon" title="消防栓水压正常；消防带无破损；消防通道畅通">?
+                  <span class="help-tooltip">消防栓水压正常；消防带无破损；消防通道畅通</span>
+                </span>
+                <div class="content-actions">
+                  <button class="btn-link btn-sm danger" onclick="deleteCheckContent('1-2')">删除</button>
+                  <button class="btn-link btn-sm" onclick="moveCheckContent('1-2', 'up')">↑</button>
+                  <button class="btn-link btn-sm" onclick="moveCheckContent('1-2', 'down')">↓</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="checkitem-group" data-id="2">
+            <div class="checkitem-header">
+              <span class="checkitem-number">2</span>
+              <span class="checkitem-name">消防通道检查</span>
+              <span class="checkitem-type">检查项</span>
+              <div class="checkitem-actions">
+                <button class="btn-link btn-sm" onclick="addCheckContent(2)">添加内容</button>
+                <button class="btn-link btn-sm danger" onclick="deleteCheckItem(2)">删除</button>
+                <button class="btn-link btn-sm" onclick="moveCheckItem(2, 'up')">↑</button>
+                <button class="btn-link btn-sm" onclick="moveCheckItem(2, 'down')">↓</button>
+              </div>
+            </div>
+            <div class="checkitem-contents">
+              <div class="checkitem-content" data-id="2-1">
+                <span class="content-bullet">├─</span>
+                <span class="content-text" onclick="editContent(this)">通道是否畅通</span>
+                <span class="help-icon" title="通道宽度≥1.2米；无障碍物堵塞；应急照明正常">?
+                  <span class="help-tooltip">通道宽度≥1.2米；无障碍物堵塞；应急照明正常</span>
+                </span>
+                <div class="content-actions">
+                  <button class="btn-link btn-sm danger" onclick="deleteCheckContent('2-1')">删除</button>
+                  <button class="btn-link btn-sm" onclick="moveCheckContent('2-1', 'up')">↑</button>
+                  <button class="btn-link btn-sm" onclick="moveCheckContent('2-1', 'down')">↓</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 空状态 -->
+        <div class="empty-state" id="checkitemEmpty" style="display: none;">
+          <div class="empty-icon">📋</div>
+          <div class="empty-text">暂无检查内容</div>
+          <div class="empty-hint">点击"新增检查项"或"检查库引用"添加</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeChecklistModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveChecklist()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 检查库引用弹框 -->
+<div class="modal-overlay" id="checklistLibModal">
+  <div class="modal" style="width: 600px;">
+    <div class="modal-header">
+      <h3 class="modal-title">从检查库引用</h3>
+      <button class="modal-close" onclick="closeChecklistLibModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="filter-bar" style="margin-bottom: 16px;">
+        <div class="filter-item">
+          <label>分类：</label>
+          <select id="libCategoryFilter">
+            <option value="">全部</option>
+            <option value="industry">工业制造</option>
+            <option value="chemical">危险化学品</option>
+            <option value="public">公共场所</option>
+          </select>
+        </div>
+      </div>
+      <div class="checklist-lib-list" style="max-height: 400px; overflow-y: auto;">
+        <div class="lib-item" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0;">
+          <input type="checkbox" id="lib1" style="margin-right: 12px;">
+          <label for="lib1" style="flex: 1; cursor: pointer;">
+            <div style="font-weight: 500;">安全设施是否完备</div>
+            <div style="font-size: 12px; color: #999; margin-top: 4px;">工业制造 / 常规项</div>
+          </label>
+          <button class="btn-link btn-sm" onclick="previewLibItem(1)">预览</button>
+        </div>
+        <div class="lib-item" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0;">
+          <input type="checkbox" id="lib2" style="margin-right: 12px;">
+          <label for="lib2" style="flex: 1; cursor: pointer;">
+            <div style="font-weight: 500;">消防通道是否畅通</div>
+            <div style="font-size: 12px; color: #999; margin-top: 4px;">公共场所 / 重点项</div>
+          </label>
+          <button class="btn-link btn-sm" onclick="previewLibItem(2)">预览</button>
+        </div>
+        <div class="lib-item" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0;">
+          <input type="checkbox" id="lib3" style="margin-right: 12px;">
+          <label for="lib3" style="flex: 1; cursor: pointer;">
+            <div style="font-weight: 500;">电气线路是否正常</div>
+            <div style="font-size: 12px; color: #999; margin-top: 4px;">工业制造 / 常规项</div>
+          </label>
+          <button class="btn-link btn-sm" onclick="previewLibItem(3)">预览</button>
+        </div>
+      </div>
+      <div style="margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 6px;">
+        <span style="font-size: 13px;">已选择：<strong id="selectedLibCount">0</strong> 项</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeChecklistLibModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmLibImport()">确定引用</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* 检查内容列表样式 */
+.checkitem-list {
+  border: 1px solid #e8eaed;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.checkitem-group {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.checkitem-group:last-child {
+  border-bottom: none;
+}
+
+.checkitem-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fafafa;
+  gap: 12px;
+}
+
+.checkitem-number {
+  width: 24px;
+  height: 24px;
+  background: #1677ff;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.checkitem-name {
+  flex: 1;
+  font-weight: 500;
+  color: #1f1f1f;
+}
+
+.checkitem-type {
+  font-size: 12px;
+  padding: 2px 8px;
+  background: #e6f4ff;
+  color: #1677ff;
+  border-radius: 4px;
+}
+
+.checkitem-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.checkitem-contents {
+  padding: 8px 16px 8px 52px;
+  background: #fff;
+}
+
+.checkitem-content {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  gap: 8px;
+  border-bottom: 1px dashed #f0f0f0;
+}
+
+.checkitem-content:last-child {
+  border-bottom: none;
+}
+
+.content-bullet {
+  color: #999;
+  font-size: 12px;
+}
+
+.content-text {
+  flex: 1;
+  cursor: text;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.content-text:hover {
+  background: #f0f7ff;
+}
+
+.content-text.editing {
+  background: #fff;
+  border: 1px solid #1677ff;
+  outline: none;
+}
+
+/* 帮助图标样式 */
+.help-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #d9d9d9;
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  position: relative;
+}
+
+.help-icon:hover {
+  background: #1677ff;
+}
+
+.help-icon:hover .help-tooltip {
+  display: block;
+}
+
+.help-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f1f1f;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: normal;
+  line-height: 1.5;
+  z-index: 100;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.help-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f1f1f;
+}
+
+.content-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.checkitem-content:hover .content-actions {
+  opacity: 1;
+}
+
+/* 开关样式 */
+.switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  background: #ccc;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.switch.active {
+  background: #1677ff;
+}
+
+.switch.active::after {
+  transform: translateX(22px);
+}
+
+.switch-label {
+  font-size: 13px;
+  color: #666;
+}
+</style>
+
+<script>
+// 检查表配置弹框控制
+function showChecklistModal() {
+  document.getElementById('checklistModal').classList.add('active');
+  document.getElementById('checklistModalTitle').textContent = '新增检查表配置';
+}
+
+function showEditChecklistModal(id) {
+  document.getElementById('checklistModal').classList.add('active');
+  document.getElementById('checklistModalTitle').textContent = '编辑检查表配置';
+  console.log('编辑检查表:', id);
+}
+
+function closeChecklistModal() {
+  document.getElementById('checklistModal').classList.remove('active');
+}
+
+function saveChecklist() {
+  console.log('保存检查表配置');
+  closeChecklistModal();
+  alert('保存成功');
+}
+
+// 开关切换
+function toggleSwitch(element) {
+  element.classList.toggle('active');
+}
+
+// 检查库引用弹框
+function showChecklistLibModal() {
+  document.getElementById('checklistLibModal').classList.add('active');
+}
+
+function closeChecklistLibModal() {
+  document.getElementById('checklistLibModal').classList.remove('active');
+}
+
+function confirmLibImport() {
+  console.log('确认引用检查库');
+  closeChecklistLibModal();
+}
+
+function previewLibItem(id) {
+  console.log('预览检查库项:', id);
+  alert('预览检查库项: ' + id);
+}
+
+// 检查项操作
+function addCheckItem() {
+  console.log('新增检查项');
+  alert('新增检查项');
+}
+
+function deleteCheckItem(id) {
+  if (confirm('确定删除该检查项？')) {
+    console.log('删除检查项:', id);
+  }
+}
+
+function moveCheckItem(id, direction) {
+  console.log('移动检查项:', id, direction);
+}
+
+function addCheckContent(itemId) {
+  console.log('添加检查内容:', itemId);
+  alert('添加检查内容到检查项: ' + itemId);
+}
+
+// 检查内容操作
+function editContent(element) {
+  element.contentEditable = true;
+  element.classList.add('editing');
+  element.focus();
+  
+  element.onblur = function() {
+    element.contentEditable = false;
+    element.classList.remove('editing');
+    console.log('编辑内容:', element.textContent);
+  };
+  
+  element.onkeydown = function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      element.blur();
+    }
+  };
+}
+
+function deleteCheckContent(id) {
+  if (confirm('确定删除该检查内容？')) {
+    console.log('删除检查内容:', id);
+  }
+}
+
+function moveCheckContent(id, direction) {
+  console.log('移动检查内容:', id, direction);
+}
+</script>
