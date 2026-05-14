@@ -2034,7 +2034,7 @@ function updateScanUserList(nodeId){
     var isSelected=selectedScanUsers.some(function(u){return u.id===user.id;});
     html+='<div class="scan-user-item" data-id="'+user.id+'" onclick="toggleScanUser(this,'+user.id+',\''+user.name+'\',\''+user.position+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid var(--border-light);cursor:pointer;border-radius:var(--radius-sm)">';
     html+='<div style="flex:1">';
-    html+='<div style="font-weight:500;color:var(--text-primary);font-size:13px">'+user.position+' - '+user.name+'</div>';
+    html+='<div style="font-weight:500;color:var(--text-primary);font-size:13px">'+user.position+' - '+user.name+' <span style="font-size:11px;color:var(--text-tertiary);font-weight:normal;background:var(--bg-section-alt);padding:1px 6px;border-radius:3px;margin-left:4px">'+user.level+'</span></div>';
     html+='<div style="font-size:12px;color:var(--text-tertiary);margin-top:2px">'+user.phone+' · '+user.partyType+'</div>';
     html+='</div>';
     html+='<input type="checkbox" '+(isSelected?'checked':'')+' style="margin-left:8px;pointer-events:none">';
@@ -2059,7 +2059,8 @@ function toggleScanUser(el, userId, userName, userPosition){
       position:userData.position,
       phone:userData.phone,
       partyType:userData.partyType,
-      enterpriseName:userData.enterpriseName
+      enterpriseName:userData.enterpriseName,
+      level:userData.level
     });
     checkbox.checked=true;
   }
@@ -2974,7 +2975,7 @@ function autoGenerateScanConfigs(checklistData){
       dept:u.dept,
       freq:u.freq,
       holiday:checklistData.skipHoliday,
-      user:u.name,
+      user:u.position+'-'+u.name,
       rule:'all',
       ruleLabel:'所有人都要完成'
     });
