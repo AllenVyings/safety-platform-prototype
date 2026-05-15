@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>管控列表</title>
+  <link rel="stylesheet" href="../../css/mobile.css">
+  <style>
+    .cl-gradient {
+      position: fixed; top: 0; left: 0; right: 0; height: 350px; z-index: 0;
+      background: linear-gradient(180deg, #1068ff 0%, #3d86ff 30%, #5a9aff 50%, #70a4fd 70%, #b8d4fe 85%, #f5f7fa 100%);
+    }
+    .cl-gradient::before {
+      content: ''; position: absolute; top: -30px; right: -20px; width: 180px; height: 180px;
+      border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none;
+    }
+    .cl-gradient::after {
+      content: ''; position: absolute; top: 80px; left: -30px; width: 100px; height: 100px;
+      border-radius: 50%; background: rgba(255,255,255,0.05); pointer-events: none;
+    }
+    .cl-header {
+      padding: 107px 16px 24px; position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+    }
+    .cl-header-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 12px; position: relative; z-index: 1; }
+    .cl-search {
+      width: 100%; padding: 9px 12px 9px 32px; border: none; border-radius: 8px;
+      background: rgba(255,255,255,0.9) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 10px center;
+      font-size: 14px; outline: none; box-sizing: border-box; color: #000;
+    }
+    .cl-search::placeholder { color: #999; }
+
+    .cl-tabs { display: flex; background: #fff; border-bottom: 0.5px solid #f0f0f0; margin: 0 16px; border-radius: 10px 10px 0 0; overflow: hidden; }
+    .cl-tab { flex: 1; text-align: center; padding: 11px 0; font-size: 14px; color: #999; cursor: pointer; position: relative; }
+    .cl-tab.active { color: #1068ff; font-weight: 600; }
+    .cl-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: #1068ff; border-radius: 1.5px; }
+
+    .cl-list { background: #fff; margin: 0 16px; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .tree-children { padding-left: 24px; background: #fafbfc; }
+    .tree-children.collapsed { display: none; }
+    .tree-node {
+      display: flex; align-items: center; padding: 12px 16px; cursor: pointer;
+      border-bottom: 0.5px solid #f5f5f5; background: #fff;
+    }
+    .tree-node:active { background: #f5f7fa; }
+    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #bbb; margin-right: 4px; flex-shrink: 0; }
+    .tree-name { flex: 1; font-size: 14px; color: #333; }
+    .tree-code { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; flex-shrink: 0; }
+    .tree-code.green { background: #52c41a; }
+    .tree-code.yellow { background: #faad14; }
+    .tree-code.red { background: #ff4d4f; }
+    .tree-person { font-size: 12px; color: #999; margin-left: 8px; }
+
+    .person-card { display: flex; align-items: center; padding: 12px 16px; background: #fff; border-radius: 10px; margin: 6px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .person-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e8f4fd; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
+    .person-avatar svg { width: 20px; height: 20px; }
+    .person-info { flex: 1; }
+    .person-name { font-size: 15px; font-weight: 500; color: #000; }
+    .person-role { font-size: 12px; color: #999; margin-top: 2px; }
+
+    .filter-row { display: flex; gap: 8px; padding: 8px 16px; flex-wrap: wrap; }
+    .filter-tag { padding: 4px 12px; border-radius: 14px; font-size: 12px; background: #f5f5f5; color: #666; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .filter-tag.active { background: #1068ff; color: #fff; }
+    .filter-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <div class="m-page with-tabbar" style="background:#f5f7fa;">
+    <div class="cl-gradient"></div>
+    <div class="cl-header">
+      <div class="cl-header-title">列表</div>
+      <input class="cl-search" placeholder="搜索企业/场所/危险源名称" style="position:relative;z-index:1;">
+    </div>
+
+    <div style="margin-top:-20px; position:relative; z-index:1; padding:0 16px;">
+      <div class="cl-tabs">
+        <div class="cl-tab active" onclick="switchPanel(0)">风险列表</div>
+        <div class="cl-tab" onclick="switchPanel(1)">人员列表</div>
+      </div>
+    </div>
+
+    <!-- 风险列表面板 -->
+    <div id="panelRisk">
+      <div class="cl-list" style="margin-top:0;">
+        <div class="tree-node" onclick="toggleTree(this)">
+          <span class="tree-toggle">▼</span>
+          <span class="tree-name">创安电子科技有限公司</span>
+          <span class="tree-code green"></span>
+          <span class="tree-person">张建国</span>
+        </div>
+        <div class="tree-children">
+          <div class="tree-node" onclick="toggleTree(this)">
+            <span class="tree-toggle">▼</span>
+            <span class="tree-name">A栋生产车间</span>
+            <span class="tree-code green"></span>
+            <span class="tree-person">李安全</span>
+          </div>
+          <div class="tree-children">
+            <div class="tree-node">
+              <span class="tree-toggle" style="visibility:hidden">▼</span>
+              <span class="tree-name">危化品存储区</span>
+              <span class="tree-code yellow"></span>
+              <span class="tree-person">王操作</span>
+            </div>
+          </div>
+          <div class="tree-node" onclick="toggleTree(this)">
+            <span class="tree-toggle">▼</span>
+            <span class="tree-name">B栋仓库</span>
+            <span class="tree-code green"></span>
+            <span class="tree-person">赵管理</span>
+          </div>
+          <div class="tree-children">
+            <div class="tree-node">
+              <span class="tree-toggle" style="visibility:hidden">▼</span>
+              <span class="tree-name">配电房</span>
+              <span class="tree-code red"></span>
+              <span class="tree-person">孙电工</span>
+            </div>
+          </div>
+          <div class="tree-node">
+            <span class="tree-toggle" style="visibility:hidden">▼</span>
+            <span class="tree-name">C栋办公区</span>
+            <span class="tree-code green"></span>
+            <span class="tree-person">刘主任</span>
+          </div>
+          <div class="tree-node">
+            <span class="tree-toggle" style="visibility:hidden">▼</span>
+            <span class="tree-name">D栋实验室</span>
+            <span class="tree-code green"></span>
+            <span class="tree-person">陈研发</span>
+          </div>
+          <div class="tree-node" style="border-bottom:none;">
+            <span class="tree-toggle" style="visibility:hidden">▼</span>
+            <span class="tree-name">食堂</span>
+            <span class="tree-code green"></span>
+            <span class="tree-person">周厨师</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 人员列表面板 -->
+    <div id="panelPerson" style="display:none;">
+      <div class="cl-tabs" style="margin:0 16px;border-radius:10px 10px 0 0;">
+        <div class="cl-tab active" onclick="switchLevel(this,0)">领导层</div>
+        <div class="cl-tab" onclick="switchLevel(this,1)">管理层</div>
+        <div class="cl-tab" onclick="switchLevel(this,2)">员工层</div>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-tag active">全部</span>
+        <span class="filter-tag" onclick="this.classList.toggle('active')"><span class="filter-dot" style="background:#52c41a"></span>绿色</span>
+        <span class="filter-tag" onclick="this.classList.toggle('active')"><span class="filter-dot" style="background:#faad14"></span>黄色</span>
+        <span class="filter-tag" onclick="this.classList.toggle('active')"><span class="filter-dot" style="background:#ff4d4f"></span>红色</span>
+      </div>
+
+      <div class="person-card">
+        <div class="person-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="person-info"><div class="person-name">张建国</div><div class="person-role">总经理 · 领导层</div></div>
+        <span class="code-badge green">绿色</span>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="person-info"><div class="person-name">刘主任</div><div class="person-role">安全总监 · 领导层</div></div>
+        <span class="code-badge green">绿色</span>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="#faad14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="person-info"><div class="person-name">李安全</div><div class="person-role">安全主管 · 领导层</div></div>
+        <span class="code-badge yellow">黄色</span>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="person-info"><div class="person-name">赵管理</div><div class="person-role">部门经理 · 领导层</div></div>
+        <span class="code-badge green">绿色</span>
+      </div>
+    </div>
+
+    <div style="height:20px;"></div>
+  </div>
+
+  <script>
+    function toggleTree(el) {
+      var children = el.nextElementSibling;
+      if (children && children.classList.contains('tree-children')) {
+        children.classList.toggle('collapsed');
+        var toggle = el.querySelector('.tree-toggle');
+        toggle.textContent = children.classList.contains('collapsed') ? '▶' : '▼';
+      }
+    }
+    function switchPanel(idx) {
+      var tabs = document.querySelectorAll('.cl-tabs .cl-tab');
+      if (idx === 0) {
+        tabs[0].classList.add('active'); tabs[1].classList.remove('active');
+      } else {
+        tabs[0].classList.remove('active'); tabs[1].classList.add('active');
+      }
+      document.getElementById('panelRisk').style.display = idx === 0 ? '' : 'none';
+      document.getElementById('panelPerson').style.display = idx === 1 ? '' : 'none';
+    }
+    function switchLevel(el, idx) {
+      el.parentElement.querySelectorAll('.cl-tab').forEach(function(t){t.classList.remove('active');});
+      el.classList.add('active');
+    }
+  </script>
+</body>
+</html>

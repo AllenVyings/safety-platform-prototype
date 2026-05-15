@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>登录</title>
+  <link rel="stylesheet" href="../../css/mobile.css">
+  <style>
+    .login-page {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #cce7ff 0%, #d6eeff 15%, #93e0fa 35%, #ebf6fd 55%, #f5fbfe 70%, #ffffff 100%);
+      display: flex; flex-direction: column;
+    }
+    .login-header { text-align: center; padding: 48px 0 24px; position: relative; }
+    .login-cloud { position: absolute; opacity: 0.15; font-size: 60px; }
+    .login-cloud-1 { top: 10px; left: 20px; }
+    .login-cloud-2 { top: 30px; right: 15px; font-size: 40px; }
+
+    .login-logo-wrap { display: flex; flex-direction: column; align-items: center; }
+    .login-logo-red {
+      width: 68px; height: 68px; border-radius: 18px;
+      background: linear-gradient(135deg, #ff1a1a, #e60012);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; color: #fff;
+      box-shadow: 0 6px 20px rgba(230, 0, 18, 0.25);
+    }
+    .login-logo-title { font-size: 19px; font-weight: 600; color: #1c2469; margin-top: 14px; letter-spacing: 1px; }
+    .login-logo-sub { font-size: 12px; color: #8d91b4; margin-top: 4px; }
+
+    .login-tabs { display: flex; padding: 0 32px; margin: 28px 0 20px; }
+    .login-tab { flex: 1; text-align: center; padding: 10px 0; font-size: 15px; color: #8d91b4; cursor: pointer; position: relative; transition: all 0.2s; }
+    .login-tab.active { color: #1c2469; font-weight: 600; }
+    .login-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: #e60012; border-radius: 1.5px; }
+
+    .login-form { padding: 0 32px; flex: 1; }
+    .form-group { margin-bottom: 14px; }
+    .form-input {
+      width: 100%; padding: 13px 16px; border: none; border-radius: 8px;
+      font-size: 15px; outline: none; background: #f5f8fc;
+      box-sizing: border-box; transition: background 0.2s; color: #1c2469;
+    }
+    .form-input:focus { background: #edf2f8; }
+    .form-input::placeholder { color: #b8bfcc; }
+
+    .code-row { display: flex; gap: 10px; }
+    .code-row .form-input { flex: 1; }
+    .code-btn {
+      flex-shrink: 0; padding: 0 16px; background: #fff; color: #1c2469;
+      border: 0.5px solid #1c2469; border-radius: 8px; font-size: 13px;
+      cursor: pointer; white-space: nowrap;
+    }
+    .code-btn:active { background: #f0f4ff; }
+    .code-btn.disabled { color: #b8bfcc; border-color: #d9dde6; pointer-events: none; }
+
+    .login-btn {
+      width: 100%; padding: 13px; background: linear-gradient(135deg, #ff2d2d, #e60012);
+      color: #fff; border: none; border-radius: 8px; font-size: 17px; font-weight: 500;
+      cursor: pointer; margin-top: 8px;
+      box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2);
+    }
+    .login-btn:active { background: linear-gradient(135deg, #cc0000, #c40010); box-shadow: none; }
+
+    .wechat-login { text-align: center; padding: 24px 0; }
+    .wechat-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, #2dc100, #07c160);
+      margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; box-shadow: 0 4px 12px rgba(7, 193, 96, 0.2);
+    }
+    .wechat-btn {
+      width: 100%; padding: 13px; background: linear-gradient(135deg, #2dc100, #07c160);
+      color: #fff; border: none; border-radius: 8px; font-size: 17px; font-weight: 500;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(7, 193, 96, 0.15);
+    }
+    .wechat-btn:active { background: linear-gradient(135deg, #06ad56, #069e4d); box-shadow: none; }
+
+    .login-footer { padding: 16px 32px 40px; text-align: center; }
+    .login-footer-links { display: flex; justify-content: center; gap: 24px; }
+    .login-footer-link { font-size: 14px; color: #576b95; cursor: pointer; }
+    .login-footer-link:active { opacity: 0.7; }
+    .login-footer-divider { width: 0.5px; height: 14px; background: #d9dde6; }
+  </style>
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-header">
+      <span class="login-cloud login-cloud-1">☁</span>
+      <span class="login-cloud login-cloud-2">☁</span>
+      <div class="login-logo-wrap">
+        <div class="login-logo-red">🛡</div>
+        <div class="login-logo-title">安全码管理平台</div>
+        <div class="login-logo-sub">Safety Code Management Platform</div>
+      </div>
+    </div>
+
+    <div class="login-tabs">
+      <div class="login-tab active" onclick="switchLoginTab(this,0)">账号密码</div>
+      <div class="login-tab" onclick="switchLoginTab(this,1)">手机验证码</div>
+      <div class="login-tab" onclick="switchLoginTab(this,2)">微信登录</div>
+    </div>
+
+    <div class="login-form" id="loginPanel0">
+      <div class="form-group">
+        <input class="form-input" type="text" placeholder="请输入账号" />
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="password" placeholder="请输入密码" />
+      </div>
+      <button class="login-btn" onclick="handleLogin()">登 录</button>
+    </div>
+
+    <div class="login-form" id="loginPanel1" style="display:none;">
+      <div class="form-group">
+        <input class="form-input" type="tel" placeholder="请输入手机号" maxlength="11" />
+      </div>
+      <div class="form-group">
+        <div class="code-row">
+          <input class="form-input" type="text" placeholder="请输入验证码" maxlength="6" />
+          <button class="code-btn" id="codeBtn" onclick="sendCode()">获取验证码</button>
+        </div>
+      </div>
+      <button class="login-btn" onclick="handleLogin()">登 录</button>
+    </div>
+
+    <div class="login-form" id="loginPanel2" style="display:none;">
+      <div class="wechat-login">
+        <div class="wechat-icon">💬</div>
+        <button class="wechat-btn" onclick="handleWechatLogin()">微信一键登录</button>
+      </div>
+    </div>
+
+    <div class="login-footer">
+      <div class="login-footer-links">
+        <span class="login-footer-link">企业注册</span>
+        <div class="login-footer-divider"></div>
+        <span class="login-footer-link">人员注册</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchLoginTab(el, idx) {
+      el.parentElement.querySelectorAll('.login-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      for (var i = 0; i < 3; i++) {
+        var panel = document.getElementById('loginPanel' + i);
+        if (panel) panel.style.display = i === idx ? 'block' : 'none';
+      }
+    }
+    function handleLogin() { alert('登录成功（原型演示）'); }
+    function handleWechatLogin() { alert('正在拉起微信授权（原型演示）'); }
+    function sendCode() {
+      var btn = document.getElementById('codeBtn');
+      var seconds = 60;
+      btn.classList.add('disabled');
+      btn.textContent = seconds + 's';
+      var timer = setInterval(function(){
+        seconds--;
+        if (seconds <= 0) { clearInterval(timer); btn.classList.remove('disabled'); btn.textContent = '获取验证码'; }
+        else { btn.textContent = seconds + 's'; }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

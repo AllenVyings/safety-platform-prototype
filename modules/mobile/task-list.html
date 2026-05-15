@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>任务管理</title>
+  <link rel="stylesheet" href="../../css/mobile.css">
+  <style>
+    .tl-gradient {
+      position: fixed; top: 0; left: 0; right: 0; height: 350px; z-index: 0;
+      background: linear-gradient(180deg, #1068ff 0%, #3d86ff 30%, #5a9aff 50%, #70a4fd 70%, #b8d4fe 85%, #f5f7fa 100%);
+    }
+    .tl-gradient::before {
+      content: ''; position: absolute; top: -20px; right: -15px; width: 180px; height: 180px;
+      border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none;
+    }
+    .tl-gradient::after {
+      content: ''; position: absolute; top: 80px; left: -30px; width: 100px; height: 100px;
+      border-radius: 50%; background: rgba(255,255,255,0.05); pointer-events: none;
+    }
+    .tl-header {
+      padding: 107px 16px 24px; position: relative; z-index: 1;
+    }
+    .tl-stat-row { display: flex; gap: 8px; }
+    .tl-stat {
+      flex: 1; text-align: center; padding: 8px 0; border-radius: 10px;
+      background: rgba(255,255,255,0.2);
+    }
+    .tl-stat-num { font-size: 20px; font-weight: 700; color: #fff; }
+    .tl-stat-label { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+
+    .tl-filter-bar {
+      display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto;
+      background: #fff; border-bottom: 0.5px solid #f0f0f0;
+    }
+    .tl-filter-chip {
+      white-space: nowrap; padding: 5px 14px; border-radius: 14px;
+      font-size: 13px; background: #f5f5f5; color: #666; cursor: pointer;
+    }
+    .tl-filter-chip.active { background: #1068ff; color: #fff; }
+
+    .tl-card {
+      background: #fff; border-radius: 10px; padding: 14px 16px; margin: 8px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .tl-header-row { display: flex; align-items: center; margin-bottom: 8px; }
+    .tl-urgency { width: 4px; height: 36px; border-radius: 2px; margin-right: 10px; flex-shrink: 0; }
+    .tl-urgency.red { background: #ff4d4f; }
+    .tl-urgency.yellow { background: #faad14; }
+    .tl-urgency.green { background: #52c41a; }
+    .tl-urgency.gray { background: #d9d9d9; }
+    .tl-title { font-size: 15px; font-weight: 500; color: #000; flex: 1; }
+    .tl-type { font-size: 11px; padding: 2px 8px; border-radius: 8px; margin-left: 8px; }
+    .tl-type.inspect { background: #e8f4fd; color: #1677ff; }
+    .tl-type.rectify { background: #fff7e6; color: #fa8c16; }
+    .tl-type.special { background: #f9f0ff; color: #722ed1; }
+    .tl-meta { font-size: 12px; color: #999; margin-bottom: 10px; }
+    .tl-footer { display: flex; justify-content: space-between; align-items: center; }
+    .tl-deadline { font-size: 12px; color: #999; }
+    .tl-btn { padding: 6px 16px; border-radius: 14px; font-size: 12px; border: none; cursor: pointer; }
+    .tl-btn-primary { background: #1068ff; color: #fff; }
+    .tl-btn-primary:active { background: #0d5bd9; }
+    .tl-btn-done { background: #f5f5f5; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="m-page with-tabbar" style="background:#f5f7fa;">
+    <!-- 蓝色渐变固定背景 -->
+    <div class="tl-gradient"></div>
+    <!-- 头部内容 -->
+    <div class="tl-header">
+      <div style="font-size:16px;font-weight:600;color:#fff;margin-bottom:12px;position:relative;z-index:1;">任务管理</div>
+      <div class="tl-stat-row" style="position:relative;z-index:1;">
+        <div class="tl-stat">
+          <div class="tl-stat-num">3</div>
+          <div class="tl-stat-label">待处理</div>
+        </div>
+        <div class="tl-stat">
+          <div class="tl-stat-num">2</div>
+          <div class="tl-stat-label">进行中</div>
+        </div>
+        <div class="tl-stat">
+          <div class="tl-stat-num">5</div>
+          <div class="tl-stat-label">已完成</div>
+        </div>
+        <div class="tl-stat">
+          <div class="tl-stat-num">1</div>
+          <div class="tl-stat-label">已超期</div>
+        </div>
+      </div>
+
+      <!-- 筛选 -->
+      <div class="tl-filter-bar" style="margin:14px -16px 0;border-radius:12px 12px 0 0;">
+        <span class="tl-filter-chip active">全部</span>
+        <span class="tl-filter-chip">履职检查</span>
+        <span class="tl-filter-chip">隐患整改</span>
+        <span class="tl-filter-chip">专项检查</span>
+      </div>
+    </div>
+
+    <!-- 任务列表 -->
+    <div class="tl-card">
+      <div class="tl-header-row">
+        <div class="tl-urgency red"></div>
+        <div class="tl-title">配电房灭火器更换</div>
+        <span class="tl-type rectify">隐患整改</span>
+      </div>
+      <div class="tl-meta">来源：消防设施专项检查 · A栋配电房</div>
+      <div class="tl-footer">
+        <span class="tl-deadline">⚠ 超期2天</span>
+        <button class="tl-btn tl-btn-primary">立即整改</button>
+      </div>
+    </div>
+
+    <div class="tl-card">
+      <div class="tl-header-row">
+        <div class="tl-urgency red"></div>
+        <div class="tl-title">A栋日常安全巡查</div>
+        <span class="tl-type inspect">履职检查</span>
+      </div>
+      <div class="tl-meta">来源：履职检查配置 · A栋生产车间</div>
+      <div class="tl-footer">
+        <span class="tl-deadline">截止：今天 18:00</span>
+        <button class="tl-btn tl-btn-primary">去检查</button>
+      </div>
+    </div>
+
+    <div class="tl-card">
+      <div class="tl-header-row">
+        <div class="tl-urgency yellow"></div>
+        <div class="tl-title">仓库安全出口标识补充</div>
+        <span class="tl-type rectify">隐患整改</span>
+      </div>
+      <div class="tl-meta">来源：日常巡查 · B栋仓库</div>
+      <div class="tl-footer">
+        <span class="tl-deadline">截止：01-20</span>
+        <button class="tl-btn tl-btn-primary">去整改</button>
+      </div>
+    </div>
+
+    <div class="tl-card">
+      <div class="tl-header-row">
+        <div class="tl-urgency yellow"></div>
+        <div class="tl-title">春节前专项安全检查</div>
+        <span class="tl-type special">专项检查</span>
+      </div>
+      <div class="tl-meta">来源：龙华区应急管理局 · 全企业</div>
+      <div class="tl-footer">
+        <span class="tl-deadline">截止：01-25</span>
+        <button class="tl-btn tl-btn-primary">去检查</button>
+      </div>
+    </div>
+
+    <div class="tl-card">
+      <div class="tl-header-row">
+        <div class="tl-urgency green"></div>
+        <div class="tl-title">B栋月度消防检查</div>
+        <span class="tl-type inspect">履职检查</span>
+      </div>
+      <div class="tl-meta">来源：履职检查配置 · B栋仓库</div>
+      <div class="tl-footer">
+        <span class="tl-deadline">截止：01-31</span>
+        <button class="tl-btn tl-btn-primary">去检查</button>
+      </div>
+    </div>
+
+    <div class="tl-card">
+      <div class="tl-header-row">
+        <div class="tl-urgency gray"></div>
+        <div class="tl-title">实验室化学品存放检查</div>
+        <span class="tl-type inspect">履职检查</span>
+      </div>
+      <div class="tl-meta">来源：履职检查配置 · D栋实验室</div>
+      <div class="tl-footer">
+        <span class="tl-deadline">已完成 01-08</span>
+        <button class="tl-btn tl-btn-done">已完成</button>
+      </div>
+    </div>
+
+    <div style="height:20px;"></div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.tl-filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.tl-filter-chip').forEach(function(c){c.classList.remove('active');});
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

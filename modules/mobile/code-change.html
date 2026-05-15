@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>变码记录</title>
+  <link rel="stylesheet" href="../../css/mobile.css">
+  <style>
+    .chart-section { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 20px 16px; background: #fff; margin: 12px 16px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .chart-legend { display: flex; flex-direction: column; gap: 8px; }
+    .chart-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
+    .chart-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .tab-content { padding: 0 16px; }
+    .record-card { background: #fff; border-radius: 8px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .record-card-title { font-size: 14px; font-weight: 600; color: #000; margin-bottom: 8px; }
+    .record-field { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+    .record-field-label { color: #999; }
+    .record-field-value { color: #333; }
+    .record-field-value.overdue { color: #ff4d4f; font-weight: 500; }
+    .record-field-value.status-green { color: #52c41a; }
+    .record-field-value.status-yellow { color: #faad14; }
+    .record-field-value.status-red { color: #ff4d4f; }
+    .warning-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 8px; margin: 12px 16px; font-size: 13px; color: #d48806; }
+    .code-list-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 0.5px solid #e5e5e5; }
+    .code-list-item:last-child { border-bottom: none; }
+    .code-dot-lg { width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; flex-shrink: 0; }
+    .code-list-info { flex: 1; }
+    .code-list-name { font-size: 14px; color: #000; font-weight: 500; }
+    .code-list-type { font-size: 12px; color: #999; margin-top: 2px; }
+    .code-list-badge { font-size: 11px; padding: 2px 8px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="m-page">
+
+    <!-- 环形图 -->
+    <div class="chart-section">
+      <div class="ring-chart" style="width:120px;height:120px;background:conic-gradient(#52c41a 0% 50%, #faad14 50% 80%, #ff4d4f 80% 100%);">
+        <div class="ring-chart-inner" style="top:25px;left:25px;width:70px;height:70px;font-size:14px;">
+          <div style="font-size:20px;font-weight:700;color:#1a1a1a;">7</div>
+          <div style="font-size:11px;color:#999;">管控对象</div>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#52c41a;"></div>履职检查 50%</div>
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#faad14;"></div>隐患整改 30%</div>
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#ff4d4f;"></div>上下关联 20%</div>
+      </div>
+    </div>
+
+    <!-- 三个Tab -->
+    <div class="m-tabs" style="margin:0 16px;border-radius:8px 8px 0 0;overflow:hidden;">
+      <div class="m-tab active" onclick="switchTab(this,0)">履职检查</div>
+      <div class="m-tab" onclick="switchTab(this,1)">隐患整改</div>
+      <div class="m-tab" onclick="switchTab(this,2)">上下关联</div>
+    </div>
+
+    <!-- Tab内容 - 履职检查 -->
+    <div class="tab-content" id="tabPanel0">
+      <div class="record-card">
+        <div class="record-card-title">A栋日常巡查</div>
+        <div class="record-field"><span class="record-field-label">检查表单</span><span class="record-field-value">安全检查表</span></div>
+        <div class="record-field"><span class="record-field-label">责任人</span><span class="record-field-value">李安全</span></div>
+        <div class="record-field"><span class="record-field-label">超期情况</span><span class="record-field-value overdue">超期3天</span></div>
+      </div>
+      <div class="record-card">
+        <div class="record-card-title">B栋消防检查</div>
+        <div class="record-field"><span class="record-field-label">检查表单</span><span class="record-field-value">消防设施检查表</span></div>
+        <div class="record-field"><span class="record-field-label">责任人</span><span class="record-field-value">王消防</span></div>
+        <div class="record-field"><span class="record-field-label">超期情况</span><span class="record-field-value overdue">超期7天</span></div>
+      </div>
+      <div class="record-card">
+        <div class="record-card-title">危化品仓库周检</div>
+        <div class="record-field"><span class="record-field-label">检查表单</span><span class="record-field-value">危化品管理检查表</span></div>
+        <div class="record-field"><span class="record-field-label">责任人</span><span class="record-field-value">赵管理</span></div>
+        <div class="record-field"><span class="record-field-label">超期情况</span><span class="record-field-value status-green">未超期</span></div>
+      </div>
+    </div>
+
+    <!-- Tab内容 - 隐患整改 -->
+    <div class="tab-content" id="tabPanel1" style="display:none;">
+      <div class="record-card">
+        <div class="record-card-title">配电房灭火器过期</div>
+        <div class="record-field"><span class="record-field-label">管控对象</span><span class="record-field-value">A栋配电房</span></div>
+        <div class="record-field"><span class="record-field-label">整改方式</span><span class="record-field-value">更换灭火器</span></div>
+        <div class="record-field"><span class="record-field-label">责任人</span><span class="record-field-value">王操作</span></div>
+        <div class="record-field"><span class="record-field-label">发现日期</span><span class="record-field-value">2024-01-05</span></div>
+        <div class="record-field"><span class="record-field-label">整改状态</span><span class="record-field-value status-red">未整改</span></div>
+        <div class="record-field"><span class="record-field-label">隐患描述</span><span class="record-field-value" style="flex:1;text-align:right;">灭火器已过期，存在消防安全隐患</span></div>
+      </div>
+      <div class="record-card">
+        <div class="record-card-title">仓库安全出口标识缺失</div>
+        <div class="record-field"><span class="record-field-label">管控对象</span><span class="record-field-value">B栋仓库</span></div>
+        <div class="record-field"><span class="record-field-label">整改方式</span><span class="record-field-value">补装标识</span></div>
+        <div class="record-field"><span class="record-field-label">责任人</span><span class="record-field-value">刘维修</span></div>
+        <div class="record-field"><span class="record-field-label">发现日期</span><span class="record-field-value">2024-01-08</span></div>
+        <div class="record-field"><span class="record-field-label">整改状态</span><span class="record-field-value status-yellow">整改中</span></div>
+        <div class="record-field"><span class="record-field-label">隐患描述</span><span class="record-field-value" style="flex:1;text-align:right;">安全出口标识缺失，影响紧急疏散</span></div>
+      </div>
+    </div>
+
+    <!-- Tab内容 - 上下关联 -->
+    <div class="tab-content" id="tabPanel2" style="display:none;">
+      <div class="warning-bar">
+        ⚠ 异常占比: 2/7 (28.6%) — 超20%阈值，码色变黄
+      </div>
+      <div class="m-card" style="margin:0;">
+        <div class="m-card-title">场所码</div>
+        <div class="code-list-item">
+          <div class="code-dot-lg" style="background:#52c41a;"></div>
+          <div class="code-list-info"><div class="code-list-name">A栋生产车间</div><div class="code-list-type">正常</div></div>
+          <span class="code-list-item code-badge green">绿色</span>
+        </div>
+        <div class="code-list-item">
+          <div class="code-dot-lg" style="background:#faad14;"></div>
+          <div class="code-list-info"><div class="code-list-name">B栋仓库</div><div class="code-list-type">隐患整改中</div></div>
+          <span class="code-badge yellow">黄色</span>
+        </div>
+        <div class="code-list-item">
+          <div class="code-dot-lg" style="background:#52c41a;"></div>
+          <div class="code-list-info"><div class="code-list-name">C栋办公楼</div><div class="code-list-type">正常</div></div>
+          <span class="code-badge green">绿色</span>
+        </div>
+      </div>
+      <div class="m-card" style="margin:0;">
+        <div class="m-card-title">危险源码</div>
+        <div class="code-list-item">
+          <div class="code-dot-lg" style="background:#ff4d4f;"></div>
+          <div class="code-list-info"><div class="code-list-name">危化品仓库</div><div class="code-list-type">超期未检查</div></div>
+          <span class="code-badge red">红色</span>
+        </div>
+        <div class="code-list-item">
+          <div class="code-dot-lg" style="background:#52c41a;"></div>
+          <div class="code-list-info"><div class="code-list-name">配电房</div><div class="code-list-type">正常</div></div>
+          <span class="code-badge green">绿色</span>
+        </div>
+      </div>
+      <div class="m-card" style="margin:0;">
+        <div class="m-card-title">人员码</div>
+        <div class="code-list-item">
+          <div class="code-dot-lg" style="background:#52c41a;"></div>
+          <div class="code-list-info"><div class="code-list-name">李安全</div><div class="code-list-type">检查员 · 履职正常</div></div>
+          <span class="code-badge green">绿色</span>
+        </div>
+        <div class="code-list-item">
+          <div class="code-dot-lg" style="background:#faad14;"></div>
+          <div class="code-list-info"><div class="code-list-name">王操作</div><div class="code-list-type">整改责任人 · 有超期隐患</div></div>
+          <span class="code-badge yellow">黄色</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:20px;"></div>
+  </div>
+
+  <script>
+    function switchTab(el, idx) {
+      el.parentElement.querySelectorAll('.m-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      for (var i = 0; i < 3; i++) {
+        var panel = document.getElementById('tabPanel' + i);
+        if (panel) panel.style.display = i === idx ? 'block' : 'none';
+      }
+    }
+  </script>
+</body>
+</html>

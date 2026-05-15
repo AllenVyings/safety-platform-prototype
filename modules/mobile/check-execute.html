@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>码上排查-检查执行</title>
+  <link rel="stylesheet" href="../../css/mobile.css">
+  <style>
+    /* ========== 检查信息区 ========== */
+    .ce-info {
+      background: #fff; margin: 12px 16px; border-radius: 10px; padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .ce-info-row {
+      display: flex; justify-content: space-between; padding: 7px 0;
+      border-bottom: 0.5px solid #f0f0f0; font-size: 13px;
+    }
+    .ce-info-row:last-child { border-bottom: none; }
+    .ce-info-label { color: #999; flex-shrink: 0; }
+    .ce-info-value { color: #000; font-weight: 500; text-align: right; }
+    .ce-info-title { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 10px; }
+
+    /* ========== 页签栏 ========== */
+    .ce-tabs {
+      display: flex; background: #f0f0f0; margin: 12px 16px; border-radius: 10px;
+      padding: 3px; gap: 3px;
+    }
+    .ce-tab {
+      flex: 1; text-align: center; padding: 9px 0; font-size: 14px; font-weight: 500;
+      color: #999; cursor: pointer; border-radius: 8px; transition: all 0.25s ease;
+    }
+    .ce-tab.active {
+      color: #1677ff; background: #fff; font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .ce-tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 16px; height: 16px; border-radius: 8px; background: #ff4d4f;
+      color: #fff; font-size: 10px; font-weight: 600; padding: 0 4px;
+      margin-left: 4px; vertical-align: middle;
+    }
+    .ce-tab-badge.hidden { display: none; }
+
+    /* ========== 检查项卡片 ========== */
+    .ce-card {
+      background: #fff; border-radius: 10px; padding: 14px 16px; margin: 8px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .ce-item-header { display: flex; align-items: flex-start; margin-bottom: 8px; }
+    .ce-item-no {
+      min-width: 22px; height: 22px; border-radius: 50%; background: #f0f0f0; color: #666;
+      font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ce-item-no.done { background: #52c41a; color: #fff; }
+    .ce-item-no.hazard { background: #ff4d4f; color: #fff; }
+    .ce-item-no.na { background: #999; color: #fff; }
+    .ce-item-name { font-size: 15px; font-weight: 600; color: #000; flex: 1; line-height: 22px; }
+    .ce-sub-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+    .ce-sub-tag {
+      font-size: 11px; color: #8c8c8c; background: #f5f5f5; padding: 2px 8px; border-radius: 4px; cursor: pointer;
+    }
+    .ce-sub-tag:active { background: #e8e8e8; }
+    .ce-sub-standard {
+      display: none; font-size: 12px; color: #666; background: #fafafa; padding: 8px;
+      border-radius: 6px; margin-bottom: 8px; line-height: 1.5;
+    }
+    .ce-sub-standard.show { display: block; }
+    .ce-judge-btns { display: flex; gap: 8px; margin-bottom: 8px; }
+    .ce-judge-btn {
+      flex: 1; padding: 8px 0; border: 2px solid #d9d9d9; border-radius: 8px;
+      font-size: 13px; font-weight: 500; text-align: center; cursor: pointer;
+      background: #fff; color: #666; transition: all 0.2s;
+    }
+    .ce-judge-btn.hazard.active { background: #fff2f0; border-color: #ff4d4f; color: #ff4d4f; }
+    .ce-judge-btn.safe.active { background: #f6ffed; border-color: #52c41a; color: #52c41a; }
+    .ce-judge-btn.na.active { background: #f5f5f5; border-color: #999; color: #666; }
+    .ce-reg-tags { margin-top: 8px; }
+    .ce-reg-tag {
+      display: inline-block; font-size: 11px; color: #8c8c8c; background: #f5f5f5;
+      padding: 2px 8px; border-radius: 4px; margin-right: 4px; cursor: pointer;
+    }
+    .ce-reg-tag:active { background: #e8e8e8; }
+    /* 不涉及原因 */
+    .ce-na-reason {
+      display: none; margin-top: 8px; padding: 10px; background: #fafafa; border-radius: 8px;
+    }
+    .ce-na-reason.show { display: block; }
+    .ce-na-reason textarea {
+      width: 100%; height: 56px; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 8px; font-size: 13px; resize: none; box-sizing: border-box; outline: none;
+    }
+    .ce-na-reason textarea:focus { border-color: #1677ff; }
+
+    /* ========== 隐患列表面板 ========== */
+    .ce-hazard-panel { display: none; padding: 8px 16px; }
+    .ce-hazard-panel.show { display: block; }
+    .ce-hazard-empty { text-align: center; padding: 60px 16px; color: #bfbfbf; }
+    .ce-hazard-empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .ce-hazard-empty-text { font-size: 14px; }
+    .ce-hazard-card {
+      background: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04); position: relative;
+    }
+    .ce-hc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+    .ce-hc-type {
+      font-size: 11px; padding: 2px 8px; border-radius: 4px;
+      color: #faad14; background: #fffbe6; white-space: nowrap;
+    }
+    .ce-hc-level {
+      font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600;
+    }
+    .ce-hc-level.normal { color: #faad14; background: #fffbe6; }
+    .ce-hc-level.major { color: #ff4d4f; background: #fff2f0; }
+    .ce-hc-desc { font-size: 14px; color: #000; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
+    .ce-hc-meta { display: flex; gap: 12px; font-size: 12px; color: #999; flex-wrap: wrap; }
+    .ce-hc-source { font-size: 11px; color: #1677ff; margin-top: 6px; }
+
+    /* ========== 底部操作栏 ========== */
+    .ce-bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; padding: 10px 16px;
+      background: #fff; box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: flex; gap: 10px; z-index: 10;
+    }
+    .ce-bar-btn {
+      flex: 1; padding: 10px 0; border-radius: 8px; font-size: 14px; font-weight: 500;
+      text-align: center; cursor: pointer; border: none;
+    }
+    .ce-bar-btn.add { background: #fff; color: #1677ff; border: 1px solid #1677ff; }
+    .ce-bar-btn.add:active { background: #f0f4ff; }
+    .ce-bar-btn.submit { background: #1677ff; color: #fff; }
+    .ce-bar-btn.submit:active { background: #0958d9; }
+    .ce-bar-btn.ai { background: none; border: none; font-size: 24px; padding: 0 10px; cursor: pointer; flex: 0; }
+    .ce-bar-btn.ai:active { opacity: 0.7; }
+
+    /* ========== 抽屉遮罩 ========== */
+    .ce-drawer-mask {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50;
+    }
+    .ce-drawer-mask.show { display: block; }
+
+    /* ========== 抽屉 ========== */
+    .ce-drawer {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 51;
+      background: #fff; border-radius: 16px 16px 0 0; max-height: 85vh;
+      transform: translateY(100%); transition: transform 0.3s ease;
+      display: flex; flex-direction: column;
+    }
+    .ce-drawer.show { transform: translateY(0); }
+    .ce-drawer-header {
+      padding: 16px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 0.5px solid #f0f0f0; flex-shrink: 0;
+    }
+    .ce-drawer-title { font-size: 16px; font-weight: 600; color: #000; }
+    .ce-drawer-close {
+      width: 28px; height: 28px; border-radius: 50%; background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #999; cursor: pointer; border: none;
+    }
+    .ce-drawer-close:active { background: #e8e8e8; }
+    .ce-drawer-body { padding: 16px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+    .ce-field { margin-bottom: 14px; }
+    .ce-field-label { font-size: 13px; color: #666; margin-bottom: 6px; }
+    .ce-field-label .req { color: #ff4d4f; }
+    .ce-field-select {
+      width: 100%; height: 36px; border: 1px solid #d9d9d9; border-radius: 8px;
+      padding: 0 10px; font-size: 13px; color: #333; background: #fff; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; box-sizing: border-box;
+    }
+    .ce-field-textarea {
+      width: 100%; height: 72px; border: 1px solid #d9d9d9; border-radius: 8px;
+      padding: 10px; font-size: 13px; resize: none; box-sizing: border-box; outline: none;
+    }
+    .ce-field-textarea:focus { border-color: #1677ff; }
+    .ce-field-radio-group { display: flex; gap: 10px; }
+    .ce-field-radio {
+      flex: 1; padding: 8px 0; border: 1px solid #d9d9d9; border-radius: 8px;
+      font-size: 13px; text-align: center; cursor: pointer; background: #fff; color: #666;
+    }
+    .ce-field-radio.active.normal { background: #fffbe6; border-color: #faad14; color: #faad14; }
+    .ce-field-radio.active.major { background: #fff2f0; border-color: #ff4d4f; color: #ff4d4f; }
+    .ce-deadline-row { display: flex; gap: 10px; margin-top: 8px; }
+    .ce-deadline-row .ce-field-radio { padding: 6px 12px; font-size: 12px; }
+    .ce-deadline-row .ce-field-radio.active { background: #f0f4ff; border-color: #1677ff; color: #1677ff; }
+    .ce-deadline-stepper { margin-top: 10px; display: none; align-items: center; gap: 12px; }
+    .ce-deadline-stepper.show { display: flex; }
+    .ce-stepper-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: 1px solid #d9d9d9;
+      background: #fff; font-size: 18px; color: #666; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ce-stepper-btn:active { background: #f5f5f5; }
+    .ce-stepper-btn:disabled { color: #d9d9d9; border-color: #f0f0f0; cursor: not-allowed; }
+    .ce-stepper-value { font-size: 16px; font-weight: 600; color: #000; min-width: 28px; text-align: center; }
+    .ce-stepper-unit { font-size: 13px; color: #8c8c8c; }
+    .ce-photos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .ce-photo-add {
+      width: 64px; height: 64px; border-radius: 8px; border: 1px dashed #d9d9d9;
+      display: flex; align-items: center; justify-content: center; color: #bfbfbf;
+      font-size: 24px; cursor: pointer; background: #fafafa;
+    }
+    .ce-photo-add:active { background: #f0f0f0; }
+    .ce-drawer-footer {
+      padding: 12px 16px; border-top: 0.5px solid #f0f0f0; flex-shrink: 0;
+    }
+    .ce-drawer-confirm {
+      width: 100%; padding: 12px 0; border-radius: 8px; font-size: 15px; font-weight: 500;
+      background: #1677ff; color: #fff; border: none; cursor: pointer;
+    }
+    .ce-drawer-confirm:active { background: #0958d9; }
+
+    /* ========== 确认弹窗 ========== */
+    .ce-confirm-mask {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 60;
+      align-items: center; justify-content: center;
+    }
+    .ce-confirm-mask.show { display: flex; }
+    .ce-confirm-dialog {
+      background: #fff; border-radius: 14px; padding: 24px; width: 280px; text-align: center;
+    }
+    .ce-confirm-title { font-size: 16px; font-weight: 600; color: #000; margin-bottom: 8px; }
+    .ce-confirm-msg { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+    .ce-confirm-btns { display: flex; gap: 12px; }
+    .ce-confirm-cancel {
+      flex: 1; padding: 10px 0; border-radius: 8px; font-size: 14px;
+      background: #fff; color: #666; border: 1px solid #d9d9d9; cursor: pointer;
+    }
+    .ce-confirm-cancel:active { background: #f5f5f5; }
+    .ce-confirm-ok {
+      flex: 1; padding: 10px 0; border-radius: 8px; font-size: 14px; font-weight: 500;
+      background: #1677ff; color: #fff; border: none; cursor: pointer;
+    }
+    .ce-confirm-ok:active { background: #0958d9; }
+
+    /* ========== 提交抽屉补充样式 ========== */
+    .ce-submit-photo-area { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .ce-submit-photo-add {
+      width: 64px; height: 64px; border-radius: 8px; border: 1px dashed #d9d9d9;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #999; font-size: 12px; cursor: pointer; background: #fafafa; gap: 2px;
+    }
+    .ce-submit-photo-add:active { background: #f0f0f0; }
+    .ce-submit-photo-add svg { width: 18px; height: 18px; }
+    .ce-sign-placeholder {
+      height: 72px; border: 1px dashed #d9d9d9; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #bfbfbf; font-size: 14px; cursor: pointer; background: #fafafa; margin-top: 8px;
+    }
+    .ce-sign-placeholder:active { background: #f0f0f0; }
+    .ce-sign-done {
+      height: 72px; border-radius: 8px; background: #f6ffed; border: 1px solid #52c41a;
+      display: none; align-items: center; justify-content: center;
+      position: relative; cursor: pointer; margin-top: 8px;
+    }
+    .ce-sign-time { font-size: 11px; color: #52c41a; margin-top: 6px; display: none; }
+    .ce-check-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; border-radius: 50%; margin-right: 4px; font-size: 11px;
+    }
+    .ce-check-icon.done { background: #52c41a; color: #fff; }
+    .ce-check-icon.pending { background: #f0f0f0; color: #999; }
+    .ce-step-row { display: flex; align-items: center; font-size: 13px; color: #666; margin-bottom: 6px; }
+    .ce-step-row.done { color: #52c41a; }
+
+    /* ========== 签名面板 ========== */
+    .ce-sign-panel {
+      display: none; position: fixed; inset: 0; z-index: 100; background: #fff;
+      flex-direction: column;
+    }
+    .ce-sign-panel.show { display: flex; }
+    .ce-sign-panel-header {
+      padding: 16px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 0.5px solid rgba(0,0,0,0.08);
+    }
+    .ce-sign-panel-title { font-size: 16px; font-weight: 600; color: #000; }
+    .ce-sign-panel-body { flex: 1; padding: 16px; }
+    .ce-sign-canvas {
+      width: 100%; height: 100%; border: 1px solid #e5e5e5; border-radius: 8px;
+      background: #fff; touch-action: none;
+    }
+    .ce-sign-panel-footer {
+      padding: 12px 16px; display: flex; gap: 12px; border-top: 0.5px solid rgba(0,0,0,0.08);
+    }
+    .ce-sign-clear-btn {
+      flex: 1; padding: 12px 0; border-radius: 8px; font-size: 14px;
+      background: #fff; color: #666; border: 1px solid #d9d9d9; cursor: pointer;
+    }
+    .ce-sign-clear-btn:active { background: #f5f5f5; }
+    .ce-sign-confirm-btn {
+      flex: 2; padding: 12px 0; border-radius: 8px; font-size: 14px; font-weight: 500;
+      background: #1677ff; color: #fff; border: none; cursor: pointer;
+    }
+    .ce-sign-confirm-btn:active { background: #0958d9; }
+  </style>
+</head>
+<body>
+  <div class="m-page" style="background:#f5f7fa;">
+
+    <!-- 检查信息区 -->
+    <div class="ce-info">
+      <div class="ce-info-title">检查信息</div>
+      <div class="ce-info-row">
+        <span class="ce-info-label">检查表</span>
+        <span class="ce-info-value" id="infoTableName">--</span>
+      </div>
+      <div class="ce-info-row">
+        <span class="ce-info-label">管控对象</span>
+        <span class="ce-info-value" id="infoObjName">--</span>
+      </div>
+      <div class="ce-info-row">
+        <span class="ce-info-label">检查时间</span>
+        <span class="ce-info-value" id="infoTime">--</span>
+      </div>
+      <div class="ce-info-row">
+        <span class="ce-info-label">检查人</span>
+        <span class="ce-info-value">李安全</span>
+      </div>
+    </div>
+
+    <!-- 页签栏 -->
+    <div class="ce-tabs">
+      <div class="ce-tab active" onclick="switchTab('items')">检查项</div>
+      <div class="ce-tab" onclick="switchTab('hazards')">隐患列表<span class="ce-tab-badge hidden" id="hazardBadge">0</span></div>
+    </div>
+
+    <!-- 检查项面板 -->
+    <div id="itemsPanel">
+      <div class="ce-card" data-idx="0">
+        <div class="ce-item-header">
+          <div class="ce-item-no">1</div>
+          <div class="ce-item-name">消防设施检查</div>
+        </div>
+        <div class="ce-sub-tags">
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">灭火器压力</span>
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">消防通道畅通</span>
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">消防栓出水</span>
+        </div>
+        <div class="ce-sub-standard">灭火器压力指针应在绿区；消防通道无堆放杂物、宽度≥1.2m；消防栓出水压力≥0.1MPa</div>
+        <div class="ce-judge-btns">
+          <div class="ce-judge-btn hazard" onclick="judge(this,0,'hazard')">有隐患</div>
+          <div class="ce-judge-btn safe" onclick="judge(this,0,'safe')">无隐患</div>
+          <div class="ce-judge-btn na" onclick="judge(this,0,'na')">不涉及</div>
+        </div>
+        <div class="ce-na-reason"><textarea placeholder="请说明不涉及的原因..."></textarea></div>
+        <div class="ce-reg-tags">
+          <span class="ce-reg-tag">《消防法》第16条</span>
+          <span class="ce-reg-tag">《安全生产法》第36条</span>
+        </div>
+      </div>
+
+      <div class="ce-card" data-idx="1">
+        <div class="ce-item-header">
+          <div class="ce-item-no">2</div>
+          <div class="ce-item-name">安全出口检查</div>
+        </div>
+        <div class="ce-sub-tags">
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">出口标识清晰</span>
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">应急照明正常</span>
+        </div>
+        <div class="ce-sub-standard">出口标识应为荧光或发光材质，可见距离≥20m；应急照明断电后持续≥30min</div>
+        <div class="ce-judge-btns">
+          <div class="ce-judge-btn hazard" onclick="judge(this,1,'hazard')">有隐患</div>
+          <div class="ce-judge-btn safe" onclick="judge(this,1,'safe')">无隐患</div>
+          <div class="ce-judge-btn na" onclick="judge(this,1,'na')">不涉及</div>
+        </div>
+        <div class="ce-na-reason"><textarea placeholder="请说明不涉及的原因..."></textarea></div>
+        <div class="ce-reg-tags">
+          <span class="ce-reg-tag">《消防法》第28条</span>
+        </div>
+      </div>
+
+      <div class="ce-card" data-idx="2">
+        <div class="ce-item-header">
+          <div class="ce-item-no">3</div>
+          <div class="ce-item-name">电气线路检查</div>
+        </div>
+        <div class="ce-sub-tags">
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">线路绝缘</span>
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">接地保护</span>
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">配电箱状态</span>
+        </div>
+        <div class="ce-sub-standard">电线无裸露破损、接头规范；接地电阻≤4Ω；配电箱上锁、标识清晰、无杂物堆放</div>
+        <div class="ce-judge-btns">
+          <div class="ce-judge-btn hazard" onclick="judge(this,2,'hazard')">有隐患</div>
+          <div class="ce-judge-btn safe" onclick="judge(this,2,'safe')">无隐患</div>
+          <div class="ce-judge-btn na" onclick="judge(this,2,'na')">不涉及</div>
+        </div>
+        <div class="ce-na-reason"><textarea placeholder="请说明不涉及的原因..."></textarea></div>
+        <div class="ce-reg-tags">
+          <span class="ce-reg-tag">《电气装置安装规范》GB 50303</span>
+          <span class="ce-reg-tag">《安全生产法》第36条</span>
+        </div>
+      </div>
+
+      <div class="ce-card" data-idx="3">
+        <div class="ce-item-header">
+          <div class="ce-item-no">4</div>
+          <div class="ce-item-name">灭火器检查</div>
+        </div>
+        <div class="ce-sub-tags">
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">灭火器有效期</span>
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">压力指示</span>
+        </div>
+        <div class="ce-sub-standard">灭火器在有效期内（水基型6年、干粉10年）；压力表指针在绿区；每月至少检查1次并记录</div>
+        <div class="ce-judge-btns">
+          <div class="ce-judge-btn hazard" onclick="judge(this,3,'hazard')">有隐患</div>
+          <div class="ce-judge-btn safe" onclick="judge(this,3,'safe')">无隐患</div>
+          <div class="ce-judge-btn na" onclick="judge(this,3,'na')">不涉及</div>
+        </div>
+        <div class="ce-na-reason"><textarea placeholder="请说明不涉及的原因..."></textarea></div>
+        <div class="ce-reg-tags">
+          <span class="ce-reg-tag">《消防法》第16条</span>
+          <span class="ce-reg-tag">《建筑灭火器配置规范》GB 50140</span>
+        </div>
+      </div>
+
+      <div class="ce-card" data-idx="4">
+        <div class="ce-item-header">
+          <div class="ce-item-no">5</div>
+          <div class="ce-item-name">安全标识检查</div>
+        </div>
+        <div class="ce-sub-tags">
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">标识完整性</span>
+          <span class="ce-sub-tag" onclick="toggleStandard(this)">标识清晰度</span>
+        </div>
+        <div class="ce-sub-standard">安全标识无破损褪色、安装位置正确、夜间可见（荧光或发光材质）</div>
+        <div class="ce-judge-btns">
+          <div class="ce-judge-btn hazard" onclick="judge(this,4,'hazard')">有隐患</div>
+          <div class="ce-judge-btn safe" onclick="judge(this,4,'safe')">无隐患</div>
+          <div class="ce-judge-btn na" onclick="judge(this,4,'na')">不涉及</div>
+        </div>
+        <div class="ce-na-reason"><textarea placeholder="请说明不涉及的原因..."></textarea></div>
+        <div class="ce-reg-tags">
+          <span class="ce-reg-tag">《安全生产法》第35条</span>
+        </div>
+      </div>
+
+      <div style="height:72px;"></div>
+    </div>
+
+    <!-- 隐患列表面板 -->
+    <div class="ce-hazard-panel" id="hazardsPanel">
+      <div class="ce-hazard-empty" id="hazardEmpty">
+        <div class="ce-hazard-empty-icon">📋</div>
+        <div class="ce-hazard-empty-text">暂无隐患记录</div>
+      </div>
+      <div id="hazardList"></div>
+      <div style="height:72px;"></div>
+    </div>
+
+  </div>
+
+  <!-- 底部操作栏 -->
+  <div class="ce-bottom-bar">
+    <button class="ce-bar-btn add" onclick="openDrawer(-1)">新增</button>
+    <button class="ce-bar-btn submit" onclick="handleSubmit()">提交</button>
+    <button class="ce-bar-btn ai" onclick="parent.navigateTo('ai-analysis')">🤖</button>
+  </div>
+
+  <!-- 抽屉遮罩 -->
+  <div class="ce-drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+
+  <!-- 隐患抽屉 -->
+  <div class="ce-drawer" id="drawer">
+    <div class="ce-drawer-header">
+      <div class="ce-drawer-title" id="drawerTitle">隐患信息</div>
+      <button class="ce-drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="ce-drawer-body">
+      <div class="ce-field">
+        <div class="ce-field-label">隐患类型</div>
+        <select class="ce-field-select" id="dType">
+          <option value="">请选择</option>
+          <option>现场环境</option><option>标志标线</option><option>电气线路</option>
+          <option>设备设施</option><option>危化品使用</option><option>特殊作业</option>
+          <option>应急处置</option><option>从业人员</option><option>疏散通道</option>
+        </select>
+      </div>
+      <div class="ce-field">
+        <div class="ce-field-label"><span class="req">*</span> 隐患描述</div>
+        <textarea class="ce-field-textarea" id="dDesc" placeholder="请描述发现的隐患..."></textarea>
+      </div>
+      <div class="ce-field">
+        <div class="ce-field-label"><span class="req">*</span> 隐患等级</div>
+        <div class="ce-field-radio-group">
+          <div class="ce-field-radio normal" onclick="selectLevel(this,'normal')">一般</div>
+          <div class="ce-field-radio major" onclick="selectLevel(this,'major')">重大</div>
+        </div>
+      </div>
+      <div class="ce-field">
+        <div class="ce-field-label"><span class="req">*</span> 整改责任人</div>
+        <select class="ce-field-select" id="dPerson">
+          <option value="">请选择</option>
+          <option>王操作</option><option>赵巡检</option><option>李安全</option>
+        </select>
+      </div>
+      <div class="ce-field">
+        <div class="ce-field-label"><span class="req">*</span> 整改期限</div>
+        <div class="ce-deadline-row">
+          <div class="ce-field-radio" onclick="selectDeadline(this,'immediate')">立即整改</div>
+          <div class="ce-field-radio" onclick="selectDeadline(this,'limited')">限期整改</div>
+        </div>
+        <div class="ce-deadline-stepper" id="dDeadlineStepper">
+          <button class="ce-stepper-btn" id="dStepperMinus" onclick="changeDays(-1)" disabled>-</button>
+          <div><span class="ce-stepper-value" id="dStepperValue">1</span><span class="ce-stepper-unit">天</span></div>
+          <button class="ce-stepper-btn" onclick="changeDays(1)">+</button>
+        </div>
+      </div>
+      <div class="ce-field">
+        <div class="ce-field-label">隐患图片（最多6张）</div>
+        <div class="ce-photos" id="dPhotos">
+          <div class="ce-photo-add" onclick="addDrawerPhoto()">+</div>
+        </div>
+      </div>
+    </div>
+    <div class="ce-drawer-footer">
+      <button class="ce-drawer-confirm" onclick="confirmDrawer()">确认</button>
+    </div>
+  </div>
+
+  <!-- 确认弹窗 -->
+  <div class="ce-confirm-mask" id="confirmMask">
+    <div class="ce-confirm-dialog">
+      <div class="ce-confirm-title">确认提交</div>
+      <div class="ce-confirm-msg" id="confirmMsg">请确认余下X项无隐患</div>
+      <div class="ce-confirm-btns">
+        <button class="ce-confirm-cancel" onclick="closeConfirm()">取消</button>
+        <button class="ce-confirm-ok" onclick="openSubmitDrawer()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提交抽屉 -->
+  <div class="ce-drawer-mask" id="submitDrawerMask" onclick="closeSubmitDrawer()"></div>
+  <div class="ce-drawer" id="submitDrawer">
+    <div class="ce-drawer-header">
+      <div class="ce-drawer-title">提交检查结果</div>
+      <button class="ce-drawer-close" onclick="closeSubmitDrawer()">✕</button>
+    </div>
+    <div class="ce-drawer-body">
+      <div class="ce-field">
+        <div class="ce-field-label">现场拍照</div>
+        <div class="ce-step-row" id="photoStep">
+          <span class="ce-check-icon pending">✓</span>
+          <span>请拍摄现场照片</span>
+        </div>
+        <div class="ce-submit-photo-area" id="sitePhotos">
+          <div class="ce-submit-photo-add" onclick="addSitePhoto()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            拍照
+          </div>
+        </div>
+      </div>
+      <div class="ce-field">
+        <div class="ce-field-label">电子签名</div>
+        <div class="ce-step-row" id="signStep">
+          <span class="ce-check-icon pending">✓</span>
+          <span>请完成电子签名</span>
+        </div>
+        <div class="ce-sign-placeholder" id="submitSignPlaceholder" onclick="openSignPanel()">点击签名</div>
+        <div class="ce-sign-done" id="submitSignDone" onclick="openSignPanel()"></div>
+        <div class="ce-sign-time" id="submitSignTime"></div>
+      </div>
+    </div>
+    <div class="ce-drawer-footer">
+      <button class="ce-drawer-confirm" id="submitBtn" onclick="doSubmit()" disabled>确认提交</button>
+    </div>
+  </div>
+
+  <!-- 签名面板 -->
+  <div class="ce-sign-panel" id="signPanel">
+    <div class="ce-sign-panel-header">
+      <div class="ce-sign-panel-title">手写签名</div>
+    </div>
+    <div class="ce-sign-panel-body">
+      <canvas class="ce-sign-canvas" id="signCanvas"></canvas>
+    </div>
+    <div class="ce-sign-panel-footer">
+      <button class="ce-sign-clear-btn" onclick="clearSign()">清除</button>
+      <button class="ce-sign-confirm-btn" onclick="confirmSign()">确认签名</button>
+    </div>
+  </div>
+
+  <script>
+    /* ========== 数据模型 ========== */
+    var checkItems = [
+      { idx:0, name:'消防设施检查', judgment:'' },
+      { idx:1, name:'安全出口检查', judgment:'' },
+      { idx:2, name:'电气线路检查', judgment:'' },
+      { idx:3, name:'灭火器检查', judgment:'' },
+      { idx:4, name:'安全标识检查', judgment:'' }
+    ];
+    var hazards = [];
+    var naReasons = {};
+    var sitePhotos = [];
+    var signatureDone = false;
+    var hazardIdCounter = 0;
+    var currentDrawerItemIdx = -1; // -1 = 新增模式
+    var drawerLevel = '';
+    var drawerDeadlineMode = '';
+    var drawerDays = 1;
+
+    /* ========== 页签切换 ========== */
+    function switchTab(tab) {
+      var tabs = document.querySelectorAll('.ce-tab');
+      tabs[0].classList.toggle('active', tab === 'items');
+      tabs[1].classList.toggle('active', tab === 'hazards');
+      document.getElementById('itemsPanel').style.display = tab === 'items' ? 'block' : 'none';
+      var hp = document.getElementById('hazardsPanel');
+      hp.classList.toggle('show', tab === 'hazards');
+      hp.style.display = tab === 'hazards' ? 'block' : 'none';
+    }
+
+    /* ========== 检查项判定 ========== */
+    function judge(btn, idx, type) {
+      var card = btn.closest('.ce-card');
+      var btns = card.querySelectorAll('.ce-judge-btn');
+      btns.forEach(function(b) { b.classList.remove('active'); });
+
+      if (type === 'hazard') {
+        // 打开抽屉而不是直接标记
+        btn.classList.add('active');
+        openDrawer(idx);
+        return;
+      }
+
+      btn.classList.add('active');
+      var prevJudgment = checkItems[idx].judgment;
+      checkItems[idx].judgment = type;
+
+      // 清除之前该检查项产生的隐患
+      if (prevJudgment === 'hazard') {
+        hazards = hazards.filter(function(h) { return h.sourceItemIdx !== idx; });
+        updateHazardBadge();
+        renderHazardList();
+      }
+
+      // 不涉及：展开原因
+      var naReason = card.querySelector('.ce-na-reason');
+      naReason.classList.toggle('show', type === 'na');
+
+      updateItemNo(idx);
+    }
+
+    function updateItemNo(idx) {
+      var card = document.querySelector('.ce-card[data-idx="' + idx + '"]');
+      var noEl = card.querySelector('.ce-item-no');
+      noEl.className = 'ce-item-no';
+      var j = checkItems[idx].judgment;
+      if (j === 'safe') noEl.classList.add('done');
+      else if (j === 'hazard') noEl.classList.add('hazard');
+      else if (j === 'na') noEl.classList.add('na');
+    }
+
+    /* ========== 检查内容子项展开 ========== */
+    function toggleStandard(tag) {
+      var standard = tag.closest('.ce-card').querySelector('.ce-sub-standard');
+      standard.classList.toggle('show');
+    }
+
+    /* ========== 抽屉操作 ========== */
+    function openDrawer(itemIdx) {
+      currentDrawerItemIdx = itemIdx;
+      var title = document.getElementById('drawerTitle');
+      title.textContent = itemIdx >= 0 ? '隐患信息' : '新增隐患';
+
+      // 重置表单
+      document.getElementById('dType').value = '';
+      document.getElementById('dDesc').value = '';
+      document.getElementById('dPerson').value = '';
+      drawerLevel = '';
+      drawerDeadlineMode = '';
+      drawerDays = 1;
+      var radios = document.querySelectorAll('#drawer .ce-field-radio');
+      radios.forEach(function(r) { r.classList.remove('active'); });
+      document.getElementById('dDeadlineStepper').classList.remove('show');
+      document.getElementById('dStepperValue').textContent = '1';
+      document.getElementById('dStepperMinus').disabled = true;
+      // 重置图片
+      var photoArea = document.getElementById('dPhotos');
+      photoArea.innerHTML = '<div class="ce-photo-add" onclick="addDrawerPhoto()">+</div>';
+
+      // 显示抽屉
+      document.getElementById('drawerMask').classList.add('show');
+      document.getElementById('drawer').classList.add('show');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawerMask').classList.remove('show');
+      document.getElementById('drawer').classList.remove('show');
+
+      // 如果是从"有隐患"打开但未确认，回退判定
+      if (currentDrawerItemIdx >= 0) {
+        var item = checkItems[currentDrawerItemIdx];
+        if (item.judgment !== 'hazard' || !hazards.some(function(h) { return h.sourceItemIdx === currentDrawerItemIdx; })) {
+          // 没有成功确认隐患，回退判定
+          item.judgment = '';
+          var card = document.querySelector('.ce-card[data-idx="' + currentDrawerItemIdx + '"]');
+          var btns = card.querySelectorAll('.ce-judge-btn');
+          btns.forEach(function(b) { b.classList.remove('active'); });
+          updateItemNo(currentDrawerItemIdx);
+        }
+      }
+      currentDrawerItemIdx = -1;
+    }
+
+    function selectLevel(el, level) {
+      var group = el.parentElement;
+      group.querySelectorAll('.ce-field-radio').forEach(function(r) { r.classList.remove('active'); });
+      el.classList.add('active');
+      drawerLevel = level;
+    }
+
+    function selectDeadline(el, mode) {
+      var row = el.parentElement;
+      row.querySelectorAll('.ce-field-radio').forEach(function(r) { r.classList.remove('active'); });
+      el.classList.add('active');
+      drawerDeadlineMode = mode;
+      document.getElementById('dDeadlineStepper').classList.toggle('show', mode === 'limited');
+    }
+
+    function changeDays(delta) {
+      drawerDays = Math.max(1, Math.min(365, drawerDays + delta));
+      document.getElementById('dStepperValue').textContent = drawerDays;
+      document.getElementById('dStepperMinus').disabled = drawerDays <= 1;
+    }
+
+    function addDrawerPhoto() {
+      alert('打开相机拍照（原型演示）');
+    }
+
+    function confirmDrawer() {
+      var desc = document.getElementById('dDesc').value.trim();
+      var person = document.getElementById('dPerson').value;
+
+      if (!desc) { alert('请填写隐患描述'); return; }
+      if (!drawerLevel) { alert('请选择隐患等级'); return; }
+      if (!person) { alert('请选择整改责任人'); return; }
+      if (!drawerDeadlineMode) { alert('请选择整改期限'); return; }
+
+      var now = new Date();
+      var deadlineDisplay = '';
+      if (drawerDeadlineMode === 'immediate') {
+        deadlineDisplay = '立即整改（' + now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + '）';
+      } else {
+        var target = new Date(now.getTime() + drawerDays * 86400000);
+        deadlineDisplay = '限期' + drawerDays + '天（' + target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0') + '）';
+      }
+
+      var hazard = {
+        id: ++hazardIdCounter,
+        sourceItemIdx: currentDrawerItemIdx,
+        type: document.getElementById('dType').value || '',
+        description: desc,
+        level: drawerLevel,
+        person: person,
+        deadlineMode: drawerDeadlineMode,
+        deadlineDate: deadlineDisplay,
+        photos: []
+      };
+
+      hazards.push(hazard);
+
+      // 如果关联了检查项，标记有隐患
+      if (currentDrawerItemIdx >= 0) {
+        checkItems[currentDrawerItemIdx].judgment = 'hazard';
+        updateItemNo(currentDrawerItemIdx);
+        // 关闭不涉及原因
+        var card = document.querySelector('.ce-card[data-idx="' + currentDrawerItemIdx + '"]');
+        card.querySelector('.ce-na-reason').classList.remove('show');
+      }
+
+      updateHazardBadge();
+      renderHazardList();
+
+      // 关闭抽屉（确认后不回退）
+      var savedIdx = currentDrawerItemIdx;
+      currentDrawerItemIdx = -1; // 防止 closeDrawer 回退
+      document.getElementById('drawerMask').classList.remove('show');
+      document.getElementById('drawer').classList.remove('show');
+    }
+
+    /* ========== 隐患列表 ========== */
+    function updateHazardBadge() {
+      var badge = document.getElementById('hazardBadge');
+      var count = hazards.length;
+      badge.textContent = count;
+      badge.classList.toggle('hidden', count === 0);
+    }
+
+    function renderHazardList() {
+      var list = document.getElementById('hazardList');
+      var empty = document.getElementById('hazardEmpty');
+
+      if (hazards.length === 0) {
+        empty.style.display = 'block';
+        list.innerHTML = '';
+        return;
+      }
+      empty.style.display = 'none';
+
+      var html = '';
+      hazards.forEach(function(h) {
+        var levelText = h.level === 'major' ? '重大隐患' : '一般隐患';
+        var levelCls = h.level === 'major' ? 'major' : 'normal';
+        var sourceText = '手动新增';
+        if (h.source === 'AI识别') sourceText = '来源: AI识别';
+        else if (h.sourceItemIdx >= 0) sourceText = '来源: ' + checkItems[h.sourceItemIdx].name;
+
+        html += '<div class="ce-hazard-card">';
+        html += '<div class="ce-hc-top">';
+        if (h.type) html += '<span class="ce-hc-type">' + h.type + '</span>';
+        html += '<span class="ce-hc-level ' + levelCls + '">' + levelText + '</span>';
+        html += '</div>';
+        html += '<div class="ce-hc-desc">' + h.description + '</div>';
+        if (h.suggest) html += '<div class="ce-hc-meta"><span>整改建议: ' + h.suggest + '</span></div>';
+        if (h.risk) html += '<div class="ce-hc-meta"><span>关联风险: ' + h.risk + '</span></div>';
+        html += '<div class="ce-hc-meta">';
+        html += '<span>责任人: ' + h.person + '</span>';
+        html += '<span>期限: ' + h.deadlineDate + '</span>';
+        html += '</div>';
+        html += '<div class="ce-hc-source">' + sourceText + '</div>';
+        html += '</div>';
+      });
+      list.innerHTML = html;
+    }
+
+    /* ========== 提交流程 ========== */
+    function handleSubmit() {
+      var hazardIncomplete = [];
+      hazards.forEach(function(h, i) {
+        if (!h.description) hazardIncomplete.push(i + 1);
+      });
+      if (hazardIncomplete.length) {
+        alert('请完善第' + hazardIncomplete.join('、') + '条隐患信息');
+        return;
+      }
+
+      var unjudged = 0;
+      checkItems.forEach(function(item) { if (!item.judgment) unjudged++; });
+
+      if (unjudged > 0) {
+        document.getElementById('confirmMsg').textContent = '请确认余下' + unjudged + '项无隐患';
+        document.getElementById('confirmMask').classList.add('show');
+      } else {
+        openSubmitDrawer();
+      }
+    }
+
+    function closeConfirm() {
+      document.getElementById('confirmMask').classList.remove('show');
+    }
+
+    function openSubmitDrawer() {
+      closeConfirm();
+      sitePhotos = [];
+      signatureDone = false;
+      document.getElementById('submitSignPlaceholder').style.display = 'flex';
+      document.getElementById('submitSignDone').style.display = 'none';
+      document.getElementById('submitSignTime').style.display = 'none';
+      document.getElementById('sitePhotos').innerHTML =
+        '<div class="ce-submit-photo-add" onclick="addSitePhoto()">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>拍照</div>';
+      updateSubmitSteps();
+      document.getElementById('submitDrawerMask').classList.add('show');
+      document.getElementById('submitDrawer').classList.add('show');
+    }
+
+    function closeSubmitDrawer() {
+      document.getElementById('submitDrawerMask').classList.remove('show');
+      document.getElementById('submitDrawer').classList.remove('show');
+    }
+
+    function addSitePhoto() {
+      alert('打开相机拍照（原型演示）');
+      sitePhotos.push('demo');
+      updateSubmitSteps();
+    }
+
+    function updateSubmitSteps() {
+      var photoStep = document.getElementById('photoStep');
+      var signStep = document.getElementById('signStep');
+      var photoIcon = photoStep.querySelector('.ce-check-icon');
+      var signIcon = signStep.querySelector('.ce-check-icon');
+
+      var photoOk = sitePhotos.length > 0;
+      var signOk = signatureDone;
+
+      photoIcon.className = 'ce-check-icon ' + (photoOk ? 'done' : 'pending');
+      photoStep.className = 'ce-step-row' + (photoOk ? ' done' : '');
+      photoStep.querySelector('span:last-child').textContent = photoOk ? '已拍摄' + sitePhotos.length + '张现场照片' : '请拍摄现场照片';
+
+      signIcon.className = 'ce-check-icon ' + (signOk ? 'done' : 'pending');
+      signStep.className = 'ce-step-row' + (signOk ? ' done' : '');
+      signStep.querySelector('span:last-child').textContent = signOk ? '已完成签名' : '请完成电子签名';
+
+      document.getElementById('submitBtn').disabled = !(photoOk && signOk);
+    }
+
+    function doSubmit() {
+      var hasHazard = hazards.length > 0;
+      if (hasHazard) {
+        alert('提交成功！发现' + hazards.length + '处隐患，已自动创建隐患记录。（原型演示）');
+      } else {
+        alert('提交成功！本次检查全部无隐患。（原型演示）');
+      }
+      try { parent.navigateTo('check-list'); } catch(e) {}
+    }
+
+    /* ========== 签名面板 ========== */
+    var signCanvas, signCtx, drawing = false;
+
+    function openSignPanel() {
+      var panel = document.getElementById('signPanel');
+      panel.classList.add('show');
+      if (!signCanvas) {
+        signCanvas = document.getElementById('signCanvas');
+        signCtx = signCanvas.getContext('2d');
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        signCanvas.addEventListener('pointerdown', startDraw);
+        signCanvas.addEventListener('pointermove', draw);
+        signCanvas.addEventListener('pointerup', stopDraw);
+        signCanvas.addEventListener('pointerleave', stopDraw);
+      }
+    }
+
+    function resizeCanvas() {
+      if (!signCanvas) return;
+      var rect = signCanvas.parentElement.getBoundingClientRect();
+      signCanvas.width = rect.width - 32;
+      signCanvas.height = rect.height - 32;
+      signCtx.strokeStyle = '#333';
+      signCtx.lineWidth = 2;
+      signCtx.lineCap = 'round';
+      signCtx.lineJoin = 'round';
+    }
+
+    function startDraw(e) {
+      drawing = true;
+      signCtx.beginPath();
+      var rect = signCanvas.getBoundingClientRect();
+      signCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      var rect = signCanvas.getBoundingClientRect();
+      signCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      signCtx.stroke();
+    }
+
+    function stopDraw() { drawing = false; }
+
+    function clearSign() {
+      if (signCtx) signCtx.clearRect(0, 0, signCanvas.width, signCanvas.height);
+    }
+
+    function confirmSign() {
+      if (signCtx && signCanvas) {
+        try {
+          var data = signCtx.getImageData(0, 0, signCanvas.width, signCanvas.height).data;
+          var blank = true;
+          for (var i = 3; i < data.length; i += 4) { if (data[i] > 0) { blank = false; break; } }
+          if (blank) { alert('请先签名'); return; }
+        } catch(e) {}
+      }
+
+      // 生成签名缩略图到提交面板
+      if (signCtx) {
+        var data = signCanvas.toDataURL('image/png');
+        var img = new Image();
+        img.onload = function() {
+          var done = document.getElementById('submitSignDone');
+          done.innerHTML = '';
+          var mini = document.createElement('canvas');
+          mini.width = done.offsetWidth || 300;
+          mini.height = done.offsetHeight || 80;
+          var mctx = mini.getContext('2d');
+          mctx.drawImage(img, 0, 0, mini.width, mini.height);
+          done.style.backgroundImage = 'url(' + mini.toDataURL() + ')';
+          done.style.backgroundSize = 'contain';
+          done.style.backgroundPosition = 'center';
+          done.style.backgroundRepeat = 'no-repeat';
+        };
+        img.src = data;
+      }
+
+      signatureDone = true;
+      document.getElementById('submitSignPlaceholder').style.display = 'none';
+      document.getElementById('submitSignDone').style.display = 'flex';
+      var now = new Date();
+      var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' +
+        String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' +
+        String(now.getMinutes()).padStart(2,'0');
+      var timeEl = document.getElementById('submitSignTime');
+      timeEl.textContent = '签署时间: ' + timeStr;
+      timeEl.style.display = 'block';
+      document.getElementById('signPanel').classList.remove('show');
+      updateSubmitSteps();
+    }
+
+    /* ========== 初始化信息区 ========== */
+    (function() {
+      // 检查时间
+      var now = new Date();
+      var str = now.getFullYear() + '-' +
+        String(now.getMonth()+1).padStart(2,'0') + '-' +
+        String(now.getDate()).padStart(2,'0') + ' ' +
+        String(now.getHours()).padStart(2,'0') + ':' +
+        String(now.getMinutes()).padStart(2,'0');
+      document.getElementById('infoTime').textContent = str;
+
+      // 管控对象名称
+      try {
+        var objName = localStorage.getItem('checkObjName') || '';
+        if (!objName) {
+          var objMap = {
+            'enterprise-code': '创安电子科技有限公司',
+            'place-code': 'A栋生产车间',
+            'hazard-code': '危化品存储区'
+          };
+          var src = parent.previousModule || localStorage.getItem('checkListSource') || '';
+          objName = objMap[src] || '';
+        }
+        if (objName) document.getElementById('infoObjName').textContent = objName;
+
+        // 检查表名称
+        var tableName = localStorage.getItem('checkTableName') || '';
+        if (tableName) document.getElementById('infoTableName').textContent = tableName;
+      } catch(e) {}
+
+      // 读取 AI 识别上报的隐患
+      try {
+        var aiList = JSON.parse(localStorage.getItem('aiHazards') || '[]');
+        if (aiList.length) {
+          aiList.forEach(function(item) {
+            hazards.push({
+              id: ++hazardIdCounter,
+              sourceItemIdx: -1,
+              type: item.type || '',
+              description: item.description || '',
+              level: item.level || 'normal',
+              suggest: item.suggest || '',
+              risk: item.risk || '',
+              person: item.person || '',
+              deadlineMode: item.deadlineMode || '',
+              deadlineDate: item.deadlineDate || '',
+              photos: item.photos || [],
+              source: item.source || 'AI识别'
+            });
+          });
+          localStorage.removeItem('aiHazards');
+          updateHazardBadge();
+          renderHazardList();
+        }
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>

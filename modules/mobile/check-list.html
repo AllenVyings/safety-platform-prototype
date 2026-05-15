@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>码上排查-检查表选择</title>
+  <link rel="stylesheet" href="../../css/mobile.css">
+  <style>
+    /* 检查信息区 */
+    .cl-info-card {
+      background: #fff; border-radius: 12px; margin: 12px 16px; padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .cl-info-row {
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 0;
+      border-bottom: 0.5px solid #f0f0f0; font-size: 13px;
+    }
+    .cl-info-row:last-child { border-bottom: none; }
+    .cl-info-label { color: #999; }
+    .cl-info-value { color: #000; font-weight: 500; }
+    .cl-info-value.empty { color: #bfbfbf; }
+    .cl-info-title { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 10px; }
+    /* 区块标题 */
+    .cl-section-title {
+      font-size: 15px; font-weight: 700; color: #000; padding: 16px 16px 8px;
+    }
+    .cl-card {
+      background: #fff; border-radius: 12px; padding: 16px; margin: 8px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: relative; overflow: hidden;
+      cursor: pointer;
+    }
+    .cl-card:active { background: #fafafa; }
+    .cl-card.done:active { background: #f9f9f9; }
+    /* 已完成卡片左侧绿色竖条 */
+    .cl-card.done::before {
+      content: ''; position: absolute; left: 0; top: 12px; bottom: 12px;
+      width: 3px; border-radius: 2px; background: #52c41a;
+    }
+    .cl-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .cl-card-name { font-size: 15px; font-weight: 600; color: #000; flex: 1; margin-right: 8px; }
+    /* 状态标签 */
+    .cl-card-status {
+      font-size: 11px; padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+    }
+    .cl-card-status.pending { color: #faad14; background: #fffbe6; }
+    .cl-card-status.done { color: #52c41a; background: #f6ffed; }
+    .cl-card-meta { display: flex; gap: 16px; margin-top: 10px; }
+    .cl-card-meta-item { font-size: 12px; color: #999; display: flex; align-items: center; gap: 4px; }
+    .cl-card-meta-item svg { width: 14px; height: 14px; }
+    .cl-card-arrow { color: #ccc; font-size: 16px; margin-left: 8px; align-self: center; }
+    .cl-empty {
+      text-align: center; padding: 60px 16px; color: #bfbfbf;
+    }
+    .cl-empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .cl-empty-text { font-size: 14px; margin-bottom: 4px; }
+    .cl-empty-sub { font-size: 12px; color: #d9d9d9; }
+  </style>
+</head>
+<body>
+  <div class="m-page" style="background:#f5f7fa;">
+
+    <!-- 第一部分：检查信息 -->
+    <div class="cl-info-card">
+      <div class="cl-info-title">检查信息</div>
+      <div class="cl-info-row">
+        <span class="cl-info-label">管控对象</span>
+        <span class="cl-info-value empty" id="objName">--</span>
+      </div>
+      <div class="cl-info-row">
+        <span class="cl-info-label">位置信息</span>
+        <span class="cl-info-value empty" id="objLocation">--</span>
+      </div>
+      <div class="cl-info-row">
+        <span class="cl-info-label">检查时间</span>
+        <span class="cl-info-value" id="checkTime">--</span>
+      </div>
+      <div class="cl-info-row">
+        <span class="cl-info-label">检查人</span>
+        <span class="cl-info-value">李安全</span>
+      </div>
+    </div>
+
+    <!-- 第二部分：检查表选择 -->
+    <div class="cl-section-title">检查表选择</div>
+
+    <div class="cl-card" onclick="selectCheck('生产车间日常安全检查表')">
+      <div class="cl-card-top">
+        <div class="cl-card-name">生产车间日常安全检查表</div>
+        <span class="cl-card-status pending">待排查</span>
+      </div>
+      <div class="cl-card-meta">
+        <div class="cl-card-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+          5项
+        </div>
+        <div class="cl-card-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          每日1次
+        </div>
+        <div class="cl-card-meta-item">上次: 昨天</div>
+      </div>
+    </div>
+
+    <div class="cl-card" onclick="selectCheck('消防设施专项检查表')">
+      <div class="cl-card-top">
+        <div class="cl-card-name">消防设施专项检查表</div>
+        <span class="cl-card-status pending">待排查</span>
+      </div>
+      <div class="cl-card-meta">
+        <div class="cl-card-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+          3项
+        </div>
+        <div class="cl-card-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          每周1次
+        </div>
+        <div class="cl-card-meta-item">上次: 5天前</div>
+      </div>
+    </div>
+
+    <div class="cl-card done" onclick="selectCheck('电气安全季度检查表')">
+      <div class="cl-card-top">
+        <div class="cl-card-name">电气安全季度检查表</div>
+        <span class="cl-card-status done">已排查</span>
+      </div>
+      <div class="cl-card-meta">
+        <div class="cl-card-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+          4项
+        </div>
+        <div class="cl-card-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          每季度1次
+        </div>
+        <div class="cl-card-meta-item">上次: 12天前</div>
+      </div>
+    </div>
+
+    <!-- 空状态（默认隐藏） -->
+    <!--
+    <div class="cl-empty">
+      <div class="cl-empty-icon">📋</div>
+      <div class="cl-empty-text">暂无检查表</div>
+      <div class="cl-empty-sub">请联系管理员配置检查表</div>
+    </div>
+    -->
+
+    <div style="height:20px;"></div>
+  </div>
+
+  <script>
+    var objMap = {
+      'enterprise-code': { name: '创安电子科技有限公司', location: '深圳市南山区科技园' },
+      'place-code':      { name: 'A栋生产车间', location: '深圳市南山区科技园A栋' },
+      'hazard-code':     { name: '危化品存储区', location: 'A栋B1层危化品仓库' }
+    };
+    (function() {
+      // 检查时间自动填充当前时间
+      var now = new Date();
+      var str = now.getFullYear() + '-' +
+        String(now.getMonth()+1).padStart(2,'0') + '-' +
+        String(now.getDate()).padStart(2,'0') + ' ' +
+        String(now.getHours()).padStart(2,'0') + ':' +
+        String(now.getMinutes()).padStart(2,'0');
+      var el = document.getElementById('checkTime');
+      if (el) el.textContent = str;
+
+      // 从 parent 获取来源码页面，据此填充管控对象信息
+      try {
+        var src = parent.previousModule || localStorage.getItem('checkListSource') || '';
+        if (!src && parent.mobileNavStack) {
+          var stack = parent.mobileNavStack;
+          if (stack && stack.length > 1) src = stack[stack.length - 2];
+        }
+        var info = objMap[src];
+        if (info) {
+          var nameEl = document.getElementById('objName');
+          var locEl = document.getElementById('objLocation');
+          nameEl.textContent = info.name;
+          nameEl.classList.remove('empty');
+          locEl.textContent = info.location;
+          locEl.classList.remove('empty');
+          // 存储给下游 check-execute 页面使用
+          localStorage.setItem('checkObjName', info.name);
+          localStorage.setItem('checkObjLocation', info.location);
+        }
+      } catch(e) {}
+    })();
+
+    // 选择检查表并进入排查执行
+    function selectCheck(name) {
+      try { localStorage.setItem('checkTableName', name); } catch(e) {}
+      parent.navigateTo('check-execute');
+    }
+  </script>
+</body>
+</html>
