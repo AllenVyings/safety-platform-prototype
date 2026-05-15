@@ -190,12 +190,28 @@ class Router {
     console.log(`[Router] 切换端：${this.currentPortal} -> ${portal}`);
     this.currentPortal = portal;
     this.currentModule = null;
-    
-    // 重新渲染菜单
-    this.renderMenu();
-    
-    // 加载默认模块
-    this.loadDefaultModule();
+
+    // 移动端特殊处理：显示手机模拟器，隐藏标准布局
+    var isMobile = portal === 'mobile';
+    var sideMenu = document.getElementById('side-menu');
+    var contentArea = document.getElementById('content-area');
+    var mobileViewer = document.getElementById('mobileViewer');
+
+    if (isMobile) {
+      if (sideMenu) sideMenu.style.display = 'none';
+      if (contentArea) contentArea.style.display = 'none';
+      if (mobileViewer) mobileViewer.style.display = 'flex';
+      // 初始化移动端导航状态，确保Tab高亮、导航栏样式、信息面板与iframe内容一致
+      if (typeof mobileNav === 'function') mobileNav('enterprise-code');
+    } else {
+      if (sideMenu) sideMenu.style.display = '';
+      if (contentArea) contentArea.style.display = '';
+      if (mobileViewer) mobileViewer.style.display = 'none';
+      // 重新渲染菜单
+      this.renderMenu();
+      // 加载默认模块
+      this.loadDefaultModule();
+    }
   }
   
   /**

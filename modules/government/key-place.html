@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -7,116 +7,65 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-    /* ========== 页面背景 ========== */
-    .page-container { 
-      padding: var(--spacing-lg); 
-      background: var(--bg-page);
-      min-height: 100vh;
-    }
-    
-    /* ========== 页面标题栏 ========== */
-    .page-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: var(--spacing-md);
-      background: var(--bg-primary);
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-    }
+    .page-container { padding: var(--spacing-lg); background: var(--bg-page); min-height: 100vh; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); background: var(--bg-primary); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
     .page-title { font-size: var(--font-size-lg); font-weight: 600; }
-    
-    /* ========== 统计卡片 ========== */
+
     .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .stat-card { 
-      flex: 1; 
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
-      border: 1px solid var(--border-light); 
-      border-radius: var(--radius-lg); 
-      padding: var(--spacing-md) var(--spacing-lg); 
-      display: flex; 
-      align-items: center; 
-      gap: 12px;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.2s;
-    }
-    .stat-card:hover { 
-      background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%);
-      box-shadow: var(--shadow-md);
-    }
+    .stat-card { flex: 1; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: var(--spacing-md) var(--spacing-lg); display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+    .stat-card:hover { background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%); box-shadow: var(--shadow-md); }
     .stat-value { font-size: 24px; font-weight: 600; }
     .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
-    
-    /* ========== 筛选栏 ========== */
-    .filter-bar { 
-      display: flex; 
-      gap: var(--spacing-sm); 
-      margin-bottom: var(--spacing-md); 
-      align-items: center; 
-      flex-wrap: wrap;
-      background: var(--bg-section);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-light);
-    }
-    .filter-item select, .filter-item input { 
-      padding: 6px 10px; 
-      border: 1px solid var(--border); 
-      border-radius: var(--radius-md); 
-      font-size: var(--font-size-sm); 
-      background: var(--bg-primary);
-    }
-    .filter-item select:focus, .filter-item input:focus {
-      border-color: var(--primary);
-      outline: none;
-    }
-    
-    /* ========== 表格容器 ========== */
-    .table-wrap { 
-      background: var(--bg-primary); 
-      border-radius: var(--radius-lg); 
-      overflow: hidden; 
-      box-shadow: var(--shadow-card);
-    }
+
+    .filter-bar { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); align-items: center; flex-wrap: wrap; background: var(--bg-section); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-lg); border: 1px solid var(--border-light); }
+    .filter-item select, .filter-item input { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); background: var(--bg-primary); }
+    .filter-item select:focus, .filter-item input:focus { border-color: var(--primary); outline: none; }
+
+    .table-wrap { background: var(--bg-primary); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); }
     .table-scroll { overflow-x: auto; }
-    .table-scroll table { width: 100%; min-width: 900px; border-collapse: collapse; }
+    .table-scroll table { width: 100%; min-width: 1000px; border-collapse: collapse; }
     .table-scroll thead tr { background: var(--bg-section); }
     .table-scroll th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
     .table-scroll td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
     .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
     .table-scroll tbody tr:hover td { background: var(--bg-hover); }
-    .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
     .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; }
     .table-scroll tbody tr:nth-child(even) .action-col { background: var(--bg-section-alt); }
     .table-scroll tbody tr:hover .action-col { background: var(--bg-hover); }
-    
-    /* ========== 分页 ========== */
-    .pagination-wrap { 
-      display: flex; 
-      align-items: center; 
-      justify-content: flex-end; 
-      gap: 4px; 
-      padding: 12px var(--spacing-md);
-      background: var(--bg-section);
-      border-top: 1px solid var(--border-light);
-    }
+
+    .pagination-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 12px var(--spacing-md); background: var(--bg-section); border-top: 1px solid var(--border-light); }
     .pg-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--bg-primary); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
     .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
     .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    
-    /* ========== 标签样式 ========== */
+
     .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 12px; }
     .tag-green { background: var(--success-light); color: var(--success); }
     .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
     .tag-orange { background: var(--warning-light); color: var(--warning); }
     .tag-red { background: var(--error-light); color: var(--error); }
     .tag-blue { background: var(--info-light); color: var(--info); }
+
+    .btn-link { padding: 4px 8px; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .btn-link:hover { text-decoration: underline; }
+    .btn-link.danger { color: var(--error); }
+
+    .modal-container.show { display: flex; align-items: center; justify-content: center; }
+    .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 100px; flex-shrink: 0; color: var(--text-secondary); font-size: var(--font-size-sm); }
+    .detail-value { flex: 1; font-size: var(--font-size-sm); color: var(--text-primary); }
+
+    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 20px; border-radius: var(--radius-md); background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.12); font-size: var(--font-size-sm); color: var(--text-primary); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--primary); max-width: 420px; }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
   </style>
 </head>
 <body>
+  <div class="toast-container" id="toastContainer"></div>
   <div class="module-page page-container" data-module="gov-key-place">
-    <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
       <span class="breadcrumb-item current">政府端</span>
@@ -124,70 +73,86 @@
 
     <div class="stat-cards">
       <div class="stat-card"><div class="stat-value" style="color: var(--primary);">45</div><div class="stat-label">重点场所总数</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--success);">38</div><div class="stat-label">正常运营</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--warning);">5</div><div class="stat-label">整改中</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--text-tertiary);">2</div><div class="stat-label">停业整顿</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--success);">38</div><div class="stat-label">启用</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--warning);">5</div><div class="stat-label">停用</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--text-tertiary);">2</div><div class="stat-label">注销</div></div>
     </div>
-    
+
     <div class="filter-bar">
-      <div class="filter-item"><label>领域小类：</label><select id="filterDomain"><option>全部</option><option>充换电设施</option><option>农贸市场</option><option>危险化学品</option></select></div>
-      <div class="filter-item"><label>状态：</label><select id="filterStatus"><option>全部</option><option>正常运营</option><option>整改中</option><option>停业整顿</option></select></div>
+      <div class="filter-item"><label>场所类型：</label><select id="filterPlaceType"><option>全部</option><option>充电场所</option><option>超高层楼宇</option><option>边坡</option><option>群租房</option><option>危险房屋</option><option>商业综合体</option></select></div>
+      <div class="filter-item"><label>风险等级：</label><select id="filterRiskLevel"><option>全部</option><option>高</option><option>中</option><option>低</option></select></div>
+      <div class="filter-item"><label>状态：</label><select id="filterStatus"><option>全部</option><option>启用</option><option>停用</option><option>注销</option></select></div>
       <div class="filter-item"><input type="text" id="searchInput" placeholder="搜索场所名称"></div>
       <button class="btn btn-default" onclick="resetFilter()">重置</button>
       <div style="flex: 1;"></div>
       <button class="btn btn-primary" onclick="addKeyPlace()">+ 新增重点场所</button>
     </div>
-    
+
     <div class="table-wrap">
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
-              <th>场所编码</th>
               <th>场所名称</th>
-              <th>领域小类</th>
-              <th>所属企业</th>
-              <th>监管单位</th>
+              <th>场所类型</th>
+              <th>场所地址</th>
+              <th>风险等级</th>
+              <th>负责人</th>
+              <th>关联企业</th>
               <th>状态</th>
               <th class="action-col">操作</th>
             </tr>
           </thead>
           <tbody id="keyPlaceTableBody">
             <tr>
-              <td>KP2026001</td>
               <td class="ellipsis-col" title="2号充换电站">2号充换电站</td>
-              <td>充换电设施</td>
+              <td>充电场所</td>
+              <td class="ellipsis-col" title="深圳市南山区科技园南路2号">深圳市南山区科技园南路2号</td>
+              <td><span class="tag tag-orange">中</span></td>
+              <td>刘经理</td>
               <td class="ellipsis-col" title="创安电子科技有限公司">创安电子科技有限公司</td>
-              <td>南山区应急管理局</td>
-              <td><span class="tag tag-green">正常运营</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026001')">查看</button><button class="btn-link" onclick="editKeyPlace('KP2026001')">编辑</button></td>
+              <td><span class="tag tag-green">启用</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026001')">详情</button><button class="btn-link" onclick="editKeyPlace('KP2026001')">编辑</button><button class="btn-link danger" onclick="disablePlace('KP2026001')">停用</button></td>
             </tr>
             <tr>
-              <td>KP2026002</td>
-              <td class="ellipsis-col" title="西丽农贸市场">西丽农贸市场</td>
-              <td>农贸市场</td>
+              <td class="ellipsis-col" title="西丽超高层公寓">西丽超高层公寓</td>
+              <td>超高层楼宇</td>
+              <td class="ellipsis-col" title="深圳市南山区西丽街道留仙大道">深圳市南山区西丽街道留仙大道</td>
+              <td><span class="tag tag-green">低</span></td>
+              <td>陈主任</td>
               <td class="ellipsis-col" title="深圳市场管理公司">深圳市场管理公司</td>
-              <td>南山区应急管理局</td>
-              <td><span class="tag tag-green">正常运营</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026002')">查看</button><button class="btn-link" onclick="editKeyPlace('KP2026002')">编辑</button></td>
+              <td><span class="tag tag-green">启用</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026002')">详情</button><button class="btn-link" onclick="editKeyPlace('KP2026002')">编辑</button><button class="btn-link danger" onclick="disablePlace('KP2026002')">停用</button></td>
             </tr>
             <tr>
-              <td>KP2026003</td>
               <td class="ellipsis-col" title="蛇口港危化品仓库">蛇口港危化品仓库</td>
-              <td>危险化学品</td>
+              <td>商业综合体</td>
+              <td class="ellipsis-col" title="深圳市南山区蛇口港仓储区">深圳市南山区蛇口港仓储区</td>
+              <td><span class="tag tag-red">高</span></td>
+              <td>王安全</td>
               <td class="ellipsis-col" title="深圳港物流有限公司">深圳港物流有限公司</td>
-              <td>深圳市应急管理局</td>
-              <td><span class="tag tag-orange">整改中</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026003')">查看</button><button class="btn-link" onclick="editKeyPlace('KP2026003')">编辑</button></td>
+              <td><span class="tag tag-orange">停用</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026003')">详情</button><button class="btn-link" onclick="editKeyPlace('KP2026003')">编辑</button><button class="btn-link danger" onclick="cancelPlace('KP2026003')">注销</button></td>
             </tr>
             <tr>
-              <td>KP2026004</td>
               <td class="ellipsis-col" title="福田交通枢纽充电站">福田交通枢纽充电站</td>
-              <td>充换电设施</td>
+              <td>充电场所</td>
+              <td class="ellipsis-col" title="深圳市福田区深南大道交通枢纽">深圳市福田区深南大道交通枢纽</td>
+              <td><span class="tag tag-orange">中</span></td>
+              <td>张站长</td>
               <td class="ellipsis-col" title="安达运输公司">安达运输公司</td>
-              <td>福田区应急管理局</td>
-              <td><span class="tag tag-green">正常运营</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026004')">查看</button><button class="btn-link" onclick="editKeyPlace('KP2026004')">编辑</button></td>
+              <td><span class="tag tag-green">启用</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026004')">详情</button><button class="btn-link" onclick="editKeyPlace('KP2026004')">编辑</button><button class="btn-link danger" onclick="disablePlace('KP2026004')">停用</button></td>
+            </tr>
+            <tr>
+              <td class="ellipsis-col" title="盐田边坡监测点">盐田边坡监测点</td>
+              <td>边坡</td>
+              <td class="ellipsis-col" title="深圳市盐田区深盐路北侧">深圳市盐田区深盐路北侧</td>
+              <td><span class="tag tag-red">高</span></td>
+              <td>李工</td>
+              <td class="ellipsis-col" title="盐田区城管局">盐田区城管局</td>
+              <td><span class="tag tag-gray">注销</span></td>
+              <td class="action-col"><button class="btn-link" onclick="viewKeyPlace('KP2026005')">详情</button></td>
             </tr>
           </tbody>
         </table>
@@ -202,80 +167,242 @@
     </div>
   </div>
 
+  <!-- 新增重点场所弹窗 -->
+  <div class="modal-container" id="addPlaceModal">
+    <div class="modal-overlay" onclick="closeModal('addPlaceModal')"></div>
+    <div class="modal-dialog" style="width: 600px;">
+      <div class="modal-header">
+        <span class="modal-title">新增重点场所</span>
+        <button class="modal-close" onclick="closeModal('addPlaceModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="addPlaceForm" class="modal-form">
+          <div class="form-group">
+            <label class="form-label"><span style="color: var(--error);">*</span> 场所类型</label>
+            <select class="form-select" name="placeType" required>
+              <option value="">请选择场所类型</option>
+              <option value="充电场所">充电场所</option>
+              <option value="超高层楼宇">超高层楼宇</option>
+              <option value="边坡">边坡</option>
+              <option value="群租房">群租房</option>
+              <option value="危险房屋">危险房屋</option>
+              <option value="商业综合体">商业综合体</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span style="color: var(--error);">*</span> 场所名称</label>
+            <input type="text" class="form-input" name="placeName" placeholder="请输入场所名称" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span style="color: var(--error);">*</span> 场所地址</label>
+            <input type="text" class="form-input" name="address" placeholder="请输入场所地址" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">场所面积/规模</label>
+              <input type="text" class="form-input" name="scale" placeholder="如：2000㎡">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span style="color: var(--error);">*</span> 风险等级</label>
+              <select class="form-select" name="riskLevel" required>
+                <option value="">请选择风险等级</option>
+                <option value="高">高</option>
+                <option value="中">中</option>
+                <option value="低">低</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><span style="color: var(--error);">*</span> 场所负责人</label>
+              <input type="text" class="form-input" name="contactPerson" placeholder="请输入负责人姓名" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系方式</label>
+              <input type="text" class="form-input" name="contactPhone" placeholder="请输入联系电话">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span style="color: var(--error);">*</span> 所属企业</label>
+            <select class="form-select" name="enterprise" required>
+              <option value="">请选择所属企业</option>
+              <option value="创安电子科技有限公司">创安电子科技有限公司</option>
+              <option value="深圳港物流有限公司">深圳港物流有限公司</option>
+              <option value="安达运输公司">安达运输公司</option>
+              <option value="新兴化工有限公司">新兴化工有限公司</option>
+              <option value="深圳市场管理公司">深圳市场管理公司</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">场所简介</label>
+            <textarea class="form-input" name="description" rows="3" placeholder="请输入场所简介" style="resize: vertical;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">场所照片</label>
+            <div style="border: 1px dashed var(--border); border-radius: var(--radius-md); padding: 24px; text-align: center; color: var(--text-secondary); font-size: var(--font-size-sm); cursor: pointer;">
+              点击上传照片（支持 jpg/png，最多5张）
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addPlaceModal')">取消</button>
+        <button class="btn btn-primary" onclick="submitAddPlace()">确认添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 查看详情弹窗 -->
+  <div class="modal-container" id="placeDetailModal">
+    <div class="modal-overlay" onclick="closeModal('placeDetailModal')"></div>
+    <div class="modal-dialog" style="width: 560px;">
+      <div class="modal-header">
+        <span class="modal-title">场所详情</span>
+        <button class="modal-close" onclick="closeModal('placeDetailModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="placeDetailBody">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('placeDetailModal')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认操作弹窗 -->
+  <div class="modal-container" id="confirmActionModal">
+    <div class="modal-overlay" onclick="closeModal('confirmActionModal')"></div>
+    <div class="modal-dialog" style="width: 400px;">
+      <div class="modal-header">
+        <span class="modal-title" id="confirmActionTitle">确认操作</span>
+        <button class="modal-close" onclick="closeModal('confirmActionModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmActionText" style="font-size: var(--font-size-sm); color: var(--text-primary);"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('confirmActionModal')">取消</button>
+        <button class="btn btn-primary" id="confirmActionBtn" onclick="executeConfirmAction()">确认</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function() {
       'use strict';
-      
-      const CONFIG = {
-        moduleId: 'gov-key-place',
-        moduleName: '重点场所管理'
-      };
-      
-      let state = {
-        initialized: false,
-        currentPage: 1
-      };
-      
+
+      const CONFIG = { moduleId: 'gov-key-place', moduleName: '重点场所管理' };
+      let state = { initialized: false, currentPage: 1, pendingAction: null };
+
       function init() {
         if (state.initialized) return;
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        console.log('[' + CONFIG.moduleId + '] 模块初始化');
         state.initialized = true;
       }
-      
-      // 查看重点场所
+
+      var placeData = {
+        'KP2026001': { id: 'KP2026001', name: '2号充换电站', placeType: '充电场所', address: '深圳市南山区科技园南路2号', riskLevel: '中', contactPerson: '刘经理', contactPhone: '139****1001', enterprise: '创安电子科技有限公司', scale: '500㎡', description: '位于科技园南路的电动汽车充换电站，配备20个充电桩。', status: '启用' },
+        'KP2026002': { id: 'KP2026002', name: '西丽超高层公寓', placeType: '超高层楼宇', address: '深圳市南山区西丽街道留仙大道', riskLevel: '低', contactPerson: '陈主任', contactPhone: '138****2002', enterprise: '深圳市场管理公司', scale: '45000㎡', description: '西丽片区超高层住宅楼宇，共52层。', status: '启用' },
+        'KP2026003': { id: 'KP2026003', name: '蛇口港危化品仓库', placeType: '商业综合体', address: '深圳市南山区蛇口港仓储区', riskLevel: '高', contactPerson: '王安全', contactPhone: '137****3003', enterprise: '深圳港物流有限公司', scale: '3000㎡', description: '蛇口港区域内危化品专用仓储设施，已因安全隐患停用整改。', status: '停用' },
+        'KP2026004': { id: 'KP2026004', name: '福田交通枢纽充电站', placeType: '充电场所', address: '深圳市福田区深南大道交通枢纽', riskLevel: '中', contactPerson: '张站长', contactPhone: '136****4004', enterprise: '安达运输公司', scale: '800㎡', description: '福田交通枢纽配套充电站，含快充与慢充设施。', status: '启用' },
+        'KP2026005': { id: 'KP2026005', name: '盐田边坡监测点', placeType: '边坡', address: '深圳市盐田区深盐路北侧', riskLevel: '高', contactPerson: '李工', contactPhone: '135****5005', enterprise: '盐田区城管局', scale: '150m 延米', description: '深盐路北侧高边坡地质灾害监测点，已完成治理注销。', status: '注销' }
+      };
+
+      window.openModal = function(id) { document.getElementById(id).classList.add('show'); };
+      window.closeModal = function(id) { document.getElementById(id).classList.remove('show'); };
+
+      window.showToast = function(msg) {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = msg;
+        container.appendChild(toast);
+        setTimeout(function() { toast.classList.add('out'); }, 2500);
+        setTimeout(function() { toast.remove(); }, 2800);
+      };
+
       window.viewKeyPlace = function(id) {
-        console.log('查看重点场所：' + id);
-        alert('查看重点场所详情：' + id);
+        var d = placeData[id];
+        if (d) { renderPlaceDetail(d); openModal('placeDetailModal'); }
       };
-      
-      // 编辑重点场所
+
+      function renderPlaceDetail(d) {
+        var statusClass = d.status === '启用' ? 'tag-green' : d.status === '停用' ? 'tag-orange' : 'tag-gray';
+        var riskClass = d.riskLevel === '高' ? 'tag-red' : d.riskLevel === '中' ? 'tag-orange' : 'tag-green';
+        document.getElementById('placeDetailBody').innerHTML =
+          '<div class="detail-row"><span class="detail-label">场所类型</span><span class="detail-value">' + d.placeType + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">场所名称</span><span class="detail-value">' + d.name + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">场所地址</span><span class="detail-value">' + d.address + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">面积/规模</span><span class="detail-value">' + d.scale + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">风险等级</span><span class="detail-value"><span class="tag ' + riskClass + '">' + d.riskLevel + '</span></span></div>' +
+          '<div class="detail-row"><span class="detail-label">场所负责人</span><span class="detail-value">' + d.contactPerson + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">联系方式</span><span class="detail-value">' + d.contactPhone + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">关联企业</span><span class="detail-value">' + d.enterprise + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">场所简介</span><span class="detail-value">' + d.description + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">状态</span><span class="detail-value"><span class="tag ' + statusClass + '">' + d.status + '</span></span></div>';
+      }
+
       window.editKeyPlace = function(id) {
-        console.log('编辑重点场所：' + id);
-        alert('编辑重点场所：' + id);
+        showToast('编辑重点场所：' + placeData[id].name);
       };
-      
-      // 新增重点场所
+
+      window.disablePlace = function(id) {
+        document.getElementById('confirmActionTitle').textContent = '确认停用';
+        document.getElementById('confirmActionText').textContent = '确认停用场所「' + placeData[id].name + '」？停用后该场所相关巡查任务将暂停。';
+        state.pendingAction = { type: 'disable', id: id };
+        openModal('confirmActionModal');
+      };
+
+      window.cancelPlace = function(id) {
+        document.getElementById('confirmActionTitle').textContent = '确认注销';
+        document.getElementById('confirmActionText').textContent = '确认注销场所「' + placeData[id].name + '」？注销后不可恢复。';
+        state.pendingAction = { type: 'cancel', id: id };
+        openModal('confirmActionModal');
+      };
+
+      window.executeConfirmAction = function() {
+        if (!state.pendingAction) return;
+        var action = state.pendingAction;
+        closeModal('confirmActionModal');
+        if (action.type === 'disable') {
+          showToast('已停用场所：' + placeData[action.id].name);
+        } else if (action.type === 'cancel') {
+          showToast('已注销场所：' + placeData[action.id].name);
+        }
+        state.pendingAction = null;
+      };
+
       window.addKeyPlace = function() {
-        console.log('新增重点场所');
-        alert('打开新增重点场所弹窗');
+        var form = document.getElementById('addPlaceForm');
+        form.reset();
+        openModal('addPlaceModal');
       };
-      
-      // 重置筛选
+
+      window.submitAddPlace = function() {
+        var form = document.getElementById('addPlaceForm');
+        var fields = form.querySelectorAll('[required]');
+        var allFilled = true;
+        fields.forEach(function(f) {
+          if (!f.value) { allFilled = false; f.style.borderColor = 'var(--error)'; }
+          else { f.style.borderColor = ''; }
+        });
+        if (!allFilled) { showToast('请填写所有必填字段'); return; }
+        closeModal('addPlaceModal');
+        showToast('重点场所新增成功');
+      };
+
       window.resetFilter = function() {
-        document.getElementById('filterDomain').value = '全部';
+        document.getElementById('filterPlaceType').value = '全部';
+        document.getElementById('filterRiskLevel').value = '全部';
         document.getElementById('filterStatus').value = '全部';
         document.getElementById('searchInput').value = '';
-        console.log('重置筛选条件');
       };
-      
-      // 分页
-      window.prevPage = function() {
-        if (state.currentPage > 1) {
-          state.currentPage--;
-          console.log('切换到第' + state.currentPage + '页');
-        }
-      };
-      
-      window.nextPage = function() {
-        state.currentPage++;
-        console.log('切换到第' + state.currentPage + '页');
-      };
-      
-      window.goPage = function(page) {
-        state.currentPage = page;
-        console.log('切换到第' + page + '页');
-      };
-      
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
-      
-      window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
-        state.initialized = false;
-      };
+
+      window.prevPage = function() { if (state.currentPage > 1) state.currentPage--; };
+      window.nextPage = function() { state.currentPage++; };
+      window.goPage = function(page) { state.currentPage = page; };
+
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+      window.destroyModule = function() { state.initialized = false; };
     })();
   </script>
 <script src="../../js/annotations.js"></script>

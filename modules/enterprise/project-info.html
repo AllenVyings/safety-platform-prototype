@@ -24,6 +24,8 @@
 .btn-success{background:#52c41a;color:#fff;border-color:#52c41a}
 .btn-success:hover{background:#73d13d}
 .btn-sm{padding:4px 10px;font-size:12px}
+.btn-danger{background:#ff4d4f;color:#fff;border-color:#ff4d4f}
+.btn-danger:hover{background:#ff7875}
 
 /* 标签 */
 .tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
@@ -419,7 +421,7 @@ select.info-input{height:32px}
         <span class="info-label">
 </span>
         <span class="info-value">
-<button class="btn btn-default btn-sm" onclick="showToast('重置密码')">🔑 重置密码</button>
+<button class="btn btn-default btn-sm" onclick="openResetPasswordModal()">🔑 重置密码</button>
 </span>
       </div>
     </div>
@@ -460,6 +462,26 @@ select.info-input{height:32px}
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('enterpriseSelectModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重置密码确认弹窗 -->
+<div class="modal-overlay" id="resetPasswordModal">
+  <div class="modal" style="width:420px;max-width:90vw">
+    <div class="modal-header">
+      <span class="modal-title">重置密码确认</span>
+      <div class="modal-close" onclick="cancelResetPassword()">&#x2715;</div>
+    </div>
+    <div class="modal-body" style="padding:24px 20px">
+      <p style="font-size:14px;color:#333;margin:0 0 12px">确定要重置该项目的登录密码吗？</p>
+      <p style="font-size:13px;color:#faad14;margin:0;display:flex;align-items:center;gap:6px">
+        <span style="font-size:15px">&#x26A0;&#xFE0F;</span>密码将重置为默认密码：Abc@123456
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="cancelResetPassword()">取消</button>
+      <button class="btn btn-danger" onclick="confirmResetPassword()">确认重置</button>
     </div>
   </div>
 </div>
@@ -534,7 +556,7 @@ function autoRegisterPartyLeaders() {
         phone: partyPhone,
         position: positionMap[partyType],
         account: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        password: '123456',
+        password: 'Abc@123456',
         createTime: new Date().toISOString()
       };
       
@@ -984,6 +1006,18 @@ function deleteParty(btn) {
   }
   tr.remove();
   showToast('已删除');
+}
+
+// 重置密码弹窗
+function openResetPasswordModal() {
+  document.getElementById('resetPasswordModal').classList.add('show');
+}
+function cancelResetPassword() {
+  document.getElementById('resetPasswordModal').classList.remove('show');
+}
+function confirmResetPassword() {
+  document.getElementById('resetPasswordModal').classList.remove('show');
+  showToast('密码已重置为 Abc@123456');
 }
 
 // Toast提示

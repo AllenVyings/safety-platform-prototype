@@ -14,7 +14,8 @@ const CONSTANTS = {
   PORTAL: {
     SUPER_ADMIN: 'super-admin',
     GOVERNMENT: 'government',
-    ENTERPRISE: 'enterprise'
+    ENTERPRISE: 'enterprise',
+    MOBILE: 'mobile'
   },
   
   // 状态枚举

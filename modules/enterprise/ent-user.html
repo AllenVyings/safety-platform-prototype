@@ -92,6 +92,16 @@
 .form-group input,.form-group select{width:100%;padding:7px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box}
 .form-group input:focus,.form-group select:focus{border-color:#1677ff}
 
+/* 确认弹窗 */
+.confirm-modal .modal-box{width:420px}
+.confirm-modal .confirm-content{font-size:14px;color:#333;line-height:1.8;padding:8px 0}
+.confirm-modal .confirm-content .highlight{color:#ff4d4f;font-weight:600}
+
+/* 表单校验 */
+.form-group input.error,.form-group select.error{border-color:#ff4d4f}
+.form-error{color:#ff4d4f;font-size:12px;margin-top:3px;display:none}
+.form-group.has-error .form-error{display:block}
+
 /* Toast */
 #_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
 </style>
@@ -164,6 +174,7 @@
               <th>职务</th>
               <th>账号</th>
               <th>角色</th>
+              <th>安全码</th>
               <th>状态</th>
               <th>创建时间</th>
               <th>操作</th>
@@ -177,13 +188,14 @@
               <td>技术经理</td>
               <td>tech_mgr</td>
               <td>管理员</td>
+              <td><span class="tag tag-green">绿码</span></td>
               <td><span class="tag tag-success">正常</span></td>
               <td>2024-01-15</td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
                 <button class="btn-link danger" onclick="showToast('删除')">删除</button>
                 <button class="btn-link" onclick="showToast('详情')">详情</button>
-                <button class="btn-link" onclick="showToast('重置密码')">重置密码</button>
+                <button class="btn-link" onclick="openResetPwdModal()">重置密码</button>
               </td>
             </tr>
             <tr>
@@ -193,13 +205,14 @@
               <td>安全主管</td>
               <td>safe_mgr</td>
               <td>普通用户</td>
+              <td><span class="tag tag-orange">黄码</span></td>
               <td><span class="tag tag-success">正常</span></td>
               <td>2024-01-20</td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
                 <button class="btn-link danger" onclick="showToast('删除')">删除</button>
                 <button class="btn-link" onclick="showToast('详情')">详情</button>
-                <button class="btn-link" onclick="showToast('重置密码')">重置密码</button>
+                <button class="btn-link" onclick="openResetPwdModal()">重置密码</button>
               </td>
             </tr>
             <tr>
@@ -209,12 +222,11 @@
               <td>工程师</td>
               <td>eng_001</td>
               <td>普通用户</td>
+              <td><span class="tag tag-red">红码</span></td>
               <td><span class="tag tag-error">停用</span></td>
               <td>2024-02-01</td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link" onclick="showToast('详情')">详情</button>
-                <button class="btn-link" onclick="showToast('重置密码')">重置密码</button>
               </td>
             </tr>
           </tbody>
@@ -245,24 +257,27 @@
     </div>
     <div class="modal-body">
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" id="fg-name">
           <label>姓名 <span class="required">*</span></label>
-          <input type="text" placeholder="请输入姓名">
+          <input type="text" id="formName" placeholder="请输入姓名">
+          <div class="form-error">请输入姓名</div>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="fg-phone">
           <label>手机号 <span class="required">*</span></label>
-          <input type="text" placeholder="请输入手机号">
+          <input type="text" id="formPhone" placeholder="请输入手机号">
+          <div class="form-error">请输入正确的手机号（11位数字，1开头）</div>
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" id="fg-dept">
           <label>所属部门 <span class="required">*</span></label>
-          <select>
+          <select id="formDept">
             <option value="">请选择</option>
             <option value="1">安全部</option>
             <option value="2">技术部</option>
             <option value="3">工程部</option>
           </select>
+          <div class="form-error">请选择所属部门</div>
         </div>
         <div class="form-group">
           <label>职务 <span class="required">*</span></label>
@@ -270,13 +285,14 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" id="fg-account">
           <label>账号 <span class="required">*</span></label>
-          <input type="text" placeholder="请输入登录账号">
+          <input type="text" id="formAccount" placeholder="请输入登录账号">
+          <div class="form-error">请输入登录账号</div>
         </div>
         <div class="form-group">
           <label>初始密码 <span class="required">*</span></label>
-          <input type="text" value="123456" readonly>
+          <input type="text" value="Abc@123456" readonly>
         </div>
       </div>
       <div class="form-row">
@@ -298,7 +314,26 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('userModal')">取消</button>
-      <button class="btn btn-primary" onclick="showToast('保存成功');closeModal('userModal')">确定</button>
+      <button class="btn btn-primary" onclick="saveUser()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重置密码确认弹窗 -->
+<div class="modal-overlay confirm-modal" id="resetPwdModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">重置密码确认</span>
+      <button class="modal-close" onclick="closeModal('resetPwdModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-content">
+        确定要重置该用户密码吗？密码将重置为默认密码：<span class="highlight">Abc@123456</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('resetPwdModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmResetPwd()">确认重置</button>
     </div>
   </div>
 </div>
@@ -360,11 +395,11 @@ function renderTreeNode(node, level) {
   const isSelected = node.id === selectedTreeId;
   const hasChildren = node.children && node.children.length > 0;
   const indent = level * 16;
-  
+
   let icon = '🏢';
   if (node.type === 'dept') icon = '📁';
   if (node.type === 'sub-dept') icon = '📂';
-  
+
   let html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left:' + (16 + indent) + 'px" onclick="selectTreeNode(\'' + node.id + '\')">';
   if (hasChildren) {
     html += '<span class="tree-toggle" onclick="event.stopPropagation();toggleTreeNode(\'' + node.id + '\')">' + (node.expanded ? '▼' : '▶') + '</span>';
@@ -373,13 +408,13 @@ function renderTreeNode(node, level) {
   }
   html += '<span class="tree-node-label">' + icon + ' ' + node.name + '</span>';
   html += '</div>';
-  
+
   if (hasChildren && node.expanded) {
     html += '<div class="tree-children">';
     html += node.children.map(child => renderTreeNode(child, level + 1)).join('');
     html += '</div>';
   }
-  
+
   return html;
 }
 
@@ -405,11 +440,14 @@ function selectTreeNode(nodeId) {
 
 function openAddModal() {
   document.getElementById('modalTitle').textContent = '新增用户';
+  clearFormErrors();
+  clearFormValues();
   document.getElementById('userModal').style.display = 'flex';
 }
 
 function openEditModal() {
   document.getElementById('modalTitle').textContent = '编辑用户';
+  clearFormErrors();
   document.getElementById('userModal').style.display = 'flex';
 }
 
@@ -427,6 +465,66 @@ function showToast(msg) {
   el.textContent = msg;
   el.style.opacity = '1';
   setTimeout(function() { el.style.opacity = '0'; }, 2500);
+}
+
+// === 重置密码确认弹窗 (BR-ENT-04-05) ===
+function openResetPwdModal() {
+  document.getElementById('resetPwdModal').style.display = 'flex';
+}
+
+function confirmResetPwd() {
+  closeModal('resetPwdModal');
+  showToast('密码已重置为初始密码 Abc@123456');
+}
+
+// === 表单校验 (BR-ENT-04-04/05) ===
+function clearFormErrors() {
+  var groups = document.querySelectorAll('#userModal .form-group');
+  groups.forEach(function(g) {
+    g.classList.remove('has-error');
+    var inp = g.querySelector('input, select');
+    if (inp) inp.classList.remove('error');
+  });
+}
+
+function clearFormValues() {
+  var name = document.getElementById('formName');
+  var phone = document.getElementById('formPhone');
+  var dept = document.getElementById('formDept');
+  var account = document.getElementById('formAccount');
+  if (name) name.value = '';
+  if (phone) phone.value = '';
+  if (dept) dept.value = '';
+  if (account) account.value = '';
+}
+
+function setFieldError(groupId, inputId) {
+  var group = document.getElementById(groupId);
+  if (group) group.classList.add('has-error');
+  var inp = document.getElementById(inputId);
+  if (inp) inp.classList.add('error');
+}
+
+function saveUser() {
+  clearFormErrors();
+
+  var name = document.getElementById('formName').value.trim();
+  var phone = document.getElementById('formPhone').value.trim();
+  var dept = document.getElementById('formDept').value;
+  var account = document.getElementById('formAccount').value.trim();
+
+  var phoneReg = /^1\d{10}$/;
+  var valid = true;
+
+  if (!name) { setFieldError('fg-name', 'formName'); valid = false; }
+  if (!phoneReg.test(phone)) { setFieldError('fg-phone', 'formPhone'); valid = false; }
+  if (!dept) { setFieldError('fg-dept', 'formDept'); valid = false; }
+  if (!account) { setFieldError('fg-account', 'formAccount'); valid = false; }
+
+  if (!valid) return;
+
+  showToast('保存成功');
+  closeModal('userModal');
 }
 
 // 初始化

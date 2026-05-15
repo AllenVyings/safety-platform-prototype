@@ -217,8 +217,8 @@ const MENU_CONFIG = {
       module: 'government/duty-supervise',
       path: 'modules/government/duty-supervise.html',
       description: '监管单位履职情况',
-      badge: '开发中',
-      disabled: true
+      badge: null,
+      disabled: false
     },
     {
       id: 'gov-quick-check',
@@ -247,8 +247,8 @@ const MENU_CONFIG = {
       module: 'government/hazard-manage',
       path: 'modules/government/hazard-manage.html',
       description: '隐患发现与整改跟踪',
-      badge: '开发中',
-      disabled: true
+      badge: null,
+      disabled: false
     },
     {
       id: 'gov-key-place',
@@ -363,6 +363,146 @@ const MENU_CONFIG = {
       description: '项目信息查看（只读）',
       badge: null,
       disabled: false
+    }
+  ],
+
+  // ========== 移动端-企业侧菜单 ==========
+  'mobile': [
+    {
+      id: 'mobile-enterprise-code',
+      name: '企业码首页',
+      icon: '🏠',
+      module: 'mobile/enterprise-code',
+      path: 'modules/mobile/enterprise-code.html',
+      description: '企业码首页-安全态势总览',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'mobile-code-group',
+      name: '码首页',
+      icon: '📱',
+      children: [
+        {
+          id: 'mobile-place-code',
+          name: '场所码首页',
+          module: 'mobile/place-code',
+          path: 'modules/mobile/place-code.html',
+          description: '场所码首页',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'mobile-hazard-code',
+          name: '危险源码首页',
+          module: 'mobile/hazard-code',
+          path: 'modules/mobile/hazard-code.html',
+          description: '危险源码首页',
+          badge: null,
+          disabled: false
+        }
+      ]
+    },
+    {
+      id: 'mobile-control-list',
+      name: '管控列表',
+      icon: '📋',
+      module: 'mobile/control-list',
+      path: 'modules/mobile/control-list.html',
+      description: '风险列表+人员列表',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'mobile-workbench',
+      name: '工作台',
+      icon: '⚡',
+      module: 'mobile/workbench',
+      path: 'modules/mobile/workbench.html',
+      description: '检查统计+隐患统计+知识库',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'mobile-task-list',
+      name: '任务管理',
+      icon: '📌',
+      module: 'mobile/task-list',
+      path: 'modules/mobile/task-list.html',
+      description: '任务列表与处理',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'mobile-profile',
+      name: '我的中心',
+      icon: '👤',
+      module: 'mobile/profile',
+      path: 'modules/mobile/profile.html',
+      description: '个人画像+动态码+设置',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'mobile-secondary-group',
+      name: '二级页面',
+      icon: '📑',
+      children: [
+        {
+          id: 'mobile-check-execute',
+          name: '码上排查执行',
+          module: 'mobile/check-execute',
+          path: 'modules/mobile/check-execute.html',
+          description: '检查表填写与签名',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'mobile-hazard-detail',
+          name: '隐患详情',
+          module: 'mobile/hazard-detail',
+          path: 'modules/mobile/hazard-detail.html',
+          description: '隐患详情与整改',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'mobile-check-detail',
+          name: '检查详情',
+          module: 'mobile/check-detail',
+          path: 'modules/mobile/check-detail.html',
+          description: '检查记录详情',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'mobile-code-change',
+          name: '变码记录',
+          module: 'mobile/code-change',
+          path: 'modules/mobile/code-change.html',
+          description: '码色变更记录',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'mobile-scan',
+          name: '扫一扫',
+          module: 'mobile/scan',
+          path: 'modules/mobile/scan.html',
+          description: '扫码识别',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'mobile-login',
+          name: '登录页',
+          module: 'mobile/login',
+          path: 'modules/mobile/login.html',
+          description: '登录注册',
+          badge: null,
+          disabled: false
+        }
+      ]
     }
   ],
 
