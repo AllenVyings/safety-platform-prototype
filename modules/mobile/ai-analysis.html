@@ -43,32 +43,6 @@
     .ai-upload-btn.album .ai-upload-btn-label { color: #52c41a; }
     .ai-upload-btn-sub { font-size: 11px; color: #999; margin-top: 4px; }
 
-    /* 图片预览 + 删除 */
-    .ai-preview {
-      display: none; background: #fff; border-radius: 12px; margin: 16px; overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .ai-preview.show { display: block; }
-    .ai-preview-img { width: 100%; max-height: 260px; object-fit: cover; display: block; }
-    .ai-preview-bar {
-      display: flex; align-items: center; justify-content: space-between; padding: 10px 14px;
-    }
-    .ai-preview-name { font-size: 13px; color: #595959; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .ai-preview-del { font-size: 13px; color: #ff4d4f; cursor: pointer; margin-left: 12px; flex-shrink: 0; }
-    .ai-preview-del:active { opacity: 0.7; }
-
-    /* 开始识别按钮 */
-    .ai-analyze-btn {
-      display: none; margin: 16px auto; padding: 14px 0; border-radius: 24px;
-      width: 85%;
-      font-size: 15px; font-weight: 600; text-align: center; cursor: pointer;
-      background: linear-gradient(135deg, #1677ff, #4096ff); color: #fff; border: none;
-      box-shadow: 0 4px 12px rgba(22,119,255,0.35);
-      letter-spacing: 2px;
-    }
-    .ai-analyze-btn.show { display: block; }
-    .ai-analyze-btn:active { background: linear-gradient(135deg, #0958d9, #1677ff); box-shadow: 0 2px 6px rgba(22,119,255,0.25); }
-
     /* 加载动画 */
     .ai-loading { display: none; text-align: center; padding: 48px 16px; }
     .ai-loading.show { display: block; }
@@ -96,7 +70,6 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;
     }
     .ai-result-body { padding: 14px 16px; }
-    /* 字段行 - 左右对称 */
     .ai-result-row {
       display: flex; justify-content: space-between; align-items: center;
       font-size: 13px; line-height: 1.6; padding: 7px 0;
@@ -107,98 +80,119 @@
     .ai-result-value { color: #262626; font-weight: 500; text-align: right; }
     .ai-result-value.major { color: #ff4d4f; }
     .ai-result-value.normal { color: #faad14; }
-    /* 隐患类型标签样式 */
     .ai-result-type-tag {
-      display: inline-block; font-size: 12px; font-weight: 600;
+      display: inline-block; font-size: 13px; font-weight: 600;
       padding: 2px 10px; border-radius: 10px;
       color: #1677ff; background: #e6f7ff; border: 1px solid #91d5ff;
     }
+    .ai-result-law { color: #1677ff; }
+    .ai-result-clause { color: #595959; line-height: 1.4; text-align: right; max-width: 65%; }
+    .ai-result-conf {
+      display: inline-block; font-size: 13px; font-weight: 700;
+      padding: 2px 8px; border-radius: 8px;
+    }
+    .ai-result-conf.high { color: #52c41a; background: #f6ffed; }
+    .ai-result-conf.mid { color: #faad14; background: #fffbe6; }
+    .ai-result-conf.low { color: #ff4d4f; background: #fff2f0; }
 
-    /* 智能上报抽屉 */
-    .ai-report-mask {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.45); z-index: 50;
+    /* ========== 智能上报页面视图 ========== */
+    .ai-report-view { display: none; }
+    .ai-report-view.show { display: block; }
+
+    /* 隐患选择卡片 - 单选 */
+    .ai-select-section { margin: 12px 16px; }
+    .ai-select-section-title { font-size: 13px; color: #8c8c8c; margin-bottom: 10px; }
+    .ai-select-card {
+      display: flex; align-items: center; gap: 10px; padding: 12px;
+      border: 1.5px solid #e8e8e8; border-radius: 10px; margin-bottom: 8px;
+      cursor: pointer; transition: all 0.2s; background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
-    .ai-report-mask.show { display: block; }
-    .ai-report-drawer {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 51;
-      background: #fff; border-radius: 14px 14px 0 0;
-      transform: translateY(100%); transition: transform 0.3s ease;
-      max-height: 85vh; display: flex; flex-direction: column;
+    .ai-select-card:last-child { margin-bottom: 0; }
+    .ai-select-card.selected { border-color: #1677ff; background: #f0f5ff; }
+    .ai-select-card.disabled { opacity: 0.4; pointer-events: none; }
+    .ai-select-radio {
+      width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #d9d9d9;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
     }
-    .ai-report-drawer.show { transform: translateY(0); }
-    .ai-report-drawer-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px; border-bottom: 0.5px solid #f0f0f0; flex-shrink: 0;
+    .ai-select-card.selected .ai-select-radio {
+      border-color: #1677ff; background: #1677ff;
     }
-    .ai-report-drawer-title { font-size: 16px; font-weight: 600; color: #000; }
-    .ai-report-drawer-close {
-      width: 28px; height: 28px; border-radius: 50%; background: #f5f5f5;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; color: #999; cursor: pointer; border: none;
+    .ai-select-card.selected .ai-select-radio::after {
+      content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fff;
     }
-    .ai-report-drawer-close:active { background: #e8e8e8; }
-    .ai-report-drawer-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    /* 隐患表单卡片 */
-    .ai-hazard-form {
-      border-bottom: 6px solid #f5f7fa; padding: 14px 16px;
+    .ai-select-info { flex: 1; }
+    .ai-select-desc { font-size: 13px; font-weight: 600; color: #000; line-height: 1.4; }
+    .ai-select-meta { font-size: 11px; color: #8c8c8c; margin-top: 4px; }
+    .ai-select-level {
+      font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; flex-shrink: 0;
     }
-    .ai-hazard-form:last-child { border-bottom: none; }
-    .ai-hf-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .ai-hf-check {
-      width: 20px; height: 20px; border-radius: 4px; border: 1.5px solid #d9d9d9;
-      flex-shrink: 0; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; transition: all 0.2s;
+    .ai-select-level.normal { color: #faad14; background: #fffbe6; }
+    .ai-select-level.major { color: #ff4d4f; background: #fff2f0; }
+
+    /* 上报表单 */
+    .ai-report-form {
+      background: #fff; border-radius: 12px; margin: 0 16px 12px; padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04); display: none;
     }
-    .ai-hf-check.checked { background: #1677ff; border-color: #1677ff; }
-    .ai-hf-check.checked::after {
-      content: ''; width: 6px; height: 10px; border: 2px solid #fff; border-top: none;
-      border-left: none; transform: rotate(45deg) translateY(-1px);
-    }
-    .ai-hf-title { font-size: 14px; font-weight: 600; color: #000; flex: 1; line-height: 1.4; }
-    .ai-hf-level { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
-    .ai-hf-level.normal { color: #faad14; background: #fffbe6; }
-    .ai-hf-level.major { color: #ff4d4f; background: #fff2f0; }
-    .ai-hf-row { display: flex; gap: 8px; margin-bottom: 8px; font-size: 12px; color: #8c8c8c; }
-    .ai-hf-type { background: #f5f5f5; padding: 2px 8px; border-radius: 4px; }
-    .ai-hf-suggest { color: #1677ff; flex: 1; line-height: 1.5; }
-    .ai-hf-field { margin-top: 10px; }
-    .ai-hf-field-label { font-size: 13px; color: #666; margin-bottom: 6px; }
-    .ai-hf-field-label .req { color: #ff4d4f; }
-    .ai-hf-select {
+    .ai-report-form.show { display: block; }
+    .ai-field { margin-bottom: 14px; }
+    .ai-field:last-child { margin-bottom: 0; }
+    .ai-field-label { font-size: 13px; color: #666; margin-bottom: 6px; }
+    .ai-field-label .req { color: #ff4d4f; }
+    .ai-field-select {
       width: 100%; height: 36px; border: 1px solid #d9d9d9; border-radius: 8px;
       padding: 0 10px; font-size: 13px; color: #333; background: #fff; appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right 10px center; box-sizing: border-box;
     }
-    .ai-hf-deadline-row { display: flex; gap: 10px; }
-    .ai-hf-deadline-btn {
-      flex: 1; padding: 8px 0; border: 1px solid #d9d9d9; border-radius: 8px;
-      font-size: 13px; text-align: center; cursor: pointer; background: #fff; color: #666;
+    .ai-field-textarea {
+      width: 100%; height: 80px; border: 1px solid #d9d9d9; border-radius: 8px;
+      padding: 8px 10px; font-size: 13px; color: #333; resize: none; outline: none;
+      box-sizing: border-box;
     }
-    .ai-hf-deadline-btn.active { background: #f0f4ff; border-color: #1677ff; color: #1677ff; }
-    .ai-hf-stepper { margin-top: 10px; display: none; align-items: center; gap: 12px; }
-    .ai-hf-stepper.show { display: flex; }
-    .ai-hf-stepper-btn {
+    .ai-field-textarea:focus { border-color: #1677ff; }
+    .ai-field-radio-group { display: flex; gap: 10px; }
+    .ai-field-radio {
+      padding: 6px 12px; border: 1px solid #d9d9d9; border-radius: 8px;
+      font-size: 12px; text-align: center; cursor: pointer; background: #fff; color: #666;
+      transition: all 0.2s;
+    }
+    .ai-field-radio.active.normal { background: #fffbe6; border-color: #faad14; color: #faad14; }
+    .ai-field-radio.active.major { background: #fff2f0; border-color: #ff4d4f; color: #ff4d4f; }
+    .ai-deadline-row { display: flex; gap: 10px; }
+    .ai-deadline-row .ai-field-radio { padding: 6px 12px; font-size: 12px; }
+    .ai-deadline-row .ai-field-radio.active { background: #f0f4ff; border-color: #1677ff; color: #1677ff; }
+    .ai-deadline-stepper { margin-top: 10px; display: none; align-items: center; gap: 12px; }
+    .ai-deadline-stepper.show { display: flex; }
+    .ai-stepper-btn {
       width: 32px; height: 32px; border-radius: 8px; border: 1px solid #d9d9d9;
       background: #fff; font-size: 18px; color: #666; cursor: pointer;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .ai-hf-stepper-btn:active { background: #f5f5f5; }
-    .ai-hf-stepper-btn:disabled { color: #d9d9d9; border-color: #f0f0f0; cursor: not-allowed; }
-    .ai-hf-stepper-value { font-size: 16px; font-weight: 600; color: #000; min-width: 28px; text-align: center; }
-    .ai-hf-stepper-unit { font-size: 13px; color: #8c8c8c; }
-    /* 抽屉底部 */
-    .ai-report-drawer-footer {
-      padding: 12px 16px; border-top: 0.5px solid #f0f0f0; flex-shrink: 0;
+    .ai-stepper-btn:active { background: #f5f5f5; }
+    .ai-stepper-btn:disabled { color: #d9d9d9; border-color: #f0f0f0; cursor: not-allowed; }
+    .ai-stepper-value { font-size: 16px; font-weight: 600; color: #000; min-width: 28px; text-align: center; }
+    .ai-stepper-unit { font-size: 13px; color: #8c8c8c; }
+    .ai-photos { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ai-photo-item {
+      width: 64px; height: 64px; border-radius: 8px; overflow: hidden; position: relative;
     }
-    .ai-report-confirm-btn {
-      width: 100%; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 600;
-      text-align: center; cursor: pointer; border: none;
-      background: #1677ff; color: #fff;
+    .ai-photo-item img { width: 100%; height: 100%; object-fit: cover; }
+    .ai-photo-item.ai-photo-crop { border: 2px solid #1677ff; }
+    .ai-photo-del {
+      position: absolute; top: -4px; right: -4px; width: 18px; height: 18px;
+      border-radius: 50%; background: #ff4d4f; color: #fff; font-size: 10px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      border: 2px solid #fff;
     }
-    .ai-report-confirm-btn:active { background: #0958d9; }
-    .ai-report-confirm-btn:disabled { background: #d9d9d9; color: #fff; cursor: not-allowed; }
+    .ai-photo-add {
+      width: 64px; height: 64px; border: 1px dashed #d9d9d9; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: #999; cursor: pointer; background: #fafafa;
+    }
+    .ai-photo-add:active { background: #f0f0f0; }
 
     /* 底部操作按钮 */
     .ai-bottom-bar {
@@ -214,6 +208,20 @@
     .ai-bar-btn.retry:active { background: #f5f5f5; }
     .ai-bar-btn.report { background: #1677ff; color: #fff; }
     .ai-bar-btn.report:active { background: #0958d9; }
+    .ai-bar-btn.cancel { background: #fff; color: #666; border: 1px solid #d9d9d9; }
+    .ai-bar-btn.cancel:active { background: #f5f5f5; }
+    .ai-bar-btn.confirm { background: #1677ff; color: #fff; }
+    .ai-bar-btn.confirm:active { background: #0958d9; }
+    .ai-bar-btn.confirm:disabled { background: #d9d9d9; color: #fff; cursor: not-allowed; }
+
+    /* Toast提示 */
+    .ai-toast {
+      position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.78); color: #fff; padding: 10px 24px;
+      border-radius: 8px; font-size: 14px; z-index: 100;
+      transition: top 0.3s ease; white-space: nowrap;
+    }
+    .ai-toast.show { top: 60px; }
   </style>
 </head>
 <body>
@@ -241,63 +249,109 @@
       </div>
     </div>
 
-    <!-- 图片预览 -->
-    <div class="ai-preview" id="previewArea">
-      <img class="ai-preview-img" id="previewImg" src="" alt="预览">
-      <div class="ai-preview-bar">
-        <span class="ai-preview-name" id="previewName">image.jpg</span>
-        <span class="ai-preview-del" onclick="removeImage()">删除</span>
-      </div>
-    </div>
-
-    <!-- 开始识别按钮 -->
-    <button class="ai-analyze-btn" id="analyzeBtn" onclick="startAnalyze()">开始识别</button>
-
     <!-- 加载动画 -->
     <div class="ai-loading" id="loadingArea">
       <div class="ai-spinner"></div>
       <div class="ai-loading-text">AI 正在识别中...</div>
     </div>
 
-    <!-- 标注图片 -->
-    <div class="ai-marked-img-area" id="markedImgArea" style="display:none;">
-      <div class="ai-marked-img-label">隐患位置标注</div>
-      <canvas class="ai-marked-img" id="markedCanvas"></canvas>
+    <!-- ===== 结果视图 ===== -->
+    <div id="resultView">
+      <!-- 标注图片 -->
+      <div class="ai-marked-img-area" id="markedImgArea" style="display:none;">
+        <div class="ai-marked-img-label">隐患位置标注</div>
+        <canvas class="ai-marked-img" id="markedCanvas"></canvas>
+      </div>
+      <!-- 识别结果卡片 -->
+      <div class="ai-result-cards" id="resultArea" style="display:none;"></div>
     </div>
 
-    <!-- 识别结果 - 独立卡片 -->
-    <div class="ai-result-cards" id="resultArea" style="display:none;"></div>
+    <!-- ===== 智能上报视图 ===== -->
+    <div class="ai-report-view" id="reportView">
+      <!-- 隐患选择 -->
+      <div class="ai-select-section" id="selectSection"></div>
+      <!-- 上报表单 -->
+      <div class="ai-report-form" id="reportForm">
+        <div class="ai-field">
+          <div class="ai-field-label">隐患类型</div>
+          <select class="ai-field-select" id="rType">
+            <option value="">请选择</option>
+            <option>现场环境</option><option>标志标线</option><option>电气线路</option>
+            <option>设备设施</option><option>危化品使用</option><option>特殊作业</option>
+            <option>应急处置</option><option>从业人员</option><option>疏散通道</option>
+          </select>
+        </div>
+        <div class="ai-field">
+          <div class="ai-field-label"><span class="req">*</span> 隐患描述</div>
+          <textarea class="ai-field-textarea" id="rDesc" placeholder="请描述发现的隐患..."></textarea>
+        </div>
+        <div class="ai-field">
+          <div class="ai-field-label"><span class="req">*</span> 隐患等级</div>
+          <div class="ai-field-radio-group" id="rLevelGroup">
+            <div class="ai-field-radio normal" onclick="selectReportLevel(this,'normal')">一般</div>
+            <div class="ai-field-radio major" onclick="selectReportLevel(this,'major')">重大</div>
+          </div>
+        </div>
+        <div class="ai-field">
+          <div class="ai-field-label"><span class="req">*</span> 整改责任人</div>
+          <select class="ai-field-select" id="rPerson">
+            <option value="">请选择</option>
+            <option>王操作</option><option>赵巡检</option><option>李安全</option>
+          </select>
+        </div>
+        <div class="ai-field">
+          <div class="ai-field-label"><span class="req">*</span> 整改期限</div>
+          <div class="ai-deadline-row" id="rDeadlineRow">
+            <div class="ai-field-radio" onclick="selectReportDeadline(this,'immediate')">立即整改</div>
+            <div class="ai-field-radio" onclick="selectReportDeadline(this,'limited')">限期整改</div>
+          </div>
+          <div class="ai-deadline-stepper" id="rDeadlineStepper">
+            <button class="ai-stepper-btn" id="rStepperMinus" onclick="changeReportDays(-1)" disabled>-</button>
+            <div><span class="ai-stepper-value" id="rStepperValue">1</span><span class="ai-stepper-unit">天</span></div>
+            <button class="ai-stepper-btn" onclick="changeReportDays(1)">+</button>
+          </div>
+        </div>
+        <div class="ai-field">
+          <div class="ai-field-label">隐患图片（最多6张）</div>
+          <div class="ai-photos" id="rPhotos"></div>
+        </div>
+      </div>
+    </div>
 
     <div style="height:80px;"></div>
   </div>
 
-  <!-- 智能上报抽屉 -->
-  <div class="ai-report-mask" id="reportMask" onclick="closeReportDrawer()"></div>
-  <div class="ai-report-drawer" id="reportDrawer">
-    <div class="ai-report-drawer-header">
-      <div class="ai-report-drawer-title">智能上报</div>
-      <button class="ai-report-drawer-close" onclick="closeReportDrawer()">✕</button>
-    </div>
-    <div class="ai-report-drawer-body" id="reportDrawerBody"></div>
-    <div class="ai-report-drawer-footer">
-      <button class="ai-report-confirm-btn" id="reportConfirmBtn" onclick="confirmReport()">确认上报</button>
-    </div>
+  <!-- 隐藏文件输入 -->
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+  <input type="file" id="albumInput" accept="image/*" style="display:none">
+  <!-- 补充上传图片 -->
+  <input type="file" id="reportPhotoInput" accept="image/*" style="display:none">
+
+  <!-- Toast提示 -->
+  <div class="ai-toast" id="aiToast"></div>
+
+  <!-- 结果视图底部按钮 -->
+  <div class="ai-bottom-bar" id="resultBar">
+    <button class="ai-bar-btn retry" onclick="retryAnalyze()">重新识别</button>
+    <button class="ai-bar-btn report" onclick="enterReportView()">智能上报</button>
   </div>
 
-  <!-- 底部操作按钮 -->
-  <div class="ai-bottom-bar" id="bottomBar">
-    <button class="ai-bar-btn retry" onclick="retryAnalyze()">重新识别</button>
-    <button class="ai-bar-btn report" onclick="smartReport()">智能上报</button>
+  <!-- 上报视图底部按钮 -->
+  <div class="ai-bottom-bar" id="reportBar">
+    <button class="ai-bar-btn cancel" onclick="cancelReport()">取消</button>
+    <button class="ai-bar-btn confirm" id="reportConfirmBtn" onclick="confirmReport()" disabled>确认上报</button>
   </div>
 
   <script>
     var hasImage = false;
     var identifiedItems = [];
-    var reportCheckedSet = {};
-    var deadlineModes = {};
-    var aiDays = {};
+    var selectedHazardIdx = -1;
+    var reportLevel = '';
+    var reportDeadlineMode = '';
+    var reportDays = 1;
+    var reportPhotos = [];
+    var currentImageSrc = '';
 
-    // 模拟原始图片 SVG
     var sceneSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="280" viewBox="0 0 400 280">'
       + '<rect fill="#d9d9d9" width="400" height="280"/>'
       + '<rect x="20" y="40" width="120" height="200" rx="4" fill="#bfbfbf"/>'
@@ -310,47 +364,70 @@
       + '<rect x="170" y="100" width="200" height="6" rx="2" fill="#ffe58f"/>'
       + '</svg>';
 
+    // ========== 文件输入绑定 ==========
+    var cameraInput = document.getElementById('cameraInput');
+    var albumInput = document.getElementById('albumInput');
+    var reportPhotoInput = document.getElementById('reportPhotoInput');
+
+    cameraInput.addEventListener('change', handleFileSelect);
+    albumInput.addEventListener('change', handleFileSelect);
+    reportPhotoInput.addEventListener('change', handleReportPhoto);
+
+    function handleFileSelect(e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        currentImageSrc = ev.target.result;
+        hasImage = true;
+        startAnalyze();
+      };
+      reader.onerror = function() {
+        currentImageSrc = 'data:image/svg+xml,' + encodeURIComponent(sceneSvg);
+        hasImage = true;
+        startAnalyze();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleReportPhoto(e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (reportPhotos.length >= 6) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        reportPhotos.push(ev.target.result);
+        renderReportPhotos();
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    }
+
     function openCamera() {
-      hasImage = true;
-      document.getElementById('previewImg').src = 'data:image/svg+xml,' + encodeURIComponent(sceneSvg);
-      document.getElementById('previewName').textContent = '现场照片_' + new Date().getHours() + String(new Date().getMinutes()).padStart(2,'0') + '.jpg';
-      showPreviewState();
+      cameraInput.value = '';
+      cameraInput.click();
     }
 
     function openAlbum() {
-      hasImage = true;
-      document.getElementById('previewImg').src = 'data:image/svg+xml,' + encodeURIComponent(sceneSvg);
-      document.getElementById('previewName').textContent = 'IMG_' + Date.now() % 10000 + '.jpg';
-      showPreviewState();
+      albumInput.value = '';
+      albumInput.click();
     }
 
-    function showPreviewState() {
-      document.getElementById('tipText').innerHTML = '<div class="ai-tip-line">拍摄或上传现场照片，AI将自动识别图片中的安全隐患，并给出隐患等级和整改建议。</div>';
-      document.getElementById('uploadArea').style.display = 'none';
-      document.getElementById('previewArea').classList.add('show');
-      document.getElementById('analyzeBtn').classList.add('show');
-      document.getElementById('resultArea').style.display = 'none';
-      document.getElementById('markedImgArea').style.display = 'none';
-      document.getElementById('bottomBar').classList.remove('show');
-    }
-
-    function removeImage() {
-      hasImage = false;
-      document.getElementById('tipText').innerHTML = '<div class="ai-tip-line">拍摄或上传现场照片，AI将自动识别图片中的安全隐患，并给出隐患等级和整改建议。</div>';
-      document.getElementById('uploadArea').style.display = '';
-      document.getElementById('previewArea').classList.remove('show');
-      document.getElementById('analyzeBtn').classList.remove('show');
-      document.getElementById('resultArea').style.display = 'none';
-      document.getElementById('markedImgArea').style.display = 'none';
-      document.getElementById('bottomBar').classList.remove('show');
-    }
+    // ========== Canvas resize重绘 ==========
+    window.addEventListener('resize', function() {
+      if (document.getElementById('markedImgArea').style.display !== 'none') {
+        drawMarkedImage();
+      }
+    });
 
     function startAnalyze() {
       if (!hasImage) return;
-      document.getElementById('analyzeBtn').classList.remove('show');
+      document.getElementById('uploadArea').style.display = 'none';
+      document.getElementById('tipText').innerHTML = '<div class="ai-tip-line">拍摄或上传现场照片，AI将自动识别图片中的安全隐患，并给出隐患等级和整改建议。</div>';
       document.getElementById('resultArea').style.display = 'none';
       document.getElementById('markedImgArea').style.display = 'none';
-      document.getElementById('bottomBar').classList.remove('show');
+      document.getElementById('resultBar').classList.remove('show');
+      document.getElementById('reportBar').classList.remove('show');
       document.getElementById('loadingArea').classList.add('show');
 
       setTimeout(function() {
@@ -361,25 +438,21 @@
 
     function showResults() {
       identifiedItems = [
-        { desc: '电气线路绝缘层破损裸露', type: '电气线路', level: 'major', suggest: '立即断电，更换破损线路或包扎绝缘层', risk: '触电风险、火灾风险' },
-        { desc: '消防通道堆放杂物阻碍通行', type: '疏散通道', level: 'normal', suggest: '立即清理通道杂物，保持宽度≥1.2m', risk: '疏散受阻' },
-        { desc: '配电箱未上锁且无警示标识', type: '设备设施', level: 'normal', suggest: '配电箱上锁并张贴"当心触电"警示标识', risk: '触电风险' }
+        { desc: '电气线路绝缘层破损裸露', type: '电气线路', level: 'major', suggest: '立即断电，更换破损线路或包扎绝缘层', risk: '触电风险、火灾风险', law: '《中华人民共和国安全生产法》', clause: '第三十六条：安全设备的设计、制造、安装、使用、检测、维修、改造和报废，应当符合国家标准或者行业标准', confidence: 92, bbox: { x: 0.05, y: 0.12, w: 0.32, h: 0.2 } },
+        { desc: '消防通道堆放杂物阻碍通行', type: '疏散通道', level: 'normal', suggest: '立即清理通道杂物，保持宽度≥1.2m', risk: '疏散受阻', law: '《中华人民共和国消防法》', clause: '第二十八条：任何单位、个人不得占用、堵塞、封闭疏散通道、安全出口', confidence: 88, bbox: { x: 0.4, y: 0.26, w: 0.54, h: 0.15 } },
+        { desc: '配电箱未上锁且无警示标识', type: '设备设施', level: 'normal', suggest: '配电箱上锁并张贴"当心触电"警示标识', risk: '触电风险', law: '《中华人民共和国安全生产法》', clause: '第三十五条：生产经营单位应当在有较大危险因素的生产经营场所和有关设施、设备上，设置明显的安全警示标志', confidence: 85, bbox: { x: 0.39, y: 0.55, w: 0.27, h: 0.4 } }
       ];
 
-      // 隐藏原图预览
-      document.getElementById('previewArea').classList.remove('show');
-      // 切换提示文本
       document.getElementById('tipText').innerHTML = '<div class="ai-tip-line"><span class="ai-tip-line-label">根据您提供的信息，识别到隐患情况和问题建议如下：</span></div><div class="ai-tip-line"><span class="ai-tip-line-text">以下由AI识别输出，隐患内容仅供参考</span></div>';
 
-      // 绘制标注图片
       drawMarkedImage();
 
-      // 渲染独立卡片
       var container = document.getElementById('resultArea');
       var html = '';
       identifiedItems.forEach(function(item, i) {
         var levelText = item.level === 'major' ? '重大隐患' : '一般隐患';
         var levelCls = item.level === 'major' ? 'major' : 'normal';
+        var confCls = item.confidence >= 90 ? 'high' : (item.confidence >= 75 ? 'mid' : 'low');
         html += '<div class="ai-result-card">'
           + '<div class="ai-result-body">'
           + '<div class="ai-result-row"><span class="ai-result-label">隐患类型</span><span class="ai-result-value"><span class="ai-result-type-tag">' + item.type + '类隐患</span></span></div>'
@@ -387,13 +460,16 @@
           + '<div class="ai-result-row"><span class="ai-result-label">隐患等级</span><span class="ai-result-value ' + levelCls + '">' + levelText + '</span></div>'
           + '<div class="ai-result-row"><span class="ai-result-label">整改建议</span><span class="ai-result-value">' + item.suggest + '</span></div>'
           + '<div class="ai-result-row"><span class="ai-result-label">关联风险</span><span class="ai-result-value">' + item.risk + '</span></div>'
+          + '<div class="ai-result-row"><span class="ai-result-label">法律依据</span><span class="ai-result-value ai-result-law">' + item.law + '</span></div>'
+          + '<div class="ai-result-row"><span class="ai-result-label">依据条款</span><span class="ai-result-value ai-result-clause">' + item.clause + '</span></div>'
+          + '<div class="ai-result-row"><span class="ai-result-label">置信度</span><span class="ai-result-value"><span class="ai-result-conf ' + confCls + '">' + item.confidence + '%</span></span></div>'
           + '</div></div>';
       });
       container.innerHTML = html;
 
       document.getElementById('markedImgArea').style.display = 'block';
       container.style.display = 'block';
-      document.getElementById('bottomBar').classList.add('show');
+      document.getElementById('resultBar').classList.add('show');
     }
 
     function drawMarkedImage() {
@@ -405,26 +481,31 @@
       canvas.height = h;
       var ctx = canvas.getContext('2d');
 
-      ctx.fillStyle = '#d9d9d9';
-      ctx.fillRect(0, 0, w, h);
+      if (currentImageSrc) {
+        var img = new Image();
+        img.onload = function() {
+          ctx.drawImage(img, 0, 0, w, h);
+          drawAnnotations(ctx, w, h);
+        };
+        img.src = currentImageSrc;
+      } else {
+        ctx.fillStyle = '#d9d9d9';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#bfbfbf';
+        ctx.fillRect(w*0.05, h*0.14, w*0.3, h*0.72);
+        ctx.fillRect(w*0.4, h*0.21, w*0.55, h*0.29);
+        ctx.fillRect(w*0.4, h*0.57, w*0.25, h*0.36);
+        ctx.fillStyle = '#ffccc7';
+        ctx.fillRect(w*0.075, h*0.18, w*0.25, h*0.03);
+        ctx.fillRect(w*0.075, h*0.25, w*0.25, h*0.03);
+        ctx.fillStyle = '#ffe58f';
+        ctx.fillRect(w*0.425, h*0.29, w*0.5, h*0.02);
+        ctx.fillRect(w*0.425, h*0.36, w*0.5, h*0.02);
+        drawAnnotations(ctx, w, h);
+      }
+    }
 
-      ctx.fillStyle = '#bfbfbf';
-      ctx.fillRect(w*0.05, h*0.14, w*0.3, h*0.72);
-      ctx.fillRect(w*0.4, h*0.21, w*0.55, h*0.29);
-      ctx.fillRect(w*0.4, h*0.57, w*0.25, h*0.36);
-
-      ctx.fillStyle = '#ffccc7';
-      ctx.fillRect(w*0.075, h*0.18, w*0.25, h*0.03);
-      ctx.fillRect(w*0.075, h*0.25, w*0.25, h*0.03);
-
-      ctx.fillStyle = '#ffe58f';
-      ctx.fillRect(w*0.425, h*0.29, w*0.5, h*0.02);
-      ctx.fillRect(w*0.425, h*0.36, w*0.5, h*0.02);
-
-      ctx.fillStyle = '#d4d4d4';
-      ctx.fillRect(w*0.4, h*0.57, w*0.25, h*0.36);
-
-      // 标注框1: 电气线路 (红色)
+    function drawAnnotations(ctx, w, h) {
       ctx.strokeStyle = '#ff4d4f';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 3]);
@@ -436,7 +517,6 @@
       ctx.fillStyle = 'rgba(255,77,79,0.1)';
       ctx.fillRect(w*0.05, h*0.12, w*0.32, h*0.2);
 
-      // 标注框2: 消防通道 (黄色)
       ctx.strokeStyle = '#faad14';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 3]);
@@ -448,7 +528,6 @@
       ctx.fillStyle = 'rgba(250,173,20,0.1)';
       ctx.fillRect(w*0.4, h*0.26, w*0.54, h*0.15);
 
-      // 标注框3: 配电箱 (黄色)
       ctx.strokeStyle = '#faad14';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 3]);
@@ -461,158 +540,251 @@
       ctx.fillRect(w*0.39, h*0.55, w*0.27, h*0.4);
     }
 
-    /* ========== 智能上报抽屉 ========== */
-    function toggleHazardCheck(i) {
-      reportCheckedSet[i] = !reportCheckedSet[i];
-      var el = document.getElementById('hfcheck' + i);
-      el.classList.toggle('checked', reportCheckedSet[i]);
-      // 切换表单区域的禁用态
-      var form = document.getElementById('hfform' + i);
-      form.style.opacity = reportCheckedSet[i] ? '1' : '0.4';
-      form.style.pointerEvents = reportCheckedSet[i] ? 'auto' : 'none';
-      updateConfirmBtn();
+    // ========== 从标注Canvas裁剪隐患区域图片 ==========
+    function cropHazardImage(idx) {
+      var canvas = document.getElementById('markedCanvas');
+      var item = identifiedItems[idx];
+      if (!item || !item.bbox || !canvas.width) return '';
+
+      var cw = canvas.width;
+      var ch = canvas.height;
+      var bx = item.bbox;
+      var pad = 0.04;
+
+      var sx = Math.max(0, (bx.x - pad) * cw);
+      var sy = Math.max(0, (bx.y - pad) * ch);
+      var sw = Math.min(cw - sx, (bx.w + pad * 2) * cw);
+      var sh = Math.min(ch - sy, (bx.h + pad * 2) * ch);
+
+      var tmp = document.createElement('canvas');
+      tmp.width = Math.round(sw);
+      tmp.height = Math.round(sh);
+      var tctx = tmp.getContext('2d');
+      tctx.drawImage(canvas, sx, sy, sw, sh, 0, 0, tmp.width, tmp.height);
+      return tmp.toDataURL('image/png');
     }
 
-    function selectDeadline(i, mode) {
-      deadlineModes[i] = mode;
-      var row = document.getElementById('dlrow' + i);
-      row.querySelectorAll('.ai-hf-deadline-btn').forEach(function(b) { b.classList.remove('active'); });
-      if (mode === 'immediate') {
-        row.querySelector('.ai-hf-deadline-btn:first-child').classList.add('active');
-      } else {
-        row.querySelector('.ai-hf-deadline-btn:last-child').classList.add('active');
-      }
-      document.getElementById('dlstep' + i).classList.toggle('show', mode === 'limited');
-      updateConfirmBtn();
-    }
-
-    function changeAiDays(i, delta) {
-      aiDays[i] = Math.max(1, Math.min(365, aiDays[i] + delta));
-      document.getElementById('dlval' + i).textContent = aiDays[i];
-      document.getElementById('dlminus' + i).disabled = aiDays[i] <= 1;
-    }
-
-    function updateConfirmBtn() {
-      var anyChecked = false;
-      var allValid = true;
-      identifiedItems.forEach(function(item, i) {
-        if (reportCheckedSet[i]) {
-          anyChecked = true;
-          if (!deadlineModes[i]) allValid = false;
-        }
-      });
-      document.getElementById('reportConfirmBtn').disabled = !(anyChecked && allValid);
-    }
-
-    function smartReport() {
+    // ========== 智能上报视图 ==========
+    function enterReportView() {
       if (!identifiedItems.length) return;
-      reportCheckedSet = {};
-      deadlineModes = {};
-      aiDays = {};
+      selectedHazardIdx = -1;
+      reportLevel = '';
+      reportDeadlineMode = '';
+      reportDays = 1;
+      reportPhotos = [];
 
-      var body = document.getElementById('reportDrawerBody');
-      var html = '';
+      // 渲染选择卡片
+      var html = '<div class="ai-select-section-title">选择要上报的隐患</div>';
       identifiedItems.forEach(function(item, i) {
-        reportCheckedSet[i] = true;
-        deadlineModes[i] = '';
-        aiDays[i] = 1;
         var levelText = item.level === 'major' ? '重大隐患' : '一般隐患';
         var levelCls = item.level === 'major' ? 'major' : 'normal';
-
-        html += '<div class="ai-hazard-form" id="hfform' + i + '">'
-          + '<div class="ai-hf-header">'
-          + '<div class="ai-hf-check checked" id="hfcheck' + i + '" onclick="toggleHazardCheck(' + i + ')"></div>'
-          + '<div class="ai-hf-title">' + item.desc + '</div>'
-          + '<span class="ai-hf-level ' + levelCls + '">' + levelText + '</span>'
+        html += '<div class="ai-select-card" id="scard' + i + '" onclick="selectHazard(' + i + ')">'
+          + '<div class="ai-select-radio"></div>'
+          + '<div class="ai-select-info">'
+          + '<div class="ai-select-desc">' + item.desc + '</div>'
+          + '<div class="ai-select-meta">' + item.type + ' · 置信度' + item.confidence + '%</div>'
           + '</div>'
-          + '<div class="ai-hf-row">'
-          + '<span class="ai-hf-type">类型: ' + item.type + '</span>'
-          + '</div>'
-          + '<div class="ai-hf-row">'
-          + '<span class="ai-hf-suggest">建议: ' + item.suggest + '</span>'
-          + '</div>'
-          + '<div class="ai-hf-row">'
-          + '<span>关联风险: ' + item.risk + '</span>'
-          + '</div>'
-          + '<div class="ai-hf-field">'
-          + '<div class="ai-hf-field-label"><span class="req">*</span> 整改责任人</div>'
-          + '<select class="ai-hf-select" id="dlperson' + i + '">'
-          + '<option value="王操作" selected>王操作</option>'
-          + '<option value="赵巡检">赵巡检</option>'
-          + '<option value="李安全">李安全</option>'
-          + '</select>'
-          + '</div>'
-          + '<div class="ai-hf-field">'
-          + '<div class="ai-hf-field-label"><span class="req">*</span> 整改期限</div>'
-          + '<div class="ai-hf-deadline-row" id="dlrow' + i + '">'
-          + '<div class="ai-hf-deadline-btn" onclick="selectDeadline(' + i + ',\'immediate\')">立即整改</div>'
-          + '<div class="ai-hf-deadline-btn" onclick="selectDeadline(' + i + ',\'limited\')">限期整改</div>'
-          + '</div>'
-          + '<div class="ai-hf-stepper" id="dlstep' + i + '">'
-          + '<button class="ai-hf-stepper-btn" id="dlminus' + i + '" onclick="changeAiDays(' + i + ',-1)" disabled>-</button>'
-          + '<div><span class="ai-hf-stepper-value" id="dlval' + i + '">1</span><span class="ai-hf-stepper-unit">天</span></div>'
-          + '<button class="ai-hf-stepper-btn" onclick="changeAiDays(' + i + ',1)">+</button>'
-          + '</div>'
-          + '</div>'
+          + '<span class="ai-select-level ' + levelCls + '">' + levelText + '</span>'
           + '</div>';
       });
-      body.innerHTML = html;
+      document.getElementById('selectSection').innerHTML = html;
 
+      // 重置表单
+      document.getElementById('rType').value = '';
+      document.getElementById('rDesc').value = '';
+      document.getElementById('rPerson').value = '';
+      document.querySelectorAll('#rLevelGroup .ai-field-radio').forEach(function(r) { r.classList.remove('active'); });
+      document.querySelectorAll('#rDeadlineRow .ai-field-radio').forEach(function(r) { r.classList.remove('active'); });
+      document.getElementById('rDeadlineStepper').classList.remove('show');
+      document.getElementById('rStepperValue').textContent = '1';
+      document.getElementById('rStepperMinus').disabled = true;
+      document.getElementById('rPhotos').innerHTML = '';
+      document.getElementById('reportForm').classList.remove('show');
       document.getElementById('reportConfirmBtn').disabled = true;
-      document.getElementById('reportMask').classList.add('show');
-      document.getElementById('reportDrawer').classList.add('show');
+
+      // 切换视图
+      document.getElementById('resultView').style.display = 'none';
+      document.getElementById('reportView').classList.add('show');
+      document.getElementById('resultBar').classList.remove('show');
+      document.getElementById('reportBar').classList.add('show');
+      document.getElementById('tipText').innerHTML = '<div class="ai-tip-line"><span class="ai-tip-line-label">选择一条隐患进行上报</span></div><div class="ai-tip-line"><span class="ai-tip-line-text">AI识别内容已自动填入表单，可编辑修改</span></div>';
+      window.scrollTo(0, 0);
     }
 
-    function closeReportDrawer() {
-      document.getElementById('reportMask').classList.remove('show');
-      document.getElementById('reportDrawer').classList.remove('show');
+    function cancelReport() {
+      document.getElementById('reportView').classList.remove('show');
+      document.getElementById('resultView').style.display = 'block';
+      document.getElementById('reportBar').classList.remove('show');
+      document.getElementById('resultBar').classList.add('show');
+      document.getElementById('tipText').innerHTML = '<div class="ai-tip-line"><span class="ai-tip-line-label">根据您提供的信息，识别到隐患情况和问题建议如下：</span></div><div class="ai-tip-line"><span class="ai-tip-line-text">以下由AI识别输出，隐患内容仅供参考</span></div>';
+      window.scrollTo(0, 0);
+    }
+
+    function selectHazard(idx) {
+      if (selectedHazardIdx === idx) {
+        // 取消选中
+        selectedHazardIdx = -1;
+        document.querySelectorAll('.ai-select-card').forEach(function(c) {
+          c.classList.remove('selected', 'disabled');
+        });
+        document.getElementById('reportForm').classList.remove('show');
+        document.getElementById('reportConfirmBtn').disabled = true;
+        return;
+      }
+
+      selectedHazardIdx = idx;
+      document.querySelectorAll('.ai-select-card').forEach(function(c, i) {
+        c.classList.remove('selected');
+        if (i === idx) {
+          c.classList.add('selected');
+        } else {
+          c.classList.add('disabled');
+        }
+      });
+
+      var item = identifiedItems[idx];
+
+      // 自动填充表单
+      document.getElementById('rType').value = item.type;
+      document.getElementById('rDesc').value = item.desc;
+      document.getElementById('rPerson').value = '王操作';
+
+      reportLevel = item.level;
+      document.querySelectorAll('#rLevelGroup .ai-field-radio').forEach(function(r) { r.classList.remove('active'); });
+      var levelBtn = document.querySelector('#rLevelGroup .ai-field-radio.' + item.level);
+      if (levelBtn) levelBtn.classList.add('active');
+
+      reportDeadlineMode = '';
+      reportDays = 1;
+      document.querySelectorAll('#rDeadlineRow .ai-field-radio').forEach(function(r) { r.classList.remove('active'); });
+      document.getElementById('rDeadlineStepper').classList.remove('show');
+      document.getElementById('rStepperValue').textContent = '1';
+      document.getElementById('rStepperMinus').disabled = true;
+
+      // 自动填充隐患图片：裁剪标注图中该隐患区域
+      reportPhotos = [];
+      var cropImg = cropHazardImage(idx);
+      if (cropImg) reportPhotos.push(cropImg);
+      renderReportPhotos();
+
+      document.getElementById('reportForm').classList.add('show');
+      document.getElementById('reportConfirmBtn').disabled = true;
+
+      // 滚动到表单位置
+      setTimeout(function() {
+        document.getElementById('reportForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function selectReportLevel(el, level) {
+      reportLevel = level;
+      document.querySelectorAll('#rLevelGroup .ai-field-radio').forEach(function(r) { r.classList.remove('active'); });
+      el.classList.add('active');
+      validateReportForm();
+    }
+
+    function selectReportDeadline(el, mode) {
+      reportDeadlineMode = mode;
+      document.querySelectorAll('#rDeadlineRow .ai-field-radio').forEach(function(r) { r.classList.remove('active'); });
+      el.classList.add('active');
+      document.getElementById('rDeadlineStepper').classList.toggle('show', mode === 'limited');
+      validateReportForm();
+    }
+
+    function changeReportDays(delta) {
+      reportDays = Math.max(1, Math.min(365, reportDays + delta));
+      document.getElementById('rStepperValue').textContent = reportDays;
+      document.getElementById('rStepperMinus').disabled = reportDays <= 1;
+    }
+
+    function addReportPhoto() {
+      if (reportPhotos.length >= 6) return;
+      reportPhotoInput.click();
+    }
+
+    function removeReportPhoto(idx) {
+      reportPhotos.splice(idx, 1);
+      renderReportPhotos();
+    }
+
+    function renderReportPhotos() {
+      var html = '';
+      reportPhotos.forEach(function(src, i) {
+        var cls = i === 0 && selectedHazardIdx >= 0 ? 'ai-photo-item ai-photo-crop' : 'ai-photo-item';
+        html += '<div class="' + cls + '"><img src="' + src + '"><div class="ai-photo-del" onclick="removeReportPhoto(' + i + ')">✕</div></div>';
+      });
+      if (reportPhotos.length < 6) {
+        html += '<div class="ai-photo-add" onclick="addReportPhoto()">+</div>';
+      }
+      document.getElementById('rPhotos').innerHTML = html;
+    }
+
+    function validateReportForm() {
+      var valid = selectedHazardIdx >= 0 && reportLevel && reportDeadlineMode;
+      document.getElementById('reportConfirmBtn').disabled = !valid;
+    }
+
+    // ========== Toast提示 ==========
+    function showToast(msg, duration) {
+      var toast = document.getElementById('aiToast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+      }, duration || 2000);
     }
 
     function confirmReport() {
-      var selected = [];
-      identifiedItems.forEach(function(item, i) {
-        if (!reportCheckedSet[i]) return;
-        var deadlineDisplay = '';
-        if (deadlineModes[i] === 'immediate') {
-          var now = new Date();
-          deadlineDisplay = '立即整改（' + now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + '）';
-        } else if (deadlineModes[i] === 'limited') {
-          var now = new Date();
-          var target = new Date(now.getTime() + aiDays[i] * 86400000);
-          deadlineDisplay = '限期' + aiDays[i] + '天（' + target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0') + '）';
-        }
-        var personEl = document.getElementById('dlperson' + i);
-        var person = personEl ? personEl.value : '';
-        selected.push({
-          type: item.type,
-          description: item.desc,
-          level: item.level,
-          suggest: item.suggest,
-          risk: item.risk,
-          person: person,
-          deadlineMode: deadlineModes[i],
-          deadlineDate: deadlineDisplay,
-          photos: [],
-          source: 'AI识别'
-        });
-      });
-      if (!selected.length) { alert('请至少勾选一条隐患'); return; }
+      if (selectedHazardIdx < 0) return;
+      var item = identifiedItems[selectedHazardIdx];
+
+      var deadlineDisplay = '';
+      if (reportDeadlineMode === 'immediate') {
+        var now = new Date();
+        deadlineDisplay = '立即整改（' + now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + '）';
+      } else if (reportDeadlineMode === 'limited') {
+        var now = new Date();
+        var target = new Date(now.getTime() + reportDays * 86400000);
+        deadlineDisplay = '限期' + reportDays + '天（' + target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0') + '）';
+      }
+
+      var desc = document.getElementById('rDesc').value;
+      var type = document.getElementById('rType').value;
+      var person = document.getElementById('rPerson').value;
+
+      var hazard = {
+        type: type || item.type,
+        description: desc || item.desc,
+        level: reportLevel || item.level,
+        suggest: item.suggest,
+        risk: item.risk,
+        law: item.law,
+        clause: item.clause,
+        confidence: item.confidence,
+        person: person,
+        deadlineMode: reportDeadlineMode,
+        deadlineDate: deadlineDisplay,
+        foundDate: now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0'),
+        photos: reportPhotos.slice(),
+        source: 'AI识别'
+      };
 
       try {
         var existing = JSON.parse(localStorage.getItem('aiHazards') || '[]');
-        selected.forEach(function(h) { existing.push(h); });
+        existing.push(hazard);
         localStorage.setItem('aiHazards', JSON.stringify(existing));
       } catch(e) {}
 
-      closeReportDrawer();
-      alert('已将' + selected.length + '条隐患添加到隐患列表（原型演示）');
-      try { parent.mobileBack(); } catch(e) {}
+      showToast('已上报 1 条隐患至隐患列表');
+      setTimeout(function() {
+        try { parent.mobileBack(); } catch(e) {}
+      }, 2300);
     }
 
     function retryAnalyze() {
       document.getElementById('resultArea').style.display = 'none';
       document.getElementById('markedImgArea').style.display = 'none';
-      document.getElementById('bottomBar').classList.remove('show');
+      document.getElementById('resultBar').classList.remove('show');
       document.getElementById('loadingArea').classList.add('show');
 
       setTimeout(function() {

@@ -101,20 +101,40 @@
     .ce-hazard-card {
       background: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.04); position: relative;
+      cursor: pointer; transition: background 0.15s;
     }
-    .ce-hc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
-    .ce-hc-type {
-      font-size: 11px; padding: 2px 8px; border-radius: 4px;
-      color: #faad14; background: #fffbe6; white-space: nowrap;
+    .ce-hazard-card:active { background: #fafafa; }
+    .ce-hc-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; line-height: 1.6; padding: 6px 0;
+      border-bottom: 0.5px solid #f5f5f5;
     }
-    .ce-hc-level {
-      font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600;
+    .ce-hc-row:first-child { padding-top: 0; }
+    .ce-hc-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .ce-hc-label { color: #8c8c8c; font-weight: 600; flex-shrink: 0; }
+    .ce-hc-val { color: #262626; font-weight: 500; text-align: right; }
+    .ce-hc-val.major { color: #ff4d4f; }
+    .ce-hc-val.normal { color: #faad14; }
+    .ce-hc-type-tag {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 1px 8px; border-radius: 8px;
+      color: #1677ff; background: #e6f7ff;
     }
-    .ce-hc-level.normal { color: #faad14; background: #fffbe6; }
-    .ce-hc-level.major { color: #ff4d4f; background: #fff2f0; }
-    .ce-hc-desc { font-size: 14px; color: #000; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
-    .ce-hc-meta { display: flex; gap: 12px; font-size: 12px; color: #999; flex-wrap: wrap; }
-    .ce-hc-source { font-size: 11px; color: #1677ff; margin-top: 6px; }
+    .ce-hc-level-tag {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 1px 8px; border-radius: 8px; margin-left: 6px;
+    }
+    .ce-hc-level-tag.normal { color: #faad14; background: #fffbe6; }
+    .ce-hc-level-tag.major { color: #ff4d4f; background: #fff2f0; }
+    .ce-hc-conf { color: #52c41a; font-weight: 600; font-size: 12px; margin-left: 6px; }
+    .ce-hc-conf.mid { color: #faad14; }
+    .ce-hc-conf.low { color: #ff4d4f; }
+    .ce-hc-source-tag {
+      font-size: 11px; padding: 2px 8px; border-radius: 10px; display: inline-block;
+      font-weight: 600; margin-top: 6px;
+    }
+    .ce-hc-source-tag.ai { color: #1677ff; background: #e6f7ff; border: 1px solid #91d5ff; }
+    .ce-hc-source-tag.manual { color: #8c8c8c; background: #f5f5f5; border: 1px solid #e8e8e8; }
 
     /* ========== 底部操作栏 ========== */
     .ce-bottom-bar {
@@ -130,8 +150,8 @@
     .ce-bar-btn.add:active { background: #f0f4ff; }
     .ce-bar-btn.submit { background: #1677ff; color: #fff; }
     .ce-bar-btn.submit:active { background: #0958d9; }
-    .ce-bar-btn.ai { background: none; border: none; font-size: 24px; padding: 0 10px; cursor: pointer; flex: 0; }
-    .ce-bar-btn.ai:active { opacity: 0.7; }
+    .ce-bar-btn.ai { background: none; border: none; font-size: 24px; padding: 0 10px; cursor: pointer; flex: 0; transition: transform 0.15s; }
+    .ce-bar-btn.ai:active { opacity: 0.7; transform: scale(0.9); }
 
     /* ========== 抽屉遮罩 ========== */
     .ce-drawer-mask {
@@ -201,6 +221,15 @@
       font-size: 24px; cursor: pointer; background: #fafafa;
     }
     .ce-photo-add:active { background: #f0f0f0; }
+    .ce-photo-item {
+      width: 64px; height: 64px; border-radius: 8px; overflow: hidden; position: relative; flex-shrink: 0;
+    }
+    .ce-photo-item img { width: 100%; height: 100%; object-fit: cover; }
+    .ce-photo-del {
+      position: absolute; top: -4px; right: -4px; width: 18px; height: 18px;
+      border-radius: 50%; background: #ff4d4f; color: #fff; font-size: 10px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #fff;
+    }
     .ce-drawer-footer {
       padding: 12px 16px; border-top: 0.5px solid #f0f0f0; flex-shrink: 0;
     }
@@ -455,7 +484,7 @@
   <div class="ce-bottom-bar">
     <button class="ce-bar-btn add" onclick="openDrawer(-1)">新增</button>
     <button class="ce-bar-btn submit" onclick="handleSubmit()">提交</button>
-    <button class="ce-bar-btn ai" onclick="parent.navigateTo('ai-analysis')">🤖</button>
+    <button class="ce-bar-btn ai" onclick="goAiAnalysis()">🤖</button>
   </div>
 
   <!-- 抽屉遮罩 -->
@@ -518,6 +547,9 @@
       <button class="ce-drawer-confirm" onclick="confirmDrawer()">确认</button>
     </div>
   </div>
+
+  <!-- 抽屉图片上传 -->
+  <input type="file" id="drawerPhotoInput" accept="image/*" style="display:none">
 
   <!-- 确认弹窗 -->
   <div class="ce-confirm-mask" id="confirmMask">
@@ -597,9 +629,22 @@
     var signatureDone = false;
     var hazardIdCounter = 0;
     var currentDrawerItemIdx = -1; // -1 = 新增模式
+    var editingHazardId = -1; // -1 = 新增, >=0 = 编辑某条隐患
+    var drawerPhotos = [];
     var drawerLevel = '';
     var drawerDeadlineMode = '';
     var drawerDays = 1;
+
+    /* ========== 跳转AI分析前保存隐患 ========== */
+    function goAiAnalysis() {
+      try {
+        localStorage.setItem('checkExecuteHazards', JSON.stringify(hazards));
+        var judgments = {};
+        checkItems.forEach(function(item) { if (item.judgment) judgments[item.idx] = item.judgment; });
+        localStorage.setItem('checkExecuteJudgments', JSON.stringify(judgments));
+      } catch(e) {}
+      parent.navigateTo('ai-analysis');
+    }
 
     /* ========== 页签切换 ========== */
     function switchTab(tab) {
@@ -662,6 +707,7 @@
     /* ========== 抽屉操作 ========== */
     function openDrawer(itemIdx) {
       currentDrawerItemIdx = itemIdx;
+      editingHazardId = -1;
       var title = document.getElementById('drawerTitle');
       title.textContent = itemIdx >= 0 ? '隐患信息' : '新增隐患';
 
@@ -678,10 +724,59 @@
       document.getElementById('dStepperValue').textContent = '1';
       document.getElementById('dStepperMinus').disabled = true;
       // 重置图片
-      var photoArea = document.getElementById('dPhotos');
-      photoArea.innerHTML = '<div class="ce-photo-add" onclick="addDrawerPhoto()">+</div>';
+      drawerPhotos = [];
+      renderDrawerPhotos();
 
       // 显示抽屉
+      document.getElementById('drawerMask').classList.add('show');
+      document.getElementById('drawer').classList.add('show');
+    }
+
+    function openEditDrawer(hazardId) {
+      var h = hazards.find(function(item) { return item.id === hazardId; });
+      if (!h) return;
+      editingHazardId = hazardId;
+      currentDrawerItemIdx = h.sourceItemIdx || -1;
+
+      document.getElementById('drawerTitle').textContent = '编辑隐患';
+
+      // 填充表单
+      document.getElementById('dType').value = h.type || '';
+      document.getElementById('dDesc').value = h.description || '';
+      document.getElementById('dPerson').value = h.person || '';
+
+      drawerLevel = h.level || '';
+      drawerDeadlineMode = h.deadlineMode || '';
+      drawerDays = 1;
+
+      // 等级
+      var radios = document.querySelectorAll('#drawer .ce-field-radio-group .ce-field-radio');
+      radios.forEach(function(r) { r.classList.remove('active'); });
+      if (drawerLevel) {
+        var levelBtn = document.querySelector('#drawer .ce-field-radio-group .ce-field-radio.' + drawerLevel);
+        if (levelBtn) levelBtn.classList.add('active');
+      }
+
+      // 整改期限
+      var dlRadios = document.querySelectorAll('#drawer .ce-deadline-row .ce-field-radio');
+      dlRadios.forEach(function(r) { r.classList.remove('active'); });
+      if (drawerDeadlineMode === 'immediate') {
+        dlRadios[0].classList.add('active');
+        document.getElementById('dDeadlineStepper').classList.remove('show');
+      } else if (drawerDeadlineMode === 'limited') {
+        dlRadios[1].classList.add('active');
+        document.getElementById('dDeadlineStepper').classList.add('show');
+        // 从 deadlineDate 解析天数
+        var m = h.deadlineDate && h.deadlineDate.match(/限期(\d+)天/);
+        if (m) { drawerDays = parseInt(m[1]); }
+        document.getElementById('dStepperValue').textContent = drawerDays;
+        document.getElementById('dStepperMinus').disabled = drawerDays <= 1;
+      }
+
+      // 图片
+      drawerPhotos = (h.photos || []).slice();
+      renderDrawerPhotos();
+
       document.getElementById('drawerMask').classList.add('show');
       document.getElementById('drawer').classList.add('show');
     }
@@ -690,11 +785,16 @@
       document.getElementById('drawerMask').classList.remove('show');
       document.getElementById('drawer').classList.remove('show');
 
-      // 如果是从"有隐患"打开但未确认，回退判定
+      // 编辑模式直接关闭，不做回退
+      if (editingHazardId >= 0) {
+        editingHazardId = -1;
+        return;
+      }
+
+      // 新增模式：如果是从"有隐患"打开但未确认，回退判定
       if (currentDrawerItemIdx >= 0) {
         var item = checkItems[currentDrawerItemIdx];
         if (item.judgment !== 'hazard' || !hazards.some(function(h) { return h.sourceItemIdx === currentDrawerItemIdx; })) {
-          // 没有成功确认隐患，回退判定
           item.judgment = '';
           var card = document.querySelector('.ce-card[data-idx="' + currentDrawerItemIdx + '"]');
           var btns = card.querySelectorAll('.ce-judge-btn');
@@ -727,8 +827,38 @@
     }
 
     function addDrawerPhoto() {
-      alert('打开相机拍照（原型演示）');
+      if (drawerPhotos.length >= 6) return;
+      document.getElementById('drawerPhotoInput').click();
     }
+
+    function removeDrawerPhoto(idx) {
+      drawerPhotos.splice(idx, 1);
+      renderDrawerPhotos();
+    }
+
+    function renderDrawerPhotos() {
+      var html = '';
+      drawerPhotos.forEach(function(src, i) {
+        html += '<div class="ce-photo-item"><img src="' + src + '"><div class="ce-photo-del" onclick="removeDrawerPhoto(' + i + ')">✕</div></div>';
+      });
+      if (drawerPhotos.length < 6) {
+        html += '<div class="ce-photo-add" onclick="addDrawerPhoto()">+</div>';
+      }
+      document.getElementById('dPhotos').innerHTML = html;
+    }
+
+    document.getElementById('drawerPhotoInput').addEventListener('change', function(e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (drawerPhotos.length >= 6) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        drawerPhotos.push(ev.target.result);
+        renderDrawerPhotos();
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    });
 
     function confirmDrawer() {
       var desc = document.getElementById('dDesc').value.trim();
@@ -748,6 +878,27 @@
         deadlineDisplay = '限期' + drawerDays + '天（' + target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0') + '）';
       }
 
+      // 编辑模式：更新已有隐患
+      if (editingHazardId >= 0) {
+        var h = hazards.find(function(item) { return item.id === editingHazardId; });
+        if (h) {
+          h.type = document.getElementById('dType').value || '';
+          h.description = desc;
+          h.level = drawerLevel;
+          h.person = person;
+          h.deadlineMode = drawerDeadlineMode;
+          h.deadlineDate = deadlineDisplay;
+          h.photos = drawerPhotos.slice();
+        }
+        editingHazardId = -1;
+        updateHazardBadge();
+        renderHazardList();
+        document.getElementById('drawerMask').classList.remove('show');
+        document.getElementById('drawer').classList.remove('show');
+        return;
+      }
+
+      // 新增模式
       var hazard = {
         id: ++hazardIdCounter,
         sourceItemIdx: currentDrawerItemIdx,
@@ -757,7 +908,8 @@
         person: person,
         deadlineMode: drawerDeadlineMode,
         deadlineDate: deadlineDisplay,
-        photos: []
+        foundDate: now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0'),
+        photos: drawerPhotos.slice()
       };
 
       hazards.push(hazard);
@@ -804,23 +956,43 @@
       hazards.forEach(function(h) {
         var levelText = h.level === 'major' ? '重大隐患' : '一般隐患';
         var levelCls = h.level === 'major' ? 'major' : 'normal';
-        var sourceText = '手动新增';
-        if (h.source === 'AI识别') sourceText = '来源: AI识别';
-        else if (h.sourceItemIdx >= 0) sourceText = '来源: ' + checkItems[h.sourceItemIdx].name;
+        var isAi = h.source === 'AI识别';
+        var cardCls = 'ce-hazard-card';
 
-        html += '<div class="ce-hazard-card">';
-        html += '<div class="ce-hc-top">';
-        if (h.type) html += '<span class="ce-hc-type">' + h.type + '</span>';
-        html += '<span class="ce-hc-level ' + levelCls + '">' + levelText + '</span>';
+        html += '<div class="' + cardCls + '" onclick="openEditDrawer(' + h.id + ')">';
+        // 隐患类型 + 等级
+        html += '<div class="ce-hc-row">';
+        html += '<span class="ce-hc-label">隐患类型</span>';
+        html += '<span class="ce-hc-val">';
+        if (h.type) html += '<span class="ce-hc-type-tag">' + h.type + '</span>';
+        html += '<span class="ce-hc-level-tag ' + levelCls + '">' + levelText + '</span>';
+        html += '</span></div>';
+        // 隐患描述
+        html += '<div class="ce-hc-row">';
+        html += '<span class="ce-hc-label">隐患描述</span>';
+        html += '<span class="ce-hc-val">' + h.description + '</span>';
         html += '</div>';
-        html += '<div class="ce-hc-desc">' + h.description + '</div>';
-        if (h.suggest) html += '<div class="ce-hc-meta"><span>整改建议: ' + h.suggest + '</span></div>';
-        if (h.risk) html += '<div class="ce-hc-meta"><span>关联风险: ' + h.risk + '</span></div>';
-        html += '<div class="ce-hc-meta">';
-        html += '<span>责任人: ' + h.person + '</span>';
-        html += '<span>期限: ' + h.deadlineDate + '</span>';
+        // 整改方式
+        html += '<div class="ce-hc-row">';
+        html += '<span class="ce-hc-label">整改方式</span>';
+        html += '<span class="ce-hc-val">' + (h.deadlineDate || '—') + '</span>';
         html += '</div>';
-        html += '<div class="ce-hc-source">' + sourceText + '</div>';
+        // 整改责任人
+        html += '<div class="ce-hc-row">';
+        html += '<span class="ce-hc-label">整改责任人</span>';
+        html += '<span class="ce-hc-val">' + (h.person || '—') + '</span>';
+        html += '</div>';
+        // 发现时间
+        html += '<div class="ce-hc-row">';
+        html += '<span class="ce-hc-label">发现时间</span>';
+        html += '<span class="ce-hc-val">' + (h.foundDate || '—') + '</span>';
+        html += '</div>';
+        // 来源标签（统一展示）
+        if (isAi) {
+          html += '<span class="ce-hc-source-tag ai">🤖 AI识别</span>';
+        } else {
+          html += '<span class="ce-hc-source-tag manual">手动新增</span>';
+        }
         html += '</div>';
       });
       list.innerHTML = html;
@@ -1031,6 +1203,44 @@
         if (tableName) document.getElementById('infoTableName').textContent = tableName;
       } catch(e) {}
 
+      // 恢复之前保存的隐患（跳转AI前持久化的）
+      try {
+        var saved = JSON.parse(localStorage.getItem('checkExecuteHazards') || '[]');
+        if (saved.length) {
+          saved.forEach(function(item) {
+            hazards.push(item);
+            if (item.id > hazardIdCounter) hazardIdCounter = item.id;
+          });
+          localStorage.removeItem('checkExecuteHazards');
+        }
+      } catch(e) {}
+
+      // 恢复之前保存的检查项判定状态
+      try {
+        var savedJudgments = JSON.parse(localStorage.getItem('checkExecuteJudgments') || '{}');
+        if (Object.keys(savedJudgments).length) {
+          Object.keys(savedJudgments).forEach(function(idx) {
+            var i = parseInt(idx);
+            if (checkItems[i]) {
+              checkItems[i].judgment = savedJudgments[idx];
+              updateItemNo(i);
+              var card = document.querySelector('.ce-card[data-idx="' + i + '"]');
+              if (card) {
+                var btns = card.querySelectorAll('.ce-judge-btn');
+                btns.forEach(function(b) { b.classList.remove('active'); });
+                var j = savedJudgments[idx];
+                if (j === 'safe') btns[1].classList.add('active');
+                else if (j === 'hazard') btns[0].classList.add('active');
+                else if (j === 'na') { btns[2].classList.add('active'); card.querySelector('.ce-na-reason').classList.add('show'); }
+              }
+            }
+          });
+          localStorage.removeItem('checkExecuteJudgments');
+          updateHazardBadge();
+          renderHazardList();
+        }
+      } catch(e) {}
+
       // 读取 AI 识别上报的隐患
       try {
         var aiList = JSON.parse(localStorage.getItem('aiHazards') || '[]');
@@ -1044,9 +1254,13 @@
               level: item.level || 'normal',
               suggest: item.suggest || '',
               risk: item.risk || '',
+              law: item.law || '',
+              clause: item.clause || '',
+              confidence: item.confidence || 0,
               person: item.person || '',
               deadlineMode: item.deadlineMode || '',
               deadlineDate: item.deadlineDate || '',
+              foundDate: item.foundDate || (new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2,'0') + '-' + String(new Date().getDate()).padStart(2,'0')),
               photos: item.photos || [],
               source: item.source || 'AI识别'
             });
@@ -1054,6 +1268,7 @@
           localStorage.removeItem('aiHazards');
           updateHazardBadge();
           renderHazardList();
+          switchTab('hazards');
         }
       } catch(e) {}
     })();
