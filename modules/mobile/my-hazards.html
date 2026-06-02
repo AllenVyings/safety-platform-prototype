@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>我的隐患</title>
+  <link rel="stylesheet" href="../../css/mobile.css">
+  <style>
+    .mh-stat-bar { display: flex; gap: 8px; padding: 12px 16px; background: #fff; border-bottom: 0.5px solid #f0f0f0; }
+    .mh-stat-item { flex: 1; text-align: center; padding: 10px 0; background: #f8f9fa; border-radius: 8px; }
+    .mh-stat-num { font-size: 20px; font-weight: 700; }
+    .mh-stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+    .mh-bar-chart { display: flex; align-items: center; gap: 12px; padding: 12px 16px 8px; background: #fff; }
+    .mh-bar-label { font-size: 12px; color: #666; white-space: nowrap; }
+    .mh-bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; display: flex; }
+    .mh-bar-fill { height: 100%; }
+    .mh-bar-fill.green { background: #52c41a; }
+    .mh-bar-fill.orange { background: #faad14; }
+    .mh-bar-fill.red { background: #ff4d4f; }
+    .mh-bar-legend { display: flex; gap: 12px; padding: 4px 16px 10px; background: #fff; }
+    .mh-bar-legend-item { font-size: 11px; color: #666; display: flex; align-items: center; gap: 4px; }
+    .mh-bar-legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .mh-filter-bar { display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; background: #fff; border-bottom: 0.5px solid #f0f0f0; }
+    .mh-filter-chip { white-space: nowrap; padding: 5px 14px; border-radius: 14px; font-size: 13px; background: #f5f5f5; color: #666; cursor: pointer; transition: all 0.2s ease; }
+    .mh-filter-chip.active { background: #1068ff; color: #fff; }
+    .mh-tab { display: flex; background: #fff; border-bottom: 0.5px solid #f0f0f0; }
+    .mh-tab-item { flex: 1; text-align: center; padding: 10px 0; font-size: 14px; color: #999; cursor: pointer; position: relative; }
+    .mh-tab-item.active { color: #1068ff; font-weight: 600; }
+    .mh-tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: #1068ff; border-radius: 1.5px; }
+    .mh-card { background: #fff; padding: 14px 16px; margin: 10px 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; transition: background 0.15s ease; }
+    .mh-card:active { background: #f5f7fa; }
+    .mh-card-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+    .mh-card-label { color: #888; }
+    .mh-card-value { color: #333; }
+    .mh-card-value.red { color: #ff4d4f; }
+    .mh-card-value.orange { color: #faad14; }
+    .mh-card-value.green { color: #52c41a; }
+  </style>
+</head>
+<body>
+  <div class="m-page">
+    <!-- 统计卡片区 -->
+    <div class="mh-stat-bar">
+      <div class="mh-stat-item"><div class="mh-stat-num">12</div><div class="mh-stat-label">隐患总数</div></div>
+      <div class="mh-stat-item"><div class="mh-stat-num" style="color:#1f93ea">7</div><div class="mh-stat-label">我排查的</div></div>
+      <div class="mh-stat-item"><div class="mh-stat-num" style="color:#faad14">5</div><div class="mh-stat-label">我整改的</div></div>
+    </div>
+    <div class="mh-bar-chart">
+      <span class="mh-bar-label">状态占比</span>
+      <div class="mh-bar-track">
+        <div class="mh-bar-fill green" style="width:58%"></div>
+        <div class="mh-bar-fill orange" style="width:25%"></div>
+        <div class="mh-bar-fill red" style="width:17%"></div>
+      </div>
+    </div>
+    <div class="mh-bar-legend">
+      <div class="mh-bar-legend-item"><span class="mh-bar-legend-dot" style="background:#52c41a"></span>已整改 7</div>
+      <div class="mh-bar-legend-item"><span class="mh-bar-legend-dot" style="background:#faad14"></span>整改中 3</div>
+      <div class="mh-bar-legend-item"><span class="mh-bar-legend-dot" style="background:#ff4d4f"></span>未整改 2</div>
+    </div>
+
+    <div class="mh-tab">
+      <div class="mh-tab-item active" onclick="switchView(this,0)">我排查的 (7)</div>
+      <div class="mh-tab-item" onclick="switchView(this,1)">我整改的 (5)</div>
+    </div>
+
+    <div class="mh-filter-bar">
+      <span class="mh-filter-chip active">全部</span>
+      <span class="mh-filter-chip">未整改</span>
+      <span class="mh-filter-chip">整改中</span>
+      <span class="mh-filter-chip">已整改</span>
+    </div>
+
+    <!-- 我排查的 -->
+    <div id="viewPanel0">
+      <div class="mh-card" onclick="parent.navigateTo('hazard-detail')">
+        <div class="mh-card-row"><span class="mh-card-label">隐患类型</span><span class="mh-card-value">消防</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">管控对象</span><span class="mh-card-value">A栋配电房</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改状态</span><span class="mh-card-value red">未整改</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改期限</span><span class="mh-card-value">2025-01-15</span></div>
+      </div>
+      <div class="mh-card" onclick="parent.navigateTo('hazard-detail')">
+        <div class="mh-card-row"><span class="mh-card-label">隐患类型</span><span class="mh-card-value">电气</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">管控对象</span><span class="mh-card-value">A栋生产车间</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改状态</span><span class="mh-card-value red">未整改</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改期限</span><span class="mh-card-value">2025-01-25</span></div>
+      </div>
+      <div class="mh-card">
+        <div class="mh-card-row"><span class="mh-card-label">隐患类型</span><span class="mh-card-value">标志</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">管控对象</span><span class="mh-card-value">B栋仓库</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改状态</span><span class="mh-card-value orange">整改中</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改期限</span><span class="mh-card-value">2025-01-20</span></div>
+      </div>
+    </div>
+
+    <!-- 我整改的 -->
+    <div id="viewPanel1" style="display:none;">
+      <div class="mh-card">
+        <div class="mh-card-row"><span class="mh-card-label">隐患类型</span><span class="mh-card-value">设备</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">管控对象</span><span class="mh-card-value">危化品存储区</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改状态</span><span class="mh-card-value orange">整改中</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改期限</span><span class="mh-card-value">2025-02-01</span></div>
+      </div>
+      <div class="mh-card">
+        <div class="mh-card-row"><span class="mh-card-label">隐患类型</span><span class="mh-card-value">消防</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">管控对象</span><span class="mh-card-value">B栋仓库</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">整改状态</span><span class="mh-card-value green">已整改</span></div>
+        <div class="mh-card-row"><span class="mh-card-label">完成时间</span><span class="mh-card-value">2025-01-10</span></div>
+      </div>
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+
+  <script>
+    function switchView(el, idx) {
+      el.parentElement.querySelectorAll('.mh-tab-item').forEach(function(t){t.classList.remove('active');});
+      el.classList.add('active');
+      document.getElementById('viewPanel0').style.display = idx === 0 ? '' : 'none';
+      document.getElementById('viewPanel1').style.display = idx === 1 ? '' : 'none';
+    }
+    document.querySelectorAll('.mh-filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.mh-filter-chip').forEach(function(c){c.classList.remove('active');});
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

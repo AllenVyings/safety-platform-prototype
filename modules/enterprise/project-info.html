@@ -40,7 +40,7 @@
 .info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .info-row{display:flex;font-size:13px;align-items:flex-start}
 .info-label{color:#666;width:120px;flex-shrink:0}
-.info-value{color:#333;flex:1}
+.info-value{color:#333;flex:1;min-width:0;overflow-wrap:break-word;word-break:break-all}
 .info-value .tag{margin-top:2px}
 
 /* 编辑状态 */
@@ -127,7 +127,7 @@ select.info-input{height:32px}
         <span class="info-value">
 <span class="tag tag-success">在建项目</span>
 </span>
-        <select class="info-input" id="fProjectCategory" disabled style="background:#f5f5f5;color:#999;cursor:not-allowed">
+        <select class="info-input" id="fProjectCategory" onchange="onProjectCategoryChange()" disabled style="background:#f5f5f5;color:#999;cursor:not-allowed">
           <option value="1" selected>在建项目</option>
           <option value="2">运营项目</option>
         </select>
@@ -135,7 +135,7 @@ select.info-input{height:32px}
       <div class="info-row" data-field="domainType">
         <span class="info-label">领域小类</span>
         <span class="info-value">房屋建设工程 - 主体工程</span>
-        <select class="info-input" id="fDomain" disabled style="background:#f5f5f5;color:#999;cursor:not-allowed">
+        <select class="info-input" id="fDomain" onchange="onDomainChange()" disabled style="background:#f5f5f5;color:#999;cursor:not-allowed">
           <option value="">请选择领域小类</option>
           <option value="1" selected>房屋建设工程</option>
           <option value="2">市政工程</option>
@@ -505,6 +505,11 @@ function toggleEdit() {
     btn.classList.add('btn-success');
     editActions.forEach(el => el.style.display = 'inline-flex');
     infoRows.forEach(row => { if (!row.classList.contains('no-edit')) row.classList.add('editing'); });
+    // 启用被禁用的选择器
+    ['fProjectCategory','fDomain'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.disabled = false; el.style.background = ''; el.style.color = ''; el.style.cursor = ''; }
+    });
     // 四方责任体表格进入编辑状态
     document.getElementById('partyTableBody').classList.add('editing');
     // 先初始化区划数据，再回填所有字段
@@ -516,6 +521,11 @@ function toggleEdit() {
     btn.classList.add('btn-primary');
     editActions.forEach(el => el.style.display = 'none');
     infoRows.forEach(row => row.classList.remove('editing'));
+    // 禁用选择器
+    ['fProjectCategory','fDomain'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.disabled = true; el.style.background = '#f5f5f5'; el.style.color = '#999'; el.style.cursor = 'not-allowed'; }
+    });
     // 四方责任体表格退出编辑状态
     document.getElementById('partyTableBody').classList.remove('editing');
     

@@ -238,16 +238,16 @@
       <h2 class="quick-actions-title">快捷操作</h2>
       <div class="action-buttons">
         <button class="btn btn-primary" onclick="goToModule('gov-quick-check')">
-          🔍 一键巡查
+          🔍&nbsp;&nbsp;一键巡查
         </button>
         <button class="btn btn-primary" onclick="goToModule('gov-check-task')">
-          📋 检查任务
+          📋&nbsp;&nbsp;检查任务
         </button>
         <button class="btn btn-primary" onclick="goToModule('gov-key-place')">
-          🏭 重点场所
+          🏭&nbsp;&nbsp;重点场所
         </button>
         <button class="btn btn-primary" onclick="goToModule('gov-hazard-manage')">
-          ⚠️ 隐患管理
+          ⚠️&nbsp;&nbsp;隐患管理
         </button>
       </div>
     </section>
@@ -324,32 +324,70 @@
       
       // 面包屑导航
       window.goToHome = function() {
-        console.log('导航到首页');
-        alert('导航到：首页');
+        try {
+          if (parent && parent.router) {
+            parent.router.navigate('gov-workbench');
+          }
+        } catch(e) {}
       };
       
-      // 模块导航
+      // 模块导航（通过父框架路由切换）
       window.goToModule = function(moduleId) {
-        console.log('导航到模块：' + moduleId);
-        alert('导航到：' + moduleId);
+        try {
+          if (parent && parent.router) {
+            parent.router.navigate(moduleId);
+          } else {
+            showToast('即将导航到：' + moduleId);
+          }
+        } catch(e) {
+          showToast('即将导航到：' + moduleId);
+        }
       };
-      
+
       // 任务操作
       window.continueTask = function(taskId) {
-        console.log('继续任务：' + taskId);
-        alert('继续任务：' + taskId);
+        try {
+          if (parent && parent.router) {
+            parent.router.navigate('gov-check-task');
+          } else {
+            showToast('即将跳转至检查任务页面');
+          }
+        } catch(e) {
+          showToast('即将跳转至检查任务页面');
+        }
       };
-      
+
       window.reviewHazard = function(hazardId) {
-        console.log('复查隐患：' + hazardId);
-        alert('复查隐患：' + hazardId);
+        try {
+          if (parent && parent.router) {
+            parent.router.navigate('gov-hazard-manage');
+          } else {
+            showToast('即将跳转至隐患管理页面');
+          }
+        } catch(e) {
+          showToast('即将跳转至隐患管理页面');
+        }
       };
-      
-      // 通知操作
+
+      // 通知操作：点击后标记已读（红点变灰点）
       window.viewNotice = function(noticeId) {
-        console.log('查看通知：' + noticeId);
-        alert('查看通知：' + noticeId);
+        var item = document.querySelector('.notice-item[onclick*="' + noticeId + '"]');
+        if (item) {
+          var dot = item.querySelector('.notice-dot');
+          if (dot && !dot.classList.contains('read')) {
+            dot.classList.add('read');
+          }
+        }
+        showToast('查看通知：' + noticeId);
       };
+
+      function showToast(msg) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'#1677ff', color:'#fff', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
+        document.body.appendChild(t);
+        setTimeout(function() { t.remove(); }, 2000);
+      }
       
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

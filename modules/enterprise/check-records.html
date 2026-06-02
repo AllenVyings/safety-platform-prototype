@@ -108,6 +108,32 @@
     .tag-orange { background: var(--warning-light); color: var(--warning); }
     .tag-red { background: var(--error-light); color: var(--error); }
     .tag-blue { background: var(--info-light); color: var(--info); }
+
+    /* ========== 弹窗 ========== */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: none; align-items: center; justify-content: center; }
+    .modal-box { background: #fff; border-radius: 12px; box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 680px; max-height: 80vh; overflow: auto; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; }
+    .modal-head-title { font-size: 16px; font-weight: 600; }
+    .modal-head-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #999; }
+    .modal-head-close:hover { color: #333; }
+    .modal-body { padding: 24px; }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid #f0f0f0; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+    .detail-item { display: flex; flex-direction: column; gap: 4px; }
+    .detail-label { font-size: 12px; color: #999; }
+    .detail-value { font-size: 14px; color: #333; }
+    .detail-section { margin-bottom: 16px; }
+    .detail-section-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f0f0f0; }
+    .detail-check-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; color: #333; }
+    .detail-check-icon { font-size: 14px; }
+    .detail-check-list { width: 100%; }
+    .detail-check-row { display: grid; grid-template-columns: 40px 1fr 80px 1fr; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; align-items: center; }
+    .detail-check-row:last-child { border-bottom: none; }
+    .detail-check-row .check-num { color: #999; text-align: center; }
+    .detail-check-row .check-content { color: #333; }
+    .detail-check-row .check-result { font-weight: 500; }
+    .detail-check-row .check-remark { color: #999; font-size: 12px; }
+    .detail-check-row.header { font-weight: 600; color: #666; background: #fafafa; padding: 8px; border-radius: 4px; border-bottom: none; }
   </style>
 </head>
 <body>
@@ -131,7 +157,7 @@
     <div class="filter-bar">
       <div class="filter-item"><label>检查类型：</label><select><option>全部</option><option>日常自查</option><option>政府检查</option><option>专项检查</option></select></div>
       <div class="filter-item"><label>检查结果：</label><select><option>全部</option><option>合格</option><option>有隐患</option><option>不合格</option></select></div>
-      <div class="filter-item"><label>时间范围：</label><input type="date"></div>
+      <div class="filter-item"><label>时间范围：</label><input type="date" id="filterDateStart"> <span style="color:var(--text-secondary)">至</span> <input type="date" id="filterDateEnd"></div>
       <button class="btn btn-default" onclick="resetFilters()">重置</button>
       <div style="flex: 1;"></div>
       <button class="btn btn-primary" onclick="openAddModal()">+ 新增自查</button>
@@ -205,6 +231,62 @@
       </div>
     </div>
   </div>
+
+  <!-- 检查详情弹窗 -->
+  <div class="modal-overlay" id="modal-check-detail">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-head-title">检查记录详情</span>
+        <button class="modal-head-close" onclick="closeCheckDetail()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-section">
+          <div class="detail-section-title">基本信息</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="detail-label">检查编号</span><span class="detail-value" id="detailCheckId">CR2026040201</span></div>
+            <div class="detail-item"><span class="detail-label">检查类型</span><span class="detail-value" id="detailCheckType">日常自查</span></div>
+            <div class="detail-item"><span class="detail-label">检查对象</span><span class="detail-value" id="detailCheckObj">1号生产车间</span></div>
+            <div class="detail-item"><span class="detail-label">检查日期</span><span class="detail-value" id="detailCheckDate">2026-04-02</span></div>
+            <div class="detail-item"><span class="detail-label">检查人</span><span class="detail-value" id="detailChecker">张三</span></div>
+            <div class="detail-item"><span class="detail-label">检查项数</span><span class="detail-value" id="detailCheckCount">15</span></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">检查项列表</div>
+          <div class="detail-check-list" id="detailCheckList">
+            <div class="detail-check-row header">
+              <span>序号</span><span>检查内容</span><span>结果</span><span>备注</span>
+            </div>
+            <div class="detail-check-row">
+              <span class="check-num">1</span><span class="check-content">消防器材是否在有效期内</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+            </div>
+            <div class="detail-check-row">
+              <span class="check-num">2</span><span class="check-content">安全通道是否畅通</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+            </div>
+            <div class="detail-check-row">
+              <span class="check-num">3</span><span class="check-content">设备防护装置是否完好</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+            </div>
+            <div class="detail-check-row">
+              <span class="check-num">4</span><span class="check-content">危化品存储是否规范</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+            </div>
+            <div class="detail-check-row">
+              <span class="check-num">5</span><span class="check-content">电气线路是否正常</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">检查结论</div>
+          <div style="padding:8px 12px;background:#f6ffed;border-radius:6px;font-size:13px;color:#52c41a;font-weight:500;">
+            本次检查全部合格，无发现安全隐患。
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-default" onclick="closeCheckDetail()" style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function() {
       'use strict';
@@ -226,23 +308,36 @@
       
       window.viewDetail = function(id) {
         console.log('查看详情：' + id);
-        alert('查看详情：' + id);
+        document.getElementById('detailCheckId').textContent = id;
+        document.getElementById('modal-check-detail').style.display = 'flex';
       };
-      
+
+      window.closeCheckDetail = function() {
+        document.getElementById('modal-check-detail').style.display = 'none';
+      };
+
       window.rectify = function(id) {
         console.log('整改：' + id);
-        alert('整改：' + id);
+        showToast('进入整改流程：' + id);
       };
-      
+
       window.resetFilters = function() {
         console.log('重置筛选');
-        alert('重置筛选条件');
+        showToast('筛选条件已重置');
       };
-      
+
       window.openAddModal = function() {
         console.log('新增自查');
-        alert('打开新增自查弹窗');
+        showToast('打开新增自查弹窗');
       };
+
+      function showToast(msg) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'#1677ff', color:'#fff', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
+        document.body.appendChild(t);
+        setTimeout(function() { t.remove(); }, 2000);
+      }
       
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

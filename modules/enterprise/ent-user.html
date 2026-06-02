@@ -30,7 +30,7 @@
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
 .stat-card{background:#fafafa;border-radius:8px;padding:12px 14px}
 .stat-card-label{font-size:12px;color:#888;margin-bottom:4px}
-.stat-card-value{font-size:18px;font-weight:700;color:#1f1f1f}
+.stat-card-value{font-size:18px;font-weight:700;color:#1f1f1f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* 查询区 */
 .query-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
@@ -43,7 +43,7 @@
 .table-basic{width:100%;border-collapse:collapse;font-size:13px;min-width:800px}
 .table-basic th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;color:#1f1f1f;border-bottom:1px solid #f0f0f0;white-space:nowrap}
 .table-basic td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333}
-.table-basic tr:hover td{background:#fafafa}
+.table-basic tr:hover td{background:#e8f0fe}
 .ellipsis-col{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
 .action-col{position:sticky;right:0;background:#fff;white-space:nowrap}
 .action-col .btn-link{margin-right:8px}
@@ -74,7 +74,10 @@
 /* 标签 */
 .tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
 .tag-success{background:#f6ffed;color:#52c41a}
+.tag-warning{background:#fffbe6;color:#faad14}
 .tag-error{background:#fff2f0;color:#ff4d4f}
+.tag-gray{background:#f5f5f5;color:#999}
+.tag-blue{background:#e6f4ff;color:#1677ff}
 
 /* 弹窗 */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center}
@@ -101,6 +104,8 @@
 .form-group input.error,.form-group select.error{border-color:#ff4d4f}
 .form-error{color:#ff4d4f;font-size:12px;margin-top:3px;display:none}
 .form-group.has-error .form-error{display:block}
+.duplicate-error{color:#ff4d4f;font-size:12px;margin-top:3px;display:none}
+.form-group.has-duplicate .duplicate-error{display:block}
 
 /* Toast */
 #_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
@@ -119,7 +124,8 @@
     <!-- 左侧部门树 -->
     <div class="tree-panel">
       <div class="tree-header">🏢 组织架构</div>
-      <div class="tree-body" id="orgTree"></div>
+      <div style="padding:10px 14px;border-bottom:1px solid #f0f0f0"><input type="text" placeholder="搜索部门..." id="treeSearchInput" style="width:100%;padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box"></div>
+	      <div class="tree-body" id="orgTree"></div>
     </div>
 
     <!-- 右侧用户列表 -->
@@ -187,14 +193,14 @@
               <td>技术部</td>
               <td>技术经理</td>
               <td>tech_mgr</td>
-              <td>管理员</td>
-              <td><span class="tag tag-green">绿码</span></td>
+              <td><span class="tag tag-blue">管理员</span></td>
+              <td><span class="tag tag-success">绿码</span></td>
               <td><span class="tag tag-success">正常</span></td>
               <td>2024-01-15</td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
                 <button class="btn-link danger" onclick="showToast('删除')">删除</button>
-                <button class="btn-link" onclick="showToast('详情')">详情</button>
+                <button class="btn-link" onclick="openDetailModal()">详情</button>
                 <button class="btn-link" onclick="openResetPwdModal()">重置密码</button>
               </td>
             </tr>
@@ -204,14 +210,14 @@
               <td>安全部</td>
               <td>安全主管</td>
               <td>safe_mgr</td>
-              <td>普通用户</td>
-              <td><span class="tag tag-orange">黄码</span></td>
+              <td><span class="tag tag-gray">普通用户</span></td>
+              <td><span class="tag tag-warning">黄码</span></td>
               <td><span class="tag tag-success">正常</span></td>
               <td>2024-01-20</td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
                 <button class="btn-link danger" onclick="showToast('删除')">删除</button>
-                <button class="btn-link" onclick="showToast('详情')">详情</button>
+                <button class="btn-link" onclick="openDetailModal()">详情</button>
                 <button class="btn-link" onclick="openResetPwdModal()">重置密码</button>
               </td>
             </tr>
@@ -221,9 +227,9 @@
               <td>工程部</td>
               <td>工程师</td>
               <td>eng_001</td>
-              <td>普通用户</td>
-              <td><span class="tag tag-red">红码</span></td>
-              <td><span class="tag tag-error">停用</span></td>
+              <td><span class="tag tag-gray">普通用户</span></td>
+              <td><span class="tag tag-error">红码</span></td>
+              <td><span class="tag tag-gray">停用</span></td>
               <td>2024-02-01</td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
@@ -334,6 +340,33 @@
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('resetPwdModal')">取消</button>
       <button class="btn btn-primary" onclick="confirmResetPwd()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- 用户详情弹窗 -->
+<div class="modal-overlay" id="modal-user-detail">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">用户详情</span>
+      <button class="modal-close" onclick="closeModal('modal-user-detail')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group"><label>姓名</label><div style="padding:7px 10px;font-size:13px;color:#333">李四</div></div>
+        <div class="form-group"><label>手机号</label><div style="padding:7px 10px;font-size:13px;color:#333">13900139001</div></div>
+        <div class="form-group"><label>所属部门</label><div style="padding:7px 10px;font-size:13px;color:#333">技术部</div></div>
+        <div class="form-group"><label>职务</label><div style="padding:7px 10px;font-size:13px;color:#333">技术经理</div></div>
+        <div class="form-group"><label>登录账号</label><div style="padding:7px 10px;font-size:13px;color:#333">tech_mgr</div></div>
+        <div class="form-group"><label>角色</label><div style="padding:7px 10px;font-size:13px;"><span class="tag tag-blue">管理员</span></div></div>
+        <div class="form-group"><label>安全码状态</label><div style="padding:7px 10px;"><span class="tag tag-success">绿码</span></div></div>
+        <div class="form-group"><label>账号状态</label><div style="padding:7px 10px;"><span class="tag tag-success">正常</span></div></div>
+        <div class="form-group"><label>创建时间</label><div style="padding:7px 10px;font-size:13px;color:#333">2024-01-15</div></div>
+        <div class="form-group"><label>最近登录</label><div style="padding:7px 10px;font-size:13px;color:#333">2026-04-01 09:30</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('modal-user-detail')">关闭</button>
     </div>
   </div>
 </div>
@@ -521,11 +554,83 @@ function saveUser() {
   if (!dept) { setFieldError('fg-dept', 'formDept'); valid = false; }
   if (!account) { setFieldError('fg-account', 'formAccount'); valid = false; }
 
+  // 账号重复校验
+  var existingAccounts = ['tech_mgr', 'safe_mgr', 'eng_001'];
+  if (account && existingAccounts.indexOf(account) !== -1) {
+    setFieldError('fg-account', 'formAccount');
+    var errDiv = document.querySelector('#fg-account .form-error');
+    if (errDiv) errDiv.textContent = '该账号已存在，请更换';
+    valid = false;
+  }
+
+  // 手机号重复校验
+  var existingPhones = ['13900139001', '13900139002', '13800138002'];
+  if (phone && phoneReg.test(phone) && existingPhones.indexOf(phone) !== -1) {
+    setFieldError('fg-phone', 'formPhone');
+    var errDiv2 = document.querySelector('#fg-phone .form-error');
+    if (errDiv2) errDiv2.textContent = '该手机号已注册，请更换';
+    valid = false;
+  }
+
   if (!valid) return;
 
   showToast('保存成功');
   closeModal('userModal');
 }
+
+// ===== 用户详情弹窗 =====
+function openDetailModal() {
+  document.getElementById('modal-user-detail').style.display = 'flex';
+}
+
+// ===== 左侧树选中 → 右侧列表联动筛选 =====
+var _origSelectTreeNode = selectTreeNode;
+selectTreeNode = function(nodeId) {
+  selectedTreeId = nodeId;
+  renderOrgTree();
+  filterUsersByDept(nodeId);
+};
+
+function filterUsersByDept(deptId) {
+  var deptNameMap = {
+    'root': '', 'dept-1': '安全部', 'dept-2': '技术部',
+    'dept-3': '工程部', 'dept-4': '财务部',
+    'sub-1': '安全一组', 'sub-2': '安全二组', 'sub-3': '技术一组'
+  };
+  var deptName = deptNameMap[deptId] || '';
+  var rows = document.querySelectorAll('#userTableBody tr');
+  rows.forEach(function(row) {
+    if (!deptName) { row.style.display = ''; return; }
+    var deptCell = row.cells[2];
+    row.style.display = (deptCell && deptCell.textContent.indexOf(deptName) !== -1) ? '' : 'none';
+  });
+  if (deptName) showToast('筛选：' + deptName);
+}
+
+// ===== 树搜索过滤 =====
+document.getElementById('treeSearchInput').addEventListener('input', function(e) {
+  var keyword = e.target.value.trim().toLowerCase();
+  var allNodes = document.querySelectorAll('#orgTree .tree-node');
+  allNodes.forEach(function(node) {
+    var label = node.querySelector('.tree-node-label');
+    if (!label) return;
+    var text = label.textContent.toLowerCase();
+    node.style.display = (!keyword || text.indexOf(keyword) !== -1) ? '' : 'none';
+  });
+  if (keyword) {
+    allNodes.forEach(function(node) {
+      if (node.style.display !== 'none') {
+        var parent = node.parentElement;
+        while (parent && parent.id !== 'orgTree') {
+          if (parent.classList && (parent.classList.contains('tree-node') || parent.classList.contains('tree-children'))) {
+            parent.style.display = '';
+          }
+          parent = parent.parentElement;
+        }
+      }
+    });
+  }
+});
 
 // 初始化
 renderOrgTree();

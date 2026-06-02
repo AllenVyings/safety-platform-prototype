@@ -1,39 +1,353 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>角色权限管理 - 超管端</title>
+<meta charset="UTF-8">
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
-  <style>
-    .placeholder-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%); }
-    .placeholder-card { text-align: center; background: #fff; border-radius: 12px; padding: 48px 60px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
-    .placeholder-icon { font-size: 64px; margin-bottom: 16px; }
-    .placeholder-title { font-size: 20px; font-weight: 600; color: #1f1f1f; margin-bottom: 8px; }
-    .placeholder-desc { font-size: 14px; color: #999; }
-    .placeholder-badge { display: inline-block; margin-top: 16px; padding: 4px 16px; background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; border-radius: 4px; font-size: 13px; font-weight: 500; }
-  </style>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>角色权限管理 - 超管端</title>
+
+<style>
+.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
+.breadcrumb-item:hover{color:#1677ff}
+.main-layout{display:flex;gap:16px;margin-top:16px;min-height:calc(100vh - 80px)}
+.left-panel{width:300px;flex-shrink:0;background:#fff;border-radius:8px;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden}
+.left-header{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:600;color:#1f1f1f;display:flex;justify-content:space-between;align-items:center}
+.left-body{flex:1;overflow-y:auto;padding:8px 0}
+.role-group{margin-bottom:4px}
+.role-group-title{padding:8px 16px;font-size:12px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px}
+.role-item{padding:9px 16px;cursor:pointer;font-size:13px;color:#333;display:flex;align-items:center;gap:8px;transition:background .15s}
+.role-item:hover{background:#f5f5f5}
+.role-item.active{background:#e6f7ff;color:#1677ff;font-weight:500}
+.role-item .role-icon{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.role-item .role-icon.super{background:#f0f5ff;color:#1677ff}
+.role-item .role-icon.gov{background:#f6ffed;color:#52c41a}
+.role-item .role-icon.ent{background:#fff7e6;color:#fa8c16}
+.role-item .role-icon.proj{background:#fff1f0;color:#ff4d4f}
+.role-item .role-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-item .role-count{font-size:11px;color:#999;background:#f0f0f0;padding:2px 6px;border-radius:10px}
+.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+.perm-card{background:#fff;border-radius:8px;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}
+.perm-card-header{padding:14px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;background:#fafafa}
+.perm-card-title{font-size:14px;font-weight:600;color:#1f1f1f}
+.perm-card-body{padding:20px;max-height:calc(100vh - 300px);overflow-y:auto}
+.section-label{font-size:13px;font-weight:600;color:#1f1f1f;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+.perm-group{margin-bottom:16px}
+.perm-group-header{display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;font-size:13px;font-weight:600;color:#333}
+.perm-group-header .arrow{font-size:10px;color:#999;transition:transform .2s;width:16px;text-align:center}
+.perm-group-header .arrow.open{transform:rotate(90deg)}
+.perm-group-body{padding-left:24px}
+.perm-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:#333}
+.perm-item input[type=checkbox]{width:16px;height:16px;accent-color:#1677ff}
+.perm-item input[type=radio]{width:16px;height:16px;accent-color:#1677ff}
+.perm-sub-group{margin-left:20px;margin-bottom:8px}
+.data-perm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.data-perm-item{display:flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid #f0f0f0;border-radius:6px;font-size:13px;color:#333;cursor:pointer;transition:all .2s}
+.data-perm-item:hover{border-color:#1677ff;background:#f0f7ff}
+.data-perm-item.selected{border-color:#1677ff;background:#e6f4ff}
+.data-perm-item input[type=radio]{width:16px;height:16px;accent-color:#1677ff}
+.btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+.btn-default:hover{color:#1677ff;border-color:#1677ff}
+.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+.btn-primary:hover{background:#4096ff}
+.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+.btn-link:hover{color:#4096ff}
+.btn-sm{padding:3px 10px;font-size:12px}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:10px;width:520px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.modal-title{font-size:16px;font-weight:600;color:#1e293b}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:14px;color:#999;transition:all .2s}
+.modal-close:hover{background:#f5f5f5;color:#666}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #f0f0f0;flex-shrink:0}
+.form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;flex:1;min-width:160px}
+.form-label{font-size:13px;color:#333;margin-bottom:5px;font-weight:500}
+.form-label .required{color:#ff4d4f;margin-right:2px}
+.form-control{padding:6px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-control:focus{border-color:#1677ff}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
+.tag-info{background:#e6f4ff;color:#1677ff}
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+.empty-hint{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#bbb}
+.empty-hint-icon{font-size:48px;margin-bottom:12px}
+</style>
 </head>
 <body>
-  <div class="module-page placeholder-page" data-module="sa-role-permission">
-    <div class="placeholder-card">
-      <div class="placeholder-icon">🔐</div>
-      <div class="placeholder-title">角色权限管理</div>
-      <div class="placeholder-desc">平台角色定义与权限配置</div>
-      <div class="placeholder-badge">开发中</div>
+<div class="page-container" data-module="sa-role-permission">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">超管端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">角色权限管理</span>
+  </div>
+
+  <div class="main-layout">
+    <!-- 左侧角色列表 -->
+    <div class="left-panel">
+      <div class="left-header">
+        <span>角色列表</span>
+        <button class="btn btn-primary btn-sm" onclick="openAddRoleModal()">+ 新增角色</button>
+      </div>
+      <div class="left-body" id="roleList"></div>
+    </div>
+
+    <!-- 右侧权限配置 -->
+    <div class="right-panel" id="rightPanel">
+      <div class="empty-hint">
+        <div class="empty-hint-icon">&#128274;</div>
+        <div>请在左侧选择角色查看权限配置</div>
+      </div>
     </div>
   </div>
-  <script>
-    (function() {
-      'use strict';
-      const CONFIG = { moduleId: 'sa-role-permission', moduleName: '角色权限管理' };
-      let state = { initialized: false };
-      function init() { if (state.initialized) return; console.log(`[${CONFIG.moduleId}] 模块初始化`); state.initialized = true; }
-      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
-      window.destroyModule = function() { console.log(`[${CONFIG.moduleId}] 模块销毁`); state.initialized = false; };
-    })();
-  </script>
+</div>
+
+<!-- 新增角色弹窗 -->
+<div class="modal-overlay" id="modal-add-role">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">新增角色</span>
+      <div class="modal-close" onclick="closeModal('modal-add-role')">&#x2715;</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>角色名称</label>
+          <input class="form-control" id="fRoleName" placeholder="请输入角色名称">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>角色编码</label>
+          <input class="form-control" id="fRoleCode" placeholder="请输入角色编码（大写英文）">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>所属端</label>
+          <select class="form-control" id="fRoleSide">
+            <option value="">请选择</option>
+            <option value="super">超管端</option>
+            <option value="gov">政府端</option>
+            <option value="ent">企业端</option>
+            <option value="proj">项目端</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">描述</label>
+          <input class="form-control" id="fRoleDesc" placeholder="请输入角色描述（选填）">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('modal-add-role')">取消</button>
+      <button class="btn btn-primary" onclick="saveNewRole()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var roleGroups = [
+  {
+    id:'g-super', name:'超管角色', iconClass:'super', iconText:'S',
+    roles:[
+      {id:'r-sa', name:'系统超管', code:'SYSTEM_ADMIN', side:'super', count:1, desc:'拥有全部权限', perms:['all'], dataPerm:'all'},
+      {id:'r-sv', name:'运维管理员', code:'OPS_ADMIN', side:'super', count:2, desc:'系统运维与配置', perms:['sys_config','org_manage','data_stats'], dataPerm:'all'}
+    ]
+  },
+  {
+    id:'g-gov', name:'政府端角色', iconClass:'gov', iconText:'G',
+    roles:[
+      {id:'r-ga', name:'单位管理员', code:'GOV_ADMIN', side:'gov', count:8, desc:'管理本单位用户与配置', perms:['org_manage','user_manage','inspect','hazard'], dataPerm:'own_org'},
+      {id:'r-gl', name:'领导层', code:'GOV_LEADER', side:'gov', count:5, desc:'查看本单位数据统计', perms:['data_view','inspect_view','hazard_view'], dataPerm:'own_org'},
+      {id:'r-gi', name:'巡查层', code:'GOV_INSPECTOR', side:'gov', count:24, desc:'执行巡查与隐患上报', perms:['inspect','hazard_report'], dataPerm:'own_area'}
+    ]
+  },
+  {
+    id:'g-ent', name:'企业端角色', iconClass:'ent', iconText:'E',
+    roles:[
+      {id:'r-ea', name:'企业管理员', code:'ENT_ADMIN', side:'ent', count:156, desc:'管理本企业用户与信息', perms:['ent_manage','user_manage','safety_code','hazard'], dataPerm:'own_ent'},
+      {id:'r-eu', name:'普通用户', code:'ENT_USER', side:'ent', count:412, desc:'基础安全码查看', perms:['safety_code_view','hazard_report'], dataPerm:'own_ent'}
+    ]
+  },
+  {
+    id:'g-proj', name:'项目端角色', iconClass:'proj', iconText:'P',
+    roles:[
+      {id:'r-pm', name:'项目经理', code:'PROJ_MANAGER', side:'proj', count:42, desc:'管理项目人员与安全码', perms:['proj_manage','user_manage','safety_code','inspect','hazard'], dataPerm:'own_proj'},
+      {id:'r-pu', name:'项目成员', code:'PROJ_MEMBER', side:'proj', count:128, desc:'查看安全码与上报隐患', perms:['safety_code_view','hazard_report'], dataPerm:'own_proj'}
+    ]
+  }
+];
+
+var selectedRole = null;
+var permTreeData = [
+  {name:'系统管理', perms:['sys_config','org_manage','user_manage','role_manage']},
+  {name:'企业管理', perms:['ent_manage','ent_view','ent_delete']},
+  {name:'安全码管理', perms:['safety_code','safety_code_view','safety_code_adjust']},
+  {name:'巡查管理', perms:['inspect','inspect_view','inspect_audit']},
+  {name:'隐患管理', perms:['hazard','hazard_view','hazard_report','hazard_audit']},
+  {name:'数据统计', perms:['data_stats','data_view']}
+];
+var permNameMap = {
+  'all':'全部权限','sys_config':'系统配置','org_manage':'组织管理','user_manage':'用户管理','role_manage':'角色管理',
+  'ent_manage':'企业管理','ent_view':'企业查看','ent_delete':'企业删除',
+  'safety_code':'安全码管理','safety_code_view':'安全码查看','safety_code_adjust':'安全码调整',
+  'inspect':'巡查管理','inspect_view':'巡查查看','inspect_audit':'巡查审核',
+  'hazard':'隐患管理','hazard_view':'隐患查看','hazard_report':'隐患上报','hazard_audit':'隐患审核',
+  'data_stats':'数据统计','data_view':'数据查看'
+};
+var dataPermOptions = [
+  {value:'all', label:'全部数据', desc:'查看所有端所有数据'},
+  {value:'own_org', label:'本单位数据', desc:'仅查看所属政府单位数据'},
+  {value:'own_area', label:'所属辖区数据', desc:'查看所属辖区下所有数据'},
+  {value:'own_ent', label:'本企业数据', desc:'仅查看所属企业数据'},
+  {value:'own_proj', label:'本项目数据', desc:'仅查看所属项目数据'}
+];
+
+function renderRoleList(){
+  var html = '';
+  roleGroups.forEach(function(g){
+    html += '<div class="role-group">';
+    html += '<div class="role-group-title">' + g.name + '</div>';
+    g.roles.forEach(function(r){
+      var isActive = selectedRole && selectedRole.id === r.id;
+      html += '<div class="role-item' + (isActive?' active':'') + '" onclick="selectRole(\'' + r.id + '\')">';
+      html += '<span class="role-icon ' + g.iconClass + '">' + g.iconText + '</span>';
+      html += '<span class="role-name">' + r.name + '</span>';
+      html += '<span class="role-count">' + r.count + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('roleList').innerHTML = html;
+}
+
+function selectRole(roleId){
+  var found = null;
+  roleGroups.forEach(function(g){
+    g.roles.forEach(function(r){
+      if(r.id === roleId) found = r;
+    });
+  });
+  if(!found) return;
+  selectedRole = found;
+  renderRoleList();
+  renderPermPanel();
+}
+
+function renderPermPanel(){
+  if(!selectedRole){
+    document.getElementById('rightPanel').innerHTML = '<div class="empty-hint"><div class="empty-hint-icon">&#128274;</div><div>请在左侧选择角色查看权限配置</div></div>';
+    return;
+  }
+  var r = selectedRole;
+  var isAll = r.perms.includes('all');
+  var html = '';
+
+  // 菜单权限
+  html += '<div class="perm-card">';
+  html += '<div class="perm-card-header"><span class="perm-card-title">菜单权限</span><span class="tag tag-info">' + r.name + '</span></div>';
+  html += '<div class="perm-card-body">';
+  permTreeData.forEach(function(group){
+    var groupChecked = group.perms.filter(function(p){return isAll || r.perms.includes(p);}).length;
+    html += '<div class="perm-group">';
+    html += '<div class="perm-group-header" onclick="togglePermGroup(this)"><span class="arrow open">&#9654;</span><input type="checkbox" ' + (groupChecked===group.perms.length?'checked':'') + '> ' + group.name + '</div>';
+    html += '<div class="perm-group-body">';
+    group.perms.forEach(function(p){
+      var checked = isAll || r.perms.includes(p);
+      html += '<div class="perm-item"><input type="checkbox" ' + (checked?'checked':'') + ' data-perm="' + p + '"> ' + (permNameMap[p]||p) + '</div>';
+    });
+    html += '</div></div>';
+  });
+  html += '</div></div>';
+
+  // 数据权限
+  html += '<div class="perm-card">';
+  html += '<div class="perm-card-header"><span class="perm-card-title">数据权限</span></div>';
+  html += '<div class="perm-card-body">';
+  html += '<div class="section-label">数据可见范围</div>';
+  html += '<div class="data-perm-grid">';
+  dataPermOptions.forEach(function(opt){
+    var isSelected = r.dataPerm === opt.value;
+    html += '<div class="data-perm-item' + (isSelected?' selected':'') + '" onclick="selectDataPerm(\'' + opt.value + '\',this)">';
+    html += '<input type="radio" name="dataPerm" value="' + opt.value + '" ' + (isSelected?'checked':'') + '>';
+    html += '<div><div style="font-weight:500">' + opt.label + '</div><div style="font-size:11px;color:#999">' + opt.desc + '</div></div>';
+    html += '</div>';
+  });
+  html += '</div></div></div>';
+
+  document.getElementById('rightPanel').innerHTML = html;
+}
+
+function togglePermGroup(el){
+  var arrow = el.querySelector('.arrow');
+  var body = el.nextElementSibling;
+  if(body){
+    body.style.display = body.style.display === 'none' ? 'block' : 'none';
+    arrow.classList.toggle('open');
+  }
+}
+
+function selectDataPerm(val, el){
+  if(selectedRole) selectedRole.dataPerm = val;
+  document.querySelectorAll('.data-perm-item').forEach(function(item){item.classList.remove('selected');});
+  el.classList.add('selected');
+  el.querySelector('input[type=radio]').checked = true;
+}
+
+function openAddRoleModal(){
+  document.getElementById('fRoleName').value = '';
+  document.getElementById('fRoleCode').value = '';
+  document.getElementById('fRoleSide').value = '';
+  document.getElementById('fRoleDesc').value = '';
+  document.getElementById('modal-add-role').classList.add('show');
+}
+
+function saveNewRole(){
+  var name = document.getElementById('fRoleName').value.trim();
+  var code = document.getElementById('fRoleCode').value.trim();
+  var side = document.getElementById('fRoleSide').value;
+  if(!name || !code || !side){ showToast('请填写必填项'); return; }
+  var sideMap = {super:0, gov:1, ent:2, proj:3};
+  var iconMap = {super:{cls:'super',text:'S'}, gov:{cls:'gov',text:'G'}, ent:{cls:'ent',text:'E'}, proj:{cls:'proj',text:'P'}};
+  var newRole = {
+    id: 'r-' + Date.now(),
+    name: name,
+    code: code.toUpperCase(),
+    side: side,
+    count: 0,
+    desc: document.getElementById('fRoleDesc').value.trim() || name,
+    perms: [],
+    dataPerm: side === 'super' ? 'all' : 'own_org'
+  };
+  var gIdx = sideMap[side];
+  if(roleGroups[gIdx]){
+    roleGroups[gIdx].roles.push(newRole);
+  }
+  closeModal('modal-add-role');
+  renderRoleList();
+  showToast('角色新增成功');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function showToast(msg){
+  var t = document.getElementById('_toast');
+  if(!t){ t = document.createElement('div'); t.id = '_toast'; document.body.appendChild(t); }
+  Object.assign(t.style, {position:'fixed',top:'20px',left:'50%',transform:'translateX(-50%)',padding:'10px 24px',background:'#1f1f1f',color:'#fff',borderRadius:'6px',fontSize:'14px',zIndex:99999,opacity:0,transition:'opacity .3s'});
+  t.textContent = msg;
+  setTimeout(function(){ t.style.opacity = 1; }, 10);
+  setTimeout(function(){ t.style.opacity = 0; }, 2000);
+}
+
+renderRoleList();
+</script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-role-permission', moduleName: '角色权限管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

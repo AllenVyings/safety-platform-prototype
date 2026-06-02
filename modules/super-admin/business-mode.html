@@ -1,48 +1,330 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>业态模式管理 - 超管端</title>
+<meta charset="UTF-8">
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
-  <style>
-    .placeholder-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%); }
-    .placeholder-card { text-align: center; background: #fff; border-radius: 12px; padding: 48px 60px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
-    .placeholder-icon { font-size: 64px; margin-bottom: 16px; }
-    .placeholder-title { font-size: 20px; font-weight: 600; color: #1f1f1f; margin-bottom: 8px; }
-    .placeholder-desc { font-size: 14px; color: #999; }
-    .placeholder-badge { display: inline-block; margin-top: 16px; padding: 4px 16px; background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; border-radius: 4px; font-size: 13px; font-weight: 500; }
-  </style>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>业态模式管理 - 超管端</title>
+
+<style>
+.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
+.breadcrumb-item:hover{color:#1677ff}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-card-label{font-size:12px;color:#888;margin-bottom:6px}
+.stat-card-value{font-size:22px;font-weight:700;color:#1f1f1f}
+.stat-card-sub{font-size:11px;color:#bbb;margin-top:2px}
+.query-bar{background:#fff;border-radius:8px;padding:16px 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.query-bar .q-item{display:flex;align-items:center;gap:6px}
+.query-bar label{font-size:13px;color:#666;white-space:nowrap}
+.query-bar select,.query-bar input{padding:5px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .2s}
+.query-bar select:focus,.query-bar input:focus{border-color:#1677ff}
+.btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
+.btn-default:hover{color:#1677ff;border-color:#1677ff}
+.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
+.btn-primary:hover{background:#4096ff}
+.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
+.btn-link:hover{color:#4096ff}
+.table-card{background:#fff;border-radius:8px;padding:16px;overflow:hidden}
+.table-container{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:1000px}
+thead th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+tbody td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0}
+tbody tr:hover{background:#f8fafc}
+tbody tr:last-child td{border-bottom:none}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
+.tag-success{background:#f6ffed;color:#52c41a}
+.tag-warning{background:#fffbe6;color:#faad14}
+.tag-info{background:#e6f4ff;color:#1677ff}
+.tag-gray{background:#f5f5f5;color:#999}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:10px;width:800px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.modal-title{font-size:16px;font-weight:600;color:#1e293b}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:14px;color:#999;transition:all .2s}
+.modal-close:hover{background:#f5f5f5;color:#666}
+.modal-body{padding:0;overflow-y:auto;flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #f0f0f0;flex-shrink:0}
+.tab-bar{display:flex;border-bottom:1px solid #f0f0f0;background:#fafafa}
+.tab-item{padding:12px 24px;font-size:14px;color:#666;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab-item:hover{color:#1677ff}
+.tab-item.active{color:#1677ff;border-bottom-color:#1677ff;font-weight:500}
+.tab-content{padding:20px 24px;display:none}
+.tab-content.active{display:block}
+.perm-tree{padding:0}
+.perm-group{margin-bottom:16px}
+.perm-group-title{font-size:13px;font-weight:600;color:#1f1f1f;padding:8px 12px;background:#f5f7fa;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.perm-group-title .arrow{font-size:10px;color:#999;transition:transform .2s}
+.perm-group-title .arrow.open{transform:rotate(90deg)}
+.perm-item{padding:6px 12px 6px 36px;display:flex;align-items:center;gap:8px;font-size:13px;color:#333}
+.perm-item input[type=checkbox]{width:16px;height:16px;accent-color:#1677ff}
+.data-perm-item{padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:13px;color:#333}
+.data-perm-item input[type=radio]{width:16px;height:16px;accent-color:#1677ff}
+.diff-table{width:100%;border-collapse:collapse;font-size:13px}
+.diff-table th{background:#fafafa;padding:8px 12px;text-align:left;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0}
+.diff-table td{padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333}
+.diff-table .field-name{font-weight:500}
+.diff-table .yes{color:#52c41a}
+.diff-table .no{color:#ff4d4f}
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+</style>
 </head>
 <body>
-  <div class="module-page placeholder-page" data-module="sa-business-mode">
-    <div class="placeholder-card">
-      <div class="placeholder-icon">🔧</div>
-      <div class="placeholder-title">业态模式管理</div>
-      <div class="placeholder-desc">四种业态模式配置与菜单规则管理</div>
-      <div class="placeholder-badge">开发中</div>
+<div class="page-container" data-module="sa-business-mode">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">超管端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">业态模式管理</span>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-card-label">模式总数</div><div class="stat-card-value">4</div><div class="stat-card-sub">系统业态</div></div>
+    <div class="stat-card"><div class="stat-card-label">基础模式企业</div><div class="stat-card-value">86</div><div class="stat-card-sub">已激活</div></div>
+    <div class="stat-card"><div class="stat-card-label">项目模式企业</div><div class="stat-card-value">42</div><div class="stat-card-sub">已激活</div></div>
+    <div class="stat-card"><div class="stat-card-label">特殊场景企业</div><div class="stat-card-value">18</div><div class="stat-card-sub">已激活</div></div>
+  </div>
+
+  <!-- 查询区 -->
+  <div class="query-bar">
+    <div class="q-item"><label>模式名称</label><input id="filterName" placeholder="请输入模式名称" style="width:140px"></div>
+    <div class="q-item"><label>状态</label>
+      <select id="filterStatus"><option value="">全部</option><option>已启用</option><option>已禁用</option></select>
+    </div>
+    <button class="btn btn-default" onclick="renderTable()">搜索</button>
+    <button class="btn btn-default" onclick="resetFilter()">重置</button>
+  </div>
+
+  <!-- 列表 -->
+  <div class="table-card">
+    <div class="table-container">
+      <table>
+        <thead><tr>
+          <th style="width:60px">序号</th><th>模式名称</th><th>模式编码</th><th>企业数量</th><th>菜单可见性</th><th>字段差异</th><th>状态</th><th style="width:120px">操作</th>
+        </tr></thead>
+        <tbody id="modeTableBody"></tbody>
+      </table>
     </div>
   </div>
-  <script>
-    (function() {
-      'use strict';
-      const CONFIG = { moduleId: 'sa-business-mode', moduleName: '业态模式管理' };
-      let state = { initialized: false };
-      function init() {
-        if (state.initialized) return;
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
-        state.initialized = true;
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else { init(); }
-      window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
-        state.initialized = false;
-      };
-    })();
-  </script>
+</div>
+
+<!-- 配置弹窗 -->
+<div class="modal-overlay" id="modal-config">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="configTitle">模式配置</span>
+      <div class="modal-close" onclick="closeModal('modal-config')">&#x2715;</div>
+    </div>
+    <div class="modal-body">
+      <div class="tab-bar" id="configTabBar">
+        <div class="tab-item active" onclick="switchConfigTab('perm')">功能权限</div>
+        <div class="tab-item" onclick="switchConfigTab('menu')">菜单配置</div>
+        <div class="tab-item" onclick="switchConfigTab('field')">字段可见性</div>
+        <div class="tab-item" onclick="switchConfigTab('flow')">流程差异</div>
+      </div>
+      <!-- 功能权限 -->
+      <div class="tab-content active" id="tab-perm">
+        <div class="perm-tree">
+          <div class="perm-group">
+            <div class="perm-group-title" onclick="togglePermGroup(this)"><span class="arrow open">&#9654;</span>企业管理</div>
+            <div class="perm-group-body">
+              <div class="perm-item"><input type="checkbox" checked> 企业基本信息查看</div>
+              <div class="perm-item"><input type="checkbox" checked> 企业信息编辑</div>
+              <div class="perm-item"><input type="checkbox"> 企业删除</div>
+              <div class="perm-item"><input type="checkbox" checked> 企业用户管理</div>
+            </div>
+          </div>
+          <div class="perm-group">
+            <div class="perm-group-title" onclick="togglePermGroup(this)"><span class="arrow open">&#9654;</span>安全码管理</div>
+            <div class="perm-group-body">
+              <div class="perm-item"><input type="checkbox" checked> 安全码生成</div>
+              <div class="perm-item"><input type="checkbox" checked> 安全码查看</div>
+              <div class="perm-item"><input type="checkbox"> 安全码手动调整</div>
+            </div>
+          </div>
+          <div class="perm-group">
+            <div class="perm-group-title" onclick="togglePermGroup(this)"><span class="arrow open">&#9654;</span>巡查管理</div>
+            <div class="perm-group-body">
+              <div class="perm-item"><input type="checkbox" checked> 巡查任务分配</div>
+              <div class="perm-item"><input type="checkbox" checked> 巡查记录查看</div>
+              <div class="perm-item"><input type="checkbox"> 巡查记录审核</div>
+            </div>
+          </div>
+          <div class="perm-group">
+            <div class="perm-group-title" onclick="togglePermGroup(this)"><span class="arrow open">&#9654;</span>隐患管理</div>
+            <div class="perm-group-body">
+              <div class="perm-item"><input type="checkbox" checked> 隐患上报</div>
+              <div class="perm-item"><input type="checkbox" checked> 隐患整改</div>
+              <div class="perm-item"><input type="checkbox"> 隐患复核</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 菜单配置 -->
+      <div class="tab-content" id="tab-menu">
+        <div class="perm-tree">
+          <div class="perm-group">
+            <div class="perm-group-title" onclick="togglePermGroup(this)"><span class="arrow open">&#9654;</span>主导航</div>
+            <div class="perm-group-body">
+              <div class="perm-item"><input type="checkbox" checked> 工作台</div>
+              <div class="perm-item"><input type="checkbox" checked> 企业信息</div>
+              <div class="perm-item"><input type="checkbox" checked> 安全码</div>
+              <div class="perm-item"><input type="checkbox" checked> 巡查管理</div>
+              <div class="perm-item"><input type="checkbox" checked> 隐患管理</div>
+              <div class="perm-item"><input type="checkbox"> 数据统计</div>
+              <div class="perm-item"><input type="checkbox"> 系统设置</div>
+            </div>
+          </div>
+          <div class="perm-group">
+            <div class="perm-group-title" onclick="togglePermGroup(this)"><span class="arrow open">&#9654;</span>二级菜单</div>
+            <div class="perm-group-body">
+              <div class="perm-item"><input type="checkbox" checked> 企业基本信息</div>
+              <div class="perm-item"><input type="checkbox" checked> 企业用户管理</div>
+              <div class="perm-item"><input type="checkbox"> 企业资质管理</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 字段可见性 -->
+      <div class="tab-content" id="tab-field">
+        <table class="diff-table">
+          <thead><tr><th>字段名称</th><th>是否可见</th><th>是否必填</th><th>备注</th></tr></thead>
+          <tbody>
+            <tr><td class="field-name">企业名称</td><td><span class="yes">是</span></td><td><span class="yes">是</span></td><td>-</td></tr>
+            <tr><td class="field-name">统一社会信用代码</td><td><span class="yes">是</span></td><td><span class="yes">是</span></td><td>-</td></tr>
+            <tr><td class="field-name">法定代表人</td><td><span class="yes">是</span></td><td><span class="no">否</span></td><td>-</td></tr>
+            <tr><td class="field-name">经营地址</td><td><span class="yes">是</span></td><td><span class="yes">是</span></td><td>-</td></tr>
+            <tr><td class="field-name">项目编号</td><td><span class="no">否</span></td><td>-</td><td>仅项目模式可见</td></tr>
+            <tr><td class="field-name">建设单位</td><td><span class="no">否</span></td><td>-</td><td>仅项目模式可见</td></tr>
+            <tr><td class="field-name">监理单位</td><td><span class="no">否</span></td><td>-</td><td>仅项目模式可见</td></tr>
+            <tr><td class="field-name">特殊场景类型</td><td><span class="no">否</span></td><td>-</td><td>仅特殊场景可见</td></tr>
+            <tr><td class="field-name">安全评估报告</td><td><span class="no">否</span></td><td>-</td><td>仅特殊场景必填</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 流程差异 -->
+      <div class="tab-content" id="tab-flow">
+        <table class="diff-table">
+          <thead><tr><th>流程节点</th><th>基础模式</th><th>项目模式</th><th>特殊场景模式</th></tr></thead>
+          <tbody>
+            <tr><td class="field-name">注册审核</td><td>超管审核</td><td>超管审核 + 行业审核</td><td>超管审核 + 专家评审</td></tr>
+            <tr><td class="field-name">安全码生成</td><td>自动生成</td><td>自动生成</td><td>人工审核后生成</td></tr>
+            <tr><td class="field-name">巡查周期</td><td>月度</td><td>双周</td><td>每周</td></tr>
+            <tr><td class="field-name">隐患上报</td><td>企业自报</td><td>企业自报 + 监理报</td><td>企业自报 + 多方报</td></tr>
+            <tr><td class="field-name">整改验收</td><td>企业自查</td><td>监理验收</td><td>专家 + 监理双验</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('modal-config')">取消</button>
+      <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var modeData = [
+  {id:1, name:'基础模式', code:'BASIC', count:86, menuVis:'全部菜单', fieldDiff:'标准字段', status:'已启用', desc:'适用于常规企业，标准安全码管理流程'},
+  {id:2, name:'简化模式', code:'SIMPLIFIED', count:0, menuVis:'精简菜单', fieldDiff:'精简字段', status:'已禁用', desc:'适用于微型企业，仅保留核心安全码功能'},
+  {id:3, name:'项目模式', code:'PROJECT', count:42, menuVis:'项目菜单', fieldDiff:'含项目字段', status:'已启用', desc:'适用于建设工程项目，增加建设/施工/监理多方管理'},
+  {id:4, name:'特殊场景模式', code:'SPECIAL', count:18, menuVis:'增强菜单', fieldDiff:'含特殊字段', status:'已启用', desc:'适用于危化品等特殊场景，增加专家评审与双验流程'}
+];
+
+var currentConfigMode = null;
+
+function renderTable(){
+  var name = document.getElementById('filterName').value.trim().toLowerCase();
+  var status = document.getElementById('filterStatus').value;
+  var filtered = modeData.filter(function(m){
+    if(name && !m.name.toLowerCase().includes(name) && !m.code.toLowerCase().includes(name)) return false;
+    if(status && m.status !== status) return false;
+    return true;
+  });
+  var tbody = document.getElementById('modeTableBody');
+  tbody.innerHTML = filtered.map(function(m, idx){
+    var statusCls = m.status === '已启用' ? 'tag-success' : 'tag-gray';
+    return '<tr>' +
+      '<td>' + (idx+1) + '</td>' +
+      '<td><strong>' + m.name + '</strong><div style="font-size:11px;color:#999;margin-top:2px">' + m.desc + '</div></td>' +
+      '<td><span class="tag tag-info">' + m.code + '</span></td>' +
+      '<td>' + m.count + ' 家</td>' +
+      '<td>' + m.menuVis + '</td>' +
+      '<td>' + m.fieldDiff + '</td>' +
+      '<td><span class="tag ' + statusCls + '">' + m.status + '</span></td>' +
+      '<td><button class="btn-link" onclick="openConfig(' + m.id + ')">配置</button> <button class="btn-link" onclick="toggleStatus(' + m.id + ')">' + (m.status==='已启用'?'禁用':'启用') + '</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function resetFilter(){
+  document.getElementById('filterName').value = '';
+  document.getElementById('filterStatus').value = '';
+  renderTable();
+}
+
+function toggleStatus(id){
+  var m = modeData.find(function(x){return x.id===id;});
+  if(!m) return;
+  m.status = m.status === '已启用' ? '已禁用' : '已启用';
+  renderTable();
+  showToast(m.name + '已' + m.status);
+}
+
+function openConfig(id){
+  var m = modeData.find(function(x){return x.id===id;});
+  if(!m) return;
+  currentConfigMode = m;
+  document.getElementById('configTitle').textContent = m.name + ' - 模式配置';
+  switchConfigTab('perm');
+  document.getElementById('modal-config').classList.add('show');
+}
+
+function switchConfigTab(tab){
+  var tabs = ['perm','menu','field','flow'];
+  tabs.forEach(function(t){
+    var tabEl = document.getElementById('tab-' + t);
+    if(tabEl) tabEl.classList.toggle('active', t === tab);
+  });
+  document.querySelectorAll('#configTabBar .tab-item').forEach(function(el, idx){
+    el.classList.toggle('active', tabs[idx] === tab);
+  });
+}
+
+function togglePermGroup(el){
+  var arrow = el.querySelector('.arrow');
+  var body = el.nextElementSibling;
+  if(body){
+    body.style.display = body.style.display === 'none' ? 'block' : 'none';
+    arrow.classList.toggle('open');
+  }
+}
+
+function saveConfig(){
+  closeModal('modal-config');
+  showToast('配置已保存');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function showToast(msg){
+  var t = document.getElementById('_toast');
+  if(!t){ t = document.createElement('div'); t.id = '_toast'; document.body.appendChild(t); }
+  Object.assign(t.style, {position:'fixed',top:'20px',left:'50%',transform:'translateX(-50%)',padding:'10px 24px',background:'#1f1f1f',color:'#fff',borderRadius:'6px',fontSize:'14px',zIndex:99999,opacity:0,transition:'opacity .3s'});
+  t.textContent = msg;
+  setTimeout(function(){ t.style.opacity = 1; }, 10);
+  setTimeout(function(){ t.style.opacity = 0; }, 2000);
+}
+
+renderTable();
+</script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-business-mode', moduleName: '业态模式管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

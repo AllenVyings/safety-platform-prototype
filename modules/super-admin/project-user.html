@@ -105,7 +105,7 @@
     <span class="breadcrumb-prefix">当前位置：</span>
     <span class="breadcrumb-item">超管端</span>
     <span class="breadcrumb-separator">&gt;</span>
-    <span class="breadcrumb-item">项目信息管理</span>
+    <span class="breadcrumb-item">项目端</span>
     <span class="breadcrumb-separator">&gt;</span>
     <span class="breadcrumb-item current">项目用户管理</span>
   </div>
@@ -113,7 +113,7 @@
   <div class="main-layout">
     <!-- 左侧项目树 -->
     <div class="tree-panel">
-      <div class="tree-header">🏗️ 项目列表</div>
+      <div class="tree-header">🏛️ 组织架构</div>
       <div class="tree-body" id="projectTree"></div>
     </div>
 
@@ -144,10 +144,10 @@
         <input type="text" placeholder="姓名/手机号" id="searchName">
         <select id="searchUnit">
           <option value="">全部单位</option>
-          <option value="build">建设单位</option>
-          <option value="construct">施工单位</option>
-          <option value="supervise">监理单位</option>
-          <option value="subcontract">分包单位</option>
+          <option value="build">深圳港集团</option>
+          <option value="construct">中建三局</option>
+          <option value="supervise">华建监理</option>
+          <option value="subcontract">深安消防</option>
         </select>
         <select id="searchStatus">
           <option value="">全部状态</option>
@@ -178,7 +178,7 @@
             <tr>
               <td>李四</td>
               <td>13900139001</td>
-              <td>XX建筑工程有限公司</td>
+              <td>中建三局</td>
               <td>项目经理</td>
               <td>pm_001</td>
               <td><span class="tag tag-success">正常</span></td>
@@ -193,7 +193,7 @@
             <tr>
               <td>王五</td>
               <td>13900139002</td>
-              <td>XX建筑工程有限公司</td>
+              <td>中建三局</td>
               <td>安全员</td>
               <td>safe_001</td>
               <td><span class="tag tag-success">正常</span></td>
@@ -208,7 +208,7 @@
             <tr>
               <td>张三</td>
               <td>13800138001</td>
-              <td>XX建设集团</td>
+              <td>深圳港集团</td>
               <td>项目负责人</td>
               <td>build_001</td>
               <td><span class="tag tag-success">正常</span></td>
@@ -223,7 +223,7 @@
             <tr>
               <td>赵六</td>
               <td>13800138002</td>
-              <td>XX装饰工程有限公司</td>
+              <td>深安消防</td>
               <td>施工队长</td>
               <td>sub_001</td>
               <td><span class="tag tag-warning">停用</span></td>
@@ -276,10 +276,10 @@
           <label>所属单位 <span class="required">*</span></label>
           <select>
             <option value="">请选择</option>
-            <option value="build">XX建设集团</option>
-            <option value="construct">XX建筑工程有限公司</option>
-            <option value="supervise">XX监理咨询有限公司</option>
-            <option value="subcontract">XX装饰工程有限公司</option>
+            <option value="build">深圳港集团</option>
+            <option value="construct">中建三局</option>
+            <option value="supervise">华建监理</option>
+            <option value="subcontract">深安消防</option>
           </select>
         </div>
         <div class="form-group">
@@ -306,45 +306,67 @@
 </div>
 
 <script>
-// 模拟项目数据
-const projectData = [
+// 组织架构树数据
+const orgTreeData = [
   {
-    id: 'proj-1',
-    name: 'XX大厦建设工程',
-    code: 'P202401001',
+    id: 'org-root',
+    name: '项目参建单位',
+    type: 'root',
     expanded: true,
     children: [
-      { id: 'unit-1', name: 'XX建设集团', type: 'unit' },
-      { id: 'unit-2', name: 'XX建筑工程有限公司', type: 'unit' },
-      { id: 'unit-3', name: 'XX监理咨询有限公司', type: 'unit' },
-      { id: 'unit-4', name: 'XX装饰工程有限公司', type: 'unit' }
+      {
+        id: 'org-build',
+        name: '建设单位：深圳港集团',
+        type: 'unit',
+        expanded: true,
+        children: [
+          { id: 'dept-b1', name: '工程部', type: 'dept' },
+          { id: 'dept-b2', name: '安全管理部', type: 'dept' }
+        ]
+      },
+      {
+        id: 'org-construct',
+        name: '施工单位：中建三局',
+        type: 'unit',
+        expanded: true,
+        children: [
+          { id: 'dept-c1', name: '项目部', type: 'dept' },
+          { id: 'dept-c2', name: '安全部', type: 'dept' }
+        ]
+      },
+      {
+        id: 'org-supervise',
+        name: '监理单位：华建监理',
+        type: 'unit',
+        expanded: true,
+        children: [
+          { id: 'dept-s1', name: '总监办', type: 'dept' }
+        ]
+      },
+      {
+        id: 'org-subcontract',
+        name: '分包单位：深安消防',
+        type: 'unit',
+        expanded: true,
+        children: [
+          { id: 'dept-d1', name: '施工队', type: 'dept' }
+        ]
+      }
     ]
-  },
-  {
-    id: 'proj-2',
-    name: 'XX地铁站改造工程',
-    code: 'P202402001',
-    expanded: false,
-    children: []
-  },
-  {
-    id: 'proj-3',
-    name: 'XX学校扩建工程',
-    code: 'P202403001',
-    expanded: false,
-    children: []
   }
 ];
 
-let selectedProjectId = 'proj-1';
+let selectedOrgId = 'org-root';
 
 function renderProjectTree() {
   const container = document.getElementById('projectTree');
-  container.innerHTML = projectData.map(node => renderTreeNode(node, 0)).join('');
+  container.innerHTML = orgTreeData.map(node => renderTreeNode(node, 0)).join('');
 }
 
 function renderTreeNode(node, level) {
-  const isSelected = node.id === selectedProjectId;
+  const iconMap = { 'root': '🏛️', 'unit': '🏢', 'dept': '📋' };
+  const icon = iconMap[node.type] || '📁';
+  const isSelected = node.id === selectedOrgId;
   const hasChildren = node.children && node.children.length > 0;
   const indent = level * 16;
   
@@ -354,7 +376,7 @@ function renderTreeNode(node, level) {
   } else {
     html += '<span class="tree-toggle"></span>';
   }
-  html += '<span class="tree-node-icon">🏗️</span>';
+  html += '<span class="tree-node-icon">' + icon + '</span>';
   html += '<span class="tree-node-label">' + node.name + '</span>';
   html += '</div>';
   
@@ -368,19 +390,32 @@ function renderTreeNode(node, level) {
 }
 
 function toggleNode(nodeId) {
-  for (const node of projectData) {
-    if (node.id === nodeId) {
-      node.expanded = !node.expanded;
-      break;
+  function findAndToggle(nodes) {
+    for (const node of nodes) {
+      if (node.id === nodeId) {
+        node.expanded = !node.expanded;
+        return true;
+      }
+      if (node.children && findAndToggle(node.children)) return true;
     }
+    return false;
   }
+  findAndToggle(orgTreeData);
   renderProjectTree();
 }
 
-function selectProject(projectId) {
-  selectedProjectId = projectId;
+function selectProject(orgId) {
+  selectedOrgId = orgId;
   renderProjectTree();
-  showToast('切换到项目: ' + projectId);
+  function findName(nodes) {
+    for (const n of nodes) {
+      if (n.id === orgId) return n.name;
+      if (n.children) { const r = findName(n.children); if (r) return r; }
+    }
+    return null;
+  }
+  const name = findName(orgTreeData);
+  showToast('选择: ' + (name || orgId));
 }
 
 function openAddModal() {

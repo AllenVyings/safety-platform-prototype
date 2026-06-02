@@ -1101,6 +1101,47 @@
     </div>
   </div>
   
+  <!-- 批量导入弹窗 -->
+  <div class="modal-overlay" id="modal-import">
+    <div class="modal-dialog" style="width: 520px;">
+      <div class="modal-header">
+        <span class="modal-title">批量导入隐患</span>
+        <button class="modal-close" onclick="closeModal('modal-import')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="border: 2px dashed #d9d9d9; border-radius: 8px; padding: 32px; text-align: center; margin-bottom: 16px; cursor: pointer; transition: border-color 0.2s;" id="importDropZone" onclick="document.getElementById('importFileInput').click()">
+          <div style="font-size: 36px; margin-bottom: 8px;">📂</div>
+          <div style="font-size: 14px; color: #1f1f1f; margin-bottom: 4px;">点击选择文件或拖拽文件到此处</div>
+          <div style="font-size: 12px; color: #999;">支持 .csv、.xlsx、.xls 格式，单次最多导入 500 条</div>
+          <div style="font-size: 12px; color: #1677ff; margin-top: 8px; cursor: pointer;" onclick="event.stopPropagation(); downloadImportTemplate()">下载导入模板</div>
+        </div>
+        <input type="file" id="importFileInput" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleImportFile(this)">
+        <div id="importFileInfo" style="display: none; background: #f6f8fa; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">📄</span>
+              <div>
+                <div style="font-size: 13px; color: #1f1f1f;" id="importFileName">-</div>
+                <div style="font-size: 12px; color: #999;" id="importFileSize">-</div>
+              </div>
+            </div>
+            <button class="btn btn-link" onclick="clearImportFile()" style="color: #ff4d4f;">移除</button>
+          </div>
+        </div>
+        <div style="background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #8c6d1f; line-height: 1.6;">
+          ⚠️ 导入说明：<br>
+          1. 请按模板格式填写数据，必填字段：隐患名称、隐患类别、隐患级别<br>
+          2. 重复名称的隐患将自动跳过，不会覆盖已有数据<br>
+          3. 导入后状态默认为"启用"
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-import')">取消</button>
+        <button class="btn btn-primary" onclick="confirmImport()" id="importConfirmBtn" disabled>确认导入</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 删除确认弹窗 -->
   <div class="modal-overlay" id="deleteModal">
     <div class="modal-dialog" style="width: 460px;">
@@ -1158,6 +1199,26 @@
   </div>
   
   <script>
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+  if (type === 'success') toast.style.background = '#52c41a';
+  if (type === 'warning') toast.style.background = '#faad14';
+  if (type === 'error') toast.style.background = '#ff4d4f';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
     // ========== 数据定义 ==========
     
     // 行业领域树数据（与领域小类管理 domain-manage.html 保持一致）
@@ -1331,8 +1392,16 @@
       pgState.total = data.length;
       const start = (pgState.page - 1) * pgState.size;
       const pageData = data.slice(start, start + pgState.size);
-      
+
       const tbody = document.getElementById('tableBody');
+
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#999;padding:48px 0;">暂无数据</td></tr>';
+        updateStats(data);
+        renderPagination(0);
+        return;
+      }
+
       let html = '';
       
       pageData.forEach((hazard, idx) => {
@@ -1527,7 +1596,7 @@
       });
       clearSelection();
       filterHazardList();
-      alert('批量启用成功');
+      showToast('批量启用成功', 'success');
     }
     
     function batchDisable() {
@@ -1537,7 +1606,7 @@
       });
       clearSelection();
       filterHazardList();
-      alert('批量停用成功');
+      showToast('批量停用成功', 'success');
     }
     
     function batchDelete() {
@@ -1638,7 +1707,7 @@
     
     function confirmDelete() {
       closeModal('deleteModal');
-      alert('删除成功');
+      showToast('删除成功', 'success');
       filterHazardList();
     }
     
@@ -1647,7 +1716,7 @@
       closeModal('batchDeleteModal');
       clearSelection();
       filterHazardList();
-      alert('批量删除成功');
+      showToast('批量删除成功', 'success');
     }
     
     function saveHazard() {
@@ -1655,51 +1724,152 @@
       const category = document.getElementById('hazardCategory').value;
       
       if (!name) {
-        alert('请输入隐患名称');
+        showToast('请输入隐患名称', 'warning');
         return;
       }
       if (!category) {
-        alert('请选择隐患类别');
+        showToast('请选择隐患类别', 'warning');
         return;
       }
       
       closeModal('editModal');
-      alert('保存成功');
+      showToast('保存成功', 'success');
       filterHazardList();
     }
     
     // ========== 其他操作 ==========
-    
+
+    var importFileSelected = null;
+
     function openImportModal() {
-      alert('批量导入功能开发中');
+      importFileSelected = null;
+      document.getElementById('importFileInput').value = '';
+      document.getElementById('importFileInfo').style.display = 'none';
+      document.getElementById('importDropZone').style.borderColor = '#d9d9d9';
+      document.getElementById('importConfirmBtn').disabled = true;
+      openModal('modal-import');
     }
-    
+
+    function handleImportFile(input) {
+      var file = input.files[0];
+      if (!file) return;
+      var ext = file.name.split('.').pop().toLowerCase();
+      if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+        showToast('请选择 .csv、.xlsx 或 .xls 格式的文件', 'warning');
+        input.value = '';
+        return;
+      }
+      importFileSelected = file;
+      document.getElementById('importFileName').textContent = file.name;
+      document.getElementById('importFileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+      document.getElementById('importFileInfo').style.display = 'block';
+      document.getElementById('importDropZone').style.borderColor = '#1677ff';
+      document.getElementById('importConfirmBtn').disabled = false;
+    }
+
+    function clearImportFile() {
+      importFileSelected = null;
+      document.getElementById('importFileInput').value = '';
+      document.getElementById('importFileInfo').style.display = 'none';
+      document.getElementById('importDropZone').style.borderColor = '#d9d9d9';
+      document.getElementById('importConfirmBtn').disabled = true;
+    }
+
+    function confirmImport() {
+      if (!importFileSelected) {
+        showToast('请先选择文件', 'warning');
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          var content = event.target.result;
+          var lines = content.split('\n');
+          var imported = 0;
+          var skipped = 0;
+          for (var i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            var vals = lines[i].split(',');
+            if (vals.length >= 3) {
+              var name = vals[0].trim();
+              if (hazardData.some(function(h) { return h.name === name; })) { skipped++; continue; }
+              hazardData.push({
+                id: 'HZ' + String(hazardData.length + 1).padStart(3, '0'),
+                name: name,
+                category: vals[1].trim(),
+                level: vals[2].trim().indexOf('重大') > -1 ? '重大隐患' : '一般隐患',
+                domains: vals[3] ? [vals[3].trim()] : ['所有场所'],
+                checkItems: parseInt(vals[4]) || 0,
+                regulations: parseInt(vals[5]) || 0,
+                status: '启用',
+                updateTime: new Date().toLocaleDateString('zh-CN') + ' ' + new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})
+              });
+              imported++;
+            }
+          }
+          closeModal('modal-import');
+          filterHazardList();
+          if (imported > 0) {
+            showToast('成功导入 ' + imported + ' 条隐患' + (skipped > 0 ? '，跳过 ' + skipped + ' 条重复' : ''), 'success');
+          } else {
+            showToast('未导入任何数据，请检查文件格式', 'warning');
+          }
+        } catch (err) {
+          showToast('导入失败，请检查文件格式', 'error');
+        }
+      };
+      reader.readAsText(importFileSelected);
+    }
+
+    function downloadImportTemplate() {
+      var headers = '隐患名称,隐患类别,隐患级别,适用领域,关联检查项数,关联法规数';
+      var sample1 = '电梯未按规定检验,设备类,重大隐患,特种设备,3,2';
+      var sample2 = '灭火器过期未检,设备类,一般隐患,公共场所,1,1';
+      var csvContent = headers + '\n' + sample1 + '\n' + sample2;
+      var blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '隐患导入模板.csv';
+      link.click();
+      showToast('模板已下载', 'success');
+    }
+
     function exportData() {
-      alert('正在导出Excel文件...');
+      var headers = ['隐患名称', '隐患类别', '隐患级别', '适用领域', '关联检查项', '关联法规', '状态', '更新时间'];
+      var rows = hazardData.map(function(h) {
+        return [h.name, h.category, h.level, h.domains.join('、'), h.checkItems, h.regulations, h.status, h.updateTime];
+      });
+      var csvContent = [headers.join(','), rows.map(function(r) { return r.join(','); }).join('\n')].join('\n');
+      var blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '隐患库导出_' + new Date().toLocaleDateString('zh-CN') + '.csv';
+      link.click();
+      showToast('导出成功', 'success');
     }
     
     function showCheckItems(id) {
-      alert('显示关联检查项列表');
+      showToast('显示关联检查项列表', 'info');
     }
     
     function showRegulations(id) {
-      alert('显示关联法规条款列表');
+      showToast('显示关联法规条款列表', 'info');
     }
     
     function openDomainSelect() {
-      alert('选择适用领域');
+      showToast('选择适用领域', 'info');
     }
     
     function openCheckItemSelect() {
-      alert('选择关联检查项');
+      showToast('选择关联检查项', 'info');
     }
     
     function openRegulationSelect() {
-      alert('选择关联法规条款');
+      showToast('选择关联法规条款', 'info');
     }
     
     function openRegulationAdvanced() {
-      alert('打开法规高级选择弹窗（树形）');
+      showToast('打开法规高级选择弹窗（树形）', 'info');
     }
     
     function removeDomain(btn) {
@@ -1717,12 +1887,12 @@
     function addCheckItem(btn) {
       const item = btn.closest('.recommend-item');
       const name = item.querySelector('.recommend-name').textContent;
-      alert('添加检查项: ' + name);
+      showToast('添加检查项: ' + name, 'info');
     }
     
     function goToPage(page) {
       currentPage = page;
-      alert('跳转到第 ' + page + ' 页');
+      showToast('跳转到第 ' + page + ' 页', 'info');
     }
     
     // ========== 初始化 ==========

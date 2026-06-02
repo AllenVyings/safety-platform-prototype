@@ -79,6 +79,26 @@
     .login-footer-link { font-size: 14px; color: #576b95; cursor: pointer; }
     .login-footer-link:active { opacity: 0.7; }
     .login-footer-divider { width: 0.5px; height: 14px; background: #d9dde6; }
+    .register-page { display: none; min-height: 100vh; background: #f5f7fa; }
+    .register-page.show { display: flex; flex-direction: column; }
+    .register-header { display: flex; align-items: center; padding: 14px 16px; background: #fff; border-bottom: 0.5px solid #eee; }
+    .register-back { font-size: 20px; color: #1c2469; cursor: pointer; margin-right: 12px; line-height: 1; }
+    .register-title { font-size: 17px; font-weight: 600; color: #1c2469; }
+    .register-form { padding: 20px 16px; flex: 1; }
+    .register-form .form-group { margin-bottom: 14px; }
+    .register-form .form-input { width: 100%; padding: 13px 16px; border: none; border-radius: 8px; font-size: 15px; outline: none; background: #f5f8fc; box-sizing: border-box; color: #1c2469; }
+    .register-form .form-input:focus { background: #edf2f8; }
+    .register-form .form-input::placeholder { color: #b8bfcc; }
+    .register-form select.form-input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b8bfcc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+    .register-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #ff2d2d, #e60012); color: #fff; border: none; border-radius: 8px; font-size: 17px; font-weight: 500; cursor: pointer; margin-top: 8px; box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2); }
+    .register-btn:active { background: linear-gradient(135deg, #cc0000, #c40010); box-shadow: none; }
+    .m-toast {
+      position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.78); color: #fff; padding: 10px 24px;
+      border-radius: 8px; font-size: 14px; z-index: 200;
+      transition: top 0.3s ease; white-space: nowrap;
+    }
+    .m-toast.show { top: 60px; }
   </style>
 </head>
 <body>
@@ -106,7 +126,7 @@
       <div class="form-group">
         <input class="form-input" type="password" placeholder="请输入密码" />
       </div>
-      <button class="login-btn" onclick="handleLogin()">登 录</button>
+      <button class="login-btn" onclick="handleLogin()">登录</button>
     </div>
 
     <div class="login-form" id="loginPanel1" style="display:none;">
@@ -119,7 +139,7 @@
           <button class="code-btn" id="codeBtn" onclick="sendCode()">获取验证码</button>
         </div>
       </div>
-      <button class="login-btn" onclick="handleLogin()">登 录</button>
+      <button class="login-btn" onclick="handleLogin()">登录</button>
     </div>
 
     <div class="login-form" id="loginPanel2" style="display:none;">
@@ -131,14 +151,93 @@
 
     <div class="login-footer">
       <div class="login-footer-links">
-        <span class="login-footer-link">企业注册</span>
+        <span class="login-footer-link" onclick="showRegister('enterprise')">企业注册</span>
         <div class="login-footer-divider"></div>
-        <span class="login-footer-link">人员注册</span>
+        <span class="login-footer-link" onclick="showRegister('person')">人员注册</span>
       </div>
     </div>
   </div>
 
+  <!-- 企业注册视图 -->
+  <div class="register-page" id="view-enterprise-register">
+    <div class="register-header">
+      <span class="register-back" onclick="hideRegister()">&larr;</span>
+      <span class="register-title">企业注册</span>
+    </div>
+    <div class="register-form">
+      <div class="form-group">
+        <input class="form-input" type="text" placeholder="企业名称" />
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="text" placeholder="统一社会信用代码" maxlength="18" />
+      </div>
+      <div class="form-group">
+        <select class="form-input">
+          <option value="" disabled selected>所属领域</option>
+          <option value="chemical">危险化学品</option>
+          <option value="mining">矿山</option>
+          <option value="construction">建筑施工</option>
+          <option value="metallurgy">冶金</option>
+          <option value="machinery">机械制造</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="text" placeholder="联系人姓名" />
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="tel" placeholder="联系电话" maxlength="11" />
+      </div>
+      <button class="register-btn" onclick="showToast('企业注册提交成功（原型演示）')">提交注册</button>
+    </div>
+  </div>
+
+  <!-- 人员注册视图 -->
+  <div class="register-page" id="view-person-register">
+    <div class="register-header">
+      <span class="register-back" onclick="hideRegister()">&larr;</span>
+      <span class="register-title">人员注册</span>
+    </div>
+    <div class="register-form">
+      <div class="form-group">
+        <input class="form-input" type="text" placeholder="姓名" />
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="tel" placeholder="手机号" maxlength="11" />
+      </div>
+      <div class="form-group">
+        <select class="form-input">
+          <option value="" disabled selected>所属企业</option>
+          <option value="1">创安电子科技有限公司</option>
+          <option value="2">龙华化工有限公司</option>
+          <option value="3">鑫安建设工程有限公司</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <select class="form-input">
+          <option value="" disabled selected>职务</option>
+          <option value="manager">安全主管</option>
+          <option value="inspector">巡检专员</option>
+          <option value="operator">操作员</option>
+          <option value="leader">负责人</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <button class="register-btn" onclick="showToast('人员注册提交成功（原型演示）')">提交注册</button>
+    </div>
+  </div>
+
+  <!-- Toast提示 -->
+  <div class="m-toast" id="mToast"></div>
+
   <script>
+    function showRegister(type) {
+      var page = document.getElementById('view-' + type + '-register');
+      if (page) page.classList.add('show');
+    }
+    function hideRegister() {
+      document.querySelectorAll('.register-page').forEach(function(p){ p.classList.remove('show'); });
+    }
     function switchLoginTab(el, idx) {
       el.parentElement.querySelectorAll('.login-tab').forEach(function(t){ t.classList.remove('active'); });
       el.classList.add('active');
@@ -147,8 +246,16 @@
         if (panel) panel.style.display = i === idx ? 'block' : 'none';
       }
     }
-    function handleLogin() { alert('登录成功（原型演示）'); }
-    function handleWechatLogin() { alert('正在拉起微信授权（原型演示）'); }
+    function handleLogin() { showToast('登录成功（原型演示）'); }
+    function handleWechatLogin() { showToast('正在拉起微信授权（原型演示）'); }
+    function showToast(msg, duration) {
+      var toast = document.getElementById('mToast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+      }, duration || 2000);
+    }
     function sendCode() {
       var btn = document.getElementById('codeBtn');
       var seconds = 60;

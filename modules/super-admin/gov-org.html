@@ -171,38 +171,39 @@
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
-      <span class="breadcrumb-item current">超管端</span>
+      <span class="breadcrumb-item">超管端</span>
       <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">组织管理</span>
+      <span class="breadcrumb-item current">政府端组织架构管理</span>
     </div>
     
-    <div class="page-header" style="display: none;">
+    <div class="page-header">
+      <h1 class="page-title">政府端组织架构管理</h1>
     </div>
     
     <div class="stat-cards">
       <div class="stat-card">
         <div class="stat-icon blue">🏛️</div>
         <div class="stat-content">
-          <div class="stat-value">1</div>
-          <div class="stat-label">区</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon green">🏢</div>
-        <div class="stat-content">
           <div class="stat-value">8</div>
-          <div class="stat-label">单位</div>
+          <div class="stat-label">单位总数</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon orange">📋</div>
+        <div class="stat-icon green">📋</div>
         <div class="stat-content">
           <div class="stat-value">24</div>
-          <div class="stat-label">科室</div>
+          <div class="stat-label">科室总数</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon gray">👤</div>
+        <div class="stat-icon orange">👤</div>
+        <div class="stat-content">
+          <div class="stat-value">42</div>
+          <div class="stat-label">用户总数</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gray">🔐</div>
         <div class="stat-content">
           <div class="stat-value">8</div>
           <div class="stat-label">超管账号</div>
@@ -219,6 +220,7 @@
             <button class="btn btn-link" onclick="expandAll()">展开</button>
             <button class="btn btn-link" onclick="collapseAll()">收起</button>
             <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 新增</button>
+           <button class="btn btn-default btn-sm" onclick="addUserFromOrg()">+ 新增用户</button>
           </div>
         </div>
         <div class="tree-body" id="orgTree"></div>
@@ -258,6 +260,24 @@
           <div class="form-group">
             <label class="form-label">名称<span class="required">*</span></label>
             <input type="text" class="form-input" id="formName" placeholder="请输入名称">
+          </div>
+          <div class="form-group">
+            <label class="form-label">所属区划<span class="required">*</span></label>
+            <select class="form-select" id="formDistrict">
+              <option value="">请选择所属区划</option>
+              <option value="NS">南山区</option>
+              <option value="FT">福田区</option>
+              <option value="BA">宝安区</option>
+              <option value="LG">龙岗区</option>
+              <option value="LH">龙华区</option>
+            </select>
+          </div>
+          <div class="form-group" id="formBelongUnitGroup" style="display: none;">
+            <label class="form-label">所属单位<span class="required">*</span></label>
+            <select class="form-select" id="formBelongUnit">
+              <option value="">请选择所属单位</option>
+            </select>
+            <div class="form-hint">科室类型必须选择所属单位</div>
           </div>
           <div class="form-group">
             <label class="form-label">上级组织</label>
@@ -521,6 +541,34 @@
         }
       }
       
+      // 科室列表（仅单位类型显示）
+      if (selectedNode.type === 'unit') {
+        const depts = (selectedNode.children || []).filter(c => c.type === 'dept');
+        html += `
+          <div class="info-section">
+            <div class="info-section-title">科室列表（${depts.length}）</div>
+            ${depts.length > 0 ? `
+              <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead><tr style="background:#f8fafc;border-bottom:1px solid #e8eaed;">
+                  <th style="padding:8px 12px;text-align:left;font-weight:600;color:#555;">科室名称</th>
+                  <th style="padding:8px 12px;text-align:left;font-weight:600;color:#555;">状态</th>
+                  <th style="padding:8px 12px;text-align:left;font-weight:600;color:#555;">排序</th>
+                </tr></thead>
+                <tbody>
+                  ${depts.map(d => `
+                    <tr style="border-bottom:1px solid #f5f5f5;cursor:pointer;" onclick="selectNode('${d.id}')">
+                      <td style="padding:8px 12px;color:#1e293b;">${d.name}</td>
+                      <td style="padding:8px 12px;">${d.status === 'enabled' ? '<span class="tag tag-green">启用</span>' : '<span class="tag" style="background:#f5f5f5;color:#64748b;">停用</span>'}</td>
+                      <td style="padding:8px 12px;color:#64748b;">${d.sort}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            ` : '<div style="text-align:center;color:#999;padding:20px;">暂无科室</div>'}
+          </div>
+        `;
+      }
+      
       detailBody.innerHTML = html;
     }
     
@@ -573,7 +621,7 @@
       document.getElementById('formParent').value = selectedNode.id;
       // 根据父节点类型限制子节点类型
       if (selectedNode.type === 'dept') {
-        alert('科室下不能再添加下级组织');
+        showToast('科室下不能再添加下级组织', 'warning');
         closeModal();
         return;
       }
@@ -605,16 +653,37 @@
       const accountOption = document.getElementById('accountOption');
       const parentSelect = document.getElementById('formParent');
       const parentHint = document.getElementById('parentHint');
-      
+      const belongUnitGroup = document.getElementById('formBelongUnitGroup');
+
       // 只有单位类型才显示生成账号选项
       accountOption.style.display = type === 'unit' ? 'block' : 'none';
-      
+
+      // 科室类型显示所属单位选择
+      if (belongUnitGroup) {
+        belongUnitGroup.style.display = type === 'dept' ? 'block' : 'none';
+        if (type === 'dept') {
+          populateBelongUnits();
+        }
+      }
+
       // 更新提示文字
       if (type === 'unit') {
         parentHint.textContent = '单位可挂在区或单位下';
       } else {
         parentHint.textContent = '科室只能挂在单位下';
       }
+    }
+
+    function populateBelongUnits() {
+      const select = document.getElementById('formBelongUnit');
+      if (!select) return;
+      select.innerHTML = '<option value="">请选择所属单位</option>';
+      orgData.filter(function(o) { return o.type === 'unit'; }).forEach(function(u) {
+        var opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = u.name;
+        select.appendChild(opt);
+      });
     }
     
     function closeModal() {
@@ -630,7 +699,7 @@
       const createAccount = document.getElementById('formCreateAccount').checked;
       
       if (!name) {
-        alert('请输入名称');
+        showToast('请输入名称', 'warning');
         return;
       }
       
@@ -642,7 +711,7 @@
         message += '\n\n已自动生成超管账号，密码将通过短信发送';
       }
       
-      alert(message);
+      showToast(message.replace(/\n/g, ' '), 'success');
       closeModal();
     }
     
@@ -651,12 +720,12 @@
       
       // 检查是否有下级
       if (selectedNode.children && selectedNode.children.length > 0) {
-        alert('该组织下有下级组织，请先删除下级组织');
+        showToast('该组织下有下级组织，请先删除下级组织', 'warning');
         return;
       }
       
       if (confirm(`确定要删除"${selectedNode.name}"吗？`)) {
-        alert('删除成功');
+        showToast('删除成功', 'success');
         selectedNode = null;
         renderDetail();
       }
@@ -666,7 +735,7 @@
       if (!selectedNode || selectedNode.type !== 'unit') return;
       
       const username = selectedNode.id.toLowerCase().replace(/-/g, '') + '-admin';
-      alert(`账号生成成功！\n\n账号：${username}\n密码将通过短信发送给联系人`);
+      showToast('账号生成成功！账号：' + username + '，密码将通过短信发送给联系人', 'success');
       
       // 更新显示
       selectedNode.account = {
@@ -677,6 +746,40 @@
       renderDetail();
     }
     
+    // 从组织树新增用户
+    function addUserFromOrg() {
+      if (!selectedNode || selectedNode.type === 'dept') {
+        showToast('请先选择一个单位节点', 'warning');
+        return;
+      }
+      // 导航到政府用户管理模块
+      if (window.parent && window.parent.goToModule) {
+        window.parent.goToModule('sa-gov-user');
+      } else {
+        showToast('即将跳转到政府用户管理页面');
+      }
+    }
+
+    function showToast(msg, type) {
+      type = type || 'info';
+      var container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+        document.body.appendChild(container);
+      }
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + type;
+      toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;animation:fadeIn 0.3s;';
+      if (type === 'success') toast.style.background = '#52c41a';
+      if (type === 'warning') toast.style.background = '#faad14';
+      if (type === 'error') toast.style.background = '#ff4d4f';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
     // 初始化
     renderTree();
     // 默认展开第一个节点

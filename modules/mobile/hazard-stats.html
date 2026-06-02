@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>隐患统计</title>
+  <link rel="stylesheet" href="../../css/mobile.css">
+  <style>
+    .hs-card { background: #fff; border-radius: 12px; padding: 14px 16px; margin: 10px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .hs-card-title { font-size: 15px; font-weight: 600; color: #000; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .hs-chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .hs-chart-item { text-align: center; padding: 10px 0; background: #f8f9fa; border-radius: 8px; }
+    .hs-chart-ring { margin: 0 auto 6px; }
+    .hs-chart-label { font-size: 12px; color: #666; }
+    .hs-filter-bar { display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; background: #fff; border-bottom: 0.5px solid #f0f0f0; }
+    .hs-filter-chip { white-space: nowrap; padding: 5px 14px; border-radius: 14px; font-size: 13px; background: #f5f5f5; color: #666; cursor: pointer; transition: all 0.2s ease; }
+    .hs-filter-chip.active { background: #1068ff; color: #fff; }
+    .hs-list-item { display: flex; align-items: center; padding: 12px 16px; background: #fff; border-bottom: 0.5px solid #f5f5f5; cursor: pointer; }
+    .hs-list-item:active { background: #f5f7fa; }
+    .hs-urgency { width: 4px; height: 32px; border-radius: 2px; margin-right: 10px; flex-shrink: 0; }
+    .hs-list-info { flex: 1; }
+    .hs-list-name { font-size: 14px; color: #000; font-weight: 500; }
+    .hs-list-meta { font-size: 12px; color: #888; margin-top: 2px; }
+    .hs-list-badge { font-size: 11px; padding: 2px 8px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="m-page">
+    <!-- 总览图表 -->
+    <div class="hs-card">
+      <div class="hs-card-title">隐患总览</div>
+      <div class="stat-row" style="padding:0;margin-bottom:12px;">
+        <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">总数</div></div>
+        <div class="stat-item"><div class="stat-num" style="color:#ff4d4f">2</div><div class="stat-label">未整改</div></div>
+        <div class="stat-item"><div class="stat-num" style="color:#faad14">3</div><div class="stat-label">整改中</div></div>
+        <div class="stat-item"><div class="stat-num" style="color:#52c41a">7</div><div class="stat-label">已整改</div></div>
+      </div>
+      <div class="hs-chart-grid">
+        <div class="hs-chart-item">
+          <div class="hs-chart-ring ring-chart" style="width:70px;height:70px;background:conic-gradient(#ff4d4f 0% 25%, #faad14 25% 50%, #52c41a 50% 100%);">
+            <div class="ring-chart-inner" style="top:12px;left:12px;width:46px;height:46px;font-size:12px;">12</div>
+          </div>
+          <div class="hs-chart-label">状态分布</div>
+        </div>
+        <div class="hs-chart-item">
+          <div class="hs-chart-ring ring-chart" style="width:70px;height:70px;background:conic-gradient:#ff4d4f 0% 33%, #faad14 33% 100%);">
+            <div class="ring-chart-inner" style="top:12px;left:12px;width:46px;height:46px;font-size:12px;">4:8</div>
+          </div>
+          <div class="hs-chart-label">重大:一般</div>
+        </div>
+        <div class="hs-chart-item">
+          <div class="hs-chart-ring ring-chart" style="width:70px;height:70px;background:conic-gradient:#1068ff 0% 30%, #fa8c16 30% 60%, #ff4d4f 60% 80%, #722ed1 80% 100%);">
+            <div class="ring-chart-inner" style="top:12px;left:12px;width:46px;height:46px;font-size:12px;">4类</div>
+          </div>
+          <div class="hs-chart-label">类型分布</div>
+        </div>
+        <div class="hs-chart-item">
+          <div class="hs-chart-ring ring-chart" style="width:70px;height:70px;background:conic-gradient:#1068ff 0% 40%, #ff4d4f 40% 55%, #faad14 55% 75%, #52c41a 75% 100%);">
+            <div class="ring-chart-inner" style="top:12px;left:12px;width:46px;height:46px;font-size:12px;">4处</div>
+          </div>
+          <div class="hs-chart-label">高发部位</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 隐患列表 -->
+    <div class="hs-filter-bar">
+      <span class="hs-filter-chip active" onclick="filterHazard(this)">全部</span>
+      <span class="hs-filter-chip" onclick="filterHazard(this)">未整改</span>
+      <span class="hs-filter-chip" onclick="filterHazard(this)">整改中</span>
+      <span class="hs-filter-chip" onclick="filterHazard(this)">已整改</span>
+    </div>
+    <div class="hs-list-item" onclick="parent.navigateTo('hazard-detail')">
+      <div class="hs-urgency" style="background:#ff4d4f"></div>
+      <div class="hs-list-info"><div class="hs-list-name">配电房灭火器过期</div><div class="hs-list-meta">消防 · 重大 · 期限 01-15</div></div>
+      <span class="hs-list-badge code-badge red">未整改</span>
+    </div>
+    <div class="hs-list-item" onclick="parent.navigateTo('hazard-detail')">
+      <div class="hs-urgency" style="background:#ff4d4f"></div>
+      <div class="hs-list-info"><div class="hs-list-name">电气线路绝缘层破损</div><div class="hs-list-meta">电气 · 重大 · 期限 01-25</div></div>
+      <span class="hs-list-badge code-badge red">未整改</span>
+    </div>
+    <div class="hs-list-item" onclick="parent.navigateTo('hazard-detail')">
+      <div class="hs-urgency" style="background:#faad14"></div>
+      <div class="hs-list-info"><div class="hs-list-name">仓库安全出口标识缺失</div><div class="hs-list-meta">标志 · 一般 · 期限 01-20</div></div>
+      <span class="hs-list-badge code-badge yellow">整改中</span>
+    </div>
+    <div class="hs-list-item" onclick="parent.navigateTo('hazard-detail')">
+      <div class="hs-urgency" style="background:#faad14"></div>
+      <div class="hs-list-info"><div class="hs-list-name">危化品存储区通风不良</div><div class="hs-list-meta">设备 · 一般 · 期限 02-01</div></div>
+      <span class="hs-list-badge code-badge yellow">整改中</span>
+    </div>
+    <div class="hs-list-item">
+      <div class="hs-urgency" style="background:#faad14"></div>
+      <div class="hs-list-info"><div class="hs-list-name">实验室化学品未分类存放</div><div class="hs-list-meta">危化品 · 一般 · 期限 01-30</div></div>
+      <span class="hs-list-badge code-badge yellow">整改中</span>
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+
+  <script>
+    function filterHazard(el) {
+      document.querySelectorAll('.hs-filter-chip').forEach(function(c){c.classList.remove('active');});
+      el.classList.add('active');
+    }
+  </script>
+</body>
+</html>

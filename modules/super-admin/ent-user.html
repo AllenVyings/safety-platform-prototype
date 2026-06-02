@@ -26,7 +26,7 @@
 .tree-children{padding-left:18px;display:none}
 .tree-children.show{display:block}
 .tree-node-icon{margin-right:4px}
-.tree-node-label{flex:1}
+.tree-node-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tree-node-count{font-size:11px;color:#999;background:#f0f0f0;padding:2px 6px;border-radius:10px}
 .right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -379,6 +379,26 @@ tbody td:nth-child(10) .btn-link:last-child{margin-right:0}
 </div>
 
 <script>
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+  if (type === 'success') toast.style.background = '#52c41a';
+  if (type === 'warning') toast.style.background = '#faad14';
+  if (type === 'error') toast.style.background = '#ff4d4f';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
 // ========== 树数据 ==========
 const districtData=[
   {id:'nanshan',name:'南山区',count:245,children:[
@@ -1004,7 +1024,7 @@ function jumpToPage(){
     goPage(page);
     input.value='';
   }else{
-    alert('请输入有效的页码');
+    showToast('请输入有效的页码', 'warning');
   }
 }
 
@@ -1103,7 +1123,7 @@ function saveUser(){
   closeModal('editModal');
   renderTable();
   updateStats();
-  alert(editingId?'修改成功':'新增成功');
+  showToast(editingId?'修改成功':'新增成功', 'success');
 }
 
 function openDeleteModal(id){
@@ -1119,7 +1139,7 @@ function confirmDelete(){
   closeModal('deleteModal');
   renderTable();
   updateStats();
-  alert('删除成功');
+  showToast('删除成功', 'success');
 }
 
 function openResetPwdModal(id){
@@ -1133,9 +1153,9 @@ function openResetPwdModal(id){
 
 function confirmResetPwd(){
   const pwd=document.getElementById('newPassword').value;
-  if(!pwd){alert('请输入新密码');return;}
+  if(!pwd){showToast('请输入新密码', 'warning');return;}
   closeModal('resetPwdModal');
-  alert('密码重置成功');
+  showToast('密码重置成功', 'success');
 }
 
 function openDetailModal(id){

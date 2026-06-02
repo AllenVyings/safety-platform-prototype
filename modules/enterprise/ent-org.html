@@ -19,7 +19,7 @@
 .tree-search input{width:100%;padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none}
 .tree-search input:focus{border-color:#1677ff}
 .tree-body{flex:1;overflow-y:auto;padding:8px 0}
-.tree-node{display:flex;align-items:center;padding:7px 16px;cursor:pointer;transition:background .2s;gap:6px}
+.tree-node{display:flex;align-items:center;padding:10px 16px;cursor:pointer;transition:background .2s;gap:6px;line-height:1.6}
 .tree-node:hover{background:#f5f7fa}
 .tree-node.active{background:#e6f4ff;color:#1677ff}
 .tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;cursor:pointer;flex-shrink:0}
@@ -82,9 +82,16 @@
 .form-group label .required{color:#ff4d4f;margin-left:2px}
 .form-group input,.form-group select{width:100%;padding:7px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box}
 .form-group input:focus,.form-group select:focus{border-color:#1677ff}
+.duplicate-error{color:#ff4d4f;font-size:12px;margin-top:3px;display:none}
+.form-group.has-duplicate .duplicate-error{display:block}
 
 /* Toast */
 #_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+
+/* 标签 */
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
+.tag-success{background:#f6ffed;color:#52c41a}
+.tag-gray{background:#f5f5f5;color:#999}
 </style>
 </head>
 <body>
@@ -120,7 +127,7 @@
           <option value="normal">正常</option>
           <option value="disabled">停用</option>
         </select>
-        <button class="btn btn-primary btn-sm" onclick="showToast('搜索')">🔍 搜索</button>
+        <button class="btn btn-primary btn-sm" onclick="searchDept()">🔍 搜索</button>
         <button class="btn btn-default btn-sm" onclick="showToast('重置')">重置</button>
       </div>
 
@@ -141,33 +148,33 @@
               <td>安全部</td>
               <td>公司总部</td>
               <td>王五</td>
-              <td>5</td>
-              <td><span style="color:#52c41a">正常</span></td>
+              <td><a class="btn-link" onclick="goToUserMgmt('安全部')">5</a></td>
+              <td><span class="tag tag-success">正常</span></td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link danger" onclick="showToast('删除')">删除</button>
+                <button class="btn-link danger" onclick="deleteDept('dept-1','安全部')">删除</button>
               </td>
             </tr>
             <tr>
               <td>技术部</td>
               <td>公司总部</td>
               <td>李四</td>
-              <td>8</td>
-              <td><span style="color:#52c41a">正常</span></td>
+              <td><a class="btn-link" onclick="goToUserMgmt('技术部')">8</a></td>
+              <td><span class="tag tag-success">正常</span></td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link danger" onclick="showToast('删除')">删除</button>
+                <button class="btn-link danger" onclick="deleteDept('dept-1','技术部')">删除</button>
               </td>
             </tr>
             <tr>
               <td>工程部</td>
               <td>公司总部</td>
               <td>赵六</td>
-              <td>12</td>
-              <td><span style="color:#52c41a">正常</span></td>
+              <td><a class="btn-link" onclick="goToUserMgmt('工程部')">12</a></td>
+              <td><span class="tag tag-gray">停用</span></td>
               <td class="action-col">
                 <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link danger" onclick="showToast('删除')">删除</button>
+                <button class="btn-link danger" onclick="deleteDept('dept-3','工程部')">删除</button>
               </td>
             </tr>
           </tbody>
@@ -194,9 +201,10 @@
       <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
+      <div class="form-group" id="fg-deptName">
         <label>部门名称 <span class="required">*</span></label>
         <input type="text" placeholder="请输入部门名称" id="deptName">
+        <div class="duplicate-error">同级已存在同名部门，请修改</div>
       </div>
       <div class="form-group">
         <label>上级部门</label>
@@ -221,7 +229,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('deptModal')">取消</button>
-      <button class="btn btn-primary" onclick="showToast('保存成功');closeModal('deptModal')">确定</button>
+      <button class="btn btn-primary" onclick="checkDuplicateName();if(!document.getElementById('fg-deptName').classList.contains('has-duplicate')){showToast('保存成功');closeModal('deptModal')}">确定</button>
     </div>
   </div>
 </div>
@@ -354,6 +362,114 @@ function showToast(msg) {
 
 // 初始化
 renderDeptTree();
+
+// ===== 跳转用户管理 =====
+window.goToUserMgmt = function(deptName) {
+  console.log('跳转用户管理，部门：' + deptName);
+  showToast('跳转至用户管理 — ' + deptName);
+};
+
+// ===== 树搜索过滤 =====
+document.getElementById('treeSearchInput').addEventListener('input', function(e) {
+  var keyword = e.target.value.trim().toLowerCase();
+  var allNodes = document.querySelectorAll('#orgTree .tree-node');
+  allNodes.forEach(function(node) {
+    var label = node.querySelector('.tree-node-label');
+    if (!label) return;
+    var text = label.textContent.toLowerCase();
+    if (!keyword) {
+      node.style.display = '';
+    } else {
+      node.style.display = text.indexOf(keyword) !== -1 ? '' : 'none';
+    }
+  });
+  if (keyword) {
+    allNodes.forEach(function(node) {
+      if (node.style.display !== 'none') {
+        var parent = node.parentElement;
+        while (parent && parent.id !== 'orgTree') {
+          if (parent.classList && parent.classList.contains('tree-node')) {
+            parent.style.display = '';
+          }
+          if (parent.classList && parent.classList.contains('tree-children')) {
+            parent.style.display = '';
+          }
+          parent = parent.parentElement;
+        }
+      }
+    });
+  }
+});
+
+// ===== 同级重名校验 =====
+window.checkDuplicateName = function() {
+  var nameInput = document.getElementById('deptName');
+  var fg = document.getElementById('fg-deptName');
+  var name = nameInput.value.trim();
+  var parentSel = document.getElementById('parentDept');
+  var parentId = parentSel ? parentSel.value : '';
+
+  if (!name) { fg.classList.remove('has-duplicate'); return; }
+
+  function findSiblings(nodes, pid) {
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].id === pid) return nodes[i].children || [];
+      if (nodes[i].children) {
+        var found = findSiblings(nodes[i].children, pid);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  var searchIn = parentId ? (findSiblings(deptData, parentId) || deptData[0].children) : deptData[0].children;
+  var duplicate = false;
+  if (searchIn) {
+    for (var j = 0; j < searchIn.length; j++) {
+      if (searchIn[j].name === name) { duplicate = true; break; }
+    }
+  }
+
+  if (duplicate) {
+    fg.classList.add('has-duplicate');
+  } else {
+    fg.classList.remove('has-duplicate');
+  }
+};
+
+document.getElementById('deptName').addEventListener('input', function() { checkDuplicateName(); });
+document.getElementById('parentDept').addEventListener('change', function() { checkDuplicateName(); });
+
+// ===== 删除前校验 =====
+window.deleteDept = function(deptId, deptName) {
+  function findNode(nodes, id) {
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].id === id) return nodes[i];
+      if (nodes[i].children) {
+        var found = findNode(nodes[i].children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  var node = findNode(deptData, deptId);
+  if (node && node.children && node.children.length > 0) {
+    showToast('该部门存在下级部门（' + node.children.length + '个），无法删除');
+    return;
+  }
+
+  var userCounts = { 'dept-1': 5, 'dept-2': 8, 'dept-3': 12, 'dept-4': 3 };
+  var userCount = userCounts[deptId] || 0;
+  if (userCount > 0) {
+    showToast('该部门下有 ' + userCount + ' 名关联用户，无法删除');
+    return;
+  }
+
+  if (confirm('确认删除部门"' + deptName + '"？')) {
+    showToast('部门已删除');
+  }
+};
 </script>
 <script>
 (function() { 'use strict'; const CONFIG = { moduleId: 'ent-org', moduleName: '企业组织架构管理' }; let state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();

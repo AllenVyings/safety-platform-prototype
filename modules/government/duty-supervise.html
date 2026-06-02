@@ -113,6 +113,41 @@
     .tag-orange { background: var(--warning-light); color: var(--warning); }
     .tag-red { background: var(--error-light); color: var(--error); }
     .tag-blue { background: var(--info-light); color: var(--info); }
+
+    /* ========== 弹窗 ========== */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: 0 8px 32px rgba(0,0,0,0.18); width: 600px; max-height: 80vh; overflow: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
+    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-tertiary); }
+    .modal-body { padding: var(--spacing-lg); }
+    .modal-footer { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
+    .form-group { margin-bottom: var(--spacing-md); }
+    .form-label { display: block; font-size: var(--font-size-sm); font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
+    .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+    .form-control:focus { border-color: var(--primary); outline: none; }
+    .required { color: #ff4d4f; }
+    .btn { padding: 6px 16px; border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid var(--border-light); background: var(--bg-primary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-link { padding: 4px 8px; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .btn-link:hover { text-decoration: underline; }
+
+    /* ========== 详情时间线 ========== */
+    .timeline { position: relative; padding-left: 20px; }
+    .timeline::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: var(--border-light); }
+    .timeline-item { position: relative; padding-bottom: 16px; padding-left: 16px; }
+    .timeline-item::before { content: ''; position: absolute; left: -18px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--primary); }
+    .timeline-item.done::before { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
+    .timeline-item.pending::before { background: #d9d9d9; box-shadow: 0 0 0 2px #d9d9d9; }
+    .timeline-time { font-size: 12px; color: var(--text-secondary); margin-bottom: 2px; }
+    .timeline-desc { font-size: 13px; color: var(--text-primary); }
+
+    /* ========== 检查记录列表 ========== */
+    .check-record { display: flex; align-items: center; padding: 10px 12px; background: #fafbfc; border-radius: 6px; border: 1px solid #e8eaed; margin-bottom: 8px; }
+    .check-record-info { flex: 1; min-width: 0; }
+    .check-record-title { font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
+    .check-record-meta { font-size: 12px; color: var(--text-secondary); }
   </style>
 </head>
 <body>
@@ -165,6 +200,7 @@
               <td>100%</td>
               <td>
                 <div class="progress-bar"><div class="progress-fill" style="width: 100%; background: var(--success);"></div></div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">100%</div>
               </td>
               <td><span class="tag tag-green">正常</span></td>
               <td class="action-col"><button class="btn-link" onclick="viewDetail('危化品监管科')">查看详情</button></td>
@@ -177,6 +213,7 @@
               <td>87.5%</td>
               <td>
                 <div class="progress-bar"><div class="progress-fill" style="width: 95%; background: var(--success);"></div></div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">95%</div>
               </td>
               <td><span class="tag tag-green">正常</span></td>
               <td class="action-col"><button class="btn-link" onclick="viewDetail('基础安全监管科')">查看详情</button></td>
@@ -189,6 +226,7 @@
               <td>66.7%</td>
               <td>
                 <div class="progress-bar"><div class="progress-fill" style="width: 70%; background: var(--warning);"></div></div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">70%</div>
               </td>
               <td><span class="tag tag-orange">滞后</span></td>
               <td class="action-col"><button class="btn-link" onclick="viewDetail('综合协调科')">查看详情</button><button class="btn-link" onclick="urgeAction('综合协调科')">催办</button></td>
@@ -201,6 +239,7 @@
               <td>50%</td>
               <td>
                 <div class="progress-bar"><div class="progress-fill" style="width: 40%; background: var(--error);"></div></div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">40%</div>
               </td>
               <td><span class="tag tag-red">异常</span></td>
               <td class="action-col"><button class="btn-link" onclick="viewDetail('执法监督科')">查看详情</button><button class="btn-link" onclick="superviseAction('执法监督科')">督办</button></td>
@@ -217,79 +256,179 @@
     </div>
   </div>
 
+  <!-- 督办意见弹窗 -->
+  <div class="modal-overlay" id="modal-supervise">
+    <div class="modal" style="width:520px;">
+      <div class="modal-header"><span class="modal-title">发起督办</span><button class="modal-close" onclick="closeModal('modal-supervise')">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">督办对象</label><input class="form-control" id="superviseDept" readonly></div>
+        <div class="form-group"><label class="form-label"><span class="required">*</span> 督办意见</label><textarea class="form-control" id="superviseOpinion" rows="4" placeholder="请输入督办意见，说明需要整改的问题和要求"></textarea></div>
+        <div class="form-group"><label class="form-label">整改期限</label><input type="date" class="form-control" id="superviseDeadline"></div>
+      </div>
+      <div class="modal-footer"><button class="btn" onclick="closeModal('modal-supervise')">取消</button><button class="btn btn-primary" onclick="submitSupervise()">提交督办</button></div>
+    </div>
+  </div>
+
+  <!-- 发起督查弹窗 -->
+  <div class="modal-overlay" id="modal-inspect">
+    <div class="modal" style="width:560px;">
+      <div class="modal-header"><span class="modal-title">发起督查</span><button class="modal-close" onclick="closeModal('modal-inspect')">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label"><span class="required">*</span> 督查类型</label><select class="form-control" id="inspectType"><option value="">请选择督查类型</option><option>日常督查</option><option>专项督查</option><option>联合督查</option></select></div>
+        <div class="form-group"><label class="form-label"><span class="required">*</span> 督查内容</label><textarea class="form-control" id="inspectContent" rows="3" placeholder="请输入督查内容说明"></textarea></div>
+        <div class="form-group"><label class="form-label"><span class="required">*</span> 督查对象</label><select class="form-control" id="inspectTarget"><option value="">请选择督查对象</option><option>危化品监管科</option><option>基础安全监管科</option><option>综合协调科</option><option>执法监督科</option></select></div>
+        <div class="form-group"><label class="form-label">督查时间</label><input type="date" class="form-control" id="inspectDate"></div>
+      </div>
+      <div class="modal-footer"><button class="btn" onclick="closeModal('modal-inspect')">取消</button><button class="btn btn-primary" onclick="submitInspect()">发起督查</button></div>
+    </div>
+  </div>
+
+  <!-- 履职详情弹窗 -->
+  <div class="modal-overlay" id="modal-duty-detail">
+    <div class="modal" style="width:680px;">
+      <div class="modal-header"><span class="modal-title" id="dutyDetailTitle">履职详情</span><button class="modal-close" onclick="closeModal('modal-duty-detail')">&times;</button></div>
+      <div class="modal-body" id="dutyDetailBody">
+      </div>
+      <div class="modal-footer"><button class="btn" onclick="closeModal('modal-duty-detail')">关闭</button></div>
+    </div>
+  </div>
+
   <script>
     (function() {
       'use strict';
-      
+
       const CONFIG = {
         moduleId: 'gov-duty-supervise',
         moduleName: '日常履职监督'
       };
-      
+
       let state = {
         initialized: false,
         currentPage: 1
       };
-      
+
+      var dutyData = {
+        '危化品监管科': { dept: '危化品监管科', domain: '危险化学品、充换电设施', checks: 28, hazards: 5, rate: '100%', progress: 100, status: '正常' },
+        '基础安全监管科': { dept: '基础安全监管科', domain: '工业制造、建筑施工', checks: 22, hazards: 8, rate: '87.5%', progress: 95, status: '正常' },
+        '综合协调科': { dept: '综合协调科', domain: '公共场所、农贸市场', checks: 15, hazards: 3, rate: '66.7%', progress: 70, status: '滞后' },
+        '执法监督科': { dept: '执法监督科', domain: '交通运输、其他', checks: 8, hazards: 12, rate: '50%', progress: 40, status: '异常' }
+      };
+
       function init() {
         if (state.initialized) return;
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        console.log('[' + CONFIG.moduleId + '] 模块初始化');
         state.initialized = true;
       }
-      
-      // 查看详情
+
+      function showToast(msg) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'#1677ff', color:'#fff', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
+        document.body.appendChild(t);
+        setTimeout(function() { t.remove(); }, 2000);
+      }
+
+      window.openModal = function(id) { document.getElementById(id).classList.add('show'); };
+      window.closeModal = function(id) { document.getElementById(id).classList.remove('show'); };
+
+      // 查看详情：弹出履职详情弹窗
       window.viewDetail = function(dept) {
-        console.log('查看履职详情：' + dept);
-        alert('查看履职详情：' + dept);
+        var d = dutyData[dept];
+        if (!d) return;
+        document.getElementById('dutyDetailTitle').textContent = dept + ' - 履职详情';
+        var progressColor = d.progress >= 90 ? 'var(--success)' : d.progress >= 60 ? 'var(--warning)' : 'var(--error)';
+        var statusClass = d.status === '正常' ? 'tag-green' : d.status === '滞后' ? 'tag-orange' : 'tag-red';
+        document.getElementById('dutyDetailBody').innerHTML =
+          '<div style="display:flex;gap:16px;margin-bottom:16px;">' +
+            '<div style="flex:1;background:#fafbfc;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:600;color:var(--primary);">' + d.checks + '</div><div style="font-size:12px;color:var(--text-secondary);">本月检查次数</div></div>' +
+            '<div style="flex:1;background:#fafbfc;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:600;color:var(--error);">' + d.hazards + '</div><div style="font-size:12px;color:var(--text-secondary);">隐患发现数</div></div>' +
+            '<div style="flex:1;background:#fafbfc;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:600;">' + d.rate + '</div><div style="font-size:12px;color:var(--text-secondary);">整改完成率</div></div>' +
+            '<div style="flex:1;background:#fafbfc;border-radius:8px;padding:12px;text-align:center;"><span class="tag ' + statusClass + '">' + d.status + '</span><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">履职状态</div></div>' +
+          '</div>' +
+          '<div style="font-size:14px;font-weight:600;margin-bottom:8px;">履职进度</div>' +
+          '<div class="timeline">' +
+            '<div class="timeline-item done"><div class="timeline-time">2026-05-28</div><div class="timeline-desc">完成月度巡查计划制定</div></div>' +
+            '<div class="timeline-item done"><div class="timeline-time">2026-05-25</div><div class="timeline-desc">完成' + d.domain.split('、')[0] + '领域专项检查</div></div>' +
+            '<div class="timeline-item done"><div class="timeline-time">2026-05-20</div><div class="timeline-desc">隐患整改复查通过</div></div>' +
+            '<div class="timeline-item pending"><div class="timeline-time">2026-06-05（计划）</div><div class="timeline-desc">提交本月履职报告</div></div>' +
+          '</div>' +
+          '<div style="font-size:14px;font-weight:600;margin:16px 0 8px;">近期检查记录</div>' +
+          '<div class="check-record"><div class="check-record-info"><div class="check-record-title">南山区充换电设施安全检查</div><div class="check-record-meta">2026-05-27 · 发现隐患2项 · 已整改1项</div></div><span class="tag tag-orange">整改中</span></div>' +
+          '<div class="check-record"><div class="check-record-info"><div class="check-record-title">农贸市场消防安全检查</div><div class="check-record-meta">2026-05-22 · 发现隐患0项</div></div><span class="tag tag-green">已完成</span></div>' +
+          '<div class="check-record"><div class="check-record-info"><div class="check-record-title">危化品仓储日常巡查</div><div class="check-record-meta">2026-05-18 · 发现隐患3项 · 已整改3项</div></div><span class="tag tag-green">已完成</span></div>';
+        openModal('modal-duty-detail');
       };
-      
+
       // 催办
       window.urgeAction = function(dept) {
-        console.log('催办：' + dept);
-        alert('已发送催办通知至：' + dept);
+        if (confirm('确定要向「' + dept + '」发送催办通知吗？')) {
+          showToast('已发送催办通知至：' + dept);
+        }
       };
-      
-      // 督办
+
+      // 督办：弹出督办意见弹窗
       window.superviseAction = function(dept) {
-        console.log('督办：' + dept);
-        alert('已发起督办流程：' + dept);
+        document.getElementById('superviseDept').value = dept;
+        document.getElementById('superviseOpinion').value = '';
+        document.getElementById('superviseDeadline').value = '';
+        openModal('modal-supervise');
       };
-      
-      // 发起督查
+
+      // 提交督办
+      window.submitSupervise = function() {
+        var opinion = document.getElementById('superviseOpinion').value.trim();
+        if (!opinion) {
+          showToast('请填写督办意见');
+          return;
+        }
+        var dept = document.getElementById('superviseDept').value;
+        closeModal('modal-supervise');
+        showToast('已向 ' + dept + ' 发起督办');
+      };
+
+      // 发起督查：弹出督查流程弹窗
       window.startSupervise = function() {
-        console.log('发起督查');
-        alert('发起督查流程');
+        document.getElementById('inspectType').value = '';
+        document.getElementById('inspectContent').value = '';
+        document.getElementById('inspectTarget').value = '';
+        document.getElementById('inspectDate').value = '';
+        openModal('modal-inspect');
       };
-      
+
+      // 提交督查
+      window.submitInspect = function() {
+        var type = document.getElementById('inspectType').value;
+        var content = document.getElementById('inspectContent').value.trim();
+        var target = document.getElementById('inspectTarget').value;
+        if (!type) { showToast('请选择督查类型'); return; }
+        if (!content) { showToast('请填写督查内容'); return; }
+        if (!target) { showToast('请选择督查对象'); return; }
+        closeModal('modal-inspect');
+        showToast('已向 ' + target + ' 发起' + type);
+      };
+
       // 重置筛选
       window.resetFilter = function() {
         document.getElementById('filterDept').value = '全部';
         document.getElementById('filterStatus').value = '全部';
         document.getElementById('filterTime').value = '本月';
-        console.log('重置筛选条件');
       };
-      
+
       // 分页
       window.prevPage = function() {
-        if (state.currentPage > 1) {
-          state.currentPage--;
-          console.log('切换到第' + state.currentPage + '页');
-        }
+        if (state.currentPage > 1) state.currentPage--;
       };
-      
       window.nextPage = function() {
         state.currentPage++;
-        console.log('切换到第' + state.currentPage + '页');
       };
-      
+
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
       } else {
         init();
       }
-      
+
       window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
         state.initialized = false;
       };
     })();

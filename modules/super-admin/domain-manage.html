@@ -881,9 +881,9 @@
                   <div class="mode-name">特殊场景模式</div>
                   <div class="mode-desc">独立场所管理，可关联给企业/项目/政府单位，多方共享查看</div>
                 </div>
-                <div class="mode-option" onclick="selectMode(this, 'other')">
-                  <div class="mode-name">其他模式</div>
-                  <div class="mode-desc">专属定制页面，根据具体业务场景定制开发</div>
+                <div class="mode-option" onclick="selectMode(this, 'simplified')">
+                  <div class="mode-name">简化模式</div>
+                  <div class="mode-desc">适用于业务场景较简单的企业，减少必填项和检查流程</div>
                 </div>
               </div>
               <input type="hidden" id="domainMode" value="basic">
@@ -1125,6 +1125,26 @@
   </div>
 
   <script>
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+  if (type === 'success') toast.style.background = '#52c41a';
+  if (type === 'warning') toast.style.background = '#faad14';
+  if (type === 'error') toast.style.background = '#ff4d4f';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
     // 显示新增弹窗
     function showAddModal() {
       document.getElementById('modalTitle').textContent = '新增领域小类';
@@ -1164,7 +1184,7 @@
       document.getElementById('domainStatus').value = data.status || '1';
 
       // 模式选择
-      const modeMap = { basic: 0, project: 1, special: 2, other: 3 };
+      const modeMap = { basic: 0, project: 1, special: 2, simplified: 3 };
       const modeOptions = document.querySelectorAll('.mode-option');
       const modeIdx = modeMap[data.mode] ?? 0;
       modeOptions.forEach((el, i) => {
@@ -1265,8 +1285,8 @@
       document.getElementById('detailCode').textContent = domainData ? domainData.id : id;
       document.getElementById('detailName').textContent = domainData ? domainData.name : '';
       document.getElementById('detailIndustry').textContent = domainData && domainData.industryName ? domainData.industryName : '';
-      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', other: '其他模式' };
-      const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', other: 'tag-gray' };
+      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', simplified: '简化模式' };
+      const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', simplified: 'tag-cyan' };
       const mode = domainData ? domainData.mode : 'basic';
       document.getElementById('detailMode').innerHTML = `<span class="tag ${modeColorMap[mode]}">${modeMap[mode]}</span>`;
       const statusMap = { 1: { text: '启用', cls: 'tag-green' }, 0: { text: '禁用', cls: 'tag-gray' } };
@@ -1354,7 +1374,7 @@
         const found = (sup.checklists || []).find(c => c.id === clId);
         if (found) { targetSup = sup; break; }
       }
-      if (!targetSup) { alert('未找到该检查表'); return; }
+      if (!targetSup) { showToast('未找到该检查表', 'error'); return; }
       const checklist = (targetSup.checklists || []).find(c => c.id === clId);
       if (!checklist) return;
       window._currentDetailClId = clId;
@@ -1395,7 +1415,7 @@
     // 保存详情弹窗内检查表编辑
     function saveDetailCl() {
       const name = document.getElementById('checklistName').value.trim();
-      if (!name) { alert('请填写检查表名称'); return; }
+      if (!name) { showToast('请填写检查表名称', 'warning'); return; }
       const interval = document.getElementById('checklistInterval').value;
       const unit = document.getElementById('checklistUnit').value;
       const times = document.getElementById('checklistTimes').value;
@@ -1418,7 +1438,7 @@
         tag.querySelector('.cl-tag-name').textContent = name;
       }
       closeChecklistModal();
-      alert('保存成功');
+      showToast('保存成功', 'success');
     }
 
     // 从详情编辑
@@ -1434,13 +1454,13 @@
       // 关联企业拦截（原型：按行业模拟，危险化学品类有关联企业）
       const hasEnterpriseBlock = (domain && domain.industry === 'CHEM');
       if (hasEnterpriseBlock) {
-        alert(`该领域小类"${domainName}"下存在关联企业，请先迁移企业后再删除。`);
+        showToast(`该领域小类"${domainName}"下存在关联企业，请先迁移企业后再删除。`, 'warning');
         return;
       }
       if (confirm(`确定要删除领域小类"${domainName}"吗？此操作不可恢复。`)) {
         domainTableData = domainTableData.filter(d => d.id !== id);
         renderDomainTable();
-        alert('删除成功');
+        showToast('删除成功', 'success');
       }
     }
 
@@ -1602,7 +1622,7 @@
         checklists: []
       },
       {
-        id: 'CUSTOM_001', name: '定制业务', industry: 'OTH', industryName: '其他', mode: 'other', status: '1',
+        id: 'CUSTOM_001', name: '小微企业', industry: 'OTH', industryName: '其他', mode: 'simplified', status: '1',
         desc: '企业专属定制业务',
         supervisors: [
           { type: 'professional', name: '应急管理局', checklists: ['定制业务检查表'] },
@@ -2149,7 +2169,7 @@
       const confirmBtn = document.querySelector('#checklistModal .btn-primary[onclick="saveSupCl()"]');
       if (confirmBtn) confirmBtn.setAttribute('onclick', 'saveChecklist()');
       window._supClEditMode = false;
-      alert('保存成功');
+      showToast('保存成功', 'success');
     }
 
     // 更新监管单位表格中指定 key 的检查表列
@@ -2349,7 +2369,7 @@
 
       const name = document.getElementById('checklistName').value.trim();
       if (!name) {
-        alert('请填写检查表名称');
+        showToast('请填写检查表名称', 'warning');
         return;
       }
       const interval = document.getElementById('checklistInterval').value;
@@ -2410,7 +2430,7 @@
         _restoreDomainClToTable();
         window._supClAddingNew = true;
         document.getElementById('checklistModal').classList.remove('active');
-        alert('保存成功');
+        showToast('保存成功', 'success');
         return;
       }
 
@@ -2419,7 +2439,7 @@
         _syncDomainClFromTable();
       }
       closeChecklistModal();
-      alert('保存成功');
+      showToast('保存成功', 'success');
     }
 
     // 显示检查库引用弹窗
@@ -2466,7 +2486,7 @@
     // 确认引用检查库
     function confirmLibImport() {
       const checked = document.querySelectorAll('#libListContainer input:checked');
-      if (checked.length === 0) { alert('请先选择要引用的检查项'); return; }
+      if (checked.length === 0) { showToast('请先选择要引用的检查项', 'warning'); return; }
       checked.forEach(cb => {
         const lib = libraryLibData.find(i => i.id === cb.value);
         if (!lib) return;
@@ -2488,19 +2508,19 @@
     // 预览检查库项
     function previewLibItem(id) {
       console.log('预览检查库项:', id);
-      alert('预览检查库项: ' + id);
+      showToast('预览检查库项: ' + id, 'info');
     }
 
     // 切换开关
     function toggleSwitch(element) {
-      element.classList.toggle('active');
+      element.classList.toggle('active', 'info');
     }
 
     // 编辑检查表
     function editChecklist(id) {
       // 打开检查表配置弹窗并填充数据
       const checklist = (window.checklistTableData || []).find(c => c.id === id);
-      if (!checklist) { alert('数据不存在'); return; }
+      if (!checklist) { showToast('数据不存在', 'error'); return; }
       window._currentEditId = id;
       document.getElementById('checklistModal').classList.add('active');
       document.getElementById('checklistModalTitle').textContent = '编辑检查表配置';
@@ -2553,7 +2573,7 @@
     function editSupCl(key, checklistId) {
       // 从 _supClData 获取检查表数据
       const checklist = (window._supClData[key] || []).find(c => c.id === checklistId);
-      if (!checklist) { alert('未找到该检查表'); return; }
+      if (!checklist) { showToast('未找到该检查表', 'error'); return; }
       
       // 设置当前编辑状态
       window._currentSupClKey = key;
@@ -2613,7 +2633,7 @@
       const desc = document.getElementById('domainDesc').value;
 
       if (!industry || !name) {
-        alert('请填写必填项：行业大类、领域小类名称');
+        showToast('请填写必填项：行业大类、领域小类名称', 'warning');
         return;
       }
 
@@ -2689,7 +2709,7 @@
       }
 
       renderDomainTable();
-      alert('保存成功');
+      showToast('保存成功', 'success');
       closeModal();
     }
 
@@ -2778,8 +2798,8 @@
       const keyword = (document.getElementById('filterKeyword')?.value || '').toLowerCase();
       const tbody = document.getElementById('domainTable');
       if (!tbody) return;
-      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景', other: '其他模式' };
-      const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', other: 'tag-gray' };
+      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', simplified: '简化模式' };
+      const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', simplified: 'tag-cyan' };
       const statusMap = { 1: { text: '启用', cls: 'tag-green' }, 0: { text: '禁用', cls: 'tag-gray' } };
       const filtered = domainTableData.filter(d => {
         if (industry && d.industry !== industry) return false;

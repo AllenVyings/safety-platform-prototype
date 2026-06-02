@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -8,17 +8,17 @@
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
     /* ========== 页面背景 ========== */
-    .page-container { 
-      padding: var(--spacing-lg); 
+    .page-container {
+      padding: var(--spacing-lg);
       background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
       min-height: 100vh;
     }
-    
+
     /* ========== 页面标题栏 ========== */
-    .page-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 16px;
       background: #fff;
       padding: 16px 20px;
@@ -26,88 +26,160 @@
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
     .page-title { font-size: 18px; font-weight: 600; }
-    
+
+    /* ========== Tab切换 ========== */
+    .tab-nav { display: flex; gap: 0; border-bottom: 1px solid #e8eaed; background: #fafbfc; border-radius: 8px 8px 0 0; }
+    .tab-item { padding: 12px 24px; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .tab-item:hover { color: #1677ff; }
+    .tab-item.active { color: #1677ff; border-bottom-color: #1677ff; font-weight: 500; background: #fff; }
+
+    /* ========== Tab内容区 ========== */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
     /* ========== 统计卡片 ========== */
     .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .stat-card { 
-      flex: 1; 
-      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%); 
-      border: 1px solid var(--border-card); 
-      border-radius: var(--radius-lg); 
-      padding: var(--spacing-md) var(--spacing-lg); 
+    .stat-card {
+      flex: 1;
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
       box-shadow: var(--shadow-card);
       transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+      border-left: 4px solid transparent;
     }
-    .stat-card:hover { 
+    .stat-card:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-card-hover);
+      cursor: pointer;
     }
+    .stat-card.card-blue { border-left-color: #1677ff; }
+    .stat-card.card-green { border-left-color: #52c41a; }
+    .stat-card.card-orange { border-left-color: #faad14; }
+    .stat-card.card-red { border-left-color: #ff4d4f; }
     .stat-value { font-size: 24px; font-weight: 600; }
     .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
     .stat-trend { font-size: 12px; margin-top: 4px; }
     .stat-trend.up { color: var(--success); }
     .stat-trend.down { color: var(--danger); }
-    
-    /* ========== 时间筛选 ========== */
-    .time-filter {
+
+    /* ========== 筛选条件区 ========== */
+    .filter-bar {
       display: flex;
-      gap: 8px;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
       margin-bottom: var(--spacing-md);
+      background: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
-    .time-filter .btn {
-      padding: 6px 16px;
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-label {
+      font-size: 13px;
+      color: #666;
+      white-space: nowrap;
+    }
+    .filter-bar select,
+    .filter-bar .multi-select-trigger {
+      padding: 6px 12px;
       border: 1px solid #d9d9d9;
-      background: var(--bg-primary);
       border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
       cursor: pointer;
-      font-size: var(--font-size-sm);
-      transition: all 0.2s;
+      min-width: 120px;
     }
-    .time-filter .btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
+    .filter-bar .multi-select-trigger {
+      position: relative;
+      user-select: none;
     }
-    .time-filter .btn.active {
+    .filter-bar .multi-select-trigger::after {
+      content: '▾';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 12px;
+    }
+    .filter-bar .btn-query {
+      padding: 6px 20px;
       background: var(--primary);
       color: #fff;
-      border-color: var(--primary);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
     }
-    
+    .filter-bar .btn-query:hover {
+      background: var(--primary-hover);
+    }
+    .granularity-group {
+      display: flex;
+      gap: 0;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .granularity-group .gran-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      background: #fff;
+      border: none;
+      border-right: 1px solid #d9d9d9;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .granularity-group .gran-btn:last-child { border-right: none; }
+    .granularity-group .gran-btn:hover { color: var(--primary); }
+    .granularity-group .gran-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
     /* ========== 图表网格 ========== */
     .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    
+    .chart-grid.full-width { grid-template-columns: 1fr; }
+
     /* ========== 图表卡片 ========== */
-    .chart-card { 
-      background: var(--bg-primary); 
-      border-radius: var(--radius-lg); 
-      overflow: hidden; 
+    .chart-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
       box-shadow: var(--shadow-card);
     }
-    .chart-header { 
-      padding: var(--spacing-md) var(--spacing-lg); 
-      border-bottom: 1px solid var(--border-light); 
-      display: flex; 
-      justify-content: space-between; 
+    .chart-header {
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
       align-items: center;
       background: var(--bg-section);
     }
     .chart-title { font-size: var(--font-size-base); font-weight: 600; }
     .chart-body { padding: var(--spacing-lg); min-height: 200px; }
-    
+
     /* ========== 柱状图 ========== */
     .bar-chart { display: flex; flex-direction: column; gap: 12px; }
     .bar-item { display: flex; align-items: center; gap: 12px; }
     .bar-label { width: 100px; font-size: var(--font-size-sm); color: var(--text-secondary); }
     .bar-track { flex: 1; height: 24px; background: var(--bg-section); border-radius: 4px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 12px; color: #fff; }
-    
+
     /* ========== 饼图 ========== */
     .pie-chart { display: flex; align-items: center; justify-content: center; gap: 40px; }
     .pie-visual { width: 160px; height: 160px; border-radius: 50%; background: conic-gradient(#1677ff 0% 35%, #52c41a 35% 60%, #faad14 60% 80%, #999 80% 100%); }
     .pie-legend { display: flex; flex-direction: column; gap: 12px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
     .legend-dot { width: 12px; height: 12px; border-radius: 2px; }
-    
+
     /* ========== 排名列表 ========== */
     .rank-list { display: flex; flex-direction: column; gap: 8px; }
     .rank-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-light); }
@@ -115,7 +187,26 @@
     .rank-num.top3 { background: var(--primary); color: #fff; }
     .rank-name { flex: 1; font-size: var(--font-size-sm); }
     .rank-value { font-size: var(--font-size-sm); font-weight: 600; color: var(--primary); }
-    
+
+    /* ========== 折线图（SVG） ========== */
+    .line-chart-container {
+      width: 100%;
+      padding: 10px 0;
+    }
+    .line-chart-container svg {
+      width: 100%;
+      height: 200px;
+    }
+    .line-chart-labels {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 8px;
+    }
+    .line-chart-labels span {
+      font-size: 12px;
+      color: #999;
+    }
+
     /* ========== 数据表格 ========== */
     .table-section {
       background: var(--bg-primary);
@@ -164,284 +255,862 @@
       <span class="breadcrumb-prefix">当前位置：</span>
       <span class="breadcrumb-item current">政府端</span>
     </div>
-    
+
     <!-- 页面标题栏 -->
     <header class="page-header" style="display: none;">
       <h1 class="page-title">统计分析</h1>
     </header>
-    
-    <!-- 时间筛选 -->
-    <div class="time-filter" id="timeFilter">
-      <button class="btn active" onclick="switchTimeRange('month', this)">本月</button>
-      <button class="btn" onclick="switchTimeRange('quarter', this)">本季度</button>
-      <button class="btn" onclick="switchTimeRange('year', this)">本年</button>
+
+    <!-- Tab切换栏 -->
+    <div class="tab-nav" id="analyticsTabNav">
+      <div class="tab-item active" data-tab="overview" onclick="switchAnalyticsTab('overview', this)">监管概览</div>
+      <div class="tab-item" data-tab="coverage" onclick="switchAnalyticsTab('coverage', this)">监管覆盖率</div>
+      <div class="tab-item" data-tab="inspection" onclick="switchAnalyticsTab('inspection', this)">检查任务</div>
+      <div class="tab-item" data-tab="hazard" onclick="switchAnalyticsTab('hazard', this)">隐患分析</div>
+      <div class="tab-item" data-tab="trend" onclick="switchAnalyticsTab('trend', this)">趋势分析</div>
     </div>
-    
-    <div class="stat-cards">
-      <div class="stat-card">
-        <div class="stat-value" style="color: #1677ff;">156</div>
-        <div class="stat-label">监管企业数</div>
-        <div class="stat-trend up">↑ 12% 较上月</div>
+
+    <!-- ==================== Tab1: 监管概览 ==================== -->
+    <div id="view-analytics-overview" class="tab-content active">
+      <!-- 筛选条件区 -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">时间范围：</span>
+          <select id="timeRangeSelect" onchange="onFilterChange()">
+            <option value="week">本周</option>
+            <option value="month" selected>本月</option>
+            <option value="quarter">本季度</option>
+            <option value="year">本年</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">领域：</span>
+          <div class="multi-select-trigger" id="domainFilter" onclick="toggleMultiSelect('domainDropdown')">
+            <span>全部</span>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">科室：</span>
+          <div class="multi-select-trigger" id="deptFilter" onclick="toggleMultiSelect('deptDropdown')">
+            <span>全部</span>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">统计粒度：</span>
+          <div class="granularity-group">
+            <button class="gran-btn" onclick="setGranularity('day', this)">日</button>
+            <button class="gran-btn" onclick="setGranularity('week', this)">周</button>
+            <button class="gran-btn active" onclick="setGranularity('month', this)">月</button>
+            <button class="gran-btn" onclick="setGranularity('quarter', this)">季</button>
+          </div>
+        </div>
+        <button class="btn-query" onclick="onFilterChange()">查询</button>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" style="color: #52c41a;">89%</div>
-        <div class="stat-label">检查覆盖率</div>
-        <div class="stat-trend up">↑ 5% 较上月</div>
+
+      <!-- 统计指标卡 -->
+      <div class="stat-cards">
+        <div class="stat-card card-blue" onclick="drillDown('coverage')" title="点击查看监管覆盖率详情">
+          <div class="stat-value" style="color: #1677ff;">156</div>
+          <div class="stat-label">监管企业数</div>
+          <div class="stat-trend up">↑ 12% 较上月</div>
+        </div>
+        <div class="stat-card card-green" onclick="drillDown('coverage')" title="点击查看监管覆盖率详情">
+          <div class="stat-value" style="color: #52c41a;">89%</div>
+          <div class="stat-label">监管覆盖率</div>
+          <div class="stat-trend up">↑ 5% 较上月</div>
+        </div>
+        <div class="stat-card card-orange" onclick="drillDown('inspection')" title="点击查看检查任务详情">
+          <div class="stat-value" style="color: #faad14;">328</div>
+          <div class="stat-label">检查完成次数</div>
+          <div class="stat-trend up">↑ 15% 较上月</div>
+        </div>
+        <div class="stat-card card-red" onclick="drillDown('hazard')" title="点击查看隐患分析详情">
+          <div class="stat-value" style="color: #ff4d4f;">23</div>
+          <div class="stat-label">待整改隐患数</div>
+          <div class="stat-trend down">↓ 8% 较上月</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" style="color: #faad14;">156</div>
-        <div class="stat-label">隐患总数</div>
-        <div class="stat-trend down">↓ 8% 较上月</div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">各领域检查完成情况</span>
+            <select id="chartTimeSelect" onchange="updateChartTime(this.value)" style="padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 12px;">
+              <option value="month">本月</option>
+              <option value="quarter">本季度</option>
+              <option value="year">本年</option>
+            </select>
+          </div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-item">
+                <span class="bar-label">充换电设施</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 95%; background: #52c41a;">95%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">危险化学品</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 88%; background: #52c41a;">88%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">建筑施工</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 76%; background: #faad14;">76%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">工业制造</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 92%; background: #52c41a;">92%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">农贸市场</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 85%; background: #52c41a;">85%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">隐患类型分布</span>
+          </div>
+          <div class="chart-body">
+            <div class="pie-chart">
+              <div class="pie-visual"></div>
+              <div class="pie-legend">
+                <div class="legend-item"><div class="legend-dot" style="background: #1677ff;"></div><span>消防安全隐患 35%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #52c41a;"></div><span>设备设施隐患 25%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #faad14;"></div><span>作业环境隐患 20%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #999;"></div><span>其他隐患 20%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">企业隐患排名（TOP 5）</span>
+          </div>
+          <div class="chart-body">
+            <div class="rank-list">
+              <div class="rank-item">
+                <span class="rank-num top3">1</span>
+                <span class="rank-name">新兴化工有限公司</span>
+                <span class="rank-value">23 个</span>
+              </div>
+              <div class="rank-item">
+                <span class="rank-num top3">2</span>
+                <span class="rank-name">深圳港物流有限公司</span>
+                <span class="rank-value">18 个</span>
+              </div>
+              <div class="rank-item">
+                <span class="rank-num top3">3</span>
+                <span class="rank-name">安达运输公司</span>
+                <span class="rank-value">15 个</span>
+              </div>
+              <div class="rank-item">
+                <span class="rank-num">4</span>
+                <span class="rank-name">创安电子科技有限公司</span>
+                <span class="rank-value">12 个</span>
+              </div>
+              <div class="rank-item">
+                <span class="rank-num">5</span>
+                <span class="rank-name">西部建材市场</span>
+                <span class="rank-value">10 个</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">监管单位履职排名</span>
+          </div>
+          <div class="chart-body">
+            <div class="rank-list">
+              <div class="rank-item">
+                <span class="rank-num top3">1</span>
+                <span class="rank-name">危化品监管科</span>
+                <span class="rank-value">98%</span>
+              </div>
+              <div class="rank-item">
+                <span class="rank-num top3">2</span>
+                <span class="rank-name">基础安全监管科</span>
+                <span class="rank-value">95%</span>
+              </div>
+              <div class="rank-item">
+                <span class="rank-num top3">3</span>
+                <span class="rank-name">执法监督科</span>
+                <span class="rank-value">92%</span>
+              </div>
+              <div class="rank-item">
+                <span class="rank-num">4</span>
+                <span class="rank-name">综合协调科</span>
+                <span class="rank-value">88%</span>
+              </div>
+              <div class="rank-item">
+                <span class="rank-num">5</span>
+                <span class="rank-name">应急救援科</span>
+                <span class="rank-value">85%</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" style="color: #1677ff;">92%</div>
-        <div class="stat-label">整改完成率</div>
-        <div class="stat-trend up">↑ 3% 较上月</div>
+
+      <!-- 详细数据表格 -->
+      <div class="table-section">
+        <div class="table-section-header">
+          <span class="table-section-title">企业检查明细</span>
+          <button class="btn btn-default" onclick="exportData()">导出数据</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>企业名称</th>
+                <th>所属领域</th>
+                <th>检查次数</th>
+                <th>隐患数</th>
+                <th>整改率</th>
+                <th>安全码</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="detailTableBody">
+              <tr>
+                <td>1</td>
+                <td class="ellipsis-col" title="新兴化工有限公司">新兴化工有限公司</td>
+                <td>危险化学品</td>
+                <td>12</td>
+                <td>23</td>
+                <td><span class="tag tag-orange">78%</span></td>
+                <td><span class="tag tag-red">红码</span></td>
+                <td class="action-col"><button class="btn-link" onclick="viewDetail('ent1')">详情</button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td class="ellipsis-col" title="深圳港物流有限公司">深圳港物流有限公司</td>
+                <td>交通运输</td>
+                <td>8</td>
+                <td>18</td>
+                <td><span class="tag tag-orange">82%</span></td>
+                <td><span class="tag tag-orange">黄码</span></td>
+                <td class="action-col"><button class="btn-link" onclick="viewDetail('ent2')">详情</button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td class="ellipsis-col" title="创安电子科技有限公司">创安电子科技有限公司</td>
+                <td>工业制造</td>
+                <td>15</td>
+                <td>12</td>
+                <td><span class="tag tag-green">95%</span></td>
+                <td><span class="tag tag-green">绿码</span></td>
+                <td class="action-col"><button class="btn-link" onclick="viewDetail('ent3')">详情</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap">
+          <span class="pagination-info">共 <span id="pgTotal">3</span> 条</span>
+          <div class="pagination-btns">
+            <button class="pg-btn active">1</button>
+          </div>
+        </div>
       </div>
     </div>
-    
-    <div class="chart-grid">
-      <div class="chart-card">
-        <div class="chart-header">
-          <span class="chart-title">各领域检查完成情况</span>
-          <select id="chartTimeSelect" onchange="updateChartTime(this.value)" style="padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 12px;">
-            <option value="month">本月</option>
+
+    <!-- ==================== Tab2: 监管覆盖率 ==================== -->
+    <div id="view-analytics-coverage" class="tab-content">
+      <!-- 筛选条件区 -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">时间范围：</span>
+          <select onchange="onFilterChange()">
+            <option value="week">本周</option>
+            <option value="month" selected>本月</option>
             <option value="quarter">本季度</option>
             <option value="year">本年</option>
           </select>
         </div>
-        <div class="chart-body">
-          <div class="bar-chart">
-            <div class="bar-item">
-              <span class="bar-label">充换电设施</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 95%; background: #52c41a;">95%</div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">危险化学品</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 88%; background: #52c41a;">88%</div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">建筑施工</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 76%; background: #faad14;">76%</div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">工业制造</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 92%; background: #52c41a;">92%</div></div>
-            </div>
-            <div class="bar-item">
-              <span class="bar-label">农贸市场</span>
-              <div class="bar-track"><div class="bar-fill" style="width: 85%; background: #52c41a;">85%</div></div>
+        <div class="filter-group">
+          <span class="filter-label">领域：</span>
+          <div class="multi-select-trigger" onclick="toggleMultiSelect('domainDropdown')"><span>全部</span></div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">科室：</span>
+          <div class="multi-select-trigger" onclick="toggleMultiSelect('deptDropdown')"><span>全部</span></div>
+        </div>
+        <button class="btn-query" onclick="onFilterChange()">查询</button>
+      </div>
+
+      <!-- 覆盖率统计卡 -->
+      <div class="stat-cards">
+        <div class="stat-card card-blue">
+          <div class="stat-value" style="color: #1677ff;">156</div>
+          <div class="stat-label">监管企业总数</div>
+        </div>
+        <div class="stat-card card-green">
+          <div class="stat-value" style="color: #52c41a;">139</div>
+          <div class="stat-label">已配置责任人企业数</div>
+        </div>
+        <div class="stat-card card-orange">
+          <div class="stat-value" style="color: #faad14;">17</div>
+          <div class="stat-label">未配置责任人企业数</div>
+        </div>
+        <div class="stat-card card-green">
+          <div class="stat-value" style="color: #52c41a;">89%</div>
+          <div class="stat-label">整体覆盖率</div>
+          <div class="stat-trend up">↑ 5% 较上月</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">按领域覆盖率排名</span>
+          </div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-item">
+                <span class="bar-label">充换电设施</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 96%; background: #52c41a;">96%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">危险化学品</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 94%; background: #52c41a;">94%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">工业制造</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 91%; background: #52c41a;">91%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">建筑施工</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 82%; background: #faad14;">82%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">农贸市场</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 78%; background: #faad14;">78%</div></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <div class="chart-card">
-        <div class="chart-header">
-          <span class="chart-title">隐患类型分布</span>
-        </div>
-        <div class="chart-body">
-          <div class="pie-chart">
-            <div class="pie-visual"></div>
-            <div class="pie-legend">
-              <div class="legend-item"><div class="legend-dot" style="background: #1677ff;"></div><span>消防安全隐患 35%</span></div>
-              <div class="legend-item"><div class="legend-dot" style="background: #52c41a;"></div><span>设备设施隐患 25%</span></div>
-              <div class="legend-item"><div class="legend-dot" style="background: #faad14;"></div><span>作业环境隐患 20%</span></div>
-              <div class="legend-item"><div class="legend-dot" style="background: #999;"></div><span>其他隐患 20%</span></div>
-            </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">按科室覆盖率排名</span>
           </div>
-        </div>
-      </div>
-      
-      <div class="chart-card">
-        <div class="chart-header">
-          <span class="chart-title">企业隐患排名（TOP 5）</span>
-        </div>
-        <div class="chart-body">
-          <div class="rank-list">
-            <div class="rank-item">
-              <span class="rank-num top3">1</span>
-              <span class="rank-name">新兴化工有限公司</span>
-              <span class="rank-value">23 个</span>
-            </div>
-            <div class="rank-item">
-              <span class="rank-num top3">2</span>
-              <span class="rank-name">深圳港物流有限公司</span>
-              <span class="rank-value">18 个</span>
-            </div>
-            <div class="rank-item">
-              <span class="rank-num top3">3</span>
-              <span class="rank-name">安达运输公司</span>
-              <span class="rank-value">15 个</span>
-            </div>
-            <div class="rank-item">
-              <span class="rank-num">4</span>
-              <span class="rank-name">创安电子科技有限公司</span>
-              <span class="rank-value">12 个</span>
-            </div>
-            <div class="rank-item">
-              <span class="rank-num">5</span>
-              <span class="rank-name">西部建材市场</span>
-              <span class="rank-value">10 个</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="chart-card">
-        <div class="chart-header">
-          <span class="chart-title">监管单位履职排名</span>
-        </div>
-        <div class="chart-body">
-          <div class="rank-list">
-            <div class="rank-item">
-              <span class="rank-num top3">1</span>
-              <span class="rank-name">危化品监管科</span>
-              <span class="rank-value">98%</span>
-            </div>
-            <div class="rank-item">
-              <span class="rank-num top3">2</span>
-              <span class="rank-name">基础安全监管科</span>
-              <span class="rank-value">95%</span>
-            </div>
-            <div class="rank-item">
-              <span class="rank-num top3">3</span>
-              <span class="rank-name">执法监督科</span>
-              <span class="rank-value">92%</span>
-            </div>
-            <div class="rank-item">
-              <span class="rank-num">4</span>
-              <span class="rank-name">综合协调科</span>
-              <span class="rank-value">88%</span>
-            </div>
-            <div class="rank-item">
-              <span class="rank-num">5</span>
-              <span class="rank-name">应急救援科</span>
-              <span class="rank-value">85%</span>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-item">
+                <span class="bar-label">危化品监管科</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 98%; background: #52c41a;">98%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">基础安全监管科</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 95%; background: #52c41a;">95%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">执法监督科</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 92%; background: #52c41a;">92%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">综合协调科</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 85%; background: #faad14;">85%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">应急救援科</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 80%; background: #faad14;">80%</div></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- 详细数据表格 -->
-    <div class="table-section">
-      <div class="table-section-header">
-        <span class="table-section-title">企业检查明细</span>
-        <button class="btn btn-default" onclick="exportData()">📥 导出数据</button>
+
+    <!-- ==================== Tab3: 检查任务 ==================== -->
+    <div id="view-analytics-inspection" class="tab-content">
+      <!-- 筛选条件区 -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">时间范围：</span>
+          <select onchange="onFilterChange()">
+            <option value="week">本周</option>
+            <option value="month" selected>本月</option>
+            <option value="quarter">本季度</option>
+            <option value="year">本年</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">领域：</span>
+          <div class="multi-select-trigger" onclick="toggleMultiSelect('domainDropdown')"><span>全部</span></div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">科室：</span>
+          <div class="multi-select-trigger" onclick="toggleMultiSelect('deptDropdown')"><span>全部</span></div>
+        </div>
+        <button class="btn-query" onclick="onFilterChange()">查询</button>
       </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>序号</th>
-              <th>企业名称</th>
-              <th>所属领域</th>
-              <th>检查次数</th>
-              <th>隐患数</th>
-              <th>整改率</th>
-              <th>安全码</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="detailTableBody">
-            <tr>
-              <td>1</td>
-              <td class="ellipsis-col" title="新兴化工有限公司">新兴化工有限公司</td>
-              <td>危险化学品</td>
-              <td>12</td>
-              <td>23</td>
-              <td><span class="tag tag-orange">78%</span></td>
-              <td><span class="tag tag-red">红码</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewDetail('ent1')">详情</button></td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td class="ellipsis-col" title="深圳港物流有限公司">深圳港物流有限公司</td>
-              <td>交通运输</td>
-              <td>8</td>
-              <td>18</td>
-              <td><span class="tag tag-orange">82%</span></td>
-              <td><span class="tag tag-orange">黄码</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewDetail('ent2')">详情</button></td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td class="ellipsis-col" title="创安电子科技有限公司">创安电子科技有限公司</td>
-              <td>工业制造</td>
-              <td>15</td>
-              <td>12</td>
-              <td><span class="tag tag-green">95%</span></td>
-              <td><span class="tag tag-green">绿码</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewDetail('ent3')">详情</button></td>
-            </tr>
-          </tbody>
-        </table>
+
+      <!-- 检查任务统计卡 -->
+      <div class="stat-cards">
+        <div class="stat-card card-blue">
+          <div class="stat-value" style="color: #1677ff;">412</div>
+          <div class="stat-label">任务总数</div>
+        </div>
+        <div class="stat-card card-green">
+          <div class="stat-value" style="color: #52c41a;">328</div>
+          <div class="stat-label">已完成</div>
+          <div class="stat-trend up">完成率 79.6%</div>
+        </div>
+        <div class="stat-card card-orange">
+          <div class="stat-value" style="color: #faad14;">56</div>
+          <div class="stat-label">进行中</div>
+        </div>
+        <div class="stat-card card-red">
+          <div class="stat-value" style="color: #ff4d4f;">28</div>
+          <div class="stat-label">逾期任务</div>
+          <div class="stat-trend down">逾期率 6.8%</div>
+        </div>
       </div>
-      <div class="pagination-wrap">
-        <span class="pagination-info">共 <span id="pgTotal">3</span> 条</span>
-        <div class="pagination-btns">
-          <button class="pg-btn active">1</button>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">按检查类型分布</span>
+          </div>
+          <div class="chart-body">
+            <div class="pie-chart">
+              <div class="pie-visual" style="background: conic-gradient(#1677ff 0% 55%, #52c41a 55% 78%, #faad14 78% 92%, #999 92% 100%);"></div>
+              <div class="pie-legend">
+                <div class="legend-item"><div class="legend-dot" style="background: #1677ff;"></div><span>日常检查 55%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #52c41a;"></div><span>专项检查 23%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #faad14;"></div><span>复查 14%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #999;"></div><span>其他 8%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">按任务状态分布</span>
+          </div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-item">
+                <span class="bar-label">已完成</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 79.6%; background: #52c41a;">79.6%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">进行中</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 13.6%; background: #1677ff;">13.6%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">待执行</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 5%; background: #faad14;">5.0%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">已逾期</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 6.8%; background: #ff4d4f;">6.8%</div></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- ==================== Tab4: 隐患分析 ==================== -->
+    <div id="view-analytics-hazard" class="tab-content">
+      <!-- 筛选条件区 -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">时间范围：</span>
+          <select onchange="onFilterChange()">
+            <option value="week">本周</option>
+            <option value="month" selected>本月</option>
+            <option value="quarter">本季度</option>
+            <option value="year">本年</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">领域：</span>
+          <div class="multi-select-trigger" onclick="toggleMultiSelect('domainDropdown')"><span>全部</span></div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">科室：</span>
+          <div class="multi-select-trigger" onclick="toggleMultiSelect('deptDropdown')"><span>全部</span></div>
+        </div>
+        <button class="btn-query" onclick="onFilterChange()">查询</button>
+      </div>
+
+      <!-- 隐患统计卡 -->
+      <div class="stat-cards">
+        <div class="stat-card card-blue">
+          <div class="stat-value" style="color: #1677ff;">156</div>
+          <div class="stat-label">隐患发现数</div>
+          <div class="stat-trend up">↑ 10% 较上月</div>
+        </div>
+        <div class="stat-card card-green">
+          <div class="stat-value" style="color: #52c41a;">92%</div>
+          <div class="stat-label">整改完成率</div>
+          <div class="stat-trend up">↑ 3% 较上月</div>
+        </div>
+        <div class="stat-card card-orange">
+          <div class="stat-value" style="color: #faad14;">23</div>
+          <div class="stat-label">待整改隐患</div>
+          <div class="stat-trend down">↓ 8% 较上月</div>
+        </div>
+        <div class="stat-card card-red">
+          <div class="stat-value" style="color: #ff4d4f;">5</div>
+          <div class="stat-label">重大隐患</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">按隐患等级分布</span>
+          </div>
+          <div class="chart-body">
+            <div class="pie-chart">
+              <div class="pie-visual" style="background: conic-gradient(#ff4d4f 0% 12%, #faad14 12% 38%, #1677ff 38% 72%, #999 72% 100%);"></div>
+              <div class="pie-legend">
+                <div class="legend-item"><div class="legend-dot" style="background: #ff4d4f;"></div><span>重大隐患 12%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #faad14;"></div><span>较大隐患 26%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #1677ff;"></div><span>一般隐患 34%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background: #999;"></div><span>轻微隐患 28%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">高发领域排名</span>
+          </div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-item">
+                <span class="bar-label">危险化学品</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 85%; background: #ff4d4f;">85%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">建筑施工</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 72%; background: #faad14;">72%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">充换电设施</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 58%; background: #1677ff;">58%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">工业制造</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 45%; background: #52c41a;">45%</div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">农贸市场</span>
+                <div class="bar-track"><div class="bar-fill" style="width: 32%; background: #52c41a;">32%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== Tab5: 趋势分析 ==================== -->
+    <div id="view-analytics-trend" class="tab-content">
+      <!-- 筛选条件区 -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">时间范围：</span>
+          <select onchange="onFilterChange()">
+            <option value="week">本周</option>
+            <option value="month" selected>本月</option>
+            <option value="quarter">本季度</option>
+            <option value="year">本年</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">领域：</span>
+          <div class="multi-select-trigger" onclick="toggleMultiSelect('domainDropdown')"><span>全部</span></div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">科室：</span>
+          <div class="multi-select-trigger" onclick="toggleMultiSelect('deptDropdown')"><span>全部</span></div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">统计粒度：</span>
+          <div class="granularity-group">
+            <button class="gran-btn" onclick="setGranularity('day', this)">日</button>
+            <button class="gran-btn" onclick="setGranularity('week', this)">周</button>
+            <button class="gran-btn active" onclick="setGranularity('month', this)">月</button>
+            <button class="gran-btn" onclick="setGranularity('quarter', this)">季</button>
+          </div>
+        </div>
+        <button class="btn-query" onclick="onFilterChange()">查询</button>
+      </div>
+
+      <!-- 覆盖率趋势折线图 -->
+      <div class="chart-grid full-width" style="margin-bottom: var(--spacing-md);">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">覆盖率趋势（近6个月）</span>
+          </div>
+          <div class="chart-body">
+            <div class="line-chart-container">
+              <svg viewBox="0 0 600 200" preserveAspectRatio="none">
+                <!-- 网格线 -->
+                <line x1="60" y1="10" x2="60" y2="170" stroke="#e8e8e8" stroke-width="1"/>
+                <line x1="60" y1="170" x2="580" y2="170" stroke="#e8e8e8" stroke-width="1"/>
+                <line x1="60" y1="130" x2="580" y2="130" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="60" y1="90" x2="580" y2="90" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="60" y1="50" x2="580" y2="50" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <!-- Y轴刻度 -->
+                <text x="50" y="174" text-anchor="end" fill="#999" font-size="11">70%</text>
+                <text x="50" y="134" text-anchor="end" fill="#999" font-size="11">80%</text>
+                <text x="50" y="94" text-anchor="end" fill="#999" font-size="11">90%</text>
+                <text x="50" y="54" text-anchor="end" fill="#999" font-size="11">100%</text>
+                <!-- 折线 -->
+                <polyline points="140,118 240,102 340,90 440,78 540,66 580,54" fill="none" stroke="#52c41a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- 数据点 -->
+                <circle cx="140" cy="118" r="4" fill="#52c41a"/>
+                <circle cx="240" cy="102" r="4" fill="#52c41a"/>
+                <circle cx="340" cy="90" r="4" fill="#52c41a"/>
+                <circle cx="440" cy="78" r="4" fill="#52c41a"/>
+                <circle cx="540" cy="66" r="4" fill="#52c41a"/>
+                <circle cx="580" cy="54" r="4" fill="#52c41a"/>
+                <!-- 数值标注 -->
+                <text x="140" y="112" text-anchor="middle" fill="#52c41a" font-size="11" font-weight="500">82%</text>
+                <text x="240" y="96" text-anchor="middle" fill="#52c41a" font-size="11" font-weight="500">84%</text>
+                <text x="340" y="84" text-anchor="middle" fill="#52c41a" font-size="11" font-weight="500">86%</text>
+                <text x="440" y="72" text-anchor="middle" fill="#52c41a" font-size="11" font-weight="500">87%</text>
+                <text x="540" y="60" text-anchor="middle" fill="#52c41a" font-size="11" font-weight="500">88%</text>
+                <text x="580" y="48" text-anchor="middle" fill="#52c41a" font-size="11" font-weight="500">89%</text>
+              </svg>
+              <div class="line-chart-labels">
+                <span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 检查任务趋势折线图 -->
+      <div class="chart-grid full-width" style="margin-bottom: var(--spacing-md);">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">检查任务趋势（近6个月）</span>
+            <div style="display: flex; gap: 16px; font-size: 12px;">
+              <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 16px; height: 3px; background: #1677ff; display: inline-block; border-radius: 2px;"></span>任务数</span>
+              <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 16px; height: 3px; background: #52c41a; display: inline-block; border-radius: 2px;"></span>完成数</span>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="line-chart-container">
+              <svg viewBox="0 0 600 200" preserveAspectRatio="none">
+                <!-- 网格线 -->
+                <line x1="60" y1="10" x2="60" y2="170" stroke="#e8e8e8" stroke-width="1"/>
+                <line x1="60" y1="170" x2="580" y2="170" stroke="#e8e8e8" stroke-width="1"/>
+                <line x1="60" y1="130" x2="580" y2="130" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="60" y1="90" x2="580" y2="90" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="60" y1="50" x2="580" y2="50" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <!-- Y轴刻度 -->
+                <text x="50" y="174" text-anchor="end" fill="#999" font-size="11">200</text>
+                <text x="50" y="134" text-anchor="end" fill="#999" font-size="11">300</text>
+                <text x="50" y="94" text-anchor="end" fill="#999" font-size="11">400</text>
+                <text x="50" y="54" text-anchor="end" fill="#999" font-size="11">500</text>
+                <!-- 任务数折线 -->
+                <polyline points="140,140 240,120 340,100 440,80 540,70 580,60" fill="none" stroke="#1677ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="140" cy="140" r="4" fill="#1677ff"/>
+                <circle cx="240" cy="120" r="4" fill="#1677ff"/>
+                <circle cx="340" cy="100" r="4" fill="#1677ff"/>
+                <circle cx="440" cy="80" r="4" fill="#1677ff"/>
+                <circle cx="540" cy="70" r="4" fill="#1677ff"/>
+                <circle cx="580" cy="60" r="4" fill="#1677ff"/>
+                <!-- 完成数折线 -->
+                <polyline points="140,150 240,134 340,116 440,98 540,86 580,76" fill="none" stroke="#52c41a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="140" cy="150" r="4" fill="#52c41a"/>
+                <circle cx="240" cy="134" r="4" fill="#52c41a"/>
+                <circle cx="340" cy="116" r="4" fill="#52c41a"/>
+                <circle cx="440" cy="98" r="4" fill="#52c41a"/>
+                <circle cx="540" cy="86" r="4" fill="#52c41a"/>
+                <circle cx="580" cy="76" r="4" fill="#52c41a"/>
+              </svg>
+              <div class="line-chart-labels">
+                <span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 隐患趋势折线图 -->
+      <div class="chart-grid full-width">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">隐患趋势（近6个月）</span>
+            <div style="display: flex; gap: 16px; font-size: 12px;">
+              <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 16px; height: 3px; background: #faad14; display: inline-block; border-radius: 2px;"></span>发现数</span>
+              <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 16px; height: 3px; background: #52c41a; display: inline-block; border-radius: 2px;"></span>整改数</span>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="line-chart-container">
+              <svg viewBox="0 0 600 200" preserveAspectRatio="none">
+                <!-- 网格线 -->
+                <line x1="60" y1="10" x2="60" y2="170" stroke="#e8e8e8" stroke-width="1"/>
+                <line x1="60" y1="170" x2="580" y2="170" stroke="#e8e8e8" stroke-width="1"/>
+                <line x1="60" y1="130" x2="580" y2="130" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="60" y1="90" x2="580" y2="90" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="60" y1="50" x2="580" y2="50" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+                <!-- Y轴刻度 -->
+                <text x="50" y="174" text-anchor="end" fill="#999" font-size="11">50</text>
+                <text x="50" y="134" text-anchor="end" fill="#999" font-size="11">100</text>
+                <text x="50" y="94" text-anchor="end" fill="#999" font-size="11">150</text>
+                <text x="50" y="54" text-anchor="end" fill="#999" font-size="11">200</text>
+                <!-- 发现数折线 -->
+                <polyline points="140,100 240,80 340,90 440,60 540,70 580,50" fill="none" stroke="#faad14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="140" cy="100" r="4" fill="#faad14"/>
+                <circle cx="240" cy="80" r="4" fill="#faad14"/>
+                <circle cx="340" cy="90" r="4" fill="#faad14"/>
+                <circle cx="440" cy="60" r="4" fill="#faad14"/>
+                <circle cx="540" cy="70" r="4" fill="#faad14"/>
+                <circle cx="580" cy="50" r="4" fill="#faad14"/>
+                <!-- 整改数折线 -->
+                <polyline points="140,120 240,100 340,108 440,80 540,86 580,66" fill="none" stroke="#52c41a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="140" cy="120" r="4" fill="#52c41a"/>
+                <circle cx="240" cy="100" r="4" fill="#52c41a"/>
+                <circle cx="340" cy="108" r="4" fill="#52c41a"/>
+                <circle cx="440" cy="80" r="4" fill="#52c41a"/>
+                <circle cx="540" cy="86" r="4" fill="#52c41a"/>
+                <circle cx="580" cy="66" r="4" fill="#52c41a"/>
+              </svg>
+              <div class="line-chart-labels">
+                <span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
-  
+
   <script>
+    function showToast(msg, type) {
+      type = type || 'info';
+      var container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+        document.body.appendChild(container);
+      }
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + type;
+      toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;animation:fadeIn 0.3s;';
+      if (type === 'success') toast.style.background = '#52c41a';
+      if (type === 'warning') toast.style.background = '#faad14';
+      if (type === 'error') toast.style.background = '#ff4d4f';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
     (function() {
       'use strict';
-      
+
       const CONFIG = {
         moduleId: 'gov-analytics',
         moduleName: '统计分析'
       };
-      
+
       let state = {
         initialized: false,
-        timeRange: 'month'
+        timeRange: 'month',
+        activeTab: 'overview',
+        granularity: 'month'
       };
-      
+
       function init() {
         if (state.initialized) return;
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        console.log('[' + CONFIG.moduleId + '] 模块初始化');
         state.initialized = true;
       }
-      
-      // 时间范围切换
-      window.switchTimeRange = function(range, btn) {
-        state.timeRange = range;
-        document.querySelectorAll('.time-filter .btn').forEach(function(b) {
+
+      // Tab切换
+      window.switchAnalyticsTab = function(tabName, el) {
+        state.activeTab = tabName;
+        // 更新Tab激活态
+        document.querySelectorAll('#analyticsTabNav .tab-item').forEach(function(t) {
+          t.classList.remove('active');
+        });
+        el.classList.add('active');
+        // 切换内容区
+        document.querySelectorAll('.tab-content').forEach(function(c) {
+          c.classList.remove('active');
+        });
+        var target = document.getElementById('view-analytics-' + tabName);
+        if (target) {
+          target.classList.add('active');
+        }
+        console.log('切换统计维度：' + tabName);
+      };
+
+      // 筛选条件变更
+      window.onFilterChange = function() {
+        console.log('筛选条件变更，刷新数据');
+      };
+
+      // 统计粒度切换
+      window.setGranularity = function(gran, btn) {
+        state.granularity = gran;
+        var group = btn.parentElement;
+        group.querySelectorAll('.gran-btn').forEach(function(b) {
           b.classList.remove('active');
         });
         btn.classList.add('active');
-        console.log('切换时间范围：' + range);
-        // 这里可以触发数据刷新
+        console.log('统计粒度切换：' + gran);
       };
-      
+
+      // 多选下拉切换（示意）
+      window.toggleMultiSelect = function(id) {
+        console.log('多选下拉切换：' + id);
+      };
+
       // 图表时间切换
       window.updateChartTime = function(value) {
         console.log('图表时间切换：' + value);
       };
-      
+
       // 导出数据
       window.exportData = function() {
         console.log('导出数据');
-        alert('导出数据');
+        showToast('导出数据', 'info');
       };
-      
+
       // 查看详情
       window.viewDetail = function(entId) {
         console.log('查看企业详情：' + entId);
-        alert('查看企业详情：' + entId);
+        showToast('查看企业详情：' + entId, 'info');
       };
-      
+
+      // 统计卡下钻：跳转到对应Tab
+      window.drillDown = function(tabName) {
+        var tabEl = document.querySelector('#analyticsTabNav .tab-item[data-tab="' + tabName + '"]');
+        if (tabEl) {
+          switchAnalyticsTab(tabName, tabEl);
+          showToast('已跳转至「' + tabEl.textContent + '」', 'info');
+        }
+      };
+
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
       } else {
         init();
       }
-      
+
       window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        console.log('[' + CONFIG.moduleId + '] 模块销毁');
         state.initialized = false;
       };
     })();

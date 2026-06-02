@@ -798,7 +798,7 @@
             </div>
           </div>
           
-          <div class="detail-content" style="padding: 16px;">
+          <div class="detail-content" style="padding: 16px;" id="checkitemContainer">
             <!-- 独立检查项列表 -->
             <div class="check-item-card">
               <input type="checkbox" class="checkbox" data-id="1" onchange="updateSelection()">
@@ -2587,7 +2587,7 @@ function closeCheckItemEditModal() {
 }
 
 function saveCheckItem() {
-  const name = document.getElementById('checkItemName')?.value;
+  const name = document.getElementById('checkItemContent')?.value;
   if (!name) {
     showToast('请输入检查项名称');
     return;
@@ -2615,7 +2615,7 @@ function deleteCheckitem(id) {
 function showDetail(id) {
   const item = checklistTableData.find(i => i.id === id);
   if (item) {
-    alert(`检查表详情：\n名称：${item.name}\n领域：${item.domain}\n监管单位：${item.supervisor}\n检查项数：${item.items}\n状态：${item.status}`);
+    showToast('检查表详情：\n名称：${item.name}\n领域：${item.domain}\n监管单位：${item.supervisor}\n检查项数：${item.items}\n状态：${item.status}', 'info');
   }
 }
 
@@ -2815,12 +2815,24 @@ function removeLawItem(id) {
 }
 
 // Toast提示
-function showToast(msg) {
-  const toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:4px;z-index:9999;font-size:14px;';
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+  if (type === 'success') toast.style.background = '#52c41a';
+  if (type === 'warning') toast.style.background = '#faad14';
+  if (type === 'error') toast.style.background = '#ff4d4f';
   toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2000);
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
 }
 
 // 初始化

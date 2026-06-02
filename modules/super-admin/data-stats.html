@@ -1,39 +1,294 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>数据统计 - 超管端</title>
+<meta charset="UTF-8">
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
-  <style>
-    .placeholder-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%); }
-    .placeholder-card { text-align: center; background: #fff; border-radius: 12px; padding: 48px 60px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
-    .placeholder-icon { font-size: 64px; margin-bottom: 16px; }
-    .placeholder-title { font-size: 20px; font-weight: 600; color: #1f1f1f; margin-bottom: 8px; }
-    .placeholder-desc { font-size: 14px; color: #999; }
-    .placeholder-badge { display: inline-block; margin-top: 16px; padding: 4px 16px; background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; border-radius: 4px; font-size: 13px; font-weight: 500; }
-  </style>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>数据统计 - 超管端</title>
+
+<style>
+.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
+.breadcrumb-item:hover{color:#1677ff}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px}
+.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.stat-icon.blue{background:#dbeafe;color:#2563eb}
+.stat-icon.green{background:#dcfce7;color:#16a34a}
+.stat-icon.orange{background:#fed7aa;color:#ea580c}
+.stat-icon.purple{background:#e9d5ff;color:#7c3aed}
+.stat-content{flex:1}
+.stat-label{font-size:12px;color:#888;margin-bottom:4px}
+.stat-value{font-size:24px;font-weight:700;color:#1f1f1f}
+.stat-change{font-size:11px;margin-top:2px}
+.stat-change.up{color:#52c41a}
+.stat-change.down{color:#ff4d4f}
+.tab-bar{display:flex;gap:0;background:#fff;border-radius:8px 8px 0 0;padding:0;margin-bottom:0;border-bottom:1px solid #f0f0f0}
+.tab-item{padding:14px 28px;font-size:14px;color:#666;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-weight:500}
+.tab-item:hover{color:#1677ff}
+.tab-item.active{color:#1677ff;border-bottom-color:#1677ff}
+.content-card{background:#fff;border-radius:0 0 8px 8px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
+.chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.chart-box{background:#fafbfc;border:1px solid #f0f0f0;border-radius:8px;padding:20px}
+.chart-title{font-size:14px;font-weight:600;color:#1f1f1f;margin-bottom:16px}
+.chart-placeholder{height:240px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);border-radius:6px;border:1px dashed #e2e8f0;position:relative;overflow:hidden}
+.chart-placeholder-text{color:#999;font-size:13px;text-align:center}
+.chart-placeholder-icon{font-size:36px;margin-bottom:8px;display:block}
+.chart-placeholder .bar-mock{position:absolute;bottom:20px;left:20px;right:20px;display:flex;align-items:flex-end;gap:8px;height:60%}
+.chart-placeholder .bar-mock .bar{flex:1;border-radius:4px 4px 0 0;transition:height .3s}
+.chart-placeholder .bar-mock .bar:nth-child(1){height:60%;background:#e6f4ff}
+.chart-placeholder .bar-mock .bar:nth-child(2){height:80%;background:#bae0ff}
+.chart-placeholder .bar-mock .bar:nth-child(3){height:45%;background:#91caff}
+.chart-placeholder .bar-mock .bar:nth-child(4){height:90%;background:#69b1ff}
+.chart-placeholder .bar-mock .bar:nth-child(5){height:70%;background:#4096ff}
+.chart-placeholder .bar-mock .bar:nth-child(6){height:55%;background:#1677ff}
+.chart-placeholder .pie-mock{width:120px;height:120px;border-radius:50%;border:20px solid #e6f4ff;border-top-color:#1677ff;border-right-color:#69b1ff;position:relative}
+.rank-list{list-style:none;padding:0;margin:0}
+.rank-item{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.rank-item:last-child{border-bottom:none}
+.rank-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin-right:10px;flex-shrink:0}
+.rank-num.top{background:#1677ff;color:#fff}
+.rank-num.normal{background:#f0f0f0;color:#666}
+.rank-name{flex:1;color:#333}
+.rank-value{font-weight:600;color:#1f1f1f;margin-left:12px}
+.overview-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.overview-stat{background:#f8fafc;border:1px solid #e8eaed;border-radius:8px;padding:16px;text-align:center}
+.overview-stat-value{font-size:28px;font-weight:700;color:#1f1f1f}
+.overview-stat-label{font-size:12px;color:#888;margin-top:4px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+</style>
 </head>
 <body>
-  <div class="module-page placeholder-page" data-module="sa-data-stats">
-    <div class="placeholder-card">
-      <div class="placeholder-icon">📊</div>
-      <div class="placeholder-title">数据统计</div>
-      <div class="placeholder-desc">跨端全局数据统计</div>
-      <div class="placeholder-badge">开发中</div>
+<div class="page-container" data-module="sa-data-stats">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">超管端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">数据统计</span>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon blue">&#127970;</div>
+      <div class="stat-content">
+        <div class="stat-label">企业总数</div>
+        <div class="stat-value">1,248</div>
+        <div class="stat-change up">&#8593; 12 本月新增</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">&#127963;</div>
+      <div class="stat-content">
+        <div class="stat-label">政府单位数</div>
+        <div class="stat-value">56</div>
+        <div class="stat-change up">&#8593; 2 本月新增</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange">&#128100;</div>
+      <div class="stat-content">
+        <div class="stat-label">用户总数</div>
+        <div class="stat-value">3,842</div>
+        <div class="stat-change up">&#8593; 86 本月新增</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">&#128188;</div>
+      <div class="stat-content">
+        <div class="stat-label">项目总数</div>
+        <div class="stat-value">128</div>
+        <div class="stat-change up">&#8593; 5 本月新增</div>
+      </div>
     </div>
   </div>
-  <script>
-    (function() {
-      'use strict';
-      const CONFIG = { moduleId: 'sa-data-stats', moduleName: '数据统计' };
-      let state = { initialized: false };
-      function init() { if (state.initialized) return; console.log(`[${CONFIG.moduleId}] 模块初始化`); state.initialized = true; }
-      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
-      window.destroyModule = function() { console.log(`[${CONFIG.moduleId}] 模块销毁`); state.initialized = false; };
-    })();
-  </script>
+
+  <!-- Tab 切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('overview')">概览</div>
+    <div class="tab-item" onclick="switchTab('ent')">企业统计</div>
+    <div class="tab-item" onclick="switchTab('gov')">政府统计</div>
+    <div class="tab-item" onclick="switchTab('proj')">项目统计</div>
+  </div>
+
+  <!-- 概览 Tab -->
+  <div class="tab-content active" id="tab-overview">
+    <div class="content-card">
+      <div class="overview-stats">
+        <div class="overview-stat"><div class="overview-stat-value" style="color:#52c41a">2,896</div><div class="overview-stat-label">绿码企业</div></div>
+        <div class="overview-stat"><div class="overview-stat-value" style="color:#faad14">312</div><div class="overview-stat-label">黄码企业</div></div>
+        <div class="overview-stat"><div class="overview-stat-value" style="color:#ff4d4f">40</div><div class="overview-stat-label">红码企业</div></div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-box">
+          <div class="chart-title">安全码分布趋势（近6月）</div>
+          <div class="chart-placeholder">
+            <div class="bar-mock"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">用户端分布</div>
+          <div class="chart-placeholder" style="justify-content:center">
+            <div class="pie-mock"></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">隐患处理统计</div>
+          <div class="chart-placeholder">
+            <div class="bar-mock"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">巡查覆盖率</div>
+          <div class="chart-placeholder">
+            <div style="text-align:center">
+              <div style="font-size:48px;font-weight:700;color:#1677ff">96.5%</div>
+              <div style="font-size:13px;color:#999;margin-top:8px">本月巡查覆盖率</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 企业统计 Tab -->
+  <div class="tab-content" id="tab-ent">
+    <div class="content-card">
+      <div class="chart-grid">
+        <div class="chart-box">
+          <div class="chart-title">企业注册趋势（近6月）</div>
+          <div class="chart-placeholder">
+            <div class="bar-mock"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">企业领域分布</div>
+          <div class="chart-placeholder" style="justify-content:center">
+            <div class="pie-mock" style="border-top-color:#fa8c16;border-right-color:#52c41a"></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">企业区划分布 TOP5</div>
+          <ul class="rank-list">
+            <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">南山区</span><span class="rank-value">328 家</span></li>
+            <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">福田区</span><span class="rank-value">256 家</span></li>
+            <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">龙岗区</span><span class="rank-value">198 家</span></li>
+            <li class="rank-item"><span class="rank-num normal">4</span><span class="rank-name">宝安区</span><span class="rank-value">186 家</span></li>
+            <li class="rank-item"><span class="rank-num normal">5</span><span class="rank-name">龙华区</span><span class="rank-value">142 家</span></li>
+          </ul>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">企业安全码状态</div>
+          <div class="chart-placeholder">
+            <div style="text-align:center">
+              <div style="display:flex;gap:24px;justify-content:center">
+                <div><div style="font-size:28px;font-weight:700;color:#52c41a">2,896</div><div style="font-size:12px;color:#999">绿码</div></div>
+                <div><div style="font-size:28px;font-weight:700;color:#faad14">312</div><div style="font-size:12px;color:#999">黄码</div></div>
+                <div><div style="font-size:28px;font-weight:700;color:#ff4d4f">40</div><div style="font-size:12px;color:#999">红码</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 政府统计 Tab -->
+  <div class="tab-content" id="tab-gov">
+    <div class="content-card">
+      <div class="chart-grid">
+        <div class="chart-box">
+          <div class="chart-title">巡查任务完成率</div>
+          <div class="chart-placeholder">
+            <div style="text-align:center">
+              <div style="font-size:48px;font-weight:700;color:#52c41a">92.3%</div>
+              <div style="font-size:13px;color:#999;margin-top:8px">本月巡查任务完成率</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">各单位巡查次数（近30天）</div>
+          <div class="chart-placeholder">
+            <div class="bar-mock"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">隐患发现与整改趋势</div>
+          <div class="chart-placeholder">
+            <div class="bar-mock"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">政府用户活跃度 TOP5</div>
+          <ul class="rank-list">
+            <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">区应急管理局</span><span class="rank-value">1,245 次</span></li>
+            <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">区住建局</span><span class="rank-value">986 次</span></li>
+            <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">区消防救援大队</span><span class="rank-value">756 次</span></li>
+            <li class="rank-item"><span class="rank-num normal">4</span><span class="rank-name">桃源街道办</span><span class="rank-value">534 次</span></li>
+            <li class="rank-item"><span class="rank-num normal">5</span><span class="rank-name">粤海街道办</span><span class="rank-value">412 次</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 项目统计 Tab -->
+  <div class="tab-content" id="tab-proj">
+    <div class="content-card">
+      <div class="chart-grid">
+        <div class="chart-box">
+          <div class="chart-title">项目状态分布</div>
+          <div class="chart-placeholder" style="justify-content:center">
+            <div class="pie-mock" style="border-top-color:#7c3aed;border-right-color:#a78bfa"></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">项目安全码趋势</div>
+          <div class="chart-placeholder">
+            <div class="bar-mock"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">项目巡查覆盖率</div>
+          <div class="chart-placeholder">
+            <div style="text-align:center">
+              <div style="font-size:48px;font-weight:700;color:#7c3aed">89.7%</div>
+              <div style="font-size:13px;color:#999;margin-top:8px">项目巡查覆盖率</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">高风险项目 TOP5</div>
+          <ul class="rank-list">
+            <li class="rank-item"><span class="rank-num top" style="background:#ff4d4f">1</span><span class="rank-name">XX大厦建设工程</span><span class="rank-value" style="color:#ff4d4f">3项隐患</span></li>
+            <li class="rank-item"><span class="rank-num top" style="background:#ff4d4f">2</span><span class="rank-name">XX地铁站改造</span><span class="rank-value" style="color:#ff4d4f">2项隐患</span></li>
+            <li class="rank-item"><span class="rank-num top" style="background:#faad14">3</span><span class="rank-name">XX学校扩建</span><span class="rank-value" style="color:#faad14">1项隐患</span></li>
+            <li class="rank-item"><span class="rank-num normal">4</span><span class="rank-name">XX道路工程</span><span class="rank-value">0项隐患</span></li>
+            <li class="rank-item"><span class="rank-num normal">5</span><span class="rank-name">XX桥梁加固</span><span class="rank-value">0项隐患</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab){
+  var tabs = ['overview','ent','gov','proj'];
+  var tabNames = ['概览','企业统计','政府统计','项目统计'];
+  tabs.forEach(function(t, idx){
+    var content = document.getElementById('tab-' + t);
+    if(content) content.classList.toggle('active', t === tab);
+  });
+  document.querySelectorAll('.tab-bar .tab-item').forEach(function(el, idx){
+    el.classList.toggle('active', tabs[idx] === tab);
+  });
+}
+</script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-data-stats', moduleName: '数据统计' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

@@ -17,7 +17,7 @@
     .tl-item:last-child { padding-bottom: 0; }
     .tl-dot-col { display: flex; flex-direction: column; align-items: center; width: 20px; flex-shrink: 0; margin-right: 12px; }
     .tl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 2px solid #d9d9d9; background: #fff; }
-    .tl-dot.active { border-color: #1677ff; background: #1677ff; }
+    .tl-dot.active { border-color: #1068ff; background: #1068ff; }
     .tl-dot.done { border-color: #52c41a; background: #52c41a; }
     .tl-line { flex: 1; width: 2px; background: #f0f0f0; margin-top: 4px; }
     .tl-item:last-child .tl-line { display: none; }
@@ -38,7 +38,6 @@
 </head>
 <body>
   <div class="m-page">
-
     <!-- 基本信息卡片 -->
     <div class="m-card">
       <div class="m-card-title">隐患信息</div>
@@ -65,6 +64,14 @@
       <div class="info-row">
         <span class="info-label">隐患描述</span>
         <span class="info-value" style="font-weight:400;line-height:1.6;">配电房灭火器已过期，存在消防安全隐患</span>
+      </div>
+      <div class="info-row" style="flex-direction:column;gap:8px;">
+        <span class="info-label">隐患图片</span>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <div style="width:80px;height:80px;border-radius:6px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;">🔥</div>
+          <div style="width:80px;height:80px;border-radius:6px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;">🧯</div>
+          <div style="width:80px;height:80px;border-radius:6px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:14px;color:#999;">+1</div>
+        </div>
       </div>
     </div>
 
@@ -130,13 +137,22 @@
 
     <!-- 复核信息 -->
     <div class="m-card">
-      <div class="section-label">复核</div>
-      <div class="rectify-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:14px;color:#1a1a1a;">复核状态</span>
-          <span class="rectify-status waiting">○ 待复核</span>
-        </div>
-        <div style="font-size:12px;color:#bfbfbf;margin-top:6px;">需整改完成后方可复核</div>
+      <div class="m-card-title">复核</div>
+      <div class="info-row">
+        <span class="info-label">复核人</span>
+        <span class="info-value">李安全</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">复核结果</span>
+        <span class="info-value" style="color:#bfbfbf;">待复核</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">复核期限</span>
+        <span class="info-value">2024-01-20</span>
+      </div>
+      <div class="info-row" style="border-bottom:none;">
+        <span class="info-label">备注</span>
+        <span class="info-value" style="font-weight:400;color:#bfbfbf;">需整改完成后方可复核</span>
       </div>
     </div>
 
@@ -144,8 +160,27 @@
   </div>
 
   <script>
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var toast = document.getElementById('mToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'mToast';
+    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:8px 24px;border-radius:20px;font-size:14px;color:#fff;z-index:10000;transition:opacity 0.3s;';
+    document.body.appendChild(toast);
+  }
+  var bg = '#1677ff';
+  if (type === 'success') bg = '#52c41a';
+  if (type === 'warning') bg = '#faad14';
+  if (type === 'error') bg = '#ff4d4f';
+  toast.style.background = bg;
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  setTimeout(function() { toast.style.opacity = '0'; }, 2500);
+}
     function handleRectify() {
-      alert('打开整改提交页面（原型演示）');
+      showToast('打开整改提交页面（原型演示）', 'info');
     }
   </script>
 </body>

@@ -75,7 +75,7 @@
     .log-level.info { background: #e6f4ff; color: #1677ff; }
     .log-level.warn { background: #fff7e6; color: #faad14; }
     .log-level.error { background: #fff1f0; color: #ff4d4f; }
-    .log-msg { flex: 1; }
+    .log-msg { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     
     /* ========== 表格 ========== */
     .table-wrap { 
@@ -248,11 +248,31 @@
     </div>
   </div>
   <script>
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+  if (type === 'success') toast.style.background = '#52c41a';
+  if (type === 'warning') toast.style.background = '#faad14';
+  if (type === 'error') toast.style.background = '#ff4d4f';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
     function refreshData() {
-      alert('数据已刷新');
+      showToast('数据已刷新', 'info');
     }
     function exportReport() {
-      alert('报告导出中...');
+      showToast('报告导出中...', 'info');
     }
   </script>
 <script>

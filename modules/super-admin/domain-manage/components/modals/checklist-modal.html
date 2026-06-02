@@ -399,6 +399,26 @@
 </style>
 
 <script>
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+  if (type === 'success') toast.style.background = '#52c41a';
+  if (type === 'warning') toast.style.background = '#faad14';
+  if (type === 'error') toast.style.background = '#ff4d4f';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
 // 检查表配置弹框控制
 function showChecklistModal() {
   document.getElementById('checklistModal').classList.add('active');
@@ -418,7 +438,7 @@ function closeChecklistModal() {
 function saveChecklist() {
   console.log('保存检查表配置');
   closeChecklistModal();
-  alert('保存成功');
+  showToast('保存成功', 'success');
 }
 
 // 开关切换
@@ -442,13 +462,13 @@ function confirmLibImport() {
 
 function previewLibItem(id) {
   console.log('预览检查库项:', id);
-  alert('预览检查库项: ' + id);
+  showToast('预览检查库项: ' + id, 'info');
 }
 
 // 检查项操作
 function addCheckItem() {
-  console.log('新增检查项');
-  alert('新增检查项');
+  console.log('新增检查项', 'info');
+  showToast('新增检查项', 'info');
 }
 
 function deleteCheckItem(id) {
@@ -463,13 +483,13 @@ function moveCheckItem(id, direction) {
 
 function addCheckContent(itemId) {
   console.log('添加检查内容:', itemId);
-  alert('添加检查内容到检查项: ' + itemId);
+  showToast('添加检查内容到检查项: ' + itemId, 'info');
 }
 
 // 检查内容操作
 function editContent(element) {
   element.contentEditable = true;
-  element.classList.add('editing');
+  element.classList.add('editing', 'info');
   element.focus();
   
   element.onblur = function() {

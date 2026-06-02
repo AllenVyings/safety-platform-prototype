@@ -1042,6 +1042,26 @@
   </div>
   
   <script>
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+  if (type === 'success') toast.style.background = '#52c41a';
+  if (type === 'warning') toast.style.background = '#faad14';
+  if (type === 'error') toast.style.background = '#ff4d4f';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
     // ========== 数据模拟 ==========
     const regulationTypes = {
       law: '法律',
@@ -1540,11 +1560,11 @@
     }
     
     function batchImport() {
-      alert('批量导入功能开发中...');
+      showToast('批量导入功能开发中...', 'info');
     }
     
     function batchExport() {
-      alert('批量导出功能开发中...');
+      showToast('批量导出功能开发中...', 'info');
     }
     
     // ========== 法规附件必填控制 ==========
@@ -1699,15 +1719,15 @@
       
       // 校验
       if (!name) {
-        alert('请输入法规名称');
+        showToast('请输入法规名称', 'warning');
         return;
       }
       if (!type) {
-        alert('请选择法规类型');
+        showToast('请选择法规类型', 'warning');
         return;
       }
       if (!publishDate) {
-        alert('请选择发布日期');
+        showToast('请选择发布日期', 'warning');
         return;
       }
       // 标准库附件必填校验
@@ -1720,7 +1740,7 @@
           hasExistingFile = !!(item && item.attachment);
         }
         if (!hasNewFile && !hasExistingFile) {
-          alert('国家标准/行业标准必须上传全文附件');
+          showToast('国家标准/行业标准必须上传全文附件', 'warning');
           return;
         }
       }
@@ -1768,7 +1788,7 @@
       closeModal();
       updateStats();
       renderTable();
-      alert('保存成功');
+      showToast('保存成功', 'success');
     }
     
     // ========== 详情弹窗 ==========
@@ -1895,7 +1915,7 @@
         updateStats();
         renderTable();
         closeDeleteModal();
-        alert('删除成功');
+        showToast('删除成功', 'success');
       }
     }
   </script>

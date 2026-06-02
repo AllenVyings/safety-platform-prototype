@@ -74,11 +74,24 @@
     .info-value { font-size: var(--font-size-sm); color: var(--text-primary); }
     
     .tag-list { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
-    .tag-item { background: var(--info-light); color: var(--info); padding: 4px 12px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
+    .tag-item { background: var(--info-light); color: var(--info); padding: 4px 12px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); display: inline-flex; align-items: center; gap: 4px; }
+    .tag-item .tag-remove { cursor: pointer; font-size: 14px; line-height: 1; opacity: 0.6; display: none; }
+    .tag-item .tag-remove:hover { opacity: 1; }
+    .editing .tag-item .tag-remove { display: inline; }
+    .tag-input-wrap { display: none; align-items: center; gap: 6px; }
+    .editing .tag-input-wrap { display: inline-flex; }
+    .tag-input { border: 1px solid var(--border-input); border-radius: var(--radius-sm); padding: 4px 8px; font-size: var(--font-size-xs); outline: none; width: 120px; }
+    .tag-input:focus { border-color: var(--primary); }
+    .tag-add-btn { background: var(--info-light); color: var(--info); border: 1px dashed var(--info); padding: 4px 10px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); cursor: pointer; white-space: nowrap; }
+    .tag-add-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
     
     .readonly-field { background: var(--bg-section-alt); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-secondary); }
-    .editable-field { background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-input); outline: none; }
-    .editable-field:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .editable-field { background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-primary); outline: none; }
+    .editable-field.editing { border: 1px solid var(--border-input); }
+    .editable-field.editing:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .field-error { color: var(--error); font-size: 12px; margin-top: 4px; display: none; }
+    .has-error .editable-field { border-color: var(--error); }
+    .has-error .field-error { display: block; }
   </style>
 </head>
 <body>
@@ -114,11 +127,12 @@
             </div>
             <div class="info-item">
               <span class="info-label">法定代表人</span>
-              <span class="info-value editable-field">王建国</span>
+              <span class="info-value"><input class="editable-field" data-field="legalPerson" value="王建国" readonly style="width:100%;box-sizing:border-box;"></span>
             </div>
-            <div class="info-item">
+            <div class="info-item" id="fg-phone">
               <span class="info-label">联系电话</span>
-              <span class="info-value editable-field">13800138000</span>
+              <span class="info-value"><input class="editable-field" data-field="phone" value="13800138000" readonly style="width:100%;box-sizing:border-box;"></span>
+              <div class="field-error">请输入正确的手机号（11位数字，1开头）</div>
             </div>
             <div class="info-item">
               <span class="info-label">注册地址</span>
@@ -126,7 +140,7 @@
             </div>
             <div class="info-item">
               <span class="info-label">经营地址</span>
-              <span class="info-value editable-field">深圳市南山区科技园南区A栋</span>
+              <span class="info-value"><input class="editable-field" data-field="bizAddress" value="深圳市南山区科技园南区A栋" readonly style="width:100%;box-sizing:border-box;"></span>
             </div>
             <div class="info-item">
               <span class="info-label">所属网格</span>
@@ -145,10 +159,14 @@
         
         <div class="info-section">
           <div class="info-section-title">关联领域小类</div>
-          <div class="tag-list">
-            <span class="tag-item">充换电设施</span>
-            <span class="tag-item">工业制造</span>
-            <span class="tag-item">危险化学品使用</span>
+          <div class="tag-list" id="categoryTags">
+            <span class="tag-item">充换电设施<span class="tag-remove" onclick="removeTag(this)">&times;</span></span>
+            <span class="tag-item">工业制造<span class="tag-remove" onclick="removeTag(this)">&times;</span></span>
+            <span class="tag-item">危险化学品使用<span class="tag-remove" onclick="removeTag(this)">&times;</span></span>
+            <div class="tag-input-wrap">
+              <input class="tag-input" id="tagInput" placeholder="输入新标签" onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}">
+              <button class="tag-add-btn" onclick="addTag()">添加</button>
+            </div>
           </div>
         </div>
         
@@ -195,20 +213,69 @@
       
       window.toggleEdit = function() {
         state.isEditing = !state.isEditing;
-        const btn = document.getElementById('editBtn');
-        const editableFields = document.querySelectorAll('.editable-field');
-        
+        var btn = document.getElementById('editBtn');
+        var editableFields = document.querySelectorAll('.editable-field');
+
         if (state.isEditing) {
           btn.textContent = '保存';
           btn.className = 'btn btn-primary';
-          editableFields.forEach(f => f.contentEditable = 'true');
+          editableFields.forEach(function(f) {
+            f.removeAttribute('readonly');
+            f.classList.add('editing');
+          });
         } else {
+          // 校验联系电话
+          var phoneField = document.querySelector('[data-field="phone"]');
+          var phoneFg = document.getElementById('fg-phone');
+          if (phoneField) {
+            var phone = phoneField.value.trim();
+            var phoneReg = /^1\d{10}$/;
+            if (!phoneReg.test(phone)) {
+              phoneFg.classList.add('has-error');
+              phoneField.focus();
+              return;
+            }
+            phoneFg.classList.remove('has-error');
+          }
+
           btn.textContent = '编辑';
           btn.className = 'btn btn-default';
-          editableFields.forEach(f => f.contentEditable = 'false');
-          alert('保存成功！');
+          editableFields.forEach(function(f) {
+            f.setAttribute('readonly', 'readonly');
+            f.classList.remove('editing');
+          });
+          showToast('保存成功！');
         }
       };
+
+      // 标签交互
+      window.removeTag = function(el) {
+        var tagItem = el.parentElement;
+        tagItem.remove();
+        showToast('标签已移除');
+      };
+
+      window.addTag = function() {
+        var input = document.getElementById('tagInput');
+        var value = input.value.trim();
+        if (!value) return;
+        var container = document.getElementById('categoryTags');
+        var inputWrap = container.querySelector('.tag-input-wrap');
+        var newTag = document.createElement('span');
+        newTag.className = 'tag-item';
+        newTag.innerHTML = value + '<span class="tag-remove" onclick="removeTag(this)">&times;</span>';
+        container.insertBefore(newTag, inputWrap);
+        input.value = '';
+        showToast('标签已添加：' + value);
+      };
+
+      function showToast(msg) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'#1677ff', color:'#fff', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
+        document.body.appendChild(t);
+        setTimeout(function() { t.remove(); }, 2000);
+      }
       
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
