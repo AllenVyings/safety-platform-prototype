@@ -75,15 +75,7 @@
     
     .tag-list { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
     .tag-item { background: var(--info-light); color: var(--info); padding: 4px 12px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); display: inline-flex; align-items: center; gap: 4px; }
-    .tag-item .tag-remove { cursor: pointer; font-size: 14px; line-height: 1; opacity: 0.6; display: none; }
-    .tag-item .tag-remove:hover { opacity: 1; }
-    .editing .tag-item .tag-remove { display: inline; }
-    .tag-input-wrap { display: none; align-items: center; gap: 6px; }
-    .editing .tag-input-wrap { display: inline-flex; }
-    .tag-input { border: 1px solid var(--border-input); border-radius: var(--radius-sm); padding: 4px 8px; font-size: var(--font-size-xs); outline: none; width: 120px; }
-    .tag-input:focus { border-color: var(--primary); }
-    .tag-add-btn { background: var(--info-light); color: var(--info); border: 1px dashed var(--info); padding: 4px 10px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); cursor: pointer; white-space: nowrap; }
-    .tag-add-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    /* 关联领域小类由监管端维护，企业端只读展示（BR-ENT-02-04） */
     
     .readonly-field { background: var(--bg-section-alt); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-secondary); }
     .editable-field { background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-primary); outline: none; }
@@ -101,7 +93,7 @@
       <span class="breadcrumb-prefix">当前位置：</span>
       <span class="breadcrumb-item">企业端</span>
       <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">企业信息</span>
+      <span class="breadcrumb-item current">企业基本信息</span>
     </div>
     
     <!-- 页面标题栏已隐藏 -->
@@ -160,13 +152,9 @@
         <div class="info-section">
           <div class="info-section-title">关联领域小类</div>
           <div class="tag-list" id="categoryTags">
-            <span class="tag-item">充换电设施<span class="tag-remove" onclick="removeTag(this)">&times;</span></span>
-            <span class="tag-item">工业制造<span class="tag-remove" onclick="removeTag(this)">&times;</span></span>
-            <span class="tag-item">危险化学品使用<span class="tag-remove" onclick="removeTag(this)">&times;</span></span>
-            <div class="tag-input-wrap">
-              <input class="tag-input" id="tagInput" placeholder="输入新标签" onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}">
-              <button class="tag-add-btn" onclick="addTag()">添加</button>
-            </div>
+            <span class="tag-item">充换电设施</span>
+            <span class="tag-item">工业制造</span>
+            <span class="tag-item">危险化学品使用</span>
           </div>
         </div>
         
@@ -248,26 +236,7 @@
         }
       };
 
-      // 标签交互
-      window.removeTag = function(el) {
-        var tagItem = el.parentElement;
-        tagItem.remove();
-        showToast('标签已移除');
-      };
-
-      window.addTag = function() {
-        var input = document.getElementById('tagInput');
-        var value = input.value.trim();
-        if (!value) return;
-        var container = document.getElementById('categoryTags');
-        var inputWrap = container.querySelector('.tag-input-wrap');
-        var newTag = document.createElement('span');
-        newTag.className = 'tag-item';
-        newTag.innerHTML = value + '<span class="tag-remove" onclick="removeTag(this)">&times;</span>';
-        container.insertBefore(newTag, inputWrap);
-        input.value = '';
-        showToast('标签已添加：' + value);
-      };
+      // 关联领域小类由监管端维护，企业端只读展示（BR-ENT-02-04），不提供编辑功能
 
       function showToast(msg) {
         var t = document.createElement('div');

@@ -70,7 +70,7 @@
 .tag-success{background:#f6ffed;color:#52c41a}
 .tag-warning{background:#fffbe6;color:#faad14}
 .tag-error{background:#fff2f0;color:#ff4d4f}
-.tag-info{background:#e6f4ff;color:#52c41a}
+.tag-info{background:#e6f7ff;color:#1890ff}
 
 /* 弹窗 */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center}
@@ -99,7 +99,7 @@
     <span class="breadcrumb-prefix">当前位置：</span>
     <span class="breadcrumb-item">超管端</span>
     <span class="breadcrumb-separator">&gt;</span>
-    <span class="breadcrumb-item">项目组织架构</span>
+    <span class="breadcrumb-item current">项目组织架构</span>
   </div>
 
   <!-- 统计概览 -->
@@ -140,7 +140,9 @@
           <div class="content-subtitle" id="selectedNodePath">项目根节点</div>
         </div>
         <div>
-          <button class="btn btn-primary btn-sm" onclick="openAddUnitModal()">+ 新增单位</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddCategoryModal()">+ 新增分类</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddUnitModal()">+ 新增企业</button>
+          <button class="btn btn-default btn-sm" onclick="openAddDeptModal()">+ 新增部门</button>
         </div>
       </div>
 
@@ -203,11 +205,11 @@
   </div>
 </div>
 
-<!-- 新增单位弹窗 -->
+<!-- 新增企业弹窗 -->
 <div class="modal-overlay" id="addUnitModal">
   <div class="modal-box">
     <div class="modal-header">
-      <span class="modal-title">新增单位</span>
+      <span class="modal-title">新增企业</span>
       <button class="modal-close" onclick="closeModal('addUnitModal')">&times;</button>
     </div>
     <div class="modal-body">
@@ -240,7 +242,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('addUnitModal')">取消</button>
-      <button class="btn btn-primary" onclick="showToast('新增单位成功');closeModal('addUnitModal')">确定</button>
+      <button class="btn btn-primary" onclick="showToast('新增企业成功');closeModal('addUnitModal')">确定</button>
     </div>
   </div>
 </div>
@@ -255,46 +257,78 @@ const orgData = [
     expanded: true,
     children: [
       {
-        id: 'unit-1',
-        name: 'XX建设集团',
-        type: 'unit',
-        unitType: '建设单位',
-        expanded: false,
-        children: [
-          { id: 'dept-1', name: '工程部', type: 'dept' },
-          { id: 'dept-2', name: '安全部', type: 'dept' }
-        ]
-      },
-      {
-        id: 'unit-2',
-        name: 'XX建筑工程有限公司',
-        type: 'unit',
-        unitType: '施工单位',
+        id: 'cat-1',
+        name: '建设单位',
+        type: 'category',
         expanded: true,
         children: [
-          { id: 'dept-3', name: '项目部', type: 'dept' },
-          { id: 'dept-4', name: '技术部', type: 'dept' },
-          { id: 'dept-5', name: '安全部', type: 'dept' }
+          {
+            id: 'unit-1',
+            name: 'XX建设集团',
+            type: 'unit',
+            unitType: '建设单位',
+            expanded: false,
+            children: [
+              { id: 'dept-1', name: '工程部', type: 'dept' },
+              { id: 'dept-2', name: '安全部', type: 'dept' }
+            ]
+          }
         ]
       },
       {
-        id: 'unit-3',
-        name: 'XX监理咨询有限公司',
-        type: 'unit',
-        unitType: '监理单位',
-        expanded: false,
+        id: 'cat-2',
+        name: '施工单位',
+        type: 'category',
+        expanded: true,
         children: [
-          { id: 'dept-6', name: '监理部', type: 'dept' }
+          {
+            id: 'unit-2',
+            name: 'XX建筑工程有限公司',
+            type: 'unit',
+            unitType: '施工单位',
+            expanded: true,
+            children: [
+              { id: 'dept-3', name: '项目部', type: 'dept' },
+              { id: 'dept-4', name: '技术部', type: 'dept' },
+              { id: 'dept-5', name: '安全部', type: 'dept' }
+            ]
+          }
         ]
       },
       {
-        id: 'unit-4',
-        name: 'XX装饰工程有限公司',
-        type: 'unit',
-        unitType: '分包单位',
+        id: 'cat-3',
+        name: '监理单位',
+        type: 'category',
         expanded: false,
         children: [
-          { id: 'dept-7', name: '施工队', type: 'dept' }
+          {
+            id: 'unit-3',
+            name: 'XX监理咨询有限公司',
+            type: 'unit',
+            unitType: '监理单位',
+            expanded: false,
+            children: [
+              { id: 'dept-6', name: '监理部', type: 'dept' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'cat-4',
+        name: '分包单位',
+        type: 'category',
+        expanded: false,
+        children: [
+          {
+            id: 'unit-4',
+            name: 'XX装饰工程有限公司',
+            type: 'unit',
+            unitType: '分包单位',
+            expanded: false,
+            children: [
+              { id: 'dept-7', name: '施工队', type: 'dept' }
+            ]
+          }
         ]
       }
     ]
@@ -315,6 +349,7 @@ function renderTreeNode(node, level) {
   
   let icon = '🏗️';
   if (node.type === 'unit') icon = '🏢';
+  if (node.type === 'category') icon = '📂';
   if (node.type === 'dept') icon = '📁';
   
   let html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left:' + (16 + indent) + 'px" onclick="selectNode(\'' + node.id + '\')">';
@@ -365,6 +400,14 @@ function updateContentPanel(nodeId) {
 
 function openAddUnitModal() {
   document.getElementById('addUnitModal').style.display = 'flex';
+}
+
+function openAddCategoryModal() {
+  showToast('新增分类节点（功能待实现）');
+}
+
+function openAddDeptModal() {
+  showToast('新增部门节点（功能待实现）');
 }
 
 function closeModal(id) {

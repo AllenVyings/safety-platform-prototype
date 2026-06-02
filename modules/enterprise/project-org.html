@@ -158,7 +158,7 @@ td{color:#333}
   <div class="main-layout">
     <!-- 左侧组织树 -->
     <div class="left-panel">
-      <div class="panel-header"><span class="icon">🏗️</span>组织架构</div>
+      <div class="panel-header"><span class="icon">🏗️</span>项目列表</div>
       <div class="tree-body" id="orgTree"></div>
     </div>
 
@@ -174,8 +174,17 @@ td{color:#333}
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" placeholder="搜索..." oninput="onSearch()">
           </div>
+          <button class="btn btn-primary btn-sm" id="btnAddCategory" onclick="openAddCategoryModal()" style="display:none">
+            <span>+</span> 新增分类
+          </button>
+          <button class="btn btn-primary btn-sm" id="btnAddEnterprise" onclick="openAddEnterpriseModal()" style="display:none">
+            <span>+</span> 新增企业
+          </button>
           <button class="btn btn-primary btn-sm" id="btnAdd" onclick="openAddModal()">
             <span>+</span> 新增部门
+          </button>
+          <button class="btn btn-danger btn-sm" id="btnDeleteNode" onclick="openDelSelectedModal()" style="display:none">
+            删除节点
           </button>
         </div>
       </div>
@@ -573,7 +582,17 @@ function renderRightPanel() {
   var tc = typeColors[selectedNode.type] || '#999';
   tagEl.style.cssText = 'background:' + tc + '15;color:' + tc + ';border:1px solid ' + tc + '40';
 
+  // 根据节点类型显示不同操作按钮（PRD §6.4.3）
+  var btnAddCategory = document.getElementById('btnAddCategory');
+  var btnAddEnterprise = document.getElementById('btnAddEnterprise');
+  var btnDeleteNode = document.getElementById('btnDeleteNode');
+  // 项目根节点：显示新增分类
+  btnAddCategory.style.display = (selectedNode.type === 'root') ? 'inline-flex' : 'none';
+  // 分类节点：显示新增企业、删除节点
+  btnAddEnterprise.style.display = (selectedNode.type === 'category') ? 'inline-flex' : 'none';
+  // 企业/部门节点：显示新增部门、删除节点（项目根节点和四方责任体企业节点不可删除）
   btnAdd.style.display = (selectedNode.type === 'enterprise' || selectedNode.type === 'department') ? 'inline-flex' : 'none';
+  btnDeleteNode.style.display = (selectedNode.type === 'category' || selectedNode.type === 'enterprise' || selectedNode.type === 'department') ? 'inline-flex' : 'none';
 
   // 渲染节点信息卡片
   var infoCard = document.getElementById('nodeInfoCard');
@@ -858,6 +877,57 @@ function confirmDelete() {
   closeDelModal();
   renderTree();
   renderRightPanel();
+}
+
+// ===================== 新增分类/企业/删除节点弹窗 =====================
+function openAddCategoryModal() {
+  var name = prompt('请输入分类名称：');
+  if (!name || !name.trim()) return;
+  name = name.trim();
+  // 在根节点下新增分类
+  if (!treeData.children) treeData.children = [];
+  treeData.children.push({
+    id: getNextId('cat'),
+    name: name,
+    type: 'category',
+    expanded: true,
+    children: []
+  });
+  renderTree();
+  renderRightPanel();
+  showToast('分类「' + name + '」新增成功');
+}
+
+function openAddEnterpriseModal() {
+  if (selectedNode.type !== 'category') return;
+  var name = prompt('请输入企业名称：');
+  if (!name || !name.trim()) return;
+  name = name.trim();
+  if (!selectedNode.children) selectedNode.children = [];
+  selectedNode.children.push({
+    id: getNextId('ent'),
+    name: name,
+    type: 'enterprise',
+    creditCode: '',
+    leader: '',
+    phone: '',
+    children: []
+  });
+  renderTree();
+  renderRightPanel();
+  showToast('企业「' + name + '」新增成功');
+}
+
+function openDelSelectedModal() {
+  if (!selectedNode) return;
+  // PRD: 项目根节点不可删除
+  if (selectedNode.type === 'root') {
+    showToast('项目根节点不可删除', 'error');
+    return;
+  }
+  deletingNodeId = selectedNode.id;
+  document.getElementById('delTargetName').textContent = selectedNode.name;
+  document.getElementById('delModal').style.display = 'flex';
 }
 
 // ===================== 初始化 =====================
