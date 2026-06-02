@@ -192,30 +192,36 @@ tbody tr:last-child td{border-bottom:none}
       <!-- 字段可见性 -->
       <div class="tab-content" id="tab-field">
         <table class="diff-table">
-          <thead><tr><th>字段名称</th><th>是否可见</th><th>是否必填</th><th>备注</th></tr></thead>
+          <thead><tr><th>字段</th><th>基础模式</th><th>项目模式</th><th>特殊场景模式</th></tr></thead>
           <tbody>
-            <tr><td class="field-name">企业名称</td><td><span class="yes">是</span></td><td><span class="yes">是</span></td><td>-</td></tr>
-            <tr><td class="field-name">统一社会信用代码</td><td><span class="yes">是</span></td><td><span class="yes">是</span></td><td>-</td></tr>
-            <tr><td class="field-name">法定代表人</td><td><span class="yes">是</span></td><td><span class="no">否</span></td><td>-</td></tr>
-            <tr><td class="field-name">经营地址</td><td><span class="yes">是</span></td><td><span class="yes">是</span></td><td>-</td></tr>
-            <tr><td class="field-name">项目编号</td><td><span class="no">否</span></td><td>-</td><td>仅项目模式可见</td></tr>
-            <tr><td class="field-name">建设单位</td><td><span class="no">否</span></td><td>-</td><td>仅项目模式可见</td></tr>
-            <tr><td class="field-name">监理单位</td><td><span class="no">否</span></td><td>-</td><td>仅项目模式可见</td></tr>
-            <tr><td class="field-name">特殊场景类型</td><td><span class="no">否</span></td><td>-</td><td>仅特殊场景可见</td></tr>
-            <tr><td class="field-name">安全评估报告</td><td><span class="no">否</span></td><td>-</td><td>仅特殊场景必填</td></tr>
+            <tr><td class="field-name">统一社会信用代码</td><td>显示（必填）</td><td>不显示</td><td>不显示</td></tr>
+            <tr><td class="field-name">企业名称/项目名称</td><td>企业名称</td><td>项目名称</td><td>场所名称</td></tr>
+            <tr><td class="field-name">营业执照上传</td><td>显示</td><td>不显示</td><td>不显示</td></tr>
+            <tr><td class="field-name">施工许可证</td><td>不显示</td><td>显示</td><td>不显示</td></tr>
+            <tr><td class="field-name">项目周期</td><td>不显示</td><td>起止日期</td><td>不显示</td></tr>
+            <tr><td class="field-name">关联企业</td><td>不显示</td><td>可多选</td><td>单/多选</td></tr>
+            <tr><td class="field-name">关联政府单位</td><td>不显示</td><td>不显示</td><td>显示</td></tr>
           </tbody>
         </table>
       </div>
       <!-- 流程差异 -->
       <div class="tab-content" id="tab-flow">
+        <h4 style="font-size:13px;font-weight:600;color:#1f1f1f;margin-bottom:8px">注册流程差异</h4>
         <table class="diff-table">
           <thead><tr><th>流程节点</th><th>基础模式</th><th>项目模式</th><th>特殊场景模式</th></tr></thead>
           <tbody>
-            <tr><td class="field-name">注册审核</td><td>超管审核</td><td>超管审核 + 行业审核</td><td>超管审核 + 专家评审</td></tr>
-            <tr><td class="field-name">安全码生成</td><td>自动生成</td><td>自动生成</td><td>人工审核后生成</td></tr>
-            <tr><td class="field-name">巡查周期</td><td>月度</td><td>双周</td><td>每周</td></tr>
-            <tr><td class="field-name">隐患上报</td><td>企业自报</td><td>企业自报 + 监理报</td><td>企业自报 + 多方报</td></tr>
-            <tr><td class="field-name">整改验收</td><td>企业自查</td><td>监理验收</td><td>专家 + 监理双验</td></tr>
+            <tr><td class="field-name">注册入口</td><td>企业注册页</td><td>项目注册页</td><td>政府端创建</td></tr>
+            <tr><td class="field-name">审批要求</td><td>需政府审批</td><td>需政府审批</td><td>无需审批</td></tr>
+            <tr><td class="field-name">模式变更</td><td>不可变更</td><td>不可变更</td><td>不可变更</td></tr>
+          </tbody>
+        </table>
+        <h4 style="font-size:13px;font-weight:600;color:#1f1f1f;margin:16px 0 8px">检查流程差异</h4>
+        <table class="diff-table">
+          <thead><tr><th>流程节点</th><th>基础模式</th><th>项目模式</th><th>特殊场景模式</th></tr></thead>
+          <tbody>
+            <tr><td class="field-name">检查方式</td><td>对表检查</td><td>对表检查/直接提交隐患</td><td>对表检查</td></tr>
+            <tr><td class="field-name">任务配置</td><td>按岗位自动/手动配置</td><td>建议手动配置</td><td>政府配置责任方后自动生成</td></tr>
+            <tr><td class="field-name">变色逻辑</td><td>标准规则</td><td>工地场景特殊规则</td><td>上下关联变色</td></tr>
           </tbody>
         </table>
       </div>
@@ -229,10 +235,10 @@ tbody tr:last-child td{border-bottom:none}
 
 <script>
 var modeData = [
-  {id:1, name:'基础模式', code:'BASIC', count:86, menuVis:'全部菜单', fieldDiff:'标准字段', status:'已启用', desc:'适用于常规企业，标准安全码管理流程'},
-  {id:2, name:'简化模式', code:'SIMPLIFIED', count:0, menuVis:'精简菜单', fieldDiff:'精简字段', status:'已禁用', desc:'适用于微型企业，仅保留核心安全码功能'},
-  {id:3, name:'项目模式', code:'PROJECT', count:42, menuVis:'项目菜单', fieldDiff:'含项目字段', status:'已启用', desc:'适用于建设工程项目，增加建设/施工/监理多方管理'},
-  {id:4, name:'特殊场景模式', code:'SPECIAL', count:18, menuVis:'增强菜单', fieldDiff:'含特殊字段', status:'已启用', desc:'适用于危化品等特殊场景，增加专家评审与双验流程'}
+  {id:1, name:'基础模式', code:'basic', count:86, menuVis:'全部菜单', fieldDiff:'标准字段', status:'已启用', desc:'适用于常规企业，标准安全码管理流程'},
+  {id:2, name:'简化模式', code:'simplified', count:0, menuVis:'精简菜单', fieldDiff:'精简字段', status:'已禁用', desc:'适用于微型企业，仅保留核心安全码功能'},
+  {id:3, name:'项目模式', code:'project', count:42, menuVis:'项目菜单', fieldDiff:'含项目字段', status:'已启用', desc:'适用于建设工程项目，增加建设/施工/监理多方管理'},
+  {id:4, name:'特殊场景模式', code:'special', count:18, menuVis:'增强菜单', fieldDiff:'含特殊字段', status:'已启用', desc:'适用于危化品等特殊场景，增加专家评审与双验流程'}
 ];
 
 var currentConfigMode = null;

@@ -204,7 +204,7 @@
       <div class="form-group" id="fg-deptName">
         <label>部门名称 <span class="required">*</span></label>
         <input type="text" placeholder="请输入部门名称" id="deptName">
-        <div class="duplicate-error">同级已存在同名部门，请修改</div>
+        <div class="duplicate-error">该部门名称已存在</div>
       </div>
       <div class="form-group">
         <label>上级部门</label>
@@ -455,14 +455,14 @@ window.deleteDept = function(deptId, deptName) {
 
   var node = findNode(deptData, deptId);
   if (node && node.children && node.children.length > 0) {
-    showToast('该部门存在下级部门（' + node.children.length + '个），无法删除');
+    showToast('该部门存在下级部门，不可删除');
     return;
   }
 
   var userCounts = { 'dept-1': 5, 'dept-2': 8, 'dept-3': 12, 'dept-4': 3 };
   var userCount = userCounts[deptId] || 0;
   if (userCount > 0) {
-    showToast('该部门下有 ' + userCount + ' 名关联用户，无法删除');
+    showToast('该部门存在关联人员，请先转移人员');
     return;
   }
 
