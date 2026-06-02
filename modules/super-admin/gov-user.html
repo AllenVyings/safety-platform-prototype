@@ -52,21 +52,18 @@ tbody td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333;max-width:
 tbody tr:hover{background:#f8fafc}
 tbody tr:last-child td{border-bottom:none}
 /* 列宽固定 */
-thead th:nth-child(1),tbody td:nth-child(1){width:60px;max-width:60px;text-align:center}   /* 序号 */
-thead th:nth-child(2),tbody td:nth-child(2){width:70px;max-width:70px}   /* 姓名 */
-thead th:nth-child(3),tbody td:nth-child(3){width:120px;max-width:120px}  /* 账号 */
-thead th:nth-child(4),tbody td:nth-child(4){width:150px;max-width:150px}  /* 单位 */
-thead th:nth-child(5),tbody td:nth-child(5){width:110px;max-width:110px}  /* 科室 */
-thead th:nth-child(6),tbody td:nth-child(6){width:120px;max-width:120px}  /* 手机 */
-thead th:nth-child(7),tbody td:nth-child(7){width:80px;max-width:80px}    /* 职务 */
-thead th:nth-child(8),tbody td:nth-child(8){width:90px;max-width:90px}    /* 用户层级 */
-thead th:nth-child(9),tbody td:nth-child(9){width:100px;max-width:100px}  /* 角色类型 */
-thead th:nth-child(10),tbody td:nth-child(10){width:70px;max-width:70px}  /* 状态 */
+thead th:nth-child(1),tbody td:nth-child(1){width:80px;max-width:80px}   /* 姓名 */
+thead th:nth-child(2),tbody td:nth-child(2){width:120px;max-width:120px}  /* 手机号 */
+thead th:nth-child(3),tbody td:nth-child(3){width:150px;max-width:150px}  /* 所属单位 */
+thead th:nth-child(4),tbody td:nth-child(4){width:120px;max-width:120px}  /* 所属科室 */
+thead th:nth-child(5),tbody td:nth-child(5){width:90px;max-width:90px}    /* 职务 */
+thead th:nth-child(6),tbody td:nth-child(6){width:90px;max-width:90px}    /* 层级 */
+thead th:nth-child(7),tbody td:nth-child(7){width:70px;max-width:70px}  /* 状态 */
 /* 操作列固定在右侧，表头居中 */
-thead th:nth-child(11){text-align:center;width:280px;max-width:280px;position:sticky;right:0;background:#fafafa;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10}/* 操作 */
-tbody td:nth-child(11){width:280px;max-width:280px;position:sticky;right:0;background:#fff;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10;white-space:nowrap}
-tbody td:nth-child(11) .btn-link{margin-right:8px}
-tbody td:nth-child(11) .btn-link:last-child{margin-right:0}
+thead th:nth-child(8){text-align:center;width:280px;max-width:280px;position:sticky;right:0;background:#fafafa;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10}/* 操作 */
+tbody td:nth-child(8){width:280px;max-width:280px;position:sticky;right:0;background:#fff;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10;white-space:nowrap}
+tbody td:nth-child(8) .btn-link{margin-right:8px}
+tbody td:nth-child(8) .btn-link:last-child{margin-right:0}
 /* 分页样式 */
 .pagination-wrap{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:12px 16px;border-top:1px solid #f0f0f0;background:#fafafa}
 .pagination-info{font-size:13px;color:#666}
@@ -153,27 +150,24 @@ tbody td:nth-child(11) .btn-link:last-child{margin-right:0}
     <div class="right-panel">
       <!-- 统计卡片 -->
       <div class="stats-row" id="statsRow">
-        <div class="stat-card"><div class="stat-card-label">用户总数</div><div class="stat-card-value" id="statTotal">42</div><div class="stat-card-sub">政府用户</div></div>
-        <div class="stat-card"><div class="stat-card-label">正常用户</div><div class="stat-card-value" id="statNormal">38</div><div class="stat-card-sub">已启用</div></div>
-        <div class="stat-card"><div class="stat-card-label">停用用户</div><div class="stat-card-value" id="statDisabled">4</div><div class="stat-card-sub">已停用</div></div>
-        <div class="stat-card"><div class="stat-card-label">领导层</div><div class="stat-card-value" id="statLeader" style="color:#7c3aed">0</div><div class="stat-card-sub">领导层用户</div></div>
+        <div class="stat-card"><div class="stat-card-label">用户总数</div><div class="stat-card-value" id="statTotal" style="color:#1677ff">42</div><div class="stat-card-sub">政府用户</div></div>
+        <div class="stat-card"><div class="stat-card-label">启用中</div><div class="stat-card-value" id="statNormal" style="color:#52c41a">38</div><div class="stat-card-sub">已启用</div></div>
+        <div class="stat-card"><div class="stat-card-label">停用中</div><div class="stat-card-value" id="statDisabled" style="color:#999">4</div><div class="stat-card-sub">已停用</div></div>
+        <div class="stat-card"><div class="stat-card-label">领导层</div><div class="stat-card-value" id="statLeader" style="color:#fa8c16">0</div><div class="stat-card-sub">领导层用户</div></div>
       </div>
       <!-- 查询条件 -->
       <div class="query-bar">
-        <div class="q-item"><label>用户层级</label>
-          <select id="filterType"><option value="">全部</option><option>领导层</option><option>监管层</option><option>巡查层</option></select>
+        <div class="q-item"><label>姓名</label>
+          <input id="filterName" placeholder="请输入姓名" style="width:140px">
         </div>
-        <div class="q-item"><label>角色类型</label>
-          <select id="filterRole"><option value="">全部</option><option>单位管理员</option><option>普通用户</option></select>
+        <div class="q-item"><label>手机号</label>
+          <input id="filterPhone" placeholder="请输入手机号" style="width:140px">
         </div>
         <div class="q-item"><label>状态</label>
-          <select id="filterStatus"><option value="">全部</option><option>正常</option><option>停用</option></select>
-        </div>
-        <div class="q-item"><label></label>
-          <input id="filterKeyword" placeholder="搜索姓名/账号/手机..." style="width:160px">
+          <select id="filterStatus"><option value="">全部</option><option>启用</option><option>停用</option></select>
         </div>
         <button class="btn btn-default" onclick="renderTable()">搜索</button>
-        <button class="btn btn-default" onclick="document.getElementById('filterType').value='';document.getElementById('filterRole').value='';document.getElementById('filterStatus').value='';document.getElementById('filterKeyword').value='';renderTable()">重置</button>
+        <button class="btn btn-default" onclick="document.getElementById('filterName').value='';document.getElementById('filterPhone').value='';document.getElementById('filterStatus').value='';renderTable()">重置</button>
         <div style="flex:1"></div>
         <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
       </div>
@@ -182,11 +176,11 @@ tbody td:nth-child(11) .btn-link:last-child{margin-right:0}
         <div class="table-container">
           <table>
             <thead><tr>
-              <th>序号</th><th>姓名</th><th>账号</th><th>所属单位</th><th>所属科室</th>
-              <th>手机号码</th><th>职务</th><th>用户层级</th><th>角色类型</th>
+              <th>姓名</th><th>手机号</th><th>所属单位</th><th>所属科室</th>
+              <th>职务</th><th>层级</th>
               <th>状态</th><th>操作</th>
             </tr></thead>
-            <tbody id="userTableBody"><tr><td colspan="11" class="no-data">加载中...</td></tr></tbody>
+            <tbody id="userTableBody"><tr><td colspan="8" class="no-data">加载中...</td></tr></tbody>
           </table>
         </div>
         <!-- 分页 -->
@@ -274,7 +268,7 @@ tbody td:nth-child(11) .btn-link:last-child{margin-right:0}
           </div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>状态</label>
             <select class="form-control" id="fStatus">
-              <option value="正常" selected>正常</option><option value="停用">停用</option>
+              <option value="启用" selected>启用</option><option value="停用">停用</option>
             </select>
           </div>
         </div>
@@ -388,26 +382,26 @@ var _uid = 100;
 function _uidGen(){return 'u' + (_uid++);}
 
 var allUsers = [
-  {id:_uidGen(),name:'王健',account:'13800138001',orgId:'org1',deptId:'d11',manageDeptIds:['d11','d12'],mobile:'13800138001',email:'wangjian@gov.cn',title:'科长',userType:'监管层',roleType:'单位管理员',status:'正常',lastLogin:'2026-04-13 09:21',remark:''},
-  {id:_uidGen(),name:'李娜',account:'13800138002',orgId:'org1',deptId:'d12',manageDeptIds:['d12'],mobile:'13800138002',email:'lina@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-12 16:45',remark:''},
-  {id:_uidGen(),name:'张伟',account:'13800138003',orgId:'org1',deptId:'d13',manageDeptIds:['d13','d14'],mobile:'13800138003',email:'zhangwei@gov.cn',title:'主任',userType:'领导层',roleType:'单位管理员',status:'正常',lastLogin:'2026-04-13 08:30',remark:''},
-  {id:_uidGen(),name:'刘洋',account:'13800138004',orgId:'org2',deptId:'d21',manageDeptIds:['d21'],mobile:'13800138004',email:'',title:'安全员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-11 14:20',remark:''},
-  {id:_uidGen(),name:'陈静',account:'13800138005',orgId:'org2',deptId:'d22',manageDeptIds:['d22','d23'],mobile:'13800138005',email:'chenjing@gov.cn',title:'副科长',userType:'监管层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-10 10:15',remark:''},
-  {id:_uidGen(),name:'赵磊',account:'13800138006',orgId:'org3',deptId:'d31',manageDeptIds:['d31'],mobile:'13800138006',email:'zhaolei@gov.cn',title:'队长',userType:'领导层',roleType:'单位管理员',status:'正常',lastLogin:'2026-04-13 07:50',remark:''},
+  {id:_uidGen(),name:'王健',account:'13800138001',orgId:'org1',deptId:'d11',manageDeptIds:['d11','d12'],mobile:'13800138001',email:'wangjian@gov.cn',title:'科长',userType:'监管层',roleType:'单位管理员',status:'启用',lastLogin:'2026-04-13 09:21',remark:''},
+  {id:_uidGen(),name:'李娜',account:'13800138002',orgId:'org1',deptId:'d12',manageDeptIds:['d12'],mobile:'13800138002',email:'lina@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-12 16:45',remark:''},
+  {id:_uidGen(),name:'张伟',account:'13800138003',orgId:'org1',deptId:'d13',manageDeptIds:['d13','d14'],mobile:'13800138003',email:'zhangwei@gov.cn',title:'主任',userType:'领导层',roleType:'单位管理员',status:'启用',lastLogin:'2026-04-13 08:30',remark:''},
+  {id:_uidGen(),name:'刘洋',account:'13800138004',orgId:'org2',deptId:'d21',manageDeptIds:['d21'],mobile:'13800138004',email:'',title:'安全员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-11 14:20',remark:''},
+  {id:_uidGen(),name:'陈静',account:'13800138005',orgId:'org2',deptId:'d22',manageDeptIds:['d22','d23'],mobile:'13800138005',email:'chenjing@gov.cn',title:'副科长',userType:'监管层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-10 10:15',remark:''},
+  {id:_uidGen(),name:'赵磊',account:'13800138006',orgId:'org3',deptId:'d31',manageDeptIds:['d31'],mobile:'13800138006',email:'zhaolei@gov.cn',title:'队长',userType:'领导层',roleType:'单位管理员',status:'启用',lastLogin:'2026-04-13 07:50',remark:''},
   {id:_uidGen(),name:'孙丽',account:'13800138007',orgId:'org3',deptId:'d32',manageDeptIds:['d32'],mobile:'13800138007',email:'',title:'队员',userType:'巡查层',roleType:'普通用户',status:'停用',lastLogin:'2026-03-28 11:00',remark:'已离职'},
-  {id:_uidGen(),name:'周强',account:'13800138008',orgId:'org4',deptId:'d41',manageDeptIds:['d41','d42'],mobile:'13800138008',email:'zhouq@gov.cn',title:'主任',userType:'监管层',roleType:'单位管理员',status:'正常',lastLogin:'2026-04-12 17:30',remark:''},
-  {id:_uidGen(),name:'吴敏',account:'13800138009',orgId:'org4',deptId:'d42',manageDeptIds:['d42'],mobile:'13800138009',email:'',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-09 09:00',remark:''},
+  {id:_uidGen(),name:'周强',account:'13800138008',orgId:'org4',deptId:'d41',manageDeptIds:['d41','d42'],mobile:'13800138008',email:'zhouq@gov.cn',title:'主任',userType:'监管层',roleType:'单位管理员',status:'启用',lastLogin:'2026-04-12 17:30',remark:''},
+  {id:_uidGen(),name:'吴敏',account:'13800138009',orgId:'org4',deptId:'d42',manageDeptIds:['d42'],mobile:'13800138009',email:'',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-09 09:00',remark:''},
   {id:_uidGen(),name:'郑刚',account:'13800138010',orgId:'org1',deptId:'d14',manageDeptIds:['d14'],mobile:'13800138010',email:'zhengg@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'停用',lastLogin:'2026-03-01 08:00',remark:'借调'},
-  {id:_uidGen(),name:'黄伟',account:'13800138011',orgId:'org1',deptId:'d11',manageDeptIds:['d11'],mobile:'13800138011',email:'huangw@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-11 10:30',remark:''},
-  {id:_uidGen(),name:'林芳',account:'13800138012',orgId:'org1',deptId:'d12',manageDeptIds:['d12'],mobile:'13800138012',email:'linf@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-10 14:20',remark:''},
-  {id:_uidGen(),name:'徐明',account:'13800138013',orgId:'org2',deptId:'d21',manageDeptIds:['d21'],mobile:'13800138013',email:'xum@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-09 16:45',remark:''},
-  {id:_uidGen(),name:'高洁',account:'13800138014',orgId:'org2',deptId:'d22',manageDeptIds:['d22'],mobile:'13800138014',email:'gaoj@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-08 11:30',remark:''},
-  {id:_uidGen(),name:'马超',account:'13800138015',orgId:'org3',deptId:'d31',manageDeptIds:['d31'],mobile:'13800138015',email:'mac@gov.cn',title:'队员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-07 09:15',remark:''},
-  {id:_uidGen(),name:'胡丽',account:'13800138016',orgId:'org3',deptId:'d32',manageDeptIds:['d32'],mobile:'13800138016',email:'hul@gov.cn',title:'队员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-06 15:40',remark:''},
-  {id:_uidGen(),name:'朱强',account:'13800138017',orgId:'org4',deptId:'d41',manageDeptIds:['d41'],mobile:'13800138017',email:'zhuq@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-05 10:20',remark:''},
-  {id:_uidGen(),name:'何敏',account:'13800138018',orgId:'org4',deptId:'d42',manageDeptIds:['d42'],mobile:'13800138018',email:'hem@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-04 14:55',remark:''},
-  {id:_uidGen(),name:'郭涛',account:'13800138019',orgId:'org1',deptId:'d13',manageDeptIds:['d13'],mobile:'13800138019',email:'guot@gov.cn',title:'副科长',userType:'监管层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-03 08:45',remark:''},
-  {id:_uidGen(),name:'袁娜',account:'13800138020',orgId:'org2',deptId:'d23',manageDeptIds:['d23'],mobile:'13800138020',email:'yuan@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'正常',lastLogin:'2026-04-02 16:30',remark:''},
+  {id:_uidGen(),name:'黄伟',account:'13800138011',orgId:'org1',deptId:'d11',manageDeptIds:['d11'],mobile:'13800138011',email:'huangw@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-11 10:30',remark:''},
+  {id:_uidGen(),name:'林芳',account:'13800138012',orgId:'org1',deptId:'d12',manageDeptIds:['d12'],mobile:'13800138012',email:'linf@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-10 14:20',remark:''},
+  {id:_uidGen(),name:'徐明',account:'13800138013',orgId:'org2',deptId:'d21',manageDeptIds:['d21'],mobile:'13800138013',email:'xum@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-09 16:45',remark:''},
+  {id:_uidGen(),name:'高洁',account:'13800138014',orgId:'org2',deptId:'d22',manageDeptIds:['d22'],mobile:'13800138014',email:'gaoj@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-08 11:30',remark:''},
+  {id:_uidGen(),name:'马超',account:'13800138015',orgId:'org3',deptId:'d31',manageDeptIds:['d31'],mobile:'13800138015',email:'mac@gov.cn',title:'队员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-07 09:15',remark:''},
+  {id:_uidGen(),name:'胡丽',account:'13800138016',orgId:'org3',deptId:'d32',manageDeptIds:['d32'],mobile:'13800138016',email:'hul@gov.cn',title:'队员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-06 15:40',remark:''},
+  {id:_uidGen(),name:'朱强',account:'13800138017',orgId:'org4',deptId:'d41',manageDeptIds:['d41'],mobile:'13800138017',email:'zhuq@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-05 10:20',remark:''},
+  {id:_uidGen(),name:'何敏',account:'13800138018',orgId:'org4',deptId:'d42',manageDeptIds:['d42'],mobile:'13800138018',email:'hem@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-04 14:55',remark:''},
+  {id:_uidGen(),name:'郭涛',account:'13800138019',orgId:'org1',deptId:'d13',manageDeptIds:['d13'],mobile:'13800138019',email:'guot@gov.cn',title:'副科长',userType:'监管层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-03 08:45',remark:''},
+  {id:_uidGen(),name:'袁娜',account:'13800138020',orgId:'org2',deptId:'d23',manageDeptIds:['d23'],mobile:'13800138020',email:'yuan@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-02 16:30',remark:''},
 ];
 
 // ==================== 渲染组织树 ====================
@@ -427,7 +421,7 @@ function _getChildDepts(pid){
 function _updateStats(orgId){
   var filtered = orgId ? allUsers.filter(function(u){return u.orgId === orgId;}) : allUsers;
   document.getElementById('statTotal').textContent = filtered.length;
-  document.getElementById('statNormal').textContent = filtered.filter(function(u){return u.status==='正常';}).length;
+  document.getElementById('statNormal').textContent = filtered.filter(function(u){return u.status==='启用';}).length;
   document.getElementById('statDisabled').textContent = filtered.filter(function(u){return u.status==='停用';}).length;
   document.getElementById('statLeader').textContent = filtered.filter(function(u){return u.userType==='领导层';}).length;
 }
@@ -491,10 +485,9 @@ function selectOrg(id, el){
 var pgState = { page: 1, size: 10, total: 0 };
 
 function renderTable(){
-  var typeVal = document.getElementById('filterType').value;
-  var roleVal = document.getElementById('filterRole').value;
+  var nameVal = document.getElementById('filterName').value.trim().toLowerCase();
+  var phoneVal = document.getElementById('filterPhone').value.trim();
   var statusVal = document.getElementById('filterStatus').value;
-  var kw = document.getElementById('filterKeyword').value.trim().toLowerCase();
   var activeId = window._activeOrg;
   var activeType = window._activeOrgType;
   var rows = allUsers.filter(function(u){
@@ -505,10 +498,9 @@ function renderTable(){
         if(u.orgId !== activeId) return false;
       }
     }
-    if(typeVal && u.userType !== typeVal) return false;
-    if(roleVal && u.roleType !== roleVal) return false;
+    if(nameVal && !u.name.toLowerCase().includes(nameVal)) return false;
+    if(phoneVal && u.mobile !== phoneVal) return false;
     if(statusVal && u.status !== statusVal) return false;
-    if(kw && !(u.name.toLowerCase().includes(kw) || u.account.toLowerCase().includes(kw) || (u.mobile&&u.mobile.includes(kw)))) return false;
     return true;
   });
   pgState.total = rows.length;
@@ -516,27 +508,23 @@ function renderTable(){
   var pageRows = rows.slice(start, start + pgState.size);
   var tbody = document.getElementById('userTableBody');
   if(pageRows.length === 0){
-    tbody.innerHTML = '<tr><td colspan="11" class="no-data">暂无数据</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="no-data">暂无数据</td></tr>';
     renderPagination(0);
     return;
   }
   tbody.innerHTML = pageRows.map(function(u, idx){
     var org = govOrgData.orgs.find(function(o){return o.id === u.orgId;});
     var dept = org ? org.depts.find(function(d){return d.id === u.deptId;}) : null;
-    var statusCls = u.status === '正常' ? 'tag-success' : 'tag-error';
-    var pwdDisplay = u.mobile ? u.mobile.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '—';
-    var seq = start + idx + 1;
+    var statusLabel = u.status === '启用' ? '启用' : '停用';
+    var statusCls = u.status === '启用' ? 'tag-success' : 'tag-error';
     return '<tr>' +
-      '<td>' + seq + '</td>' +
       '<td title="' + u.name + '">' + u.name + '</td>' +
-      '<td title="' + u.account + '">' + u.account + '</td>' +
+      '<td title="' + u.mobile + '">' + (u.mobile||'—') + '</td>' +
       '<td title="' + (org?org.name:'') + '">' + (org?org.name:'') + '</td>' +
       '<td title="' + (dept?dept.name:'') + '">' + (dept?dept.name:'') + '</td>' +
-      '<td title="' + u.mobile + '">' + pwdDisplay + '</td>' +
       '<td title="' + u.title + '">' + (u.title||'') + '</td>' +
       '<td>' + (u.userType||'') + '</td>' +
-      '<td>' + (u.roleType||'') + '</td>' +
-      '<td><span class="tag ' + statusCls + '">' + u.status + '</span></td>' +
+      '<td><span class="tag ' + statusCls + '">' + statusLabel + '</span></td>' +
       '<td style="white-space:nowrap"><button class="btn btn-link" onclick="openEditModal(\'' + u.id + '\')">编辑</button> <button class="btn btn-link" onclick="deleteUser(\'' + u.id + '\')">删除</button> <button class="btn btn-link" onclick="viewDetail(\'' + u.id + '\')">详情</button> <button class="btn btn-link" onclick="resetPwd(\'' + u.id + '\')">重置密码</button></td>' +
       '</tr>';
   }).join('');
@@ -594,7 +582,7 @@ function openAddModal(){
   renderManageDeptsOptions([]);
   document.getElementById('fUserType').value = '';
   document.getElementById('fLeader').innerHTML = '<option value="">请选择上级领导（选填）</option>';
-  document.getElementById('fStatus').value = '正常';
+  document.getElementById('fStatus').value = '启用';
   document.getElementById('fAccount').disabled = true;
   document.getElementById('fPwd').value = 'Abc@123456';
   document.getElementById('pwdLabel').innerHTML = '<span class="required">*</span>用户密码 <span style="color:#999;font-weight:normal">（默认Abc@123456）</span>';
@@ -794,7 +782,7 @@ function viewDetail(id){
   if(org && u.manageDeptIds){
     manageDepts = org.depts.filter(function(d){return u.manageDeptIds.indexOf(d.id) > -1;}).map(function(d){return d.name;});
   }
-  var statusCls = u.status === '正常' ? 'tag-success' : 'tag-error';
+  var statusCls = u.status === '启用' ? 'tag-success' : 'tag-error';
   var html = '<div class="detail-section">';
   html += '<div class="detail-section-title">基本信息</div>';
   html += '<div class="detail-row"><div class="detail-label">用户姓名</div><div class="detail-value">' + u.name + '</div></div>';

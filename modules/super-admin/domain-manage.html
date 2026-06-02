@@ -750,15 +750,15 @@
     <div class="stat-cards">
       <div class="stat-card">
         <div class="stat-value" id="totalCount">12</div>
-        <div class="stat-label">领域小类总数</div>
+        <div class="stat-label">领域总数</div>
       </div>
       <div class="stat-card">
         <div class="stat-value" id="enabledCount">10</div>
-        <div class="stat-label">启用</div>
+        <div class="stat-label">启用中</div>
       </div>
       <div class="stat-card">
         <div class="stat-value" id="disabledCount">2</div>
-        <div class="stat-label">停用</div>
+        <div class="stat-label">停用中</div>
       </div>
     </div>
 
@@ -782,14 +782,16 @@
         <select id="filterStatus" onchange="filterTable()">
           <option value="">全部</option>
           <option value="1">启用</option>
-          <option value="0">禁用</option>
+          <option value="0">停用</option>
         </select>
       </div>
       <div class="filter-item">
-        <input type="text" id="filterKeyword" placeholder="搜索领域小类名称" oninput="filterTable()">
+        <input type="text" id="filterKeyword" placeholder="搜索领域名称、编码" oninput="filterTable()">
       </div>
       <button class="btn btn-default" onclick="resetFilter()">重置</button>
       <div style="flex: 1;"></div>
+      <button class="btn btn-default" onclick="showToast('批量导入功能开发中', 'info')">批量导入</button>
+      <button class="btn btn-default" onclick="showToast('批量导出功能开发中', 'info')">批量导出</button>
       <button class="btn btn-primary" onclick="showAddModal()">+ 新增领域小类</button>
     </div>
 
@@ -799,12 +801,12 @@
       <table>
         <thead>
           <tr>
-            <th style="width:60px">序号</th>
+            <th style="width:40px">☐</th>
             <th style="width:120px">领域编码</th>
             <th style="width:180px">领域名称</th>
-            <th style="width:120px">所属行业</th>
-            <th style="width:120px">所属模式</th>
-            <th style="width:200px">监管单位</th>
+            <th style="width:120px">行业大类</th>
+            <th style="width:120px">模式</th>
+            <th style="width:80px">监管单位数</th>
             <th style="width:80px">状态</th>
             <th class="operation-col" style="width:180px">操作</th>
           </tr>
@@ -877,9 +879,9 @@
                   <div class="mode-name">特殊场景模式</div>
                   <div class="mode-desc">独立场所管理，可关联给企业/项目/政府单位，多方共享查看</div>
                 </div>
-                <div class="mode-option" onclick="selectMode(this, 'simplified')">
-                  <div class="mode-name">简化模式</div>
-                  <div class="mode-desc">适用于业务场景较简单的企业，减少必填项和检查流程</div>
+                <div class="mode-option" onclick="selectMode(this, 'other')">
+                  <div class="mode-name">其他模式</div>
+                  <div class="mode-desc">其他业务场景模式，由管理员自定义配置</div>
                 </div>
               </div>
               <input type="hidden" id="domainMode" value="basic">
@@ -887,10 +889,10 @@
           </div>
           <div class="form-row">
             <div class="form-item">
-              <label class="form-label">启用状态 <span class="required">*</span></label>
+              <label class="form-label">状态 <span class="required">*</span></label>
               <select class="form-select" id="domainStatus">
                 <option value="1">启用</option>
-                <option value="0">禁用</option>
+                <option value="0">停用</option>
               </select>
             </div>
           </div>
@@ -1054,15 +1056,15 @@
             <div class="detail-value" id="detailName">生产车间</div>
           </div>
           <div class="detail-row">
-            <div class="detail-label">所属行业</div>
+            <div class="detail-label">行业大类</div>
             <div class="detail-value" id="detailIndustry">工业制造类</div>
           </div>
           <div class="detail-row">
-            <div class="detail-label">所属模式</div>
+            <div class="detail-label">模式</div>
             <div class="detail-value" id="detailMode"><span class="tag tag-blue">基础模式</span></div>
           </div>
           <div class="detail-row">
-            <div class="detail-label">启用状态</div>
+            <div class="detail-label">状态</div>
             <div class="detail-value" id="detailStatus"><span class="tag tag-green">启用</span></div>
           </div>
           <div class="detail-row">
@@ -1180,7 +1182,7 @@ function showToast(msg, type) {
       document.getElementById('domainStatus').value = data.status || '1';
 
       // 模式选择
-      const modeMap = { basic: 0, project: 1, special: 2, simplified: 3 };
+      const modeMap = { basic: 0, project: 1, special: 2, other: 3 };
       const modeOptions = document.querySelectorAll('.mode-option');
       const modeIdx = modeMap[data.mode] ?? 0;
       modeOptions.forEach((el, i) => {
@@ -1281,11 +1283,11 @@ function showToast(msg, type) {
       document.getElementById('detailCode').textContent = domainData ? domainData.id : id;
       document.getElementById('detailName').textContent = domainData ? domainData.name : '';
       document.getElementById('detailIndustry').textContent = domainData && domainData.industryName ? domainData.industryName : '';
-      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', simplified: '简化模式' };
-      const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', simplified: 'tag-cyan' };
+      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', other: '其他模式' };
+      const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', other: 'tag-cyan' };
       const mode = domainData ? domainData.mode : 'basic';
       document.getElementById('detailMode').innerHTML = `<span class="tag ${modeColorMap[mode]}">${modeMap[mode]}</span>`;
-      const statusMap = { 1: { text: '启用', cls: 'tag-green' }, 0: { text: '禁用', cls: 'tag-gray' } };
+      const statusMap = { 1: { text: '启用', cls: 'tag-green' }, 0: { text: '停用', cls: 'tag-gray' } };
       const status = domainData ? domainData.status : '1';
       document.getElementById('detailStatus').innerHTML = `<span class="tag ${statusMap[status].cls}">${statusMap[status].text}</span>`;
       document.getElementById('detailDesc').textContent = domainData && domainData.desc ? domainData.desc : '-';
@@ -1618,7 +1620,7 @@ function showToast(msg, type) {
         checklists: []
       },
       {
-        id: 'CUSTOM_001', name: '小微企业', industry: 'OTH', industryName: '其他', mode: 'simplified', status: '1',
+        id: 'CUSTOM_001', name: '小微企业', industry: 'OTH', industryName: '其他', mode: 'other', status: '1',
         desc: '企业专属定制业务',
         supervisors: [
           { type: 'professional', name: '应急管理局', checklists: ['定制业务检查表'] },
@@ -2794,9 +2796,9 @@ function showToast(msg, type) {
       const keyword = (document.getElementById('filterKeyword')?.value || '').toLowerCase();
       const tbody = document.getElementById('domainTable');
       if (!tbody) return;
-      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', simplified: '简化模式' };
-      const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', simplified: 'tag-cyan' };
-      const statusMap = { 1: { text: '启用', cls: 'tag-green' }, 0: { text: '禁用', cls: 'tag-gray' } };
+      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', other: '其他模式' };
+      const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', other: 'tag-cyan' };
+      const statusMap = { 1: { text: '启用', cls: 'tag-green' }, 0: { text: '停用', cls: 'tag-gray' } };
       const filtered = domainTableData.filter(d => {
         if (industry && d.industry !== industry) return false;
         if (status && d.status !== status) return false;
@@ -2831,17 +2833,17 @@ function showToast(msg, type) {
       tbody.innerHTML = pageData.map((d, idx) => {
         const mode = d.mode || 'basic';
         const st = d.status || '1';
-        const supText = formatSupervisorCol(d.supervisors);
+        const supCount = d.supervisors ? d.supervisors.length : 0;
         return `<tr>
-          <td>${start + idx + 1}</td>
+          <td><input type="checkbox" class="row-checkbox" data-id="${d.id}"></td>
           <td title="${d.id}">${d.id}</td>
           <td title="${d.name}">${d.name}</td>
           <td title="${d.industryName || ''}">${d.industryName || '-'}</td>
           <td><span class="tag ${modeColorMap[mode]}">${modeMap[mode]}</span></td>
-          <td title="${supText}">${supText}</td>
+          <td>${supCount}</td>
           <td><span class="tag ${statusMap[st].cls}">${statusMap[st].text}</span></td>
           <td class="operation-col">
-            <button class="btn-link" onclick="viewDetail('${d.id}')">查看</button>
+            <button class="btn-link" onclick="viewDetail('${d.id}')">详情</button>
             <button class="btn-link" onclick="editDomain('${d.id}')">编辑</button>
             <button class="btn-link danger" onclick="deleteDomain('${d.id}')">删除</button>
           </td>
