@@ -6,30 +6,30 @@
   <title>工作台</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
-    /* 渐变背景固定区域，不随内容撑高 */
-    .wb-gradient {
-      position: fixed; top: 0; left: 0; right: 0; height: 350px; z-index: 0;
-      background: linear-gradient(180deg, #1068ff 0%, #3d86ff 30%, #5a9aff 50%, #70a4fd 70%, #b8d4fe 85%, #f5f7fa 100%);
+    /* 渐变背景作为 m-page 背景图，永远在内容下方 */
+    .m-page {
+      position: relative; overflow: hidden; background-color: var(--wc-page-bg);
+      background-image: linear-gradient(180deg, var(--brand-blue) 0%, #3d86ff 30%, #5a9aff 50%, #70a4fd 70%, #b8d4fe 85%, var(--wc-page-bg) 100%);
+      background-size: 100% 350px; background-repeat: no-repeat; background-position: top;
     }
-    .wb-gradient::before {
+    .m-page::before {
       content: ''; position: absolute; top: 110px; right: -10px; width: 160px; height: 160px;
-      border-radius: 50%; background: rgba(255,255,255,0.08);
+      border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none;
     }
-    .wb-gradient::after {
+    .m-page::after {
       content: ''; position: absolute; top: 220px; left: -20px; width: 100px; height: 100px;
-      border-radius: 50%; background: rgba(255,255,255,0.05);
+      border-radius: 50%; background: rgba(255,255,255,0.05); pointer-events: none;
     }
-    /* 内容流，覆盖在渐变之上 */
-    .wb-body { position: relative; z-index: 1; padding: 107px 16px 0; }
+    .wb-body { padding: 107px var(--wc-page-padding) 0; }
     .wb-card {
-      background: #fff; border-radius: 12px; padding: 14px 8px 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 10px;
+      background: var(--wc-card-bg); border-radius: 12px; padding: 14px var(--wc-gap-md) var(--wc-gap-lg);
+      box-shadow: var(--wc-shadow-card); margin-bottom: var(--wc-gap-lg);
     }
     .wb-card-title {
-      font-size: 15px; font-weight: 500; color: #000; padding: 0 8px 10px;
+      font-size: var(--wc-font-body); font-weight: 500; color: var(--wc-text-primary); padding: 0 var(--wc-gap-md) var(--wc-gap-lg);
     }
     .wb-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--wc-gap-sm);
     }
     .wb-item { text-align: center; cursor: pointer; padding: 6px 0; }
     .wb-item:active { opacity: 0.7; }
@@ -37,16 +37,13 @@
       width: 44px; height: 44px; border-radius: 12px; margin: 0 auto 6px;
       display: flex; align-items: center; justify-content: center; font-size: 22px;
     }
-    .wb-label { font-size: 12px; color: #333; }
+    .wb-label { font-size: var(--wc-font-small); color: var(--wc-text-secondary); }
   </style>
 </head>
 <body>
-  <div class="m-page with-tabbar" style="background:#f5f7fa;">
+  <div class="m-page with-tabbar">
 
-    <!-- 渐变背景层（固定350px，不随内容撑高） -->
-    <div class="wb-gradient"></div>
-
-    <!-- 内容流（浮在渐变之上，超出渐变范围后自然在页面背景上） -->
+    <!-- 内容流（渐变已作为 m-page 背景图，不可能遮挡内容） -->
     <div class="wb-body">
 
       <!-- 常用功能 -->
@@ -54,15 +51,15 @@
         <div class="wb-card-title">常用功能</div>
         <div class="wb-grid">
           <div class="wb-item" onclick="parent.navigateTo('check-list')">
-            <div class="wb-icon" style="background:#e8f4fd;">🔎</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-blue);">🔎</div>
             <div class="wb-label">码上排查</div>
           </div>
           <div class="wb-item" onclick="showToast('码上作业功能开发中')">
-            <div class="wb-icon" style="background:#edf8ee;">🛠️</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-green);">🛠️</div>
             <div class="wb-label">码上作业</div>
           </div>
           <div class="wb-item" onclick="showToast('动态赋码功能开发中')">
-            <div class="wb-icon" style="background:#fff7e6;">🏷️</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-orange);">🏷️</div>
             <div class="wb-label">动态赋码</div>
           </div>
         </div>
@@ -73,19 +70,19 @@
         <div class="wb-card-title">安全档案</div>
         <div class="wb-grid">
           <div class="wb-item" onclick="parent.navigateTo('inspection-stats')">
-            <div class="wb-icon" style="background:#e8f4fd;">📊</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-blue);">📊</div>
             <div class="wb-label">检查统计</div>
           </div>
           <div class="wb-item" onclick="parent.navigateTo('hazard-stats')">
-            <div class="wb-icon" style="background:#fff7e6;">📉</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-orange);">📉</div>
             <div class="wb-label">隐患统计</div>
           </div>
           <div class="wb-item" onclick="parent.navigateTo('my-inspections')">
-            <div class="wb-icon" style="background:#edf8ee;">✅</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-green);">✅</div>
             <div class="wb-label">我的检查</div>
           </div>
           <div class="wb-item" onclick="parent.navigateTo('my-hazards')">
-            <div class="wb-icon" style="background:#fff1f0;">🚨</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-red);">🚨</div>
             <div class="wb-label">我的隐患</div>
           </div>
         </div>
@@ -96,42 +93,42 @@
         <div class="wb-card-title">安全知识库</div>
         <div class="wb-grid">
           <div class="wb-item">
-            <div class="wb-icon" style="background:#e8f4fd;">⚖️</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-blue);">⚖️</div>
             <div class="wb-label">法规库</div>
           </div>
           <div class="wb-item">
-            <div class="wb-icon" style="background:#fff7e6;">📚</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-orange);">📚</div>
             <div class="wb-label">常见隐患库</div>
           </div>
           <div class="wb-item">
-            <div class="wb-icon" style="background:#edf8ee;">📑</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-green);">📑</div>
             <div class="wb-label">企业预案库</div>
           </div>
           <div class="wb-item">
-            <div class="wb-icon" style="background:#f3eeff;">📘</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-purple);">📘</div>
             <div class="wb-label">操作指引库</div>
           </div>
           <div class="wb-item">
-            <div class="wb-icon" style="background:#fff1f0;">🤖</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-red);">🤖</div>
             <div class="wb-label">安全问答</div>
           </div>
         </div>
       </div>
 
       <!-- 监测预警（最后一个卡片，底部间距收窄） -->
-      <div class="wb-card" style="margin-bottom:4px;">
+      <div class="wb-card" style="margin-bottom:var(--wc-gap-sm);">
         <div class="wb-card-title">监测预警</div>
         <div class="wb-grid">
           <div class="wb-item">
-            <div class="wb-icon" style="background:#fffbe6;">⛈️</div>
+            <div class="wb-icon" style="background:var(--wc-code-bg-yellow);">⛈️</div>
             <div class="wb-label">气象预警</div>
           </div>
           <div class="wb-item">
-            <div class="wb-icon" style="background:#e8f4fd;">🎥</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-blue);">🎥</div>
             <div class="wb-label">视频监控</div>
           </div>
           <div class="wb-item">
-            <div class="wb-icon" style="background:#f3eeff;">📡</div>
+            <div class="wb-icon" style="background:var(--wc-icon-bg-purple);">📡</div>
             <div class="wb-label">物联感知</div>
           </div>
         </div>

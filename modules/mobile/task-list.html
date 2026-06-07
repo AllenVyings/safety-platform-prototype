@@ -6,194 +6,581 @@
   <title>任务管理</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
-    .tl-gradient {
-      position: absolute; top: 0; left: 0; right: 0; height: 200px; z-index: 0;
-      background: linear-gradient(180deg, #1068ff 0%, #3d86ff 35%, #5a9aff 55%, #70a4fd 75%, #b8d4fe 90%, #f5f7fa 100%);
+    .tl-gradient { display: none; }
+    .m-page {
+      position: relative; overflow: hidden; background-color: var(--wc-page-bg);
+      background-image: linear-gradient(180deg, var(--brand-blue) 0%, #3d86ff 30%, #5a9aff 50%, #70a4fd 70%, #b8d4fe 85%, var(--wc-page-bg) 100%);
+      background-size: 100% 350px; background-repeat: no-repeat; background-position: top;
     }
-    .tl-gradient::before {
-      content: ''; position: absolute; top: -20px; right: -15px; width: 180px; height: 180px;
+    .m-page::before {
+      content: ''; position: absolute; top: 110px; right: -10px; width: 160px; height: 160px;
       border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none;
     }
-    .tl-gradient::after {
-      content: ''; position: absolute; top: 80px; left: -30px; width: 100px; height: 100px;
+    .m-page::after {
+      content: ''; position: absolute; top: 220px; left: -20px; width: 100px; height: 100px;
       border-radius: 50%; background: rgba(255,255,255,0.05); pointer-events: none;
     }
+    /* ========== 头部 ========== */
     .tl-header {
-      padding: 107px 16px 24px; position: relative; z-index: 1;
+      padding: 107px var(--wc-page-padding) var(--wc-page-padding);
     }
-    .tl-stat-row { display: flex; gap: 8px; }
+    .tl-title { font-size: var(--wc-font-title); font-weight: 600; color: var(--wc-card-bg); margin-bottom: var(--wc-gap-xl); }
+
+    /* ========== 统计区 ========== */
+    .tl-stat-row { display: flex; gap: var(--wc-gap-md); }
     .tl-stat {
-      flex: 1; text-align: center; padding: 8px 0; border-radius: 10px;
-      background: rgba(255,255,255,0.2);
+      flex: 1; text-align: center; padding: var(--wc-gap-md) 0; border-radius: var(--wc-card-radius);
+      background: rgba(255,255,255,0.2); cursor: pointer; transition: background 0.2s;
     }
-    .tl-stat-num { font-size: 20px; font-weight: 700; color: #fff; }
+    .tl-stat:active { background: rgba(255,255,255,0.35); }
+    .tl-stat-num { font-size: 20px; font-weight: 700; color: var(--wc-card-bg); }
     .tl-stat-label { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
 
-    .tl-filter-bar {
-      display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto;
-      background: #fff; border-bottom: 0.5px solid #f0f0f0;
+    /* ========== 搜索框 ========== */
+    .tl-search-wrap { margin-top: var(--wc-gap-xl); position: relative; z-index: 1; }
+    .tl-search {
+      width: 100%; padding: 9px var(--wc-gap-xl) 9px 32px; border: none; border-radius: var(--wc-btn-radius);
+      background: rgba(255,255,255,0.9) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 10px center;
+      font-size: var(--wc-font-caption); outline: none; box-sizing: border-box; color: var(--wc-text-primary);
     }
-    .tl-filter-chip {
-      white-space: nowrap; padding: 5px 14px; border-radius: 14px;
-      font-size: 13px; background: #f5f5f5; color: #666; cursor: pointer;
+    .tl-search::placeholder { color: #888; }
+
+    /* ========== 内容区容器 ========== */
+    .tl-body { position: relative; z-index: 1; padding: 0 var(--wc-page-padding); }
+
+    /* ========== 筛选区 ========== */
+    .tl-filter-card {
+      background: var(--wc-card-bg); border-radius: 12px; overflow: hidden;
+      box-shadow: var(--wc-shadow-card); margin-bottom: var(--wc-gap-lg);
+    }
+    .tl-filter-row {
+      display: flex; gap: 6px; padding: var(--wc-gap-md) var(--wc-gap-xl); overflow-x: auto;
+      align-items: center;
+    }
+    .tl-filter-row + .tl-filter-row { border-top: 0.5px solid var(--wc-track-bg); }
+    .tl-filter-row-label {
+      font-size: var(--wc-font-small); color: var(--wc-text-placeholder); white-space: nowrap; margin-right: var(--wc-gap-sm); flex-shrink: 0;
+    }
+    .tl-chip {
+      white-space: nowrap; padding: var(--wc-gap-sm) var(--wc-gap-xl);
+      font-size: var(--wc-font-small); background: var(--wc-bg-gray); color: var(--wc-text-tertiary); cursor: pointer;
+      transition: all 0.2s ease; flex-shrink: 0;
+    }
+    .tl-chip.active { background: var(--brand-blue); color: var(--wc-card-bg); }
+    .tl-chip .filter-dot { display: inline-block; width: var(--wc-gap-md); height: var(--wc-gap-md); border-radius: 50%; margin-right: var(--wc-gap-sm); vertical-align: middle; }
+
+    /* 来源单位下拉 */
+    .tl-source-btn {
+      white-space: nowrap; padding: var(--wc-gap-sm) var(--wc-gap-lg);
+      font-size: var(--wc-font-small); background: var(--wc-bg-gray); color: var(--wc-text-tertiary); cursor: pointer;
+      display: flex; align-items: center; gap: 2px; flex-shrink: 0;
       transition: all 0.2s ease;
     }
-    .tl-filter-chip.active { background: #1068ff; color: #fff; }
+    .tl-source-btn.active { background: var(--brand-blue); color: var(--wc-card-bg); }
+    .tl-source-btn .arrow { font-size: var(--wc-font-tiny); transition: transform 0.2s; }
+    .tl-source-btn.active .arrow { transform: rotate(180deg); }
 
-    .tl-card {
-      background: #fff; border-radius: 12px; padding: 14px 16px; margin: 10px 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    /* 排序按钮 */
+    .tl-sort-btn {
+      margin-left: auto; width: 28px; height: 28px; border-radius: 50%;
+      background: var(--wc-bg-gray); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; transition: background 0.2s;
     }
-    .tl-header-row { display: flex; align-items: center; margin-bottom: 8px; }
-    .tl-urgency { width: 4px; height: 36px; border-radius: 2px; margin-right: 10px; flex-shrink: 0; }
-    .tl-urgency.red { background: #ff4d4f; }
-    .tl-urgency.yellow { background: #faad14; }
-    .tl-urgency.green { background: #52c41a; }
-    .tl-urgency.gray { background: #d9d9d9; }
-    .tl-title { font-size: 15px; font-weight: 500; color: #000; flex: 1; min-width: 0; }
-    .tl-type { font-size: 11px; padding: 2px 8px; border-radius: 8px; margin-left: 8px; }
-    .tl-type.inspect { background: #e8f4fd; color: #1068ff; }
+    .tl-sort-btn:active { background: var(--wc-icon-btn-active); }
+    .tl-sort-btn svg { width: 16px; height: 16px; }
+
+    /* 排序浮层 */
+    .tl-sort-popup {
+      display: none; position: absolute; right: var(--wc-gap-xl); top: 100%; z-index: 50;
+      background: var(--wc-card-bg); border-radius: var(--wc-card-radius); box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      min-width: 140px; overflow: hidden;
+    }
+    .tl-sort-popup.show { display: block; }
+    .tl-sort-option {
+      padding: var(--wc-gap-lg) 16px; font-size: 13px; color: var(--wc-text-secondary); cursor: pointer;
+      border-bottom: 0.5px solid var(--wc-bg-gray);
+    }
+    .tl-sort-option:last-child { border-bottom: none; }
+    .tl-sort-option.active { color: var(--brand-blue); font-weight: 500; }
+    .tl-sort-option:active { background: var(--wc-page-bg); }
+
+    /* 来源单位浮层 */
+    .tl-source-popup {
+      display: none; position: absolute; left: var(--wc-gap-xl); top: 100%; z-index: 50;
+      background: var(--wc-card-bg); border-radius: var(--wc-card-radius); box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      min-width: 160px; overflow: hidden;
+    }
+    .tl-source-popup.show { display: block; }
+
+    /* ========== 任务卡片 ========== */
+    .tl-card {
+      background: var(--wc-card-bg); border-radius: 12px; padding: 14px var(--wc-page-padding); margin-bottom: var(--wc-gap-lg);
+      box-shadow: var(--wc-shadow-card); cursor: pointer; position: relative;
+      overflow: hidden; transition: transform 0.1s;
+    }
+    .tl-card:active { transform: scale(0.985); }
+    .tl-header-row { display: flex; align-items: center; margin-bottom: 6px; }
+    .tl-urgency {
+      width: var(--wc-gap-sm); height: 32px; border-radius: 2px; margin-right: var(--wc-gap-lg); flex-shrink: 0;
+    }
+    .tl-urgency.red { background: var(--code-red); }
+    .tl-urgency.yellow { background: var(--code-yellow); }
+    .tl-urgency.green { background: var(--code-green); }
+    .tl-urgency.gray { background: var(--wc-divider); }
+    .tl-card-title { font-size: var(--wc-font-body); font-weight: 500; color: var(--wc-text-primary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tl-type {
+      font-size: 11px; padding: 2px var(--wc-gap-md); border-radius: var(--wc-btn-radius); margin-left: var(--wc-gap-md); flex-shrink: 0;
+    }
+    .tl-type.inspect { background: var(--wc-icon-bg-blue); color: var(--brand-blue); }
     .tl-type.rectify { background: #fff7e6; color: #fa8c16; }
-    .tl-type.special { background: #f9f0ff; color: #722ed1; }
-    .tl-meta { font-size: 12px; color: #888; margin-bottom: 10px; }
+    .tl-type.special { background: var(--wc-icon-bg-purple); color: #722ed1; }
+    .tl-meta { font-size: var(--wc-font-small); color: #888; margin-bottom: var(--wc-gap-md); }
+    .tl-meta-source { display: flex; align-items: center; gap: var(--wc-gap-sm); }
+    .tl-urgency-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .tl-footer { display: flex; justify-content: space-between; align-items: center; }
-    .tl-deadline { font-size: 12px; color: #888; }
-    .tl-btn { padding: 6px 16px; border-radius: 14px; font-size: 12px; border: none; cursor: pointer; }
-    .tl-btn-primary { background: #1068ff; color: #fff; }
+    .tl-deadline { font-size: var(--wc-font-small); color: #888; display: flex; align-items: center; gap: var(--wc-gap-sm); }
+    .tl-deadline.overdue { color: var(--code-red); font-weight: 500; }
+    .tl-deadline.done { color: var(--code-green); }
+    .tl-btn { padding: 6px 16px; border-radius: 14px; font-size: var(--wc-font-small); border: none; cursor: pointer; }
+    .tl-btn-primary { background: var(--brand-blue); color: var(--wc-card-bg); }
     .tl-btn-primary:active { background: #0d5bd9; }
-    .tl-btn-danger { background: #ff4d4f; color: #fff; }
+    .tl-btn-danger { background: var(--code-red); color: var(--wc-card-bg); }
     .tl-btn-danger:active { background: #d9363e; }
-    .tl-btn-done { background: #f5f5f5; color: #999; }
+    .tl-btn-done { background: var(--wc-bg-gray); color: var(--wc-text-placeholder); }
+
+    /* ========== 底部抽屉 ========== */
+    .tl-drawer-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 200; align-items: flex-end; justify-content: center;
+    }
+    .tl-drawer-overlay.show { display: flex; }
+    .tl-drawer {
+      background: var(--wc-card-bg); border-radius: var(--wc-radius-lg) var(--wc-radius-lg) 0 0; width: 100%; max-height: 70vh;
+      overflow-y: auto; animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .tl-drawer-handle {
+      width: 36px; height: var(--wc-gap-sm); border-radius: 2px; background: #ddd; margin: var(--wc-gap-lg) auto 0;
+    }
+    .tl-drawer-header { padding: var(--wc-page-padding) var(--wc-page-padding) var(--wc-gap-xl); }
+    .tl-drawer-title { font-size: var(--wc-font-title); font-weight: 600; color: var(--wc-text-primary); margin-bottom: var(--wc-gap-md); }
+    .tl-drawer-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tl-drawer-tag {
+      font-size: 11px; padding: 2px var(--wc-gap-md); border-radius: var(--wc-btn-radius); display: flex; align-items: center; gap: var(--wc-gap-sm);
+    }
+    .tl-drawer-body { padding: 0 var(--wc-page-padding) var(--wc-page-padding); }
+    .tl-drawer-info-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: var(--wc-gap-lg) 0; border-bottom: 0.5px solid var(--wc-track-bg); font-size: var(--wc-font-caption);
+    }
+    .tl-drawer-info-row:last-child { border-bottom: none; }
+    .tl-drawer-info-label { color: #888; flex-shrink: 0; width: 72px; }
+    .tl-drawer-info-value { color: var(--wc-text-primary); flex: 1; text-align: right; word-break: break-all; }
+    .tl-drawer-req {
+      background: var(--wc-page-bg); border-radius: var(--wc-btn-radius); padding: var(--wc-gap-xl); margin: var(--wc-gap-xl) 0;
+      font-size: 13px; color: var(--wc-text-secondary); line-height: 1.6;
+    }
+    .tl-drawer-action { padding: var(--wc-gap-xl) var(--wc-page-padding); padding-bottom: calc(var(--wc-gap-xl) + env(safe-area-inset-bottom, 0px)); }
+    .tl-drawer-btn {
+      display: block; width: 100%; padding: var(--wc-gap-xl); border: none; border-radius: var(--wc-card-radius);
+      font-size: var(--wc-font-title); font-weight: 500; cursor: pointer; text-align: center;
+    }
+    .tl-drawer-btn-primary { background: var(--brand-blue); color: var(--wc-card-bg); }
+    .tl-drawer-btn-primary:active { background: #0d5bd9; }
+    .tl-drawer-btn-danger { background: var(--code-red); color: var(--wc-card-bg); }
+    .tl-drawer-btn-danger:active { background: #d9363e; }
   </style>
 </head>
 <body>
-  <div class="m-page with-tabbar" style="background:#f5f7fa;position:relative;">
-    <!-- 蓝色渐变固定背景 -->
-    <div class="tl-gradient"></div>
-    <!-- 头部内容 -->
+  <div class="m-page with-tabbar">
+
+    <!-- 头部 -->
     <div class="tl-header">
-      <div style="font-size:16px;font-weight:600;color:#fff;margin-bottom:12px;position:relative;z-index:1;">任务管理</div>
-      <div class="tl-stat-row" style="position:relative;z-index:1;">
-        <div class="tl-stat">
-          <div class="tl-stat-num">3</div>
+      <div class="tl-title">任务管理</div>
+      <div class="tl-stat-row">
+        <div class="tl-stat" onclick="filterByStatus('pending')">
+          <div class="tl-stat-num" id="statPending">3</div>
           <div class="tl-stat-label">待处理</div>
         </div>
-        <div class="tl-stat">
-          <div class="tl-stat-num">2</div>
+        <div class="tl-stat" onclick="filterByStatus('progress')">
+          <div class="tl-stat-num" id="statProgress">2</div>
           <div class="tl-stat-label">进行中</div>
         </div>
-        <div class="tl-stat">
-          <div class="tl-stat-num">5</div>
+        <div class="tl-stat" onclick="filterByStatus('done')">
+          <div class="tl-stat-num" id="statDone">5</div>
           <div class="tl-stat-label">已完成</div>
         </div>
-        <div class="tl-stat">
-          <div class="tl-stat-num">1</div>
+        <div class="tl-stat" onclick="filterByStatus('overdue')">
+          <div class="tl-stat-num" id="statOverdue">1</div>
           <div class="tl-stat-label">已超期</div>
         </div>
       </div>
-
-      <!-- 筛选 -->
-      <div class="tl-filter-bar" style="margin:14px -16px 0;border-radius:12px 12px 0 0;">
-        <span class="tl-filter-chip active">全部</span>
-        <span class="tl-filter-chip">待处理</span>
-        <span class="tl-filter-chip">进行中</span>
-        <span class="tl-filter-chip">已完成</span>
-        <span class="tl-filter-chip">已超期</span>
-        <span class="tl-filter-chip">履职检查</span>
-        <span class="tl-filter-chip">隐患整改</span>
-        <span class="tl-filter-chip">专项检查</span>
+      <div class="tl-search-wrap">
+        <input class="tl-search" placeholder="搜索任务名称" id="searchInput" oninput="applyFilters()">
       </div>
     </div>
 
-    <!-- 任务列表 -->
-    <div class="tl-card">
-      <div class="tl-header-row">
-        <div class="tl-urgency red"></div>
-        <div class="tl-title">配电房灭火器更换</div>
-        <span class="tl-type rectify">隐患整改</span>
+    <!-- 内容区 -->
+    <div class="tl-body">
+      <!-- 筛选区 -->
+      <div class="tl-filter-card" style="position:relative;">
+        <!-- 第一行：状态筛选 -->
+        <div class="tl-filter-row">
+          <span class="tl-filter-row-label">状态</span>
+          <span class="tl-chip active" data-filter="status" data-value="all" onclick="setFilter(this)">全部</span>
+          <span class="tl-chip" data-filter="status" data-value="pending" onclick="setFilter(this)">待处理</span>
+          <span class="tl-chip" data-filter="status" data-value="progress" onclick="setFilter(this)">进行中</span>
+          <span class="tl-chip" data-filter="status" data-value="done" onclick="setFilter(this)">已完成</span>
+          <span class="tl-chip" data-filter="status" data-value="overdue" onclick="setFilter(this)">已超期</span>
+        </div>
+        <!-- 第二行：类型+紧急度+来源+排序 -->
+        <div class="tl-filter-row">
+          <span class="tl-filter-row-label">类型</span>
+          <span class="tl-chip active" data-filter="type" data-value="all" onclick="setFilter(this)">全部</span>
+          <span class="tl-chip" data-filter="type" data-value="inspect" onclick="setFilter(this)">履职检查</span>
+          <span class="tl-chip" data-filter="type" data-value="rectify" onclick="setFilter(this)">隐患整改</span>
+          <span class="tl-chip" data-filter="type" data-value="special" onclick="setFilter(this)">专项检查</span>
+          <span class="tl-chip" data-filter="urgency" data-value="red" onclick="setFilter(this)"><span class="filter-dot" style="background:var(--code-red)"></span>紧急</span>
+          <span class="tl-chip" data-filter="urgency" data-value="yellow" onclick="setFilter(this)"><span class="filter-dot" style="background:var(--code-yellow)"></span>一般</span>
+          <span class="tl-chip" data-filter="urgency" data-value="green" onclick="setFilter(this)"><span class="filter-dot" style="background:var(--code-green)"></span>低</span>
+          <span class="tl-source-btn" id="sourceBtn" onclick="toggleSourcePopup()">
+            来源 <span class="arrow">▼</span>
+          </span>
+          <div class="tl-sort-btn" onclick="toggleSortPopup()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h12M3 18h6"/></svg>
+          </div>
+        </div>
+        <!-- 排序浮层 -->
+        <div class="tl-sort-popup" id="sortPopup">
+          <div class="tl-sort-option active" data-sort="deadline" onclick="setSort(this)">按截止时间</div>
+          <div class="tl-sort-option" data-sort="urgency" onclick="setSort(this)">按紧急程度</div>
+          <div class="tl-sort-option" data-sort="created" onclick="setSort(this)">按创建时间</div>
+        </div>
+        <!-- 来源单位浮层 -->
+        <div class="tl-source-popup" id="sourcePopup">
+          <div class="tl-sort-option active" data-source="all" onclick="setSource(this)">全部来源</div>
+          <div class="tl-sort-option" data-source="龙华区应急管理局" onclick="setSource(this)">龙华区应急管理局</div>
+          <div class="tl-sort-option" data-source="企业自查" onclick="setSource(this)">企业自查</div>
+          <div class="tl-sort-option" data-source="消防专项" onclick="setSource(this)">消防专项检查</div>
+        </div>
       </div>
-      <div class="tl-meta">来源：消防设施专项检查 · A栋配电房</div>
-      <div class="tl-footer">
-        <span class="tl-deadline">⚠ 超期2天</span>
-        <button class="tl-btn tl-btn-danger">立即整改</button>
+
+      <!-- 任务列表 -->
+      <div id="taskList"></div>
+
+      <!-- 空状态 -->
+      <div class="m-empty" id="emptyState" style="display:none;">
+        <div class="m-empty-icon">📋</div>
+        <div class="m-empty-text">暂无匹配的任务</div>
       </div>
+
+      <div style="height:32px;"></div>
     </div>
 
-    <div class="tl-card">
-      <div class="tl-header-row">
-        <div class="tl-urgency red"></div>
-        <div class="tl-title">A栋日常安全巡查</div>
-        <span class="tl-type inspect">履职检查</span>
-      </div>
-      <div class="tl-meta">来源：履职检查配置 · A栋生产车间</div>
-      <div class="tl-footer">
-        <span class="tl-deadline">截止：今天 18:00</span>
-        <button class="tl-btn tl-btn-primary">去检查</button>
-      </div>
-    </div>
-
-    <div class="tl-card">
-      <div class="tl-header-row">
-        <div class="tl-urgency yellow"></div>
-        <div class="tl-title">仓库安全出口标识补充</div>
-        <span class="tl-type rectify">隐患整改</span>
-      </div>
-      <div class="tl-meta">来源：日常巡查 · B栋仓库</div>
-      <div class="tl-footer">
-        <span class="tl-deadline">截止：01-20</span>
-        <button class="tl-btn tl-btn-primary">去整改</button>
+    <!-- 底部抽屉 -->
+    <div class="tl-drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
+      <div class="tl-drawer" id="drawer" onclick="event.stopPropagation()">
+        <div class="tl-drawer-handle"></div>
+        <div class="tl-drawer-header">
+          <div class="tl-drawer-title" id="drawerTitle"></div>
+          <div class="tl-drawer-tags" id="drawerTags"></div>
+        </div>
+        <div class="tl-drawer-body" id="drawerBody"></div>
+        <div class="tl-drawer-action" id="drawerAction"></div>
       </div>
     </div>
-
-    <div class="tl-card">
-      <div class="tl-header-row">
-        <div class="tl-urgency yellow"></div>
-        <div class="tl-title">春节前专项安全检查</div>
-        <span class="tl-type special">专项检查</span>
-      </div>
-      <div class="tl-meta">来源：龙华区应急管理局 · 全企业</div>
-      <div class="tl-footer">
-        <span class="tl-deadline">截止：01-25</span>
-        <button class="tl-btn tl-btn-primary">去检查</button>
-      </div>
-    </div>
-
-    <div class="tl-card">
-      <div class="tl-header-row">
-        <div class="tl-urgency green"></div>
-        <div class="tl-title">B栋月度消防检查</div>
-        <span class="tl-type inspect">履职检查</span>
-      </div>
-      <div class="tl-meta">来源：履职检查配置 · B栋仓库</div>
-      <div class="tl-footer">
-        <span class="tl-deadline">截止：01-31</span>
-        <button class="tl-btn tl-btn-primary">去检查</button>
-      </div>
-    </div>
-
-    <div class="tl-card">
-      <div class="tl-header-row">
-        <div class="tl-urgency gray"></div>
-        <div class="tl-title">实验室化学品存放检查</div>
-        <span class="tl-type inspect">履职检查</span>
-      </div>
-      <div class="tl-meta">来源：履职检查配置 · D栋实验室</div>
-      <div class="tl-footer">
-        <span class="tl-deadline">已完成 01-08</span>
-        <button class="tl-btn tl-btn-done">已完成</button>
-      </div>
-    </div>
-
-    <div style="height:32px;"></div>
   </div>
 
   <script>
-    document.querySelectorAll('.tl-filter-chip').forEach(function(chip) {
-      chip.addEventListener('click', function() {
-        document.querySelectorAll('.tl-filter-chip').forEach(function(c){c.classList.remove('active');});
-        this.classList.add('active');
+    // ===== 任务数据 =====
+    var tasks = [
+      {
+        id: 1, title: '配电房灭火器更换', type: 'rectify', typeLabel: '隐患整改',
+        urgency: 'red', urgencyLabel: '紧急',
+        source: '消防专项检查', sourceUnit: '消防专项',
+        object: 'A栋配电房', person: '王操作',
+        deadline: '2025-01-18', status: 'overdue', overdueDays: 2,
+        desc: '配电房灭火器已过期，需立即更换为5kg干粉灭火器，共3处。',
+        target: 'hazard-detail'
+      },
+      {
+        id: 2, title: 'A栋日常安全巡查', type: 'inspect', typeLabel: '履职检查',
+        urgency: 'red', urgencyLabel: '紧急',
+        source: '履职检查配置', sourceUnit: '企业自查',
+        object: 'A栋生产车间', person: '李安全',
+        deadline: '今天 18:00', status: 'pending',
+        desc: '按日常巡查检查表执行，重点关注消防通道、电气线路、危化品存放。',
+        target: 'check-list'
+      },
+      {
+        id: 3, title: '仓库安全出口标识补充', type: 'rectify', typeLabel: '隐患整改',
+        urgency: 'yellow', urgencyLabel: '一般',
+        source: '日常巡查', sourceUnit: '企业自查',
+        object: 'B栋仓库', person: '赵管理',
+        deadline: '01-20', status: 'progress',
+        desc: 'B栋仓库东侧安全出口标识缺失2处，需补充荧光标识牌。',
+        target: 'hazard-detail'
+      },
+      {
+        id: 4, title: '春节前专项安全检查', type: 'special', typeLabel: '专项检查',
+        urgency: 'yellow', urgencyLabel: '一般',
+        source: '龙华区应急管理局', sourceUnit: '龙华区应急管理局',
+        object: '全企业', person: '李安全',
+        deadline: '01-25', status: 'pending',
+        desc: '龙华区应急管理局下发春节前安全专项检查通知，需在01-25前完成并上报。',
+        target: 'check-list'
+      },
+      {
+        id: 5, title: 'B栋月度消防检查', type: 'inspect', typeLabel: '履职检查',
+        urgency: 'green', urgencyLabel: '低',
+        source: '履职检查配置', sourceUnit: '企业自查',
+        object: 'B栋仓库', person: '赵管理',
+        deadline: '01-31', status: 'progress',
+        desc: '月度消防设施检查，包含灭火器、喷淋、烟感、消防栓等。',
+        target: 'check-list'
+      },
+      {
+        id: 6, title: '实验室化学品存放检查', type: 'inspect', typeLabel: '履职检查',
+        urgency: 'gray', urgencyLabel: '',
+        source: '履职检查配置', sourceUnit: '企业自查',
+        object: 'D栋实验室', person: '陈研发',
+        deadline: '01-08', status: 'done',
+        desc: '已完成，化学品存放符合规范。',
+        target: 'check-list'
+      },
+      {
+        id: 7, title: 'C栋办公区灭火器月检', type: 'inspect', typeLabel: '履职检查',
+        urgency: 'green', urgencyLabel: '低',
+        source: '履职检查配置', sourceUnit: '企业自查',
+        object: 'C栋办公区', person: '刘主任',
+        deadline: '02-05', status: 'pending',
+        desc: '月度灭火器有效期及压力检查。',
+        target: 'check-list'
+      },
+      {
+        id: 8, title: '配电房电气线路整改', type: 'rectify', typeLabel: '隐患整改',
+        urgency: 'red', urgencyLabel: '紧急',
+        source: '电气安全季度检查', sourceUnit: '企业自查',
+        object: 'A栋配电房', person: '孙电工',
+        deadline: '01-22', status: 'progress',
+        desc: '配电房部分线路老化，需更换BV-4铜芯线约50米，并重新套管。',
+        target: 'hazard-detail'
+      }
+    ];
+
+    // ===== 筛选状态 =====
+    var filters = { status: 'all', type: 'all', urgency: 'all', source: 'all' };
+    var currentSort = 'deadline';
+
+    // ===== 渲染 =====
+    function renderTasks() {
+      var list = document.getElementById('taskList');
+      var empty = document.getElementById('emptyState');
+      var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      var filtered = tasks.filter(function(t) {
+        if (filters.status !== 'all' && t.status !== filters.status) return false;
+        if (filters.type !== 'all' && t.type !== filters.type) return false;
+        if (filters.urgency !== 'all' && t.urgency !== filters.urgency) return false;
+        if (filters.source !== 'all' && t.sourceUnit !== filters.source) return false;
+        if (keyword && t.title.toLowerCase().indexOf(keyword) === -1 &&
+            t.source.toLowerCase().indexOf(keyword) === -1 &&
+            t.object.toLowerCase().indexOf(keyword) === -1) return false;
+        return true;
       });
+
+      // 排序
+      var urgencyOrder = { red: 0, yellow: 1, green: 2, gray: 3 };
+      var statusOrder = { overdue: 0, pending: 1, progress: 2, done: 3 };
+      filtered.sort(function(a, b) {
+        if (currentSort === 'urgency') return (urgencyOrder[a.urgency] || 9) - (urgencyOrder[b.urgency] || 9);
+        if (currentSort === 'created') return b.id - a.id;
+        // deadline: overdue first, then by status
+        return (statusOrder[a.status] || 9) - (statusOrder[b.status] || 9);
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = '';
+        return;
+      }
+      empty.style.display = 'none';
+
+      var html = '';
+      filtered.forEach(function(t) {
+        var deadlineHtml = '';
+        var btnHtml = '';
+        if (t.status === 'overdue') {
+          deadlineHtml = '<span class="tl-deadline overdue">⚠ 超期' + t.overdueDays + '天</span>';
+          btnHtml = '<button class="tl-btn tl-btn-danger" onclick="event.stopPropagation();goTask(\'' + t.target + '\')">立即整改</button>';
+        } else if (t.status === 'pending') {
+          deadlineHtml = '<span class="tl-deadline">截止：' + t.deadline + '</span>';
+          var btnLabel = t.type === 'rectify' ? '去整改' : '去检查';
+          btnHtml = '<button class="tl-btn tl-btn-primary" onclick="event.stopPropagation();goTask(\'' + t.target + '\')">' + btnLabel + '</button>';
+        } else if (t.status === 'progress') {
+          deadlineHtml = '<span class="tl-deadline">截止：' + t.deadline + '</span>';
+          var btnLabel2 = t.type === 'rectify' ? '继续整改' : '继续检查';
+          btnHtml = '<button class="tl-btn tl-btn-primary" onclick="event.stopPropagation();goTask(\'' + t.target + '\')">' + btnLabel2 + '</button>';
+        } else {
+          deadlineHtml = '<span class="tl-deadline done">已完成 ' + t.deadline + '</span>';
+          btnHtml = '<button class="tl-btn tl-btn-done">已完成</button>';
+        }
+
+        var urgencyDot = '';
+        if (t.urgency !== 'gray') {
+          var dotColor = t.urgency === 'red' ? 'var(--code-red)' : (t.urgency === 'yellow' ? 'var(--code-yellow)' : 'var(--code-green)');
+          urgencyDot = '<span class="tl-urgency-dot" style="background:' + dotColor + '"></span>';
+        }
+
+        html += '<div class="tl-card" onclick="openDrawer(' + t.id + ')">' +
+          '<div class="tl-header-row">' +
+            '<div class="tl-urgency ' + t.urgency + '"></div>' +
+            '<div class="tl-card-title">' + t.title + '</div>' +
+            '<span class="tl-type ' + t.type + '">' + t.typeLabel + '</span>' +
+          '</div>' +
+          '<div class="tl-meta">' +
+            '<div class="tl-meta-source">' + urgencyDot + '来源：' + t.source + ' · ' + t.object + '</div>' +
+          '</div>' +
+          '<div class="tl-footer">' +
+            deadlineHtml + btnHtml +
+          '</div>' +
+        '</div>';
+      });
+      list.innerHTML = html;
+    }
+
+    // ===== 筛选 =====
+    function setFilter(el) {
+      var filterType = el.getAttribute('data-filter');
+      var value = el.getAttribute('data-value');
+      // 同组内互斥
+      var row = el.parentElement;
+      row.querySelectorAll('.tl-chip[data-filter="' + filterType + '"]').forEach(function(c) {
+        c.classList.remove('active');
+      });
+      el.classList.add('active');
+      filters[filterType] = value;
+      applyFilters();
+    }
+
+    function filterByStatus(status) {
+      filters.status = status;
+      // 同步筛选栏UI
+      document.querySelectorAll('.tl-chip[data-filter="status"]').forEach(function(c) {
+        c.classList.toggle('active', c.getAttribute('data-value') === status);
+      });
+      applyFilters();
+    }
+
+    function applyFilters() { renderTasks(); }
+
+    // ===== 排序 =====
+    function toggleSortPopup() {
+      var popup = document.getElementById('sortPopup');
+      document.getElementById('sourcePopup').classList.remove('show');
+      popup.classList.toggle('show');
+    }
+    function setSort(el) {
+      currentSort = el.getAttribute('data-sort');
+      document.querySelectorAll('.tl-sort-option[data-sort]').forEach(function(o) { o.classList.remove('active'); });
+      el.classList.add('active');
+      document.getElementById('sortPopup').classList.remove('show');
+      applyFilters();
+    }
+
+    // ===== 来源单位 =====
+    function toggleSourcePopup() {
+      var popup = document.getElementById('sourcePopup');
+      var btn = document.getElementById('sourceBtn');
+      document.getElementById('sortPopup').classList.remove('show');
+      popup.classList.toggle('show');
+      btn.classList.toggle('active', popup.classList.contains('show'));
+    }
+    function setSource(el) {
+      var value = el.getAttribute('data-source');
+      filters.source = value;
+      document.querySelectorAll('#sourcePopup .tl-sort-option').forEach(function(o) { o.classList.remove('active'); });
+      el.classList.add('active');
+      document.getElementById('sourcePopup').classList.remove('show');
+      var btn = document.getElementById('sourceBtn');
+      btn.classList.remove('active');
+      if (value === 'all') {
+        btn.innerHTML = '来源 <span class="arrow">▼</span>';
+      } else {
+        btn.innerHTML = value + ' <span class="arrow">▼</span>';
+        btn.classList.add('active');
+      }
+      applyFilters();
+    }
+
+    // ===== 详情抽屉 =====
+    function openDrawer(id) {
+      var t = tasks.find(function(x) { return x.id === id; });
+      if (!t) return;
+
+      document.getElementById('drawerTitle').textContent = t.title;
+
+      var urgencyColor = t.urgency === 'red' ? 'var(--code-red)' : (t.urgency === 'yellow' ? 'var(--code-yellow)' : 'var(--code-green)');
+      var urgencyText = t.urgency === 'red' ? '紧急' : (t.urgency === 'yellow' ? '一般' : '低');
+      var typeClass = t.type;
+      var tagsHtml = '<span class="tl-drawer-tag tl-type ' + typeClass + '">' + t.typeLabel + '</span>';
+      if (t.urgency !== 'gray') {
+        tagsHtml += '<span class="tl-drawer-tag" style="background:' + urgencyColor + '15;color:' + urgencyColor + '"><span class="tl-urgency-dot" style="background:' + urgencyColor + '"></span>' + urgencyText + '</span>';
+      }
+      document.getElementById('drawerTags').innerHTML = tagsHtml;
+
+      var statusText = { pending: '待处理', progress: '进行中', done: '已完成', overdue: '已超期' };
+      var deadlineDisplay = t.status === 'overdue' ? t.deadline + '（超期' + t.overdueDays + '天）' : t.deadline;
+
+      var bodyHtml =
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">来源</span><span class="tl-drawer-info-value">' + t.source + '</span></div>' +
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">关联对象</span><span class="tl-drawer-info-value">' + t.object + '</span></div>' +
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">责任人</span><span class="tl-drawer-info-value">' + t.person + '</span></div>' +
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">截止时间</span><span class="tl-drawer-info-value">' + deadlineDisplay + '</span></div>' +
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">状态</span><span class="tl-drawer-info-value">' + (statusText[t.status] || '') + '</span></div>' +
+        '<div class="tl-drawer-req">' + t.desc + '</div>';
+      document.getElementById('drawerBody').innerHTML = bodyHtml;
+
+      var actionHtml = '';
+      if (t.status === 'overdue') {
+        actionHtml = '<button class="tl-drawer-btn tl-drawer-btn-danger" onclick="goTask(\'' + t.target + '\')">立即整改</button>';
+      } else if (t.status === 'done') {
+        actionHtml = '<button class="tl-drawer-btn" style="background:#f5f5f5;color:#999;">已完成</button>';
+      } else {
+        var label = t.type === 'rectify' ? '去整改' : '去检查';
+        actionHtml = '<button class="tl-drawer-btn tl-drawer-btn-primary" onclick="goTask(\'' + t.target + '\')">' + label + '</button>';
+      }
+      document.getElementById('drawerAction').innerHTML = actionHtml;
+
+      document.getElementById('drawerOverlay').classList.add('show');
+    }
+
+    function closeDrawer(e) {
+      if (e && e.target !== document.getElementById('drawerOverlay')) return;
+      document.getElementById('drawerOverlay').classList.remove('show');
+    }
+
+    // ===== 跳转业务页 =====
+    function goTask(target) {
+      document.getElementById('drawerOverlay').classList.remove('show');
+      if (parent && parent.navigateTo) {
+        parent.navigateTo(target);
+      }
+    }
+
+    // ===== 点击空白关闭浮层 =====
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.tl-sort-btn') && !e.target.closest('.tl-sort-popup')) {
+        document.getElementById('sortPopup').classList.remove('show');
+      }
+      if (!e.target.closest('.tl-source-btn') && !e.target.closest('.tl-source-popup')) {
+        document.getElementById('sourcePopup').classList.remove('show');
+        document.getElementById('sourceBtn').classList.remove('active');
+      }
     });
+
+    // ===== 初始渲染 =====
+    renderTasks();
   </script>
 </body>
 </html>

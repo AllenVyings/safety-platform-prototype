@@ -103,7 +103,7 @@
             <a class="mobile-nav-item" onclick="mobileNav('control-list')">📋 列表</a>
             <a class="mobile-nav-item" onclick="mobileNav('workbench')">⚡ 工作台</a>
             <a class="mobile-nav-item" onclick="mobileNav('task-list')">📌 任务管理</a>
-            <a class="mobile-nav-item" onclick="mobileNav('profile')">👤 我的中心</a>
+            <a class="mobile-nav-item" onclick="mobileNav('profile')">👤 个人码</a>
           </div>
           <div class="mobile-nav-section">
             <div class="mobile-nav-section-label">码首页</div>
@@ -119,6 +119,7 @@
             <a class="mobile-nav-item" onclick="mobileNav('check-detail')">📄 检查详情</a>
             <a class="mobile-nav-item" onclick="mobileNav('code-change')">🔄 变码记录</a>
             <a class="mobile-nav-item" onclick="mobileNav('scan')">📷 扫一扫</a>
+            <a class="mobile-nav-item" onclick="mobileNav('settings')">⚙️ 设置</a>
           </div>
           <div class="mobile-nav-section">
             <div class="mobile-nav-section-label">其他</div>
@@ -528,7 +529,7 @@
       'control-list':   {section:'6.5.5', name:'列表', isTab:true, navTitle:'列表', transparentNav:true},
       'workbench':      {section:'6.5.6', name:'工作台', isTab:true, navTitle:'工作台', transparentNav:true},
       'task-list':      {section:'6.5.7', name:'任务管理', isTab:true, navTitle:'任务管理', transparentNav:true},
-      'profile':        {section:'6.5.8', name:'我的中心', isTab:true, navTitle:'我的中心', transparentNav:true},
+      'profile':        {section:'6.5.8', name:'个人码', isTab:true, navTitle:'个人码', transparentNav:true},
       'check-execute':  {section:'6.5.2.3', name:'码上排查执行', isTab:false, navTitle:'码上排查'},
       'check-list':      {section:'6.5.2.3', name:'检查表选择', isTab:false, navTitle:'码上排查'},
       'hazard-detail':  {section:'6.5.6.5.3', name:'隐患详情', isTab:false, navTitle:'隐患详情'},
@@ -536,7 +537,8 @@
       'ai-analysis':    {section:'6.5.2.3', name:'AI智能分析', isTab:false, navTitle:'AI智能分析'},
       'code-change':    {section:'6.5.2.4', name:'变码记录', isTab:false, navTitle:'变码记录'},
       'scan':           {section:'6.5.2.2', name:'扫一扫', isTab:false, navTitle:'扫一扫', darkNav:true},
-      'login':          {section:'6.5.1', name:'登录', isTab:false, navTitle:'', noNav:true}
+      'login':          {section:'6.5.1', name:'登录', isTab:false, navTitle:'', noNav:true},
+      'settings':       {section:'6.5.8', name:'设置', isTab:false, navTitle:'设置'}
     };
     var tabModules = ['enterprise-code','control-list','workbench','task-list','profile'];
 
@@ -552,10 +554,12 @@
       // 导航栏标题
       titleEl.textContent = info.navTitle || '';
 
-      // 二级页面显示返回按钮，Tab页面不显示
+      // 二级页面显示返回按钮，Tab页面不显示（profile页显示设置按钮）
       var isTab = info.isTab;
       if (!isTab && !info.noNav) {
         leftEl.innerHTML = '<span class="mobile-nav-back" onclick="mobileBack()"><svg viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10L10 18" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+      } else if (mod === 'profile') {
+        leftEl.innerHTML = '<span class="mobile-nav-setting" onclick="mobileNav(\'settings\')" style="cursor:pointer;padding:4px 8px;color:#fff;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>';
       } else {
         leftEl.innerHTML = '';
       }
@@ -757,6 +761,7 @@
         var leftEl = document.getElementById('mobileNavBarLeft');
         if (!navBar || !titleEl || !sysStatus) return;
         var backSvg = leftEl ? leftEl.querySelector('.mobile-nav-back svg path') : null;
+        var settingBtn = leftEl ? leftEl.querySelector('.mobile-nav-setting') : null;
         if (scrolled) {
           navBar.style.background = '#fff';
           navBar.style.borderBottom = '0.5px solid rgba(0,0,0,0.08)';
@@ -778,6 +783,7 @@
             if (el.getAttribute('stroke') && el.getAttribute('stroke').indexOf('255,255,255') > -1) el.setAttribute('stroke', 'rgba(0,0,0,0.5)');
           });
           if (backSvg) backSvg.setAttribute('stroke', '#000');
+          if (settingBtn) settingBtn.style.color = '#000';
         } else {
           navBar.style.background = 'transparent';
           navBar.style.borderBottom = 'none';
@@ -799,6 +805,7 @@
             if (el.getAttribute('stroke') && el.getAttribute('stroke').indexOf('0,0,0') > -1) el.setAttribute('stroke', 'rgba(255,255,255,0.7)');
           });
           if (backSvg) backSvg.setAttribute('stroke', '#fff');
+          if (settingBtn) settingBtn.style.color = '#fff';
         }
       }
 

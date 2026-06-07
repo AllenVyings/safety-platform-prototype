@@ -6,43 +6,43 @@
   <title>检查统计</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
-    .is-card { background: #fff; border-radius: 12px; padding: 14px 16px; margin: 10px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .is-card-title { font-size: 15px; font-weight: 600; color: #000; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-    .is-stat-row { display: flex; gap: 8px; margin-bottom: 12px; }
-    .is-stat { flex: 1; text-align: center; padding: 10px 0; background: #f8f9fa; border-radius: 8px; }
+    .is-card { background: var(--wc-card-bg); border-radius: var(--wc-card-radius); padding: 14px var(--wc-page-padding); margin: var(--wc-gap-lg) var(--wc-page-padding); box-shadow: var(--wc-shadow-card); }
+    .is-card-title { font-size: var(--wc-font-body); font-weight: 600; color: var(--wc-text-primary); margin-bottom: var(--wc-gap-xl); display: flex; align-items: center; justify-content: space-between; }
+    .is-stat-row { display: flex; gap: var(--wc-gap-md); margin-bottom: var(--wc-gap-xl); }
+    .is-stat { flex: 1; text-align: center; padding: var(--wc-gap-lg) 0; background: var(--wc-page-bg); border-radius: var(--wc-btn-radius); }
     .is-stat-num { font-size: 20px; font-weight: 700; }
-    .is-stat-label { font-size: 11px; color: #888; margin-top: 2px; }
-    .is-chart-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
-    .is-list-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #f0f0f0; cursor: pointer; }
+    .is-stat-label { font-size: var(--wc-font-tiny); color: var(--wc-text-placeholder); margin-top: 2px; }
+    .is-chart-row { display: flex; align-items: center; justify-content: center; gap: var(--wc-page-padding); }
+    .is-list-item { display: flex; align-items: center; padding: var(--wc-gap-xl) 0; border-bottom: 0.5px solid var(--wc-track-bg); cursor: pointer; }
     .is-list-item:last-child { border-bottom: none; }
-    .is-list-item:active { background: #f5f7fa; }
-    .is-list-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+    .is-list-item:active { background: var(--wc-page-bg); }
+    .is-list-icon { width: 36px; height: 36px; border-radius: var(--wc-btn-radius); display: flex; align-items: center; justify-content: center; font-size: var(--wc-gap-lg); margin-right: var(--wc-gap-xl); flex-shrink: 0; }
     .is-list-info { flex: 1; }
-    .is-list-name { font-size: 14px; color: #000; font-weight: 500; }
-    .is-list-meta { font-size: 12px; color: #888; margin-top: 2px; }
-    .is-list-arrow { color: #ccc; font-size: 14px; }
-    .is-full-btn { display: block; width: 100%; padding: 12px; background: #f5f7fa; border: 0.5px solid #d9d9d9; border-radius: 8px; font-size: 14px; color: #576b95; text-align: center; cursor: pointer; margin-top: 16px; }
-    .is-full-btn:active { background: #e8eaed; }
+    .is-list-name { font-size: var(--wc-font-caption); color: var(--wc-text-primary); font-weight: 500; }
+    .is-list-meta { font-size: var(--wc-font-small); color: var(--wc-text-placeholder); margin-top: 2px; }
+    .is-list-arrow { color: var(--wc-text-disabled); font-size: var(--wc-font-caption); }
+    .is-full-btn { display: block; width: 100%; padding: var(--wc-gap-xl); background: var(--wc-page-bg); border: 0.5px solid var(--wc-divider); border-radius: var(--wc-btn-radius); font-size: var(--wc-font-caption); color: var(--wc-blue); text-align: center; cursor: pointer; margin-top: var(--wc-page-padding); }
+    .is-full-btn:active { background: var(--wc-icon-btn-active); }
     /* 弹窗 */
     .is-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: flex-end; justify-content: center; }
     .is-overlay.show { display: flex; }
-    .is-modal { background: #fff; border-radius: 16px 16px 0 0; width: 100%; max-height: 70vh; overflow-y: auto; padding: 20px 16px 32px; }
-    .is-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .is-modal-title { font-size: 17px; font-weight: 600; color: #000; }
-    .is-modal-close { width: 28px; height: 28px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: #999; }
-    .is-modal-close:active { background: #e0e0e0; }
-    .is-modal-item { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 0.5px solid #f0f0f0; }
+    .is-modal { background: var(--wc-card-bg); border-radius: var(--wc-radius-lg) var(--wc-radius-lg) 0 0; width: 100%; max-height: 70vh; overflow-y: auto; padding: 20px var(--wc-page-padding) 32px; }
+    .is-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--wc-page-padding); }
+    .is-modal-title { font-size: var(--wc-font-title); font-weight: 600; color: var(--wc-text-primary); }
+    .is-modal-close { width: 28px; height: 28px; border-radius: 50%; background: var(--wc-track-bg); display: flex; align-items: center; justify-content: center; font-size: var(--wc-gap-lg); cursor: pointer; color: var(--wc-text-placeholder); }
+    .is-modal-close:active { background: var(--wc-pressed-bg-alt); }
+    .is-modal-item { display: flex; align-items: flex-start; padding: var(--wc-gap-xl) 0; border-bottom: 0.5px solid var(--wc-track-bg); }
     .is-modal-item:last-child { border-bottom: none; }
-    .is-modal-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+    .is-modal-icon { width: 36px; height: 36px; border-radius: var(--wc-btn-radius); display: flex; align-items: center; justify-content: center; font-size: var(--wc-gap-lg); margin-right: var(--wc-gap-xl); flex-shrink: 0; }
     .is-modal-info { flex: 1; min-width: 0; }
-    .is-modal-name { font-size: 14px; color: #000; font-weight: 500; margin-bottom: 3px; }
-    .is-modal-meta { font-size: 12px; color: #888; line-height: 1.6; }
-    .is-modal-tag { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-right: 4px; }
-    .is-modal-tag.gov { background: #e8f4fd; color: #1068ff; }
-    .is-modal-tag.ent { background: #f0fff0; color: #52c41a; }
-    .is-modal-tag.pass { background: #f0fff0; color: #52c41a; }
-    .is-modal-tag.hazard { background: #e8f4fd; color: #1068ff; }
-    .is-modal-section-title { font-size: 13px; font-weight: 600; color: #666; padding: 10px 0 6px; margin-top: 4px; }
+    .is-modal-name { font-size: var(--wc-font-caption); color: var(--wc-text-primary); font-weight: 500; margin-bottom: 3px; }
+    .is-modal-meta { font-size: var(--wc-font-small); color: var(--wc-text-placeholder); line-height: 1.6; }
+    .is-modal-tag { display: inline-block; font-size: var(--wc-font-tiny); padding: 1px 6px; border-radius: 3px; margin-right: var(--wc-gap-sm); }
+    .is-modal-tag.gov { background: var(--wc-icon-bg-blue); color: var(--brand-blue); }
+    .is-modal-tag.ent { background: var(--wc-code-bg-green); color: var(--code-green); }
+    .is-modal-tag.pass { background: var(--wc-code-bg-green); color: var(--code-green); }
+    .is-modal-tag.hazard { background: var(--wc-icon-bg-blue); color: var(--brand-blue); }
+    .is-modal-section-title { font-size: var(--wc-font-small); font-weight: 600; color: var(--wc-text-tertiary); padding: var(--wc-gap-lg) 0 6px; margin-top: var(--wc-gap-sm); }
     .is-modal-item:first-child .is-modal-section-title { margin-top: 0; }
   </style>
 </head>
@@ -53,30 +53,30 @@
       <div class="is-card-title">检查占比</div>
       <div class="is-stat-row">
         <div class="is-stat"><div class="is-stat-num">45</div><div class="is-stat-label">总检查次数</div></div>
-        <div class="is-stat"><div class="is-stat-num" style="color:#1068ff">18</div><div class="is-stat-label">政府巡查</div></div>
-        <div class="is-stat"><div class="is-stat-num" style="color:#52c41a">27</div><div class="is-stat-label">企业自查</div></div>
+        <div class="is-stat"><div class="is-stat-num" style="color:var(--brand-blue)">18</div><div class="is-stat-label">政府巡查</div></div>
+        <div class="is-stat"><div class="is-stat-num" style="color:var(--code-green)">27</div><div class="is-stat-label">企业自查</div></div>
       </div>
       <div class="is-chart-row">
-        <div class="ring-chart" style="background:conic-gradient(#1068ff 0% 40%, #52c41a 40% 100%);">
+        <div class="ring-chart" style="background:conic-gradient(var(--brand-blue) 0% 40%, var(--code-green) 40% 100%);">
           <div class="ring-chart-inner">40%</div>
         </div>
-        <div style="font-size:12px;color:#666;line-height:2;">
-          <span style="color:#1068ff">●</span> 政府巡查 18次<br>
-          <span style="color:#52c41a">●</span> 企业自查 27次
+        <div style="font-size:var(--wc-font-small);color:var(--wc-text-tertiary);line-height:2;">
+          <span style="color:var(--brand-blue)">●</span> 政府巡查 18次<br>
+          <span style="color:var(--code-green)">●</span> 企业自查 27次
         </div>
       </div>
     </div>
 
     <!-- 政府巡查列表 -->
     <div class="is-card">
-      <div class="is-card-title">政府巡查 <span style="font-size:13px;color:#576b95;font-weight:400;cursor:pointer;">查看全部 ›</span></div>
+      <div class="is-card-title">政府巡查 <span style="font-size:var(--wc-font-small);color:var(--wc-blue);font-weight:400;cursor:pointer;">查看全部 ›</span></div>
       <div class="is-list-item">
-        <div class="is-list-icon" style="background:#e8f4fd;">🏛</div>
+        <div class="is-list-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
         <div class="is-list-info"><div class="is-list-name">龙华区应急管理局</div><div class="is-list-meta">专项检查 3次 · 发现隐患 2项</div></div>
         <span class="is-list-arrow">›</span>
       </div>
       <div class="is-list-item">
-        <div class="is-list-icon" style="background:#fff7e6;">🏢</div>
+        <div class="is-list-icon" style="background:var(--wc-icon-bg-orange);">🏢</div>
         <div class="is-list-info"><div class="is-list-name">民治街道安监办</div><div class="is-list-meta">日常巡查 5次 · 发现隐患 1项</div></div>
         <span class="is-list-arrow">›</span>
       </div>
@@ -84,21 +84,21 @@
 
     <!-- 企业自查列表 -->
     <div class="is-card">
-      <div class="is-card-title">企业自查 <span style="font-size:13px;color:#576b95;font-weight:400;cursor:pointer;">查看全部 ›</span></div>
+      <div class="is-card-title">企业自查 <span style="font-size:var(--wc-font-small);color:var(--wc-blue);font-weight:400;cursor:pointer;">查看全部 ›</span></div>
       <div class="is-list-item" onclick="parent.navigateTo('check-detail')">
-        <div class="is-list-icon" style="background:#f0fff0;">🏭</div>
+        <div class="is-list-icon" style="background:var(--wc-code-bg-green);">🏭</div>
         <div class="is-list-info"><div class="is-list-name">创安电子科技</div><div class="is-list-meta">自查 12次 · 发现隐患 3项</div></div>
         <span class="is-list-arrow">›</span>
       </div>
       <div class="is-list-item">
-        <div class="is-list-icon" style="background:#f5f0ff;">📦</div>
+        <div class="is-list-icon" style="background:var(--wc-icon-bg-purple);">📦</div>
         <div class="is-list-info"><div class="is-list-name">龙华化工</div><div class="is-list-meta">自查 8次 · 发现隐患 5项</div></div>
         <span class="is-list-arrow">›</span>
       </div>
     </div>
 
     <!-- 完整检查列表入口 -->
-    <div style="padding:0 16px;">
+    <div style="padding:0 var(--wc-page-padding);">
       <button class="is-full-btn" onclick="showFullList()">查看完整检查列表</button>
     </div>
 
@@ -114,42 +114,42 @@
       </div>
       <div class="is-modal-section-title">🏛 政府巡查</div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#e8f4fd;">🏛</div>
+        <div class="is-modal-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
         <div class="is-modal-info">
           <div class="is-modal-name">龙华区应急管理局</div>
           <div class="is-modal-meta">危化品存储区 · 2025-01-15<br>检查人：张建国 <span class="is-modal-tag gov">专项检查</span><span class="is-modal-tag hazard">发现隐患</span></div>
         </div>
       </div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#e8f4fd;">🏛</div>
+        <div class="is-modal-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
         <div class="is-modal-info">
           <div class="is-modal-name">龙华区应急管理局</div>
           <div class="is-modal-meta">A栋生产车间 · 2025-01-10<br>检查人：张建国 <span class="is-modal-tag gov">专项检查</span><span class="is-modal-tag pass">合格</span></div>
         </div>
       </div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#fff7e6;">🏢</div>
+        <div class="is-modal-icon" style="background:var(--wc-icon-bg-orange);">🏢</div>
         <div class="is-modal-info">
           <div class="is-modal-name">民治街道安监办</div>
           <div class="is-modal-meta">B栋仓库 · 2025-01-14<br>检查人：李维东 <span class="is-modal-tag gov">日常巡查</span><span class="is-modal-tag hazard">发现隐患</span></div>
         </div>
       </div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#fff7e6;">🏢</div>
+        <div class="is-modal-icon" style="background:var(--wc-icon-bg-orange);">🏢</div>
         <div class="is-modal-info">
           <div class="is-modal-name">民治街道安监办</div>
           <div class="is-modal-meta">危化品存储区 · 2025-01-08<br>检查人：李维东 <span class="is-modal-tag gov">日常巡查</span><span class="is-modal-tag pass">合格</span></div>
         </div>
       </div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#e8f4fd;">🏛</div>
+        <div class="is-modal-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
         <div class="is-modal-info">
           <div class="is-modal-name">深圳市应急管理局</div>
           <div class="is-modal-meta">全厂区 · 2025-01-10<br>检查人：王志强 <span class="is-modal-tag gov">专项检查</span><span class="is-modal-tag hazard">发现隐患</span></div>
         </div>
       </div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#e8f4fd;">🏛</div>
+        <div class="is-modal-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
         <div class="is-modal-info">
           <div class="is-modal-name">龙华区消防大队</div>
           <div class="is-modal-meta">消防设施 · 2025-01-05<br>检查人：刘明辉 <span class="is-modal-tag gov">专项检查</span><span class="is-modal-tag pass">合格</span></div>
@@ -157,28 +157,28 @@
       </div>
       <div class="is-modal-section-title">🏭 企业自查</div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#f0fff0;">🏭</div>
+        <div class="is-modal-icon" style="background:var(--wc-code-bg-green);">🏭</div>
         <div class="is-modal-info">
           <div class="is-modal-name">A栋生产车间</div>
           <div class="is-modal-meta">生产设备 · 2025-01-13<br>检查人：陈志远 <span class="is-modal-tag ent">企业自查</span><span class="is-modal-tag pass">合格</span></div>
         </div>
       </div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#f5f0ff;">📦</div>
+        <div class="is-modal-icon" style="background:var(--wc-icon-bg-purple);">📦</div>
         <div class="is-modal-info">
           <div class="is-modal-name">B栋仓库</div>
           <div class="is-modal-meta">仓储管理 · 2025-01-12<br>检查人：赵志明 <span class="is-modal-tag ent">企业自查</span><span class="is-modal-tag hazard">发现隐患</span></div>
         </div>
       </div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#fff2f0;">⚡</div>
+        <div class="is-modal-icon" style="background:var(--wc-code-bg-red);">⚡</div>
         <div class="is-modal-info">
           <div class="is-modal-name">危化品存储区</div>
           <div class="is-modal-meta">危化品管理 · 2025-01-11<br>检查人：周国安 <span class="is-modal-tag ent">企业自查</span><span class="is-modal-tag hazard">发现隐患</span></div>
         </div>
       </div>
       <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:#f0fff0;">🔧</div>
+        <div class="is-modal-icon" style="background:var(--wc-code-bg-green);">🔧</div>
         <div class="is-modal-info">
           <div class="is-modal-name">配电房</div>
           <div class="is-modal-meta">电气安全 · 2025-01-09<br>检查人：陈志远 <span class="is-modal-tag ent">企业自查</span><span class="is-modal-tag pass">合格</span></div>

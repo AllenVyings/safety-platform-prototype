@@ -6,79 +6,80 @@
   <title>管控列表</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
-    .cl-gradient {
-      position: absolute; top: 0; left: 0; right: 0; height: 200px; z-index: 0;
-      background: linear-gradient(180deg, #1068ff 0%, #3d86ff 35%, #5a9aff 55%, #70a4fd 75%, #b8d4fe 90%, #f5f7fa 100%);
+    .cl-gradient { display: none; }
+    .m-page {
+      position: relative; overflow: hidden; background-color: var(--wc-page-bg);
+      background-image: linear-gradient(180deg, #1068ff 0%, #3d86ff 30%, #5a9aff 50%, #70a4fd 70%, #b8d4fe 85%, var(--wc-page-bg) 100%);
+      background-size: 100% 350px; background-repeat: no-repeat; background-position: top;
     }
-    .cl-gradient::before {
-      content: ''; position: absolute; top: -30px; right: -20px; width: 180px; height: 180px;
+    .m-page::before {
+      content: ''; position: absolute; top: 110px; right: -10px; width: 160px; height: 160px;
       border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none;
     }
-    .cl-gradient::after {
-      content: ''; position: absolute; top: 80px; left: -30px; width: 100px; height: 100px;
+    .m-page::after {
+      content: ''; position: absolute; top: 220px; left: -20px; width: 100px; height: 100px;
       border-radius: 50%; background: rgba(255,255,255,0.05); pointer-events: none;
     }
     .cl-header {
-      padding: 107px 16px 16px; position: relative; z-index: 1;
+      padding: 107px var(--wc-page-padding) var(--wc-page-padding);
       display: flex; flex-direction: column;
     }
-    .cl-header-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 12px; position: relative; z-index: 1; }
+    .cl-header-title { font-size: var(--wc-gap-lg); font-weight: 600; color: var(--wc-card-bg); margin-bottom: var(--wc-gap-xl); position: relative; z-index: 1; }
     .cl-search {
-      width: 100%; padding: 9px 12px 9px 32px; border: none; border-radius: 8px;
-      background: rgba(255,255,255,0.9) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 10px center;
-      font-size: 14px; outline: none; box-sizing: border-box; color: #000;
+      width: 100%; padding: 9px var(--wc-gap-xl) 9px 32px; border: none; border-radius: var(--wc-btn-radius);
+      background: rgba(255,255,255,0.9) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat var(--wc-gap-lg) center;
+      font-size: var(--wc-font-caption); outline: none; box-sizing: border-box; color: var(--wc-text-primary);
     }
-    .cl-search::placeholder { color: #888; }
+    .cl-search::placeholder { color: var(--wc-text-placeholder); }
 
-    .cl-tabs { display: flex; background: #fff; border-bottom: 0.5px solid #f0f0f0; border-radius: 12px 12px 0 0; overflow: hidden; }
-    .cl-tab { flex: 1; text-align: center; padding: 11px 0; font-size: 14px; color: #888; cursor: pointer; position: relative; }
-    .cl-tab.active { color: #1068ff; font-weight: 600; }
-    .cl-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: #1068ff; border-radius: 1.5px; }
-    .cl-sub-tab { flex: 1; text-align: center; padding: 9px 0; font-size: 13px; color: #888; cursor: pointer; position: relative; }
-    .cl-sub-tab.active { color: #1068ff; font-weight: 600; }
-    .cl-sub-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 16px; height: 2px; background: #1068ff; border-radius: 1px; }
+    .cl-tabs { display: flex; background: var(--wc-card-bg); border-bottom: 0.5px solid var(--wc-track-bg); border-radius: var(--wc-card-radius) var(--wc-card-radius) 0 0; overflow: hidden; }
+    .cl-tab { flex: 1; text-align: center; padding: 11px 0; font-size: var(--wc-font-caption); color: var(--wc-text-placeholder); cursor: pointer; position: relative; }
+    .cl-tab.active { color: var(--brand-blue); font-weight: 600; }
+    .cl-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: var(--brand-blue); border-radius: 1.5px; }
+    .cl-sub-tab { flex: 1; text-align: center; padding: 9px 0; font-size: var(--wc-font-small); color: var(--wc-text-placeholder); cursor: pointer; position: relative; }
+    .cl-sub-tab.active { color: var(--brand-blue); font-weight: 600; }
+    .cl-sub-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 16px; height: 2px; background: var(--brand-blue); border-radius: 1px; }
 
-    .cl-list { background: #fff; border-radius: 0 0 12px 12px; overflow: hidden; }
+    .cl-list { background: var(--wc-card-bg); border-radius: 0 0 var(--wc-card-radius) var(--wc-card-radius); overflow: hidden; }
     .tree-children { padding-left: 24px; background: #fafbfc; }
     .tree-children.collapsed { display: none; }
     .tree-node {
-      display: flex; align-items: center; padding: 12px 16px; cursor: pointer;
-      border-bottom: 0.5px solid #f5f5f5; background: #fff;
+      display: flex; align-items: center; padding: var(--wc-gap-xl) var(--wc-page-padding); cursor: pointer;
+      border-bottom: 0.5px solid #f5f5f5; background: var(--wc-card-bg);
     }
-    .tree-node:active { background: #f5f7fa; }
-    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #bbb; margin-right: 4px; flex-shrink: 0; }
-    .tree-name { flex: 1; font-size: 14px; color: #333; }
+    .tree-node:active { background: var(--wc-page-bg); }
+    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: var(--wc-font-tiny); color: var(--wc-text-disabled); margin-right: var(--wc-gap-sm); flex-shrink: 0; }
+    .tree-name { flex: 1; font-size: var(--wc-font-caption); color: var(--wc-text-secondary); }
     .tree-code { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; flex-shrink: 0; }
-    .tree-code.green { background: #52c41a; }
-    .tree-code.yellow { background: #faad14; }
-    .tree-code.red { background: #ff4d4f; }
-    .tree-person { font-size: 12px; color: #888; margin-left: 8px; }
+    .tree-code.green { background: var(--code-green); }
+    .tree-code.yellow { background: var(--code-yellow); }
+    .tree-code.red { background: var(--code-red); }
+    .tree-person { font-size: var(--wc-font-small); color: var(--wc-text-placeholder); margin-left: var(--wc-gap-md); }
 
-    .person-card { display: flex; align-items: center; padding: 12px 16px; background: #fff; border-radius: 12px; margin: 8px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .person-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
+    .person-card { display: flex; align-items: center; padding: var(--wc-gap-xl) var(--wc-page-padding); background: var(--wc-card-bg); border-radius: var(--wc-card-radius); margin: var(--wc-gap-md) var(--wc-page-padding); box-shadow: var(--wc-shadow-card); }
+    .person-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: var(--wc-gap-xl); flex-shrink: 0; }
     .person-avatar svg { width: 20px; height: 20px; }
-    .person-avatar.green { background: #f6ffed; border: 2px solid #52c41a; }
-    .person-avatar.yellow { background: #fffbe6; border: 2px solid #faad14; }
-    .person-avatar.red { background: #fff2f0; border: 2px solid #ff4d4f; }
+    .person-avatar.green { background: var(--wc-code-bg-green); border: 2px solid var(--code-green); }
+    .person-avatar.yellow { background: var(--wc-code-bg-yellow); border: 2px solid var(--code-yellow); }
+    .person-avatar.red { background: var(--wc-code-bg-red); border: 2px solid var(--code-red); }
     .person-info { flex: 1; }
-    .person-name { font-size: 15px; font-weight: 500; color: #000; }
-    .person-role { font-size: 12px; color: #888; margin-top: 2px; }
+    .person-name { font-size: var(--wc-font-body); font-weight: 500; color: var(--wc-text-primary); }
+    .person-role { font-size: var(--wc-font-small); color: var(--wc-text-placeholder); margin-top: 2px; }
 
-    .filter-row { display: flex; gap: 8px; padding: 8px 16px; flex-wrap: wrap; }
-    .filter-tag { padding: 4px 12px; border-radius: 14px; font-size: 12px; background: #f5f5f5; color: #666; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease; }
-    .filter-tag.active { background: #1068ff; color: #fff; }
+    .filter-row { display: flex; gap: var(--wc-gap-md); padding: var(--wc-gap-md) var(--wc-page-padding); flex-wrap: wrap; }
+    .filter-tag { padding: var(--wc-gap-sm) var(--wc-gap-xl); border-radius: 14px; font-size: var(--wc-font-small); background: #f5f5f5; color: var(--wc-text-tertiary); cursor: pointer; display: flex; align-items: center; gap: var(--wc-gap-sm); transition: all 0.2s ease; }
+    .filter-tag.active { background: var(--brand-blue); color: var(--wc-card-bg); }
     .filter-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   </style>
 </head>
 <body>
-  <div class="m-page with-tabbar" style="background:#f5f7fa;position:relative;">
-    <div class="cl-gradient"></div>
+  <div class="m-page with-tabbar">
     <div class="cl-header">
       <input class="cl-search" placeholder="搜索安全管控对象名称" style="position:relative;z-index:1;">
     </div>
 
     <!-- 内容区：页签+列表合为一体 -->
-    <div style="position:relative;z-index:1;margin:0 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-radius:12px;overflow:hidden;">
+    <div style="position:relative;z-index:1;margin:0 var(--wc-page-padding);box-shadow:var(--wc-shadow-card);border-radius:var(--wc-card-radius);overflow:hidden;">
     <!-- 风险列表面板 -->
     <div id="panelRisk">
       <div class="cl-tabs">
@@ -149,7 +150,7 @@
         <div class="cl-tab" onclick="switchPanel(0)">风险列表</div>
         <div class="cl-tab active" onclick="switchPanel(1)">人员列表</div>
       </div>
-      <div style="display:flex;background:#fff;border-bottom:0.5px solid #f0f0f0;">
+      <div style="display:flex;background:var(--wc-card-bg);border-bottom:0.5px solid var(--wc-track-bg);">
         <div class="cl-sub-tab active" onclick="switchLevel(this,0)">领导层</div>
         <div class="cl-sub-tab" onclick="switchLevel(this,1)">管理层</div>
         <div class="cl-sub-tab" onclick="switchLevel(this,2)">员工层</div>
@@ -157,9 +158,9 @@
 
       <div class="filter-row">
         <span class="filter-tag active" onclick="filterCode(this)">全部</span>
-        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:#52c41a"></span>绿色</span>
-        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:#faad14"></span>黄色</span>
-        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:#ff4d4f"></span>红色</span>
+        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:var(--code-green)"></span>绿色</span>
+        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:var(--code-yellow)"></span>黄色</span>
+        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:var(--code-red)"></span>红色</span>
       </div>
 
       <div id="personList">
