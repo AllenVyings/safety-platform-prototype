@@ -282,6 +282,8 @@
 
 新增/修改页面后自查：
 
+### PC 端（超管/政府/企业）
+
 - [ ] 已引用 `css/variables.css` 和 `css/framework.css`
 - [ ] 无硬编码颜色（`#1677ff`, `#ff4d4f`, `#52c41a`, `#faad14`, `#1f1f1f`, `#666`, `#999`, `#fff`）
 - [ ] 无硬编码间距（`4px`, `8px`, `12px`, `16px`, `20px`, `24px`）
@@ -290,7 +292,15 @@
 - [ ] 标签使用 `.tag .tag-{color}` 类
 - [ ] 面包屑使用 `>` 分隔符
 - [ ] 有 `data-module` 属性和初始化脚本
-- [ ] 含树形结构的页面，`.tree-children` 显式声明 `display: block`（避免被 framework.css 隐藏）
+- [ ] 含树形结构的页面，`.tree-children` 已改为 scoped（仅 `.tree-select-group .tree-children` 受影响），自定义树形无需额外覆盖
+- [ ] 阴影使用 `--shadow-sm`/`--shadow-md`/`--shadow-card`/`--shadow-card-hover`（`--shadow-card` 等于 `--shadow-sm`）
+
+### 移动端
+
+- [ ] 已引用 `css/mobile.css`（内含 `:root` 变量定义，无需额外引用 `variables.css`）
+- [ ] 无硬编码颜色（使用 `--wc-*`、`--code-*`、`--brand-*` 变量）
+- [ ] 无硬编码间距/字号/圆角（使用 `--wc-gap-*`、`--wc-font-*`、`--wc-radius-*` 变量）
+- [ ] JS 中动态设置颜色时，优先使用 `var(--xxx)` 而非硬编码 hex 值
 
 ---
 
@@ -310,8 +320,20 @@ A: 尽量避免。如确有特殊需求，先在页面 `<style>` 中检查是否
 
 ### Q: 为什么我页面的树形内容不显示了？
 
-A: `framework.css` 中有全局规则 `.tree-children { display: none; }`（用于 tree-select 组件）。如果你的页面使用了自定义树形结构，必须在页面 `<style>` 中显式声明 `.tree-children { display: block; }` 来覆盖全局规则。仅定义 `padding-left` 等属性不足以覆盖 `display`。
+A: `framework.css` 中 `.tree-children { display: none }` 已改为 scoped 选择器 `.tree-select-group .tree-children { display: none }`，仅影响 tree-select 组件。自定义树形不再受影响，无需额外覆盖。如果你的页面仍定义了 `.tree-children { display: block }` 的覆盖规则，可以安全删除。
 
 ### Q: 左树右表布局中，左右两侧顶部高度不一致怎么办？
 
 A: 确保 `.right-panel` 的 `padding-top` 为 0，且所有 `.detail-view` 不设置 `margin-top`。顶部间距统一由外层容器控制，避免不同视图切换时高度跳动。
+
+### Q: 移动端页面应该引用哪些 CSS？
+
+A: 只需引用 `css/mobile.css`，它内含 `:root` 变量定义（`--wc-*`、`--code-*`、`--brand-*`），无需额外引用 `variables.css`。移动端使用 WeUI 设计规范，与 PC 端变量体系独立。
+
+### Q: `--shadow-card` 和 `--shadow-sm` 有什么区别？
+
+A: 值相同（`0 2px 8px rgba(0,0,0,0.08)`），`--shadow-card` 是 `--shadow-sm` 的语义别名。使用哪个取决于语境：卡片场景用 `--shadow-card`，通用小阴影用 `--shadow-sm`。
+
+### Q: JS 中动态设置颜色可以用 CSS 变量吗？
+
+A: 可以。现代浏览器支持 `element.style.color = 'var(--danger)'` 等写法。原型中已全面采用此方式。
