@@ -261,6 +261,105 @@
 
 使用全局 `Modal` 组件或框架标准弹窗结构。弹窗内信息板块使用 `.info-section` + `.info-grid`。
 
+### 7.8 分页（强制使用 Pagination 组件）
+
+**所有列表页分页必须使用 `js/pagination.js` 提供的 `Pagination` 类**，禁止在页面内联实现 `renderPagination` / `changePageSize` / `goPage` 函数。
+
+#### 7.8.1 引入
+
+```html
+<!-- 在页面底部、其他业务 JS 之前引入 -->
+<script src="../../js/pagination.js"></script>
+```
+
+#### 7.8.2 HTML 容器
+
+```html
+<div class="table-wrap">
+  <div class="table-scroll">
+    <table>...</table>
+  </div>
+  <!-- 容器为空 div，id 唯一，class 必须为 pagination -->
+  <div class="pagination" id="paginationBar"></div>
+</div>
+```
+
+#### 7.8.3 初始化与回调
+
+```javascript
+let currentPage = 1;
+let pageSize = 10;
+let pg;
+
+document.addEventListener('DOMContentLoaded', () => {
+  pg = new Pagination('paginationBar', {
+    size: 10,                       // 默认每页（与组件默认一致）
+    total: 0,                       // 初始总数（异步加载后用 setTotal 更新）
+    sizeOptions: [10, 20, 50],      // 每页档位（标准三档，不再使用 100）
+    onChange: (page, size) => {
+      currentPage = page;
+      pageSize = size;
+      renderList();                 // 业务方负责重新渲染表格
+    }
+  });
+  loadData();
+});
+
+function loadData() {
+  const filtered = applyFilterToDataset();
+  pg.setTotal(filtered.length);     // 数据变化后必须调用 setTotal
+  renderList();
+}
+```
+
+#### 7.8.4 筛选联动契约（强制）
+
+筛选 / 搜索 / 重置函数**必须同时**重置业务变量和组件状态：
+
+```javascript
+function applyFilter() {
+  currentPage = 1;
+  pg.setPage(1);                    // 关键：避免页码停留在第 5 页但数据已回到首页
+  loadData();
+}
+
+function resetFilter() {
+  document.querySelectorAll('.filter-bar select, .filter-bar input').forEach(el => el.value = '');
+  applyFilter();
+}
+```
+
+#### 7.8.5 公共 API
+
+| 方法 | 用途 |
+|------|------|
+| `new Pagination(containerId, options)` | 初始化，options 含 `size` / `total` / `sizeOptions` / `onChange` |
+| `pg.setTotal(total)` | 数据变化后更新总数，内部自动 re-render |
+| `pg.setPage(page)` | 强制跳转到指定页（筛选后必须调用 `pg.setPage(1)`） |
+| `pg.getState()` | 返回 `{ page, size, total }`，用于调试或导出当前分页状态 |
+
+#### 7.8.6 视觉规范
+
+| 元素 | CSS 类 | 备注 |
+|------|--------|------|
+| 容器 | `.pagination` | flex 布局，组件渲染入口 |
+| 页码按钮 | `.pg` / `.pg.active` | active 为当前页高亮 |
+| 总数文字 | `.pg-info` | "共 X 条" |
+| 每页下拉 | `.pg-size` | select 元素 |
+| 省略号 | `.pg-ellipsis` | 总页数 >7 时智能折叠 |
+| 跳转容器 | `.pg-jump` | "前往 [_] 页" |
+| 跳转输入 | `.pg-jump-input` | 回车触发跳转 |
+
+#### 7.8.7 已废弃用法
+
+| 旧写法 | 替代方案 |
+|--------|----------|
+| `<div class="pagination-wrap">...</div>` 静态 HTML | `<div class="pagination" id="..."></div>` + 组件 |
+| 页内 `function renderPagination()` | `new Pagination()` 自动渲染 |
+| 页内 `function changePageSize()` | 组件内部处理 |
+| 页内 `function goPage(p)` | 组件内部处理 |
+| 每页档位含 100 条 | 标准为 `[10, 20, 50]` |
+
 ---
 
 ## 8. 页面结构模板
@@ -273,7 +372,7 @@
 3. 筛选栏 (.filter-bar) - 如有表格
 4. 表格容器 (.table-wrap) - 如有列表
    - 表格 (.table-scroll > table)
-   - 分页 (.pagination-wrap)
+   - 分页 (.pagination#paginationBar) - 必须用 Pagination 组件渲染（见 §7.8）
 ```
 
 ---
