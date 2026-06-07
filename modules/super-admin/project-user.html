@@ -8,96 +8,87 @@
 <title>项目用户管理 - 超管端</title>
 
 <style>
-.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
-.breadcrumb-item:hover{color:#1677ff}
-.main-layout{display:flex;gap:16px;margin-top:16px}
+.breadcrumb-item:hover{color:var(--primary)}
+.main-layout{display:flex;gap: var(--spacing-md);margin-top: var(--spacing-md)}
 
 /* 左侧项目树 */
-.tree-panel{width:280px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden}
-.tree-header{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:600;color:#1f1f1f}
-.tree-body{flex:1;overflow-y:auto;padding:8px 0}
-.tree-node{display:flex;align-items:center;padding:7px 16px;cursor:pointer;transition:background .2s;gap:6px}
-.tree-node:hover{background:#f5f7fa}
-.tree-node.active{background:#e6f4ff;color:#1677ff}
-.tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;cursor:pointer;flex-shrink:0}
-.tree-node-label{font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tree-node-icon{font-size:14px;margin-right:2px}
+.tree-panel{width:280px;background:var(--bg-primary);border-radius: var(--radius-lg);box-shadow: var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
+.tree-header{padding: 14px var(--spacing-md);border-bottom:1px solid var(--border-light);font-size: var(--font-size-md);font-weight:600;color:var(--text-primary)}
+.tree-body{flex:1;overflow-y:auto;padding: var(--spacing-sm) 0}
+.tree-node{display:flex;align-items:center;padding: 7px var(--spacing-md);cursor:pointer;transition:background .2s;gap:6px}
+.tree-node:hover{background: var(--bg-page-solid)}
+.tree-node.active{background:var(--primary-light);color:var(--primary)}
+.tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
+.tree-node-label{font-size: var(--font-size-sm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-node-icon{font-size: var(--font-size-md);margin-right:2px}
 .tree-children{padding-left:20px;display:block}
 
 /* 右侧内容 */
-.content-panel{flex:1;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:20px;overflow:auto}
+.content-panel{flex:1;background:var(--bg-primary);border-radius: var(--radius-lg);box-shadow: var(--shadow-sm);padding:20px;overflow:auto}
 
 /* 统计卡片 */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.stat-card{background:linear-gradient(135deg,#fafafa 0%,#f5f7fa 100%);border-radius:8px;padding:14px 16px;border:1px solid #f0f0f0}
-.stat-card-label{font-size:12px;color:#888;margin-bottom:4px}
-.stat-card-value{font-size:20px;font-weight:700;color:#1f1f1f}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom: var(--spacing-md)}
+
+.stat-card-label{font-size: var(--font-size-xs);color:var(--text-tertiary);margin-bottom: var(--spacing-xs)}
+.stat-card-value{font-size: var(--font-size-xxl);font-weight:700;color:var(--text-primary)}
 
 /* 查询区 */
-.query-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.query-bar input,.query-bar select{padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none}
-.query-bar input:focus,.query-bar select:focus{border-color:#1677ff}
+.query-bar{display:flex;gap:10px;margin-bottom: var(--spacing-md);flex-wrap:wrap}
+.query-bar input,.query-bar select{padding:7px 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none}
+.query-bar input:focus,.query-bar select:focus{border-color:var(--primary)}
 .query-bar input{min-width:180px}
 
 /* 表格 */
 .table-scroll{overflow-x:auto}
-.table-basic{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
-.table-basic th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;color:#1f1f1f;border-bottom:1px solid #f0f0f0;white-space:nowrap}
-.table-basic td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333}
-.table-basic tr:hover td{background:#fafafa}
+.table-basic{width:100%;border-collapse:collapse;font-size: var(--font-size-sm);min-width:900px}
+.table-basic th{background:var(--bg-tertiary);padding:10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light);white-space:nowrap}
+.table-basic td{padding:10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary)}
+.table-basic tr:hover td{background:var(--bg-tertiary)}
 .ellipsis-col{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
-.action-col{position:sticky;right:0;background:#fff;white-space:nowrap}
-.action-col .btn-link{margin-right:8px}
+.action-col{white-space:nowrap}
+.action-col
 
-/* 分页 */
-.pagination-wrap{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid #f0f0f0}
-.pagination-info{font-size:13px;color:#666}
-.pagination-btns{display:flex;gap:4px}
-.page-btn{padding:5px 10px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;font-size:13px;cursor:pointer;color:#666}
-.page-btn:hover{color:#1677ff;border-color:#1677ff}
-.page-btn.active{background:#1677ff;color:#fff;border-color:#1677ff}
-.page-btn:disabled{opacity:.5;cursor:not-allowed}
+/* 分页 - .pagination 由 framework.css 提供 */
 
 /* 按钮 */
-.btn{padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
-.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
-.btn-default:hover{color:#1677ff;border-color:#1677ff}
-.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
-.btn-primary:hover{background:#4096ff}
-.btn-danger{background:#ff4d4f;color:#fff;border-color:#ff4d4f}
-.btn-danger:hover{background:#ff7875}
-.btn-sm{padding:4px 10px;font-size:12px}
-.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
-.btn-link:hover{color:#4096ff}
-.btn-link.danger{color:#ff4d4f}
-.btn-link.danger:hover{color:#ff7875}
+
+.btn-default:hover{color:var(--primary);border-color:var(--primary)}
+
+.btn-primary:hover{background:var(--primary-hover)}
+
+.btn-danger:hover{background:var(--danger-hover)}
+.btn-sm{padding: var(--spacing-xs) 10px;font-size: var(--font-size-xs)}
+
+.btn-link:hover{color:var(--primary-hover)}
+.btn-link.danger{color:var(--danger)}
+.btn-link.danger:hover{color:var(--danger-hover)}
 
 /* 标签 */
-.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
-.tag-success{background:#f6ffed;color:#52c41a}
-.tag-warning{background:#fffbe6;color:#faad14}
-.tag-error{background:#fff2f0;color:#ff4d4f}
-.tag-info{background:#e6f4ff;color:#52c41a}
-.tag-gray{background:#f1f5f9;color:#64748b}
+
+.tag-success{background:var(--success-light);color:var(--success)}
+.tag-warning{background:var(--warning-light);color:var(--warning)}
+.tag-error{background:var(--danger-light);color:var(--danger)}
+.tag-info{background:var(--primary-light);color:var(--success)}
+.tag-gray{background:var(--bg-section);color:var(--text-secondary)}
 
 /* 弹窗 */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center}
-.modal-box{background:#fff;border-radius:8px;width:640px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.modal-header{padding:14px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
-.modal-title{font-size:15px;font-weight:600;color:#1f1f1f}
-.modal-close{font-size:18px;color:#999;cursor:pointer;background:none;border:none}
-.modal-close:hover{color:#333}
-.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
-.modal-footer{padding:12px 20px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px}
+.modal-box{background:var(--bg-primary);border-radius: var(--radius-lg);width:640px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.modal-header{padding:14px 20px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:15px;font-weight:600;color:var(--text-primary)}
+.modal-close{font-size: var(--font-size-xl);color:var(--text-tertiary);cursor:pointer;background:none;border:none}
+.modal-close:hover{color:var(--text-primary)}
+.modal-body{padding: var(--spacing-md) 20px;overflow-y:auto;flex:1}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap: var(--spacing-sm)}
 .form-row{display:flex;gap:12px;margin-bottom:12px}
 .form-group{flex:1}
-.form-group label{display:block;font-size:13px;color:#333;margin-bottom:5px}
-.form-group label .required{color:#ff4d4f;margin-left:2px}
-.form-group input,.form-group select{width:100%;padding:7px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box}
-.form-group input:focus,.form-group select:focus{border-color:#1677ff}
+.form-group label{display:block;font-size: var(--font-size-sm);color:var(--text-primary);margin-bottom:5px}
+.form-group label .required{color:var(--danger);margin-left:2px}
+.form-group input,.form-group select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;box-sizing:border-box}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary)}
 
 /* Toast */
-#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding: 10px var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius: var(--radius-md);font-size: var(--font-size-md);z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
 </style>
 </head>
 <body>
@@ -128,15 +119,15 @@
         </div>
         <div class="stat-card">
           <div class="stat-card-label">正常账号</div>
-          <div class="stat-card-value" style="color:#52c41a">10</div>
+          <div class="stat-card-value" style="color:var(--success)">10</div>
         </div>
         <div class="stat-card">
           <div class="stat-card-label">停用账号</div>
-          <div class="stat-card-value" style="color:#ff4d4f">2</div>
+          <div class="stat-card-value" style="color:var(--danger)">2</div>
         </div>
         <div class="stat-card">
           <div class="stat-card-label">今日新增</div>
-          <div class="stat-card-value" style="color:#1677ff">1</div>
+          <div class="stat-card-value" style="color:var(--primary)">1</div>
         </div>
       </div>
 
@@ -172,7 +163,7 @@
               <th>账号</th>
               <th>状态</th>
               <th>创建时间</th>
-              <th>操作</th>
+              <th class="action-col">操作</th>
             </tr>
           </thead>
           <tbody id="userTableBody">
@@ -241,14 +232,18 @@
       </div>
 
       <!-- 分页 -->
-      <div class="pagination-wrap">
-        <span class="pagination-info">共 12 条记录，第 1/2 页</span>
-        <div class="pagination-btns">
-          <button class="page-btn" disabled>&lt;</button>
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">&gt;</button>
-        </div>
+      <div class="pagination">
+        <span class="pg-info">共 12 条</span>
+        <select class="pg-size">
+          <option value="10" selected>10 条/页</option>
+          <option value="20">20 条/页</option>
+          <option value="50">50 条/页</option>
+        </select>
+        <button class="pg" disabled>上一页</button>
+        <button class="pg active">1</button>
+        <button class="pg">2</button>
+        <button class="pg">下一页</button>
+        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="2" value="1"> 页</span>
       </div>
     </div>
   </div>

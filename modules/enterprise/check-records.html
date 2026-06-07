@@ -8,58 +8,15 @@
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
     /* ========== 页面背景 ========== */
-    .page-container { 
-      padding: var(--spacing-lg); 
-      background: var(--bg-page);
-      min-height: 100vh;
-    }
     
     /* ========== 页面标题栏 ========== */
-    .page-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: var(--spacing-md);
-      background: var(--bg-primary);
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-header);
-    }
-    .page-title { font-size: var(--font-size-xl); font-weight: 600; color: var(--text-primary); }
     
     /* ========== 统计卡片 ========== */
-    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .stat-card { 
-      flex: 1; 
-      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%); 
-      border: 1px solid var(--border-card); 
-      border-radius: var(--radius-lg); 
-      padding: var(--spacing-md) var(--spacing-lg); 
-      box-shadow: var(--shadow-card);
-      transition: transform var(--duration-fast), box-shadow var(--duration-fast);
-    }
-    .stat-card:hover { 
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-card-hover);
-    }
-    .stat-value { font-size: 24px; font-weight: 600; color: var(--text-primary); }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
     
     /* ========== 筛选栏 ========== */
-    .filter-bar { 
-      display: flex; 
-      gap: var(--spacing-sm); 
-      margin-bottom: var(--spacing-md); 
-      align-items: center; 
-      flex-wrap: wrap;
-      background: var(--bg-section);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-light);
-    }
     .filter-item select, .filter-item input { 
       padding: 6px 10px; 
-      border: 1px solid var(--border-input); 
+      border: 1px solid var(--border-figma); 
       border-radius: var(--radius-sm); 
       font-size: var(--font-size-sm); 
       background: var(--bg-primary);
@@ -70,70 +27,43 @@
     }
     
     /* ========== 表格容器 ========== */
-    .table-wrap { 
-      background: var(--bg-primary); 
-      border-radius: var(--radius-lg); 
-      overflow: hidden; 
-      box-shadow: var(--shadow-card);
-    }
     .table-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; min-width: 900px; }
     thead tr { background: var(--bg-section-alt); }
-    th { padding: 12px 16px; text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap; }
-    td { padding: 12px 16px; font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
+    th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap; }
+    td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
     .ellipsis-col { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; width: 200px; }
+    .action-col { width: 200px; }
     tbody tr:nth-child(even) { background: var(--bg-section-alt); }
     tbody tr:hover td { background: var(--bg-hover); }
-    tbody tr:hover .action-col { background: var(--bg-hover); }
-    
-    /* ========== 分页 ========== */
-    .pagination-wrap { 
-      display: flex; 
-      align-items: center; 
-      justify-content: flex-end; 
-      gap: 4px; 
-      padding: 12px 16px;
-      background: var(--bg-section);
-      border-top: 1px solid var(--border-light);
-    }
-    .pg-btn { padding: 6px 12px; border: 1px solid var(--border-input); background: var(--bg-primary); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
-    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    
+
+    /* 分页 - .pagination 由 framework.css 提供 */
+
     /* ========== 标签样式 ========== */
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
-    .tag-green { background: var(--success-light); color: var(--success); }
-    .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
-    .tag-orange { background: var(--warning-light); color: var(--warning); }
-    .tag-red { background: var(--error-light); color: var(--error); }
-    .tag-blue { background: var(--info-light); color: var(--info); }
 
     /* ========== 弹窗 ========== */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: none; align-items: center; justify-content: center; }
-    .modal-box { background: #fff; border-radius: 12px; box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 680px; max-height: 80vh; overflow: auto; }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; }
-    .modal-head-title { font-size: 16px; font-weight: 600; }
-    .modal-head-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #999; }
-    .modal-head-close:hover { color: #333; }
-    .modal-body { padding: 24px; }
-    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid #f0f0f0; }
-    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
-    .detail-item { display: flex; flex-direction: column; gap: 4px; }
-    .detail-label { font-size: 12px; color: #999; }
-    .detail-value { font-size: 14px; color: #333; }
-    .detail-section { margin-bottom: 16px; }
-    .detail-section-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f0f0f0; }
-    .detail-check-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; color: #333; }
-    .detail-check-icon { font-size: 14px; }
+    .modal-box { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 680px; max-height: 80vh; overflow: auto; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
+    .modal-head-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-head-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
+    .modal-head-close:hover { color: var(--text-primary); }
+    .modal-foot { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    .detail-item { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+    .detail-label { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+    .detail-value { font-size: var(--font-size-md); color: var(--text-primary); }
+    .detail-section { margin-bottom: var(--spacing-md); }
+    .detail-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm); padding-bottom: 6px; border-bottom: 1px solid var(--border-light); }
+    .detail-check-item { display: flex; align-items: center; gap: var(--spacing-sm); padding: 6px 0; font-size: var(--font-size-sm); color: var(--text-primary); }
+    .detail-check-icon { font-size: var(--font-size-md); }
     .detail-check-list { width: 100%; }
-    .detail-check-row { display: grid; grid-template-columns: 40px 1fr 80px 1fr; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; align-items: center; }
+    .detail-check-row { display: grid; grid-template-columns: 40px 1fr 80px 1fr; gap: var(--spacing-sm); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); align-items: center; }
     .detail-check-row:last-child { border-bottom: none; }
-    .detail-check-row .check-num { color: #999; text-align: center; }
-    .detail-check-row .check-content { color: #333; }
+    .detail-check-row .check-num { color: var(--text-tertiary); text-align: center; }
+    .detail-check-row .check-content { color: var(--text-primary); }
     .detail-check-row .check-result { font-weight: 500; }
-    .detail-check-row .check-remark { color: #999; font-size: 12px; }
-    .detail-check-row.header { font-weight: 600; color: #666; background: #fafafa; padding: 8px; border-radius: 4px; border-bottom: none; }
+    .detail-check-row .check-remark { color: var(--text-tertiary); font-size: var(--font-size-xs); }
+    .detail-check-row.header { font-weight: 600; color: var(--text-secondary); background: var(--bg-tertiary); padding: var(--spacing-sm); border-radius: var(--radius-sm); border-bottom: none; }
   </style>
 </head>
 <body>
@@ -223,12 +153,19 @@
           </tbody>
         </table>
       </div>
-      <div class="pagination-wrap">
-        <button class="pg-btn">上一页</button>
-        <button class="pg-btn active">1</button>
-        <button class="pg-btn">2</button>
-        <button class="pg-btn">3</button>
-        <button class="pg-btn">下一页</button>
+      <div class="pagination">
+        <span class="pg-info">共 25 条</span>
+        <select class="pg-size">
+          <option value="10" selected>10 条/页</option>
+          <option value="20">20 条/页</option>
+          <option value="50">50 条/页</option>
+        </select>
+        <button class="pg" disabled>上一页</button>
+        <button class="pg active">1</button>
+        <button class="pg">2</button>
+        <button class="pg">3</button>
+        <button class="pg">下一页</button>
+        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="3" value="1"> 页</span>
       </div>
     </div>
   </div>
@@ -259,31 +196,31 @@
               <span>序号</span><span>检查内容</span><span>结果</span><span>备注</span>
             </div>
             <div class="detail-check-row">
-              <span class="check-num">1</span><span class="check-content">消防器材是否在有效期内</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+              <span class="check-num">1</span><span class="check-content">消防器材是否在有效期内</span><span class="check-result" style="color:var(--success)">合格</span><span class="check-remark">—</span>
             </div>
             <div class="detail-check-row">
-              <span class="check-num">2</span><span class="check-content">安全通道是否畅通</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+              <span class="check-num">2</span><span class="check-content">安全通道是否畅通</span><span class="check-result" style="color:var(--success)">合格</span><span class="check-remark">—</span>
             </div>
             <div class="detail-check-row">
-              <span class="check-num">3</span><span class="check-content">设备防护装置是否完好</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+              <span class="check-num">3</span><span class="check-content">设备防护装置是否完好</span><span class="check-result" style="color:var(--success)">合格</span><span class="check-remark">—</span>
             </div>
             <div class="detail-check-row">
-              <span class="check-num">4</span><span class="check-content">危化品存储是否规范</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+              <span class="check-num">4</span><span class="check-content">危化品存储是否规范</span><span class="check-result" style="color:var(--success)">合格</span><span class="check-remark">—</span>
             </div>
             <div class="detail-check-row">
-              <span class="check-num">5</span><span class="check-content">电气线路是否正常</span><span class="check-result" style="color:#52c41a">合格</span><span class="check-remark">—</span>
+              <span class="check-num">5</span><span class="check-content">电气线路是否正常</span><span class="check-result" style="color:var(--success)">合格</span><span class="check-remark">—</span>
             </div>
           </div>
         </div>
         <div class="detail-section">
           <div class="detail-section-title">检查结论</div>
-          <div style="padding:8px 12px;background:#f6ffed;border-radius:6px;font-size:13px;color:#52c41a;font-weight:500;">
+          <div style="padding: var(--spacing-sm) 12px;background:var(--success-light);border-radius: var(--radius-md);font-size: var(--font-size-sm);color:var(--success);font-weight:500;">
             本次检查全部合格，无发现隐患。
           </div>
         </div>
       </div>
       <div class="modal-foot">
-        <button class="btn btn-default" onclick="closeCheckDetail()" style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff">关闭</button>
+        <button class="btn btn-default" onclick="closeCheckDetail()" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">关闭</button>
       </div>
     </div>
   </div>
@@ -335,7 +272,7 @@
       function showToast(msg) {
         var t = document.createElement('div');
         t.textContent = msg;
-        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'#1677ff', color:'#fff', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
+        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding: 'var(--spacing-sm) var(--spacing-lg)', background:'var(--primary)', color:'var(--bg-primary)', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px var(--spacing-sm) rgba(0,0,0,0.15)' });
         document.body.appendChild(t);
         setTimeout(function() { t.remove(); }, 2000);
       }

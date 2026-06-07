@@ -7,14 +7,7 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-    /* ========== 页面背景 ========== */
-    .page-container { 
-      padding: var(--spacing-lg); 
-      background: var(--bg-page);
-      min-height: 100vh;
-    }
-    
-    /* ========== 页面标题栏 ========== */
+/* ========== 页面标题栏 ========== */
     .page-header { 
       display: flex; 
       justify-content: space-between; 
@@ -28,22 +21,21 @@
     .page-title { font-size: var(--font-size-lg); font-weight: 600; }
     
     /* ========== 统计卡片 ========== */
-    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .stat-card { 
-      flex: 1; 
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
-      border: 1px solid var(--border-light); 
-      border-radius: var(--radius-lg); 
-      padding: var(--spacing-md) var(--spacing-lg); 
+.stat-card {
+      flex: 1;
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
       box-shadow: var(--shadow-sm);
-      transition: all 0.2s;
+      transition: all var(--duration-normal);
     }
-    .stat-card:hover { 
-      background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%);
+    .stat-card:hover {
+      background: linear-gradient(135deg, var(--bg-section) 0%, var(--bg-tertiary) 100%);
       box-shadow: var(--shadow-md);
     }
-    .stat-value { font-size: 24px; font-weight: 600; }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
     
     /* ========== 筛选栏 ========== */
     .filter-bar { 
@@ -84,30 +76,18 @@
     .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
     .table-scroll tbody tr:hover td { background: var(--bg-hover); }
     .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-    .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; }
-    .table-scroll tbody tr:nth-child(even) .action-col { background: var(--bg-section-alt); }
-    .table-scroll tbody tr:hover .action-col { background: var(--bg-hover); }
+    .action-col { width: 200px; }
+    .action-col .btn-link { margin-right: 4px; }
+    .action-col .btn-link:last-child { margin-right: 0; }
     
     /* ========== 进度条 ========== */
-    .progress-bar { height: 8px; background: var(--bg-section-alt); border-radius: 4px; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .progress-bar { height: 8px; background: var(--bg-section-alt); border-radius: var(--radius-sm); overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: var(--radius-sm); transition: width var(--duration-normal); }
     
-    /* ========== 分页 ========== */
-    .pagination-wrap { 
-      display: flex; 
-      align-items: center; 
-      justify-content: flex-end; 
-      gap: 4px; 
-      padding: 12px var(--spacing-md);
-      background: var(--bg-section);
-      border-top: 1px solid var(--border-light);
-    }
-    .pg-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--bg-primary); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
-    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    /* 分页 - .pagination 由 framework.css 提供 */
     
     /* ========== 标签样式 ========== */
-    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 12px; }
+    .tag { display: inline-block; padding: 2px var(--spacing-sm); border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
     .tag-green { background: var(--success-light); color: var(--success); }
     .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
     .tag-orange { background: var(--warning-light); color: var(--warning); }
@@ -119,35 +99,35 @@
     .modal-overlay.show { display: flex; }
     .modal { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: 0 8px 32px rgba(0,0,0,0.18); width: 600px; max-height: 80vh; overflow: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
-    .modal-title { font-size: 16px; font-weight: 600; }
-    .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-tertiary); }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
     .modal-body { padding: var(--spacing-lg); }
     .modal-footer { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
     .form-group { margin-bottom: var(--spacing-md); }
     .form-label { display: block; font-size: var(--font-size-sm); font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
-    .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+    .form-control { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
     .form-control:focus { border-color: var(--primary); outline: none; }
-    .required { color: #ff4d4f; }
-    .btn { padding: 6px 16px; border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid var(--border-light); background: var(--bg-primary); }
-    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .btn-link { padding: 4px 8px; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .required { color: var(--danger); }
+    .btn { padding: 6px var(--spacing-md); border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid var(--border-light); background: var(--bg-primary); }
+    .btn-primary { background: var(--primary); color: var(--bg-primary); border-color: var(--primary); }
+    .btn-link { padding: var(--spacing-xs) var(--spacing-sm); border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
     .btn-link:hover { text-decoration: underline; }
 
     /* ========== 详情时间线 ========== */
     .timeline { position: relative; padding-left: 20px; }
     .timeline::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: var(--border-light); }
     .timeline-item { position: relative; padding-bottom: 16px; padding-left: 16px; }
-    .timeline-item::before { content: ''; position: absolute; left: -18px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--primary); }
+    .timeline-item::before { content: ''; position: absolute; left: -18px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); border: 2px solid var(--bg-primary); box-shadow: 0 0 0 2px var(--primary); }
     .timeline-item.done::before { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
-    .timeline-item.pending::before { background: #d9d9d9; box-shadow: 0 0 0 2px #d9d9d9; }
-    .timeline-time { font-size: 12px; color: var(--text-secondary); margin-bottom: 2px; }
-    .timeline-desc { font-size: 13px; color: var(--text-primary); }
+    .timeline-item.pending::before { background: var(--border); box-shadow: 0 0 0 2px var(--border); }
+    .timeline-time { font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 2px; }
+    .timeline-desc { font-size: var(--font-size-sm); color: var(--text-primary); }
 
     /* ========== 检查记录列表 ========== */
-    .check-record { display: flex; align-items: center; padding: 10px 12px; background: #fafbfc; border-radius: 6px; border: 1px solid #e8eaed; margin-bottom: 8px; }
+    .check-record { display: flex; align-items: center; padding: var(--spacing-sm) var(--spacing-sm); background: var(--bg-section); border-radius: var(--radius-md); border: 1px solid var(--border-section); margin-bottom: var(--spacing-sm); }
     .check-record-info { flex: 1; min-width: 0; }
-    .check-record-title { font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
-    .check-record-meta { font-size: 12px; color: var(--text-secondary); }
+    .check-record-title { font-size: var(--font-size-sm); color: var(--text-primary); margin-bottom: 2px; }
+    .check-record-meta { font-size: var(--font-size-xs); color: var(--text-secondary); }
   </style>
 </head>
 <body>
@@ -247,11 +227,18 @@
           </tbody>
         </table>
       </div>
-      <div class="pagination-wrap">
-        <button class="pg-btn" onclick="prevPage()">上一页</button>
-        <button class="pg-btn active">1</button>
-        <button class="pg-btn" onclick="nextPage()">2</button>
-        <button class="pg-btn" onclick="nextPage()">下一页</button>
+      <div class="pagination">
+        <span class="pg-info">共 15 条</span>
+        <select class="pg-size">
+          <option value="10" selected>10 条/页</option>
+          <option value="20">20 条/页</option>
+          <option value="50">50 条/页</option>
+        </select>
+        <button class="pg" disabled>上一页</button>
+        <button class="pg active">1</button>
+        <button class="pg">2</button>
+        <button class="pg">下一页</button>
+        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="2" value="1"> 页</span>
       </div>
     </div>
   </div>
@@ -323,7 +310,7 @@
       function showToast(msg) {
         var t = document.createElement('div');
         t.textContent = msg;
-        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'#1677ff', color:'#fff', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
+        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'var(--primary)', color:'var(--bg-primary)', borderRadius:'var(--radius-md)', fontSize:'var(--font-size-md)', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
         document.body.appendChild(t);
         setTimeout(function() { t.remove(); }, 2000);
       }
@@ -339,20 +326,20 @@
         var progressColor = d.progress >= 90 ? 'var(--success)' : d.progress >= 60 ? 'var(--warning)' : 'var(--error)';
         var statusClass = d.status === '正常' ? 'tag-green' : d.status === '滞后' ? 'tag-orange' : 'tag-red';
         document.getElementById('dutyDetailBody').innerHTML =
-          '<div style="display:flex;gap:16px;margin-bottom:16px;">' +
-            '<div style="flex:1;background:#fafbfc;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:600;color:var(--primary);">' + d.checks + '</div><div style="font-size:12px;color:var(--text-secondary);">本月检查次数</div></div>' +
-            '<div style="flex:1;background:#fafbfc;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:600;color:var(--error);">' + d.hazards + '</div><div style="font-size:12px;color:var(--text-secondary);">隐患发现数</div></div>' +
-            '<div style="flex:1;background:#fafbfc;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:600;">' + d.rate + '</div><div style="font-size:12px;color:var(--text-secondary);">整改完成率</div></div>' +
-            '<div style="flex:1;background:#fafbfc;border-radius:8px;padding:12px;text-align:center;"><span class="tag ' + statusClass + '">' + d.status + '</span><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">履职状态</div></div>' +
+          '<div style="display:flex;gap: var(--spacing-md);margin-bottom: var(--spacing-md);">' +
+            '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><div style="font-size: var(--font-size-xxl);font-weight:600;color:var(--primary);">' + d.checks + '</div><div style="font-size:var(--font-size-xs);color:var(--text-secondary);">本月检查次数</div></div>' +
+            '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><div style="font-size: var(--font-size-xxl);font-weight:600;color:var(--error);">' + d.hazards + '</div><div style="font-size:var(--font-size-xs);color:var(--text-secondary);">隐患发现数</div></div>' +
+            '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><div style="font-size: var(--font-size-xxl);font-weight:600;">' + d.rate + '</div><div style="font-size:var(--font-size-xs);color:var(--text-secondary);">整改完成率</div></div>' +
+            '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><span class="tag ' + statusClass + '">' + d.status + '</span><div style="font-size:var(--font-size-xs);color:var(--text-secondary);margin-top: var(--spacing-xs);">履职状态</div></div>' +
           '</div>' +
-          '<div style="font-size:14px;font-weight:600;margin-bottom:8px;">履职进度</div>' +
+          '<div style="font-size:var(--font-size-md);font-weight:600;margin-bottom: var(--spacing-sm);">履职进度</div>' +
           '<div class="timeline">' +
             '<div class="timeline-item done"><div class="timeline-time">2026-05-28</div><div class="timeline-desc">完成月度巡查计划制定</div></div>' +
             '<div class="timeline-item done"><div class="timeline-time">2026-05-25</div><div class="timeline-desc">完成' + d.domain.split('、')[0] + '领域专项检查</div></div>' +
             '<div class="timeline-item done"><div class="timeline-time">2026-05-20</div><div class="timeline-desc">隐患整改复查通过</div></div>' +
             '<div class="timeline-item pending"><div class="timeline-time">2026-06-05（计划）</div><div class="timeline-desc">提交本月履职报告</div></div>' +
           '</div>' +
-          '<div style="font-size:14px;font-weight:600;margin:16px 0 8px;">近期检查记录</div>' +
+          '<div style="font-size:var(--font-size-md);font-weight:600;margin:16px 0 8px;">近期检查记录</div>' +
           '<div class="check-record"><div class="check-record-info"><div class="check-record-title">南山区充换电设施安全检查</div><div class="check-record-meta">2026-05-27 · 发现隐患2项 · 已整改1项</div></div><span class="tag tag-orange">整改中</span></div>' +
           '<div class="check-record"><div class="check-record-info"><div class="check-record-title">农贸市场消防安全检查</div><div class="check-record-meta">2026-05-22 · 发现隐患0项</div></div><span class="tag tag-green">已完成</span></div>' +
           '<div class="check-record"><div class="check-record-info"><div class="check-record-title">危化品仓储日常巡查</div><div class="check-record-meta">2026-05-18 · 发现隐患3项 · 已整改3项</div></div><span class="tag tag-green">已完成</span></div>';
@@ -412,14 +399,6 @@
         document.getElementById('filterDept').value = '全部';
         document.getElementById('filterStatus').value = '全部';
         document.getElementById('filterTime').value = '本月';
-      };
-
-      // 分页
-      window.prevPage = function() {
-        if (state.currentPage > 1) state.currentPage--;
-      };
-      window.nextPage = function() {
-        state.currentPage++;
       };
 
       if (document.readyState === 'loading') {

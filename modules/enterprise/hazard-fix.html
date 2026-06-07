@@ -8,58 +8,15 @@
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
     /* ========== 页面背景 ========== */
-    .page-container { 
-      padding: var(--spacing-lg); 
-      background: var(--bg-page);
-      min-height: 100vh;
-    }
     
     /* ========== 页面标题栏 ========== */
-    .page-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: var(--spacing-md);
-      background: var(--bg-primary);
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-header);
-    }
-    .page-title { font-size: var(--font-size-xl); font-weight: 600; color: var(--text-primary); }
     
     /* ========== 统计卡片 ========== */
-    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .stat-card { 
-      flex: 1; 
-      background: linear-gradient(135deg, var(--bg-section) 0%, var(--bg-section-alt) 100%); 
-      border: 1px solid var(--border-light); 
-      border-radius: var(--radius-lg); 
-      padding: var(--spacing-md) var(--spacing-lg); 
-      box-shadow: var(--shadow-sm);
-      transition: all 0.2s;
-    }
-    .stat-card:hover { 
-      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-hover) 100%);
-      box-shadow: var(--shadow-md);
-    }
-    .stat-value { font-size: 24px; font-weight: 600; }
-    .stat-label { font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px; }
     
     /* ========== 筛选栏 ========== */
-    .filter-bar { 
-      display: flex; 
-      gap: var(--spacing-sm); 
-      margin-bottom: var(--spacing-md); 
-      align-items: center; 
-      flex-wrap: wrap;
-      background: var(--bg-section);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-light);
-    }
     .filter-item select, .filter-item input { 
       padding: 6px 10px; 
-      border: 1px solid var(--border-input); 
+      border: 1px solid var(--border-figma); 
       border-radius: var(--radius-sm); 
       font-size: var(--font-size-xs); 
       background: var(--bg-primary);
@@ -70,75 +27,49 @@
     }
     
     /* ========== 表格容器 ========== */
-    .table-wrap { 
-      background: var(--bg-primary); 
-      border-radius: var(--radius-lg); 
-      overflow: hidden; 
-      box-shadow: var(--shadow-card);
-    }
     table { width: 100%; border-collapse: collapse; }
     thead tr { background: var(--bg-section); }
-    th { padding: 12px 16px; text-align: left; font-size: var(--font-size-xs); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
-    td { padding: 12px 16px; font-size: var(--font-size-xs); border-bottom: 1px solid var(--border-table); }
+    th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-xs); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
+    td { padding: 12px var(--spacing-md); font-size: var(--font-size-xs); border-bottom: 1px solid var(--border-section); }
     tbody tr:nth-child(even) { background: var(--bg-section-alt); }
     tbody tr:hover td { background: var(--primary-light); }
     
-    /* ========== 分页 ========== */
-    .pagination-wrap { 
-      display: flex; 
-      align-items: center; 
-      justify-content: flex-end; 
-      gap: 4px; 
-      padding: 12px 16px;
-      background: var(--bg-section);
-      border-top: 1px solid var(--border-light);
-    }
-    .pg-btn { padding: 6px 12px; border: 1px solid var(--border-input); background: var(--bg-primary); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--font-size-xs); transition: all 0.2s; }
-    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    
+    /* 分页 - .pagination 由 framework.css 提供 */
+
     /* ========== 时间轴 ========== */
-    .timeline { display: flex; align-items: center; gap: 4px; font-size: var(--font-size-xs); }
-    .timeline-step { padding: 2px 6px; border-radius: var(--radius-sm); background: var(--bg-section-alt); color: var(--text-muted); }
-    .timeline-step.done { background: var(--success); color: #fff; }
-    .timeline-step.current { background: var(--primary); color: #fff; }
+    .timeline { display: flex; align-items: center; gap: var(--spacing-xs); font-size: var(--font-size-xs); }
+    .timeline-step { padding: 2px 6px; border-radius: var(--radius-sm); background: var(--bg-section-alt); color: var(--text-tertiary); }
+    .timeline-step.done { background: var(--success); color: var(--bg-primary); }
+    .timeline-step.current { background: var(--primary); color: var(--bg-primary); }
     
     /* ========== 标签样式 ========== */
-    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
-    .tag-green { background: var(--success-light); color: var(--success); }
-    .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
-    .tag-orange { background: var(--warning-light); color: var(--warning); }
-    .tag-red { background: var(--error-light); color: var(--error); }
-    .tag-blue { background: var(--info-light); color: var(--info); }
 
     /* ========== 弹窗 ========== */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: none; align-items: center; justify-content: center; }
-    .modal-box { background: #fff; border-radius: 12px; box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 600px; max-height: 80vh; overflow: auto; }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; }
-    .modal-head-title { font-size: 16px; font-weight: 600; }
-    .modal-head-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #999; }
-    .modal-head-close:hover { color: #333; }
-    .modal-body { padding: 24px; }
-    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid #f0f0f0; }
-    .form-row { display: flex; gap: 16px; margin-bottom: 16px; }
+    .modal-box { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 600px; max-height: 80vh; overflow: auto; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
+    .modal-head-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-head-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
+    .modal-head-close:hover { color: var(--text-primary); }
+    .modal-foot { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
+    .form-row { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
     .form-col { flex: 1; }
-    .form-col label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
-    .form-col label .req { color: #ff4d4f; margin-right: 2px; }
-    .form-col input, .form-col select, .form-col textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; box-sizing: border-box; }
-    .form-col input:focus, .form-col select:focus, .form-col textarea:focus { border-color: #1677ff; }
-    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
-    .detail-item { display: flex; flex-direction: column; gap: 4px; }
-    .detail-label { font-size: 12px; color: #999; }
-    .detail-value { font-size: 13px; color: #333; }
-    .detail-section { margin-bottom: 16px; }
-    .detail-section-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f0f0f0; }
-    .timeline-detail { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+    .form-col label { display: block; font-size: var(--font-size-sm); font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
+    .form-col label .req { color: var(--danger); margin-right: 2px; }
+    .form-col input, .form-col select, .form-col textarea { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); outline: none; box-sizing: border-box; }
+    .form-col input:focus, .form-col select:focus, .form-col textarea:focus { border-color: var(--primary); }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: var(--spacing-md); }
+    .detail-item { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+    .detail-label { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+    .detail-value { font-size: var(--font-size-sm); color: var(--text-primary); }
+    .detail-section { margin-bottom: var(--spacing-md); }
+    .detail-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm); padding-bottom: 6px; border-bottom: 1px solid var(--border-light); }
+    .timeline-detail { display: flex; align-items: center; gap: 12px; padding: var(--spacing-sm) 0; }
     .timeline-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
     .timeline-dot.done { background: var(--success); }
     .timeline-dot.current { background: var(--primary); }
-    .timeline-dot.pending { background: #d9d9d9; }
-    .timeline-text { font-size: 13px; color: #333; }
-    .timeline-time { font-size: 12px; color: #999; }
+    .timeline-dot.pending { background: var(--border); }
+    .timeline-text { font-size: var(--font-size-sm); color: var(--text-primary); }
+    .timeline-time { font-size: var(--font-size-xs); color: var(--text-tertiary); }
   </style>
 </head>
 <body>
@@ -170,6 +101,7 @@
     </div>
     
     <div class="table-wrap">
+      <div class="table-scroll">
       <table>
         <thead>
           <tr>
@@ -180,7 +112,7 @@
             <th>整改期限</th>
             <th>整改进度</th>
             <th>状态</th>
-            <th>操作</th>
+            <th class="action-col">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -199,7 +131,7 @@
               </div>
             </td>
             <td><span class="tag tag-orange">整改中</span></td>
-            <td><button class="btn-link" onclick="fillRectify('YH2026040201')">填写整改</button><button class="btn-link" onclick="viewDetail('YH2026040201')">详情</button></td>
+            <td class="action-col"><button class="btn-link" onclick="fillRectify('YH2026040201')">填写整改</button><button class="btn-link" onclick="viewDetail('YH2026040201')">详情</button></td>
           </tr>
           <tr>
             <td>YH2026040101</td>
@@ -216,7 +148,7 @@
               </div>
             </td>
             <td><span class="tag tag-blue">待复查</span></td>
-            <td><button class="btn-link" onclick="applyReview('YH2026040101')">申请复查</button><button class="btn-link" onclick="viewDetail('YH2026040101')">详情</button></td>
+            <td class="action-col"><button class="btn-link" onclick="applyReview('YH2026040101')">申请复查</button><button class="btn-link" onclick="viewDetail('YH2026040101')">详情</button></td>
           </tr>
           <tr>
             <td>YH2026032801</td>
@@ -233,7 +165,7 @@
               </div>
             </td>
             <td><span class="tag tag-green">已闭环</span></td>
-            <td><button class="btn-link" onclick="viewDetail('YH2026032801')">查看详情</button></td>
+            <td class="action-col"><button class="btn-link" onclick="viewDetail('YH2026032801')">查看详情</button></td>
           </tr>
           <tr>
             <td>YH2026032001</td>
@@ -249,16 +181,24 @@
                 <span class="timeline-step">闭环</span>
               </div>
             </td>
-            <td><span class="tag tag-orange" style="background: #fff1f0; color: var(--error);">超期</span></td>
-            <td><button class="btn-link danger" onclick="fillRectify('YH2026032001')">立即整改</button><button class="btn-link" onclick="viewDetail('YH2026032001')">详情</button></td>
+            <td><span class="tag tag-orange" style="background: var(--danger-light); color: var(--error);">超期</span></td>
+            <td class="action-col"><button class="btn-link danger" onclick="fillRectify('YH2026032001')">立即整改</button><button class="btn-link" onclick="viewDetail('YH2026032001')">详情</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination-wrap">
-        <button class="pg-btn">上一页</button>
-        <button class="pg-btn active">1</button>
-        <button class="pg-btn">2</button>
-        <button class="pg-btn">下一页</button>
+      </div>
+      <div class="pagination">
+        <span class="pg-info">共 12 条</span>
+        <select class="pg-size">
+          <option value="10" selected>10 条/页</option>
+          <option value="20">20 条/页</option>
+          <option value="50">50 条/页</option>
+        </select>
+        <button class="pg" disabled>上一页</button>
+        <button class="pg active">1</button>
+        <button class="pg">2</button>
+        <button class="pg">下一页</button>
+        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="2" value="1"> 页</span>
       </div>
     </div>
   </div>
@@ -311,8 +251,8 @@
         </div>
       </div>
       <div class="modal-foot">
-        <button onclick="closeHazardFixModal('modal-rectify')" style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff">取消</button>
-        <button onclick="submitRectify()" style="padding:6px 16px;border:1px solid #1677ff;border-radius:6px;font-size:13px;cursor:pointer;background:#1677ff;color:#fff">提交整改</button>
+        <button onclick="closeHazardFixModal('modal-rectify')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">取消</button>
+        <button onclick="submitRectify()" style="padding: 6px var(--spacing-md);border:1px solid var(--primary);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--primary);color:var(--bg-primary)">提交整改</button>
       </div>
     </div>
   </div>
@@ -349,8 +289,8 @@
         </div>
       </div>
       <div class="modal-foot">
-        <button onclick="closeHazardFixModal('modal-recheck')" style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff">取消</button>
-        <button onclick="submitRecheck()" style="padding:6px 16px;border:1px solid #1677ff;border-radius:6px;font-size:13px;cursor:pointer;background:#1677ff;color:#fff">提交申请</button>
+        <button onclick="closeHazardFixModal('modal-recheck')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">取消</button>
+        <button onclick="submitRecheck()" style="padding: 6px var(--spacing-md);border:1px solid var(--primary);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--primary);color:var(--bg-primary)">提交申请</button>
       </div>
     </div>
   </div>
@@ -395,7 +335,7 @@
         </div>
       </div>
       <div class="modal-foot">
-        <button onclick="closeHazardFixModal('modal-hazard-detail')" style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff">关闭</button>
+        <button onclick="closeHazardFixModal('modal-hazard-detail')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">关闭</button>
       </div>
     </div>
   </div>
@@ -470,7 +410,7 @@
       function showToast(msg) {
         var t = document.createElement('div');
         t.textContent = msg;
-        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'#1677ff', color:'#fff', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
+        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding: 'var(--spacing-sm) var(--spacing-lg)', background:'var(--primary)', color:'var(--bg-primary)', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px var(--spacing-sm) rgba(0,0,0,0.15)' });
         document.body.appendChild(t);
         setTimeout(function() { t.remove(); }, 2000);
       }

@@ -7,15 +7,12 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-    .page-container { padding: var(--spacing-lg); background: var(--bg-page); min-height: 100vh; }
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); background: var(--bg-primary); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); background: var(--bg-primary); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
     .page-title { font-size: var(--font-size-lg); font-weight: 600; }
-
-    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .stat-card { flex: 1; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: var(--spacing-md) var(--spacing-lg); display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-sm); transition: all 0.2s; }
-    .stat-card:hover { background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%); box-shadow: var(--shadow-md); }
-    .stat-value { font-size: 24px; font-weight: 600; }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+.stat-card { flex: 1; background: linear-gradient(135deg, var(--bg-section) 0%, var(--bg-section-alt) 100%); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: var(--spacing-md) var(--spacing-lg); display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-sm); transition: all var(--duration-normal); }
+    .stat-card:hover { background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--border-section) 100%); box-shadow: var(--shadow-md); }
+    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
 
     .filter-bar { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); align-items: center; flex-wrap: wrap; background: var(--bg-section); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-lg); border: 1px solid var(--border-light); }
     .filter-item select, .filter-item input { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); background: var(--bg-primary); }
@@ -30,26 +27,23 @@
     .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
     .table-scroll tbody tr:hover td { background: var(--bg-hover); }
     .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-    .action-col { position: sticky; right: 0; background: var(--bg-primary); z-index: 10; white-space: nowrap; }
-    .table-scroll tbody tr:nth-child(even) .action-col { background: var(--bg-section-alt); }
-    .table-scroll tbody tr:hover .action-col { background: var(--bg-hover); }
+    .action-col { width: 200px; }
+    .action-col .btn-link { margin-right: 4px; }
+    .action-col .btn-link:last-child { margin-right: 0; }
 
-    .pagination-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 12px var(--spacing-md); background: var(--bg-section); border-top: 1px solid var(--border-light); }
-    .pg-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--bg-primary); border-radius: var(--radius-md); cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
-    .pg-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .pg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    /* 分页 - .pagination 由 framework.css 提供 */
 
-    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 12px; }
+    .tag { display: inline-block; padding: 2px var(--spacing-sm); border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
     .tag-green { background: var(--success-light); color: var(--success); }
     .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
     .tag-orange { background: var(--warning-light); color: var(--warning); }
     .tag-red { background: var(--error-light); color: var(--error); }
     .tag-blue { background: var(--info-light); color: var(--info); }
-    .tag-purple { background: #f9f0ff; color: #722ed1; }
-    .tag-cyan { background: #e6fffb; color: #13c2c2; }
-    .tag-gold { background: #fffbe6; color: #d48806; }
+    .tag-purple { background: var(--accent-light); color: var(--accent); }
+    .tag-cyan { background: var(--success-light); color: var(--info); }
+    .tag-gold { background: var(--warning-light); color: var(--warning-hover); }
 
-    .btn-link { padding: 4px 8px; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .btn-link { padding: var(--spacing-xs) var(--spacing-sm); border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
     .btn-link:hover { text-decoration: underline; }
     .btn-link.danger { color: var(--error); }
 
@@ -59,8 +53,8 @@
     .detail-label { width: 100px; flex-shrink: 0; color: var(--text-secondary); font-size: var(--font-size-sm); }
     .detail-value { flex: 1; font-size: var(--font-size-sm); color: var(--text-primary); min-width: 0; overflow-wrap: break-word; }
 
-    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
-    .toast { padding: 12px 20px; border-radius: var(--radius-md); background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.12); font-size: var(--font-size-sm); color: var(--text-primary); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--primary); max-width: 420px; }
+    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: var(--spacing-sm); }
+    .toast { padding: 12px 20px; border-radius: var(--radius-md); background: var(--bg-primary); box-shadow: 0 4px 16px rgba(0,0,0,0.12); font-size: var(--font-size-sm); color: var(--text-primary); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: var(--spacing-sm); border-left: 4px solid var(--primary); max-width: 420px; }
     .toast.out { animation: toastOut 0.3s ease forwards; }
     @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
@@ -160,12 +154,19 @@
           </tbody>
         </table>
       </div>
-      <div class="pagination-wrap">
-        <button class="pg-btn" onclick="prevPage()">上一页</button>
-        <button class="pg-btn active">1</button>
-        <button class="pg-btn" onclick="goPage(2)">2</button>
-        <button class="pg-btn" onclick="goPage(3)">3</button>
-        <button class="pg-btn" onclick="nextPage()">下一页</button>
+      <div class="pagination">
+        <span class="pg-info">共 45 条</span>
+        <select class="pg-size">
+          <option value="10" selected>10 条/页</option>
+          <option value="20">20 条/页</option>
+          <option value="50">50 条/页</option>
+        </select>
+        <button class="pg" disabled>上一页</button>
+        <button class="pg active">1</button>
+        <button class="pg">2</button>
+        <button class="pg">3</button>
+        <button class="pg">下一页</button>
+        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="5" value="1"> 页</span>
       </div>
     </div>
   </div>
@@ -268,7 +269,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">场所照片</label>
-            <div style="border: 1px dashed var(--border); border-radius: var(--radius-md); padding: 24px; text-align: center; color: var(--text-secondary); font-size: var(--font-size-sm); cursor: pointer;">
+            <div style="border: 1px dashed var(--border); border-radius: var(--radius-md); padding: var(--spacing-lg); text-align: center; color: var(--text-secondary); font-size: var(--font-size-sm); cursor: pointer;">
               点击上传照片（支持 jpg/png，最多9张）
             </div>
           </div>
@@ -428,9 +429,6 @@
         document.getElementById('searchInput').value = '';
       };
 
-      window.prevPage = function() { if (state.currentPage > 1) state.currentPage--; };
-      window.nextPage = function() { state.currentPage++; };
-      window.goPage = function(page) { state.currentPage = page; };
 
       if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
       window.destroyModule = function() { state.initialized = false; };

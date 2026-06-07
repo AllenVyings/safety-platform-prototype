@@ -8,107 +8,63 @@
 <title>企业用户管理 - 企业端</title>
 
 <style>
-.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
-.breadcrumb-item:hover{color:#1677ff}
-.main-layout{display:flex;gap:16px;margin-top:16px}
+.main-layout{display:flex;gap: var(--spacing-md);margin-top: var(--spacing-md)}
 
 /* 左侧树 */
-.tree-panel{width:260px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden}
-.tree-header{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:600;color:#1f1f1f}
-.tree-body{flex:1;overflow-y:auto;padding:8px 0}
-.tree-node{display:flex;align-items:center;padding:7px 16px;cursor:pointer;transition:background .2s;gap:6px}
-.tree-node:hover{background:#f5f7fa}
-.tree-node.active{background:#e6f4ff;color:#1677ff}
-.tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;cursor:pointer;flex-shrink:0}
-.tree-node-label{font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tree-children{padding-left:20px;display:block}
+.tree-panel{width:260px;background:var(--bg-primary);border-radius: var(--radius-lg);box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden}
+.tree-header{padding: 14px var(--spacing-md);border-bottom:1px solid var(--border-light);font-size: var(--font-size-md);font-weight:600;color:var(--text-primary)}
+.tree-body{flex:1;overflow-y:auto;padding: var(--spacing-sm) 0}
+.tree-node{display:flex;align-items:center;padding: 7px var(--spacing-md);cursor:pointer;transition: background var(--duration-normal);gap: 6px}
+.tree-node:hover{background:var(--bg-section-alt)}
+.tree-node.active{background:var(--primary-light);color:var(--primary)}
+.tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size: var(--font-size-xs);color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
+.tree-node-label{font-size: var(--font-size-sm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-children{padding-left: var(--spacing-lg);display:block}
 
 /* 右侧内容 */
-.content-panel{flex:1;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:20px;overflow:auto}
+.content-panel{flex:1;background:var(--bg-primary);border-radius: var(--radius-lg);box-shadow:0 1px 3px rgba(0,0,0,.06);padding: var(--spacing-lg);overflow:auto}
 
-/* 统计卡片 */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.stat-card{background:#fafafa;border-radius:8px;padding:12px 14px}
-.stat-card-label{font-size:12px;color:#888;margin-bottom:4px}
-.stat-card-value{font-size:18px;font-weight:700;color:#1f1f1f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 统计卡片 - .stat-cards, .stat-card, .stat-icon, .stat-content, .stat-label, .stat-value 由 framework.css 提供 */
 
 /* 查询区 */
-.query-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.query-bar input,.query-bar select{padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none}
-.query-bar input:focus,.query-bar select:focus{border-color:#1677ff}
+.query-bar{display:flex;gap: 10px;margin-bottom: var(--spacing-md);flex-wrap:wrap}
+.query-bar input,.query-bar select{padding: 7px 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none}
+.query-bar input:focus,.query-bar select:focus{border-color:var(--primary)}
 .query-bar input{min-width:160px}
 
 /* 表格 */
 .table-scroll{overflow-x:auto}
-.table-basic{width:100%;border-collapse:collapse;font-size:13px;min-width:800px}
-.table-basic th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;color:#1f1f1f;border-bottom:1px solid #f0f0f0;white-space:nowrap}
-.table-basic td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333}
-.table-basic tr:hover td{background:#e8f0fe}
+.table-basic{width:100%;border-collapse:collapse;font-size: var(--font-size-sm);min-width:800px}
+.table-basic th{background:var(--bg-tertiary);padding: 10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light);white-space:nowrap}
+.table-basic td{padding: 10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary)}
+.table-basic tr:hover td{background:var(--bg-hover)}
 .ellipsis-col{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
-.action-col{position:sticky;right:0;background:#fff;white-space:nowrap}
-.action-col .btn-link{margin-right:8px}
 
-/* 分页 */
-.pagination-wrap{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid #f0f0f0}
-.pagination-info{font-size:13px;color:#666}
-.pagination-btns{display:flex;gap:4px}
-.page-btn{padding:5px 10px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;font-size:13px;cursor:pointer;color:#666}
-.page-btn:hover{color:#1677ff;border-color:#1677ff}
-.page-btn.active{background:#1677ff;color:#fff;border-color:#1677ff}
-.page-btn:disabled{opacity:.5;cursor:not-allowed}
+/* 分页 - .pagination 由 framework.css 提供 */
 
 /* 按钮 */
-.btn{padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
-.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
-.btn-default:hover{color:#1677ff;border-color:#1677ff}
-.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
-.btn-primary:hover{background:#4096ff}
-.btn-danger{background:#ff4d4f;color:#fff;border-color:#ff4d4f}
-.btn-danger:hover{background:#ff7875}
-.btn-sm{padding:4px 10px;font-size:12px}
-.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
-.btn-link:hover{color:#4096ff}
-.btn-link.danger{color:#ff4d4f}
-.btn-link.danger:hover{color:#ff7875}
+.btn-sm{padding: var(--spacing-xs) 10px;font-size: var(--font-size-xs)}
 
 /* 标签 */
-.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
-.tag-success{background:#f6ffed;color:#52c41a}
-.tag-warning{background:#fffbe6;color:#faad14}
-.tag-error{background:#fff2f0;color:#ff4d4f}
-.tag-gray{background:#f5f5f5;color:#999}
-.tag-blue{background:#e6f4ff;color:#1677ff}
 
 /* 弹窗 */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center}
-.modal-box{background:#fff;border-radius:8px;width:640px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.modal-header{padding:14px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
-.modal-title{font-size:15px;font-weight:600;color:#1f1f1f}
-.modal-close{font-size:18px;color:#999;cursor:pointer;background:none;border:none}
-.modal-close:hover{color:#333}
-.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
-.modal-footer{padding:12px 20px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px}
-.form-row{display:flex;gap:12px;margin-bottom:12px}
-.form-group{flex:1}
-.form-group label{display:block;font-size:13px;color:#333;margin-bottom:5px}
-.form-group label .required{color:#ff4d4f;margin-left:2px}
-.form-group input,.form-group select{width:100%;padding:7px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box}
-.form-group input:focus,.form-group select:focus{border-color:#1677ff}
+.modal-box{background:var(--bg-primary);border-radius: var(--radius-lg);width:640px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.form-row{display:flex;gap: 12px;margin-bottom: 12px}
+.form-group label .required{color:var(--danger);margin-left: 2px}
 
 /* 确认弹窗 */
 .confirm-modal .modal-box{width:420px}
-.confirm-modal .confirm-content{font-size:14px;color:#333;line-height:1.8;padding:8px 0}
-.confirm-modal .confirm-content .highlight{color:#ff4d4f;font-weight:600}
+.confirm-modal .confirm-content{font-size: var(--font-size-md);color:var(--text-primary);line-height:1.8;padding: var(--spacing-sm) 0}
+.confirm-modal .confirm-content .highlight{color:var(--danger);font-weight:600}
 
 /* 表单校验 */
-.form-group input.error,.form-group select.error{border-color:#ff4d4f}
-.form-error{color:#ff4d4f;font-size:12px;margin-top:3px;display:none}
+.form-error{color:var(--danger);font-size: var(--font-size-xs);margin-top: 3px;display:none}
 .form-group.has-error .form-error{display:block}
-.duplicate-error{color:#ff4d4f;font-size:12px;margin-top:3px;display:none}
+.duplicate-error{color:var(--danger);font-size: var(--font-size-xs);margin-top: 3px;display:none}
 .form-group.has-duplicate .duplicate-error{display:block}
 
 /* Toast */
-#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding: 10px var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius: var(--radius-md);font-size: var(--font-size-md);z-index:99999;opacity:0;transition: opacity var(--duration-normal);pointer-events:none}
 </style>
 </head>
 <body>
@@ -124,29 +80,41 @@
     <!-- 左侧部门树 -->
     <div class="tree-panel">
       <div class="tree-header">🏢 组织架构</div>
-      <div style="padding:10px 14px;border-bottom:1px solid #f0f0f0"><input type="text" placeholder="搜索部门..." id="treeSearchInput" style="width:100%;padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box"></div>
+      <div style="padding: 10px 14px;border-bottom:1px solid var(--border-light)"><input type="text" placeholder="搜索部门..." id="treeSearchInput" style="width:100%;padding: 7px 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;box-sizing:border-box"></div>
 	      <div class="tree-body" id="orgTree"></div>
     </div>
 
     <!-- 右侧用户列表 -->
     <div class="content-panel">
       <!-- 统计卡片 -->
-      <div class="stats-row">
+      <div class="stat-cards">
         <div class="stat-card">
-          <div class="stat-card-label">用户总数</div>
-          <div class="stat-card-value">25</div>
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-content">
+            <div class="stat-label">用户总数</div>
+            <div class="stat-value">25</div>
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-card-label">正常账号</div>
-          <div class="stat-card-value" style="color:#52c41a">22</div>
+          <div class="stat-icon green">✅</div>
+          <div class="stat-content">
+            <div class="stat-label">正常账号</div>
+            <div class="stat-value" style="color:var(--success)">22</div>
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-card-label">停用账号</div>
-          <div class="stat-card-value" style="color:#ff4d4f">3</div>
+          <div class="stat-icon orange">⛔</div>
+          <div class="stat-content">
+            <div class="stat-label">停用账号</div>
+            <div class="stat-value" style="color:var(--danger)">3</div>
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-card-label">管理员</div>
-          <div class="stat-card-value" style="color:#1677ff">2</div>
+          <div class="stat-icon blue">🔑</div>
+          <div class="stat-content">
+            <div class="stat-label">管理员</div>
+            <div class="stat-value" style="color:var(--primary)">2</div>
+          </div>
         </div>
       </div>
 
@@ -166,7 +134,7 @@
         </select>
         <button class="btn btn-primary btn-sm" onclick="showToast('搜索')">🔍 搜索</button>
         <button class="btn btn-default btn-sm" onclick="showToast('重置')">重置</button>
-        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openAddModal()">+ 新增用户</button>
+        <button class="btn btn-primary btn-sm" style="margin-leftauto" onclick="openAddModal()">+ 新增用户</button>
       </div>
 
       <!-- 表格 -->
@@ -182,7 +150,7 @@
               <th>角色</th>
               <th>状态</th>
               <th>创建时间</th>
-              <th>操作</th>
+              <th class="action-col">操作</th>
             </tr>
           </thead>
           <tbody id="userTableBody">
@@ -236,15 +204,19 @@
       </div>
 
       <!-- 分页 -->
-      <div class="pagination-wrap">
-        <span class="pagination-info">共 25 条记录，第 1/3 页</span>
-        <div class="pagination-btns">
-          <button class="page-btn" disabled>&lt;</button>
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">3</button>
-          <button class="page-btn">&gt;</button>
-        </div>
+      <div class="pagination">
+        <span class="pg-info">共 25 条</span>
+        <select class="pg-size">
+          <option value="10" selected>10 条/页</option>
+          <option value="20">20 条/页</option>
+          <option value="50">50 条/页</option>
+        </select>
+        <button class="pg" disabled>上一页</button>
+        <button class="pg active">1</button>
+        <button class="pg">2</button>
+        <button class="pg">3</button>
+        <button class="pg">下一页</button>
+        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="3" value="1"> 页</span>
       </div>
     </div>
   </div>
@@ -348,15 +320,15 @@
       <button class="modal-close" onclick="closeModal('modal-user-detail')">&times;</button>
     </div>
     <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div class="form-group"><label>姓名</label><div style="padding:7px 10px;font-size:13px;color:#333">李四</div></div>
-        <div class="form-group"><label>手机号</label><div style="padding:7px 10px;font-size:13px;color:#333">13900139001</div></div>
-        <div class="form-group"><label>所属部门</label><div style="padding:7px 10px;font-size:13px;color:#333">技术部</div></div>
-        <div class="form-group"><label>职务</label><div style="padding:7px 10px;font-size:13px;color:#333">技术经理</div></div>
-        <div class="form-group"><label>登录账号</label><div style="padding:7px 10px;font-size:13px;color:#333">tech_mgr</div></div>
-        <div class="form-group"><label>角色</label><div style="padding:7px 10px;font-size:13px;"><span class="tag tag-blue">管理员</span></div></div>
-        <div class="form-group"><label>状态</label><div style="padding:7px 10px;"><span class="tag tag-success">正常</span></div></div>
-        <div class="form-group"><label>创建时间</label><div style="padding:7px 10px;font-size:13px;color:#333">2024-01-15</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap: var(--spacing-md);">
+        <div class="form-group"><label>姓名</label><div style="padding: 7px 10px;font-size: var(--font-size-sm);color:var(--text-primary)">李四</div></div>
+        <div class="form-group"><label>手机号</label><div style="padding: 7px 10px;font-size: var(--font-size-sm);color:var(--text-primary)">13900139001</div></div>
+        <div class="form-group"><label>所属部门</label><div style="padding: 7px 10px;font-size: var(--font-size-sm);color:var(--text-primary)">技术部</div></div>
+        <div class="form-group"><label>职务</label><div style="padding: 7px 10px;font-size: var(--font-size-sm);color:var(--text-primary)">技术经理</div></div>
+        <div class="form-group"><label>登录账号</label><div style="padding: 7px 10px;font-size: var(--font-size-sm);color:var(--text-primary)">tech_mgr</div></div>
+        <div class="form-group"><label>角色</label><div style="padding: 7px 10px;font-size: var(--font-size-sm);"><span class="tag tag-blue">管理员</span></div></div>
+        <div class="form-group"><label>状态</label><div style="padding: 7px 10px;"><span class="tag tag-success">正常</span></div></div>
+        <div class="form-group"><label>创建时间</label><div style="padding: 7px 10px;font-size: var(--font-size-sm);color:var(--text-primary)">2024-01-15</div></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -427,7 +399,7 @@ function renderTreeNode(node, level) {
   if (node.type === 'dept') icon = '📁';
   if (node.type === 'sub-dept') icon = '📂';
 
-  let html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left:' + (16 + indent) + 'px" onclick="selectTreeNode(\'' + node.id + '\')">';
+  let html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left' + (16 + indent) + 'px" onclick="selectTreeNode(\'' + node.id + '\')">';
   if (hasChildren) {
     html += '<span class="tree-toggle" onclick="event.stopPropagation();toggleTreeNode(\'' + node.id + '\')">' + (node.expanded ? '▼' : '▶') + '</span>';
   } else {

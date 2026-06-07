@@ -8,24 +8,8 @@
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
     /* ========== 页面背景 ========== */
-    .page-container {
-      padding: var(--spacing-lg);
-      background: var(--bg-page);
-      min-height: 100vh;
-    }
 
     /* ========== 页面标题栏 ========== */
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--spacing-md);
-      background: var(--bg-primary);
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-header);
-    }
-    .page-title { font-size: var(--font-size-xl); font-weight: 600; color: var(--text-primary); }
 
     /* ========== 分屏视图 ========== */
     .split-view { display: flex; gap: var(--spacing-lg); height: calc(100vh - 180px); }
@@ -44,7 +28,7 @@
     .tree-header { padding: var(--spacing-md); border-bottom: 1px solid var(--border-light); background: var(--bg-section); }
     .tree-stats { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }
     .tree-stat { font-size: var(--font-size-xs); color: var(--text-secondary); }
-    .tree-stat-value { font-weight: 600; color: var(--text-primary); margin-left: 4px; }
+    .tree-stat-value { font-weight: 600; color: var(--text-primary); margin-left: var(--spacing-xs); }
     .tree-body { flex: 1; overflow-y: auto; padding: var(--spacing-xs) 0; }
 
     /* ========== 右侧详情面板 ========== */
@@ -59,16 +43,16 @@
     }
 
     /* ========== 树形节点 ========== */
-    .tree-node { display: flex; align-items: center; padding: var(--spacing-xs) var(--spacing-sm); cursor: pointer; transition: all 0.15s; }
+    .tree-node { display: flex; align-items: center; padding: var(--spacing-xs) var(--spacing-sm); cursor: pointer; transition: all var(--duration-fast); }
     .tree-node:hover { background: var(--primary-light); }
     .tree-node.active { background: var(--primary-light); }
     .tree-node-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-sm); font-size: var(--font-size-sm); }
     .tree-node-label { flex: 1; font-size: var(--font-size-xs); }
-    .tree-node-type { font-size: var(--font-size-xs); color: var(--text-secondary); background: var(--bg-section-alt); padding: 2px 6px; border-radius: var(--radius-sm); margin-right: 4px; }
-    .tree-node-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .tree-node-type { font-size: var(--font-size-xs); color: var(--text-secondary); background: var(--bg-section-alt); padding: 2px 6px; border-radius: var(--radius-sm); margin-right: var(--spacing-xs); }
+    .tree-node-actions { display: flex; gap: 2px; opacity: 0; transition: opacity var(--duration-fast); flex-shrink: 0; }
     .tree-node:hover .tree-node-actions { opacity: 1; }
-    .tree-node-action { font-size: 11px; color: var(--primary); background: none; border: 1px solid var(--primary); border-radius: var(--radius-sm); padding: 1px 6px; cursor: pointer; white-space: nowrap; line-height: 1.4; }
-    .tree-node-action:hover { background: var(--primary); color: #fff; }
+    .tree-node-action { font-size: var(--font-size-xs); color: var(--primary); background: none; border: 1px solid var(--primary); border-radius: var(--radius-sm); padding: 1px 6px; cursor: pointer; white-space: nowrap; line-height: 1.4; }
+    .tree-node-action:hover { background: var(--primary); color: var(--bg-primary); }
 
     .detail-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); }
     .detail-title { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
@@ -90,40 +74,18 @@
       color: var(--text-secondary);
       background: transparent;
       border: none;
-      transition: all 0.2s;
+      transition: all var(--duration-normal);
       white-space: nowrap;
     }
     .view-tab:hover { color: var(--text-primary); background: var(--bg-primary); }
-    .view-tab.active { background: var(--primary); color: #fff; }
+    .view-tab.active { background: var(--primary); color: var(--bg-primary); }
 
     /* ========== 信息板块 ========== */
     .info-section { margin-bottom: var(--spacing-xl); }
 
     /* 模块标题样式 */
-    .info-section-title {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      font-size: var(--font-size-md);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-sm);
-      padding-bottom: var(--spacing-xs);
-      border-bottom: 1px solid var(--border-light);
-    }
-    .info-section-title::before {
-      content: '';
-      width: 4px;
-      height: 16px;
-      background: var(--primary);
-      border-radius: var(--radius-sm);
-    }
 
-    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); }
     .info-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md); }
-    .info-item { display: flex; flex-direction: column; gap: 4px; }
-    .info-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
-    .info-value { font-size: var(--font-size-sm); color: var(--text-primary); }
 
     /* ========== 卡片列表视图 ========== */
     .card-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
@@ -135,14 +97,14 @@
       border: 1px solid var(--border-light);
       border-radius: var(--radius-md);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all var(--duration-fast);
     }
     .card-item:hover { border-color: var(--primary); background: var(--primary-light); }
     .card-item-icon { margin-right: var(--spacing-sm); font-size: var(--font-size-lg); }
     .card-item-info { flex: 1; min-width: 0; }
     .card-item-name { font-size: var(--font-size-sm); font-weight: 500; color: var(--text-primary); }
     .card-item-desc { font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 2px; }
-    .card-item-type { font-size: var(--font-size-xs); padding: 2px 8px; border-radius: var(--radius-sm); background: var(--bg-section-alt); color: var(--text-secondary); }
+    .card-item-type { font-size: var(--font-size-xs); padding: 2px var(--spacing-sm); border-radius: var(--radius-sm); background: var(--bg-section-alt); color: var(--text-secondary); }
 
     /* ========== 检查表配置卡片 ========== */
     .checklist-card {
@@ -166,25 +128,24 @@
     .checklist-field-value { font-size: var(--font-size-xs); color: var(--text-primary); }
 
     /* ========== 空状态 ========== */
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); }
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-tertiary); }
     .empty-icon { font-size: 48px; margin-bottom: var(--spacing-sm); }
 
     /* ========== 表单弹窗内样式 ========== */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: none; align-items: center; justify-content: center; }
-    .modal-box { background: #fff; border-radius: 12px; box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 600px; max-height: 80vh; overflow: auto; }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; }
-    .modal-head-title { font-size: 16px; font-weight: 600; }
-    .modal-head-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #999; }
-    .modal-content { padding: 24px; }
-    .form-row { display: flex; gap: 16px; margin-bottom: 16px; }
+    .modal-box { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 600px; max-height: 80vh; overflow: auto; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
+    .modal-head-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-head-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
+    .modal-content { padding: var(--spacing-lg); }
+    .form-row { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
     .form-row .form-col { flex: 1; }
-    .form-col label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
-    .form-col label .req { color: #ff4d4f; margin-right: 2px; }
-    .form-col input, .form-col select, .form-col textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; box-sizing: border-box; }
-    .form-col input:focus, .form-col select:focus, .form-col textarea:focus { border-color: #1677ff; }
-    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid #f0f0f0; }
-    .modal-foot .btn-cancel { padding: 6px 16px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; cursor: pointer; background: #fff; }
-    .modal-foot .btn-confirm { padding: 6px 16px; border: 1px solid #1677ff; border-radius: 6px; font-size: 13px; cursor: pointer; background: #1677ff; color: #fff; }
+    .form-col label { display: block; font-size: var(--font-size-sm); font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
+    .form-col label .req { color: var(--danger); margin-right: 2px; }
+    .form-col input, .form-col select, .form-col textarea { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); outline: none; box-sizing: border-box; }
+    .form-col input:focus, .form-col select:focus, .form-col textarea:focus { border-color: var(--primary); }
+    .modal-foot { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
+    .modal-foot .btn-cancel { padding: 6px var(--spacing-md); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; background: var(--bg-primary); }
+    .modal-foot .btn-confirm { padding: 6px var(--spacing-md); border: 1px solid var(--primary); border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; background: var(--primary); color: var(--bg-primary); }
   </style>
 </head>
 <body>
@@ -201,7 +162,7 @@
     <div class="split-view">
       <div class="tree-panel">
         <div class="tree-header">
-          <div style="font-size: 14px; font-weight: 600;">安全管控对象树</div>
+          <div style="font-size: var(--font-size-md); font-weight: 600;">安全管控对象树</div>
           <div class="tree-stats">
             <span class="tree-stat">场所码<span class="tree-stat-value">5</span></span>
             <span class="tree-stat">危险源码<span class="tree-stat-value">2</span></span>
@@ -304,10 +265,10 @@
             <div class="info-section">
               <div class="info-section-title">最近检查记录</div>
               <table style="width: 100%; border-collapse: collapse;">
-                <thead><tr style="background: #fafafa;"><th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">检查日期</th><th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">检查人</th><th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">结果</th></tr></thead>
+                <thead><tr style="background: var(--bg-tertiary);"><th style="padding: var(--spacing-sm); text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">检查日期</th><th style="padding: var(--spacing-sm); text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">检查人</th><th style="padding: var(--spacing-sm); text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">结果</th></tr></thead>
                 <tbody>
-                  <tr><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;">2026-04-01</td><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;">张三</td><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;"><span class="tag tag-green">正常</span></td></tr>
-                  <tr><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;">2026-03-25</td><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;">李四</td><td style="padding: 8px; border-bottom: 1px solid #f5f5f5;"><span class="tag tag-orange">有隐患</span></td></tr>
+                  <tr><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);">2026-04-01</td><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);">张三</td><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);"><span class="tag tag-green">正常</span></td></tr>
+                  <tr><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);">2026-03-25</td><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);">李四</td><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);"><span class="tag tag-orange">有隐患</span></td></tr>
                 </tbody>
               </table>
             </div>
@@ -369,12 +330,12 @@
                 <div class="card-item" onclick="switchView('default')">
                   <span class="card-item-icon">⚡</span>
                   <div class="card-item-info"><div class="card-item-name">电动车充电区</div><div class="card-item-desc">A区室外 | 风险等级：中</div></div>
-                  <span class="card-item-type" style="background:#fff7e6;color:#faad14;">危险源</span>
+                  <span class="card-item-type" style="background:var(--warning-light);color:var(--warning);">危险源</span>
                 </div>
                 <div class="card-item" onclick="switchView('default')">
                   <span class="card-item-icon">⚡</span>
                   <div class="card-item-info"><div class="card-item-name">危化品暂存间</div><div class="card-item-desc">A区1栋负1层 | 风险等级：高</div></div>
-                  <span class="card-item-type" style="background:#fff2f0;color:#ff4d4f;">危险源</span>
+                  <span class="card-item-type" style="background:var(--danger-light);color:var(--danger);">危险源</span>
                 </div>
               </div>
             </div>
@@ -388,7 +349,7 @@
                 <div class="card-item" onclick="switchView('default')">
                   <span class="card-item-icon">🔌</span>
                   <div class="card-item-info"><div class="card-item-name">2号充换电站</div><div class="card-item-desc">C区3栋 | 充换电设施 | 风险等级：高</div></div>
-                  <span class="card-item-type" style="background:#f0f5ff;color:#2f54eb;">重点场所</span>
+                  <span class="card-item-type" style="background:var(--bg-hover);color:var(--primary-active);">重点场所</span>
                 </div>
               </div>
             </div>
@@ -459,7 +420,7 @@
                     <textarea placeholder="请输入描述信息（选填）" id="addObjectDesc" style="min-height:60px;resize:vertical"></textarea>
                   </div>
                 </div>
-                <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
+                <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end; margin-top: var(--spacing-md);">
                   <button class="btn btn-sm btn-default" onclick="switchView('default')">取消</button>
                   <button class="btn btn-sm btn-primary" onclick="saveNewObject()">确认新增</button>
                 </div>
@@ -530,33 +491,33 @@
 
   <!-- 新增场所弹窗 -->
   <div class="modal-overlay" id="addPlaceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:1000;justify-content:center;align-items:center">
-    <div style="background:#fff;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.12);width:560px;max-height:80vh;overflow:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #f0f0f0"><span style="font-size:16px;font-weight:600">新增场所</span><button onclick="closeHazardModal('addPlaceModal')" style="background:none;border:none;font-size:18px;cursor:pointer;color:#999">&times;</button></div>
-      <div style="padding:24px">
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px"><span style="color:#ff4d4f">*</span> 场所名称</label><input style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px" placeholder="请输入场所名称"></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px"><span style="color:#ff4d4f">*</span> 场所类型</label><select style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px"><option>请选择</option><option>工厂</option><option>仓库</option><option>施工现场</option><option>加油站</option><option>其他</option></select></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px">位置描述</label><input style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px" placeholder="请输入位置描述"></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px"><span style="color:#ff4d4f">*</span> 风险等级</label><select style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px"><option>请选择</option><option>高</option><option>中</option><option>低</option></select></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px"><span style="color:#ff4d4f">*</span> 责任人</label><input style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px" placeholder="请输入责任人姓名"></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px">描述信息</label><textarea style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;resize:vertical;min-height:60px" placeholder="请输入场所描述信息（选填）"></textarea></div>
+    <div style="background:var(--bg-primary);border-radius: var(--radius-xl);box-shadow:0 6px 30px rgba(0,0,0,0.12);width:560px;max-height:80vh;overflow:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light)"><span style="font-size: var(--font-size-lg);font-weight:600">新增场所</span><button onclick="closeHazardModal('addPlaceModal')" style="background:none;border:none;font-size: var(--font-size-xl);cursor:pointer;color:var(--text-tertiary)">&times;</button></div>
+      <div style="padding: var(--spacing-lg)">
+        <div style="margin-bottom:var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 场所名称</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入场所名称"></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 场所类型</label><select style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)"><option>请选择</option><option>工厂</option><option>仓库</option><option>施工现场</option><option>加油站</option><option>其他</option></select></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px">位置描述</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入位置描述"></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 风险等级</label><select style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)"><option>请选择</option><option>高</option><option>中</option><option>低</option></select></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 责任人</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入责任人姓名"></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px">描述信息</label><textarea style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);resize:vertical;min-height:60px" placeholder="请输入场所描述信息（选填）"></textarea></div>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;padding:16px 24px;border-top:1px solid #f0f0f0"><button onclick="closeHazardModal('addPlaceModal')" style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff">取消</button><button onclick="savePlace()" style="padding:6px 16px;border:1px solid #1677ff;border-radius:6px;font-size:13px;cursor:pointer;background:#1677ff;color:#fff">确认添加</button></div>
+      <div style="display:flex;justify-content:flex-end;gap: var(--spacing-sm);padding: var(--spacing-md) var(--spacing-lg);border-top:1px solid var(--border-light)"><button onclick="closeHazardModal('addPlaceModal')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">取消</button><button onclick="savePlace()" style="padding: 6px var(--spacing-md);border:1px solid var(--primary);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--primary);color:var(--bg-primary)">确认添加</button></div>
     </div>
   </div>
 
   <!-- 新增危险源弹窗 -->
   <div class="modal-overlay" id="addHazardModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:1000;justify-content:center;align-items:center">
-    <div style="background:#fff;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.12);width:560px;max-height:80vh;overflow:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #f0f0f0"><span style="font-size:16px;font-weight:600">新增危险源</span><button onclick="closeHazardModal('addHazardModal')" style="background:none;border:none;font-size:18px;cursor:pointer;color:#999">&times;</button></div>
-      <div style="padding:24px">
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px"><span style="color:#ff4d4f">*</span> 危险源名称</label><input style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px" placeholder="请输入危险源名称"></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px"><span style="color:#ff4d4f">*</span> 危险源类型</label><select style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px"><option>请选择</option><option>化学品</option><option>机械设备</option><option>电气设施</option><option>高处作业</option><option>其他</option></select></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px"><span style="color:#ff4d4f">*</span> 风险等级</label><select style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px"><option>请选择</option><option>高</option><option>中</option><option>低</option></select></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px">位置描述</label><input style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px" placeholder="请输入位置描述"></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px"><span style="color:#ff4d4f">*</span> 责任人</label><input style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px" placeholder="请输入责任人姓名"></div>
-        <div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px">描述信息</label><textarea style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;min-height:60px" placeholder="请输入描述信息"></textarea></div>
+    <div style="background:var(--bg-primary);border-radius: var(--radius-xl);box-shadow:0 6px 30px rgba(0,0,0,0.12);width:560px;max-height:80vh;overflow:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light)"><span style="font-size: var(--font-size-lg);font-weight:600">新增危险源</span><button onclick="closeHazardModal('addHazardModal')" style="background:none;border:none;font-size: var(--font-size-xl);cursor:pointer;color:var(--text-tertiary)">&times;</button></div>
+      <div style="padding: var(--spacing-lg)">
+        <div style="margin-bottom:var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 危险源名称</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入危险源名称"></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 危险源类型</label><select style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)"><option>请选择</option><option>化学品</option><option>机械设备</option><option>电气设施</option><option>高处作业</option><option>其他</option></select></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 风险等级</label><select style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)"><option>请选择</option><option>高</option><option>中</option><option>低</option></select></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px">位置描述</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入位置描述"></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 责任人</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入责任人姓名"></div>
+        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px">描述信息</label><textarea style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);min-height:60px" placeholder="请输入描述信息"></textarea></div>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;padding:16px 24px;border-top:1px solid #f0f0f0"><button onclick="closeHazardModal('addHazardModal')" style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff">取消</button><button onclick="saveHazard()" style="padding:6px 16px;border:1px solid #1677ff;border-radius:6px;font-size:13px;cursor:pointer;background:#1677ff;color:#fff">确认添加</button></div>
+      <div style="display:flex;justify-content:flex-end;gap: var(--spacing-sm);padding: var(--spacing-md) var(--spacing-lg);border-top:1px solid var(--border-light)"><button onclick="closeHazardModal('addHazardModal')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">取消</button><button onclick="saveHazard()" style="padding: 6px var(--spacing-md);border:1px solid var(--primary);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--primary);color:var(--bg-primary)">确认添加</button></div>
     </div>
   </div>
 
@@ -686,7 +647,7 @@
       function showToast(msg) {
         var t = document.createElement('div');
         t.textContent = msg;
-        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding:'8px 24px', background:'#1677ff', color:'#fff', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px 8px rgba(0,0,0,0.15)' });
+        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding: 'var(--spacing-sm) var(--spacing-lg)', background:'var(--primary)', color:'var(--bg-primary)', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px var(--spacing-sm) rgba(0,0,0,0.15)' });
         document.body.appendChild(t);
         setTimeout(function() { t.remove(); }, 2000);
       }
