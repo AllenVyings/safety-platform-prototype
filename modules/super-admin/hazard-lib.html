@@ -9,21 +9,17 @@
   
   <style>
         /* ========== 按钮样式 ========== */
-    .btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid #d9d9d9}
-    .btn-default{background:#fff;color:#333;border-color:#d9d9d9}
-    .btn-default:hover{color:#1677ff;border-color:#1677ff}
-    .btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
-    .btn-primary:hover{background:#4096ff}
-    .btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
-    .btn-link:hover{color:#4096ff}
-    .btn-link.btn-sm{font-size:12px;padding:1px 4px}
-    .btn-danger{padding:4px 15px;border:1px solid #ffccc7;color:#ff4d4f;background:#fff;border-radius:6px;cursor:pointer;font-size:13px}
-    .btn-danger:hover{background:#fff2f0;border-color:#ff4d4f}
 
-/* ========== 页面背景 ========== */
-    .page-container { 
-      padding: 20px; 
-      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
+    .btn-default:hover{color:var(--primary);border-color:var(--primary)}
+    
+    .btn-primary:hover{background:var(--primary-hover)}
+    
+    .btn-link:hover{color:var(--primary-hover)}
+    .btn-link.btn-sm{font-size: var(--font-size-xs);padding: 1px var(--spacing-xs)}
+    
+    .btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
+/* 页面容器使用 flex 布局（覆盖 framework 默认 block） */
+    .page-container {
       height: 100vh;
       box-sizing: border-box;
       display: flex;
@@ -32,7 +28,6 @@
     }
     
     /* 面包屑由 framework.css 提供，无需额外样式 */
-    
     /* ========== 分屏布局 ========== */
     .layout-split { 
       display: flex; 
@@ -45,59 +40,59 @@
     .left-panel { 
       width: 260px; 
       height: 100%;
-      background: #fff; 
-      border-radius: 8px; 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
       overflow: hidden; 
       display: flex; 
       flex-direction: column;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-sm);
     }
     
     /* ========== 右侧面板 ========== */
     .right-panel { 
       flex: 1; 
-      background: #fff; 
-      border-radius: 8px; 
+      background: var(--bg-primary); 
+      border-radius: var(--radius-lg); 
       overflow: hidden; 
       display: flex; 
       flex-direction: column;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-sm);
     }
     
     /* ========== 面板头部 ========== */
     .panel-header { 
-      padding: 14px 16px; 
-      border-bottom: 1px solid #e8eaed; 
+      padding: 14px var(--spacing-md); 
+      border-bottom: 1px solid var(--border-section); 
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      background: #fafbfc;
+      background: var(--bg-section);
     }
-    .panel-title { font-size: 14px; font-weight: 600; color: #1f1f1f; }
+    .panel-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
     
     /* ========== 树搜索框 ========== */
     .tree-search {
-      padding: 12px 16px;
-      border-bottom: 1px solid #e8eaed;
+      padding: 12px var(--spacing-md);
+      border-bottom: 1px solid var(--border-section);
     }
     .tree-search input {
       width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #d9d9d9;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: var(--spacing-sm) 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color var(--duration-normal);
     }
     .tree-search input:focus {
-      border-color: #1677ff;
+      border-color: var(--primary);
     }
     
     /* ========== 树形列表 ========== */
     .tree-content { 
       flex: 1; 
       overflow-y: auto; 
-      padding: 8px 0; 
+      padding: var(--spacing-sm) 0; 
       min-height: 0;
     }
     
@@ -105,13 +100,13 @@
     .tree-node {
       display: flex;
       align-items: center;
-      padding: 8px 16px;
+      padding: var(--spacing-sm) var(--spacing-md);
       cursor: pointer;
-      transition: all 0.15s;
-      font-size: 13px;
+      transition: all var(--duration-fast);
+      font-size: var(--font-size-sm);
     }
-    .tree-node:hover { background: #f0f7ff; }
-    .tree-node.selected { background: #e6f4ff; color: #1677ff; }
+    .tree-node:hover { background: var(--bg-hover); }
+    .tree-node.selected { background: var(--primary-light); color: var(--primary); }
     
     .tree-node .expand-icon {
       width: 20px;
@@ -119,12 +114,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #999;
+      color: var(--text-tertiary);
       font-size: 10px;
-      transition: transform 0.2s;
+      transition: transform var(--duration-normal);
       flex-shrink: 0;
       cursor: pointer;
-      margin-right: 4px;
+      margin-right: var(--spacing-xs);
     }
     .tree-node .expand-icon.expanded { transform: rotate(90deg); }
     .tree-node .expand-icon.leaf { visibility: hidden; }
@@ -134,7 +129,7 @@
       height: 18px;
       margin-right: 6px;
       flex-shrink: 0;
-      font-size: 14px;
+      font-size: var(--font-size-md);
     }
     
     .tree-node .node-name {
@@ -145,10 +140,10 @@
     }
     
     .tree-node .node-count {
-      font-size: 12px;
-      color: #1677ff;
-      margin-left: 8px;
-      background: #e6f4ff;
+      font-size: var(--font-size-xs);
+      color: var(--primary);
+      margin-left: var(--spacing-sm);
+      background: var(--primary-light);
       padding: 1px 6px;
       border-radius: 10px;
     }
@@ -171,25 +166,16 @@
     /* ========== 统计卡片区 ========== */
     .stats-row {
       display: flex;
-      gap: 16px;
-      padding: 16px 20px;
-      background: #fafbfc;
-      border-bottom: 1px solid #e8eaed;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) 20px;
+      background: var(--bg-section);
+      border-bottom: 1px solid var(--border-section);
       flex-shrink: 0;
     }
-    
-    .stat-card {
-      flex: 1;
-      padding: 16px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    .stat-card.blue { background: #e6f7ff; }
-    .stat-card.orange { background: #fff7e6; }
-    .stat-card.red { background: #fff1f0; }
+
+    .stat-card.blue { background: var(--primary-light); }
+    .stat-card.orange { background: var(--warning-light); }
+    .stat-card.red { background: var(--danger-light); }
     
     .stat-icon {
       width: 44px;
@@ -198,39 +184,30 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: var(--font-size-xxl);
     }
-    .stat-card.blue .stat-icon { background: #bae7ff; color: #1677ff; }
-    .stat-card.orange .stat-icon { background: #ffe7ba; color: #fa8c16; }
-    .stat-card.red .stat-icon { background: #ffccc7; color: #ff4d4f; }
+    .stat-card.blue .stat-icon { background: var(--primary-light); color: var(--primary); }
+    .stat-card.orange .stat-icon { background: var(--warning-light); color: var(--warning); }
+    .stat-card.red .stat-icon { background: var(--danger-light); color: var(--danger); }
     
     .stat-info { flex: 1; }
-    .stat-value { font-size: 24px; font-weight: 600; color: #1f1f1f; }
-    .stat-label { font-size: 13px; color: #666; margin-top: 2px; }
+    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; color: var(--text-primary); }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 2px; }
     
     /* ========== 筛选条件栏 ========== */
-    .filter-bar {
-      padding: 12px 20px;
-      border-bottom: 1px solid #e8eaed;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-    }
-    
+
     .filter-bar select,
     .filter-bar input[type="text"] {
       padding: 6px 12px;
-      border: 1px solid #d9d9d9;
-      border-radius: 6px;
-      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color var(--duration-normal);
     }
     .filter-bar select:focus,
     .filter-bar input[type="text"]:focus {
-      border-color: #1677ff;
+      border-color: var(--primary);
     }
     
     .filter-bar select { min-width: 120px; }
@@ -239,7 +216,7 @@
     /* ========== 操作按钮栏 ========== */
     .action-bar {
       padding: 12px 20px;
-      border-bottom: 1px solid #e8eaed;
+      border-bottom: 1px solid var(--border-section);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -252,16 +229,16 @@
     /* 批量操作栏 */
     .batch-bar {
       padding: 10px 20px;
-      background: #f6f8fa;
-      border-bottom: 1px solid #e8eaed;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-section);
       display: none;
       align-items: center;
-      gap: 16px;
+      gap: var(--spacing-md);
       flex-shrink: 0;
     }
     .batch-bar.show { display: flex; }
-    .batch-bar .selected-info { font-size: 13px; color: #1677ff; }
-    .batch-bar .batch-actions { display: flex; gap: 8px; margin-left: auto; }
+    .batch-bar .selected-info { font-size: var(--font-size-sm); color: var(--primary); }
+    .batch-bar .batch-actions { display: flex; gap: var(--spacing-sm); margin-left: auto; }
     
     /* ========== 数据表格 ========== */
     .table-container {
@@ -273,28 +250,28 @@
     .data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: var(--font-size-sm);
     }
     
     .data-table th,
     .data-table td {
-      padding: 12px 16px;
+      padding: 12px var(--spacing-md);
       text-align: left;
-      border-bottom: 1px solid #e8eaed;
+      border-bottom: 1px solid var(--border-section);
       white-space: nowrap;
     }
     
     .data-table th {
-      background: #fafbfc;
+      background: var(--bg-section);
       font-weight: 600;
-      color: #1f1f1f;
+      color: var(--text-primary);
       position: sticky;
       top: 0;
       z-index: 10;
     }
     
     .data-table tbody tr:hover {
-      background: #f5f7fa;
+      background: var(--bg-page-solid);
     }
     
     .data-table .checkbox-col { width: 40px; }
@@ -306,20 +283,10 @@
     .data-table .hazard-regulations { width: 100px; }
     .data-table .hazard-status { width: 70px; }
     .data-table .hazard-time { width: 140px; }
-    .data-table .operation-col { 
-      width: 200px; 
-      position: sticky;
-      right: 0;
-      background: #fff;
+    .data-table .operation-col {
+      width: 200px;
       box-shadow: -2px 0 6px rgba(0,0,0,0.06);
-      white-space: nowrap;
-      text-align: center;
-      z-index: 10;
     }
-    .data-table th.operation-col {
-      background: #fafbfc;
-    }
-    .data-table td.operation-col .btn-link { margin-right: 8px; }
     .data-table td.operation-col .btn-link:last-child { margin-right: 0; }
     
     /* 截断文本 */
@@ -331,31 +298,14 @@
     }
     
     /* ========== 标签样式 ========== */
-    .tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
+
+    .tag-orange { background: var(--warning-light); color: var(--warning); }
+    .tag-red { background: var(--danger-light); color: var(--danger); }
+    .tag-green { background: var(--success-light); color: var(--success); }
+    .tag-gray { background: var(--bg-secondary); color: var(--text-tertiary); }
+    .tag-blue { background: var(--primary-light); color: var(--primary); }
     
-    .tag-orange { background: #fff7e6; color: #fa8c16; }
-    .tag-red { background: #fff1f0; color: #ff4d4f; }
-    .tag-green { background: #f6ffed; color: #52c41a; }
-    .tag-gray { background: #f5f5f5; color: #8c8c8c; }
-    .tag-blue { background: #e6f7ff; color: #1677ff; }
-    
-    /* ========== 分页 ========== */
-    .pagination-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 12px 16px; border-top: 1px solid #f0f0f0; background: #fafafa; }
-    .pagination-info { font-size: 13px; color: #666; }
-    .pagination-size select { padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
-    .pagination-btns { display: flex; gap: 4px; }
-    .pagination-btns button { min-width: 28px; height: 28px; padding: 0 8px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-    .pagination-btns button:hover:not(:disabled) { border-color: #1677ff; color: #1677ff; }
-    .pagination-btns button.active { background: #1677ff; color: #fff; border-color: #1677ff; }
-    .pagination-btns button:disabled { cursor: not-allowed; color: #bbb; background: #f5f5f5; }
-    .pagination-jump { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666; }
-    .pagination-jump input { width: 40px; height: 28px; padding: 0 6px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; text-align: center; outline: none; }
-    .pagination-jump input:focus { border-color: #1677ff; }
+    /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
     
     /* ========== 模态框 ========== */
     .modal-overlay {
@@ -373,8 +323,8 @@
     .modal-overlay.show { display: flex; }
     
     .modal-dialog {
-      background: #fff;
-      border-radius: 8px;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
       max-height: 90vh;
       display: flex;
@@ -382,25 +332,25 @@
     }
     
     .modal-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid #e8eaed;
+      padding: var(--spacing-md) 20px;
+      border-bottom: 1px solid var(--border-section);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
     .modal-close {
       width: 28px;
       height: 28px;
       border: none;
       background: none;
       cursor: pointer;
-      font-size: 18px;
-      color: #999;
-      border-radius: 4px;
-      transition: all 0.2s;
+      font-size: var(--font-size-xl);
+      color: var(--text-tertiary);
+      border-radius: var(--radius-sm);
+      transition: all var(--duration-normal);
     }
-    .modal-close:hover { background: #f5f5f5; color: #1f1f1f; }
+    .modal-close:hover { background: var(--bg-secondary); color: var(--text-primary); }
     
     .modal-body {
       flex: 1;
@@ -410,7 +360,7 @@
     
     .modal-footer {
       padding: 12px 20px;
-      border-top: 1px solid #e8eaed;
+      border-top: 1px solid var(--border-section);
       display: flex;
       justify-content: flex-end;
       gap: 10px;
@@ -419,8 +369,8 @@
     /* ========== 表单样式 ========== */
     .form-row {
       display: flex;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
     }
     
     .form-group {
@@ -429,13 +379,13 @@
     
     .form-label {
       display: block;
-      font-size: 13px;
-      color: #1f1f1f;
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
       margin-bottom: 6px;
     }
     
     .form-label .required {
-      color: #ff4d4f;
+      color: var(--danger);
       margin-left: 2px;
     }
     
@@ -443,17 +393,17 @@
     .form-group select,
     .form-group textarea {
       width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #d9d9d9;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: var(--spacing-sm) 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color var(--duration-normal);
     }
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      border-color: #1677ff;
+      border-color: var(--primary);
     }
     
     .form-group textarea {
@@ -480,201 +430,177 @@
     
     /* ========== 关联选择区 ========== */
     .association-section {
-      margin-bottom: 16px;
+      margin-bottom: var(--spacing-md);
     }
     
     .association-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: var(--spacing-sm);
     }
     .association-title {
-      font-size: 14px;
+      font-size: var(--font-size-md);
       font-weight: 600;
-      color: #1f1f1f;
+      color: var(--text-primary);
     }
     
     /* 精准推荐结果 */
     .recommend-result {
-      background: #f6f8fa;
-      border-radius: 6px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
       padding: 12px;
       margin-bottom: 12px;
     }
     .recommend-header {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 8px;
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-sm);
     }
     .recommend-item {
       display: flex;
       align-items: center;
-      padding: 8px;
-      background: #fff;
-      border-radius: 4px;
+      padding: var(--spacing-sm);
+      background: var(--bg-primary);
+      border-radius: var(--radius-sm);
       margin-bottom: 6px;
     }
     .recommend-item:last-child { margin-bottom: 0; }
     .recommend-match {
       width: 50px;
-      font-size: 12px;
+      font-size: var(--font-size-xs);
       font-weight: 600;
-      color: #1677ff;
+      color: var(--primary);
     }
     .recommend-name {
       flex: 1;
-      font-size: 13px;
+      font-size: var(--font-size-sm);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .recommend-action {
-      margin-left: 8px;
+      margin-left: var(--spacing-sm);
     }
     
     /* 已添加列表 */
     .added-list {
-      background: #f6f8fa;
-      border-radius: 6px;
-      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-sm) 12px;
     }
     .added-item {
       display: flex;
       align-items: center;
       padding: 6px 0;
-      border-bottom: 1px solid #e8eaed;
+      border-bottom: 1px solid var(--border-section);
     }
     .added-item:last-child { border-bottom: none; }
     .added-item .item-name {
       flex: 1;
-      font-size: 13px;
+      font-size: var(--font-size-sm);
     }
     .added-item .item-tag {
-      margin-right: 8px;
+      margin-right: var(--spacing-sm);
     }
     .added-item .item-remove {
-      color: #999;
+      color: var(--text-tertiary);
       cursor: pointer;
-      transition: color 0.2s;
+      transition: color var(--duration-normal);
     }
-    .added-item .item-remove:hover { color: #ff4d4f; }
+    .added-item .item-remove:hover { color: var(--danger); }
     
     /* ========== 详情弹窗 ========== */
     .detail-section {
       margin-bottom: 20px;
     }
     .detail-section-title {
-      font-size: 14px;
+      font-size: var(--font-size-md);
       font-weight: 600;
-      color: #1f1f1f;
+      color: var(--text-primary);
       margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #e8eaed;
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 1px solid var(--border-section);
     }
     .detail-row {
       display: flex;
-      margin-bottom: 8px;
-      font-size: 13px;
+      margin-bottom: var(--spacing-sm);
+      font-size: var(--font-size-sm);
     }
     .detail-label {
       width: 80px;
-      color: #666;
+      color: var(--text-secondary);
       flex-shrink: 0;
     }
     .detail-value {
       flex: 1;
-      color: #1f1f1f;
+      color: var(--text-primary);
     }
     
     /* 详情关联列表 */
     .detail-list {
-      background: #f6f8fa;
-      border-radius: 6px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
       padding: 12px;
     }
     .detail-list-item {
       display: flex;
       align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid #e8eaed;
-      font-size: 13px;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--border-section);
+      font-size: var(--font-size-sm);
     }
     .detail-list-item:last-child { border-bottom: none; }
     .detail-list-item .item-dot {
       width: 6px;
       height: 6px;
-      background: #1677ff;
+      background: var(--primary);
       border-radius: 50%;
       margin-right: 10px;
     }
     
     /* ========== 删除确认弹窗 ========== */
     .delete-warning {
-      background: #fffbe6;
-      border: 1px solid #ffe58f;
-      border-radius: 6px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
+      background: var(--warning-light);
+      border: 1px solid var(--warning-light);
+      border-radius: var(--radius-md);
+      padding: 12px var(--spacing-md);
+      margin-bottom: var(--spacing-md);
     }
     .delete-warning-icon {
-      color: #fa8c16;
-      margin-right: 8px;
+      color: var(--warning);
+      margin-right: var(--spacing-sm);
     }
     .delete-detail-list {
-      background: #fafafa;
-      border-radius: 4px;
-      padding: 8px 12px;
-      margin-top: 8px;
-      font-size: 12px;
-      color: #666;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      padding: var(--spacing-sm) 12px;
+      margin-top: var(--spacing-sm);
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
     }
     
     /* ========== 按钮样式 ========== */
-    .btn {
-      padding: 6px 16px;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-    }
-    
-    .btn-primary {
-      background: #1677ff;
-      color: #fff;
-      border-color: #1677ff;
-    }
-    .btn-primary:hover { background: #4096ff; border-color: #4096ff; }
+
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
     
     .btn-secondary {
-      background: #fff;
-      color: #1f1f1f;
-      border-color: #d9d9d9;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border-color: var(--border);
     }
-    .btn-secondary:hover { border-color: #1677ff; color: #1677ff; }
+    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
     
     .btn-success {
-      background: #52c41a;
-      color: #fff;
-      border-color: #52c41a;
+      background: var(--success);
+      color: var(--bg-primary);
+      border-color: var(--success);
     }
-    .btn-success:hover { background: #73d13d; }
-    
-    .btn-danger {
-      background: #ff4d4f;
-      color: #fff;
-      border-color: #ff4d4f;
-    }
-    .btn-danger:hover { background: #ff7875; }
-    
-    .btn-link {
-      background: none;
-      border: none;
-      color: #1677ff;
-      padding: 0 4px;
-    }
-    .btn-link:hover { color: #4096ff; text-decoration: underline; }
+    .btn-success:hover { background: var(--success-hover); }
+
+    .btn-danger:hover { background: var(--danger-hover); }
+
+    .btn-link:hover { color: var(--primary-hover); text-decoration: underline; }
     
     /* ========== 空状态 ========== */
     .empty-state {
@@ -683,15 +609,15 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      color: #999;
+      color: var(--text-tertiary);
       padding: 40px;
     }
     .empty-state .icon {
       font-size: 48px;
-      margin-bottom: 16px;
+      margin-bottom: var(--spacing-md);
     }
     .empty-state .text {
-      font-size: 14px;
+      font-size: var(--font-size-md);
     }
   </style>
 </head>
@@ -750,7 +676,7 @@
           
           <!-- 筛选条件 -->
           <div class="filter-bar">
-            <label style="font-size:13px;color:#666">隐患类别</label>
+            <label style="font-size: var(--font-size-sm);color:var(--text-secondary)">隐患类别</label>
             <select id="filterCategory">
               <option value="">全部</option>
               <option value="设备类">设备类</option>
@@ -758,13 +684,13 @@
               <option value="作业类">作业类</option>
               <option value="环境类">环境类</option>
             </select>
-            <label style="font-size:13px;color:#666">隐患级别</label>
+            <label style="font-size: var(--font-size-sm);color:var(--text-secondary)">隐患级别</label>
             <select id="filterLevel">
               <option value="">全部</option>
               <option value="一般隐患">一般隐患</option>
               <option value="重大隐患">重大隐患</option>
             </select>
-            <label style="font-size:13px;color:#666">状态</label>
+            <label style="font-size: var(--font-size-sm);color:var(--text-secondary)">状态</label>
             <select id="filterStatus">
               <option value="">全部</option>
               <option value="启用">启用</option>
@@ -795,7 +721,7 @@
           </div>
           
           <!-- 数据表格 -->
-          <div class="table-container">
+          <div class="table-container table-scroll">
             <table class="data-table">
               <thead>
                 <tr>
@@ -819,20 +745,7 @@
           </div>
           
           <!-- 分页 -->
-          <div class="pagination-wrap">
-            <span class="pagination-info">共 <span id="pgTotal">0</span> 条，第 <span id="pgCurrentPage">1</span> 页/共 <span id="pgTotalPages">1</span> 页</span>
-            <div class="pagination-size">
-              <select id="pgSize" onchange="changePageSize()">
-                <option value="10">10条/页</option>
-                <option value="20">20条/页</option>
-                <option value="50">50条/页</option>
-              </select>
-            </div>
-            <div class="pagination-btns" id="pgBtns"></div>
-            <div class="pagination-jump">
-              跳至 <input type="number" id="pgJump" min="1"> 页 <button class="btn btn-default" onclick="jumpToPage()">确定</button>
-            </div>
-          </div>
+          <div class="pagination" id="paginationBar"></div>
         </div>
       </div>
     </div>
@@ -893,7 +806,7 @@
               </div>
             </div>
           </div>
-          <div class="form-group" style="margin-bottom: 16px;">
+          <div class="form-group" style="margin-bottom: var(--spacing-md);">
             <label class="form-label">隐患描述</label>
             <textarea id="hazardDesc" placeholder="请输入隐患描述" rows="3"></textarea>
           </div>
@@ -914,7 +827,7 @@
               <span class="item-remove" onclick="removeDomain(this)">×</span>
             </div>
           </div>
-          <button class="btn btn-link" onclick="openDomainSelect()" style="margin-top: 8px;">+ 添加领域</button>
+          <button class="btn btn-link" onclick="openDomainSelect()" style="margin-top: var(--spacing-sm);">+ 添加领域</button>
         </div>
         
         <!-- 关联检查项 -->
@@ -954,7 +867,7 @@
               <span class="item-remove" onclick="removeCheckItem(this)">×</span>
             </div>
           </div>
-          <button class="btn btn-link" onclick="openCheckItemSelect()" style="margin-top: 8px;">+ 手动添加检查项</button>
+          <button class="btn btn-link" onclick="openCheckItemSelect()" style="margin-top: var(--spacing-sm);">+ 手动添加检查项</button>
         </div>
         
         <!-- 关联法规条款 -->
@@ -969,7 +882,7 @@
               <span class="item-remove" onclick="removeRegulation(this)">×</span>
             </div>
           </div>
-          <button class="btn btn-link" onclick="openRegulationSelect()" style="margin-top: 8px;">+ 添加法规条款</button>
+          <button class="btn btn-link" onclick="openRegulationSelect()" style="margin-top: var(--spacing-sm);">+ 添加法规条款</button>
         </div>
         
         <!-- 整改建议 -->
@@ -1025,7 +938,7 @@
         <!-- 隐患描述 -->
         <div class="detail-section">
           <div class="detail-section-title">隐患描述</div>
-          <p style="font-size: 13px; color: #1f1f1f; line-height: 1.6;">电梯超过检验有效期仍在使用，存在重大安全隐患。可能导致电梯故障、人员被困或伤亡事故。</p>
+          <p style="font-size: var(--font-size-sm); color: var(--text-primary); line-height: 1.6;">电梯超过检验有效期仍在使用，存在重大安全隐患。可能导致电梯故障、人员被困或伤亡事故。</p>
         </div>
         
         <!-- 关联检查项 -->
@@ -1037,17 +950,17 @@
             <div class="detail-list-item">
               <span class="item-dot"></span>
               <span>电梯年度检验是否在有效期内</span>
-              <span class="tag tag-red" style="margin-left: 8px;">重点项</span>
+              <span class="tag tag-red" style="margin-left: var(--spacing-sm);">重点项</span>
             </div>
             <div class="detail-list-item">
               <span class="item-dot"></span>
               <span>电梯内是否张贴检验合格标志</span>
-              <span class="tag tag-gray" style="margin-left: 8px;">常规项</span>
+              <span class="tag tag-gray" style="margin-left: var(--spacing-sm);">常规项</span>
             </div>
             <div class="detail-list-item">
               <span class="item-dot"></span>
               <span>电梯维保记录是否完整</span>
-              <span class="tag tag-gray" style="margin-left: 8px;">常规项</span>
+              <span class="tag tag-gray" style="margin-left: var(--spacing-sm);">常规项</span>
             </div>
           </div>
         </div>
@@ -1064,7 +977,7 @@
                 <span class="detail-reg-name">《特种设备安全法》第二十五条 - 检验要求</span>
               </div>
               <div class="detail-reg-content" style="display:none;">
-                <div style="font-size:12px;color:#666;line-height:1.8;padding:8px 12px;">
+                <div style="font-size: var(--font-size-xs);color:var(--text-secondary);line-height:1.8;padding: var(--spacing-sm) 12px;">
                   <p><strong>条款编号：</strong>第二十五条</p>
                   <p><strong>条款标题：</strong>检验要求</p>
                   <p><strong>条款内容：</strong>特种设备应当按照规定进行定期检验，未经定期检验或者检验不合格的特种设备，不得继续使用。</p>
@@ -1077,7 +990,7 @@
                 <span class="detail-reg-name">《安全生产法》第三十六条 - 设备管理</span>
               </div>
               <div class="detail-reg-content" style="display:none;">
-                <div style="font-size:12px;color:#666;line-height:1.8;padding:8px 12px;">
+                <div style="font-size: var(--font-size-xs);color:var(--text-secondary);line-height:1.8;padding: var(--spacing-sm) 12px;">
                   <p><strong>条款编号：</strong>第三十六条</p>
                   <p><strong>条款标题：</strong>设备管理</p>
                   <p><strong>条款内容：</strong>生产经营单位应当对特种设备进行经常性维护、保养和定期检测，保证正常运转。</p>
@@ -1090,7 +1003,7 @@
         <!-- 整改建议 -->
         <div class="detail-section">
           <div class="detail-section-title">整改建议</div>
-          <div style="font-size: 13px; color: #1f1f1f; line-height: 1.8;">
+          <div style="font-size: var(--font-size-sm); color: var(--text-primary); line-height: 1.8;">
             1. 立即停用超期电梯，设置警示标志<br>
             2. 联系有资质的检验机构进行检验<br>
             3. 检验合格后方可恢复使用<br>
@@ -1112,26 +1025,26 @@
         <button class="modal-close" onclick="closeModal('modal-import')">×</button>
       </div>
       <div class="modal-body">
-        <div style="border: 2px dashed #d9d9d9; border-radius: 8px; padding: 32px; text-align: center; margin-bottom: 16px; cursor: pointer; transition: border-color 0.2s;" id="importDropZone" onclick="document.getElementById('importFileInput').click()">
-          <div style="font-size: 36px; margin-bottom: 8px;">📂</div>
-          <div style="font-size: 14px; color: #1f1f1f; margin-bottom: 4px;">点击选择文件或拖拽文件到此处</div>
-          <div style="font-size: 12px; color: #999;">支持 .csv、.xlsx、.xls 格式，单次最多导入 500 条</div>
-          <div style="font-size: 12px; color: #1677ff; margin-top: 8px; cursor: pointer;" onclick="event.stopPropagation(); downloadImportTemplate()">下载导入模板</div>
+        <div style="border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: center; margin-bottom: var(--spacing-md); cursor: pointer; transition: border-color 0.2s;" id="importDropZone" onclick="document.getElementById('importFileInput').click()">
+          <div style="font-size: 36px; margin-bottom: var(--spacing-sm);">📂</div>
+          <div style="font-size: var(--font-size-md); color: var(--text-primary); margin-bottom: var(--spacing-xs);">点击选择文件或拖拽文件到此处</div>
+          <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">支持 .csv、.xlsx、.xls 格式，单次最多导入 500 条</div>
+          <div style="font-size: var(--font-size-xs); color: var(--primary); margin-top: var(--spacing-sm); cursor: pointer;" onclick="event.stopPropagation(); downloadImportTemplate()">下载导入模板</div>
         </div>
         <input type="file" id="importFileInput" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleImportFile(this)">
-        <div id="importFileInfo" style="display: none; background: #f6f8fa; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+        <div id="importFileInfo" style="display: none; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 18px;">📄</span>
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+              <span style="font-size: var(--font-size-xl);">📄</span>
               <div>
-                <div style="font-size: 13px; color: #1f1f1f;" id="importFileName">-</div>
-                <div style="font-size: 12px; color: #999;" id="importFileSize">-</div>
+                <div style="font-size: var(--font-size-sm); color: var(--text-primary);" id="importFileName">-</div>
+                <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);" id="importFileSize">-</div>
               </div>
             </div>
-            <button class="btn btn-link" onclick="clearImportFile()" style="color: #ff4d4f;">移除</button>
+            <button class="btn btn-link" onclick="clearImportFile()" style="color: var(--danger);">移除</button>
           </div>
         </div>
-        <div style="background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #8c6d1f; line-height: 1.6;">
+        <div style="background: var(--warning-light); border: 1px solid var(--warning-light); border-radius: var(--radius-md); padding: 10px 14px; font-size: var(--font-size-xs); color: var(--warning); line-height: 1.6;">
           ⚠️ 导入说明：<br>
           1. 请按模板格式填写数据，必填字段：隐患名称、隐患类别、隐患级别<br>
           2. 重复名称的隐患将自动跳过，不会覆盖已有数据<br>
@@ -1161,8 +1074,8 @@
           <div>• 3 个检查项</div>
           <div>• 2 条法规条款</div>
         </div>
-        <p style="margin: 16px 0 8px; font-size: 13px; color: #666;">删除后将自动解除所有关联关系，已生成的检查记录不受影响。</p>
-        <p style="font-size: 14px; color: #1f1f1f;">确定要删除"<strong>电梯未年检</strong>"吗？</p>
+        <p style="margin: var(--spacing-md) 0 8px; font-size: var(--font-size-sm); color: var(--text-secondary);">删除后将自动解除所有关联关系，已生成的检查记录不受影响。</p>
+        <p style="font-size: var(--font-size-md); color: var(--text-primary);">确定要删除"<strong>电梯未年检</strong>"吗？</p>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('deleteModal')">取消</button>
@@ -1179,8 +1092,8 @@
         <button class="modal-close" onclick="closeModal('batchDeleteModal')">×</button>
       </div>
       <div class="modal-body">
-        <p style="margin-bottom: 12px; font-size: 14px;">已选择 <strong>5</strong> 条隐患，其中：</p>
-        <ul style="margin: 0 0 16px 20px; font-size: 13px; color: #666; line-height: 1.8;">
+        <p style="margin-bottom: 12px; font-size: var(--font-size-md);">已选择 <strong>5</strong> 条隐患，其中：</p>
+        <ul style="margin: 0 0 16px 20px; font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.8;">
           <li>3 条无关联，可直接删除</li>
           <li>2 条有关联，删除后自动解除关联</li>
         </ul>
@@ -1192,7 +1105,7 @@
           <div>电梯未年检：关联3个检查项、2条法规</div>
           <div>消防通道堵塞：关联2个检查项、1条法规</div>
         </div>
-        <p style="margin-top: 16px; font-size: 14px;">确定删除选中的 5 条隐患吗？</p>
+        <p style="margin-top: var(--spacing-md); font-size: var(--font-size-md);">确定删除选中的 5 条隐患吗？</p>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('batchDeleteModal')">取消</button>
@@ -1201,6 +1114,7 @@
     </div>
   </div>
   
+  <script src="../../js/pagination.js"></script>
   <script>
 
 function showToast(msg, type) {
@@ -1214,10 +1128,10 @@ function showToast(msg, type) {
   }
   var toast = document.createElement('div');
   toast.className = 'toast toast-' + type;
-  toast.style.cssText = 'padding:10px 20px;margin-bottom:8px;border-radius:4px;background:#1677ff;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
-  if (type === 'success') toast.style.background = '#52c41a';
-  if (type === 'warning') toast.style.background = '#faad14';
-  if (type === 'error') toast.style.background = '#ff4d4f';
+  toast.style.cssText = 'padding:10px 20px;margin-bottom: var(--spacing-sm);border-radius: var(--radius-sm);background:var(--primary);color:var(--bg-primary);font-size: var(--font-size-md);box-shadow: var(--shadow-md);';
+  if (type === 'success') toast.style.background = 'var(--success)';
+  if (type === 'warning') toast.style.background = 'var(--warning)';
+  if (type === 'error') toast.style.background = 'var(--danger)';
   toast.textContent = msg;
   container.appendChild(toast);
   setTimeout(function() { toast.remove(); }, 3000);
@@ -1386,7 +1300,15 @@ function showToast(msg, type) {
       filterHazardList();
     }
     
-    // ========== 分页状态 ==========
+    // ========== 分页组件 ==========
+    var pg = new Pagination('paginationBar', {
+      total: 0,
+      onChange: function(page, size) {
+        pgState.page = page;
+        pgState.size = size;
+        filterHazardList();
+      }
+    });
     var pgState = { page: 1, size: 10, total: 0 };
     
     // ========== 表格渲染 ==========
@@ -1399,9 +1321,9 @@ function showToast(msg, type) {
       const tbody = document.getElementById('tableBody');
 
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#999;padding:48px 0;">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-tertiary);padding:48px 0;">暂无数据</td></tr>';
         updateStats(data);
-        renderPagination(0);
+        pg.setTotal(0);
         return;
       }
 
@@ -1450,7 +1372,7 @@ function showToast(msg, type) {
       
       tbody.innerHTML = html;
       updateStats(data);
-      renderPagination(Math.ceil(pgState.total / pgState.size));
+      pg.setTotal(pgState.total);
     }
     
     function updateStats(data) {
@@ -1502,49 +1424,12 @@ function showToast(msg, type) {
       selectedDomain = null;
       document.querySelectorAll('.tree-node').forEach(node => node.classList.remove('selected'));
       pgState.page = 1;
-      filterHazardList();
-    }
-    
-    // ========== 分页函数 ==========
-    
-    function renderPagination(totalPages) {
-      document.getElementById('pgTotal').textContent = pgState.total;
-      document.getElementById('pgCurrentPage').textContent = pgState.page;
-      document.getElementById('pgTotalPages').textContent = totalPages || 1;
-      var btns = document.getElementById('pgBtns');
-      if (totalPages <= 1) { btns.innerHTML = ''; return; }
-      var html = '';
-      html += '<button onclick="goPage(' + (pgState.page - 1) + ')" ' + (pgState.page === 1 ? 'disabled' : '') + '>&lt;</button>';
-      for (var i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= pgState.page - 2 && i <= pgState.page + 2)) {
-          html += '<button class="' + (i === pgState.page ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
-        } else if (i === pgState.page - 3 || i === pgState.page + 3) {
-          html += '<span>...</span>';
-        }
-      }
-      html += '<button onclick="goPage(' + (pgState.page + 1) + ')" ' + (pgState.page === totalPages ? 'disabled' : '') + '>&gt;</button>';
-      btns.innerHTML = html;
-      document.getElementById('pgJump').max = totalPages;
-    }
-
-    function goPage(p) {
-      var totalPages = Math.ceil(pgState.total / pgState.size);
-      if (p < 1 || p > totalPages) return;
-      pgState.page = p;
+      pg.setPage(1);
       filterHazardList();
     }
 
-    function changePageSize() {
-      pgState.size = parseInt(document.getElementById('pgSize').value);
-      pgState.page = 1;
-      filterHazardList();
-    }
+    // ========== 分页逻辑已由 pagination.js 组件接管 ==========
 
-    function jumpToPage() {
-      var p = parseInt(document.getElementById('pgJump').value);
-      if (p) goPage(p);
-    }
-    
     // ========== 选择与批量操作 ==========
     
     function toggleSelect(id) {
@@ -1633,9 +1518,9 @@ function showToast(msg, type) {
       document.getElementById('hazardDesc').value = '';
       document.getElementById('rectifySuggestion').value = '';
       // 清空关联数据
-      document.getElementById('domainList').innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">暂无领域</div>';
-      document.getElementById('checkItemList').innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">暂无关联检查项</div>';
-      document.getElementById('regulationList').innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">暂无关联法规</div>';
+      document.getElementById('domainList').innerHTML = '<div style="padding: 12px; color: var(--text-tertiary); font-size: var(--font-size-sm);">暂无领域</div>';
+      document.getElementById('checkItemList').innerHTML = '<div style="padding: 12px; color: var(--text-tertiary); font-size: var(--font-size-sm);">暂无关联检查项</div>';
+      document.getElementById('regulationList').innerHTML = '<div style="padding: 12px; color: var(--text-tertiary); font-size: var(--font-size-sm);">暂无关联法规</div>';
       document.getElementById('recommendResult').style.display = 'none';
       // 重置单选
       document.querySelector('input[name="hazardLevel"][value="一般隐患"]').checked = true;
@@ -1748,7 +1633,7 @@ function showToast(msg, type) {
       importFileSelected = null;
       document.getElementById('importFileInput').value = '';
       document.getElementById('importFileInfo').style.display = 'none';
-      document.getElementById('importDropZone').style.borderColor = '#d9d9d9';
+      document.getElementById('importDropZone').style.borderColor = 'var(--border)';
       document.getElementById('importConfirmBtn').disabled = true;
       openModal('modal-import');
     }
@@ -1766,7 +1651,7 @@ function showToast(msg, type) {
       document.getElementById('importFileName').textContent = file.name;
       document.getElementById('importFileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
       document.getElementById('importFileInfo').style.display = 'block';
-      document.getElementById('importDropZone').style.borderColor = '#1677ff';
+      document.getElementById('importDropZone').style.borderColor = 'var(--primary)';
       document.getElementById('importConfirmBtn').disabled = false;
     }
 
@@ -1774,7 +1659,7 @@ function showToast(msg, type) {
       importFileSelected = null;
       document.getElementById('importFileInput').value = '';
       document.getElementById('importFileInfo').style.display = 'none';
-      document.getElementById('importDropZone').style.borderColor = '#d9d9d9';
+      document.getElementById('importDropZone').style.borderColor = 'var(--border)';
       document.getElementById('importConfirmBtn').disabled = true;
     }
 

@@ -7,40 +7,32 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-    .page-container { padding: 20px; background: #f0f2f5; min-height: 100vh; }
+
     /* 面包屑由 framework.css 提供，无需额外样式 */
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-    .page-title { font-size: 18px; font-weight: 600; }
-    .btn { padding: 6px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all .2s; border: 1px solid #d9d9d9; }
-    .btn-primary { background: #1677ff; color: #fff; border-color: #1677ff; }
-    .btn-primary:hover { background: #4096ff; }
-    .btn-default { background: #fff; color: #333; }
-    .btn-default:hover { color: #1677ff; border-color: #1677ff; }
-    .btn-danger { background: #fff; color: #ff4d4f; border-color: #ffccc7; }
-    .btn-danger:hover { background: #fff2f0; border-color: #ff4d4f; }
-    .btn-link { background: none; border: none; padding: 2px 8px; color: #1677ff; cursor: pointer; font-size: 13px; }
-    .btn-link:hover { color: #4096ff; }
-    .btn-sm { padding: 4px 12px; font-size: 12px; }
+.btn-primary:hover { background: var(--primary-hover); }
+    
+    .btn-default:hover { color: var(--primary); border-color: var(--primary); }
+    
+    .btn-danger:hover { background: var(--danger-light); border-color: var(--danger); }
+    
+    .btn-link:hover { color: var(--primary-hover); }
+    .btn-sm { padding: var(--spacing-xs) 12px; font-size: var(--font-size-xs); }
 
-    .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-    .stat-card { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-    .stat-value { font-size: 24px; font-weight: 600; color: #1677ff; }
-    .stat-label { font-size: 12px; color: #888; margin-top: 4px; }
+    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; color: var(--primary); }
+    .stat-label { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--spacing-xs); }
 
-    .filter-bar { display: flex; gap: 12px; margin-bottom: 16px; background: #fff; padding: 12px 16px; border-radius: 8px; align-items: center; flex-wrap: wrap; }
     .filter-item { display: flex; align-items: center; gap: 6px; }
-    .filter-item label { font-size: 13px; color: #666; }
-    .filter-item input, .filter-item select { padding: 6px 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; min-width: 120px; }
-    .filter-item input:focus, .filter-item select:focus { border-color: #1677ff; }
+    .filter-item label { font-size: var(--font-size-sm); color: var(--text-secondary); }
+    .filter-item input, .filter-item select { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); outline: none; min-width: 120px; }
+    .filter-item input:focus, .filter-item select:focus { border-color: var(--primary); }
 
-    .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
     .table-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1150px; }
-    thead tr { background: #fafafa; }
-    th { padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #1f1f1f; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
-    td { padding: 12px; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    tr:nth-child(even) td { background: #fafafa; }
-    tr:hover td { background: #e6f7ff !important; }
+    thead tr { background: var(--bg-tertiary); }
+    th { padding: 12px; text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap; }
+    td { padding: 12px; font-size: var(--font-size-sm); color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    tr:nth-child(even) td { background: var(--bg-tertiary); }
+    tr:hover td { background: var(--primary-light) !important; }
 
     th:nth-child(1), td:nth-child(1) { width: 50px; }
     th:nth-child(2), td:nth-child(2) { width: 130px; }
@@ -53,64 +45,58 @@
     th:nth-child(9), td:nth-child(9) { width: 70px; }
     th:nth-child(10), td:nth-child(10) { width: 150px; }
 
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; }
-    .tag-project { background: #e6f7ff; color: #1677ff; border: 1px solid #91d5ff; }
-    .tag-enterprise { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
-    .tag-government { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
-    .tag-level { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
-    .tag-status-on { background: #f6ffed; color: #52c41a; }
-    .tag-status-off { background: #f5f5f5; color: #999; }
+    .tag-project { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-light); }
+    .tag-enterprise { background: var(--success-light); color: var(--success); border: 1px solid var(--success-hover); }
+    .tag-government { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-light); }
+    .tag-level { background: var(--bg-tertiary); color: var(--accent); border: 1px solid var(--primary-light); }
+    .tag-status-on { background: var(--success-light); color: var(--success); }
+    .tag-status-off { background: var(--bg-secondary); color: var(--text-tertiary); }
 
-    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 12px 16px; background: #fff; border-top: 1px solid #f0f0f0; }
-    .pagination select { padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
-    .pagination button { padding: 4px 12px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; cursor: pointer; font-size: 13px; }
-    .pagination button:hover:not(:disabled) { border-color: #1677ff; color: #1677ff; }
-    .pagination button:disabled { opacity: .5; cursor: not-allowed; }
-    .page-info { font-size: 13px; color: #666; }
+    /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-overlay.active { display: flex; }
-    .modal { background: #fff; border-radius: 8px; width: 700px; max-width: 95vw; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
-    .modal-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-    .modal-title { font-size: 16px; font-weight: 600; }
-    .modal-close { font-size: 20px; color: #999; cursor: pointer; background: none; border: none; }
-    .modal-close:hover { color: #333; }
+    .modal { background: var(--bg-primary); border-radius: var(--radius-lg); width: 700px; max-width: 95vw; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal-header { padding: var(--spacing-md) 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-close { font-size: var(--font-size-xxl); color: var(--text-tertiary); cursor: pointer; background: none; border: none; }
+    .modal-close:hover { color: var(--text-primary); }
     .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
-    .modal-footer { padding: 12px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 10px; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; gap: 10px; }
 
     .form-group { margin-bottom: 20px; }
     .form-group:last-child { margin-bottom: 0; }
-    .form-group label { display: block; font-size: 13px; color: #333; margin-bottom: 6px; }
-    .form-group label .required { color: #ff4d4f; margin-right: 4px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1677ff; }
+    .form-group label { display: block; font-size: var(--font-size-sm); color: var(--text-primary); margin-bottom: 6px; }
+    .form-group label .required { color: var(--danger); margin-right: var(--spacing-xs); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); outline: none; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); }
     .form-group textarea { resize: vertical; min-height: 80px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .form-row.three-col { grid-template-columns: 1fr 1fr 1fr; }
 
-    .checkbox-group { display: flex; flex-wrap: wrap; gap: 16px; }
-    .checkbox-item { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
+    .checkbox-item { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: var(--font-size-sm); }
     .checkbox-item input { width: auto; margin: 0; }
 
     /* 检查频次输入样式 */
-    .freq-inputs { display: flex; align-items: center; gap: 8px; }
-    .freq-label { font-size: 13px; color: #666; }
+    .freq-inputs { display: flex; align-items: center; gap: var(--spacing-sm); }
+    .freq-label { font-size: var(--font-size-sm); color: var(--text-secondary); }
     .freq-num { width: 70px; text-align: center; }
     .freq-unit { width: 90px; }
 
     /* 状态开关样式 */
     .status-group { display: flex; flex-direction: column; }
-    .status-wrap { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
-    .status-text { font-size: 13px; color: #333; }
+    .status-wrap { display: flex; align-items: center; gap: 10px; margin-top: var(--spacing-xs); }
+    .status-text { font-size: var(--font-size-sm); color: var(--text-primary); }
 
     .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 22px; transition: .3s; }
-    .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 2px; bottom: 2px; background: #fff; border-radius: 50%; transition: .3s; }
-    .switch input:checked + .slider { background: #1677ff; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background: var(--text-disabled); border-radius: 22px; transition: .3s; }
+    .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 2px; bottom: 2px; background: var(--bg-primary); border-radius: 50%; transition: .3s; }
+    .switch input:checked + .slider { background: var(--primary); }
     .switch input:checked + .slider:before { transform: translateX(22px); }
 
-    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100%); background: #333; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 2000; }
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100%); background: var(--text-primary); color: var(--bg-primary); padding: 10px 20px; border-radius: var(--radius-md); font-size: var(--font-size-sm); opacity: 0; transition: all .3s; z-index: 2000; }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   </style>
 </head>
@@ -198,13 +184,13 @@
               <th>检查频次</th>
               <th>关联检查表数</th>
               <th>状态</th>
-              <th>操作</th>
+              <th class="action-col">操作</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
         </table>
       </div>
-      <div class="pagination" id="pagination"></div>
+      <div class="pagination" id="paginationBar"></div>
     </div>
   </div>
 
@@ -313,7 +299,7 @@
       </div>
       <div class="modal-body" style="text-align: center; padding: 30px;">
         <p>确定要删除职务 <strong id="delName"></strong> 吗？</p>
-        <p style="color: #999; font-size: 12px; margin-top: 8px;">删除后不可恢复，请谨慎操作</p>
+        <p style="color: var(--text-tertiary); font-size: var(--font-size-xs); margin-top: var(--spacing-sm);">删除后不可恢复，请谨慎操作</p>
       </div>
       <div class="modal-footer">
         <button class="btn btn-default" onclick="closeDelModal()">取消</button>
@@ -324,6 +310,7 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="../../js/pagination.js"></script>
   <script>
     // 职务数据（真实数据）
     // checkFreq格式: { num: 数量, unit: '日/周/月/季/年', count: 次数 }
@@ -368,14 +355,22 @@
     let pageSize = 10;
     let editingId = null;
     let deletingId = null;
+    let pg = null;
 
     const sceneMap = { PROJECT: '项目', ENTERPRISE: '企业', GOVERNMENT: '政府' };
     const sceneClass = { PROJECT: 'tag-project', ENTERPRISE: 'tag-enterprise', GOVERNMENT: 'tag-government' };
 
     function init() {
       updateStats();
+      pg = new Pagination('paginationBar', {
+        total: getFilteredData().length,
+        onChange: function(page, size) {
+          currentPage = page;
+          pageSize = size;
+          renderTable();
+        }
+      });
       renderTable();
-      renderPagination();
     }
 
     function updateStats() {
@@ -420,36 +415,21 @@
           <td>${checkFreqText}</td>
           <td>${checkTableCount}</td>
           <td><span class="tag ${p.status === 1 ? 'tag-status-on' : 'tag-status-off'}">${p.status === 1 ? '启用' : '停用'}</span></td>
-          <td>
+          <td class="action-col">
             <button class="btn-link" onclick="openEditModal(${p.id})">编辑</button>
             <button class="btn-link" onclick="toggleStatus(${p.id})">${p.status === 1 ? '停用' : '启用'}</button>
-            <button class="btn-link" style="color:#ff4d4f" onclick="openDelModal(${p.id})">删除</button>
+            <button class="btn-link" style="color:var(--danger)" onclick="openDelModal(${p.id})">删除</button>
           </td>
         </tr>`;
       }).join('');
-    }
 
-    function renderPagination() {
-      const data = getFilteredData();
-      const total = data.length;
-      const pages = Math.ceil(total / pageSize);
-
-      let html = `<span class="page-info">共 ${total} 条</span>
-        <select onchange="changePageSize(this.value)">
-          <option value="10" ${pageSize === 10 ? 'selected' : ''}>10条/页</option>
-          <option value="20" ${pageSize === 20 ? 'selected' : ''}>20条/页</option>
-          <option value="50" ${pageSize === 50 ? 'selected' : ''}>50条/页</option>
-        </select>
-        <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
-        <span class="page-info">${currentPage} / ${pages || 1}</span>
-        <button onclick="changePage(${currentPage + 1})" ${currentPage >= pages ? 'disabled' : ''}>下一页</button>`;
-      document.getElementById('pagination').innerHTML = html;
+      if (pg) pg.setTotal(data.length);
     }
 
     function applyFilter() {
       currentPage = 1;
+      if (pg) pg.setPage(1);
       renderTable();
-      renderPagination();
     }
 
     function resetFilter() {
@@ -458,19 +438,6 @@
       document.getElementById('filterUnitType').value = '';
       document.getElementById('filterStatus').value = '';
       applyFilter();
-    }
-
-    function changePage(p) {
-      currentPage = p;
-      renderTable();
-      renderPagination();
-    }
-
-    function changePageSize(size) {
-      pageSize = parseInt(size);
-      currentPage = 1;
-      renderTable();
-      renderPagination();
     }
 
     function openAddModal() {
@@ -586,7 +553,6 @@
       closeModal();
       updateStats();
       renderTable();
-      renderPagination();
     }
 
     function toggleStatus(id) {
@@ -617,7 +583,6 @@
         closeDelModal();
         updateStats();
         renderTable();
-        renderPagination();
       }
     }
 

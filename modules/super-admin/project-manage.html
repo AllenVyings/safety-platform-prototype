@@ -9,58 +9,54 @@
 <title>项目信息管理 - 超管端</title>
 
 <style>
-.page-container{padding:20px;background:linear-gradient(180deg,#f0f2f5 0%,#f5f7fa 100%);min-height:100vh}
-
-
-.main-layout{display:flex;flex-direction:row;gap:16px;margin-top:16px;height:calc(100vh - 80px)}
-.tree-panel{width:280px;flex-shrink:0;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden}
-.tree-search{position:relative;padding:12px;border-bottom:1px solid #f0f0f0}
-.tree-search input{width:100%;height:32px;padding:8px 28px 8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box}
-.tree-search input:focus{border-color:#1677ff}
-.tree-search .search-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:14px;color:#999;pointer-events:none}
-.tree-tabs{display:flex;border-bottom:1px solid #f0f0f0}
-.tree-tab{flex:1;padding:10px 0;text-align:center;font-size:13px;color:#666;cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;background:none;border:none}
-.tree-tab:hover{color:#1677ff}
-.tree-tab.active{color:#1677ff;border-bottom-color:#1677ff;font-weight:500}
+.main-layout{display:flex;flex-direction:row;gap: var(--spacing-md);margin-top: var(--spacing-md);height:calc(100vh - 80px)}
+.tree-panel{width:280px;flex-shrink:0;background:var(--bg-primary);border-radius: var(--radius-lg);box-shadow: var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
+.tree-search{position:relative;padding:12px;border-bottom:1px solid var(--border-light)}
+.tree-search input{width:100%;height:32px;padding: var(--spacing-sm) 28px var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;box-sizing:border-box}
+.tree-search input:focus{border-color:var(--primary)}
+.tree-search .search-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size: var(--font-size-md);color:var(--text-tertiary);pointer-events:none}
+.tree-tabs{display:flex;border-bottom:1px solid var(--border-light)}
+.tree-tab{flex:1;padding:10px 0;text-align:center;font-size: var(--font-size-sm);color:var(--text-secondary);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;background:none;border:none}
+.tree-tab:hover{color:var(--primary)}
+.tree-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:500}
 .tree-content{flex:1;overflow-y:auto;padding:12px}
-.tree-node{display:flex;align-items:center;padding:6px 8px;border-radius:4px;cursor:pointer;transition:all .2s;font-size:13px;color:#333}
-.tree-node:hover{background:#f5f7fa}
-.tree-node.active{background:#e6f4ff;color:#1677ff}
-.tree-node .arrow{margin-right:4px;font-size:10px;color:#999;transition:transform .2s;width:12px;text-align:center}
+.tree-node{display:flex;align-items:center;padding: 6px var(--spacing-sm);border-radius: var(--radius-sm);cursor:pointer;transition:all .2s;font-size: var(--font-size-sm);color:var(--text-primary)}
+.tree-node:hover{background: var(--bg-page-solid)}
+.tree-node.active{background:var(--primary-light);color:var(--primary)}
+.tree-node .arrow{margin-right: var(--spacing-xs);font-size:10px;color:var(--text-tertiary);transition:transform .2s;width:12px;text-align:center}
 .tree-node .arrow.expanded{transform:rotate(90deg)}
-.tree-node .node-icon{margin-right:6px;font-size:14px}
-.tree-node .node-count{margin-left:auto;font-size:11px;color:#999;background:#f5f5f5;padding:1px 6px;border-radius:10px}
-.tree-node.active .node-count{background:#1677ff;color:#fff}
+.tree-node .node-icon{margin-right:6px;font-size: var(--font-size-md)}
+.tree-node .node-count{margin-left:auto;font-size:11px;color:var(--text-tertiary);background:var(--bg-secondary);padding:1px 6px;border-radius:10px}
+.tree-node.active .node-count{background:var(--primary);color:var(--bg-primary)}
 .tree-children{padding-left:20px;display:block}
-.right-content{flex:1;display:flex;flex-direction:column;gap:16px;overflow:hidden}
+.right-content{flex:1;display:flex;flex-direction:column;gap: var(--spacing-md);overflow:hidden}
 .right-content .table-card{flex:1;display:flex;flex-direction:column}
 .right-content .table-container{flex:1;overflow:auto}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.stat-card{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.stat-card-label{font-size:12px;color:#888;margin-bottom:6px}
-.stat-card-value{font-size:22px;font-weight:700;color:#1f1f1f}
-.stat-card-sub{font-size:11px;color:#bbb;margin-top:2px}
-.query-bar{background:#fff;border-radius:8px;padding:16px 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+
+.stat-card-label{font-size: var(--font-size-xs);color:var(--text-tertiary);margin-bottom:6px}
+.stat-card-value{font-size:22px;font-weight:700;color:var(--text-primary)}
+.stat-card-sub{font-size:11px;color:var(--border);margin-top:2px}
+.query-bar{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md) 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
 .query-bar .q-item{display:flex;align-items:center;gap:6px}
-.query-bar label{font-size:13px;color:#666;white-space:nowrap}
-.query-bar select,.query-bar input{padding:5px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .2s}
-.query-bar select:focus,.query-bar input:focus{border-color:#1677ff}
-.btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent}
-.btn-default{background:#fff;color:#333;border-color:#d9d9d9}
-.btn-default:hover{color:#1677ff;border-color:#1677ff}
-.btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
-.btn-primary:hover{background:#4096ff}
-.btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
-.btn-link:hover{color:#4096ff}
-.btn-link.btn-sm{font-size:12px;padding:1px 4px}
-.btn-danger{padding:4px 15px;border:1px solid #ffccc7;color:#ff4d4f;background:#fff;border-radius:6px;cursor:pointer;font-size:14px;transition:all .2s}
-.btn-danger:hover{background:#fff2f0;border-color:#ff4d4f}
-.table-card{background:#fff;border-radius:8px;padding:16px;flex:1;overflow:hidden}
+.query-bar label{font-size: var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
+.query-bar select,.query-bar input{padding:5px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s}
+.query-bar select:focus,.query-bar input:focus{border-color:var(--primary)}
+
+.btn-default:hover{color:var(--primary);border-color:var(--primary)}
+
+.btn-primary:hover{background:var(--primary-hover)}
+
+.btn-link:hover{color:var(--primary-hover)}
+.btn-link.btn-sm{font-size: var(--font-size-xs);padding: 1px var(--spacing-xs)}
+
+.btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
+.table-card{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);flex:1;overflow:hidden}
 .table-container{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px}
-thead th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;white-space:nowrap;position:relative}
-tbody td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333;max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-tbody tr:hover{background:#f8fafc}
+table{width:100%;border-collapse:collapse;font-size: var(--font-size-sm);min-width:1100px}
+thead th{background:var(--bg-tertiary);padding:10px 12px;text-align:left;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;position:relative}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary);max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tbody tr:hover{background:var(--bg-section)}
 tbody tr:last-child td{border-bottom:none}
 /* 列宽固定 */
 thead th:nth-child(1),tbody td:nth-child(1){width:50px;max-width:50px;text-align:center}
@@ -73,108 +69,95 @@ thead th:nth-child(7),tbody td:nth-child(7){width:100px;max-width:100px}
 thead th:nth-child(8),tbody td:nth-child(8){width:80px;max-width:80px;text-align:center}
 thead th:nth-child(9),tbody td:nth-child(9){width:120px;max-width:120px}
 /* 操作列 */
-thead th:nth-child(10){text-align:center;width:240px;max-width:240px;position:sticky;right:0;background:#fafafa;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10}
-tbody td:nth-child(10){width:240px;max-width:240px;position:sticky;right:0;background:#fff;box-shadow:-2px 0 4px rgba(0,0,0,.04);z-index:10;white-space:nowrap}
-tbody td:nth-child(10) .btn-link{margin-right:8px}
-tbody td:nth-child(10) .btn-link:last-child{margin-right:0}
-/* 分页 */
-.pagination-wrap{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:12px 16px;border-top:1px solid #f0f0f0;background:#fafafa}
-.pagination-info{font-size:13px;color:#666}
-.pagination-size select{padding:4px 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;outline:none}
-.pagination-btns{display:flex;gap:4px}
-.pagination-btns button{min-width:28px;height:28px;padding:0 8px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;font-size:13px;cursor:pointer;transition:all .2s}
-.pagination-btns button:hover:not(:disabled){border-color:#1677ff;color:#1677ff}
-.pagination-btns button.active{background:#1677ff;color:#fff;border-color:#1677ff}
-.pagination-btns button:disabled{cursor:not-allowed;color:#bbb;background:#f5f5f5}
-.pagination-jump{display:flex;align-items:center;gap:6px;font-size:13px;color:#666}
-.pagination-jump input{width:40px;height:28px;padding:0 6px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;text-align:center;outline:none}
-.pagination-jump input:focus{border-color:#1677ff}
+.action-col{width:240px;max-width:240px;box-shadow:-2px 0 4px rgba(0,0,0,.04)}
+.action-col .btn-link:last-child{margin-right:0}
+/* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
 /* 标签 */
-.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:12px}
-.tag-success{background:#f6ffed;color:#52c41a}
-.tag-warning{background:#fff7e6;color:#fa8c16}
-.tag-error{background:#fff1f0;color:#f5222d}
-.tag-info{background:#e6f7ff;color:#1890ff}
-.tag-default{background:#f5f5f5;color:#8c8c8c}
+
+.tag-success{background:var(--success-light);color:var(--success)}
+.tag-warning{background:var(--warning-light);color:var(--warning)}
+.tag-error{background:var(--danger-light);color:var(--danger)}
+.tag-info{background:var(--primary-light);color:var(--primary)}
+.tag-default{background:var(--bg-secondary);color:var(--text-tertiary)}
 /* PRD §10.4.1 语义标签 */
-.tag-blue{background:#e6f7ff;color:#1890ff}
-.tag-green{background:#f6ffed;color:#52c41a}
-.tag-orange{background:#fff7e6;color:#fa8c16}
-.tag-red{background:#fff1f0;color:#f5222d}
-.tag-gray{background:#f5f5f5;color:#8c8c8c}
+.tag-blue{background:var(--primary-light);color:var(--primary)}
+.tag-green{background:var(--success-light);color:var(--success)}
+.tag-orange{background:var(--warning-light);color:var(--warning)}
+.tag-red{background:var(--danger-light);color:var(--danger)}
+.tag-gray{background:var(--bg-secondary);color:var(--text-tertiary)}
 /* 弹窗 */
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:10px;width:900px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
-.modal-title{font-size:16px;font-weight:600;color:#1e293b}
-.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:14px;color:#999;transition:all .2s}
-.modal-close:hover{background:#f5f5f5;color:#666}
-.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
-.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #f0f0f0;flex-shrink:0}
+.modal{background:var(--bg-primary);border-radius:10px;width:900px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-md) 20px;border-bottom:1px solid var(--border-light);flex-shrink:0}
+.modal-title{font-size: var(--font-size-lg);font-weight:600;color:var(--text-primary)}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius: var(--radius-md);cursor:pointer;font-size: var(--font-size-md);color:var(--text-tertiary);transition:all .2s}
+.modal-close:hover{background:var(--bg-secondary);color:var(--text-secondary)}
+.modal-body{padding: 20px var(--spacing-lg);overflow-y:auto;flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-light);flex-shrink:0}
 /* 表单 */
-.form-section{margin-bottom:16px}
-.form-section-title{font-size:13px;font-weight:600;color:#1f1f1f;padding:0 0 10px;margin-bottom:10px;border-bottom:1px solid #f0f0f0}
+.form-section{margin-bottom: var(--spacing-md)}
+.form-section-title{font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary);padding:0 0 10px;margin-bottom:10px;border-bottom:1px solid var(--border-light)}
 .form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
 .form-group{display:flex;flex-direction:row;align-items:center;flex:1;min-width:400px;max-width:420px}
-.form-label{flex-shrink:0;width:80px;margin-bottom:0;margin-right:10px;text-align:right;font-size:13px;color:#333}
-.form-label .required{color:#ff4d4f;margin-right:2px}
-.form-control{flex:1;height:36px;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .2s;box-sizing:border-box}
-.form-control:focus{border-color:#1677ff}
+.form-label{flex-shrink:0;width:80px;margin-bottom:0;margin-right:10px;text-align:right;font-size: var(--font-size-sm);color:var(--text-primary)}
+.form-label .required{color:var(--danger);margin-right:2px}
+.form-control{flex:1;height:36px;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;box-sizing:border-box}
+.form-control:focus{border-color:var(--primary)}
 textarea.form-control{height:auto;min-height:80px;padding:10px 12px}
-select.form-control{cursor:pointer;background:#fff}
-.form-control:disabled{background:#f5f5f5;color:#999;cursor:not-allowed}
+select.form-control{cursor:pointer;background:var(--bg-primary)}
+.form-control:disabled{background:var(--bg-secondary);color:var(--text-tertiary);cursor:not-allowed}
 textarea.form-control{min-height:60px;resize:vertical}
 /* 详情 */
-.detail-row{display:flex;border-bottom:1px solid #f0f0f0;line-height:44px}
+.detail-row{display:flex;border-bottom:1px solid var(--border-light);line-height:44px}
 .detail-row:last-child{border-bottom:none}
-.detail-label{width:120px;flex-shrink:0;color:#888;font-size:13px;padding-left:4px}
-.detail-value{flex:1;color:#1f1f1f;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px}
-.detail-section-title{padding:0 4px 10px;margin-bottom:4px;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:600;color:#1f1f1f}
+.detail-label{width:120px;flex-shrink:0;color:var(--text-tertiary);font-size: var(--font-size-sm);padding-left: var(--spacing-xs)}
+.detail-value{flex:1;color:var(--text-primary);font-size: var(--font-size-md);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right: var(--spacing-sm)}
+.detail-section-title{padding: 0 var(--spacing-xs) 10px;margin-bottom: var(--spacing-xs);border-bottom:1px solid var(--border-light);font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary)}
 .detail-section{margin-bottom:14px}
 /* 弹窗统一布局 */
 .modal{width:900px;max-width:95vw}
-.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
-.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #f0f0f0;flex-shrink:0}
+.modal-body{padding: 20px var(--spacing-lg);overflow-y:auto;flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-light);flex-shrink:0}
 /* 表单 */
-.form-section{margin-bottom:16px;background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
-.form-section-title{font-size:14px;font-weight:600;color:#1f1f1f;padding:0 0 12px;margin-bottom:12px;border-bottom:2px solid #1677ff}
-.form-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:14px}
+.form-section{margin-bottom: var(--spacing-md);background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.form-section-title{font-size: var(--font-size-md);font-weight:600;color:var(--text-primary);padding:0 0 12px;margin-bottom:12px;border-bottom:2px solid var(--primary)}
+.form-row{display:flex;flex-wrap:wrap;gap: var(--spacing-md);margin-bottom:14px}
 .form-row:last-child{margin-bottom:0}
 .form-group{display:flex!important;flex-direction:row!important;align-items:center!important;flex:1;min-width:0;max-width:calc(50% - 8px)}
-.form-group .form-label{flex-shrink:0;width:80px;margin-bottom:0!important;margin-right:10px;text-align:right;font-size:13px;color:#333}
-.form-group .form-control{flex:1;height:36px;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;box-sizing:border-box}
+.form-group .form-label{flex-shrink:0;width:80px;margin-bottom:0!important;margin-right:10px;text-align:right;font-size: var(--font-size-sm);color:var(--text-primary)}
+.form-group .form-control{flex:1;height:36px;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box}
 .form-group textarea.form-control{height:auto;min-height:80px;padding:10px 12px}
-.form-group select.form-control{cursor:pointer;background:#fff}
+.form-group select.form-control{cursor:pointer;background:var(--bg-primary)}
 .form-group[style*="flex:2"]{max-width:420px}
 /* 详情 */
-.detail-row{display:flex;border-bottom:1px solid #f0f0f0;line-height:44px;align-items:flex-start}
+.detail-row{display:flex;border-bottom:1px solid var(--border-light);line-height:44px;align-items:flex-start}
 .detail-row:last-child{border-bottom:none}
-.detail-label{width:120px;flex-shrink:0;color:#666;font-size:13px;padding-left:4px;line-height:44px;font-weight:500}
-.detail-value{flex:1;color:#1f1f1f;font-size:14px;padding-right:8px;word-break:break-all;line-height:22px;padding-top:11px;padding-bottom:11px;white-space:normal}
-.detail-section-title{padding:0 4px 12px;margin-bottom:12px;border-bottom:2px solid #1677ff;font-size:14px;font-weight:600;color:#1f1f1f}
-.detail-section{margin-bottom:20px;background:#fafbfc;border-radius:8px;padding:16px}
+.detail-label{width:120px;flex-shrink:0;color:var(--text-secondary);font-size: var(--font-size-sm);padding-left: var(--spacing-xs);line-height:44px;font-weight:500}
+.detail-value{flex:1;color:var(--text-primary);font-size: var(--font-size-md);padding-right: var(--spacing-sm);word-break:break-all;line-height:22px;padding-top:11px;padding-bottom:11px;white-space:normal}
+.detail-section-title{padding: 0 var(--spacing-xs) 12px;margin-bottom:12px;border-bottom:2px solid var(--primary);font-size: var(--font-size-md);font-weight:600;color:var(--text-primary)}
+.detail-section{margin-bottom:20px;background:var(--bg-section);border-radius: var(--radius-lg);padding: var(--spacing-md)}
 .detail-section:last-child{margin-bottom:0}
 /* 四方责任体 */
-.party-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5}
+.party-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bg-secondary)}
 .party-row:last-child{border-bottom:none}
-.party-label{width:80px;flex-shrink:0;font-size:13px;color:#333;font-weight:500}
+.party-label{width:80px;flex-shrink:0;font-size: var(--font-size-sm);color:var(--text-primary);font-weight:500}
 /* 输入框后缀按钮 */
-.input-suffix-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;font-size:14px;color:#1677ff;transition:all .2s;background:#fff}
-.input-suffix-btn:hover{background:#e6f4ff}
+.input-suffix-btn{position:absolute;right: var(--spacing-sm);top:50%;transform:translateY(-50%);width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius: var(--radius-sm);cursor:pointer;font-size: var(--font-size-md);color:var(--primary);transition:all .2s;background:var(--bg-primary)}
+.input-suffix-btn:hover{background:var(--primary-light)}
 .party-inputs{display:flex;gap:12px;flex:1}
 .party-inputs .form-group{flex:1;min-width:120px;margin-bottom:0;flex-direction:column;align-items:stretch}
 .party-inputs .form-group .form-label{width:auto;text-align:left;margin-bottom:5px;margin-right:0}
 .party-inputs .form-group .form-control{width:100%}
 /* 分包操作 */
-.subcontract-btns{display:flex;gap:8px;margin-top:8px}
-.subcontract-btns .btn{font-size:12px;padding:4px 10px}
+.subcontract-btns{display:flex;gap: var(--spacing-sm);margin-top: var(--spacing-sm)}
+.subcontract-btns 
 /* Toast */
-#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;background:#1f1f1f;color:#fff;border-radius:6px;font-size:14px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
-.no-data td{text-align:center;color:#bbb;padding:40px 0}
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding: 10px var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius: var(--radius-md);font-size: var(--font-size-md);z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+.no-data td{text-align:center;color:var(--border);padding:40px 0}
 /* 安全码图标 */
-.safety-code-icon{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:4px;cursor:pointer}
-.safety-code-icon:hover{background:#e6f7ff}
+.safety-code-icon{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;background:var(--bg-secondary);border-radius: var(--radius-sm);cursor:pointer}
+.safety-code-icon:hover{background:var(--primary-light)}
 .safety-code-icon svg{width:20px;height:20px}
 </style>
 </head>
@@ -206,9 +189,9 @@ textarea.form-control{min-height:60px;resize:vertical}
     <!-- 统计卡片 -->
     <div class="stats-row" id="statsRow">
       <div class="stat-card"><div class="stat-card-label">项目总数</div><div class="stat-card-value" id="statTotal">0</div><div class="stat-card-sub">全部项目</div></div>
-      <div class="stat-card"><div class="stat-card-label">在建项目</div><div class="stat-card-value" id="statBuilding" style="color:#52c41a">0</div><div class="stat-card-sub">进行中</div></div>
-      <div class="stat-card"><div class="stat-card-label">停工项目</div><div class="stat-card-value" id="statStopped" style="color:#faad14">0</div><div class="stat-card-sub">暂停中</div></div>
-      <div class="stat-card"><div class="stat-card-label">竣工项目</div><div class="stat-card-value" id="statCompleted" style="color:#1677ff">0</div><div class="stat-card-sub">已完成</div></div>
+      <div class="stat-card"><div class="stat-card-label">在建项目</div><div class="stat-card-value" id="statBuilding" style="color:var(--success)">0</div><div class="stat-card-sub">进行中</div></div>
+      <div class="stat-card"><div class="stat-card-label">停工项目</div><div class="stat-card-value" id="statStopped" style="color:var(--warning)">0</div><div class="stat-card-sub">暂停中</div></div>
+      <div class="stat-card"><div class="stat-card-label">竣工项目</div><div class="stat-card-value" id="statCompleted" style="color:var(--primary)">0</div><div class="stat-card-sub">已完成</div></div>
     </div>
     <!-- 查询条件 -->
     <div class="query-bar">
@@ -234,30 +217,17 @@ textarea.form-control{min-height:60px;resize:vertical}
     </div>
     <!-- 项目列表 -->
     <div class="table-card">
-      <div class="table-container">
+      <div class="table-container table-scroll">
         <table>
           <thead><tr>
             <th>序号</th><th>项目名称</th><th>项目编号</th><th>领域小类</th><th>项目小类</th>
-            <th>项目状态</th><th>所属区域</th><th>安全码</th><th>创建时间</th><th>操作</th>
+            <th>项目状态</th><th>所属区域</th><th>安全码</th><th>创建时间</th><th class="action-col">操作</th>
           </tr></thead>
           <tbody id="projectTableBody"><tr><td colspan="10" class="no-data">加载中...</td></tr></tbody>
         </table>
       </div>
       <!-- 分页 -->
-      <div class="pagination-wrap" id="paginationWrap">
-        <span class="pagination-info">共 <span id="pgTotal">0</span> 条，第 <span id="pgCurrentPage">1</span> 页/共 <span id="pgTotalPages">1</span> 页</span>
-        <div class="pagination-size">
-          <select id="pgSize" onchange="changePageSize()">
-            <option value="10">10条/页</option>
-            <option value="20">20条/页</option>
-            <option value="50">50条/页</option>
-          </select>
-        </div>
-        <div class="pagination-btns" id="pgBtns"></div>
-        <div class="pagination-jump">
-          跳至 <input type="number" id="pgJump" min="1"> 页 <button class="btn btn-default" onclick="jumpToPage()">确定</button>
-        </div>
-      </div>
+      <div class="pagination" id="paginationBar"></div>
     </div>
     </div><!-- /right-content -->
   </div>
@@ -408,7 +378,7 @@ textarea.form-control{min-height:60px;resize:vertical}
       <div class="modal-close" onclick="closeModal('enterpriseSelectModal')">&#x2715;</div>
     </div>
     <div class="modal-body" style="padding:20px 24px;display:flex;flex-direction:column;overflow:hidden">
-      <div class="filter-row" style="margin-bottom:16px;flex-shrink:0;display:flex;align-items:center;gap:12px">
+      <div class="filter-row" style="margin-bottom: var(--spacing-md);flex-shrink:0;display:flex;align-items:center;gap:12px">
         <span class="filter-label" style="flex-shrink:0">关键词</span>
         <input class="form-control" id="entSearchKeyword" type="text" placeholder="企业名称/统一社会信用代码" style="width:280px;flex-shrink:0">
         <button class="btn btn-primary" onclick="renderEnterpriseList()" style="flex-shrink:0">查询</button>
@@ -421,20 +391,20 @@ textarea.form-control{min-height:60px;resize:vertical}
               <th style="width:50px">序号</th>
               <th style="width:280px">企业名称</th>
               <th style="width:220px">统一社会信用代码</th>
-              <th style="width:80px">操作</th>
+              <th style="width:80px" class="action-col">操作</th>
             </tr>
           </thead>
           <tbody id="enterpriseTableBody"></tbody>
         </table>
       </div>
-      <div class="pagination-wrap" id="enterprisePagination" style="flex-shrink:0;border-top:1px solid #f0f0f0;margin:16px -24px -20px;padding:12px 24px;background:#fff">
+      <div class="pagination-wrap" id="enterprisePagination" style="flex-shrink:0;border-top:1px solid var(--border-light);margin: var(--spacing-md) -24px -20px;padding:12px 24px;background:var(--bg-primary)">
         <div class="pagination-info" id="enterprisePageInfo">共 0 条</div>
         <div class="pagination-btns" id="enterprisePageBtns"></div>
         <div class="pagination-jump">
           <span>跳至</span>
           <input type="text" id="enterpriseJumpInput" onkeypress="if(event.key==='Enter')jumpEnterprisePage()">
           <span>页</span>
-          <button class="btn btn-default" onclick="jumpEnterprisePage()" style="margin-left:4px">确定</button>
+          <button class="btn btn-default" onclick="jumpEnterprisePage()" style="margin-left: var(--spacing-xs)">确定</button>
         </div>
       </div>
     </div>
@@ -452,11 +422,11 @@ textarea.form-control{min-height:60px;resize:vertical}
       <div class="modal-close" onclick="closeModal('deleteModal')">&#x2715;</div>
     </div>
     <div class="modal-body" style="padding:28px 24px;text-align:center">
-      <div style="width:48px;height:48px;margin:0 auto 16px;background:#fff2f0;border-radius:50%;display:flex;align-items:center;justify-content:center">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#ff4d4f"/></svg>
+      <div style="width:48px;height:48px;margin:0 auto 16px;background:var(--danger-light);border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="var(--danger)"/></svg>
       </div>
-      <p style="font-size:15px;color:#1f1f1f;margin:0 0 6px;font-weight:500" id="deleteMsg">确定要删除该项目吗？</p>
-      <p style="font-size:13px;color:#888;margin:0">删除后数据无法恢复，请谨慎操作</p>
+      <p style="font-size:15px;color:var(--text-primary);margin:0 0 6px;font-weight:500" id="deleteMsg">确定要删除该项目吗？</p>
+      <p style="font-size: var(--font-size-sm);color:var(--text-tertiary);margin:0">删除后数据无法恢复，请谨慎操作</p>
     </div>
     <div class="modal-footer" style="justify-content:center">
       <button class="btn btn-default" onclick="closeModal('deleteModal')">取消</button>
@@ -487,11 +457,11 @@ textarea.form-control{min-height:60px;resize:vertical}
       <div class="modal-close" onclick="closeModal('resetPwdModal')">&#x2715;</div>
     </div>
     <div class="modal-body" style="padding:28px 24px;text-align:center">
-      <div style="width:48px;height:48px;margin:0 auto 16px;background:#fffbe6;border-radius:50%;display:flex;align-items:center;justify-content:center">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="#faad14"/></svg>
+      <div style="width:48px;height:48px;margin:0 auto 16px;background:var(--warning-light);border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="var(--warning)"/></svg>
       </div>
-      <p style="font-size:15px;color:#1f1f1f;margin:0 0 6px;font-weight:500" id="resetPwdMsg">确定要重置该项目密码吗？</p>
-      <p style="font-size:13px;color:#888;margin:0">密码将重置为默认密码：<strong style="color:#1677ff">Abc@123456</strong></p>
+      <p style="font-size:15px;color:var(--text-primary);margin:0 0 6px;font-weight:500" id="resetPwdMsg">确定要重置该项目密码吗？</p>
+      <p style="font-size: var(--font-size-sm);color:var(--text-tertiary);margin:0">密码将重置为默认密码：<strong style="color:var(--primary)">Abc@123456</strong></p>
     </div>
     <div class="modal-footer" style="justify-content:center">
       <button class="btn btn-default" onclick="closeModal('resetPwdModal')">取消</button>
@@ -500,6 +470,7 @@ textarea.form-control{min-height:60px;resize:vertical}
   </div>
 </div>
 
+<script src="../../js/pagination.js"></script>
 <script>
 // ==================== 数据 ====================
 var _pid = 100;
@@ -634,7 +605,15 @@ function updateStats(){
   document.getElementById('statCompleted').textContent = filteredProjects.filter(function(p){return p.projectCategory === '1' && p.projectStatus === '4';}).length;
 }
 
-// ==================== 分页状态 ====================
+// ==================== 分页组件 ====================
+var pg = new Pagination('paginationBar', {
+  total: 0,
+  onChange: function(page, size) {
+    pgState.page = page;
+    pgState.size = size;
+    renderTable();
+  }
+});
 var pgState = { page: 1, size: 10, total: 0 };
 
 function renderTable(){
@@ -657,7 +636,7 @@ function renderTable(){
   var tbody = document.getElementById('projectTableBody');
   if(pageRows.length === 0){
     tbody.innerHTML = '<tr><td colspan="10" class="no-data">暂无数据</td></tr>';
-    renderPagination(0);
+    pg.setTotal(0);
     return;
   }
   tbody.innerHTML = pageRows.map(function(p, idx){
@@ -678,51 +657,15 @@ function renderTable(){
       '<td>' + (p.projectType||'') + '</td>' +
       '<td><span class="tag ' + statusCls + '">' + statusName + '</span></td>' +
       '<td title="' + (p.districtName||'') + ' / ' + (p.streetName||'') + ' / ' + (p.communityName||'') + ' / ' + (p.gridName||'') + '">' + (p.districtName||'') + ' / ' + (p.streetName||'') + ' / ' + (p.communityName||'') + ' / ' + (p.gridName||'') + '</td>' +
-      '<td><div class="safety-code-icon" title="安全码：' + p.safetyCode + '" onclick="showToast(\'安全码：' + p.safetyCode + '\')"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" fill="#52c41a"/><rect x="14" y="3" width="7" height="7" rx="1" fill="#52c41a"/><rect x="3" y="14" width="7" height="7" rx="1" fill="#52c41a"/><rect x="14" y="14" width="7" height="7" rx="1" fill="#52c41a"/></svg></div></td>' +
+      '<td><div class="safety-code-icon" title="安全码：' + p.safetyCode + '" onclick="showToast(\'安全码：' + p.safetyCode + '\')"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" fill="var(--success)"/><rect x="14" y="3" width="7" height="7" rx="1" fill="var(--success)"/><rect x="3" y="14" width="7" height="7" rx="1" fill="var(--success)"/><rect x="14" y="14" width="7" height="7" rx="1" fill="var(--success)"/></svg></div></td>' +
       '<td>' + (p.createTime||'') + '</td>' +
-      '<td style="white-space:nowrap"><button class="btn btn-link" onclick="viewDetail(\'' + p.id + '\')">查看</button> <button class="btn btn-link" onclick="openEditModal(\'' + p.id + '\')">编辑</button> <button class="btn btn-link" onclick="deleteProject(\'' + p.id + '\')">删除</button> <button class="btn btn-link" onclick="resetPwd(\'' + p.id + '\')">重置密码</button></td>' +
+      '<td class="action-col"><button class="btn btn-link" onclick="viewDetail(\'' + p.id + '\')">查看</button> <button class="btn btn-link" onclick="openEditModal(\'' + p.id + '\')">编辑</button> <button class="btn btn-link" onclick="deleteProject(\'' + p.id + '\')">删除</button> <button class="btn btn-link" onclick="resetPwd(\'' + p.id + '\')">重置密码</button></td>' +
       '</tr>';
   }).join('');
-  renderPagination(Math.ceil(pgState.total / pgState.size));
+  pg.setTotal(pgState.total);
 }
 
-function renderPagination(totalPages){
-  document.getElementById('pgTotal').textContent = pgState.total;
-  document.getElementById('pgCurrentPage').textContent = pgState.page;
-  document.getElementById('pgTotalPages').textContent = totalPages || 1;
-  var btns = document.getElementById('pgBtns');
-  if(totalPages <= 1){ btns.innerHTML = ''; return; }
-  var html = '';
-  html += '<button onclick="goPage(' + (pgState.page - 1) + ')" ' + (pgState.page === 1 ? 'disabled' : '') + '>&lt;</button>';
-  for(var i = 1; i <= totalPages; i++){
-    if(i === 1 || i === totalPages || (i >= pgState.page - 2 && i <= pgState.page + 2)){
-      html += '<button class="' + (i === pgState.page ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
-    }else if(i === pgState.page - 3 || i === pgState.page + 3){
-      html += '<span>...</span>';
-    }
-  }
-  html += '<button onclick="goPage(' + (pgState.page + 1) + ')" ' + (pgState.page === totalPages ? 'disabled' : '') + '>&gt;</button>';
-  btns.innerHTML = html;
-  document.getElementById('pgJump').max = totalPages;
-}
-
-function goPage(p){
-  var totalPages = Math.ceil(pgState.total / pgState.size);
-  if(p < 1 || p > totalPages) return;
-  pgState.page = p;
-  renderTable();
-}
-
-function changePageSize(){
-  pgState.size = parseInt(document.getElementById('pgSize').value);
-  pgState.page = 1;
-  renderTable();
-}
-
-function jumpToPage(){
-  var p = parseInt(document.getElementById('pgJump').value);
-  if(p) goPage(p);
-}
+// ==================== 分页逻辑已由 pagination.js 组件接管 ====================
 
 function resetFilters(){
   document.getElementById('filterType').value = '';
@@ -734,6 +677,7 @@ function resetFilters(){
   refreshTree();
   filteredProjects = allProjects.slice();
   pgState.page = 1;
+  pg.setPage(1);
   renderTable();
 }
 
@@ -766,7 +710,7 @@ function openAddModal(){
   pwdGroup.style.flex = '1';
   document.getElementById('fLoginAccount').parentElement.style.flex = '1';
   document.getElementById('fLoginPwd').value = 'Abc@123456';
-  document.getElementById('pwdLabel').innerHTML = '<span class="required">*</span>初始密码 <span style="color:#999;font-weight:normal">（默认Abc@123456）</span>';
+  document.getElementById('pwdLabel').innerHTML = '<span class="required">*</span>初始密码 <span style="color:var(--text-tertiary);font-weight:normal">（默认Abc@123456）</span>';
   document.getElementById('editModal').classList.add('show');
 }
 
@@ -868,7 +812,7 @@ function addSubcontractor(name, creditCode, contact, phone){
       '<div class="form-group"><input class="form-control" id="fSubContact_' + _subcontractCount + '" placeholder="负责人姓名" value="' + (contact||'') + '"></div>' +
       '<div class="form-group"><input class="form-control" id="fSubPhone_' + _subcontractCount + '" placeholder="联系电话" value="' + (phone||'') + '"></div>' +
     '</div>' +
-    '<button class="btn btn-link btn-sm" style="color:#ff4d4f" onclick="removeSubcontractor(\'sub_' + _subcontractCount + '\')">删除</button>';
+    '<button class="btn btn-link btn-sm" style="color:var(--danger)" onclick="removeSubcontractor(\'sub_' + _subcontractCount + '\')">删除</button>';
   document.getElementById('subcontractRows').appendChild(row);
 }
 
@@ -1221,7 +1165,7 @@ function calcTreeCounts(data, getCount){
 // 渲染树形
 function renderTree(nodes, level, parentExpanded){
   if(!parentExpanded && level > 0) return '';
-  var html = '<div class="tree-children" style="' + (level === 0 ? '' : 'padding-left:16px') + '">';
+  var html = '<div class="tree-children" style="' + (level === 0 ? '' : 'padding-left: var(--spacing-md)') + '">';
   nodes.forEach(function(node){
     var hasChildren = node.children && node.children.length > 0;
     var isExpanded = node.expanded || false;
@@ -1289,10 +1233,10 @@ function applyTreeFilter(){
       return p.domainCode === selectedTreeNode.code || p.domainCode && p.domainCode.indexOf(selectedTreeNode.code) === 0;
     });
   }
-  currentPage = 1;
+  pgState.page = 1;
+  pg.setPage(1);
   updateStats();
   renderTable();
-  renderPagination();
 }
 
 // 获取节点及其所有子孙的code
@@ -1323,10 +1267,10 @@ function switchTreeTab(tab){
   refreshTree();
   // 清空筛选，显示全部
   filteredProjects = allProjects.slice();
-  currentPage = 1;
+  pgState.page = 1;
+  pg.setPage(1);
   updateStats();
   renderTable();
-  renderPagination();
 }
 
 // 刷新树形显示
@@ -1495,7 +1439,7 @@ function renderEnterpriseList(){
       '<td>' + (start + idx + 1) + '</td>' +
       '<td>' + e.name + '</td>' +
       '<td>' + e.creditCode + '</td>' +
-      '<td><button class="btn btn-primary btn-sm" onclick="selectEnterprise(' + e.id + ')">选择</button></td>' +
+      '<td class="action-col"><button class="btn btn-primary btn-sm" onclick="selectEnterprise(' + e.id + ')">选择</button></td>' +
       '</tr>';
   }).join('');
   

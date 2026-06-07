@@ -321,12 +321,20 @@ html, body {
 }
 
 .modal-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.show {
+  display: flex;
 }
 
 .modal-dialog {
@@ -831,11 +839,12 @@ html, body {
   cursor: pointer;
 }
 
-.tree-children {
-  display: none;  /* tree-select 组件默认折叠；自定义树形需在页面内覆盖为 display: block */
+/* tree-select 组件内默认折叠；自定义树形不受影响 */
+.tree-select-group .tree-children {
+  display: none;
 }
 
-.tree-children.show {
+.tree-select-group .tree-children.show {
   display: block;
 }
 
@@ -1042,17 +1051,20 @@ html, body {
 .table-wrap {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow-x: auto;
   box-shadow: var(--shadow-card);
 }
 
 .table-wrap table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 800px;
 }
 
-.table-wrap thead tr {
-  background: var(--bg-table-header);
+.table-scroll {
+  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .table-wrap th {
@@ -1062,6 +1074,7 @@ html, body {
   font-weight: 500;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-section);
+  white-space: nowrap;
 }
 
 .table-wrap td {
@@ -1078,28 +1091,98 @@ html, body {
   background: var(--bg-hover);
 }
 
+/* 操作列通用样式：居中 + 固定在右侧 */
+.table-wrap th.action-col,
+.table-wrap td.action-col,
+.table-wrap th.operation-col,
+.table-wrap td.operation-col,
+.table-scroll th.action-col,
+.table-scroll td.action-col,
+.table-scroll th.operation-col,
+.table-scroll td.operation-col {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.table-wrap thead th.action-col,
+.table-wrap thead th.operation-col,
+.table-scroll thead th.action-col,
+.table-scroll thead th.operation-col {
+  z-index: 11;
+  background: var(--bg-table-header);
+}
+
+.table-wrap tbody td.action-col,
+.table-wrap tbody td.operation-col,
+.table-scroll tbody td.action-col,
+.table-scroll tbody td.operation-col {
+  background: var(--bg-card);
+}
+
+.table-wrap tbody tr:nth-child(even) td.action-col,
+.table-wrap tbody tr:nth-child(even) td.operation-col,
+.table-scroll tbody tr:nth-child(even) td.action-col,
+.table-scroll tbody tr:nth-child(even) td.operation-col {
+  background: var(--bg-table-stripe);
+}
+
+.table-wrap tbody tr:hover td.action-col,
+.table-wrap tbody tr:hover td.operation-col,
+.table-scroll tbody tr:hover td.action-col,
+.table-scroll tbody tr:hover td.operation-col {
+  background: var(--bg-hover);
+}
+
 /* 分页（表格容器内） */
 .pagination {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: 4px;
+  padding: 10px 16px;
   background: var(--bg-section);
   border-top: 1px solid var(--border-section);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.pg-info {
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+.pg-size {
+  height: 28px;
+  font-size: var(--font-size-xs);
+  padding: 0 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  margin-right: 4px;
 }
 
 .pg {
-  padding: 6px 12px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
   border: 1px solid var(--border);
   background: var(--bg-card);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
   transition: all var(--duration-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.pg:hover {
+.pg:hover:not(:disabled):not(.active) {
   border-color: var(--primary);
   color: var(--primary);
 }
@@ -1107,6 +1190,41 @@ html, body {
 .pg.active {
   background: var(--primary);
   color: var(--text-inverse);
+  border-color: var(--primary);
+}
+
+.pg:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pg-ellipsis {
+  padding: 0 4px;
+  color: var(--text-tertiary);
+  line-height: 28px;
+}
+
+.pg-jump {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.pg-jump-input {
+  width: 44px;
+  height: 28px;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.pg-jump-input:focus {
   border-color: var(--primary);
 }
 

@@ -8,113 +8,91 @@
   <title>企业基本信息 - 超管端</title>
   
   <style>
-    /* ========== 页面背景 ========== */
-    .page-container { 
-      padding: 20px; 
-      background: linear-gradient(180deg, #f0f2f5 0%, #f5f7fa 100%);
-      min-height: 100vh;
-    }
-    
-    /* 面包屑由 framework.css 提供，无需额外样式 */
-    
-    /* ========== 页面标题栏 ========== */
-    .page-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 16px;
-      background: #fff;
-      padding: 16px 20px;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-    }
-    .page-title { font-size: 18px; font-weight: 600; }
-    
-    /* ========== 主体布局 ========== */
+/* ========== 主体布局 ========== */
     .page-body {
       display: flex;
-      gap: 16px;
+      gap: var(--spacing-md);
     }
-    
+
     /* ========== 左侧树状列表 ========== */
     .left-panel {
       width: 260px;
       flex-shrink: 0;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
       height: calc(100vh - 180px);
     }
-    
+
     /* 搜索框 */
     .tree-search {
-      padding: 12px;
-      border-bottom: 1px solid #e8eaed;
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border-section);
     }
     .tree-search input {
       width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #d9d9d9;
-      border-radius: 6px;
-      font-size: 13px;
-      background: #fafbfc;
+      padding: var(--spacing-xs) var(--spacing-md);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: var(--bg-section);
     }
     .tree-search input:focus {
       outline: none;
-      border-color: #1677ff;
-      background: #fff;
+      border-color: var(--primary);
+      background: var(--bg-primary);
     }
-    
+
     /* 页签切换 */
     .tree-tabs {
       display: flex;
-      padding: 12px 12px 0;
-      gap: 8px;
-      border-bottom: 1px solid #e8eaed;
+      padding: var(--spacing-md) var(--spacing-md) 0;
+      gap: var(--spacing-xs);
+      border-bottom: 1px solid var(--border-section);
     }
     .tree-tab {
       flex: 1;
-      padding: 8px 0;
+      padding: var(--spacing-xs) 0;
       text-align: center;
-      font-size: 13px;
-      color: #666;
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      transition: all 0.2s;
+      transition: all var(--duration-fast);
     }
     .tree-tab:hover {
-      color: #1677ff;
+      color: var(--primary);
     }
     .tree-tab.active {
-      color: #1677ff;
-      border-bottom-color: #1677ff;
+      color: var(--primary);
+      border-bottom-color: var(--primary);
       font-weight: 600;
     }
-    
+
     /* 树内容区 */
     .tree-content {
       flex: 1;
       overflow-y: auto;
-      padding: 8px 0;
+      padding: var(--spacing-xs) 0;
     }
-    
+
     /* 树节点 */
     .tree-node {
       display: flex;
       align-items: center;
-      padding: 8px 12px;
+      padding: var(--spacing-xs) var(--spacing-md);
       cursor: pointer;
-      transition: all 0.15s;
-      font-size: 13px;
+      transition: all var(--duration-fast);
+      font-size: var(--font-size-sm);
     }
     .tree-node:hover {
-      background: #f0f7ff;
+      background: var(--bg-hover);
     }
     .tree-node.selected {
-      background: #e6f4ff;
-      color: #1677ff;
+      background: var(--primary-light);
+      color: var(--primary);
     }
     .tree-node .expand-icon {
       width: 20px;
@@ -122,9 +100,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #999;
+      color: var(--text-tertiary);
       font-size: 10px;
-      transition: transform 0.2s;
+      transition: transform var(--duration-fast);
       flex-shrink: 0;
     }
     .tree-node .expand-icon.expanded {
@@ -133,7 +111,7 @@
     .tree-node .node-icon {
       width: 20px;
       height: 20px;
-      margin-right: 6px;
+      margin-right: var(--spacing-xs);
       flex-shrink: 0;
     }
     .tree-node .node-name {
@@ -143,19 +121,15 @@
       white-space: nowrap;
     }
     .tree-node .node-count {
-      font-size: 12px;
-      color: #1677ff;
-      margin-left: 8px;
+      font-size: var(--font-size-xs);
+      color: var(--primary);
+      margin-left: var(--spacing-xs);
     }
-    
-    /* 子节点 */
-    .tree-children {
-      display: none;
-    }
-    .tree-children.show {
-      display: block;
-    }
-    
+
+    /* 子节点（自定义树形，不受 tree-select 全局规则影响） */
+    .tree-children { display: none; }
+    .tree-children.show { display: block; }
+
     /* ========== 右侧内容区 ========== */
     .right-content {
       flex: 1;
@@ -163,234 +137,142 @@
       display: flex;
       flex-direction: column;
     }
-    
-    /* ========== 统计卡片 ========== */
-    .stat-cards { display: flex; gap: 16px; margin-bottom: 16px; }
-    .stat-card { 
-      flex: 1; 
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
-      border: 1px solid #e2e8f0; 
-      border-radius: 8px; 
-      padding: 16px 20px; 
-      display: flex; 
-      align-items: center; 
-      gap: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      transition: all 0.2s;
-    }
-    .stat-card:hover { 
-      background: linear-gradient(135deg, #f1f5f9 0%, #e8ecf0 100%);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-    .stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .stat-icon.blue { background: #dbeafe; color: #2563eb; }
-    .stat-icon.green { background: #dcfce7; color: #16a34a; }
-    .stat-icon.orange { background: #fed7aa; color: #ea580c; }
-    .stat-icon.gray { background: #f1f5f9; color: #64748b; }
-    .stat-content { flex: 1; }
-    .stat-label { font-size: 13px; color: #64748b; margin-bottom: 4px; }
-    .stat-value { font-size: 24px; font-weight: 600; color: #1e293b; }
-    
-    /* ========== 筛选栏 ========== */
-    .filter-bar { 
-      display: flex; 
-      gap: 12px; 
-      margin-bottom: 16px; 
-      align-items: center; 
-      flex-wrap: wrap;
-      background: #fafbfc;
-      padding: 12px 16px;
-      border-radius: 8px;
-      border: 1px solid #e8eaed;
-    }
-    .filter-item select, .filter-item input { 
-      padding: 6px 10px; 
-      border: 1px solid #d9d9d9; 
-      border-radius: 6px; 
-      font-size: 13px; 
-      background: #fff;
-    }
-    .filter-item select:focus, .filter-item input:focus {
-      outline: none;
-      border-color: #1677ff;
-    }
-    
-    /* ========== 表格容器 ========== */
-    .table-wrap { 
-      background: #fff; 
-      border-radius: 8px; 
-      overflow: hidden; 
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    /* ========== 表格容器（左树右表专用） ========== */
+    .table-wrap {
       flex: 1;
       display: flex;
       flex-direction: column;
     }
     .table-scroll { overflow-x: auto; flex: 1; }
     table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-    thead tr { background: #fafafa; }
-    th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #1f1f1f; border-bottom: 1px solid #e8eaed; white-space: nowrap; }
-    td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    thead tr { background: var(--bg-table-header); }
+    th { padding: var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-section); white-space: nowrap; }
+    td { padding: var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     /* 列宽固定 */
-    th:nth-child(1), td:nth-child(1) { width: 60px; max-width: 60px; }  /* 序号 */
-    th:nth-child(2), td:nth-child(2) { min-width: 180px; max-width: 250px; }  /* 企业名称 */
-    th:nth-child(3), td:nth-child(3) { min-width: 160px; max-width: 200px; }  /* 统一社会信用代码 */
-    th:nth-child(4), td:nth-child(4) { width: 100px; max-width: 100px; }  /* 领域小类 */
-    th:nth-child(5), td:nth-child(5) { width: 120px; max-width: 120px; }  /* 所属网格 */
-    th:nth-child(6), td:nth-child(6) { width: 140px; max-width: 180px; }  /* 经营地址 */
-    th:nth-child(7), td:nth-child(7) { width: 80px; max-width: 80px; }  /* 超管账号 */
-    th:nth-child(8), td:nth-child(8) { width: 60px; max-width: 60px; }  /* 状态 */
-    th:nth-child(9), td:nth-child(9) { width: 100px; max-width: 100px; }  /* 注册时间 */
-    tbody tr:nth-child(even) { background: #fafbfc; }
-    tbody tr:hover td { background: #f0f7ff; }
+    th:nth-child(1), td:nth-child(1) { width: 60px; max-width: 60px; }
+    th:nth-child(2), td:nth-child(2) { min-width: 180px; max-width: 250px; }
+    th:nth-child(3), td:nth-child(3) { min-width: 160px; max-width: 200px; }
+    th:nth-child(4), td:nth-child(4) { width: 100px; max-width: 100px; }
+    th:nth-child(5), td:nth-child(5) { width: 120px; max-width: 120px; }
+    th:nth-child(6), td:nth-child(6) { width: 140px; max-width: 180px; }
+    th:nth-child(7), td:nth-child(7) { width: 80px; max-width: 80px; }
+    th:nth-child(8), td:nth-child(8) { width: 60px; max-width: 60px; }
+    th:nth-child(9), td:nth-child(9) { width: 100px; max-width: 100px; }
+    tbody tr:nth-child(even) { background: var(--bg-table-stripe); }
+    tbody tr:hover td { background: var(--bg-hover); }
     /* 操作列固定在右侧 */
-    th.operation-col, td.operation-col { position: sticky; right: 0; z-index: 10; white-space: nowrap; width: 200px; box-shadow: -2px 0 8px rgba(0,0,0,0.08); }
-    thead tr th.operation-col { background: #fafafa; text-align: center; }
-    tbody tr td.operation-col { background: #fff; }
-    tbody tr:nth-child(even) td.operation-col { background: #fafbfc; }
-    tbody tr:hover td.operation-col { background: #f0f7ff; }
-    td.operation-col .btn-link { margin-right: 8px; }
+    th.operation-col, td.operation-col { width: 200px; box-shadow: -2px 0 8px rgba(0,0,0,0.08); }
+    td.operation-col .btn-link { margin-right: var(--spacing-xs); }
     td.operation-col .btn-link:last-child { margin-right: 0; }
-    
-    /* ========== 分页 ========== */
-    .pagination-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 12px 16px; border-top: 1px solid #f0f0f0; background: #fafafa; }
-    .pagination-info { font-size: 13px; color: #666; }
-    .pagination-size select { padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
-    .pagination-btns { display: flex; gap: 4px; }
-    .pagination-btns button { min-width: 28px; height: 28px; padding: 0 8px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-    .pagination-btns button:hover:not(:disabled) { border-color: #1677ff; color: #1677ff; }
-    .pagination-btns button.active { background: #1677ff; color: #fff; border-color: #1677ff; }
-    .pagination-btns button:disabled { cursor: not-allowed; color: #bbb; background: #f5f5f5; }
-    .pagination-jump { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666; }
-    .pagination-jump input { width: 40px; height: 28px; padding: 0 6px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; text-align: center; outline: none; }
-    .pagination-jump input:focus { border-color: #1677ff; }
-    
-    
-    /* ========== 按钮样式 ========== */
-    .btn{padding:5px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid #d9d9d9}
-    .btn-default{background:#fff;color:#333;border-color:#d9d9d9}
-    .btn-default:hover{color:#1677ff;border-color:#1677ff}
-    .btn-primary{background:#1677ff;color:#fff;border-color:#1677ff}
-    .btn-primary:hover{background:#4096ff}
-    .btn-link{background:none;border:none;padding:2px 6px;color:#1677ff;cursor:pointer;font-size:13px}
-    .btn-link:hover{color:#4096ff}
-    .btn-link.btn-sm{font-size:12px;padding:1px 4px}
-    .btn-danger{padding:4px 15px;border:1px solid #ffccc7;color:#ff4d4f;background:#fff;border-radius:6px;cursor:pointer;font-size:13px}
-    .btn-danger:hover{background:#fff2f0;border-color:#ff4d4f}
+
+    /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
 
     /* ========== 带角标的按钮 ========== */
     .btn-with-badge { position: relative; }
-    .btn-badge { position: absolute; top: -8px; right: -8px; min-width: 18px; height: 18px; padding: 0 5px; background: #ff4d4f; color: #fff; font-size: 11px; font-weight: 600; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
-    
-    /* ========== 弹窗样式 ========== */
+    .btn-badge { position: absolute; top: -8px; right: -8px; min-width: 18px; height: 18px; padding: 0 5px; background: var(--danger); color: var(--text-inverse); font-size: 11px; font-weight: 600; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; }
+
+    /* ========== 弹窗样式（本页专用） ========== */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-overlay.show { display: flex; }
-    .modal-dialog { background: #fff; border-radius: 8px; width: 600px; max-width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); }
-    .modal-header { padding: 16px 20px; border-bottom: 1px solid #e8eaed; display: flex; justify-content: space-between; align-items: center; background: #fafbfc; border-radius: 8px 8px 0 0; }
-    .modal-title { font-size: 16px; font-weight: 600; }
-    .modal-close { width: 32px; height: 32px; border: none; background: none; font-size: 20px; cursor: pointer; color: #999; border-radius: 4px; transition: all 0.2s; }
-    .modal-close:hover { background: #f0f0f0; color: #1f1f1f; }
-    .modal-body { padding: 20px; background: #fff; }
-    .modal-footer { padding: 12px 20px; border-top: 1px solid #e8eaed; display: flex; justify-content: flex-end; gap: 12px; background: #fafbfc; border-radius: 0 0 8px 8px; }
-    
+    .modal-dialog { background: var(--bg-card); border-radius: var(--radius-lg); width: 600px; max-width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+    .modal-dialog .modal-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .modal-dialog .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-dialog .modal-close { width: 32px; height: 32px; border: none; background: none; font-size: var(--font-size-xxl); cursor: pointer; color: var(--text-tertiary); border-radius: var(--radius-sm); transition: all var(--duration-fast); }
+    .modal-dialog .modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .modal-dialog .modal-body { padding: var(--spacing-lg); background: var(--bg-card); }
+    .modal-dialog .modal-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-section); display: flex; justify-content: flex-end; gap: var(--spacing-md); background: var(--bg-section); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+
     /* ========== 表单样式 ========== */
-    .form-group { margin-bottom: 16px; }
-    .form-row { display: flex; gap: 16px; }
+    .form-group { margin-bottom: var(--spacing-md); }
+    .form-row { display: flex; gap: var(--spacing-md); }
     .form-row .form-group { flex: 1; }
-    .form-label { display: block; font-size: 13px; color: #1f1f1f; margin-bottom: 6px; }
-    .form-label .required { color: #ff4d4f; margin-left: 2px; }
-    .form-input, .form-select { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; background: #fff; transition: all 0.2s; }
-    .form-input:focus, .form-select:focus { outline: none; border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
-    .form-input:disabled { background: #f5f5f5; color: #999; cursor: not-allowed; }
-    .form-hint { font-size: 12px; color: #999; margin-top: 4px; }
-    
+    .form-label { display: block; font-size: var(--font-size-sm); color: var(--text-primary); margin-bottom: var(--spacing-xs); }
+    .form-label .required { color: var(--danger); margin-left: 2px; }
+    .form-input, .form-select { width: 100%; padding: var(--spacing-xs) var(--spacing-md); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); background: var(--bg-card); transition: all var(--duration-fast); }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); box-shadow: var(--shadow-input-focus); }
+    .form-input:disabled { background: var(--bg-secondary); color: var(--text-tertiary); cursor: not-allowed; }
+    .form-hint { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--spacing-xs); }
+
     /* ========== 操作区按钮间距 ========== */
-    .action-buttons { display: flex; gap: 12px; }
+    .action-buttons { display: flex; gap: var(--spacing-md); }
     .action-buttons .btn-link { margin: 0; }
-    
+
     /* ========== 信息板块（弹窗内） ========== */
-    .info-section { 
-      margin-bottom: 20px; 
-      background: #fafbfc;
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid #e8eaed;
+    .info-section {
+      margin-bottom: var(--spacing-lg);
+      background: var(--bg-section);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
+      border: 1px solid var(--border-section);
     }
-    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .info-item { display: flex; flex-direction: column; gap: 4px; }
-    .info-label { font-size: 12px; color: #64748b; }
-    .info-value { font-size: 14px; color: #1f1f1f; }
-    
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); }
+    .info-item { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+    .info-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
+    .info-value { font-size: var(--font-size-md); color: var(--text-primary); }
+
     /* ========== 模块标题样式 ========== */
     .section-title {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--spacing-xs);
       font-size: 15px;
       font-weight: 600;
-      color: #1f1f1f;
-      margin: -16px -16px 16px;
-      padding: 12px 16px;
-      background: #fff;
-      border-radius: 8px 8px 0 0;
-      border-bottom: 1px solid #e8eaed;
+      color: var(--text-primary);
+      margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-md);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      border-bottom: 1px solid var(--border-section);
     }
     .section-title::before {
       content: '';
       width: 4px;
       height: 16px;
-      background: #1677ff;
+      background: var(--primary);
       border-radius: 2px;
       flex-shrink: 0;
     }
-    
-    /* ========== 账号卡片 ========== */
-    .account-card { background: #fff; border: 1px solid #e8eaed; border-radius: 8px; padding: 16px; }
-    .account-row { display: flex; justify-content: space-between; align-items: center; }
-    .account-info { display: flex; flex-direction: column; gap: 4px; }
-    
-    /* ========== 级联选择器 ========== */
-    .cascade-selects { display: flex; gap: 8px; flex-wrap: wrap; }
-    .cascade-selects .form-select { flex: 1; min-width: 100px; }
-    
-    /* ========== 开关组件 ========== */
-    .switch-wrapper { display: flex; align-items: center; gap: 8px; }
-    .switch { position: relative; width: 44px; height: 22px; background: #ccc; border-radius: 11px; cursor: pointer; transition: background 0.3s; }
-    .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-    .switch.active { background: #1677ff; }
-    /* ========== 地图选点按钮 ========== */
-    .map-picker-btn { padding: 8px 12px; }
-    .map-modal-content { height: 400px; background: #f5f5f5; display: flex; flex-direction: column; }
-    .map-search-bar { padding: 12px; background: #fff; border-bottom: 1px solid #e8eaed; display: flex; gap: 8px; }
-    .map-search-bar input { flex: 1; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; }
-    .map-canvas { flex: 1; background: #e8f4fc; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; position: relative; }
-    .map-marker { position: absolute; font-size: 32px; color: #f5222d; animation: bounce 1s infinite; }
-    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-    .map-coord { margin-top: 8px; font-size: 12px; color: #666; }
-    .map-actions { padding: 12px; background: #fff; border-top: 1px solid #e8eaed; display: flex; justify-content: flex-end; gap: 8px; }
 
+    /* ========== 账号卡片 ========== */
+    .account-card { background: var(--bg-card); border: 1px solid var(--border-section); border-radius: var(--radius-lg); padding: var(--spacing-md); }
+    .account-row { display: flex; justify-content: space-between; align-items: center; }
+    .account-info { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+
+    /* ========== 级联选择器 ========== */
+    .cascade-selects { display: flex; gap: var(--spacing-xs); flex-wrap: wrap; }
+    .cascade-selects .form-select { flex: 1; min-width: 100px; }
+
+    /* ========== 开关组件 ========== */
+    .switch-wrapper { display: flex; align-items: center; gap: var(--spacing-xs); }
+    .switch { position: relative; width: 44px; height: 22px; background: var(--border); border-radius: 11px; cursor: pointer; transition: background var(--duration-normal); }
+    .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--bg-primary); border-radius: 50%; transition: transform var(--duration-normal); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .switch.active { background: var(--primary); }
     .switch.active::after { transform: translateX(22px); }
     .switch-input { display: none; }
-    .switch-label { font-size: 13px; color: #666; }
-    
-    /* ========== 标签样式 ========== */
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
-    .tag-green { background: #dcfce7; color: #16a34a; }
-    .tag-gray { background: #f1f5f9; color: #64748b; }
-    .tag-red { background: #fee2e2; color: #dc2626; }
-    .tag-warning { background: #fffbe6; color: #faad14; }
-    
-    /* ========== 树节点样式（参考 gov-org.html） ========== */
-    .tree-node { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; transition: all 0.15s; user-select: none; }
-    .tree-node:hover { background: #f5f5f5; }
-    .tree-node.active { background: #e6f7ff; }
-    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-right: 4px; font-size: 10px; color: #999; cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
+    .switch-label { font-size: var(--font-size-sm); color: var(--text-secondary); }
+
+    /* ========== 地图选点 ========== */
+    .map-picker-btn { padding: var(--spacing-xs) var(--spacing-md); }
+    .map-modal-content { height: 400px; background: var(--bg-secondary); display: flex; flex-direction: column; }
+    .map-search-bar { padding: var(--spacing-md); background: var(--bg-card); border-bottom: 1px solid var(--border-section); display: flex; gap: var(--spacing-xs); }
+    .map-search-bar input { flex: 1; padding: var(--spacing-xs) var(--spacing-md); border: 1px solid var(--border); border-radius: var(--radius-md); }
+    .map-canvas { flex: 1; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: var(--font-size-md); position: relative; }
+    .map-marker { position: absolute; font-size: 32px; color: var(--danger); animation: bounce 1s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .map-coord { margin-top: var(--spacing-xs); font-size: var(--font-size-xs); color: var(--text-secondary); }
+    .map-actions { padding: var(--spacing-md); background: var(--bg-card); border-top: 1px solid var(--border-section); display: flex; justify-content: flex-end; gap: var(--spacing-xs); }
+
+    /* ========== 树节点样式（页面自定义树形） ========== */
+    .tree-node { display: flex; align-items: center; padding: var(--spacing-xs) var(--spacing-md); cursor: pointer; transition: all var(--duration-fast); user-select: none; }
+    .tree-node:hover { background: var(--bg-tertiary); }
+    .tree-node.active { background: var(--primary-light); }
+    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-xs); font-size: 10px; color: var(--text-tertiary); cursor: pointer; transition: transform var(--duration-fast); flex-shrink: 0; }
     .tree-toggle.expanded { transform: rotate(90deg); }
     .tree-toggle.leaf { visibility: hidden; }
-    .tree-node-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; margin-right: 8px; font-size: 14px; flex-shrink: 0; }
-    .tree-node-label { flex: 1; font-size: 13px; color: #1f1f1f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tree-node-count { font-size: 12px; color: #1677ff; margin-left: 8px; flex-shrink: 0; }
-    .tree-children { display: none; }
-    .tree-children.show { display: block; }
+    .tree-node-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-xs); font-size: var(--font-size-md); flex-shrink: 0; }
+    .tree-node-label { flex: 1; font-size: var(--font-size-sm); color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tree-node-count { font-size: var(--font-size-xs); color: var(--primary); margin-left: var(--spacing-xs); flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -435,7 +317,7 @@
             <div class="stat-icon orange">⏳</div>
             <div class="stat-content">
               <div class="stat-value">8</div>
-              <div class="stat-label">待审核 <span style="font-size: 12px; color: #1677ff;">查看 ></span></div>
+              <div class="stat-label">待审核 <span style="font-size: var(--font-size-xs); color: var(--primary);">查看 ></span></div>
             </div>
           </div>
           <div class="stat-card">
@@ -479,20 +361,7 @@
             </tbody>
           </table>
           </div>
-          <div class="pagination-wrap">
-            <span class="pagination-info">共 <span id="pgTotal">0</span> 条，第 <span id="pgCurrentPage">1</span> 页/共 <span id="pgTotalPages">1</span> 页</span>
-            <div class="pagination-size">
-              <select id="pgSize" onchange="changePageSize()">
-                <option value="10">10条/页</option>
-                <option value="20">20条/页</option>
-                <option value="50">50条/页</option>
-              </select>
-            </div>
-            <div class="pagination-btns" id="pgBtns"></div>
-            <div class="pagination-jump">
-              跳至 <input type="number" id="pgJump" min="1"> 页 <button class="btn btn-default" onclick="jumpToPage()">确定</button>
-            </div>
-          </div>
+          <div class="pagination" id="paginationBar"></div>
         </div>
       </div>
     </div>
@@ -507,7 +376,7 @@
       </div>
       <div class="modal-body">
         <form id="entForm">
-          <div class="info-section" style="margin-bottom: 24px;">
+          <div class="info-section" style="margin-bottom: var(--spacing-lg);">
             <div class="section-title">基本信息</div>
             <div class="form-group">
               <label class="form-label">企业名称<span class="required">*</span></label>
@@ -554,14 +423,14 @@
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">注册地址</label><!-- 扩展字段：PRD未要求，保留 -->
-                <div style="display:flex;gap:8px;">
+                <div style="display:flex;gap: var(--spacing-sm);">
                   <input type="text" class="form-input" placeholder="请输入注册地址" id="formRegAddr" style="flex:1;">
                   <button type="button" class="btn btn-default map-picker-btn" onclick="openMapPicker('formRegAddr')" title="地图选点">📍</button>
                 </div>
               </div>
               <div class="form-group">
                 <label class="form-label">经营地址</label>
-                <div style="display:flex;gap:8px;">
+                <div style="display:flex;gap: var(--spacing-sm);">
                   <input type="text" class="form-input" placeholder="请输入经营地址" id="formBizAddr" style="flex:1;">
                   <button type="button" class="btn btn-default map-picker-btn" onclick="openMapPicker('formBizAddr')" title="地图选点">📍</button>
                 </div>
@@ -594,7 +463,7 @@
               </div>
               <div class="form-group">
                 <label class="form-label">密码<span class="required">*</span></label>
-                <div style="display: flex; gap: 8px;">
+                <div style="display: flex; gap: var(--spacing-sm);">
                   <input type="text" class="form-input" value="Abc@123456" style="flex: 1;">
                   <button type="button" class="btn btn-default" onclick="generatePassword()" style="white-space: nowrap;">随机生成</button>
                 </div>
@@ -634,9 +503,9 @@
         </div>
         <div class="info-section">
           <div class="section-title">关联领域小类</div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <span class="tag" style="background: #e6f7ff; color: #1890ff; padding: 4px 12px;">充换电设施</span>
-            <span class="tag" style="background: #e6f7ff; color: #1890ff; padding: 4px 12px;">危险化学品</span>
+          <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+            <span class="tag" style="background: var(--primary-light); color: var(--primary); padding: 4px 12px;">充换电设施</span>
+            <span class="tag" style="background: var(--primary-light); color: var(--primary); padding: 4px 12px;">危险化学品</span>
           </div>
         </div>
         <div class="info-section">
@@ -653,7 +522,7 @@
             <div class="account-row">
               <div class="account-info">
                 <div><strong>超管账号：</strong>ca888</div>
-                <div style="font-size: 12px; color: #999; margin-top: 4px;">最后登录：2026-04-02 09:30</div>
+                <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--spacing-xs);">最后登录：2026-04-02 09:30</div>
               </div>
               <span class="tag tag-green">已激活</span>
             </div>
@@ -674,7 +543,7 @@
         <button class="modal-close" onclick="closeModal('editModal')">×</button>
       </div>
       <div class="modal-body">
-        <div class="info-section" style="margin-bottom: 24px;">
+        <div class="info-section" style="margin-bottom: var(--spacing-lg);">
           <div class="section-title">基本信息</div>
           <div class="form-group">
             <label class="form-label">企业名称<span class="required">*</span></label>
@@ -682,7 +551,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">统一社会信用代码<span class="required">*</span></label>
-            <input type="text" class="form-input" value="91440300MA5DQ2XXXX" disabled style="background: #f5f5f5;">
+            <input type="text" class="form-input" value="91440300MA5DQ2XXXX" disabled style="background: var(--bg-secondary);">
             <div class="form-hint">统一社会信用代码不可修改</div>
           </div>
           <div class="form-row">
@@ -709,14 +578,14 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">注册地址</label><!-- 扩展字段：PRD未要求，保留 -->
-              <div style="display:flex;gap:8px;">
+              <div style="display:flex;gap: var(--spacing-sm);">
                 <input type="text" class="form-input" value="深圳市南山区科技园南区" id="editRegAddr" style="flex:1;">
                 <button type="button" class="btn btn-default map-picker-btn" onclick="openMapPicker('editRegAddr')" title="地图选点">📍</button>
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">经营地址</label>
-              <div style="display:flex;gap:8px;">
+              <div style="display:flex;gap: var(--spacing-sm);">
                 <input type="text" class="form-input" value="深圳市南山区科技园北区" id="editBizAddr" style="flex:1;">
                 <button type="button" class="btn btn-default map-picker-btn" onclick="openMapPicker('editBizAddr')" title="地图选点">📍</button>
               </div>
@@ -740,7 +609,7 @@
             <textarea class="form-input" rows="2" style="resize: vertical;"></textarea>
           </div>
         </div>
-        <div class="info-section" style="margin-bottom: 24px;">
+        <div class="info-section" style="margin-bottom: var(--spacing-lg);">
           <div class="section-title">关联领域小类</div>
           <div class="form-group">
             <label class="form-label">选择领域小类</label>
@@ -752,17 +621,17 @@
               <option value="4">建筑施工类 - 建筑工地</option>
             </select>
           </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;" id="selectedDomains">
-            <span class="domain-tag" style="background: #e6f7ff; color: #1890ff; padding: 4px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
-              充换电设施 <button type="button" onclick="removeDomain(this)" style="background: none; border: none; color: #1890ff; cursor: pointer; font-size: 14px;">×</button>
+          <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; margin-top: var(--spacing-sm);" id="selectedDomains">
+            <span class="domain-tag" style="background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+              充换电设施 <button type="button" onclick="removeDomain(this)" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-md);">×</button>
             </span>
-            <span class="domain-tag" style="background: #e6f7ff; color: #1890ff; padding: 4px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
-              危险化学品 <button type="button" onclick="removeDomain(this)" style="background: none; border: none; color: #1890ff; cursor: pointer; font-size: 14px;">×</button>
+            <span class="domain-tag" style="background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+              危险化学品 <button type="button" onclick="removeDomain(this)" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-md);">×</button>
             </span>
           </div>
         </div>
         <div class="info-section">
-          <div class="section-title">监管信息<span style="font-size: 12px; color: #999; font-weight: normal; margin-left: 8px;">（自动带出，不可编辑）</span></div>
+          <div class="section-title">监管信息<span style="font-size: var(--font-size-xs); color: var(--text-tertiary); font-weight: normal; margin-left: var(--spacing-sm);">（自动带出，不可编辑）</span></div>
           <div class="info-grid">
             <div class="info-item"><span class="info-label">行业监管单位</span><span class="info-value">南山区工业和信息化局</span></div>
             <div class="info-item"><span class="info-label">专业监管单位</span><span class="info-value">南山区应急管理局</span></div>
@@ -784,14 +653,14 @@
         <span class="modal-title">审核列表（8条待审核）</span>
         <button class="modal-close" onclick="closeModal('auditModal')">×</button>
       </div>
-      <div class="modal-body" style="padding: 0;">
+      <div class="modal-body table-scroll" style="padding: 0;">
         <table style="margin: 0;">
           <thead>
             <tr>
               <th>企业名称</th>
               <th>统一社会信用代码</th>
               <th>提交时间</th>
-              <th>操作</th>
+              <th class="action-col">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -799,7 +668,7 @@
               <td>深圳新能科技有限公司</td>
               <td>91440300MA5DQ6****</td>
               <td>2026-04-02 10:30</td>
-              <td>
+              <td class="action-col">
                 <button class="btn-link" onclick="approveEnt('深圳新能科技有限公司')">通过</button>
                 <button class="btn-link" onclick="rejectEnt('深圳新能科技有限公司')">拒绝</button>
               </td>
@@ -808,14 +677,14 @@
               <td>鹏城安全设备公司</td>
               <td>91440300MA5DQ7****</td>
               <td>2026-04-02 09:15</td>
-              <td>
+              <td class="action-col">
                 <button class="btn-link" onclick="approveEnt('鹏城安全设备公司')">通过</button>
                 <button class="btn-link" onclick="rejectEnt('鹏城安全设备公司')">拒绝</button>
               </td>
             </tr>
           </tbody>
         </table>
-        <div style="padding: 12px 16px; border-top: 1px solid #e8eaed; text-align: center; color: #999; font-size: 13px;">
+        <div style="padding: 12px 16px; border-top: 1px solid var(--border-section); text-align: center; color: var(--text-tertiary); font-size: var(--font-size-sm);">
           显示 1-2 条，共 8 条
         </div>
       </div>
@@ -1073,12 +942,15 @@
     }
 
     // 分页状态
-    var pgState = { page: 1, size: 10, total: 0 };
+    var currentPage = 1;
+    var pageSize = 10;
+    var pg = null;
+    var filteredData = [];
 
     // 渲染企业列表
     function renderTable() {
-      let filteredData = [...enterpriseData];
-      
+      filteredData = [...enterpriseData];
+
       // 根据选中的树节点筛选
       if (selectedNode) {
         if (currentTab === 'district') {
@@ -1089,20 +961,19 @@
           filteredData = filteredData.filter(e => e.domainId.startsWith(selectedNode.id));
         }
       }
-      
+
       // 分页
-      pgState.total = filteredData.length;
-      const start = (pgState.page - 1) * pgState.size;
-      const pageData = filteredData.slice(start, start + pgState.size);
-      
+      const start = (currentPage - 1) * pageSize;
+      const pageData = filteredData.slice(start, start + pageSize);
+
       // 渲染表格
       const tbody = document.getElementById('entTableBody');
       if (pageData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #999; padding: 40px;">暂无数据</td></tr>`;
-        renderPagination(0);
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-tertiary); padding: 40px;">暂无数据</td></tr>`;
+        if (pg) pg.setTotal(filteredData.length);
         return;
       }
-      
+
       tbody.innerHTML = pageData.map((e, idx) => `
         <tr>
           <td>${start + idx + 1}</td>
@@ -1121,48 +992,10 @@
           </td>
         </tr>
       `).join('');
-      
+
       // 更新统计卡片
       document.querySelectorAll('.stat-card')[0].querySelector('.stat-value').textContent = filteredData.length;
-      renderPagination(Math.ceil(pgState.total / pgState.size));
-    }
-
-    function renderPagination(totalPages) {
-      document.getElementById('pgTotal').textContent = pgState.total;
-      document.getElementById('pgCurrentPage').textContent = pgState.page;
-      document.getElementById('pgTotalPages').textContent = totalPages || 1;
-      var btns = document.getElementById('pgBtns');
-      if (totalPages <= 1) { btns.innerHTML = ''; return; }
-      var html = '';
-      html += '<button onclick="goPage(' + (pgState.page - 1) + ')" ' + (pgState.page === 1 ? 'disabled' : '') + '>&lt;</button>';
-      for (var i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= pgState.page - 2 && i <= pgState.page + 2)) {
-          html += '<button class="' + (i === pgState.page ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
-        } else if (i === pgState.page - 3 || i === pgState.page + 3) {
-          html += '<span>...</span>';
-        }
-      }
-      html += '<button onclick="goPage(' + (pgState.page + 1) + ')" ' + (pgState.page === totalPages ? 'disabled' : '') + '>&gt;</button>';
-      btns.innerHTML = html;
-      document.getElementById('pgJump').max = totalPages;
-    }
-
-    function goPage(p) {
-      var totalPages = Math.ceil(pgState.total / pgState.size);
-      if (p < 1 || p > totalPages) return;
-      pgState.page = p;
-      renderTable();
-    }
-
-    function changePageSize() {
-      pgState.size = parseInt(document.getElementById('pgSize').value);
-      pgState.page = 1;
-      renderTable();
-    }
-
-    function jumpToPage() {
-      var p = parseInt(document.getElementById('pgJump').value);
-      if (p) goPage(p);
+      if (pg) pg.setTotal(filteredData.length);
     }
 
     // 展开全部
@@ -1181,6 +1014,16 @@
     document.getElementById('tabDistrict').addEventListener('click', () => { currentTab = 'district'; switchTab('district'); renderTree(); });
     document.getElementById('tabIndustry').addEventListener('click', () => { currentTab = 'industry'; switchTab('industry'); renderTree(); });
     renderTree();
+    // 初始化分页（先初始数据计算total）
+    var initialFiltered = [...enterpriseData];
+    pg = new Pagination('paginationBar', {
+      total: initialFiltered.length,
+      onChange: function(page, size) {
+        currentPage = page;
+        pageSize = size;
+        renderTable();
+      }
+    });
     renderTable();
     renderBreadcrumb();
     
@@ -1235,7 +1078,7 @@
     function showToast(msg) {
       var t = document.getElementById('_toast');
       if (!t) { t = document.createElement('div'); t.id = '_toast'; document.body.appendChild(t); }
-      Object.assign(t.style, {position:'fixed',top:'20px',left:'50%',transform:'translateX(-50%)',padding:'10px 24px',background:'#1f1f1f',color:'#fff',borderRadius:'6px',fontSize:'14px',zIndex:99999,opacity:0,transition:'opacity .3s',pointerEvents:'none'});
+      Object.assign(t.style, {position:'fixed',top:'20px',left:'50%',transform:'translateX(-50%)',padding:'10px 24px',background:'var(--text-primary)',color:'var(--bg-primary)',borderRadius:'var(--radius-md)',fontSize:'var(--font-size-md)',zIndex:99999,opacity:0,transition:'opacity var(--duration-normal)',pointerEvents:'none'});
       t.textContent = msg;
       setTimeout(function() { t.style.opacity = 1; }, 10);
       setTimeout(function() { t.style.opacity = 0; }, 2500);
@@ -1443,7 +1286,6 @@ function confirmMapSelect() {
 })();
 </script>
 
-
   <!-- 地图选点弹窗 -->
   <div class="modal-overlay" id="mapPickerModal">
     <div class="modal-dialog" style="width: 800px;">
@@ -1476,6 +1318,7 @@ function confirmMapSelect() {
 <script>
 (function() { 'use strict'; var CONFIG = { moduleId: 'sa-ent-manage', moduleName: '企业基本信息' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
 </script>
+<script src="../../js/pagination.js"></script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

@@ -8,157 +8,218 @@
 <title>项目组织架构 - 企业端</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#f0f2f5;color:#333;font-size:14px}
+body{font-family:var(--font-family);background:var(--bg-page-solid);color:var(--text-primary);font-size:var(--font-size-md)}
 .page-container{padding:20px;min-height:100vh}
-.breadcrumb a{color:#666;text-decoration:none}
-.breadcrumb a:hover{color:#1890ff}
-.breadcrumb .sep{margin:0 6px;color:#999}
 
-/* 主布局 */
-.main-layout{display:flex;gap:16px;height:calc(100vh - 80px)}
+/* 面包屑 */
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:var(--font-size-sm);color:var(--text-tertiary);margin-bottom:16px}
+.breadcrumb a{color:var(--text-secondary);text-decoration:none;transition:color var(--duration-fast)}
+.breadcrumb a:hover{color:var(--primary)}
+.breadcrumb .sep{margin:0 4px;color:var(--text-tertiary)}
+.breadcrumb .current{color:var(--text-primary);font-weight:500}
 
-/* 左侧树 */
-.left-panel{width:320px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;flex-direction:column}
-.panel-header{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-size:15px;font-weight:600;color:#1f2937;display:flex;align-items:center;gap:8px}
-.panel-header .icon{font-size:18px}
-.tree-body{flex:1;overflow-y:auto;padding:12px 8px}
+/* ========== 主布局 ========== */
+.main-layout{display:flex;gap:16px;height:calc(100vh - 90px)}
 
-/* 树节点 */
+/* ========== 左侧树面板 ========== */
+.left-panel{width:320px;background:var(--bg-card);border-radius:var(--radius-xl);box-shadow:var(--shadow-card);display:flex;flex-direction:column;overflow:hidden;transition:box-shadow var(--duration-normal)}
+.left-panel:hover{box-shadow:var(--shadow-card-hover)}
+
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--border-light);font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--bg-card) 0%,#f8faff 100%)}
+.panel-header .header-icon{width:28px;height:28px;background:var(--primary-light);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center}
+.panel-header .header-icon svg{width:16px;height:16px;color:var(--primary)}
+
+/* 树搜索 */
+.tree-search{padding:10px 14px;border-bottom:1px solid var(--border-light)}
+.tree-search input{width:100%;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:all var(--duration-fast);background:var(--bg-secondary);color:var(--text-primary)}
+.tree-search input:focus{border-color:var(--primary);background:var(--bg-card);box-shadow:var(--shadow-input-focus)}
+.tree-search input::placeholder{color:var(--text-placeholder)}
+.tree-search-wrap{position:relative}
+.tree-search-wrap .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:14px;pointer-events:none}
+
+.tree-body{flex:1;overflow-y:auto;padding:8px 6px}
+.tree-body::-webkit-scrollbar{width:4px}
+.tree-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.tree-body::-webkit-scrollbar-thumb:hover{background:var(--border-dark)}
+
+/* ========== 树节点 ========== */
 .tree-node{position:relative}
-.tree-node-content{display:flex;align-items:center;padding:8px 8px 8px 12px;cursor:pointer;border-radius:6px;transition:all .15s;gap:6px}
-.tree-node-content:hover{background:#f5f7fa}
-.tree-node-content.active{background:#e6f7ff;color:#1890ff}
-.tree-node-content .toggle{width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#999;font-size:10px;flex-shrink:0}
-.tree-node-content .toggle:hover{color:#1890ff}
-.tree-node-content .icon{font-size:16px;flex-shrink:0}
-.tree-node-content .node-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
-.tree-node-content .node-tag{font-size:11px;padding:1px 6px;border-radius:4px;margin-left:4px;flex-shrink:0}
-.tree-node-content .drag-handle{width:14px;height:14px;display:none;cursor:grab;color:#ccc;margin-left:4px}
-.tree-node-content:hover .drag-handle{display:block}
+.tree-node-content{display:flex;align-items:center;padding:7px 10px 7px 8px;cursor:pointer;border-radius:var(--radius-md);transition:all var(--duration-fast);gap:6px;margin:1px 0;position:relative}
+.tree-node-content:hover{background:var(--bg-hover)}
+.tree-node-content.active{background:var(--bg-active);color:var(--primary)}
+.tree-node-content.active .node-label{font-weight:500}
+.tree-node-content.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--primary);border-radius:0 2px 2px 0}
+
+.tree-node-content .toggle{width:20px;height:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-tertiary);font-size:10px;flex-shrink:0;transition:transform var(--duration-fast);border-radius:var(--radius-sm)}
+.tree-node-content .toggle:hover{background:var(--bg-secondary);color:var(--primary)}
+.tree-node-content .toggle.expanded{transform:rotate(0deg)}
+.tree-node-content .toggle.collapsed{transform:rotate(-90deg)}
+
+.tree-node-content .icon{font-size:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.tree-node-content .node-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--font-size-sm);color:var(--text-primary);min-width:0}
+.tree-node-content.active .node-label{color:var(--primary)}
+
+.tree-node-content .node-tag{font-size:var(--font-size-xs);padding:1px 6px;border-radius:var(--radius-sm);margin-left:2px;flex-shrink:0;font-weight:500;letter-spacing:0.3px}
+.tree-node-content .drag-handle{width:16px;height:16px;display:none;cursor:grab;color:var(--text-tertiary);margin-left:4px;border-radius:var(--radius-sm);align-items:center;justify-content:center;font-size:10px}
+.tree-node-content:hover .drag-handle{display:flex}
+.tree-node-content .drag-handle:hover{background:var(--bg-secondary);color:var(--text-secondary)}
 .tree-node-content .drag-handle:active{cursor:grabbing}
 
-/* 节点类型颜色 */
-.node-root .icon{color:#1890ff}
-.node-category .icon{color:#722ed1}
-.node-enterprise .icon{color:#52c41a}
-.node-department .icon{color:#fa8c16}
+/* 节点类型 SVG 图标色 */
+.node-root .icon svg{color:var(--primary)}
+.node-category .icon svg{color:var(--accent)}
+.node-enterprise .icon svg{color:var(--success)}
+.node-department .icon svg{color:var(--warning)}
 
-.tag-category{background:#f9f0ff;color:#722ed1;border:1px solid #d3adf7}
-.tag-enterprise{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
-.tag-department{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591}
+/* 节点标签颜色 */
+.tag-category{background:var(--accent-light);color:var(--accent-active);border:1px solid rgba(123,97,255,0.25)}
+.tag-enterprise{background:var(--success-light);color:#389e0d;border:1px solid rgba(82,196,26,0.25)}
+.tag-department{background:var(--warning-light);color:#d48806;border:1px solid rgba(250,173,20,0.25)}
 
-/* 子节点缩进 */
+/* 子节点缩进 + 层级线 */
 .tree-node{display:block!important}
-.tree-children{padding-left:20px;display:block!important}
+.tree-children{padding-left:16px;display:block!important;position:relative}
+.tree-children::before{content:'';position:absolute;left:18px;top:0;bottom:12px;width:1px;background:var(--border-light)}
+.tree-children>.tree-node::before{content:'';position:absolute;left:-6px;top:14px;width:12px;height:1px;background:var(--border-light)}
 
-/* 右侧内容 */
-.right-panel{flex:1;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;flex-direction:column;overflow:hidden}
+/* ========== 右侧内容 ========== */
+.right-panel{flex:1;background:var(--bg-card);border-radius:var(--radius-xl);box-shadow:var(--shadow-card);display:flex;flex-direction:column;overflow:hidden;transition:box-shadow var(--duration-normal)}
+.right-panel:hover{box-shadow:var(--shadow-card-hover)}
 
 /* 工具栏 */
-.toolbar{padding:12px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.toolbar-title{font-size:15px;font-weight:600;color:#1f2937;display:flex;align-items:center;gap:8px}
-.toolbar-title .node-type-tag{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:400}
+.toolbar{padding:14px 20px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:linear-gradient(135deg,var(--bg-card) 0%,#f8faff 100%)}
+.toolbar-title{font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:10px}
+.toolbar-title .node-type-tag{font-size:var(--font-size-xs);padding:2px 8px;border-radius:var(--radius-sm);font-weight:500}
 .toolbar-actions{display:flex;gap:8px;align-items:center}
 
-/* 按钮 */
-.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;color:#333;font-size:13px;cursor:pointer;transition:all .15s}
-.btn:hover{border-color:#1890ff;color:#1890ff}
-.btn-primary{background:#1890ff;border-color:#1890ff;color:#fff}
-.btn-primary:hover{background:#40a9ff;border-color:#40a9ff;color:#fff}
-.btn-danger{background:#ff4d4f;border-color:#ff4d4f;color:#fff}
-.btn-danger:hover{background:#ff7875;border-color:#ff7875}
-.btn-sm{padding:4px 10px;font-size:12px}
-.btn:disabled{opacity:.5;cursor:not-allowed}
+/* ========== 按钮 ========== */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius-md);border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:var(--font-size-sm);cursor:pointer;transition:all var(--duration-fast);font-family:var(--font-family);line-height:1.5}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover);border-color:var(--primary-hover);color:#fff;box-shadow:0 2px 6px rgba(22,119,255,0.3)}
+.btn-danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn-danger:hover{background:var(--danger-hover);border-color:var(--danger-hover);box-shadow:0 2px 6px rgba(255,77,79,0.3)}
+.btn-sm{padding:4px 10px;font-size:var(--font-size-xs)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn .btn-icon{font-size:14px;display:flex;align-items:center}
 
-/* 搜索 */
+/* 搜索框 */
 .search-box{position:relative}
-.search-box input{padding:6px 10px 6px 30px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;width:200px;outline:none;transition:border-color .15s}
-.search-box input:focus{border-color:#1890ff}
-.search-box .search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#999;font-size:13px}
+.search-box input{padding:6px 10px 6px 30px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);width:200px;outline:none;transition:all var(--duration-fast);background:var(--bg-secondary);color:var(--text-primary)}
+.search-box input:focus{border-color:var(--primary);background:var(--bg-card);box-shadow:var(--shadow-input-focus)}
+.search-box input::placeholder{color:var(--text-placeholder)}
+.search-box .search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:14px;pointer-events:none}
 
-/* 表格 */
-.table-scroll{flex:1;overflow:auto;padding:0 16px}
+/* ========== 路径栏 ========== */
+.path-bar{padding:8px 20px;background:var(--bg-section-alt);border-bottom:1px solid var(--border-light);font-size:var(--font-size-xs);color:var(--text-secondary);display:flex;align-items:center;gap:6px}
+.path-bar .path-label{color:var(--text-tertiary);font-weight:500}
+.path-bar .path-text{color:var(--text-primary)}
+.path-bar .path-sep{color:var(--text-tertiary);margin:0 2px}
+
+/* ========== 信息卡片 ========== */
+.info-card{margin:16px 20px 0;background:linear-gradient(135deg,#f8faff 0%,var(--bg-section-alt) 100%);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:16px 20px}
+.info-card-header{font-weight:600;font-size:var(--font-size-sm);color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border-light)}
+.info-card-header .card-icon{width:22px;height:22px;background:var(--primary-light);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center}
+.info-card-header .card-icon svg{width:13px;height:13px;color:var(--primary)}
+.info-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 24px}
+.info-card-field{display:flex;flex-direction:column;gap:2px}
+.info-card-field .field-label{font-size:var(--font-size-xs);color:var(--text-tertiary);font-weight:400}
+.info-card-field .field-value{font-size:var(--font-size-sm);color:var(--text-primary);font-weight:500}
+
+/* ========== 表格 ========== */
+.table-scroll{flex:1;overflow:auto;padding:0 20px}
+.table-scroll::-webkit-scrollbar{width:6px;height:6px}
+.table-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 table{width:100%;border-collapse:collapse;min-width:600px}
-th,td{padding:12px 16px;text-align:left;font-size:13px;border-bottom:1px solid #f0f0f0}
-th{background:#fafafa;font-weight:600;color:#666;position:sticky;top:0;z-index:5}
-tr:hover{background:#f5f7fa}
-td{color:#333}
+th,td{padding:11px 16px;text-align:left;font-size:var(--font-size-sm);border-bottom:1px solid var(--border-light)}
+th{background:var(--bg-table-header);font-weight:600;color:var(--text-secondary);position:sticky;top:0;z-index:5;white-space:nowrap}
+tr:hover td{background:var(--bg-hover)}
+td{color:var(--text-primary)}
+
+/* 序号 */
+.seq-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:var(--font-size-xs);color:var(--text-secondary);font-weight:500}
+
+/* 部门名称列 */
+.dept-name-cell{display:flex;align-items:center;gap:8px}
+.dept-name-cell .dept-icon{width:22px;height:22px;background:var(--warning-light);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dept-name-cell .dept-icon svg{width:12px;height:12px;color:#d48806}
 
 /* 操作列 */
 .action-btns{display:flex;gap:6px}
-.action-btn{padding:3px 10px;border-radius:4px;font-size:12px;cursor:pointer;border:none;transition:all .15s}
-.action-btn-edit{background:#e6f7ff;color:#1890ff}
-.action-btn-edit:hover{background:#1890ff;color:#fff}
-.action-btn-del{background:#fff1f0;color:#ff4d4f}
-.action-btn-del:hover{background:#ff4d4f;color:#fff}
-.action-btn-view{background:#f6ffed;color:#52c41a}
-.action-btn-view:hover{background:#52c41a;color:#fff}
+.action-btn{padding:3px 10px;border-radius:var(--radius-sm);font-size:var(--font-size-xs);cursor:pointer;border:none;transition:all var(--duration-fast);font-family:var(--font-family);font-weight:500}
+.action-btn-edit{background:var(--primary-light);color:var(--primary)}
+.action-btn-edit:hover{background:var(--primary);color:#fff;box-shadow:0 2px 4px rgba(22,119,255,0.25)}
+.action-btn-del{background:var(--danger-light);color:var(--danger)}
+.action-btn-del:hover{background:var(--danger);color:#fff;box-shadow:0 2px 4px rgba(255,77,79,0.25)}
 
 /* 空状态 */
-.empty-state{text-align:center;padding:60px 20px;color:#999}
-.empty-state .empty-icon{font-size:48px;margin-bottom:12px}
-.empty-state .empty-text{font-size:14px}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-tertiary)}
+.empty-state .empty-icon{width:64px;height:64px;background:var(--bg-secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-state .empty-icon svg{width:28px;height:28px;color:var(--text-placeholder)}
+.empty-state .empty-text{font-size:var(--font-size-sm);color:var(--text-tertiary)}
 
-/* 序号 */
-.seq-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#f0f2f5;border-radius:4px;font-size:12px;color:#666;font-weight:500}
+/* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
 
-/* 分页 */
-.pagination{display:flex;justify-content:flex-end;align-items:center;padding:12px 16px;gap:8px;border-top:1px solid #f0f0f0}
-.pagination-btn{padding:5px 12px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;cursor:pointer;font-size:12px}
-.pagination-btn:hover{border-color:#1890ff;color:#1890ff}
-.pagination-btn:disabled{opacity:.5;cursor:not-allowed}
-.pagination-info{font-size:12px;color:#666}
-.page-size-select{padding:5px 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:12px;outline:none}
-
-/* 弹窗 */
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center}
-.modal-content{background:#fff;border-radius:8px;width:480px;max-width:90vw;max-height:90vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.15)}
-.modal-header{padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
-.modal-title{font-size:16px;font-weight:600;color:#1f2937}
-.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;color:#999;font-size:18px}
-.modal-close:hover{background:#f5f5f5;color:#333}
+/* ========== 弹窗 ========== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-content{background:var(--bg-card);border-radius:var(--radius-xl);width:480px;max-width:90vw;max-height:90vh;overflow:auto;box-shadow:var(--shadow-elevated);animation:modalIn .2s ease-out}
+@keyframes modalIn{from{opacity:0;transform:translateY(-16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary)}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-tertiary);font-size:18px;transition:all var(--duration-fast)}
+.modal-close:hover{background:var(--bg-secondary);color:var(--text-primary)}
 .modal-body{padding:20px}
-.modal-footer{padding:12px 20px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:10px}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:10px}
 
 /* 表单 */
 .form-group{margin-bottom:16px}
-.form-label{display:block;font-size:13px;color:#333;margin-bottom:6px;font-weight:500}
-.form-label .required{color:#ff4d4f;margin-left:2px}
-.form-input{width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;transition:border-color .15s}
-.form-input:focus{border-color:#1890ff}
-.form-input:disabled{background:#f5f5f5;color:#999;cursor:not-allowed}
-.form-hint{font-size:12px;color:#999;margin-top:4px}
+.form-label{display:block;font-size:var(--font-size-sm);color:var(--text-label);margin-bottom:6px;font-weight:500}
+.form-label .required{color:var(--danger);margin-left:2px}
+.form-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:all var(--duration-fast);color:var(--text-primary);background:var(--bg-card);font-family:var(--font-family)}
+.form-input:focus{border-color:var(--primary);box-shadow:var(--shadow-input-focus)}
+.form-input:disabled{background:var(--bg-secondary);color:var(--text-disabled);cursor:not-allowed}
+.form-input::placeholder{color:var(--text-placeholder)}
+.form-hint{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:4px}
 
-/* Toast */
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-60px);padding:10px 20px;border-radius:6px;font-size:13px;z-index:2000;opacity:0;transition:all .3s;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+/* ========== Toast ========== */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-60px);padding:10px 20px;border-radius:var(--radius-lg);font-size:var(--font-size-sm);z-index:2000;opacity:0;transition:all var(--duration-normal);box-shadow:var(--shadow-md);display:flex;align-items:center;gap:8px;font-weight:500}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.toast-success{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
-.toast-error{background:#fff1f0;color:#ff4d4f;border:1px solid #ffa39e}
+.toast-success{background:var(--success-light);color:#389e0d;border:1px solid rgba(82,196,26,0.25)}
+.toast-error{background:var(--danger-light);color:var(--danger);border:1px solid rgba(255,77,79,0.25)}
 
 /* 拖拽占位 */
-.drag-placeholder{height:36px;border:2px dashed #1890ff;border-radius:6px;background:#e6f7ff;margin:2px 0}
-.dragging{opacity:.6}
+.drag-placeholder{height:36px;border:2px dashed var(--primary);border-radius:var(--radius-md);background:var(--primary-light);margin:2px 0}
+.dragging{opacity:.5}
 
-/* 面包屑路径 */
-.path-bar{padding:10px 16px;background:#f6ffed;border-bottom:1px solid #f0f0f0;font-size:12px;color:#52c41a;display:flex;align-items:center;gap:6px}
-.path-bar .path-label{color:#666}
+/* 删除弹窗图标 */
+.del-icon{width:56px;height:56px;background:var(--danger-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.del-icon svg{width:28px;height:28px;color:var(--danger)}
 </style>
 </head>
 <body>
 <div class="page-container" data-module="enterprise/project-org">
   <div class="breadcrumb" id="breadcrumb">
     <span class="breadcrumb-prefix">当前位置：</span>
-    <span class="breadcrumb-item">企业端</span>
-    <span class="breadcrumb-separator">&gt;</span>
-    <span class="breadcrumb-item">项目信息管理</span>
-    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item"><a href="#">企业端</a></span>
+    <span class="sep">/</span>
+    <span class="breadcrumb-item"><a href="#">项目信息管理</a></span>
+    <span class="sep">/</span>
     <span class="breadcrumb-item current">项目组织架构</span>
   </div>
 
   <div class="main-layout">
     <!-- 左侧组织树 -->
     <div class="left-panel">
-      <div class="panel-header"><span class="icon">🏗️</span>项目列表</div>
+      <div class="panel-header">
+        <span class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        项目列表
+      </div>
+      <div class="tree-search">
+        <div class="tree-search-wrap">
+          <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input type="text" id="treeSearchInput" placeholder="搜索项目节点..." oninput="onTreeSearch()">
+        </div>
+      </div>
       <div class="tree-body" id="orgTree"></div>
     </div>
 
@@ -171,35 +232,36 @@ td{color:#333}
         </div>
         <div class="toolbar-actions">
           <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="搜索..." oninput="onSearch()">
+            <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <input type="text" id="searchInput" placeholder="搜索部门..." oninput="onSearch()">
           </div>
           <button class="btn btn-primary btn-sm" id="btnAddCategory" onclick="openAddCategoryModal()" style="display:none">
-            <span>+</span> 新增分类
+            <span class="btn-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>新增分类
           </button>
           <button class="btn btn-primary btn-sm" id="btnAddEnterprise" onclick="openAddEnterpriseModal()" style="display:none">
-            <span>+</span> 新增企业
+            <span class="btn-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>新增企业
           </button>
           <button class="btn btn-primary btn-sm" id="btnAdd" onclick="openAddModal()">
-            <span>+</span> 新增部门
+            <span class="btn-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>新增部门
           </button>
           <button class="btn btn-danger btn-sm" id="btnDeleteNode" onclick="openDelSelectedModal()" style="display:none">
-            删除节点
+            <span class="btn-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>删除节点
           </button>
         </div>
       </div>
-      <div class="path-bar" id="pathBar"><span class="path-label">当前位置：</span><span id="pathText"></span></div>
+      <div class="path-bar" id="pathBar"><span class="path-label">当前位置：</span><span id="pathText" class="path-text"></span></div>
+      <div id="nodeInfoCard" class="info-card"></div>
       <div class="table-scroll">
         <table id="dataTable">
           <thead><tr id="tableHead"></tr></thead>
           <tbody id="tableBody"></tbody>
         </table>
         <div class="empty-state" id="emptyState" style="display:none">
-          <div class="empty-icon">📭</div>
-          <div class="empty-text">暂无数据</div>
+          <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
+          <div class="empty-text">暂无下属部门</div>
         </div>
       </div>
-      <div class="pagination" id="pagination"></div>
+      <div class="pagination" id="paginationBar"></div>
     </div>
   </div>
 </div>
@@ -236,15 +298,15 @@ td{color:#333}
 
 <!-- 删除确认弹窗 -->
 <div class="modal-overlay" id="delModal" style="display:none">
-  <div class="modal-content" style="width:360px">
+  <div class="modal-content" style="width:380px">
     <div class="modal-header">
       <span class="modal-title">确认删除</span>
       <span class="modal-close" onclick="closeDelModal()">&times;</span>
     </div>
-    <div class="modal-body" style="text-align:center;padding:24px 20px">
-      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
-      <div style="font-size:14px;color:#333">确定删除部门 <strong id="delTargetName"></strong> 吗？</div>
-      <div style="font-size:12px;color:#999;margin-top:8px">删除后不可恢复</div>
+    <div class="modal-body" style="text-align:center;padding:28px 20px">
+      <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+      <div style="font-size:var(--font-size-md);color:var(--text-primary);font-weight:500">确定删除 <span id="delTargetName" style="color:var(--danger)"></span> 吗？</div>
+      <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:8px">删除后不可恢复</div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeDelModal()">取消</button>
@@ -256,88 +318,59 @@ td{color:#333}
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="../../js/pagination.js"></script>
 <script>
+// ===================== SVG 图标模板 =====================
+var ICONS = {
+  root: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  category: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+  enterprise: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22V12h6v10M9 6h.01M15 6h.01M9 10h.01M15 10h.01"/></svg>',
+  department: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+};
+
 // ===================== 数据 =====================
-// 从项目基本信息读取四方责任体数据
-const projectInfo = {
+var projectInfo = {
   name: 'XX大厦建设项目',
   parties: {
-  "建设单位": {
-    "name": "XX建设集团",
-    "creditCode": "91110000123456789X",
-    "leader": "张三",
-    "phone": "13800138001"
-  },
-  "施工单位": {
-    "name": "XX建筑工程有限公司",
-    "creditCode": "91110000987654321Y",
-    "leader": "李四",
-    "phone": "13900139001"
-  },
-  "监理单位": {
-    "name": "XX监理咨询有限公司",
-    "creditCode": "91110000567890123Z",
-    "leader": "王五",
-    "phone": "13700137001"
-  },
-  "分包单位": {
-    "name": "XX装饰工程有限公司",
-    "creditCode": "91110000345678901A",
-    "leader": "赵六",
-    "phone": "13800138002"
+    "建设单位": { name: "XX建设集团", creditCode: "91110000123456789X", leader: "张三", phone: "13800138001" },
+    "施工单位": { name: "XX建筑工程有限公司", creditCode: "91110000987654321Y", leader: "李四", phone: "13900139001" },
+    "监理单位": { name: "XX监理咨询有限公司", creditCode: "91110000567890123Z", leader: "王五", phone: "13700137001" },
+    "分包单位": { name: "XX装饰工程有限公司", creditCode: "91110000345678901A", leader: "赵六", phone: "13800138002" }
   }
-}
 };
 
 function buildOrgTree() {
-  const partyTypes = [
+  var partyTypes = [
     { key: '建设单位', id: 'cat1', entId: 'ent1' },
     { key: '施工单位', id: 'cat2', entId: 'ent2' },
     { key: '监理单位', id: 'cat3', entId: 'ent3' },
     { key: '分包单位', id: 'cat4', entId: 'ent4' }
   ];
-
-  const children = [];
-  partyTypes.forEach((pt, idx) => {
-    const party = projectInfo.parties[pt.key];
-    const enterpriseNode = {
-      id: pt.entId,
-      name: party ? party.name : pt.key + '(未设置)',
-      type: 'enterprise',
-      creditCode: party ? party.creditCode : '',
-      leader: party ? party.leader : '',
-      phone: party ? party.phone : '',
+  var children = [];
+  partyTypes.forEach(function(pt) {
+    var party = projectInfo.parties[pt.key];
+    var enterpriseNode = {
+      id: pt.entId, name: party ? party.name : pt.key + '(未设置)', type: 'enterprise',
+      creditCode: party ? party.creditCode : '', leader: party ? party.leader : '', phone: party ? party.phone : '',
       children: []
     };
-
-    children.push({
-      id: pt.id,
-      name: pt.key,
-      type: 'category',
-      expanded: true,
-      children: [enterpriseNode]
-    });
+    children.push({ id: pt.id, name: pt.key, type: 'category', expanded: true, children: [enterpriseNode] });
   });
-
-  return {
-    id: 'root',
-    name: projectInfo.name,
-    type: 'root',
-    expanded: true,
-    children: children
-  };
+  return { id: 'root', name: projectInfo.name, type: 'root', expanded: true, children: children };
 }
 
-const treeData = buildOrgTree();
+var treeData = buildOrgTree();
+
 // ===================== 状态 =====================
-let selectedNodeId = 'root';
-let selectedNode = treeData;
-let modalMode = 'add';
-let editingDeptId = null;
-let deletingNodeId = null;
-let pageSize = 10, currentPage = 1;
-let searchKeyword = '';
-let dragSrcId = null;
+var selectedNodeId = 'root';
+var selectedNode = treeData;
+var modalMode = 'add';
+var editingDeptId = null;
+var deletingNodeId = null;
+var pageSize = 10, currentPage = 1;
+var searchKeyword = '';
+var treeSearchKeyword = '';
+var dragSrcId = null;
 
 // ===================== 工具函数 =====================
 function findNode(id, node) {
@@ -353,8 +386,7 @@ function findNode(id, node) {
 }
 
 function getParentNode(targetId, node, parent) {
-  node = node || treeData;
-  parent = parent || null;
+  node = node || treeData; parent = parent || null;
   if (node.id === targetId) return parent;
   if (node.children) {
     for (var i = 0; i < node.children.length; i++) {
@@ -370,11 +402,7 @@ function getNodePath(id) {
   function walk(node, targetId) {
     path.push(node);
     if (node.id === targetId) return true;
-    if (node.children) {
-      for (var i = 0; i < node.children.length; i++) {
-        if (walk(node.children[i], targetId)) return true;
-      }
-    }
+    if (node.children) { for (var i = 0; i < node.children.length; i++) { if (walk(node.children[i], targetId)) return true; } }
     path.pop();
     return false;
   }
@@ -385,7 +413,10 @@ function getNodePath(id) {
 function showToast(msg, type) {
   type = type || 'success';
   var el = document.getElementById('toast');
-  el.textContent = msg;
+  var icon = type === 'success'
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+  el.innerHTML = icon + msg;
   el.className = 'toast toast-' + type;
   setTimeout(function() { el.classList.add('show'); }, 10);
   setTimeout(function() { el.classList.remove('show'); }, 2500);
@@ -397,10 +428,7 @@ function getNextId(prefix) {
   collect(treeData);
   var maxNum = 0;
   for (var i = 0; i < allIds.length; i++) {
-    if (allIds[i].indexOf(prefix) === 0) {
-      var num = parseInt(allIds[i].replace(prefix, '')) || 0;
-      if (num > maxNum) maxNum = num;
-    }
+    if (allIds[i].indexOf(prefix) === 0) { var num = parseInt(allIds[i].replace(prefix, '')) || 0; if (num > maxNum) maxNum = num; }
   }
   return prefix + (maxNum + 1);
 }
@@ -412,10 +440,22 @@ function renderTree() {
   attachTreeEvents();
 }
 
+function nodeMatchesSearch(node) {
+  if (!treeSearchKeyword) return true;
+  var kw = treeSearchKeyword.toLowerCase();
+  if (node.name && node.name.toLowerCase().indexOf(kw) !== -1) return true;
+  if (node.children) {
+    for (var i = 0; i < node.children.length; i++) {
+      if (nodeMatchesSearch(node.children[i])) return true;
+    }
+  }
+  return false;
+}
+
 function renderNode(node, depth) {
+  if (treeSearchKeyword && !nodeMatchesSearch(node)) return '';
   var hasChildren = node.children && node.children.length > 0;
   var isSelected = node.id === selectedNodeId;
-  var iconMap = { root: '🏗️', category: '📁', enterprise: '🏢', department: '👥' };
   var typeClass = 'node-' + node.type;
   var tagMap = { category: 'tag-category', enterprise: 'tag-enterprise', department: 'tag-department' };
   var tagClass = tagMap[node.type] || '';
@@ -425,20 +465,20 @@ function renderNode(node, depth) {
   html += '<div class="tree-node-content ' + typeClass + (isSelected ? ' active' : '') + '" data-id="' + node.id + '">';
 
   if (hasChildren) {
-    html += '<span class="toggle" onclick="event.stopPropagation();toggleExpand(&#39;' + node.id + '&#39;)">'  + (node.expanded ? '▼' : '▶') + '</span>';
+    html += '<span class="toggle ' + (node.expanded ? 'expanded' : 'collapsed') + '" onclick="event.stopPropagation();toggleExpand(\'' + node.id + '\')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></span>';
   } else {
-    html += '<span class="toggle" style="visibility:hidden">▶</span>';
+    html += '<span class="toggle" style="visibility:hidden"></span>';
   }
 
-  html += '<span class="icon">' + (iconMap[node.type] || '') + '</span>';
-  html += '<span class="node-label" title="' + node.name + '">' + node.name + '</span>';
+  html += '<span class="icon">' + (ICONS[node.type] || '') + '</span>';
+  html += '<span class="node-label" title="' + node.name + '">' + highlightText(node.name, treeSearchKeyword) + '</span>';
 
   if (tagClass) {
     html += '<span class="node-tag ' + tagClass + '">' + tagText + '</span>';
   }
 
   if (node.type === 'department') {
-    html += '<span class="drag-handle" draggable="true" data-id="' + node.id + '">⋮⋮</span>';
+    html += '<span class="drag-handle" draggable="true" data-id="' + node.id + '"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="18" r="2"/></svg></span>';
   }
 
   html += '</div>';
@@ -455,12 +495,22 @@ function renderNode(node, depth) {
   return html;
 }
 
+function highlightText(text, keyword) {
+  if (!keyword) return text;
+  var idx = text.toLowerCase().indexOf(keyword.toLowerCase());
+  if (idx === -1) return text;
+  return text.substring(0, idx) + '<mark style="background:var(--warning-light);padding:0 1px;border-radius:2px">' + text.substring(idx, idx + keyword.length) + '</mark>' + text.substring(idx + keyword.length);
+}
+
+function onTreeSearch() {
+  treeSearchKeyword = document.getElementById('treeSearchInput').value;
+  renderTree();
+}
+
 function attachTreeEvents() {
   var contents = document.querySelectorAll('.tree-node-content');
   for (var i = 0; i < contents.length; i++) {
-    contents[i].addEventListener('click', function() {
-      selectNode(this.dataset.id);
-    });
+    contents[i].addEventListener('click', function() { selectNode(this.dataset.id); });
   }
 
   var handles = document.querySelectorAll('.drag-handle');
@@ -486,15 +536,10 @@ function attachTreeEvents() {
       if (!dragSrcId) return;
       var srcNode = findNode(dragSrcId);
       if (!srcNode || srcNode.type !== 'department') return;
-
       var afterEl = getDragAfterElement(this, e.clientY);
       var placeholder = document.querySelector('.drag-placeholder');
-      if (!placeholder) {
-        placeholder = document.createElement('div');
-        placeholder.className = 'drag-placeholder';
-      }
-      if (afterEl) this.insertBefore(placeholder, afterEl);
-      else this.appendChild(placeholder);
+      if (!placeholder) { placeholder = document.createElement('div'); placeholder.className = 'drag-placeholder'; }
+      if (afterEl) this.insertBefore(placeholder, afterEl); else this.appendChild(placeholder);
     });
 
     childContainers[i].addEventListener('drop', function(e) {
@@ -502,124 +547,88 @@ function attachTreeEvents() {
       if (!dragSrcId) return;
       var srcNode = findNode(dragSrcId);
       if (!srcNode || srcNode.type !== 'department') return;
-
       var parentNode = getParentNode(dragSrcId);
       if (!parentNode || parentNode.type !== 'enterprise') return;
-
       var placeholder = document.querySelector('.drag-placeholder');
       if (placeholder) placeholder.remove();
-
       var siblings = parentNode.children;
       var srcIndex = -1;
-      for (var j = 0; j < siblings.length; j++) {
-        if (siblings[j].id === dragSrcId) { srcIndex = j; break; }
-      }
+      for (var j = 0; j < siblings.length; j++) { if (siblings[j].id === dragSrcId) { srcIndex = j; break; } }
       if (srcIndex === -1) return;
-
       var moved = siblings.splice(srcIndex, 1)[0];
       var targetIndex = siblings.length;
       var afterEl = getDragAfterElement(this, e.clientY);
-      if (afterEl) {
-        var afterId = afterEl.closest('.tree-node').dataset.id;
-        for (var j = 0; j < siblings.length; j++) {
-          if (siblings[j].id === afterId) { targetIndex = j; break; }
-        }
-        if (targetIndex === -1) targetIndex = siblings.length;
-      }
+      if (afterEl) { var afterId = afterEl.closest('.tree-node').dataset.id; for (var j = 0; j < siblings.length; j++) { if (siblings[j].id === afterId) { targetIndex = j; break; } } if (targetIndex === -1) targetIndex = siblings.length; }
       siblings.splice(targetIndex, 0, moved);
-
-      renderTree();
-      renderRightPanel();
-      showToast('排序已更新');
+      renderTree(); renderRightPanel(); showToast('排序已更新');
     });
   }
 }
 
 function getDragAfterElement(container, y) {
   var draggableElements = Array.prototype.slice.call(container.querySelectorAll('.tree-node-content:not(.dragging)'));
-  var closest = null;
-  var closestOffset = Number.NEGATIVE_INFINITY;
+  var closest = null, closestOffset = Number.NEGATIVE_INFINITY;
   for (var i = 0; i < draggableElements.length; i++) {
     var box = draggableElements[i].getBoundingClientRect();
     var offset = y - box.top - box.height / 2;
-    if (offset < 0 && offset > closestOffset) {
-      closestOffset = offset;
-      closest = draggableElements[i];
-    }
+    if (offset < 0 && offset > closestOffset) { closestOffset = offset; closest = draggableElements[i]; }
   }
   return closest;
 }
 
-function toggleExpand(id) {
-  var node = findNode(id);
-  if (node) { node.expanded = !node.expanded; renderTree(); }
-}
-
-function selectNode(id) {
-  selectedNodeId = id;
-  selectedNode = findNode(id);
-  currentPage = 1;
-  renderTree();
-  renderRightPanel();
-}
+function toggleExpand(id) { var node = findNode(id); if (node) { node.expanded = !node.expanded; renderTree(); } }
+function selectNode(id) { selectedNodeId = id; selectedNode = findNode(id); currentPage = 1; if (typeof pg !== 'undefined' && pg) pg.setPage(1); renderTree(); renderRightPanel(); }
 
 // ===================== 渲染右侧列表 =====================
 function renderRightPanel() {
   var titleEl = document.getElementById('rightTitle');
   var tagEl = document.getElementById('rightTypeTag');
   var pathText = document.getElementById('pathText');
-  var btnAdd = document.getElementById('btnAdd');
 
   var path = getNodePath(selectedNodeId);
   var pathNames = [];
   for (var i = 0; i < path.length; i++) pathNames.push(path[i].name);
-  pathText.textContent = pathNames.join(' > ');
+  // 渲染路径带分隔符
+  var pathHtml = '';
+  for (var i = 0; i < pathNames.length; i++) {
+    if (i > 0) pathHtml += '<span class="path-sep">/</span>';
+    pathHtml += pathNames[i];
+  }
+  pathText.innerHTML = pathHtml;
 
   var typeLabels = { root: '项目', category: '分类', enterprise: '单位', department: '部门' };
-  var typeColors = { root: '#1890ff', category: '#722ed1', enterprise: '#52c41a', department: '#fa8c16' };
+  var typeColors = { root: 'var(--primary)', category: 'var(--accent)', enterprise: 'var(--success)', department: 'var(--warning)' };
   titleEl.textContent = selectedNode.name;
   tagEl.textContent = typeLabels[selectedNode.type] || '';
-  var tc = typeColors[selectedNode.type] || '#999';
-  tagEl.style.cssText = 'background:' + tc + '15;color:' + tc + ';border:1px solid ' + tc + '40';
+  var tc = typeColors[selectedNode.type] || 'var(--text-tertiary)';
+  tagEl.style.cssText = 'background:color-mix(in srgb,' + tc + ' 10%,transparent);color:' + tc + ';border:1px solid color-mix(in srgb,' + tc + '25%,transparent)';
 
-  // 根据节点类型显示不同操作按钮（PRD §6.4.3）
   var btnAddCategory = document.getElementById('btnAddCategory');
   var btnAddEnterprise = document.getElementById('btnAddEnterprise');
   var btnDeleteNode = document.getElementById('btnDeleteNode');
-  // 项目根节点：显示新增分类
+  var btnAdd = document.getElementById('btnAdd');
   btnAddCategory.style.display = (selectedNode.type === 'root') ? 'inline-flex' : 'none';
-  // 分类节点：显示新增企业、删除节点
   btnAddEnterprise.style.display = (selectedNode.type === 'category') ? 'inline-flex' : 'none';
-  // 企业/部门节点：显示新增部门、删除节点（项目根节点和四方责任体企业节点不可删除）
   btnAdd.style.display = (selectedNode.type === 'enterprise' || selectedNode.type === 'department') ? 'inline-flex' : 'none';
   btnDeleteNode.style.display = (selectedNode.type === 'category' || selectedNode.type === 'enterprise' || selectedNode.type === 'department') ? 'inline-flex' : 'none';
 
   // 渲染节点信息卡片
   var infoCard = document.getElementById('nodeInfoCard');
-  if (!infoCard) {
-    infoCard = document.createElement('div');
-    infoCard.id = 'nodeInfoCard';
-    infoCard.className = 'info-card';
-    var tableScroll = document.querySelector('.table-scroll');
-    tableScroll.parentNode.insertBefore(infoCard, tableScroll);
-  }
   infoCard.innerHTML = renderNodeInfoCard(selectedNode);
-  infoCard.style.display = 'block';
 
-  // 统一表格列头：下属部门列表
+  // 根据节点类型动态决定表头和数据
+  var childType = getChildType(selectedNode.type);
+  var headers = getTableHeaders(childType);
   var headRow = document.getElementById('tableHead');
-  var headers = ['序号', '部门名称', '上级部门', '人数', '备注', '操作'];
   var headHtml = '';
-  for (var i = 0; i < headers.length; i++) headHtml += '<th>' + headers[i] + '</th>';
+  for (var i = 0; i < headers.length; i++) headHtml += '<th' + (i === headers.length - 1 ? ' class="action-col"' : '') + '>' + headers[i] + '</th>';
   headRow.innerHTML = headHtml;
 
-  // 递归收集所有后代部门
-  var allDepts = collectAllDepartments(selectedNode);
-
-  // 搜索过滤
+  // 取直接子节点
+  var children = (selectedNode.children || []).slice();
   var data = [];
-  for (var i = 0; i < allDepts.length; i++) {
-    var n = allDepts[i];
+  for (var i = 0; i < children.length; i++) {
+    var n = children[i];
     if (!searchKeyword) { data.push(n); }
     else if (n.name && n.name.toLowerCase().indexOf(searchKeyword.toLowerCase()) !== -1) { data.push(n); }
   }
@@ -633,20 +642,19 @@ function renderRightPanel() {
   var tbody = document.getElementById('tableBody');
   var emptyState = document.getElementById('emptyState');
 
+  var emptyLabels = { category: '暂无分类', enterprise: '暂无下级单位', department: '暂无下级部门' };
   if (pageData.length === 0) {
     tbody.innerHTML = '';
     emptyState.style.display = 'block';
-    emptyState.querySelector('.empty-text').textContent = '暂无下属部门';
+    emptyState.querySelector('.empty-text').textContent = emptyLabels[childType] || '暂无数据';
   } else {
     emptyState.style.display = 'none';
     var bodyHtml = '';
-    for (var i = 0; i < pageData.length; i++) {
-      bodyHtml += renderDeptRow(pageData[i], start + i + 1);
-    }
+    for (var i = 0; i < pageData.length; i++) { bodyHtml += renderRowByType(pageData[i], start + i + 1, childType); }
     tbody.innerHTML = bodyHtml;
   }
 
-  renderPagination(total, totalPages);
+  if (typeof pg !== 'undefined' && pg) pg.setTotal(total);
 }
 
 function renderNodeInfoCard(node) {
@@ -654,101 +662,115 @@ function renderNodeInfoCard(node) {
   var rows = [];
 
   if (type === 'root') {
-    rows = [
-      ['节点类型', '项目根节点'],
-      ['项目名称', node.name],
-      ['下级分类数', (node.children ? node.children.length : 0) + ' 个']
-    ];
+    rows = [['节点类型', '项目根节点'], ['项目名称', node.name], ['下级分类数', (node.children ? node.children.length : 0) + ' 个']];
   } else if (type === 'category') {
-    rows = [
-      ['节点类型', '分类节点'],
-      ['分类名称', node.name],
-      ['下级单位数', (node.children ? node.children.length : 0) + ' 家']
-    ];
+    rows = [['节点类型', '分类节点'], ['分类名称', node.name], ['下级单位数', (node.children ? node.children.length : 0) + ' 家']];
   } else if (type === 'enterprise') {
-    rows = [
-      ['节点类型', '单位节点'],
-      ['单位名称', node.name],
-      ['统一信用代码', node.creditCode || '-'],
-      ['负责人', node.leader || '-'],
-      ['联系电话', node.phone || '-'],
-      ['下级部门数', (node.children ? node.children.length : 0) + ' 个']
-    ];
+    rows = [['节点类型', '单位节点'], ['单位名称', node.name], ['统一信用代码', node.creditCode || '-'], ['负责人', node.leader || '-'], ['联系电话', node.phone || '-'], ['下级部门数', (node.children ? node.children.length : 0) + ' 个']];
   } else if (type === 'department') {
     var parentNode = getParentNode(node.id);
-    rows = [
-      ['节点类型', '部门节点'],
-      ['部门名称', node.name],
-      ['上级部门', parentNode ? parentNode.name : '-'],
-      ['人数', (node.personCount || 0) + ' 人'],
-      ['备注', node.remark || '-']
-    ];
+    rows = [['节点类型', '部门节点'], ['部门名称', node.name], ['上级部门', parentNode ? parentNode.name : '-'], ['人数', (node.personCount || 0) + ' 人'], ['备注', node.remark || '-']];
   }
 
-  var html = '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;margin-bottom:16px">';
-  html += '<div style="font-weight:600;font-size:14px;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:6px"><span style="font-size:16px">📋</span>当前节点信息</div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 24px">';
+  var html = '<div class="info-card-header"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>当前节点信息</div>';
+  html += '<div class="info-card-grid">';
   for (var i = 0; i < rows.length; i++) {
-    html += '<div><div style="font-size:12px;color:#999;margin-bottom:2px">' + rows[i][0] + '</div><div style="font-size:13px;color:#333;font-weight:500">' + rows[i][1] + '</div></div>';
+    html += '<div class="info-card-field"><span class="field-label">' + rows[i][0] + '</span><span class="field-value">' + rows[i][1] + '</span></div>';
   }
-  html += '</div></div>';
+  html += '</div>';
   return html;
 }
 
-function collectAllDepartments(node, result) {
-  result = result || [];
-  if (node.children) {
-    for (var i = 0; i < node.children.length; i++) {
-      var child = node.children[i];
-      if (child.type === 'department') {
-        result.push(child);
-      }
-      // Always recurse into children to find nested departments
-      collectAllDepartments(child, result);
-    }
-  }
-  return result;
+function getChildType(parentType) {
+  var map = { root: 'category', category: 'enterprise', enterprise: 'department', department: 'department' };
+  return map[parentType] || 'department';
+}
+
+function getTableHeaders(childType) {
+  if (childType === 'category') return ['序号', '分类名称', '下级单位数', '操作'];
+  if (childType === 'enterprise') return ['序号', '单位名称', '统一信用代码', '负责人', '联系电话', '下级部门数', '操作'];
+  return ['序号', '部门名称', '上级部门', '人数', '备注', '操作'];
+}
+
+function renderRowByType(item, seq, childType) {
+  if (childType === 'category') return renderCategoryRow(item, seq);
+  if (childType === 'enterprise') return renderEnterpriseRow(item, seq);
+  return renderDeptRow(item, seq);
+}
+
+function renderCategoryRow(item, seq) {
+  var childCount = (item.children ? item.children.length : 0);
+  return '<tr>' +
+    '<td><span class="seq-num">' + seq + '</span></td>' +
+    '<td><div class="dept-name-cell"><span class="dept-icon" style="background:var(--accent-light);border-radius:var(--radius-sm)">' + ICONS.category + '</span>' + item.name + '</div></td>' +
+    '<td>' + childCount + ' 家</td>' +
+    '<td class="action-col"><div class="action-btns">' +
+    '<button class="action-btn action-btn-edit" onclick="editCategoryName(\'' + item.id + '\')">编辑</button>' +
+    '<button class="action-btn action-btn-del" onclick="openDelModal(\'' + item.id + '\')">删除</button>' +
+    '</div></td>' +
+    '</tr>';
+}
+
+function renderEnterpriseRow(item, seq) {
+  var childCount = (item.children ? item.children.length : 0);
+  return '<tr>' +
+    '<td><span class="seq-num">' + seq + '</span></td>' +
+    '<td><div class="dept-name-cell"><span class="dept-icon" style="background:var(--success-light);border-radius:var(--radius-sm)">' + ICONS.enterprise + '</span>' + item.name + '</div></td>' +
+    '<td style="font-family:var(--font-family-code);font-size:12px;color:var(--text-secondary)">' + (item.creditCode || '-') + '</td>' +
+    '<td>' + (item.leader || '-') + '</td>' +
+    '<td>' + (item.phone || '-') + '</td>' +
+    '<td>' + childCount + ' 个</td>' +
+    '<td class="action-col"><div class="action-btns">' +
+    '<button class="action-btn action-btn-edit" onclick="editEnterpriseInfo(\'' + item.id + '\')">编辑</button>' +
+    '<button class="action-btn action-btn-del" onclick="openDelModal(\'' + item.id + '\')">删除</button>' +
+    '</div></td>' +
+    '</tr>';
 }
 
 function renderDeptRow(item, seq) {
   var parentNode = getParentNode(item.id);
   return '<tr>' +
     '<td><span class="seq-num">' + seq + '</span></td>' +
-    '<td><span style="display:flex;align-items:center;gap:6px"><span style="font-size:16px">👥</span>' + item.name + '</span></td>' +
+    '<td><div class="dept-name-cell"><span class="dept-icon">' + ICONS.department + '</span>' + item.name + '</div></td>' +
     '<td>' + (parentNode ? parentNode.name : '-') + '</td>' +
     '<td>' + (item.personCount || 0) + ' 人</td>' +
     '<td>' + (item.remark || '-') + '</td>' +
-    '<td><div class="action-btns">' +
-    '<button class="action-btn action-btn-edit" onclick="openEditModal(&#39;' + item.id + '&#39;)">编辑</button>' +
-    '<button class="action-btn action-btn-del" onclick="openDelModal(&#39;' + item.id + '&#39;)">删除</button>' +
+    '<td class="action-col"><div class="action-btns">' +
+    '<button class="action-btn action-btn-edit" onclick="openEditModal(\'' + item.id + '\')">编辑</button>' +
+    '<button class="action-btn action-btn-del" onclick="openDelModal(\'' + item.id + '\')">删除</button>' +
     '</div></td>' +
     '</tr>';
 }
 
-function renderPagination(total, totalPages) {
-  var container = document.getElementById('pagination');
-  if (total <= pageSize) { container.innerHTML = ''; return; }
-
-  var html = '<span class="pagination-info">共 ' + total + ' 条，第 ' + currentPage + '/' + totalPages + ' 页</span>';
-  html += '<button class="pagination-btn"' + (currentPage <= 1 ? ' disabled' : '') + ' onclick="goPage(' + (currentPage - 1) + ')">上一页</button>';
-  html += '<button class="pagination-btn"' + (currentPage >= totalPages ? ' disabled' : '') + ' onclick="goPage(' + (currentPage + 1) + ')">下一页</button>';
-  html += '<select class="page-size-select" onchange="changePageSize(this.value)">' +
-    '<option value="10"' + (pageSize == 10 ? ' selected' : '') + '>10条/页</option>' +
-    '<option value="20"' + (pageSize == 20 ? ' selected' : '') + '>20条/页</option>' +
-    '<option value="50"' + (pageSize == 50 ? ' selected' : '') + '>50条/页</option>' +
-    '</select>';
-  container.innerHTML = html;
+function editCategoryName(id) {
+  var node = findNode(id);
+  if (!node || node.type !== 'category') return;
+  var newName = prompt('请输入分类名称：', node.name);
+  if (!newName || !newName.trim()) return;
+  node.name = newName.trim();
+  renderTree(); renderRightPanel(); showToast('分类名称已更新');
 }
 
-function goPage(p) { currentPage = p; renderRightPanel(); }
-function changePageSize(size) { pageSize = parseInt(size); currentPage = 1; renderRightPanel(); }
-function onSearch() { searchKeyword = document.getElementById('searchInput').value; currentPage = 1; renderRightPanel(); }
+function editEnterpriseInfo(id) {
+  var node = findNode(id);
+  if (!node || node.type !== 'enterprise') return;
+  var newName = prompt('请输入单位名称：', node.name);
+  if (!newName || !newName.trim()) return;
+  node.name = newName.trim();
+  renderTree(); renderRightPanel(); showToast('单位信息已更新');
+}
+
+function onSearch() {
+  searchKeyword = document.getElementById('searchInput').value;
+  currentPage = 1;
+  if (typeof pg !== 'undefined' && pg) pg.setPage(1);
+  renderRightPanel();
+}
 
 // ===================== 弹窗操作 =====================
 function openAddModal() {
   if (selectedNode.type !== 'enterprise' && selectedNode.type !== 'department') return;
-  modalMode = 'add';
-  editingDeptId = null;
+  modalMode = 'add'; editingDeptId = null;
   document.getElementById('deptModalTitle').textContent = '新增部门';
   renderParentSelect(selectedNode.id);
   document.getElementById('modalDeptName').value = '';
@@ -759,8 +781,7 @@ function openAddModal() {
 function openEditModal(id) {
   var node = findNode(id);
   if (!node || node.type !== 'department') return;
-  modalMode = 'edit';
-  editingDeptId = id;
+  modalMode = 'edit'; editingDeptId = id;
   var parent = getParentNode(id);
   renderParentSelect(parent ? parent.id : '', id);
   document.getElementById('deptModalTitle').textContent = '编辑部门';
@@ -769,30 +790,22 @@ function openEditModal(id) {
   document.getElementById('deptModal').style.display = 'flex';
 }
 
-function closeDeptModal() {
-  document.getElementById('deptModal').style.display = 'none';
-}
+function closeDeptModal() { document.getElementById('deptModal').style.display = 'none'; }
 
 function renderParentSelect(defaultId, excludeId) {
   var select = document.getElementById('modalParentSelect');
   var options = '<option value="">请选择上级部门</option>';
-
   function walk(node, depth) {
     if (node.id === excludeId) return;
     if (node.type === 'enterprise' || node.type === 'department') {
       var indent = '';
       for (var i = 0; i < depth; i++) indent += '&nbsp;&nbsp;';
-      var prefix = node.type === 'enterprise' ? '🏢 ' : '👥 ';
+      var prefix = node.type === 'enterprise' ? '&#9632; ' : '&#9632; ';
       var selected = node.id === defaultId ? ' selected' : '';
       options += '<option value="' + node.id + '"' + selected + '>' + indent + prefix + node.name + '</option>';
     }
-    if (node.children) {
-      for (var i = 0; i < node.children.length; i++) {
-        walk(node.children[i], depth + 1);
-      }
-    }
+    if (node.children) { for (var i = 0; i < node.children.length; i++) { walk(node.children[i], depth + 1); } }
   }
-
   walk(treeData, 0);
   select.innerHTML = options;
 }
@@ -800,102 +813,78 @@ function renderParentSelect(defaultId, excludeId) {
 function saveDept() {
   var name = document.getElementById('modalDeptName').value.trim();
   if (!name) { showToast('请输入部门名称', 'error'); return; }
-
   var parentId = document.getElementById('modalParentSelect').value;
   if (!parentId) { showToast('请选择上级部门', 'error'); return; }
   var parentNode = findNode(parentId);
   if (!parentNode) { showToast('上级部门不存在', 'error'); return; }
-
   var remark = document.getElementById('modalRemark').value.trim();
 
   if (modalMode === 'add') {
     if (!parentNode.children) parentNode.children = [];
-    var newDept = {
-      id: getNextId('dept'),
-      name: name,
-      type: 'department',
-      personCount: 0,
-      remark: remark
-    };
-    parentNode.children.push(newDept);
+    parentNode.children.push({ id: getNextId('dept'), name: name, type: 'department', personCount: 0, remark: remark });
     showToast('部门「' + name + '」新增成功');
   } else {
     var node = findNode(editingDeptId);
     if (node) {
-      node.name = name;
-      node.remark = remark;
-      // 如果上级部门变更，移动节点
+      node.name = name; node.remark = remark;
       var oldParent = getParentNode(editingDeptId);
       if (oldParent && oldParent.id !== parentId) {
-        // 从旧父节点移除
         var idx = -1;
-        for (var i = 0; i < oldParent.children.length; i++) {
-          if (oldParent.children[i].id === editingDeptId) { idx = i; break; }
-        }
+        for (var i = 0; i < oldParent.children.length; i++) { if (oldParent.children[i].id === editingDeptId) { idx = i; break; } }
         if (idx > -1) oldParent.children.splice(idx, 1);
-        // 添加到新父节点
         if (!parentNode.children) parentNode.children = [];
         parentNode.children.push(node);
       }
       showToast('部门信息已更新');
     }
   }
-
-  closeDeptModal();
-  renderTree();
-  renderRightPanel();
+  closeDeptModal(); renderTree(); renderRightPanel();
 }
 
 function openDelModal(id) {
   var node = findNode(id);
   if (!node) return;
-  if (node.type !== 'department') { showToast('该节点不允许删除', 'error'); return; }
+  if (node.type === 'root') { showToast('项目根节点不可删除', 'error'); return; }
+  // 四方责任体预设企业节点不可删除
+  if (node.type === 'enterprise' && ['ent1','ent2','ent3','ent4'].indexOf(node.id) !== -1) {
+    showToast('四方责任体企业节点不可删除', 'error'); return;
+  }
   deletingNodeId = id;
   document.getElementById('delTargetName').textContent = node.name;
   document.getElementById('delModal').style.display = 'flex';
 }
 
-function closeDelModal() {
-  document.getElementById('delModal').style.display = 'none';
-  deletingNodeId = null;
-}
+function closeDelModal() { document.getElementById('delModal').style.display = 'none'; deletingNodeId = null; }
 
 function confirmDelete() {
   if (!deletingNodeId) return;
+  var node = findNode(deletingNodeId);
   var parent = getParentNode(deletingNodeId);
   if (parent && parent.children) {
     var idx = -1;
-    for (var i = 0; i < parent.children.length; i++) {
-      if (parent.children[i].id === deletingNodeId) { idx = i; break; }
-    }
+    for (var i = 0; i < parent.children.length; i++) { if (parent.children[i].id === deletingNodeId) { idx = i; break; } }
     if (idx > -1) {
       var name = parent.children[idx].name;
+      var typeLabel = { category: '分类', enterprise: '企业', department: '部门' }[node.type] || '节点';
       parent.children.splice(idx, 1);
-      showToast('部门「' + name + '」已删除');
+      showToast(typeLabel + '「' + name + '」已删除');
     }
   }
-  closeDelModal();
-  renderTree();
-  renderRightPanel();
+  // 如果删除的是当前选中节点，切换到父节点
+  if (deletingNodeId === selectedNodeId && parent) {
+    selectedNodeId = parent.id;
+    selectedNode = parent;
+  }
+  closeDelModal(); renderTree(); renderRightPanel();
 }
 
-// ===================== 新增分类/企业/删除节点弹窗 =====================
 function openAddCategoryModal() {
   var name = prompt('请输入分类名称：');
   if (!name || !name.trim()) return;
   name = name.trim();
-  // 在根节点下新增分类
   if (!treeData.children) treeData.children = [];
-  treeData.children.push({
-    id: getNextId('cat'),
-    name: name,
-    type: 'category',
-    expanded: true,
-    children: []
-  });
-  renderTree();
-  renderRightPanel();
-  showToast('分类「' + name + '」新增成功');
+  treeData.children.push({ id: getNextId('cat'), name: name, type: 'category', expanded: true, children: [] });
+  renderTree(); renderRightPanel(); showToast('分类「' + name + '」新增成功');
 }
 
 function openAddEnterpriseModal() {
@@ -904,33 +893,29 @@ function openAddEnterpriseModal() {
   if (!name || !name.trim()) return;
   name = name.trim();
   if (!selectedNode.children) selectedNode.children = [];
-  selectedNode.children.push({
-    id: getNextId('ent'),
-    name: name,
-    type: 'enterprise',
-    creditCode: '',
-    leader: '',
-    phone: '',
-    children: []
-  });
-  renderTree();
-  renderRightPanel();
-  showToast('企业「' + name + '」新增成功');
+  selectedNode.children.push({ id: getNextId('ent'), name: name, type: 'enterprise', creditCode: '', leader: '', phone: '', children: [] });
+  renderTree(); renderRightPanel(); showToast('企业「' + name + '」新增成功');
 }
 
 function openDelSelectedModal() {
   if (!selectedNode) return;
-  // PRD: 项目根节点不可删除
-  if (selectedNode.type === 'root') {
-    showToast('项目根节点不可删除', 'error');
-    return;
-  }
+  if (selectedNode.type === 'root') { showToast('项目根节点不可删除', 'error'); return; }
   deletingNodeId = selectedNode.id;
   document.getElementById('delTargetName').textContent = selectedNode.name;
   document.getElementById('delModal').style.display = 'flex';
 }
 
 // ===================== 初始化 =====================
+var pg = new Pagination('paginationBar', {
+  total: 0,
+  size: pageSize,
+  onChange: function(page, size) {
+    currentPage = page;
+    pageSize = size;
+    renderRightPanel();
+  }
+});
+
 renderTree();
 renderRightPanel();
 </script>
