@@ -138,33 +138,113 @@
       flex-direction: column;
     }
 
-    /* ========== 表格容器（左树右表专用） ========== */
-    .table-wrap {
+    .filter-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) 20px;
+      border: 1px solid var(--border-section);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .filter-card .filter-bar {
+      margin-bottom: 0;
+      padding: 0;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-card .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .filter-card .filter-item label {
+      flex-shrink: 0;
+      color: var(--text-secondary);
+      font-size: var(--font-size-sm);
+      white-space: nowrap;
+    }
+
+    .filter-card .filter-bar select,
+    .filter-card .filter-bar input {
+      width: 240px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      outline: none;
+      transition: border-color .2s;
+      box-sizing: border-box;
+    }
+
+    .filter-card .filter-bar select:focus,
+    .filter-card .filter-bar input:focus {
+      border-color: var(--primary);
+    }
+
+    .filter-card .filter-bar > .btn-primary {
+      margin-left: 0;
+    }
+
+    /* ========== 企业列表卡片 ========== */
+    .table-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
       flex: 1;
+      overflow: hidden;
+      border: 1px solid var(--border-section);
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
-    .table-scroll { overflow-x: auto; flex: 1; }
-    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-    thead tr { background: var(--bg-table-header); }
-    th { padding: var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-section); white-space: nowrap; }
-    td { padding: var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    /* 列宽固定 */
-    th:nth-child(1), td:nth-child(1) { width: 60px; max-width: 60px; }
-    th:nth-child(2), td:nth-child(2) { min-width: 180px; max-width: 250px; }
-    th:nth-child(3), td:nth-child(3) { min-width: 160px; max-width: 200px; }
-    th:nth-child(4), td:nth-child(4) { width: 100px; max-width: 100px; }
-    th:nth-child(5), td:nth-child(5) { width: 120px; max-width: 120px; }
-    th:nth-child(6), td:nth-child(6) { width: 140px; max-width: 180px; }
-    th:nth-child(7), td:nth-child(7) { width: 80px; max-width: 80px; }
-    th:nth-child(8), td:nth-child(8) { width: 60px; max-width: 60px; }
-    th:nth-child(9), td:nth-child(9) { width: 100px; max-width: 100px; }
-    tbody tr:nth-child(even) { background: var(--bg-table-stripe); }
-    tbody tr:hover td { background: var(--bg-hover); }
-    /* 操作列固定在右侧 */
-    th.operation-col, td.operation-col { width: 200px; box-shadow: -2px 0 8px rgba(0,0,0,0.08); }
-    td.operation-col .btn-link { margin-right: var(--spacing-xs); }
-    td.operation-col .btn-link:last-child { margin-right: 0; }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .table-toolbar-title {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .table-toolbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .table-wrap {
+      flex: 1;
+      overflow: auto;
+      min-height: 0;
+    }
+
+    .table-wrap table {
+      min-width: 1120px;
+    }
+
+    .table-wrap td:not(.operation-col) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .table-wrap .enterprise-name {
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+    }
 
     /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
 
@@ -330,37 +410,43 @@
           </div>
         </div>
         
-        <div class="filter-bar">
-          <div class="filter-item"><label>状态：</label><select><option>全部</option><option>已激活</option><option>已禁用</option><option>待审核</option></select></div>
-          <div class="filter-item"><label>领域小类：</label><select><option>全部</option><option>充换电设施</option><option>危险化学品</option><option>工业制造</option></select></div>
-          <div class="filter-item"><label>所属网格：</label><select><option>全部</option><option>南山区</option><option>福田区</option></select></div>
-          <div class="filter-item"><input type="text" placeholder="搜索企业名称/统一信用代码"></div>
-          <button class="btn btn-default">重置</button>
-          <div style="flex: 1;"></div>
-          <button class="btn btn-primary" onclick="showAddModal()">+ 新增企业</button>
+        <div class="filter-card">
+          <div class="filter-bar">
+            <div class="filter-item"><label>状态：</label><select><option>全部</option><option>已激活</option><option>已禁用</option><option>待审核</option></select></div>
+            <div class="filter-item"><label>归属网格：</label><select><option>全部</option><option>南山区</option><option>福田区</option></select></div>
+            <div class="filter-item"><label>关键词：</label><input type="text" placeholder="搜索企业名称、统一社会信用代码"></div>
+            <button class="btn btn-primary">查询</button>
+            <button class="btn btn-default">重置</button>
+          </div>
         </div>
         
-        <div class="table-wrap">
-          <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:60px">序号</th>
-                <th>企业名称</th>
-                <th>统一社会信用代码</th>
-                <th>领域小类</th>
-                <th>所属网格</th>
-                <th>经营地址</th>
-                <th>超管账号</th>
-                <th>状态</th>
-                <th>注册时间</th>
-                <th class="operation-col">操作</th>
-              </tr>
-            </thead>
-            <tbody id="entTableBody">
-              <!-- 动态生成 -->
-            </tbody>
-          </table>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <span class="table-toolbar-title">企业列表</span>
+            <div class="table-toolbar-actions">
+              <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 新增企业</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-check"><input type="checkbox" id="checkAllEnt" onchange="toggleAllEnt(this)"></th>
+                  <th class="col-index">序号</th>
+                  <th>企业名称</th>
+                  <th>统一社会信用代码</th>
+                  <th>管理员账号</th>
+                  <th>归属网格</th>
+                  <th>经营地址</th>
+                  <th>状态</th>
+                  <th>注册时间</th>
+                  <th class="operation-col">操作</th>
+                </tr>
+              </thead>
+              <tbody id="entTableBody">
+                <!-- 动态生成 -->
+              </tbody>
+            </table>
           </div>
           <div class="pagination" id="paginationBar"></div>
         </div>
@@ -454,6 +540,32 @@
               <label class="form-label">备注</label>
               <textarea class="form-input" rows="3" placeholder="请输入备注信息" style="resize: vertical;"></textarea>
             </div>
+          </div>
+          <div class="info-section" style="margin-bottom: var(--spacing-lg);">
+            <div class="section-title">关联领域小类</div>
+            <div class="form-group">
+              <label class="form-label">选择领域小类</label>
+              <select class="form-select" id="addDomainSelect" onchange="addDomain('add')">
+                <option value="">请选择领域小类</option>
+                <option value="1">工业制造类 - 充换电设施</option>
+                <option value="2">危险化学品类 - 危化品生产</option>
+                <option value="3">商贸服务类 - 农贸市场</option>
+                <option value="4">建筑施工类 - 建筑工地</option>
+              </select>
+              <div class="form-hint">支持多选添加，决定该企业适用的检查表与监管单位（BR-12-06）</div>
+            </div>
+            <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; margin-top: var(--spacing-sm);" id="addSelectedDomains">
+              <!-- 选中的领域小类标签：通过 addDomain() 动态添加 -->
+            </div>
+          </div>
+          <div class="info-section" style="margin-bottom: var(--spacing-lg);">
+            <div class="section-title">监管信息<span style="font-size: var(--font-size-xs); color: var(--text-tertiary); font-weight: normal; margin-left: var(--spacing-sm);">（保存后由系统按关联领域小类自动生成）</span></div>
+            <div class="info-grid">
+              <div class="info-item"><span class="info-label">行业监管单位</span><span class="info-value" style="color: var(--text-tertiary);">—</span></div>
+              <div class="info-item"><span class="info-label">专业监管单位</span><span class="info-value" style="color: var(--text-tertiary);">—</span></div>
+              <div class="info-item" style="grid-column: span 2;"><span class="info-label">属地监管单位</span><span class="info-value" style="color: var(--text-tertiary);">—</span></div>
+            </div>
+            <div class="form-hint" style="margin-top: var(--spacing-sm);">行业 / 专业 / 属地监管单位将在保存后由系统根据所选领域小类自动带出，多领域时按类别合并去重。</div>
           </div>
           <div class="info-section">
             <div class="section-title">账号信息</div>
@@ -614,7 +726,7 @@
           <div class="section-title">关联领域小类</div>
           <div class="form-group">
             <label class="form-label">选择领域小类</label>
-            <select class="form-select" id="editDomainSelect" onchange="addDomain()">
+            <select class="form-select" id="editDomainSelect" onchange="addDomain('edit')">
               <option value="">请选择领域小类</option>
               <option value="1">工业制造类 - 充换电设施</option>
               <option value="2">危险化学品类 - 危化品生产</option>
@@ -688,6 +800,28 @@
         <div style="padding: 12px 16px; border-top: 1px solid var(--border-section); text-align: center; color: var(--text-tertiary); font-size: var(--font-size-sm);">
           显示 1-2 条，共 8 条
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 拒绝原因弹窗 -->
+  <div class="modal-overlay" id="rejectModal">
+    <div class="modal-dialog" style="width: 480px;">
+      <div class="modal-header">
+        <span class="modal-title">拒绝注册申请</span>
+        <button class="modal-close" onclick="closeModal('rejectModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div style="margin-bottom: var(--spacing-sm);">企业：<strong id="rejectEntName"></strong></div>
+          <label class="form-label">拒绝原因<span class="required">*</span></label>
+          <textarea class="form-input" id="rejectReason" rows="4" placeholder="请输入拒绝原因，将记录至企业备注" style="resize: vertical;"></textarea>
+          <div class="form-hint">拒绝后企业状态由"待审核"→"已禁用"（BR-12-07）</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('rejectModal')">取消</button>
+        <button class="btn btn-primary" onclick="confirmReject()">确认拒绝</button>
       </div>
     </div>
   </div>
@@ -970,33 +1104,52 @@
       // 渲染表格
       const tbody = document.getElementById('entTableBody');
       if (pageData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-tertiary); padding: 40px;">暂无数据</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-tertiary); padding: 40px;">暂无数据</td></tr>`;
         if (pg) pg.setTotal(filteredData.length);
         return;
       }
 
       tbody.innerHTML = pageData.map((e, idx) => `
         <tr>
-          <td>${start + idx + 1}</td>
-          <td title="${e.name}">${e.name}</td>
+          <td class="col-check"><input type="checkbox" class="ent-check" value="${e.code}"></td>
+          <td class="col-index">${start + idx + 1}</td>
+          <td title="${e.name}"><span class="enterprise-name" onclick="showDetailModal('${e.name}')">${e.name}</span></td>
           <td title="${e.code}">${e.code}</td>
-          <td title="${e.domain}">${e.domain}</td>
+          <td title="${e.account}">${e.account}</td>
           <td title="${e.grid}">${e.grid}</td>
           <td title="${e.bizAddr || ''}">${e.bizAddr || '—'}</td>
-          <td title="${e.account}">${e.account}</td>
-          <td><span class="tag ${e.status === '已激活' ? 'tag-green' : e.status === '已禁用' ? 'tag-red' : e.status === '待审核' ? 'tag-warning' : 'tag-gray'}">${e.status}</span></td>
+          <td><span class="tag ${e.status === '已激活' ? 'tag-green' : e.status === '已禁用' ? 'tag-red' : e.status === '待审核' ? 'tag-orange' : 'tag-gray'}">${e.status}</span></td>
           <td title="${e.date}">${e.date}</td>
           <td class="operation-col">
-            <button class="btn-link" onclick="showEditModal('${e.name}')">编辑</button>
-            <button class="btn-link" onclick="deleteEnt('${e.name}')">删除</button>
-            <button class="btn-link" onclick="showDetailModal('${e.name}')">详情</button>
+            <div class="table-action-group">
+              <button class="btn-link" onclick="showEditModal('${e.name}')">编辑</button>
+              <button class="btn-link" onclick="showDetailModal('${e.name}')">详情</button>
+              <button class="btn-link" onclick="deleteEnt('${e.name}')">删除</button>
+            </div>
           </td>
         </tr>
       `).join('');
 
-      // 更新统计卡片
-      document.querySelectorAll('.stat-card')[0].querySelector('.stat-value').textContent = filteredData.length;
+      const checkAll = document.getElementById('checkAllEnt');
+      if (checkAll) checkAll.checked = false;
+
+      // 更新统计卡片（联动 4 卡）
+      var cards = document.querySelectorAll('.stat-card');
+      var total = filteredData.length;
+      var active = filteredData.filter(function(e){ return e.status === '已激活'; }).length;
+      var pending = filteredData.filter(function(e){ return e.status === '待审核'; }).length;
+      var disabled = filteredData.filter(function(e){ return e.status === '已禁用'; }).length;
+      if (cards[0]) cards[0].querySelector('.stat-value').textContent = total;
+      if (cards[1]) cards[1].querySelector('.stat-value').textContent = active;
+      if (cards[2]) cards[2].querySelector('.stat-value').textContent = pending;
+      if (cards[3]) cards[3].querySelector('.stat-value').textContent = disabled;
       if (pg) pg.setTotal(filteredData.length);
+    }
+
+    function toggleAllEnt(checkbox) {
+      document.querySelectorAll('.ent-check').forEach(item => {
+        item.checked = checkbox.checked;
+      });
     }
 
     // 展开全部
@@ -1194,9 +1347,33 @@
     }
     function saveEdit() { showToast('保存成功！'); closeModal('editModal'); }
     
-    function addDomain() {
-      const select = document.getElementById('editDomainSelect');
-      if (!select.value) return;
+    function addDomain(mode) {
+      mode = mode || 'edit';
+      var selectId = mode === 'add' ? 'addDomainSelect' : 'editDomainSelect';
+      var containerId = mode === 'add' ? 'addSelectedDomains' : 'selectedDomains';
+      var select = document.getElementById(selectId);
+      var container = document.getElementById(containerId);
+      if (!select || !container || !select.value) return;
+      var label = select.options[select.selectedIndex].text;
+      // 去重
+      var exists = Array.prototype.some.call(container.querySelectorAll('.domain-tag'), function(t){
+        return t.getAttribute('data-domain-id') === select.value;
+      });
+      if (!exists) {
+        var tag = document.createElement('span');
+        tag.className = 'domain-tag';
+        tag.setAttribute('data-domain-id', select.value);
+        tag.style.cssText = 'background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: var(--spacing-xs);';
+        var labelText = document.createTextNode(label.replace(/^.*-\s*/, '') + ' ');
+        var closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.onclick = function(){ removeDomain(this); };
+        closeBtn.style.cssText = 'background: none; border: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-md);';
+        closeBtn.textContent = '×';
+        tag.appendChild(labelText);
+        tag.appendChild(closeBtn);
+        container.appendChild(tag);
+      }
       select.value = '';
     }
     function removeDomain(btn) { btn.parentElement.remove(); }
@@ -1214,14 +1391,25 @@
     }
 
     function approveEnt(name) {
-      if (confirm('确定通过"' + name + '"的注册申请吗？')) {
-        showToast('审核通过！');
+      if (confirm('确定通过"' + name + '"的注册申请吗？\n通过后将自动生成企业管理员账号，状态将由"待审核"→"已激活"（BR-12-07）')) {
+        showToast('审核通过！已生成企业管理员账号，企业状态：已激活');
       }
     }
 
     function rejectEnt(name) {
-      var reason = prompt('请输入拒绝原因：');
-      if (reason) { showToast('已拒绝。'); }
+      var modal = document.getElementById('rejectModal');
+      if (modal) {
+        document.getElementById('rejectEntName').textContent = name;
+        document.getElementById('rejectReason').value = '';
+        modal.classList.add('show');
+      }
+    }
+
+    function confirmReject() {
+      var reason = document.getElementById('rejectReason').value.trim();
+      if (!reason) { showToast('请输入拒绝原因'); return; }
+      closeModal('rejectModal');
+      showToast('已拒绝。拒绝原因已记录至备注，企业状态：已禁用');
     }
   </script>
 <script>

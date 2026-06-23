@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业基本信息 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .page { padding: 20px 24px; background: var(--bg-page); min-height: 100vh; }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      background: var(--bg-primary);
+      padding: var(--spacing-md) 20px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .btn { padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border-card); background: #fff; color: var(--text-secondary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn:hover { color: var(--primary); border-color: var(--primary); }
+    .btn-primary:hover { color: #fff; background: #096dd9; border-color: #096dd9; }
+    .badge-num {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      background: #fa8c16;
+      color: #fff;
+      font-size: 11px;
+      border-radius: 10px;
+      padding: 1px 6px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 14px;
+    }
+    .btn { position: relative; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--bg-primary);
+      padding: 16px 20px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      border-left: 4px solid transparent;
+    }
+    .stat-card.blue { border-left-color: #1890ff; }
+    .stat-card.green { border-left-color: #52c41a; }
+    .stat-card.orange { border-left-color: #fa8c16; }
+    .stat-card.red { border-left-color: #ff4d4f; }
+    .stat-card.purple { border-left-color: #722ed1; }
+    .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+    .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 6px; }
+
+    .filter-card {
+      background: var(--bg-primary);
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      margin-bottom: 16px;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .filter-item { display: flex; align-items: center; gap: 6px; }
+    .filter-item label { flex-shrink: 0; font-size: 13px; color: var(--text-secondary); }
+    .filter-bar select, .filter-bar input {
+      width: 240px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border-card);
+      border-radius: 4px;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .content-card {
+      background: var(--bg-primary);
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+    .table-toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-section);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-toolbar h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border-section); vertical-align: middle; }
+    th { background: var(--bg-section); color: var(--text-secondary); font-weight: 500; }
+    tr:hover { background: var(--bg-section); }
+
+    .ent-cell { display: flex; align-items: center; gap: 10px; }
+    .ent-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .ent-name { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+    .ent-code { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-right: 4px; }
+    .tag-blue { background: #e6f4ff; color: #1890ff; }
+    .tag-green { background: #f6ffed; color: #52c41a; }
+    .tag-orange { background: #fff7e6; color: #fa8c16; }
+    .tag-red { background: #fff1f0; color: #ff4d4f; }
+    .tag-purple { background: #f9f0ff; color: #722ed1; }
+    .tag-gray { background: #f5f5f5; color: #8c8c8c; }
+    .tag-cyan { background: #e6fffb; color: #13c2c2; }
+
+    .risk-tag { font-weight: 600; padding: 3px 10px; }
+    .risk-tag.high { background: #fff1f0; color: #ff4d4f; }
+    .risk-tag.mid { background: #fff7e6; color: #fa8c16; }
+    .risk-tag.low { background: #fffbe6; color: #faad14; }
+    .risk-tag.safe { background: #f6ffed; color: #52c41a; }
+
+    .action-link { color: var(--primary); font-size: 13px; cursor: pointer; }
+    .action-link + .action-link { margin-left: 12px; }
+
+    .pagination { padding: 12px 16px; text-align: right; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border-section); }
+    .pagination button { padding: 4px 10px; margin: 0 2px; border: 1px solid var(--border-card); background: #fff; cursor: pointer; border-radius: 4px; font-size: 12px; }
+    .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* 弹窗 */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.show { display: flex; }
+    .modal-dialog { background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; }
+    .modal-header { padding: 14px 20px; border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-secondary); }
+    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-section); text-align: right; }
+    .modal-footer .btn + .btn { margin-left: 8px; }
+    .info-section { margin-bottom: 18px; }
+    .info-section-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; padding-left: 8px; border-left: 3px solid var(--primary); }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
+    .info-item { display: flex; gap: 8px; font-size: 13px; }
+    .info-item .info-label { color: var(--text-secondary); flex-shrink: 0; min-width: 110px; }
+    .info-item .info-value { color: var(--text-primary); }
+    .archive-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .archive-link { padding: 12px 14px; border: 1px solid var(--border-section); border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+    .archive-link:hover { border-color: var(--primary); background: #f0f7ff; }
+    .archive-link-name { font-size: 13px; color: var(--text-primary); }
+    .archive-link-count { font-size: 12px; color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">企业基本信息</div>
+        <div class="page-subtitle">查询本辖区注册企业基本信息、关联监管科室、查看安全码状态</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" onclick="openApprovalList()">审批列表<span class="badge-num">5</span></button>
+        <button class="btn" onclick="openBatchImport()">📥 批量导入</button>
+        <button class="btn">📥 批量导出</button>
+        <button class="btn">📊 行业统计</button>
+        <button class="btn btn-primary">🔍 高级查询</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-value">1,283</div><div class="stat-label">辖区企业总数</div></div>
+      <div class="stat-card green"><div class="stat-value">1,142</div><div class="stat-label">正常经营</div></div>
+      <div class="stat-card orange"><div class="stat-value">86</div><div class="stat-label">重点监管</div></div>
+      <div class="stat-card red"><div class="stat-value">12</div><div class="stat-label">高风险企业</div></div>
+      <div class="stat-card purple"><div class="stat-value">43</div><div class="stat-label">本月新增</div></div>
+    </div>
+
+    <div class="filter-card">
+      <div class="filter-bar">
+        <div class="filter-item">
+          <label>行业类别：</label>
+          <select>
+            <option>全部</option>
+            <option>危化品</option>
+            <option>烟花爆竹</option>
+            <option>工贸</option>
+            <option>建筑施工</option>
+            <option>食品生产</option>
+            <option>加油站</option>
+            <option>商贸服务</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>企业规模：</label>
+          <select>
+            <option>全部</option>
+            <option>大型</option>
+            <option>中型</option>
+            <option>小型</option>
+            <option>微型</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>风险等级：</label>
+          <select>
+            <option>全部</option>
+            <option>高风险</option>
+            <option>中风险</option>
+            <option>低风险</option>
+            <option>安全</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>所属街道：</label>
+          <select>
+            <option>全部</option>
+            <option>城关街道</option>
+            <option>开发区</option>
+            <option>工业园区</option>
+            <option>城南街道</option>
+            <option>城北街道</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>关键词：</label>
+          <input type="text" placeholder="搜索企业名称、统一社会信用代码">
+        </div>
+        <button class="btn btn-primary">查询</button>
+        <button class="btn btn-default">重置</button>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <div class="table-toolbar">
+        <h3>企业列表（1,283 条）</h3>
+        <div style="display:flex;gap:8px;">
+          <button class="btn">导出当前页</button>
+          <button class="btn">导出全部</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th width="40"><input type="checkbox"></th>
+            <th width="280">企业名称</th>
+            <th width="110">行业类别</th>
+            <th width="80">规模</th>
+            <th width="100">所属街道</th>
+            <th width="120">监管科室</th>
+            <th width="100">法人代表</th>
+            <th width="90">风险等级</th>
+            <th width="100">安全码状态</th>
+            <th width="100">注册时间</th>
+            <th width="140">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#ff4d4f,#ff7875);">化</div>
+                <div>
+                  <div class="ent-name">XX 化工有限公司</div>
+                  <div class="ent-code">91510800MA68XXXX01</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-red">危化品</span></td>
+            <td>大型</td>
+            <td>工业园区</td>
+            <td>危化品监管科</td>
+            <td>张志强</td>
+            <td><span class="tag risk-tag high">高风险</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2020-03-15</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#fa8c16,#ffc069);">烟</div>
+                <div>
+                  <div class="ent-name">XX 烟花爆竹零售点</div>
+                  <div class="ent-code">91510800MA68XXXX02</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-orange">烟花爆竹</span></td>
+            <td>小型</td>
+            <td>城关街道</td>
+            <td>安全监督管理科</td>
+            <td>王明华</td>
+            <td><span class="tag risk-tag high">高风险</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2022-09-08</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#1890ff,#36cfc9);">工</div>
+                <div>
+                  <div class="ent-name">XX 机械制造有限公司</div>
+                  <div class="ent-code">91510800MA68XXXX03</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-blue">工贸</span></td>
+            <td>中型</td>
+            <td>开发区</td>
+            <td>工贸监管科</td>
+            <td>李建军</td>
+            <td><span class="tag risk-tag mid">中风险</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2019-06-22</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#722ed1,#b37feb);">建</div>
+                <div>
+                  <div class="ent-name">XX 建筑工程有限公司</div>
+                  <div class="ent-code">91510800MA68XXXX04</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-purple">建筑施工</span></td>
+            <td>中型</td>
+            <td>城南街道</td>
+            <td>建筑监管科</td>
+            <td>赵明远</td>
+            <td><span class="tag risk-tag mid">中风险</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2018-11-30</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#52c41a,#95de64);">食</div>
+                <div>
+                  <div class="ent-name">XX 食品加工厂</div>
+                  <div class="ent-code">91510800MA68XXXX05</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-green">食品生产</span></td>
+            <td>小型</td>
+            <td>城北街道</td>
+            <td>食品监管科</td>
+            <td>孙志强</td>
+            <td><span class="tag risk-tag low">低风险</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2021-04-12</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#fa541c,#ff9c6e);">油</div>
+                <div>
+                  <div class="ent-name">XX 加油站（民生路店）</div>
+                  <div class="ent-code">91510800MA68XXXX06</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-orange">加油站</span></td>
+            <td>小型</td>
+            <td>城关街道</td>
+            <td>安全监督管理科</td>
+            <td>钱晓东</td>
+            <td><span class="tag risk-tag mid">中风险</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2020-08-19</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#13c2c2,#5cdbd3);">商</div>
+                <div>
+                  <div class="ent-name">XX 综合商贸有限公司</div>
+                  <div class="ent-code">91510800MA68XXXX07</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-cyan">商贸服务</span></td>
+            <td>微型</td>
+            <td>城关街道</td>
+            <td>安全监督管理科</td>
+            <td>周文博</td>
+            <td><span class="tag risk-tag safe">安全</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2023-01-10</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#ff4d4f,#ff7875);">化</div>
+                <div>
+                  <div class="ent-name">XX 危险化学品仓储有限公司</div>
+                  <div class="ent-code">91510800MA68XXXX08</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-red">危化品</span></td>
+            <td>中型</td>
+            <td>工业园区</td>
+            <td>危化品监管科</td>
+            <td>陈月明</td>
+            <td><span class="tag risk-tag high">高风险</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2019-12-05</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#bfbfbf,#d9d9d9);">商</div>
+                <div>
+                  <div class="ent-name">XX 餐饮服务有限公司</div>
+                  <div class="ent-code">91510800MA68XXXX09</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-cyan">商贸服务</span></td>
+            <td>微型</td>
+            <td>城南街道</td>
+            <td>食品监管科</td>
+            <td>吴明远</td>
+            <td><span class="tag risk-tag safe">安全</span></td>
+            <td><span class="tag tag-gray">已注销</span></td>
+            <td>2022-05-18</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="ent-cell">
+                <div class="ent-icon" style="background:linear-gradient(135deg,#1890ff,#36cfc9);">工</div>
+                <div>
+                  <div class="ent-name">XX 电子科技有限公司</div>
+                  <div class="ent-code">91510800MA68XXXX10</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tag tag-blue">工贸</span></td>
+            <td>大型</td>
+            <td>开发区</td>
+            <td>工贸监管科</td>
+            <td>刘建军</td>
+            <td><span class="tag risk-tag low">低风险</span></td>
+            <td><span class="tag tag-green">已激活</span></td>
+            <td>2017-09-25</td>
+            <td>
+              <span class="action-link" onclick="openEntDetail(this)">详情</span>
+              <span class="action-link" onclick="openEntArchive(this)">关联档案</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        共 1,283 条 第 1 / 129 页
+        <button>‹</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>4</button>
+        <button>5</button>
+        <button>›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 企业详情弹窗 -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-dialog" style="width: 760px;">
+      <div class="modal-header">
+        <span class="modal-title">企业详情</span>
+        <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-section">
+          <div class="info-section-title">基本信息</div>
+          <div class="info-grid">
+            <div class="info-item"><span class="info-label">企业名称</span><span class="info-value" id="dEntName">—</span></div>
+            <div class="info-item"><span class="info-label">统一社会信用代码</span><span class="info-value" id="dEntCode">—</span></div>
+            <div class="info-item"><span class="info-label">行业类别</span><span class="info-value" id="dEntIndustry">—</span></div>
+            <div class="info-item"><span class="info-label">企业规模</span><span class="info-value" id="dEntScale">—</span></div>
+            <div class="info-item"><span class="info-label">法定代表人</span><span class="info-value" id="dEntLeader">—</span></div>
+            <div class="info-item"><span class="info-label">所属街道</span><span class="info-value" id="dEntStreet">—</span></div>
+            <div class="info-item"><span class="info-label">注册时间</span><span class="info-value" id="dEntDate">—</span></div>
+            <div class="info-item"><span class="info-label">企业状态</span><span class="info-value" id="dEntStatus">—</span></div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-section-title">监管信息</div>
+          <div class="info-grid">
+            <div class="info-item"><span class="info-label">行业监管科室</span><span class="info-value" id="dEntDept">—</span></div>
+            <div class="info-item"><span class="info-label">风险等级</span><span class="info-value" id="dEntRisk">—</span></div>
+            <div class="info-item" style="grid-column: span 2;"><span class="info-label">安全码状态</span><span class="info-value" id="dEntCodeStatus">—</span></div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-section-title">关联档案概览</div>
+          <div class="archive-grid" id="dArchiveGrid">
+            <!-- 由 openEntDetail 动态生成 -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('detailModal')">关闭</button>
+        <button class="btn btn-primary" onclick="jumpToArchiveFromDetail()">查看完整档案 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 关联档案跳转确认弹窗 -->
+  <div class="modal-overlay" id="archiveModal">
+    <div class="modal-dialog" style="width: 560px;">
+      <div class="modal-header">
+        <span class="modal-title">关联档案（§6.2.6 企业一户一档）</span>
+        <button class="modal-close" onclick="closeModal('archiveModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 14px; font-size: 13px; color: var(--text-secondary);">
+          企业：<strong id="archiveEntName"></strong>
+        </div>
+        <div class="archive-grid">
+          <div class="archive-link" onclick="goArchive('basic')"><span class="archive-link-name">📋 基本信息</span><span class="archive-link-count">详情 →</span></div>
+          <div class="archive-link" onclick="goArchive('license')"><span class="archive-link-name">📜 证照档案</span><span class="archive-link-count">12 份 →</span></div>
+          <div class="archive-link" onclick="goArchive('person')"><span class="archive-link-name">👥 人员档案</span><span class="archive-link-count">35 人 →</span></div>
+          <div class="archive-link" onclick="goArchive('equip')"><span class="archive-link-name">⚙ 设备档案</span><span class="archive-link-count">8 台 →</span></div>
+          <div class="archive-link" onclick="goArchive('chem')"><span class="archive-link-name">⚗ 危化品档案</span><span class="archive-link-count">5 项 →</span></div>
+          <div class="archive-link" onclick="goArchive('inspect')"><span class="archive-link-name">🔍 检查记录</span><span class="archive-link-count">24 次 →</span></div>
+          <div class="archive-link" onclick="goArchive('hazard')"><span class="archive-link-name">⚠ 隐患记录</span><span class="archive-link-count">6 项 →</span></div>
+          <div class="archive-link" onclick="goArchive('train')"><span class="archive-link-name">🎓 培训记录</span><span class="archive-link-count">18 次 →</span></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('archiveModal')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 审批列表弹窗 -->
+  <div class="modal-overlay" id="approvalModal">
+    <div class="modal-dialog" style="width: 880px;">
+      <div class="modal-header">
+        <span class="modal-title">审批列表（5 条待审批）</span>
+        <button class="modal-close" onclick="closeModal('approvalModal')">×</button>
+      </div>
+      <div class="modal-body" style="padding: 0;">
+        <table>
+          <thead>
+            <tr>
+              <th>企业名称</th>
+              <th>统一社会信用代码</th>
+              <th>行业类别</th>
+              <th>申报类型</th>
+              <th>提交时间</th>
+              <th style="width:140px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>新港建材有限公司</td><td>91510800MA68APP001</td><td><span class="tag tag-purple">建筑施工</span></td><td>新建注册</td><td>2026-06-21 10:30</td><td><span class="action-link" onclick="approvalAction('新港建材有限公司','pass')">通过</span><span class="action-link" onclick="approvalAction('新港建材有限公司','reject')">拒绝</span></td></tr>
+            <tr><td>金辉物流仓储公司</td><td>91510800MA68APP002</td><td><span class="tag tag-blue">工贸</span></td><td>新建注册</td><td>2026-06-21 14:12</td><td><span class="action-link" onclick="approvalAction('金辉物流仓储公司','pass')">通过</span><span class="action-link" onclick="approvalAction('金辉物流仓储公司','reject')">拒绝</span></td></tr>
+            <tr><td>友邻便民超市</td><td>91510800MA68APP003</td><td><span class="tag tag-cyan">商贸服务</span></td><td>变更登记</td><td>2026-06-22 09:05</td><td><span class="action-link" onclick="approvalAction('友邻便民超市','pass')">通过</span><span class="action-link" onclick="approvalAction('友邻便民超市','reject')">拒绝</span></td></tr>
+            <tr><td>恒安化学品销售</td><td>91510800MA68APP004</td><td><span class="tag tag-red">危化品</span></td><td>新建注册</td><td>2026-06-22 11:48</td><td><span class="action-link" onclick="approvalAction('恒安化学品销售','pass')">通过</span><span class="action-link" onclick="approvalAction('恒安化学品销售','reject')">拒绝</span></td></tr>
+            <tr><td>城南快餐连锁店</td><td>91510800MA68APP005</td><td><span class="tag tag-green">食品生产</span></td><td>新建注册</td><td>2026-06-23 08:20</td><td><span class="action-link" onclick="approvalAction('城南快餐连锁店','pass')">通过</span><span class="action-link" onclick="approvalAction('城南快餐连锁店','reject')">拒绝</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('approvalModal')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批量导入弹窗 -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal-dialog" style="width: 560px;">
+      <div class="modal-header">
+        <span class="modal-title">批量导入企业</span>
+        <button class="modal-close" onclick="closeModal('importModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="border: 2px dashed var(--border-card); border-radius: 8px; padding: 32px; text-align: center; margin-bottom: 16px; background: var(--bg-section);">
+          <div style="font-size: 32px; margin-bottom: 8px;">📂</div>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">点击或拖拽 Excel 文件到此区域上传</div>
+          <button class="btn btn-primary" onclick="alert('已触发文件选择（演示）')">选择文件</button>
+        </div>
+        <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+          <div>· 支持 .xlsx / .xls 格式，单次最多 500 条记录</div>
+          <div>· 首列为统一社会信用代码（18 位），重复将自动跳过</div>
+          <div>· 推荐先<span class="action-link">下载模板 ↓</span>后填写</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('importModal')">取消</button>
+        <button class="btn btn-primary" onclick="alert('开始导入（演示）');closeModal('importModal');">开始导入</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // 通过点击的 action-link 元素所在 tr 提取企业行数据
+    function getEntFromRow(el) {
+      var tr = el.closest('tr');
+      var tds = tr.querySelectorAll('td');
+      return {
+        name: tr.querySelector('.ent-name') ? tr.querySelector('.ent-name').textContent : '',
+        code: tr.querySelector('.ent-code') ? tr.querySelector('.ent-code').textContent : '',
+        industry: tds[2] ? tds[2].textContent.trim() : '',
+        scale: tds[3] ? tds[3].textContent.trim() : '',
+        street: tds[4] ? tds[4].textContent.trim() : '',
+        dept: tds[5] ? tds[5].textContent.trim() : '',
+        leader: tds[6] ? tds[6].textContent.trim() : '',
+        risk: tds[7] ? tds[7].textContent.trim() : '',
+        codeStatus: tds[8] ? tds[8].textContent.trim() : '',
+        date: tds[9] ? tds[9].textContent.trim() : ''
+      };
+    }
+
+    var _currentEnt = null;
+
+    function openEntDetail(el) {
+      var e = getEntFromRow(el);
+      _currentEnt = e;
+      document.getElementById('dEntName').textContent = e.name;
+      document.getElementById('dEntCode').textContent = e.code;
+      document.getElementById('dEntIndustry').textContent = e.industry;
+      document.getElementById('dEntScale').textContent = e.scale;
+      document.getElementById('dEntLeader').textContent = e.leader;
+      document.getElementById('dEntStreet').textContent = e.street;
+      document.getElementById('dEntDate').textContent = e.date;
+      document.getElementById('dEntStatus').textContent = e.codeStatus;
+      document.getElementById('dEntDept').textContent = e.dept;
+      document.getElementById('dEntRisk').textContent = e.risk;
+      document.getElementById('dEntCodeStatus').textContent = e.codeStatus;
+      // 关联档案概览
+      var grid = document.getElementById('dArchiveGrid');
+      grid.innerHTML = [
+        ['📜 证照档案', '12 份'],
+        ['👥 人员档案', '35 人'],
+        ['⚙ 设备档案', '8 台'],
+        ['🔍 检查记录', '24 次']
+      ].map(function(it){
+        return '<div class="archive-link" onclick="closeModal(\'detailModal\');jumpToArchive(\''+e.code+'\')"><span class="archive-link-name">'+it[0]+'</span><span class="archive-link-count">'+it[1]+' →</span></div>';
+      }).join('');
+      openModal('detailModal');
+    }
+
+    function openEntArchive(el) {
+      var e = getEntFromRow(el);
+      _currentEnt = e;
+      document.getElementById('archiveEntName').textContent = e.name + '（' + e.code + '）';
+      openModal('archiveModal');
+    }
+
+    function jumpToArchiveFromDetail() {
+      closeModal('detailModal');
+      if (_currentEnt) {
+        document.getElementById('archiveEntName').textContent = _currentEnt.name + '（' + _currentEnt.code + '）';
+        openModal('archiveModal');
+      }
+    }
+
+    function jumpToArchive(code) {
+      // 实际由父框架跳转 §6.2.6 一户一档模块并带企业 code 参数
+      if (window.parent && window.parent !== window) {
+        try { window.parent.postMessage({ type: 'navigate', module: 'government/ent-archive', entCode: code }, '*'); } catch (err) {}
+      }
+      alert('跳转到 §6.2.6 一户一档模块（企业代码：' + code + '）');
+    }
+
+    function goArchive(type) {
+      if (_currentEnt) {
+        jumpToArchive(_currentEnt.code + '#' + type);
+        closeModal('archiveModal');
+      }
+    }
+
+    function openApprovalList() { openModal('approvalModal'); }
+    function openBatchImport() { openModal('importModal'); }
+
+    function approvalAction(name, type) {
+      if (type === 'pass') {
+        if (confirm('确认通过"' + name + '"的申请？')) alert('已通过，企业状态：已激活');
+      } else {
+        var reason = prompt('请输入拒绝原因：');
+        if (reason) alert('已拒绝。原因已记录至备注。');
+      }
+    }
+  </script>
+</body>
+</html>

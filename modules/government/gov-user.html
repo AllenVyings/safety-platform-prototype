@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/framework.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>人员账号管理 - 政府端</title>
+<style>
+.breadcrumb-item:hover{color:var(--primary)}
+.page-container{height:100%;display:flex;flex-direction:column}
+.main-layout{display:flex;gap:var(--spacing-md);margin-top:var(--spacing-md);flex:1;min-height:0}
+.tree-panel{width:280px;flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md);position:sticky;top:20px;max-height:100%;overflow-y:auto}
+
+.tree-panel-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0}
+.tree-search{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);margin-bottom:10px;outline:none;transition:border-color .2s;box-sizing:border-box}
+.tree-search:focus{border-color:var(--primary)}
+.tree-node{padding:7px var(--spacing-sm);border-radius:var(--radius-md);cursor:pointer;font-size:var(--font-size-sm);color:var(--text-primary);display:flex;align-items:center;gap:5px;transition:background .15s;user-select:none}
+.tree-node:hover{background:var(--bg-secondary)}
+.tree-node.active{background:var(--primary-light);color:var(--primary);font-weight:500}
+.tree-node .toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-tertiary);transition:transform .2s;flex-shrink:0}
+.tree-node .toggle.open{transform:rotate(90deg)}
+.tree-children{padding-left:18px;display:none}
+.tree-children.show{display:block}
+.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--spacing-md);min-height:0}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding:0 2px}
+.page-header .badge{background:var(--danger);color:#fff;padding:1px 6px;border-radius:8px;font-size:11px;margin-left:4px}
+.stat-card{padding:16px 20px;background:var(--bg-primary);border-radius:10px;border:1px solid var(--border-section);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.stat-card-label{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-bottom:4px}
+.stat-card-value{font-size:22px;font-weight:700;color:var(--text-primary)}
+.stat-card-sub{font-size:11px;color:var(--border);margin-top:2px}
+.query-bar{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;border:1px solid var(--border-section)}
+.query-bar .q-item{display:flex;align-items:center;gap:6px}
+.query-bar label{font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
+.query-bar select,.query-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:border-color .2s;box-sizing:border-box}
+.query-bar select:focus,.query-bar input:focus{border-color:var(--primary)}
+.btn-default:hover{color:var(--primary);border-color:var(--primary)}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-link:hover{color:var(--primary-hover)}
+.btn-link.btn-sm{font-size:var(--font-size-xs);padding:1px var(--spacing-xs)}
+.btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
+.table-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md);flex:1;overflow:hidden;border:1px solid var(--border-section);display:flex;flex-direction:column;min-height:0}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md)}
+/* 内容列自适应 + 长文本截断（复选框/序号/操作列使用框架固定列规则） */
+.table-wrap td:not(.col-check):not(.col-index):not(.action-col){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.table-wrap{flex:1;overflow:auto;min-height:0}
+.tag-success{background:var(--success-light);color:var(--success)}
+.tag-error{background:var(--danger-light);color:var(--danger)}
+.tag-blue{background:var(--primary-light);color:var(--primary)}
+.tag-orange{background:var(--warning-light);color:var(--warning)}
+
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg-primary);border-radius:10px;width:640px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:var(--spacing-md) 20px;border-bottom:1px solid var(--border-light);flex-shrink:0}
+.modal-title{font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary)}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);cursor:pointer;font-size:var(--font-size-md);color:var(--text-tertiary);transition:all .2s}
+.modal-close:hover{background:var(--bg-secondary);color:var(--text-secondary)}
+.modal-body{padding:20px var(--spacing-lg);overflow-y:auto;flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-light);flex-shrink:0}
+.form-section{margin-bottom:var(--spacing-md)}
+.form-section-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary);padding:0 0 10px;margin-bottom:10px;border-bottom:1px solid var(--border-light)}
+.form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;flex:1;min-width:160px}
+.form-label{font-size:var(--font-size-sm);color:var(--text-primary);margin-bottom:5px;font-weight:500}
+.form-label .required{color:var(--danger);margin-right:2px}
+.form-control{padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-control:focus{border-color:var(--primary)}
+.multi-select{position:relative;width:100%}
+.multi-select-input{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-primary);cursor:pointer;transition:border-color .2s;min-height:34px}
+.multi-select-input:hover{border-color:var(--primary-hover)}
+.multi-select-input.active{border-color:var(--primary);box-shadow:0 0 0 2px rgba(22,119,255,.1)}
+.multi-select-placeholder{color:var(--text-tertiary);font-size:var(--font-size-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.multi-select-value{color:var(--text-primary);font-size:var(--font-size-sm);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.multi-select-arrow{width:0;height:0;margin-left:6px;border-left:var(--spacing-xs) solid transparent;border-right:var(--spacing-xs) solid transparent;border-top:5px solid var(--text-tertiary);transition:transform .2s;flex-shrink:0}
+.multi-select-input.active .multi-select-arrow{transform:rotate(180deg)}
+.multi-select-dropdown{display:none;position:absolute;top:100%;left:0;right:0;margin-top:var(--spacing-xs);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:1000;max-height:280px;overflow:hidden}
+.multi-select-dropdown.show{display:block}
+.multi-select-actions{display:flex;justify-content:space-between;padding:var(--spacing-sm) 12px;border-bottom:1px solid var(--border-light);background:var(--bg-tertiary)}
+.multi-select-actions span{display:flex;align-items:center;font-size:var(--font-size-xs);color:var(--primary);cursor:pointer;padding:2px var(--spacing-xs);border-radius:var(--radius-sm);transition:color .2s}
+.multi-select-actions span:hover{color:var(--primary-hover)}
+.multi-select-actions span i{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;margin-right:var(--spacing-xs);font-style:normal;font-size:11px;border:1px solid currentColor;border-radius:3px}
+.multi-select-options{max-height:200px;overflow-y:auto;padding:var(--spacing-xs) 0}
+.multi-select-option{display:flex;align-items:center;padding:var(--spacing-sm) 12px;cursor:pointer;transition:background .15s;font-size:var(--font-size-sm)}
+.multi-select-option:hover{background:var(--bg-secondary)}
+.multi-select-option.selected{background:var(--primary-light)}
+.multi-select-option.disabled{color:var(--text-tertiary);cursor:not-allowed}
+.multi-select-option .cb{width:14px;height:14px;margin-right:var(--spacing-sm);border:1px solid var(--border);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--bg-primary);background:var(--bg-primary);transition:all .2s;flex-shrink:0}
+.multi-select-option.selected .cb{background:var(--primary);border-color:var(--primary)}
+.multi-select-option.selected .cb:after{content:"\2713"}
+.detail-row{display:flex;border-bottom:1px solid var(--border-light);line-height:44px}
+.detail-row:last-child{border-bottom:none}
+.detail-label{width:90px;flex-shrink:0;color:var(--text-tertiary);font-size:var(--font-size-sm);padding-left:var(--spacing-xs)}
+.detail-value{flex:1;color:var(--text-primary);font-size:var(--font-size-md);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:var(--spacing-sm)}
+.detail-section-title{padding:0 var(--spacing-xs) 10px;margin-bottom:var(--spacing-xs);border-bottom:1px solid var(--border-light);font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+.detail-section{margin-bottom:14px}
+
+/* 审批列表专用 */
+.approval-card{border:1px solid var(--border-light);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:10px}
+.approval-card:hover{background:var(--bg-section)}
+.approval-card h4{margin:0 0 4px;font-size:var(--font-size-sm)}
+.approval-card p{margin:0;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+
+#_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius:var(--radius-md);font-size:var(--font-size-md);z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+#_toast.show{opacity:1}
+.no-data td{text-align:center;color:var(--border);padding:40px 0}
+</style>
+</head>
+<body>
+<script src="../../js/pagination.js"></script>
+<div class="page-container" data-module="gov-user">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">政府端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">人员账号管理</span>
+  </div>
+  <div class="main-layout">
+    <!-- 左侧：组织树（本单位范围） -->
+    <div class="tree-panel">
+      <div class="tree-panel-title">本单位组织架构</div>
+      <input class="tree-search" id="treeSearch" placeholder="搜索科室..." oninput="filterTree()">
+      <div id="orgTree"></div>
+    </div>
+    <!-- 右侧 -->
+    <div class="right-panel">
+      <!-- 统计卡片 -->
+      <!-- 人员账号概览（已移除标题） -->
+      <div class="stats-row" id="statsRow">
+        <div class="stat-card"><div class="stat-card-label">用户总数</div><div class="stat-card-value" id="statTotal" style="color:var(--primary)">0</div><div class="stat-card-sub">政府用户</div></div>
+        <div class="stat-card"><div class="stat-card-label">启用中</div><div class="stat-card-value" id="statNormal" style="color:var(--success)">0</div><div class="stat-card-sub">已启用</div></div>
+        <div class="stat-card"><div class="stat-card-label">停用中</div><div class="stat-card-value" id="statDisabled" style="color:var(--text-tertiary)">0</div><div class="stat-card-sub">已停用</div></div>
+        <div class="stat-card"><div class="stat-card-label">领导层</div><div class="stat-card-value" id="statLeader" style="color:var(--warning)">0</div><div class="stat-card-sub">领导层用户</div></div>
+      </div>
+      <!-- 查询条件 -->
+      <div class="query-bar">
+        <div class="q-item"><label>姓名：</label><input id="filterName" placeholder="搜索姓名"></div>
+        <div class="q-item"><label>手机号：</label><input id="filterPhone" placeholder="搜索手机号"></div>
+        <div class="q-item"><label>状态：</label><select id="filterStatus"><option value="">全部</option><option>启用</option><option>停用</option></select></div>
+        <button class="btn btn-primary" onclick="renderTable()">查询</button>
+        <button class="btn btn-default" onclick="clearFilters()">重置</button>
+      </div>
+      <!-- 用户列表 -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="nav-item-text" style="font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)">用户列表</span>
+            <div id="batchBar" style="display:none;align-items:center;gap:8px;padding:4px 10px;background:var(--primary-light);border-radius:var(--radius-md);font-size:var(--font-size-xs);color:var(--primary)">
+              已选 <span class="batch-count">0</span> 项
+              <button class="btn btn-link btn-sm" style="color:var(--danger);padding:0 4px" onclick="batchDelete()">批量删除</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ 新增用户</button>
+            <button class="btn btn-default btn-sm" onclick="openApprovalList()" style="position:relative">
+              审批列表
+              <span style="position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;line-height:18px;padding:0 4px;background:var(--danger);color:#fff;border-radius:10px;font-size:11px;text-align:center">2</span>
+            </button>
+            <button class="btn btn-default btn-sm" onclick="downloadTemplate()">下载模板</button>
+            <button class="btn btn-default btn-sm" onclick="openBatchImport()">批量导入</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th class="col-check"><input type="checkbox" id="checkAll" onchange="toggleAll(this)"></th>
+              <th class="col-index">序号</th>
+              <th>姓名</th><th>手机号</th><th>所属单位</th><th>所属科室</th>
+              <th>职务</th><th>用户层级</th>
+              <th>状态</th><th class="action-col">操作</th>
+            </tr></thead>
+            <tbody id="userTableBody"><tr><td colspan="10" class="no-data">加载中...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="paginationBar"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增/编辑弹窗 -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title" id="modalTitle">新增用户</span><div class="modal-close" onclick="closeModal('editModal')">&#x2715;</div></div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">基本信息</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>用户姓名</label><input class="form-control" id="fName" type="text" placeholder="请输入用户姓名"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>手机号码</label><input class="form-control" id="fMobile" type="text" placeholder="请输入手机号码" oninput="syncAccountFromMobile()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>所属单位</label>
+            <select class="form-control" id="fOrg" onchange="onOrgChange()">
+              <option value="gov_org">区应急管理局</option>
+              <option value="sub-lh">龙华街道办事处</option>
+              <option value="sub-mz">民治街道办事处</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">所属科室</label>
+            <select class="form-control" id="fDept"><option value="">请选择所属科室</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>职务</label><input class="form-control" id="fTitle" type="text" placeholder="请输入职务"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>用户层级</label>
+            <select class="form-control" id="fUserType">
+              <option value="">请选择用户层级</option><option>领导层</option><option>监管层</option><option>巡查层</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">管理部门</label>
+            <div class="multi-select" id="fManageDeptsWrap">
+              <div class="multi-select-input" onclick="toggleMultiDropdown()">
+                <span class="multi-select-placeholder" id="fManageDeptsText">请选择管理部门（选填）</span>
+                <i class="multi-select-arrow"></i>
+              </div>
+              <div class="multi-select-dropdown" id="fManageDeptsDropdown">
+                <div class="multi-select-actions">
+                  <span onclick="selectAllManageDepts()"><i>&#x2713;</i>全选</span>
+                  <span onclick="clearManageDepts()"><i>&#x2715;</i>清空</span>
+                </div>
+                <div class="multi-select-options" id="fManageDeptsOptions"><div class="multi-select-option disabled">请先选择所属单位</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">上级领导</label>
+            <select class="form-control" id="fLeader"><option value="">请选择上级领导（选填）</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>状态</label>
+            <select class="form-control" id="fStatus"><option value="启用" selected>启用</option><option value="停用">停用</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">邮箱</label><input class="form-control" id="fEmail" type="email" placeholder="请输入邮箱（选填）"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1 0 100%"><label class="form-label">备注</label><textarea class="form-control" id="fRemark" placeholder="请输入备注（选填，200字以内）" style="min-height:60px;resize:vertical"></textarea></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">账号信息</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>账号（手机号）</label><input class="form-control" id="fAccount" type="text" placeholder="自动填充手机号" disabled style="background:var(--bg-secondary);cursor:not-allowed;"></div>
+          <div class="form-group"><label class="form-label" id="pwdLabel"><span class="required">*</span>用户密码</label><input class="form-control" id="fPwd" type="password" placeholder="默认Abc@123456"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('editModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveUser()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="width:560px">
+    <div class="modal-header"><span class="modal-title">用户详情</span><div class="modal-close" onclick="closeModal('detailModal')">&#x2715;</div></div>
+    <div class="modal-body" id="detailBody" style="padding:20px 24px"></div>
+    <div class="modal-footer" style="justify-content:center"><button class="btn btn-default" onclick="closeModal('detailModal')">关闭</button></div>
+  </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header"><span class="modal-title">确认删除</span><div class="modal-close" onclick="closeModal('deleteModal')">&#x2715;</div></div>
+    <div class="modal-body" style="padding:28px 24px;text-align:center">
+      <div style="width:48px;height:48px;margin:0 auto 16px;background:var(--danger-light);border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="var(--danger)"/></svg>
+      </div>
+      <p style="font-size:15px;color:var(--text-primary);margin:0 0 6px;font-weight:500" id="deleteMsg">确定要删除该用户吗？</p>
+      <p style="font-size:var(--font-size-sm);color:var(--text-tertiary);margin:0">删除后数据无法恢复，请谨慎操作</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center">
+      <button class="btn btn-default" onclick="closeModal('deleteModal')">取消</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重置密码确认弹窗 -->
+<div class="modal-overlay" id="resetPwdModal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header"><span class="modal-title">重置密码</span><div class="modal-close" onclick="closeModal('resetPwdModal')">&#x2715;</div></div>
+    <div class="modal-body" style="padding:28px 24px;text-align:center">
+      <div style="width:48px;height:48px;margin:0 auto 16px;background:var(--warning-light);border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="var(--warning)"/></svg>
+      </div>
+      <p style="font-size:15px;color:var(--text-primary);margin:0 0 6px;font-weight:500" id="resetPwdMsg">确定要重置该用户密码吗？</p>
+      <p style="font-size:var(--font-size-sm);color:var(--text-tertiary);margin:0">密码将重置为默认密码：<strong style="color:var(--primary)">Abc@123456</strong></p>
+    </div>
+    <div class="modal-footer" style="justify-content:center">
+      <button class="btn btn-default" onclick="closeModal('resetPwdModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmResetPwd()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- 审批列表弹窗（政府端特有） -->
+<div class="modal-overlay" id="approvalModal">
+  <div class="modal" style="width:540px">
+    <div class="modal-header"><span class="modal-title">待审批列表</span><div class="modal-close" onclick="closeModal('approvalModal')">&#x2715;</div></div>
+    <div class="modal-body">
+      <div class="approval-card">
+        <h4>李小明 · 账号启用申请</h4>
+        <p>申请单位：工贸行业监管科 | 申请时间：2026-06-18 10:30</p>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="showToast('已审批通过（演示）')">通过</button>
+          <button class="btn btn-default btn-sm" onclick="showToast('已驳回（演示）')">驳回</button>
+        </div>
+      </div>
+      <div class="approval-card">
+        <h4>张晓东 · 角色变更申请</h4>
+        <p>申请单位：综合协调科 | 申请时间：2026-06-17 15:20</p>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="showToast('已审批通过（演示）')">通过</button>
+          <button class="btn btn-default btn-sm" onclick="showToast('已驳回（演示）')">驳回</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:center"><button class="btn btn-default" onclick="closeModal('approvalModal')">关闭</button></div>
+  </div>
+</div>
+
+<!-- 批量导入弹窗（政府端特有） -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal" style="width:480px">
+    <div class="modal-header"><span class="modal-title">批量导入用户</span><div class="modal-close" onclick="closeModal('importModal')">&#x2715;</div></div>
+    <div class="modal-body" style="text-align:center;padding:36px 24px">
+      <div style="width:64px;height:64px;margin:0 auto 16px;background:var(--bg-section);border-radius:12px;display:flex;align-items:center;justify-content:center">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 15h-2v-4H9l3-3 3 3h-2v4zm2-8V3.5L18.5 9H15z" fill="var(--primary)"/></svg>
+      </div>
+      <p style="font-size:var(--font-size-sm);color:var(--text-primary);margin:0 0 4px">选择 Excel 文件批量导入用户</p>
+      <p style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin:0 0 20px">支持 .xlsx / .xls 格式，单次最多 500 条</p>
+      <button class="btn btn-default" onclick="showToast('选择文件（演示）')">选择文件</button>
+    </div>
+    <div class="modal-footer" style="justify-content:center"><button class="btn btn-default" onclick="closeModal('importModal')">关闭</button></div>
+  </div>
+</div>
+
+<div id="_toast"></div>
+
+<script>
+// ==================== 数据结构 ====================
+// 组织架构数据同步自 gov-org.html（政府端组织架构管理）
+var GOV_ORG = {
+  id: 'gov_org',
+  name: '区应急管理局',
+  depts: [
+    {id:'dept-amb-01',name:'督导检查科'},
+    {id:'dept-amb-02',name:'综合协调科'},
+    {id:'dept-amb-03',name:'区三防办'},
+    {id:'dept-amb-04',name:'安全监管和执法科'},
+    {id:'dept-amb-05',name:'防灾减灾科'},
+    {id:'dept-amb-06',name:'危化品监管和执法科'}
+  ],
+  subUnits: [
+    {
+      id:'sub-lh',
+      name:'龙华街道办事处',
+      depts:[
+        {id:'dept-lh-01',name:'安监办'},
+        {id:'dept-lh-02',name:'综治办'},
+        {id:'dept-lh-03',name:'城建办'}
+      ]
+    },
+    {
+      id:'sub-mz',
+      name:'民治街道办事处',
+      depts:[
+        {id:'dept-mz-01',name:'应急办'},
+        {id:'dept-mz-02',name:'安监办'},
+        {id:'dept-mz-03',name:'综合执法队'}
+      ]
+    }
+  ]
+};
+
+// 工具函数：按 id 取组织（本单位或下级单位）；缺省返回本单位
+function getOrgById(id){
+  if(!id || id === GOV_ORG.id) return GOV_ORG;
+  return GOV_ORG.subUnits.find(function(o){return o.id === id;}) || GOV_ORG;
+}
+// 工具函数：取全部组织（含下级单位）扁平数组，便于级联与渲染
+function getAllOrgs(){
+  return [GOV_ORG].concat(GOV_ORG.subUnits);
+}
+// 工具函数：按 id 取科室（跨本单位 + 下级单位）
+function getDeptById(deptId){
+  if(!deptId) return null;
+  var all = GOV_ORG.depts.concat([]);
+  GOV_ORG.subUnits.forEach(function(o){ all = all.concat(o.depts); });
+  return all.find(function(d){return d.id === deptId;}) || null;
+}
+// 工具函数：按 deptId 反查所属组织
+function getOrgByDeptId(deptId){
+  if(!deptId) return GOV_ORG;
+  if(GOV_ORG.depts.some(function(d){return d.id === deptId;})) return GOV_ORG;
+  var hit = GOV_ORG.subUnits.find(function(o){return o.depts.some(function(d){return d.id === deptId;});});
+  return hit || GOV_ORG;
+}
+
+var _uid = 100;
+function _uidGen(){return 'u' + (_uid++);}
+
+var allUsers = [
+  {id:_uidGen(),name:'王建国',account:'13800138001',org:'区应急管理局',deptId:'dept-amb-01',deptName:'督导检查科',mobile:'13800138001',title:'科长',userType:'监管层',status:'启用',lastLogin:'2026-06-10 09:21',manageDeptIds:['dept-amb-01','dept-amb-02'],email:'wangjianguo@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'李明华',account:'13800138002',org:'区应急管理局',deptId:'dept-amb-01',deptName:'督导检查科',mobile:'13800138002',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-06-09 16:45',manageDeptIds:['dept-amb-01'],email:'liminghua@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'张志强',account:'13800138003',org:'区应急管理局',deptId:'dept-amb-02',deptName:'综合协调科',mobile:'13800138003',title:'科长',userType:'监管层',status:'启用',lastLogin:'2026-06-08 08:30',manageDeptIds:['dept-amb-02','dept-amb-03'],email:'zhangzhiqiang@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'陈月明',account:'13800138004',org:'区应急管理局',deptId:'dept-amb-02',deptName:'综合协调科',mobile:'13800138004',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-06-07 14:20',manageDeptIds:['dept-amb-02'],email:'chenyueming@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'刘建军',account:'13800138005',org:'区应急管理局',deptId:'dept-amb-03',deptName:'区三防办',mobile:'13800138005',title:'主任',userType:'监管层',status:'启用',lastLogin:'2026-06-06 10:15',manageDeptIds:['dept-amb-03','dept-amb-04'],email:'liujianjun@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'赵晓燕',account:'13800138006',org:'区应急管理局',deptId:'dept-amb-03',deptName:'区三防办',mobile:'13800138006',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-06-05 07:50',manageDeptIds:[],email:'zhaoxiaoyan@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'孙志强',account:'13800138007',org:'区应急管理局',deptId:'dept-amb-04',deptName:'安全监管和执法科',mobile:'13800138007',title:'科长',userType:'监管层',status:'启用',lastLogin:'2026-06-04 17:30',manageDeptIds:['dept-amb-04','dept-amb-05'],email:'sunzhiqiang@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'周文博',account:'13800138008',org:'区应急管理局',deptId:'dept-amb-04',deptName:'安全监管和执法科',mobile:'13800138008',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-06-03 09:00',manageDeptIds:['dept-amb-04'],email:'zhouwenbo@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'钱晓东',account:'13800138009',org:'区应急管理局',deptId:'dept-amb-05',deptName:'防灾减灾科',mobile:'13800138009',title:'科长',userType:'监管层',status:'启用',lastLogin:'2026-06-02 14:55',manageDeptIds:['dept-amb-05','dept-amb-06'],email:'qianxiaodong@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'吴明远',account:'13800138010',org:'区应急管理局',deptId:'dept-amb-05',deptName:'防灾减灾科',mobile:'13800138010',title:'科员',userType:'巡查层',status:'停用',lastLogin:'2026-05-20 11:00',manageDeptIds:[],email:'wumingyuan@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'黄伟',account:'13800138011',org:'区应急管理局',deptId:'dept-amb-06',deptName:'危化品监管和执法科',mobile:'13800138011',title:'科长',userType:'领导层',status:'启用',lastLogin:'2026-06-01 10:30',manageDeptIds:['dept-amb-06'],email:'huangwei@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'林芳',account:'13800138012',org:'区应急管理局',deptId:'dept-amb-06',deptName:'危化品监管和执法科',mobile:'13800138012',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-05-30 14:20',manageDeptIds:['dept-amb-06'],email:'linfang@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'徐明',account:'13800138013',org:'区应急管理局',deptId:'dept-amb-01',deptName:'督导检查科',mobile:'13800138013',title:'科员',userType:'巡查层',status:'停用',lastLogin:'2026-05-15 16:45',manageDeptIds:[],email:'xuming@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'高洁',account:'13800138014',org:'区应急管理局',deptId:'dept-amb-02',deptName:'综合协调科',mobile:'13800138014',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-05-28 11:30',manageDeptIds:[],email:'gaojie@gov.cn',leaderId:'',remark:''},
+  // —— 下级单位（街道办事处）演示用户，验证所属单位级联与数据范围 BR-GOV-USER-03 ——
+  {id:_uidGen(),name:'郑文斌',account:'13800138015',org:'龙华街道办事处',deptId:'dept-lh-01',deptName:'安监办',mobile:'13800138015',title:'主任',userType:'监管层',status:'启用',lastLogin:'2026-06-11 10:00',manageDeptIds:['dept-lh-01','dept-lh-02'],email:'zhengwenbin@gov.cn',leaderId:'',remark:'龙华街道安监负责人'},
+  {id:_uidGen(),name:'谢丽',account:'13800138016',org:'龙华街道办事处',deptId:'dept-lh-02',deptName:'综治办',mobile:'13800138016',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-06-10 15:20',manageDeptIds:[],email:'xieli@gov.cn',leaderId:'',remark:''},
+  {id:_uidGen(),name:'罗志远',account:'13800138017',org:'民治街道办事处',deptId:'dept-mz-01',deptName:'应急办',mobile:'13800138017',title:'主任',userType:'监管层',status:'启用',lastLogin:'2026-06-09 09:40',manageDeptIds:['dept-mz-01','dept-mz-02','dept-mz-03'],email:'luozhiyuan@gov.cn',leaderId:'',remark:'民治街道应急办主任'},
+  {id:_uidGen(),name:'冯雪',account:'13800138018',org:'民治街道办事处',deptId:'dept-mz-02',deptName:'安监办',mobile:'13800138018',title:'科员',userType:'巡查层',status:'停用',lastLogin:'2026-05-22 13:10',manageDeptIds:[],email:'fengxue@gov.cn',leaderId:'',remark:''}
+];
+
+// ==================== Toast ====================
+function showToast(msg){
+  var t = document.getElementById('_toast');
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){t.classList.remove('show');}, 2000);
+}
+
+// ==================== 渲染组织树 ====================
+function _updateStats(deptId){
+  var filtered;
+  if(!deptId || deptId === GOV_ORG.id){
+    filtered = allUsers;
+  }else{
+    // 判断是否为下级单位 id；下级单位 = 该单位下所有科室聚合
+    var sub = GOV_ORG.subUnits.find(function(o){return o.id === deptId;});
+    if(sub){
+      var subDeptIds = sub.depts.map(function(d){return d.id;});
+      filtered = allUsers.filter(function(u){return subDeptIds.indexOf(u.deptId) > -1;});
+    }else{
+      filtered = allUsers.filter(function(u){return u.deptId === deptId;});
+    }
+  }
+  document.getElementById('statTotal').textContent = filtered.length;
+  document.getElementById('statNormal').textContent = filtered.filter(function(u){return u.status==='启用';}).length;
+  document.getElementById('statDisabled').textContent = filtered.filter(function(u){return u.status==='停用';}).length;
+  document.getElementById('statLeader').textContent = filtered.filter(function(u){return u.userType==='领导层';}).length;
+}
+
+function filterTree(){
+  var kw = document.getElementById('treeSearch').value.trim().toLowerCase();
+  document.querySelectorAll('#orgTree .tree-node').forEach(function(n){
+    var name = n.textContent.toLowerCase();
+    n.style.display = (!kw || name.includes(kw)) ? 'flex' : 'none';
+  });
+}
+
+function renderOrgTree(){
+  var tree = document.getElementById('orgTree');
+  var html = '';
+  // 本单位节点
+  html += '<div class="tree-node active" onclick="selectDept(\'' + GOV_ORG.id + '\',this)" data-id="' + GOV_ORG.id + '">' +
+    '<span class="toggle open" onclick="event.stopPropagation();toggleDept()">&#9654;</span><span>' + GOV_ORG.name + '</span></div>';
+  html += '<div class="tree-children show" id="deptChildren">';
+  // 本单位科室
+  html += GOV_ORG.depts.map(function(d){
+    return '<div class="tree-node' + (window._activeDept === d.id ? ' active' : '') + '" onclick="selectDept(\'' + d.id + '\',this)" data-id="' + d.id + '"><span class="toggle"></span><span>' + d.name + '</span></div>';
+  }).join('');
+  // 下级单位（街道办事处）— 可展开显示其科室
+  GOV_ORG.subUnits.forEach(function(sub){
+    html += '<div class="tree-node" onclick="selectDept(\'' + sub.id + '\',this)" data-id="' + sub.id + '">' +
+      '<span class="toggle open" onclick="event.stopPropagation();toggleSubUnit(\'' + sub.id + '\')">&#9654;</span><span>' + sub.name + '</span></div>';
+    html += '<div class="tree-children show" id="subChildren-' + sub.id + '" style="padding-left:20px">';
+    html += sub.depts.map(function(d){
+      return '<div class="tree-node' + (window._activeDept === d.id ? ' active' : '') + '" onclick="selectDept(\'' + d.id + '\',this)" data-id="' + d.id + '"><span class="toggle"></span><span>' + d.name + '</span></div>';
+    }).join('');
+    html += '</div>';
+  });
+  html += '</div>';
+  tree.innerHTML = html;
+  window._activeDept = GOV_ORG.id;
+  window._orgOpen = true;
+  // 表单中的科室下拉初始按本单位科室渲染（实际新增/编辑时会按 fOrg 重建）
+  var deptSel = document.getElementById('fDept');
+  deptSel.innerHTML = '<option value="">请选择所属科室</option>' + GOV_ORG.depts.map(function(d){
+    return '<option value="' + d.id + '">' + d.name + '</option>';
+  }).join('');
+}
+
+function toggleSubUnit(subId){
+  var ch = document.getElementById('subChildren-' + subId);
+  if(!ch) return;
+  ch.classList.toggle('show');
+}
+
+function toggleDept(){
+  window._orgOpen = !window._orgOpen;
+  var ch = document.getElementById('deptChildren');
+  if(ch) ch.classList.toggle('show', window._orgOpen);
+}
+
+function selectDept(id, el){
+  window._activeDept = id || null;
+  _updateStats(id);
+  renderTable();
+  document.querySelectorAll('#orgTree .tree-node').forEach(function(n){n.classList.remove('active');});
+  if(el) el.classList.add('active');
+}
+
+// ==================== 渲染用户列表 ====================
+var currentPage = 1;
+var pageSize = 10;
+var pg = null;
+var filteredRows = [];
+
+function renderTable(){
+  var nameVal = document.getElementById('filterName').value.trim().toLowerCase();
+  var phoneVal = document.getElementById('filterPhone').value.trim();
+  var statusVal = document.getElementById('filterStatus').value;
+  var activeId = window._activeDept;
+  filteredRows = allUsers.filter(function(u){
+    if(activeId){
+      if(activeId === GOV_ORG.id){
+        // 本单位节点 = 全部（含下级单位）
+      }else{
+        var sub = GOV_ORG.subUnits.find(function(o){return o.id === activeId;});
+        if(sub){
+          var subDeptIds = sub.depts.map(function(d){return d.id;});
+          if(subDeptIds.indexOf(u.deptId) === -1) return false;
+        }else if(u.deptId !== activeId){
+          return false;
+        }
+      }
+    }
+    if(nameVal && !u.name.toLowerCase().includes(nameVal)) return false;
+    if(phoneVal && u.mobile !== phoneVal) return false;
+    if(statusVal && u.status !== statusVal) return false;
+    return true;
+  });
+  var start = (currentPage - 1) * pageSize;
+  var pageRows = filteredRows.slice(start, start + pageSize);
+  var tbody = document.getElementById('userTableBody');
+  if(pageRows.length === 0){
+    tbody.innerHTML = '<tr><td colspan="10" class="no-data">暂无数据</td></tr>';
+    if(pg) pg.setTotal(filteredRows.length);
+    return;
+  }
+  tbody.innerHTML = pageRows.map(function(u, idx){
+    var statusLabel = u.status;
+    var statusCls = u.status === '启用' ? 'tag-success' : 'tag-error';
+    return '<tr>' +
+      '<td class="col-check"><input type="checkbox" class="row-check" value="' + u.id + '" onchange="toggleRow()"></td>' +
+      '<td class="col-index">' + (start + idx + 1) + '</td>' +
+      '<td title="' + u.name + '">' + u.name + '</td>' +
+      '<td title="' + u.mobile + '">' + u.mobile + '</td>' +
+      '<td title="' + u.org + '">' + u.org + '</td>' +
+      '<td title="' + (u.deptName||'—') + '">' + (u.deptName||'—') + '</td>' +
+      '<td title="' + u.title + '">' + u.title + '</td>' +
+      '<td><span class="tag ' + (u.userType==='领导层'?'tag-orange':u.userType==='监管层'?'tag-blue':'tag-success') + '">' + u.userType + '</span></td>' +
+      '<td><span class="tag ' + statusCls + '">' + statusLabel + '</span></td>' +
+      '<td class="action-col"><div class="table-action-group"><button class="btn btn-link" onclick="openEditModal(\'' + u.id + '\')">编辑</button><button class="btn btn-link" onclick="deleteUser(\'' + u.id + '\')">删除</button><button class="btn btn-link" onclick="viewDetail(\'' + u.id + '\')">详情</button><button class="btn btn-link" onclick="resetPwd(\'' + u.id + '\')">重置密码</button></div></td>' +
+      '</tr>';
+  }).join('');
+  if(pg) pg.setTotal(filteredRows.length);
+}
+
+function clearFilters(){
+  document.getElementById('filterName').value = '';
+  document.getElementById('filterPhone').value = '';
+  document.getElementById('filterStatus').value = '';
+  renderTable();
+}
+
+// ==================== 新增/编辑弹窗 ====================
+var currentEditUser = null;
+
+function openAddModal(){
+  currentEditUser = null;
+  document.getElementById('modalTitle').textContent = '新增用户';
+  document.getElementById('fName').value = '';
+  document.getElementById('fMobile').value = '';
+  document.getElementById('fEmail').value = '';
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fUserType').value = '';
+  document.getElementById('fStatus').value = '启用';
+  document.getElementById('fRemark').value = '';
+  document.getElementById('fAccount').value = '';
+  document.getElementById('fPwd').value = 'Abc@123456';
+  document.getElementById('pwdLabel').innerHTML = '<span class="required">*</span>用户密码 <span style="color:var(--text-tertiary);font-weight:normal">（默认Abc@123456）</span>';
+  // 上级领导下拉：本单位所有用户
+  document.getElementById('fLeader').innerHTML = '<option value="">请选择上级领导（选填）</option>' + allUsers.map(function(u){return '<option value="' + u.id + '">' + u.name + '（' + u.title + '）</option>';}).join('');
+  // 默认所属单位 = 本单位；按所属单位加载科室与管理部门
+  document.getElementById('fOrg').value = GOV_ORG.id;
+  syncDeptByOrg('');
+  // 自动带出组织树选中的科室（仅本单位时）
+  var activeDept = window._activeDept;
+  if(activeDept && activeDept !== 'gov_org'){
+    document.getElementById('fDept').value = activeDept;
+    var deptOpt = document.querySelector('#fManageDeptsOptions .multi-select-option[data-value="'+activeDept+'"]');
+    if(deptOpt) deptOpt.classList.add('selected');
+    updateManageDeptsDisplay();
+  }
+  document.getElementById('editModal').classList.add('show');
+}
+
+function openEditModal(id){
+  var u = allUsers.find(function(x){return x.id === id;});
+  if(!u) return;
+  currentEditUser = u;
+  document.getElementById('modalTitle').textContent = '编辑用户';
+  document.getElementById('fName').value = u.name;
+  document.getElementById('fMobile').value = u.mobile;
+  document.getElementById('fEmail').value = u.email || '';
+  document.getElementById('fTitle').value = u.title;
+  document.getElementById('fUserType').value = u.userType;
+  document.getElementById('fStatus').value = u.status;
+  document.getElementById('fRemark').value = u.remark || '';
+  document.getElementById('fLeader').innerHTML = '<option value="">请选择上级领导（选填）</option>' + allUsers.filter(function(x){return x.id !== u.id;}).map(function(x){return '<option value="' + x.id + '"' + (u.leaderId === x.id ? ' selected' : '') + '>' + x.name + '（' + x.title + '）</option>';}).join('');
+  // 根据 deptId 反查所属单位并加载对应科室
+  var ownOrg = getOrgByDeptId(u.deptId);
+  document.getElementById('fOrg').value = ownOrg.id;
+  syncDeptByOrg(u.deptId);
+  if(u.manageDeptIds && u.manageDeptIds.length > 0){
+    u.manageDeptIds.forEach(function(id){
+      var opt = document.querySelector('#fManageDeptsOptions .multi-select-option[data-value="'+id+'"]');
+      if(opt) opt.classList.add('selected');
+    });
+  }
+  updateManageDeptsDisplay();
+  document.getElementById('fAccount').value = u.account;
+  document.getElementById('fAccount').disabled = true;
+  document.getElementById('fPwd').value = '';
+  document.getElementById('pwdLabel').innerHTML = '<span class="required">*</span>用户密码 <span style="color:var(--text-tertiary);font-weight:normal">（留空则不修改）</span>';
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+// 按 fOrg 重建科室下拉与管理部门候选；可选 selectedDeptId 用于回显
+function syncDeptByOrg(selectedDeptId){
+  var orgId = document.getElementById('fOrg').value;
+  var org = getOrgById(orgId);
+  var deptSel = document.getElementById('fDept');
+  deptSel.innerHTML = '<option value="">请选择所属科室</option>' + org.depts.map(function(d){
+    return '<option value="' + d.id + '"' + (selectedDeptId === d.id ? ' selected' : '') + '>' + d.name + '</option>';
+  }).join('');
+  // 管理部门候选限定为所选单位下的科室（BR-GOV-USER-03 一致）
+  renderManageDeptsOptions(org.depts);
+  clearManageDepts();
+}
+
+function onOrgChange(){
+  // 切换所属单位后清空科室与管理部门，等待重新选择（BR-GOV-USER-03）
+  syncDeptByOrg('');
+}
+
+function syncAccountFromMobile(){
+  var mobile = document.getElementById('fMobile').value.trim();
+  document.getElementById('fAccount').value = mobile;
+}
+
+function validatePhone(phone){
+  return /^1\d{10}$/.test(phone);
+}
+
+function saveUser(){
+  var name = document.getElementById('fName').value.trim();
+  var mobile = document.getElementById('fMobile').value.trim();
+  var orgId = document.getElementById('fOrg').value;
+  var deptId = document.getElementById('fDept').value;
+  var userType = document.getElementById('fUserType').value;
+  if(!name){ showToast('请输入用户姓名'); return; }
+  if(!mobile){ showToast('请输入手机号码'); return; }
+  if(!validatePhone(mobile)){ showToast('请输入正确的11位手机号'); return; }
+  // 所属科室非必填
+  if(!userType){ showToast('请选择用户层级'); return; }
+  var ownOrg = getOrgById(orgId);
+  var deptHit = deptId ? getDeptById(deptId) : null;
+  if(currentEditUser){
+    currentEditUser.name = name;
+    currentEditUser.mobile = mobile;
+    currentEditUser.email = document.getElementById('fEmail').value.trim();
+    currentEditUser.org = ownOrg.name;
+    currentEditUser.deptId = deptId;
+    currentEditUser.deptName = deptHit ? deptHit.name : '';
+    currentEditUser.title = document.getElementById('fTitle').value.trim();
+    currentEditUser.userType = userType;
+    currentEditUser.status = document.getElementById('fStatus').value;
+    currentEditUser.remark = document.getElementById('fRemark').value.trim();
+    currentEditUser.leaderId = document.getElementById('fLeader').value || '';
+    currentEditUser.manageDeptIds = getSelectedManageDepts();
+    showToast('用户信息已更新');
+  }else{
+    allUsers.unshift({
+      id: _uidGen(),
+      name: name,
+      account: mobile,
+      org: ownOrg.name,
+      deptId: deptId,
+      deptName: deptHit ? deptHit.name : '',
+      mobile: mobile,
+      email: document.getElementById('fEmail').value.trim(),
+      title: document.getElementById('fTitle').value.trim(),
+      userType: userType,
+      status: document.getElementById('fStatus').value,
+      lastLogin: '—',
+      remark: document.getElementById('fRemark').value.trim(),
+      leaderId: document.getElementById('fLeader').value || '',
+      manageDeptIds: getSelectedManageDepts()
+    });
+    showToast('用户新增成功');
+  }
+  closeModal('editModal');
+  renderTable();
+  _updateStats(window._activeDept);
+}
+
+// ==================== 管理部门多选 ====================
+function toggleMultiDropdown(){
+  var wrap = document.getElementById('fManageDeptsWrap');
+  var drop = document.getElementById('fManageDeptsDropdown');
+  var input = wrap.querySelector('.multi-select-input');
+  var isOpen = drop.classList.contains('show');
+  if(isOpen){
+    drop.classList.remove('show');
+    input.classList.remove('active');
+    document.removeEventListener('click', closeMultiOnClickOutside);
+  }else{
+    drop.classList.add('show');
+    input.classList.add('active');
+    setTimeout(function(){document.addEventListener('click', closeMultiOnClickOutside);},0);
+  }
+}
+function closeMultiOnClickOutside(e){
+  var wrap = document.getElementById('fManageDeptsWrap');
+  if(!wrap) return;
+  if(!wrap.contains(e.target)){
+    var drop = document.getElementById('fManageDeptsDropdown');
+    var input = wrap.querySelector('.multi-select-input');
+    drop.classList.remove('show');
+    input.classList.remove('active');
+    document.removeEventListener('click', closeMultiOnClickOutside);
+  }
+}
+function updateManageDeptsDisplay(){
+  var opts = document.querySelectorAll('#fManageDeptsOptions .multi-select-option.selected');
+  var textEl = document.getElementById('fManageDeptsText');
+  if(opts.length === 0){
+    textEl.textContent = '请选择管理部门（选填）';
+    textEl.className = 'multi-select-placeholder';
+  }else{
+    textEl.textContent = Array.from(opts).map(function(o){return o.dataset.label;}).join('、');
+    textEl.className = 'multi-select-value';
+  }
+}
+function renderManageDeptsOptions(depts){
+  var container = document.getElementById('fManageDeptsOptions');
+  container.innerHTML = depts.map(function(d){
+    return '<div class="multi-select-option" data-value="' + d.id + '" data-label="' + d.name + '" onclick="toggleManageDept(this)"><span class="cb"></span><span>' + d.name + '</span></div>';
+  }).join('');
+  updateManageDeptsDisplay();
+}
+function toggleManageDept(el){
+  if(el.classList.contains('disabled')) return;
+  el.classList.toggle('selected');
+  updateManageDeptsDisplay();
+}
+function selectAllManageDepts(){
+  var opts = document.querySelectorAll('#fManageDeptsOptions .multi-select-option:not(.disabled)');
+  var allSelected = Array.from(opts).every(function(o){return o.classList.contains('selected');});
+  opts.forEach(function(o){o.classList.toggle('selected', !allSelected);});
+  updateManageDeptsDisplay();
+}
+function clearManageDepts(){
+  document.querySelectorAll('#fManageDeptsOptions .multi-select-option.selected').forEach(function(o){o.classList.remove('selected');});
+  updateManageDeptsDisplay();
+}
+function getSelectedManageDepts(){
+  return Array.from(document.querySelectorAll('#fManageDeptsOptions .multi-select-option.selected')).map(function(o){return o.dataset.value;});
+}
+
+// ==================== 删除/详情/重置 ====================
+var _pendingDeleteId = null;
+
+function deleteUser(id){
+  _pendingDeleteId = id;
+  var u = allUsers.find(function(x){return x.id === id;});
+  document.getElementById('deleteMsg').textContent = '确定要删除用户「' + (u ? u.name : '') + '」吗？';
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function confirmDelete(){
+  var u = allUsers.find(function(x){return x.id === _pendingDeleteId;});
+  if(u){
+    allUsers = allUsers.filter(function(x){return x.id !== _pendingDeleteId;});
+    showToast('用户「' + u.name + '」已删除');
+  }
+  closeModal('deleteModal');
+  renderTable();
+  _updateStats(window._activeDept);
+}
+
+function viewDetail(id){
+  var u = allUsers.find(function(x){return x.id === id;});
+  if(!u) return;
+  var org = {name: u.org};
+  var dept = getDeptById(u.deptId);
+  var ownOrg = getOrgByDeptId(u.deptId);
+  var manageDeptNames = u.manageDeptIds && u.manageDeptIds.length > 0
+    ? ownOrg.depts.filter(function(d){return u.manageDeptIds.indexOf(d.id) > -1;}).map(function(d){return d.name;}).join('、')
+    : '';
+  var leaderName = u.leaderId ? (allUsers.find(function(x){return x.id === u.leaderId;}) || {}).name || '—' : '—';
+  var levelTag = u.userType === '领导层' ? 'tag-orange' : (u.userType === '监管层' ? 'tag-blue' : 'tag-success');
+  var statusTag = u.status === '启用' ? 'tag-success' : 'tag-error';
+  document.getElementById('detailBody').innerHTML =
+    '<div class="detail-section"><div class="detail-section-title">基本信息</div>' +
+    '<div class="detail-row"><div class="detail-label">用户姓名</div><div class="detail-value">' + u.name + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">手机号码</div><div class="detail-value">' + u.mobile + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">邮箱</div><div class="detail-value">' + (u.email||'—') + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">职务</div><div class="detail-value">' + (u.title||'—') + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">所属单位</div><div class="detail-value">' + u.org + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">所属科室</div><div class="detail-value">' + (dept?dept.name:'—') + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">管理部门</div><div class="detail-value">' + (manageDeptNames||'—') + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">用户层级</div><div class="detail-value"><span class="tag ' + levelTag + '">' + u.userType + '</span></div></div>' +
+    '<div class="detail-row"><div class="detail-label">上级领导</div><div class="detail-value">' + leaderName + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag ' + statusTag + '">' + u.status + '</span></div></div>' +
+    '</div>' +
+    '<div class="detail-section"><div class="detail-section-title">账号信息</div>' +
+    '<div class="detail-row"><div class="detail-label">账号</div><div class="detail-value">' + u.account + '</div></div>' +
+    '</div>';
+  document.getElementById('detailModal').classList.add('show');
+}
+
+var _pendingResetId = null;
+function resetPwd(id){
+  _pendingResetId = id;
+  var u = allUsers.find(function(x){return x.id === id;});
+  document.getElementById('resetPwdMsg').textContent = '确定要重置「' + (u ? u.name : '') + '」的密码吗？';
+  document.getElementById('resetPwdModal').classList.add('show');
+}
+function confirmResetPwd(){
+  showToast('密码已重置为 Abc@123456');
+  closeModal('resetPwdModal');
+}
+
+// ==================== 政府端特有功能 ====================
+function openApprovalList(){
+  document.getElementById('approvalModal').classList.add('show');
+}
+function openBatchImport(){
+  document.getElementById('importModal').classList.add('show');
+}
+function downloadTemplate(){
+  showToast('已开始下载导入模板（演示）');
+}
+
+// ==================== 批量选择 ====================
+function toggleAll(src){
+  document.querySelectorAll('.row-check').forEach(function(cb){ cb.checked = src.checked; });
+  updateBatchBar();
+}
+function toggleRow(){
+  var all = document.querySelectorAll('.row-check');
+  var checked = document.querySelectorAll('.row-check:checked');
+  var checkAll = document.getElementById('checkAll');
+  if(checkAll) checkAll.checked = all.length > 0 && all.length === checked.length;
+  updateBatchBar();
+}
+function getSelectedIds(){
+  return Array.from(document.querySelectorAll('.row-check:checked')).map(function(cb){ return cb.value; });
+}
+function updateBatchBar(){
+  var bar = document.getElementById('batchBar');
+  if(!bar) return;
+  var count = getSelectedIds().length;
+  bar.style.display = count > 0 ? 'flex' : 'none';
+  var span = bar.querySelector('.batch-count');
+  if(span) span.textContent = count;
+}
+function batchDelete(){
+  var ids = getSelectedIds();
+  if(ids.length === 0){ showToast('请先选择要删除的用户'); return; }
+  if(!confirm('确认删除选中的 ' + ids.length + ' 个用户？')) return;
+  allUsers = allUsers.filter(function(u){ return ids.indexOf(u.id) === -1; });
+  renderTable();
+  _updateStats();
+  showToast('已删除 ' + ids.length + ' 个用户');
+}
+
+// ==================== 分页初始化 ====================
+try {
+  var paginationEl = document.getElementById('paginationBar');
+  if(paginationEl && typeof Pagination === 'function'){
+    pg = new Pagination('paginationBar', {
+      total: allUsers.length,
+      onChange: function(page, size) {
+        currentPage = page;
+        pageSize = size;
+        renderTable();
+      }
+    });
+  }
+}catch(e){console.warn('分页初始化跳过', e);}
+
+// ==================== 初始化 ====================
+renderOrgTree();
+renderTable();
+_updateStats(GOV_ORG.id);
+</script>
+</body>
+</html>

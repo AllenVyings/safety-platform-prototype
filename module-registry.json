@@ -1,9 +1,17 @@
 {
   "_meta": {
-    "version": "1.1",
+    "version": "1.2",
     "description": "原型模块注册表：追踪 PRD 章节与 HTML 模块的对应关系、标注状态和完成度。由 align-prd / prototype-annotation / module-dev 技能自动读取。",
-    "lastUpdated": "2026-06-07",
+    "lastUpdated": "2026-06-22",
     "changeLog": [
+      {
+        "date": "2026-06-08",
+        "action": "PRD V7.0 政府端 14 模块对齐：新建 control-archive / gov-org / gov-user / ent-manage / emergency-{plan,supply,team,contact} / profile / persuade 共 10 个模块；重构 hazard-manage（左树+右列+新状态体系）/ domain-supervise（3Tab 合并 task-config + progress-supervise）/ key-place（审批列表 badge）/ project-manage（审批列表 badge）；安全态势、履职管理、检查管理对齐 V7.0；菜单从 11 项重组为 12 项（含 2 个分组）；主框架 index.html 头像下拉菜单（个人中心/设置/帮助/关于/退出）；task-config / progress-supervise / quick-check 标记为 deprecated"
+      },
+      {
+        "date": "2026-06-07",
+        "action": "新增任务配置（task-config）与进度监督（progress-supervise）2 个政府端模块：覆盖 7 大类二级标签的检查表/扫码责任/隐患责任配置；检查矩阵支持日/周/月/季/年五种频次未配置态；阈值变色 <80% 红 / 80~90% 黄 / ≥90% 绿；菜单挂在领域监管下方"
+      },
       {
         "date": "2026-06-02",
         "action": "PRD对齐审计批次1：20个模块 draft→in-progress"
@@ -23,6 +31,18 @@
       {
         "date": "2026-06-07",
         "action": "Playwright 分页冒烟测试（tests/pagination-smoke.spec.js）11/11 通过；修复 4 页脚本加载顺序 bug：government/project-manage、super-admin/{domain-manage,ent-manage,gov-user}——pagination.js 原在 </body> 前才引入，导致内联 new Pagination() 抛 ReferenceError；改为在 <body> 之后立即加载"
+      },
+      {
+        "date": "2026-06-07",
+        "action": "新增 Playwright 分页交互测试（tests/pagination-interaction.spec.js）3/3 通过：覆盖 hazard-lib / regulation-lib / position-manage 的下一页切换、size 改档回到首页、跳转输入回车跳页三类交互；4 个脚本顺序修复页同步在 module-registry note 中标注"
+      },
+      {
+        "date": "2026-06-17",
+        "action": "政府端主菜单顺序调整：企业基本信息、项目信息管理、重点场所管理移动至领域监管之前；PRD 政府端模块总览同步按菜单显示顺序更新"
+      },
+      {
+        "date": "2026-06-22",
+        "action": "government/gov-user PRD 评审对齐重写：整节复用 §6.2.8.4（引用 §6.1.2），4 分布局（左组织树+统计卡+筛选+列表），14 条示例数据，5 个操作弹窗+审批列表+批量导入；module-registry 状态 draft→in-review"
       }
     ]
   },
@@ -100,58 +120,130 @@
       "note": "项目用户管理（状态标签已对齐PRD；2026-06-07 接入统一分页组件 js/pagination.js）"
     },
     "government/workbench": {
-      "prd": "§11 领域监管 / §12 检查任务",
+      "prd": "§V7-安全态势",
       "annotations": "partial",
       "status": "in-progress",
-      "note": "政府端工作台（统计卡颜色/隐患术语已对齐PRD）"
+      "note": "政府端安全态势（V7.0：任务类型对齐履职/专项，菜单与子页面合并完成）"
     },
     "government/domain-supervise": {
-      "prd": "§11 政府端领域监管管理",
+      "prd": "§V7-领域监管（监管总览/任务配置/进度监督 3Tab）",
       "annotations": "partial",
       "status": "in-progress",
-      "note": "领域监管（状态标签颜色已对齐PRD）"
+      "note": "V7.0 重构：左树（本单位→行业→领域）+ 右侧 3Tab，原 task-config / progress-supervise 内容已合并"
+    },
+    "government/task-config": {
+      "prd": "§V7-领域监管 / 任务配置（已合并）",
+      "annotations": "deprecated",
+      "status": "deprecated",
+      "note": "V7.0 已合并到 domain-supervise.html 的任务配置 Tab，文件保留但菜单不再导航"
+    },
+    "government/progress-supervise": {
+      "prd": "§V7-领域监管 / 进度监督（已合并）",
+      "annotations": "deprecated",
+      "status": "deprecated",
+      "note": "V7.0 已合并到 domain-supervise.html 的进度监督 Tab，文件保留但菜单不再导航"
     },
     "government/duty-supervise": {
-      "prd": "§11.6-11.7 我的监管",
+      "prd": "§V7-履职管理",
       "annotations": "partial",
       "status": "in-progress",
-      "note": "我的监管/履职（术语已对齐PRD）"
+      "note": "V7.0：移除整改完成率列、监管单位→科室、移除发起督查按钮"
     },
     "government/check-task": {
-      "prd": "§12 政府端检查任务管理",
+      "prd": "§V7-检查管理",
       "annotations": "partial",
       "status": "in-progress",
-      "note": "检查任务（状态标签颜色已对齐PRD）"
-    },
-    "government/key-place": {
-      "prd": "§7 重点场所管理",
-      "annotations": "partial",
-      "status": "in-progress",
-      "note": "重点场所（状态标签颜色已对齐PRD）"
+      "note": "V7.0：5 统计卡、检查类型对齐履职/专项、编号前缀 PC/ZX"
     },
     "government/quick-check": {
-      "prd": "§8 一键巡查",
-      "annotations": "partial",
-      "status": "in-progress",
-      "note": "一键巡查（隐患术语已对齐PRD）"
+      "prd": "§V7-检查管理（已合并）",
+      "annotations": "deprecated",
+      "status": "deprecated",
+      "note": "V7.0 一键巡查功能已并入 check-task.html，文件保留但菜单不再导航"
     },
     "government/hazard-manage": {
-      "prd": "§18 隐患库管理",
+      "prd": "§V7-隐患管理",
       "annotations": "partial",
       "status": "in-progress",
-      "note": "隐患管理（待整改标签蓝→绿已修正，等级标签class统一）"
+      "note": "V7.0 重构：左树+右列、状态体系改为待整改/待复核/已整改/已超期、新增隐患来源、超期分级颜色"
+    },
+    "government/key-place": {
+      "prd": "§V7-重点场所管理",
+      "annotations": "partial",
+      "status": "in-progress",
+      "note": "V7.0：page-header 增加审批列表入口（badge）、监管科室筛选、5 统计卡"
+    },
+    "government/project-manage": {
+      "prd": "§V7-项目信息管理",
+      "annotations": "partial",
+      "status": "in-progress",
+      "note": "V7.0：query-bar 增加审批列表入口（badge=2）"
+    },
+    "government/control-archive": {
+      "prd": "§V7-管控档案",
+      "annotations": "none",
+      "status": "draft",
+      "note": "V7.0 新建：左树 3 级（本单位→行业→领域）+ 混合列表 + 类型标签（设备/场所/作业/人员/物资）+ 行内展开子对象；5 统计卡 + 审批列表入口"
+    },
+    "government/gov-org": {
+      "prd": "§6.2.8.3 组织架构管理（政府端）",
+      "annotations": "none",
+      "status": "in-review",
+      "note": "V7.0.9 重写：3 张统计卡（单位/科室/政府管理员）+ 本单位→下级单位（递归）→1-3 级科室树 + 当前路径区 + 操作按钮区（按节点类型动态启用 §6.2.8.1.3）+ 基本信息区（单位类型/来源 灰显）+ 新增编辑组织弹窗（§6.2.8.3.4）+ 校验（电话/邮箱/层级/重名）；移除岗位/人员列表（属 gov-user + 职务管理）"
+    },
+    "government/gov-user": {
+      "prd": "§6.2.8.4 人员账号管理（政府端）",
+      "annotations": "none",
+      "status": "aligned",
+      "note": "V7.0 重写：整节复用 §6.1.2，4 分布局（组织树+统计卡+筛选+列表），14 条本单位范围示例数据，6 科室级联；支持新增/编辑/删除/详情/重置密码；审批列表 badge=2，批量导入；2026-06-23 align-prd 修复：GOV_ORG 扩展 subUnits（龙华/民治街道办事处含 3 科室）、新增 getOrgById/getDeptById/getOrgByDeptId/syncDeptByOrg、所属单位下拉补 2 个下级单位、追加 4 条街道演示用户、组织树展示下级单位（含 toggleSubUnit 展开）、_updateStats/renderTable 识别 sub-unit id 聚合用户、saveUser 用 ownOrg.name 兼容下级单位（BR-GOV-USER-03）"
+    },
+    "government/ent-manage": {
+      "prd": "§6.2.7 企业基本信息（政府端）",
+      "annotations": "none",
+      "status": "aligned",
+      "note": "V7.0 新建：辖区企业简版列表（行业/规模/街道/监管科室/风险/安全码状态），5 统计卡 + 高级查询；2026-06-23 align-prd 修复：alert 占位升级为 4 个真实弹窗（detailModal/archiveModal/approvalModal/importModal），10 个企业行的「详情」+「关联档案」双按钮串联打通；详情弹窗动态渲染 3 区 11 字段 + 4 卡档案概览；关联档案通过 window.parent.postMessage 跳转 government/ent-archive；审批弹窗含 5 条演示数据 + approvalAction；导入弹窗含上传区与模板提示"
+    },
+    "government/emergency-plan": {
+      "prd": "§V7-应急预案",
+      "annotations": "none",
+      "status": "draft",
+      "note": "V7.0 新建：预案列表（综合/专项/现场），含修订记录、演练状态"
+    },
+    "government/emergency-supply": {
+      "prd": "§V7-应急物资",
+      "annotations": "none",
+      "status": "draft",
+      "note": "V7.0 新建：物资库存（防化服/消防器材/通讯/医疗），库存预警颜色"
+    },
+    "government/emergency-team": {
+      "prd": "§V7-应急队伍",
+      "annotations": "none",
+      "status": "draft",
+      "note": "V7.0 新建：应急队伍（专业/兼职/志愿），含队员人数、装备配置、24h 联系人"
+    },
+    "government/emergency-contact": {
+      "prd": "§V7-联络通讯",
+      "annotations": "none",
+      "status": "draft",
+      "note": "V7.0 新建：分级联络（上级/平级/下级/企业/专家），值班排班、紧急联系人"
+    },
+    "government/profile": {
+      "prd": "§V7-个人中心",
+      "annotations": "none",
+      "status": "draft",
+      "note": "V7.0 新建：个人信息/设置/帮助中心/关于 一体化页面，由头像下拉菜单进入"
+    },
+    "government/persuade": {
+      "prd": "§V7-劝导路口（占位）",
+      "annotations": "none",
+      "status": "placeholder",
+      "note": "V7.0 新建：占位页，等待 PRD 二期详化"
     },
     "government/analytics": {
-      "prd": "§11.9 统计维度",
+      "prd": "§V7-统计分析",
       "annotations": "partial",
       "status": "in-progress",
       "note": "数据分析（统计卡颜色/隐患术语已对齐PRD）"
-    },
-    "government/project-manage": {
-      "prd": "§19 项目信息管理",
-      "annotations": "partial",
-      "status": "in-progress",
-      "note": "政府端项目管理（弹窗文案已对齐PRD）"
     },
     "super-admin/workbench": {
       "prd": "§2 系统角色 - 超管",
@@ -166,10 +258,10 @@
       "note": "业态模式配置（字段/标签色已对齐PRD）"
     },
     "super-admin/ent-manage": {
-      "prd": "§15 企业信息管理",
+      "prd": "§6.1.3 企业基本信息管理（超管端）",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "企业信息管理（停用标签颜色已对齐：灰色）"
+      "status": "aligned",
+      "note": "企业信息管理（停用标签颜色已对齐：灰色；2026-06-07 修复脚本顺序：pagination.js 移至 <body> 后立即加载；2026-06-23 align-prd 修复 CRITICAL+HIGH：新增弹窗按 §6.1.3.3.2.3 补「关联领域小类」+「监管信息」2 区（共 4 区）、addDomain 改造为真实多选交互（add/edit 双模式、data-domain-id 去重）、approveEnt/rejectEnt 消息体补 BR-12-07 语义（→已激活/已禁用）、rejectEnt 改用自定义 rejectModal（替代 prompt）、renderTable 写入 4 个统计卡联动 filteredData）"
     },
     "super-admin/ent-user": {
       "prd": "§16 企业用户管理",
@@ -178,16 +270,16 @@
       "note": "企业用户管理（'姓名'→'用户姓名'已对齐PRD）"
     },
     "super-admin/gov-org": {
-      "prd": "§10 政府端组织架构管理",
+      "prd": "§6.1.1 政府端组织架构管理",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "政府组织架构（多余统计卡已移除）"
+      "status": "aligned",
+      "note": "政府组织架构（已按PRD补齐关键词搜索、当前路径、科室3级限制、单位超管账号管理、删除强校验；组织树仅保留展开/收起全部按钮且右对齐，模拟数据仅保留南山区及21个指定单位；页面填满iframe可视区域且无外层滚动；区节点新增组织时锁定所属区划并隐藏上级组织字段；区级节点隐藏编辑、删除按钮）"
     },
     "super-admin/gov-user": {
-      "prd": "§13 政府用户管理",
+      "prd": "§6.1.2 人员账号管理（超管端）",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "政府用户管理（统计卡、列表字段、筛选条件已对齐PRD）"
+      "status": "aligned",
+      "note": "政府用户管理（统计卡、列表字段、筛选条件已对齐PRD；2026-06-07 修复脚本顺序：pagination.js 移至 <body> 后立即加载；2026-06-23 align-prd 修复：leaderId 在 openEditModal 回填 + saveUser 双分支持久化、BR-GOV-12 批量删除待办校验（blockedUsers 阻断并列举待办项）、BR-GOV-10 onDeptChange 科室选择→管理部门默认勾选；演示数据补 pendingTasks 字段）"
     },
     "super-admin/position-manage": {
       "prd": "§14 岗位管理模块",
@@ -196,10 +288,10 @@
       "note": "职务管理（关联检查表数列、场景选项已对齐PRD）"
     },
     "super-admin/domain-manage": {
-      "prd": "§9 领域小类管理",
+      "prd": "§6.1.5 领域小类管理（含 §6.1.5.9 动态表单配置）",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "领域小类管理（统计卡、列名、批量按钮已对齐PRD）"
+      "status": "aligned",
+      "note": "领域小类管理（V7.0：列表字段、统计卡筛选、校验规则、新增首行展示、自动编码和ESC关闭已对齐PRD；2026-06-22 列表结构统一为 table-toolbar/table-wrap/col-check/col-index/table-action-group，新增/编辑弹窗按 PRD 对齐字段约束、业态模式、状态单选、选填监管单位和启用动态表单字段；2026-06-23 业态模式枚举同步原型改为基础/项目/重点场所/其他，新增 §6.1.5.9 动态表单配置面板：板块管理（预设+自定义混合）、字段拖拽编辑器（16 字段类型）、字段属性抽屉（11 项元数据）、其他模式禁用动态表单、编辑回填、saveDomain 收集 formSections/formFields）"
     },
     "super-admin/checklist-lib": {
       "prd": "§17 检查库知识图谱增强",

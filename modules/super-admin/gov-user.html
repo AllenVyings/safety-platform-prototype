@@ -5,12 +5,13 @@
   
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>政府用户管理 - 超管端</title>
+<title>人员账号管理 - 超管端</title>
 
 <style>
 .breadcrumb-item:hover{color:var(--primary)}
-.main-layout{display:flex;gap: var(--spacing-md);margin-top: var(--spacing-md);min-height:calc(100vh - 100px)}
-.tree-panel{width:220px;flex-shrink:0;background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);height:fit-content;position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto}
+.page-container{height:100%;display:flex;flex-direction:column}
+.main-layout{display:flex;gap: var(--spacing-md);margin-top: var(--spacing-md);flex:1;min-height:0}
+.tree-panel{width:280px;flex-shrink:0;background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);height:fit-content;position:sticky;top:20px;max-height:100%;overflow-y:auto}
 .tree-panel-title{font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0}
 .tree-search{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);margin-bottom:10px;outline:none;transition:border-color .2s}
 .tree-search:focus{border-color:var(--primary)}
@@ -21,16 +22,17 @@
 .tree-node .toggle.open{transform:rotate(90deg)}
 .tree-children{padding-left:18px;display:none}
 .tree-children.show{display:block}
-.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap: var(--spacing-md)}
+.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap: var(--spacing-md);min-height:0}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 
+.stat-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:16px 20px;border:1px solid var(--border-section)}
 .stat-card-label{font-size: var(--font-size-xs);color:var(--text-tertiary);margin-bottom:6px}
 .stat-card-value{font-size:22px;font-weight:700;color:var(--text-primary)}
 .stat-card-sub{font-size:11px;color:var(--border);margin-top:2px}
-.query-bar{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md) 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.query-bar{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md) 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;border:1px solid var(--border-section)}
 .query-bar .q-item{display:flex;align-items:center;gap:6px}
 .query-bar label{font-size: var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
-.query-bar select,.query-bar input{padding:5px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s}
+.query-bar select,.query-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;box-sizing:border-box}
 .query-bar select:focus,.query-bar input:focus{border-color:var(--primary)}
 
 .btn-default:hover{color:var(--primary);border-color:var(--primary)}
@@ -41,24 +43,11 @@
 .btn-link.btn-sm{font-size: var(--font-size-xs);padding: 1px var(--spacing-xs)}
 
 .btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
-.table-card{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);flex:1;overflow:hidden}
-.table-container{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size: var(--font-size-sm);min-width:900px}
-thead th{background:var(--bg-tertiary);padding:10px 12px;text-align:left;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;position:relative}
-tbody td{padding:10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary);max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-tbody tr:hover{background:var(--bg-section)}
-tbody tr:last-child td{border-bottom:none}
-/* 列宽固定 */
-thead th:nth-child(1),tbody td:nth-child(1){width:80px;max-width:80px}   /* 姓名 */
-thead th:nth-child(2),tbody td:nth-child(2){width:120px;max-width:120px}  /* 手机号 */
-thead th:nth-child(3),tbody td:nth-child(3){width:150px;max-width:150px}  /* 所属单位 */
-thead th:nth-child(4),tbody td:nth-child(4){width:120px;max-width:120px}  /* 所属科室 */
-thead th:nth-child(5),tbody td:nth-child(5){width:90px;max-width:90px}    /* 职务 */
-thead th:nth-child(6),tbody td:nth-child(6){width:90px;max-width:90px}    /* 层级 */
-thead th:nth-child(7),tbody td:nth-child(7){width:70px;max-width:70px}  /* 状态 */
-    /* 操作列固定在右侧，表头居中 */
-.action-col{width:280px;max-width:280px;box-shadow:-2px 0 4px rgba(0,0,0,.04)}
-.action-col .btn-link:last-child{margin-right:0}
+.table-card{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);flex:1;overflow:hidden;border:1px solid var(--border-section);display:flex;flex-direction:column;min-height:0}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md)}
+/* 内容列自适应 + 长文本截断（复选框/序号/操作列使用框架固定列规则） */
+.table-wrap td:not(.col-check):not(.col-index):not(.action-col){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.table-wrap{flex:1;overflow:auto;min-height:0}
 /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
 
 .tag-success{background:var(--success-light);color:var(--success)}
@@ -122,7 +111,7 @@ thead th:nth-child(7),tbody td:nth-child(7){width:70px;max-width:70px}  /* 状�
     <span class="breadcrumb-prefix">当前位置：</span>
     <span class="breadcrumb-item">超管端</span>
     <span class="breadcrumb-separator">&gt;</span>
-    <span class="breadcrumb-item current">政府用户管理</span>
+    <span class="breadcrumb-item current">人员账号管理</span>
   </div>
   <div class="main-layout">
     <!-- 左侧：政府组织树 -->
@@ -142,30 +131,44 @@ thead th:nth-child(7),tbody td:nth-child(7){width:70px;max-width:70px}  /* 状�
       </div>
       <!-- 查询条件 -->
       <div class="query-bar">
-        <div class="q-item"><label>姓名</label>
-          <input id="filterName" placeholder="请输入姓名" style="width:140px">
+        <div class="q-item"><label>姓名：</label>
+          <input id="filterName" placeholder="搜索姓名">
         </div>
-        <div class="q-item"><label>手机号</label>
-          <input id="filterPhone" placeholder="请输入手机号" style="width:140px">
+        <div class="q-item"><label>手机号：</label>
+          <input id="filterPhone" placeholder="搜索手机号">
         </div>
-        <div class="q-item"><label>状态</label>
+        <div class="q-item"><label>状态：</label>
           <select id="filterStatus"><option value="">全部</option><option>启用</option><option>停用</option></select>
         </div>
-        <button class="btn btn-default" onclick="renderTable()">搜索</button>
+        <button class="btn btn-primary" onclick="renderTable()">查询</button>
         <button class="btn btn-default" onclick="document.getElementById('filterName').value='';document.getElementById('filterPhone').value='';document.getElementById('filterStatus').value='';renderTable()">重置</button>
-        <div style="flex:1"></div>
-        <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
       </div>
       <!-- 用户列表 -->
       <div class="table-card">
-        <div class="table-container table-scroll">
+        <div class="table-toolbar">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)">用户列表</span>
+            <div id="batchBar" style="display:none;align-items:center;gap:8px;padding:4px 10px;background:var(--primary-light);border-radius:var(--radius-md);font-size:var(--font-size-xs);color:var(--primary)">
+              已选 <span class="batch-count">0</span> 项
+              <button class="btn btn-link btn-sm" style="color:var(--danger);padding:0 4px" onclick="batchDelete()">批量删除</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ 新增用户</button>
+            <button class="btn btn-default btn-sm" onclick="downloadTemplate()">下载模板</button>
+            <button class="btn btn-default btn-sm" onclick="openBatchImport()">批量导入</button>
+          </div>
+        </div>
+        <div class="table-wrap">
           <table>
             <thead><tr>
+              <th class="col-check"><input type="checkbox" id="checkAll" onchange="toggleAll(this)"></th>
+              <th class="col-index">序号</th>
               <th>姓名</th><th>手机号</th><th>所属单位</th><th>所属科室</th>
-              <th>职务</th><th>层级</th>
+              <th>职务</th><th>用户层级</th>
               <th>状态</th><th class="action-col">操作</th>
             </tr></thead>
-            <tbody id="userTableBody"><tr><td colspan="8" class="no-data">加载中...</td></tr></tbody>
+            <tbody id="userTableBody"><tr><td colspan="10" class="no-data">加载中...</td></tr></tbody>
           </table>
         </div>
         <!-- 分页 -->
@@ -188,25 +191,26 @@ thead th:nth-child(7),tbody td:nth-child(7){width:70px;max-width:70px}  /* 状�
         <div class="form-row">
           <div class="form-group"><label class="form-label"><span class="required">*</span>用户姓名</label><input class="form-control" id="fName" type="text" placeholder="请输入用户姓名"></div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>手机号码</label><input class="form-control" id="fMobile" type="text" placeholder="请输入手机号码" oninput="syncAccountFromMobile()"></div>
-          <div class="form-group"><label class="form-label">邮箱</label><input class="form-control" id="fEmail" type="email" placeholder="请输入邮箱（选填）"></div><!-- 扩展字段：PRD未要求，保留 -->
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label"><span class="required">*</span>职务</label><input class="form-control" id="fTitle" type="text" placeholder="请输入职务"></div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>所属单位</label>
             <select class="form-control" id="fOrg" onchange="onOrgChange()">
               <option value="">请选择所属单位</option>
-              <option value="org1">区应急管理局</option>
-              <option value="org2">区住建局</option>
-              <option value="org3">区消防救援大队</option>
-              <option value="org4">街道安监办</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="form-label"><span class="required">*</span>所属科室</label>
-            <select class="form-control" id="fDept"><option value="">请先选择所属单位</option></select>
+            </select></div>
+          <div class="form-group"><label class="form-label">所属科室</label>
+            <select class="form-control" id="fDept" onchange="onDeptChange()"><option value="">请先选择所属单位</option></select>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">管理部门</label><!-- 扩展字段：PRD未要求，保留 -->
+          <div class="form-group"><label class="form-label"><span class="required">*</span>职务</label><input class="form-control" id="fTitle" type="text" placeholder="请输入职务"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>用户层级</label>
+            <select class="form-control" id="fUserType">
+              <option value="">请选择用户层级</option><option>领导层</option><option>监管层</option><option>巡查层</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">管理部门</label>
             <div class="multi-select" id="fManageDeptsWrap">
               <div class="multi-select-input" onclick="toggleMultiDropdown()">
                 <span class="multi-select-placeholder" id="fManageDeptsText">请先选择所属单位</span>
@@ -223,29 +227,20 @@ thead th:nth-child(7),tbody td:nth-child(7){width:70px;max-width:70px}  /* 状�
               </div>
             </div>
           </div>
-          <div class="form-group"><label class="form-label"><span class="required">*</span>用户层级</label>
-            <select class="form-control" id="fUserType">
-              <option value="">请选择用户层级</option><option>领导层</option><option>监管层</option><option>巡查层</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="form-label">上级领导</label><!-- 扩展字段：PRD未要求，保留 -->
+          <div class="form-group"><label class="form-label">上级领导</label>
             <select class="form-control" id="fLeader"><option value="">请选择上级领导（选填）</option></select>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label"><span class="required">*</span>角色类型</label><!-- 扩展字段：PRD未要求，保留 -->
-            <select class="form-control" id="fRole">
-              <option value="">请选择角色类型</option><option>单位管理员</option><option>普通用户</option>
-            </select>
-          </div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>状态</label>
             <select class="form-control" id="fStatus">
               <option value="启用" selected>启用</option><option value="停用">停用</option>
             </select>
           </div>
+          <div class="form-group"><label class="form-label">邮箱</label><input class="form-control" id="fEmail" type="email" placeholder="请输入邮箱（选填）"></div>
         </div>
         <div class="form-row">
-          <div class="form-group" style="flex:1 0 100%"><label class="form-label">备注</label><!-- 扩展字段：PRD未要求，保留 --><textarea class="form-control" id="fRemark" placeholder="请输入备注（选填，200字以内）" style="min-height:60px;resize:vertical"></textarea></div>
+          <div class="form-group" style="flex:1 0 100%"><label class="form-label">备注</label><textarea class="form-control" id="fRemark" placeholder="请输入备注（选填，200字以内）" style="min-height:60px;resize:vertical"></textarea></div>
         </div>
       </div>
       <div class="form-section">
@@ -319,33 +314,61 @@ thead th:nth-child(7),tbody td:nth-child(7){width:70px;max-width:70px}  /* 状�
   </div>
 </div>
 
+<!-- 批量导入弹窗 -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal" style="width:480px">
+    <div class="modal-header"><span class="modal-title">批量导入用户</span><div class="modal-close" onclick="closeModal('importModal')">&#x2715;</div></div>
+    <div class="modal-body" style="text-align:center;padding:36px 24px">
+      <div style="width:64px;height:64px;margin:0 auto 16px;background:var(--bg-section);border-radius:12px;display:flex;align-items:center;justify-content:center">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 15h-2v-4H9l3-3 3 3h-2v4zm2-8V3.5L18.5 9H15z" fill="var(--primary)"/></svg>
+      </div>
+      <p style="font-size:var(--font-size-sm);color:var(--text-primary);margin:0 0 4px">选择 Excel 文件批量导入用户</p>
+      <p style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin:0 0 16px">请先<a onclick="downloadTemplate()" style="color:var(--primary);cursor:pointer">下载模板</a>按格式填写</p>
+      <button class="btn btn-primary">选择文件</button>
+    </div>
+    <div class="modal-footer" style="justify-content:center"><button class="btn btn-default" onclick="closeModal('importModal')">关闭</button></div>
+  </div>
+</div>
+
 <script>
 // ==================== 数据 ====================
+// 组织架构数据同步自 gov-org.html（超管端组织架构管理）
 var govOrgData = {
   orgs: [
-    {id:'org1',name:'区应急管理局',leader:'王建国',tel:'0755-88880001',
+    {id:'NS-TRAFFIC-POLICE',name:'深圳市公安局交通管理支队南山大队',leader:'李警官',tel:'138****1001',depts:[]},
+    {id:'NS-AMB',name:'区应急管理局',leader:'张主任',tel:'138****1002',
      depts:[
-       {id:'d11',name:'应急指挥科'},
-       {id:'d12',name:'安全生产监管科'},
-       {id:'d13',name:'综合协调科'},
-       {id:'d14',name:'防火监督科'}
+       {id:'NS-AMB-01',name:'督导检查科'},
+       {id:'NS-AMB-02',name:'综合协调科'},
+       {id:'NS-AMB-03',name:'区三防办'},
+       {id:'NS-AMB-04',name:'安全监管和执法科'},
+       {id:'NS-AMB-05',name:'防灾减灾科'},
+       {id:'NS-AMB-06',name:'危化品监管和执法科'}
      ]},
-    {id:'org2',name:'区住建局',leader:'李志明',tel:'0755-88880002',
+    {id:'NS-EEB',name:'市生态环境局南山管理局',leader:'王主任',tel:'138****1003',depts:[]},
+    {id:'NS-EDU',name:'区教育局',leader:'陈主任',tel:'138****1004',depts:[]},
+    {id:'NS-IIT',name:'区工业和信息化局',leader:'刘主任',tel:'138****1005',depts:[]},
+    {id:'NS-FIRE',name:'区消防救援局',leader:'赵主任',tel:'138****1006',depts:[]},
+    {id:'NS-HOUSING',name:'区住房和建设局',leader:'周主任',tel:'138****1007',depts:[]},
+    {id:'NS-WATER',name:'区水务局',leader:'吴主任',tel:'138****1008',depts:[]},
+    {id:'NS-COMMERCE',name:'区商务局',leader:'郑主任',tel:'138****1009',depts:[]},
+    {id:'NS-CULTURE',name:'区文化广电旅游体育局',leader:'冯主任',tel:'138****1010',depts:[]},
+    {id:'NS-HEALTH',name:'区卫生健康局',leader:'蒋主任',tel:'138****1011',depts:[]},
+    {id:'NS-URBAN',name:'区城市管理和综合执法局',leader:'沈主任',tel:'138****1012',depts:[]},
+    {id:'NS-MARKET',name:'市场监督管理局南山监管局',leader:'韩主任',tel:'138****1013',depts:[]},
+    {id:'NS-NANTOU',name:'南头街道办事处',leader:'杨主任',tel:'138****1014',
      depts:[
-       {id:'d21',name:'建筑质量监督科'},
-       {id:'d22',name:'房地产市场管理科'},
-       {id:'d23',name:'物业管理科'}
+       {id:'NS-NANTOU-01',name:'安监科'}
      ]},
-    {id:'org3',name:'区消防救援大队',leader:'张伟',tel:'0755-88880003',
+    {id:'NS-NANSHAN-STREET',name:'南山街道办事处',leader:'朱主任',tel:'138****1015',depts:[]},
+    {id:'NS-XILI',name:'西丽街道办事处',leader:'秦主任',tel:'138****1016',depts:[]},
+    {id:'NS-SHAHE',name:'沙河街道办事处',leader:'许主任',tel:'138****1017',depts:[]},
+    {id:'NS-SHEKOU',name:'蛇口街道办事处',leader:'何主任',tel:'138****1018',depts:[]},
+    {id:'NS-ZHAOSHANG',name:'招商街道办事处',leader:'吕主任',tel:'138****1019',depts:[]},
+    {id:'NS-YUEHAI',name:'粵海街道办事处',leader:'罗主任',tel:'138****1020',depts:[]},
+    {id:'NS-TAOYUAN',name:'桃源街道办事处',leader:'高主任',tel:'138****1021',
      depts:[
-       {id:'d31',name:'防火监督科'},
-       {id:'d32',name:'应急救援科'},
-       {id:'d33',name:'后勤保障科'}
-     ]},
-    {id:'org4',name:'街道安监办',leader:'陈强',tel:'0755-88880004',
-     depts:[
-       {id:'d41',name:'综合协调科'},
-       {id:'d42',name:'巡查督导科'}
+       {id:'NS-TAOYUAN-01',name:'安监科'}
      ]}
   ]
 };
@@ -354,44 +377,76 @@ var _uid = 100;
 function _uidGen(){return 'u' + (_uid++);}
 
 var allUsers = [
-  {id:_uidGen(),name:'王健',account:'13800138001',orgId:'org1',deptId:'d11',manageDeptIds:['d11','d12'],mobile:'13800138001',email:'wangjian@gov.cn',title:'科长',userType:'监管层',roleType:'单位管理员',status:'启用',lastLogin:'2026-04-13 09:21',remark:''},
-  {id:_uidGen(),name:'李娜',account:'13800138002',orgId:'org1',deptId:'d12',manageDeptIds:['d12'],mobile:'13800138002',email:'lina@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-12 16:45',remark:''},
-  {id:_uidGen(),name:'张伟',account:'13800138003',orgId:'org1',deptId:'d13',manageDeptIds:['d13','d14'],mobile:'13800138003',email:'zhangwei@gov.cn',title:'主任',userType:'领导层',roleType:'单位管理员',status:'启用',lastLogin:'2026-04-13 08:30',remark:''},
-  {id:_uidGen(),name:'刘洋',account:'13800138004',orgId:'org2',deptId:'d21',manageDeptIds:['d21'],mobile:'13800138004',email:'',title:'安全员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-11 14:20',remark:''},
-  {id:_uidGen(),name:'陈静',account:'13800138005',orgId:'org2',deptId:'d22',manageDeptIds:['d22','d23'],mobile:'13800138005',email:'chenjing@gov.cn',title:'副科长',userType:'监管层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-10 10:15',remark:''},
-  {id:_uidGen(),name:'赵磊',account:'13800138006',orgId:'org3',deptId:'d31',manageDeptIds:['d31'],mobile:'13800138006',email:'zhaolei@gov.cn',title:'队长',userType:'领导层',roleType:'单位管理员',status:'启用',lastLogin:'2026-04-13 07:50',remark:''},
-  {id:_uidGen(),name:'孙丽',account:'13800138007',orgId:'org3',deptId:'d32',manageDeptIds:['d32'],mobile:'13800138007',email:'',title:'队员',userType:'巡查层',roleType:'普通用户',status:'停用',lastLogin:'2026-03-28 11:00',remark:'已离职'},
-  {id:_uidGen(),name:'周强',account:'13800138008',orgId:'org4',deptId:'d41',manageDeptIds:['d41','d42'],mobile:'13800138008',email:'zhouq@gov.cn',title:'主任',userType:'监管层',roleType:'单位管理员',status:'启用',lastLogin:'2026-04-12 17:30',remark:''},
-  {id:_uidGen(),name:'吴敏',account:'13800138009',orgId:'org4',deptId:'d42',manageDeptIds:['d42'],mobile:'13800138009',email:'',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-09 09:00',remark:''},
-  {id:_uidGen(),name:'郑刚',account:'13800138010',orgId:'org1',deptId:'d14',manageDeptIds:['d14'],mobile:'13800138010',email:'zhengg@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'停用',lastLogin:'2026-03-01 08:00',remark:'借调'},
-  {id:_uidGen(),name:'黄伟',account:'13800138011',orgId:'org1',deptId:'d11',manageDeptIds:['d11'],mobile:'13800138011',email:'huangw@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-11 10:30',remark:''},
-  {id:_uidGen(),name:'林芳',account:'13800138012',orgId:'org1',deptId:'d12',manageDeptIds:['d12'],mobile:'13800138012',email:'linf@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-10 14:20',remark:''},
-  {id:_uidGen(),name:'徐明',account:'13800138013',orgId:'org2',deptId:'d21',manageDeptIds:['d21'],mobile:'13800138013',email:'xum@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-09 16:45',remark:''},
-  {id:_uidGen(),name:'高洁',account:'13800138014',orgId:'org2',deptId:'d22',manageDeptIds:['d22'],mobile:'13800138014',email:'gaoj@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-08 11:30',remark:''},
-  {id:_uidGen(),name:'马超',account:'13800138015',orgId:'org3',deptId:'d31',manageDeptIds:['d31'],mobile:'13800138015',email:'mac@gov.cn',title:'队员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-07 09:15',remark:''},
-  {id:_uidGen(),name:'胡丽',account:'13800138016',orgId:'org3',deptId:'d32',manageDeptIds:['d32'],mobile:'13800138016',email:'hul@gov.cn',title:'队员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-06 15:40',remark:''},
-  {id:_uidGen(),name:'朱强',account:'13800138017',orgId:'org4',deptId:'d41',manageDeptIds:['d41'],mobile:'13800138017',email:'zhuq@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-05 10:20',remark:''},
-  {id:_uidGen(),name:'何敏',account:'13800138018',orgId:'org4',deptId:'d42',manageDeptIds:['d42'],mobile:'13800138018',email:'hem@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-04 14:55',remark:''},
-  {id:_uidGen(),name:'郭涛',account:'13800138019',orgId:'org1',deptId:'d13',manageDeptIds:['d13'],mobile:'13800138019',email:'guot@gov.cn',title:'副科长',userType:'监管层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-03 08:45',remark:''},
-  {id:_uidGen(),name:'袁娜',account:'13800138020',orgId:'org2',deptId:'d23',manageDeptIds:['d23'],mobile:'13800138020',email:'yuan@gov.cn',title:'科员',userType:'巡查层',roleType:'普通用户',status:'启用',lastLogin:'2026-04-02 16:30',remark:''},
+  // ===== 区应急管理局（NS-AMB）14人，与政府端一致 =====
+  {id:_uidGen(),name:'王建国',account:'13800138001',orgId:'NS-AMB',deptId:'NS-AMB-01',manageDeptIds:['NS-AMB-01','NS-AMB-02'],leaderId:'',pendingTasks:3,mobile:'13800138001',email:'wangjianguo@gov.cn',title:'科长',userType:'监管层',status:'启用',lastLogin:'2026-06-10 09:21',remark:''},
+  {id:_uidGen(),name:'李明华',account:'13800138002',orgId:'NS-AMB',deptId:'NS-AMB-01',manageDeptIds:['NS-AMB-01'],leaderId:'u100',pendingTasks:1,mobile:'13800138002',email:'liminghua@gov.cn',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-06-09 16:45',remark:''},
+  {id:_uidGen(),name:'张志强',account:'13800138003',orgId:'NS-AMB',deptId:'NS-AMB-02',manageDeptIds:['NS-AMB-02','NS-AMB-03'],mobile:'13800138003',email:'zhangzhiqiang@gov.cn',title:'科长',userType:'监管层',status:'启用',lastLogin:'2026-06-08 08:30',remark:''},
+  {id:_uidGen(),name:'陈月明',account:'13800138004',orgId:'NS-AMB',deptId:'NS-AMB-02',manageDeptIds:['NS-AMB-02'],mobile:'13800138004',email:'chenyueming@gov.cn',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-06-07 14:20',remark:''},
+  {id:_uidGen(),name:'刘建军',account:'13800138005',orgId:'NS-AMB',deptId:'NS-AMB-03',manageDeptIds:['NS-AMB-03','NS-AMB-04'],mobile:'13800138005',email:'liujianjun@gov.cn',title:'主任',userType:'监管层',status:'启用',lastLogin:'2026-06-06 10:15',remark:''},
+  {id:_uidGen(),name:'赵晓燕',account:'13800138006',orgId:'NS-AMB',deptId:'NS-AMB-03',manageDeptIds:[],mobile:'13800138006',email:'zhaoxiaoyan@gov.cn',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-06-05 07:50',remark:''},
+  {id:_uidGen(),name:'孙志强',account:'13800138007',orgId:'NS-AMB',deptId:'NS-AMB-04',manageDeptIds:['NS-AMB-04','NS-AMB-05'],mobile:'13800138007',email:'sunzhiqiang@gov.cn',title:'科长',userType:'监管层',status:'启用',lastLogin:'2026-06-04 17:30',remark:''},
+  {id:_uidGen(),name:'周文博',account:'13800138008',orgId:'NS-AMB',deptId:'NS-AMB-04',manageDeptIds:['NS-AMB-04'],mobile:'13800138008',email:'zhouwenbo@gov.cn',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-06-03 09:00',remark:''},
+  {id:_uidGen(),name:'钱晓东',account:'13800138009',orgId:'NS-AMB',deptId:'NS-AMB-05',manageDeptIds:['NS-AMB-05','NS-AMB-06'],mobile:'13800138009',email:'qianxiaodong@gov.cn',title:'科长',userType:'监管层',status:'启用',lastLogin:'2026-06-02 14:55',remark:''},
+  {id:_uidGen(),name:'吴明远',account:'13800138010',orgId:'NS-AMB',deptId:'NS-AMB-05',manageDeptIds:[],mobile:'13800138010',email:'wumingyuan@gov.cn',title:'科员',userType:'巡查层',status:'停用',lastLogin:'2026-05-20 11:00',remark:''},
+  {id:_uidGen(),name:'黄伟',account:'13800138011',orgId:'NS-AMB',deptId:'NS-AMB-06',manageDeptIds:['NS-AMB-06'],mobile:'13800138011',email:'huangwei@gov.cn',title:'科长',userType:'领导层',status:'启用',lastLogin:'2026-06-01 10:30',remark:''},
+  {id:_uidGen(),name:'林芳',account:'13800138012',orgId:'NS-AMB',deptId:'NS-AMB-06',manageDeptIds:[],mobile:'13800138012',email:'linfang@gov.cn',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-05-30 14:20',remark:''},
+  {id:_uidGen(),name:'徐明',account:'13800138013',orgId:'NS-AMB',deptId:'NS-AMB-01',manageDeptIds:[],mobile:'13800138013',email:'xuming@gov.cn',title:'科员',userType:'巡查层',status:'停用',lastLogin:'2026-05-15 16:45',remark:''},
+  {id:_uidGen(),name:'高洁',account:'13800138014',orgId:'NS-AMB',deptId:'NS-AMB-02',manageDeptIds:[],mobile:'13800138014',email:'gaojie@gov.cn',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-05-28 11:30',remark:''},
+  // ===== 其他单位 =====
+  {id:_uidGen(),name:'刘洋',account:'13800138015',orgId:'NS-HOUSING',deptId:'',manageDeptIds:[],mobile:'13800138015',email:'',title:'安全员',userType:'巡查层',status:'启用',lastLogin:'2026-04-11 14:20',remark:''},
+  {id:_uidGen(),name:'陈静',account:'13800138016',orgId:'NS-HOUSING',deptId:'',manageDeptIds:[],mobile:'13800138016',email:'chenjing@gov.cn',title:'副科长',userType:'监管层',status:'启用',lastLogin:'2026-04-10 10:15',remark:''},
+  {id:_uidGen(),name:'赵磊',account:'13800138017',orgId:'NS-FIRE',deptId:'',manageDeptIds:[],mobile:'13800138017',email:'zhaolei@gov.cn',title:'队长',userType:'领导层',status:'启用',lastLogin:'2026-04-13 07:50',remark:''},
+  {id:_uidGen(),name:'孙丽',account:'13800138018',orgId:'NS-FIRE',deptId:'',manageDeptIds:[],mobile:'13800138018',email:'',title:'队员',userType:'巡查层',status:'停用',lastLogin:'2026-03-28 11:00',remark:'已离职'},
+  {id:_uidGen(),name:'周强',account:'13800138019',orgId:'NS-NANTOU',deptId:'NS-NANTOU-01',manageDeptIds:['NS-NANTOU-01'],mobile:'13800138019',email:'zhouq@gov.cn',title:'主任',userType:'监管层',status:'启用',lastLogin:'2026-04-12 17:30',remark:''},
+  {id:_uidGen(),name:'吴敏',account:'13800138020',orgId:'NS-NANTOU',deptId:'NS-NANTOU-01',manageDeptIds:[],mobile:'13800138020',email:'',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-04-09 09:00',remark:''},
+  {id:_uidGen(),name:'徐明',account:'13800138021',orgId:'NS-HOUSING',deptId:'',manageDeptIds:[],mobile:'13800138021',email:'xum@gov.cn',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-04-09 16:45',remark:''},
+  {id:_uidGen(),name:'高洁',account:'13800138022',orgId:'NS-HOUSING',deptId:'',manageDeptIds:[],mobile:'13800138022',email:'gaoj@gov.cn',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-04-08 11:30',remark:''},
+  {id:_uidGen(),name:'马超',account:'13800138023',orgId:'NS-FIRE',deptId:'',manageDeptIds:[],mobile:'13800138023',email:'mac@gov.cn',title:'队员',userType:'巡查层',status:'启用',lastLogin:'2026-04-07 09:15',remark:''},
+  {id:_uidGen(),name:'胡丽',account:'13800138024',orgId:'NS-FIRE',deptId:'',manageDeptIds:[],mobile:'13800138024',email:'hul@gov.cn',title:'队员',userType:'巡查层',status:'启用',lastLogin:'2026-04-06 15:40',remark:''},
+  {id:_uidGen(),name:'朱强',account:'13800138025',orgId:'NS-NANTOU',deptId:'NS-NANTOU-01',manageDeptIds:[],mobile:'13800138025',email:'zhuq@gov.cn',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-04-05 10:20',remark:''},
+  {id:_uidGen(),name:'何敏',account:'13800138026',orgId:'NS-NANTOU',deptId:'NS-NANTOU-01',manageDeptIds:[],mobile:'13800138026',email:'hem@gov.cn',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-04-04 14:55',remark:''},
+  {id:_uidGen(),name:'袁娜',account:'13800138027',orgId:'NS-HOUSING',deptId:'',manageDeptIds:[],mobile:'13800138027',email:'yuan@gov.cn',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-04-02 16:30',remark:''},
 ];
+
+// 初始化时动态填充单位下拉
+function populateOrgSelects(){
+  var sel = document.getElementById('fOrg');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">请选择所属单位</option>';
+  govOrgData.orgs.forEach(function(o){
+    var opt = document.createElement('option');
+    opt.value = o.id;
+    opt.textContent = o.name;
+    sel.appendChild(opt);
+  });
+}
 
 // ==================== 渲染组织树 ====================
 function _getChildDepts(pid){
   var nodes = [];
+  if(pid === 'root'){
+    // 根节点：南山区（含全部21个单位作为子节点）
+    var nanshan = {id:'nanshan', name:'南山区', type:'district', children:[]};
+    govOrgData.orgs.forEach(function(org){
+      nanshan.children.push({id:org.id, name:org.name, type:'org', children:org.depts || []});
+    });
+    return [nanshan];
+  }
+  if(pid === 'nanshan'){
+    govOrgData.orgs.forEach(function(org){
+      nodes.push({id:org.id, name:org.name, type:'org', children:org.depts || []});
+    });
+    return nodes;
+  }
   govOrgData.orgs.forEach(function(org){
-    if(pid === 'root'){
-      nodes.push({id:org.id,name:org.name,type:'org',children:org.depts});
-    }else{
-      var d = org.depts.find(function(dd){return dd.id === pid;});
-      if(d && d.children) d.children.forEach(function(c){nodes.push({id:c.id,name:c.name,type:'dept'});});
-    }
+    var d = org.depts.find(function(dd){return dd.id === pid;});
+    if(d && d.children) d.children.forEach(function(c){nodes.push({id:c.id,name:c.name,type:'dept'});});
   });
   return nodes;
 }
 
 function _updateStats(orgId){
-  var filtered = orgId ? allUsers.filter(function(u){return u.orgId === orgId;}) : allUsers;
+  var filtered = (orgId && orgId !== 'nanshan') ? allUsers.filter(function(u){return u.orgId === orgId;}) : allUsers;
   document.getElementById('statTotal').textContent = filtered.length;
   document.getElementById('statNormal').textContent = filtered.filter(function(u){return u.status==='启用';}).length;
   document.getElementById('statDisabled').textContent = filtered.filter(function(u){return u.status==='停用';}).length;
@@ -408,17 +463,27 @@ function filterTree(){
 
 function renderOrgTree(){
   var tree = document.getElementById('orgTree');
-  var nodes = _getChildDepts('root');
-  tree.innerHTML = '<div class="tree-node' + (window._activeOrg ? '' : ' active') + '" onclick="selectOrg(null,this)" data-id=""><span class="toggle"></span><span>全部单位</span></div>' +
-    nodes.map(function(n){
-      var hasChildren = n.children && n.children.length > 0;
-      return '<div class="tree-node' + (window._activeOrg === n.id ? ' active' : '') + '" id="tog_' + n.id + '" data-id="' + n.id + '" onclick="selectOrg(&#39;' + n.id + '&#39;,this)">' +
-        '<span class="toggle' + (window._openNodes && window._openNodes[n.id] ? ' open' : '') + '" onclick="event.stopPropagation();toggleNode(&#39;' + n.id + '&#39;)">&#9654;</span><span>' + n.name + '</span></div>' +
-        (hasChildren ? '<div class="tree-children' + (window._openNodes && window._openNodes[n.id] ? ' show' : '') + '" id="ch_' + n.id + '">' +
-          n.children.map(function(c){
-            return '<div class="tree-node' + (window._activeOrg === c.id ? ' active' : '') + '" onclick="selectOrg(&#39;' + c.id + '&#39;,this)" data-id="' + c.id + '"><span class="toggle"></span><span>' + c.name + '</span></div>';
-          }).join('') + '</div>' : '');
-    }).join('');
+  function _renderNode(n){
+    var childNodes = _getChildDepts(n.id);
+    var hasChildren = childNodes.length > 0;
+    var isActive = window._activeOrg === n.id || (n.id === 'nanshan' && !window._activeOrg);
+    var cls = 'tree-node' + (isActive ? ' active' : '');
+    var toggleHtml = hasChildren
+      ? '<span class="toggle' + (window._openNodes && window._openNodes[n.id] ? ' open' : '') + '" onclick="event.stopPropagation();toggleNode(\'' + n.id + '\')">&#9654;</span>'
+      : '<span class="toggle"></span>';
+    var childrenHtml = hasChildren
+      ? '<div class="tree-children' + (window._openNodes && window._openNodes[n.id] ? ' show' : '') + '" id="ch_' + n.id + '">' +
+        childNodes.map(function(c){ return _renderNode(c); }).join('') + '</div>'
+      : '';
+    return '<div class="' + cls + '" id="tog_' + n.id + '" data-id="' + n.id + '" onclick="selectOrg(\'' + n.id + '\',this)">' +
+      toggleHtml + '<span>' + n.name + '</span></div>' + childrenHtml;
+  }
+  // 默认展开全部层级（必须在 _renderNode 之前设置）
+  if(!window._openNodes) window._openNodes = {};
+  window._openNodes['nanshan'] = true;
+  govOrgData.orgs.forEach(function(o){ window._openNodes[o.id] = true; });
+  var root = _getChildDepts('root')[0]; // 南山区
+  tree.innerHTML = _renderNode(root);
 }
 
 function toggleNode(id){
@@ -431,10 +496,9 @@ function toggleNode(id){
 }
 
 function selectOrg(id, el){
-  window._activeOrg = id || null;
-  // 判断是单位ID还是科室ID
+  window._activeOrg = (id && id !== 'nanshan') ? id : null;
   window._activeOrgType = null;
-  if(id){
+  if(id && id !== 'nanshan'){
     // 检查是否是科室ID（在orgs的depts中）
     govOrgData.orgs.forEach(function(org){
       if(org.depts){
@@ -482,7 +546,7 @@ function renderTable(){
   var pageRows = filteredRows.slice(start, start + pageSize);
   var tbody = document.getElementById('userTableBody');
   if(pageRows.length === 0){
-    tbody.innerHTML = '<tr><td colspan="8" class="no-data">暂无数据</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10" class="no-data">暂无数据</td></tr>';
     if(pg) pg.setTotal(filteredRows.length);
     return;
   }
@@ -492,14 +556,16 @@ function renderTable(){
     var statusLabel = u.status === '启用' ? '启用' : '停用';
     var statusCls = u.status === '启用' ? 'tag-success' : 'tag-error';
     return '<tr>' +
+      '<td class="col-check"><input type="checkbox" class="row-check" value="' + u.id + '" onchange="toggleRow()"></td>' +
+      '<td class="col-index">' + (start + idx + 1) + '</td>' +
       '<td title="' + u.name + '">' + u.name + '</td>' +
       '<td title="' + u.mobile + '">' + (u.mobile||'—') + '</td>' +
       '<td title="' + (org?org.name:'') + '">' + (org?org.name:'') + '</td>' +
-      '<td title="' + (dept?dept.name:'') + '">' + (dept?dept.name:'') + '</td>' +
+      '<td title="' + (dept?dept.name:'—') + '">' + (dept?dept.name:'—') + '</td>' +
       '<td title="' + u.title + '">' + (u.title||'') + '</td>' +
       '<td>' + (u.userType||'') + '</td>' +
       '<td><span class="tag ' + statusCls + '">' + statusLabel + '</span></td>' +
-      '<td class="action-col"><button class="btn btn-link" onclick="openEditModal(\'' + u.id + '\')">编辑</button> <button class="btn btn-link" onclick="deleteUser(\'' + u.id + '\')">删除</button> <button class="btn btn-link" onclick="viewDetail(\'' + u.id + '\')">详情</button> <button class="btn btn-link" onclick="resetPwd(\'' + u.id + '\')">重置密码</button></td>' +
+      '<td class="action-col"><div class="table-action-group"><button class="btn btn-link" onclick="openEditModal(\'' + u.id + '\')">编辑</button><button class="btn btn-link" onclick="deleteUser(\'' + u.id + '\')">删除</button><button class="btn btn-link" onclick="viewDetail(\'' + u.id + '\')">详情</button><button class="btn btn-link" onclick="resetPwd(\'' + u.id + '\')">重置密码</button></div></td>' +
       '</tr>';
   }).join('');
   if(pg) pg.setTotal(filteredRows.length);
@@ -507,6 +573,59 @@ function renderTable(){
 
 // ==================== 新增/编辑弹窗 ====================
 var currentEditUser = null;
+
+// ==================== 批量选择 ====================
+function toggleAll(src){
+  document.querySelectorAll('.row-check').forEach(function(cb){ cb.checked = src.checked; });
+  updateBatchBar();
+}
+function toggleRow(){
+  var all = document.querySelectorAll('.row-check');
+  var checked = document.querySelectorAll('.row-check:checked');
+  var checkAll = document.getElementById('checkAll');
+  if(checkAll) checkAll.checked = all.length > 0 && all.length === checked.length;
+  updateBatchBar();
+}
+function getSelectedIds(){
+  return Array.from(document.querySelectorAll('.row-check:checked')).map(function(cb){ return cb.value; });
+}
+function updateBatchBar(){
+  var bar = document.getElementById('batchBar');
+  if(!bar) return;
+  var count = getSelectedIds().length;
+  bar.style.display = count > 0 ? 'flex' : 'none';
+  var span = bar.querySelector('.batch-count');
+  if(span) span.textContent = count;
+}
+function batchDelete(){
+  var ids = getSelectedIds();
+  if(ids.length === 0){ showToast('请先选择要删除的用户'); return; }
+  // BR-GOV-12 待办任务校验
+  var blockedUsers = allUsers.filter(function(u){
+    return ids.indexOf(u.id) !== -1 && u.pendingTasks && u.pendingTasks > 0;
+  });
+  if(blockedUsers.length > 0){
+    var msg = '以下 ' + blockedUsers.length + ' 个用户存在未完成的待办任务，无法删除（BR-GOV-12）：\n\n';
+    blockedUsers.forEach(function(u){
+      msg += '· ' + u.name + '（' + u.title + '）— 待办 ' + u.pendingTasks + ' 项\n';
+    });
+    msg += '\n请先转交或完成上述用户的待办任务后再执行删除。';
+    alert(msg);
+    return;
+  }
+  if(!confirm('确认删除选中的 ' + ids.length + ' 个用户？')) return;
+  allUsers = allUsers.filter(function(u){ return ids.indexOf(u.id) === -1; });
+  renderTable();
+  _updateStats(null);
+  showToast('已删除 ' + ids.length + ' 个用户');
+}
+
+function openBatchImport(){
+  document.getElementById('importModal').classList.add('show');
+}
+function downloadTemplate(){
+  showToast('已开始下载导入模板（演示）');
+}
 
 function openAddModal(){
   currentEditUser = null;
@@ -522,6 +641,29 @@ function openAddModal(){
   document.getElementById('fAccount').disabled = true;
   document.getElementById('fPwd').value = 'Abc@123456';
   document.getElementById('pwdLabel').innerHTML = '<span class="required">*</span>用户密码 <span style="color:var(--text-tertiary);font-weight:normal">（默认Abc@123456）</span>';
+  // 自动带出组织树选中的单位/科室
+  var activeOrg = window._activeOrg;
+  var activeType = window._activeOrgType;
+  if(activeOrg && activeOrg !== 'nanshan'){
+    if(activeType === 'dept'){
+      var parentOrg = null;
+      govOrgData.orgs.forEach(function(o){
+        if(o.depts && o.depts.some(function(d){return d.id === activeOrg;})) parentOrg = o;
+      });
+      if(parentOrg){
+        document.getElementById('fOrg').value = parentOrg.id;
+        onOrgChange();
+        document.getElementById('fDept').value = activeOrg;
+        // 管理部门也默认勾选该科室
+        var deptOpt = document.querySelector('#fManageDeptsOptions .multi-select-option[data-value="'+activeOrg+'"]');
+        if(deptOpt) deptOpt.classList.add('selected');
+        updateManageDeptsDisplay();
+      }
+    }else{
+      document.getElementById('fOrg').value = activeOrg;
+      onOrgChange();
+    }
+  }
   document.getElementById('editModal').classList.add('show');
 }
 
@@ -548,9 +690,12 @@ function openEditModal(id){
   }
   updateManageDeptsDisplay();
   document.getElementById('fUserType').value = u.userType;
-  document.getElementById('fRole').value = u.roleType;
   document.getElementById('fStatus').value = u.status;
   document.getElementById('fRemark').value = u.remark || '';
+  // BR-GOV-10：回填上级领导
+  var sameOrgUsers = allUsers.filter(function(x){return x.orgId === u.orgId && x.id !== u.id;});
+  document.getElementById('fLeader').innerHTML = '<option value="">请选择上级领导（选填）</option>' + sameOrgUsers.map(function(x){return '<option value="' + x.id + '">' + x.name + '（' + x.title + '）</option>';}).join('');
+  if(u.leaderId) document.getElementById('fLeader').value = u.leaderId;
   document.getElementById('fAccount').value = u.account;
   document.getElementById('fAccount').disabled = true;
   document.getElementById('fPwd').value = '';
@@ -571,6 +716,17 @@ function onOrgChange(){
   renderManageDeptsOptions(org ? org.depts : []);
 }
 
+// BR-GOV-10：选定所属科室后，自动勾选该科室到管理部门（用户可手动调整）
+function onDeptChange(){
+  var deptId = document.getElementById('fDept').value;
+  if(!deptId) return;
+  var deptOpt = document.querySelector('#fManageDeptsOptions .multi-select-option[data-value="'+deptId+'"]');
+  if(deptOpt && !deptOpt.classList.contains('selected')){
+    deptOpt.classList.add('selected');
+    updateManageDeptsDisplay();
+  }
+}
+
 function syncAccountFromMobile(){
   var mobile = document.getElementById('fMobile').value.trim();
   document.getElementById('fAccount').value = mobile;
@@ -588,8 +744,8 @@ function saveUser(){
     currentEditUser.orgId = document.getElementById('fOrg').value;
     currentEditUser.deptId = document.getElementById('fDept').value;
     currentEditUser.manageDeptIds = getSelectedManageDepts();
+    currentEditUser.leaderId = document.getElementById('fLeader').value;
     currentEditUser.userType = document.getElementById('fUserType').value;
-    currentEditUser.roleType = document.getElementById('fRole').value;
     currentEditUser.status = document.getElementById('fStatus').value;
     currentEditUser.remark = document.getElementById('fRemark').value;
     showToast('用户信息已更新');
@@ -604,8 +760,8 @@ function saveUser(){
       orgId: document.getElementById('fOrg').value,
       deptId: document.getElementById('fDept').value,
       manageDeptIds: getSelectedManageDepts(),
+      leaderId: document.getElementById('fLeader').value,
       userType: document.getElementById('fUserType').value,
-      roleType: document.getElementById('fRole').value,
       status: document.getElementById('fStatus').value,
       remark: document.getElementById('fRemark').value,
       lastLogin: '—'
@@ -729,7 +885,6 @@ function viewDetail(id){
   html += '<div class="detail-row"><div class="detail-label">所属科室</div><div class="detail-value">' + (dept?dept.name:'—') + '</div></div>';
   html += '<div class="detail-row"><div class="detail-label">管理部门</div><div class="detail-value">' + (manageDepts.length?manageDepts.join('、'):'—') + '</div></div>';
   html += '<div class="detail-row"><div class="detail-label">用户层级</div><div class="detail-value">' + (u.userType||'—') + '</div></div>';
-  html += '<div class="detail-row"><div class="detail-label">角色类型</div><div class="detail-value">' + (u.roleType||'—') + '</div></div>';
   html += '<div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag ' + statusCls + '">' + u.status + '</span></div></div>';
   html += '</div>';
   html += '<div class="detail-section">';
@@ -765,7 +920,9 @@ function showToast(msg){
 }
 
 // ==================== 初始化 ====================
+populateOrgSelects();
 renderOrgTree();
+_updateStats(null);
 // 初始化分页
 pg = new Pagination('paginationBar', {
   total: allUsers.length,
@@ -776,13 +933,9 @@ pg = new Pagination('paginationBar', {
   }
 });
 renderTable();
-setTimeout(function(){
-  var first = document.getElementById('tog_org1');
-  if(first) toggleNode('org1');
-}, 80);
 </script>
 <script>
-(function() { 'use strict'; var CONFIG = { moduleId: 'sa-gov-user', moduleName: '政府用户管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-gov-user', moduleName: '人员账号管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
 </script>
 <script src="../../js/annotations.js"></script>
 </body>
