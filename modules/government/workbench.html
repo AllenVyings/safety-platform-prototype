@@ -1,200 +1,339 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>工作台 - 政府端</title>
+  <title>安全态势 - 政府端</title>
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-.workbench-page {
-      padding: var(--spacing-lg);
+    /* ========== 页面 ========== */
+    .workbench-page {
+      padding: 20px 24px;
       background: var(--bg-page);
       min-height: 100vh;
     }
-    
-    /* ========== 页面标题栏 ========== */
-    .page-header {
-      margin-bottom: var(--spacing-md);
-      background: var(--bg-primary);
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-    }
-    .page-title {
-      font-size: var(--font-size-xl);
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    
+
     /* ========== 统计卡片 ========== */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-md);
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
     .stat-card {
-      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
+      background: var(--bg-primary);
       border: 1px solid var(--border-card);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: var(--shadow-card);
-      transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+      border-radius: 10px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s, box-shadow 0.15s;
     }
     .stat-card:hover {
       transform: translateY(-2px);
-      box-shadow: var(--shadow-card-hover);
+      box-shadow: var(--shadow-card);
     }
     .stat-title {
-      font-size: var(--font-size-sm);
+      font-size: 13px;
       color: var(--text-secondary);
-      margin-bottom: var(--spacing-xs);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
     }
     .stat-value {
-      font-size: var(--font-size-xxxl);
-      font-weight: 600;
+      font-size: 32px;
+      font-weight: 700;
       color: var(--text-primary);
+      line-height: 1.1;
     }
     .stat-value.warning { color: var(--warning); }
     .stat-value.danger { color: var(--danger); }
     .stat-value.success { color: var(--success); }
-    
+
     /* ========== 快捷操作区 ========== */
     .quick-actions {
       background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: var(--shadow-card);
-      margin-bottom: var(--spacing-md);
+      border-radius: 10px;
+      padding: 16px 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
     }
     .quick-actions-title {
-      font-size: var(--font-size-lg);
+      font-size: 15px;
       font-weight: 600;
-      margin-bottom: var(--spacing-md);
+      margin-bottom: 12px;
       color: var(--text-primary);
     }
     .action-buttons {
       display: flex;
-      gap: var(--spacing-md);
+      gap: 12px;
       flex-wrap: wrap;
     }
-    
-    /* ========== 今日任务 ========== */
-    .task-section {
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: var(--shadow-card);
+    .btn-hint {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-left: 4px;
     }
-    .task-title {
-      font-size: var(--font-size-lg);
+
+    /* ========== 区块标题 ========== */
+    .section-heading {
+      font-size: 15px;
       font-weight: 600;
-      margin-bottom: var(--spacing-md);
+      margin-bottom: 14px;
       color: var(--text-primary);
     }
+
+    /* ========== 今日待办+通知公告 ========== */
+    .dual-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .dual-column .task-section,
+    .dual-column .notice-section { margin: 0; }
+    @media (max-width: 768px) {
+      .dual-column { grid-template-columns: 1fr; }
+    }
+
+    .task-section, .notice-section {
+      background: var(--bg-primary);
+      border-radius: 10px;
+      padding: 16px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ========== 任务项 ========== */
     .task-list {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-sm);
+      gap: 10px;
     }
     .task-item {
       display: flex;
       align-items: center;
-      padding: var(--spacing-sm) var(--spacing-sm);
+      padding: 12px 14px;
       background: var(--bg-section);
-      border-radius: var(--radius-md);
+      border-radius: 8px;
       border: 1px solid var(--border-section);
     }
     .task-icon {
-      width: var(--spacing-xl);
-      height: var(--spacing-xl);
-      border-radius: var(--radius-md);
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: var(--spacing-sm);
-      font-size: var(--font-size-lg);
+      margin-right: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      flex-shrink: 0;
     }
-    .task-icon.warning { background: var(--warning-light); color: var(--warning); }
-    .task-icon.danger { background: var(--danger-light); color: var(--danger); }
-    .task-content {
-      flex: 1;
-    }
+    .task-icon.warning { background: #fff7e6; color: var(--warning); }
+    .task-icon.danger { background: #fff1f0; color: var(--danger); }
+    .task-content { flex: 1; min-width: 0; }
     .task-name {
-      font-size: var(--font-size-md);
+      font-size: 14px;
       color: var(--text-primary);
-      margin-bottom: 2px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.4;
     }
+    .task-type-tag {
+      font-size: 11px;
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+      white-space: nowrap;
+      line-height: 1.6;
+    }
+    .task-type-tag.duty { background: #e6f7ff; color: #1890ff; }
+    .task-type-tag.special { background: #fff7e6; color: #fa8c16; }
     .task-desc {
-      font-size: var(--font-size-xs);
+      font-size: 12px;
       color: var(--text-tertiary);
+      line-height: 1.5;
     }
-    .task-action {
-      margin-left: 12px;
-    }
-    
+    .task-action { margin-left: 14px; flex-shrink: 0; }
+
     /* ========== 通知公告 ========== */
-    .notice-section {
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: var(--shadow-card);
-      margin-top: var(--spacing-md);
-    }
-    .notice-title {
-      font-size: var(--font-size-lg);
-      font-weight: 600;
-      margin-bottom: var(--spacing-md);
-      color: var(--text-primary);
-    }
     .notice-list {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-sm);
+      gap: 10px;
     }
     .notice-item {
       display: flex;
       align-items: center;
-      padding: var(--spacing-sm) var(--spacing-sm);
+      padding: 12px 14px;
       background: var(--bg-section);
-      border-radius: var(--radius-md);
+      border-radius: 8px;
       border: 1px solid var(--border-section);
       cursor: pointer;
-      transition: all var(--duration-normal);
+      transition: all 0.15s;
     }
     .notice-item:hover {
       background: var(--bg-hover);
       border-color: var(--primary);
     }
     .notice-dot {
-      width: var(--spacing-xs);
-      height: var(--spacing-xs);
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--danger);
-      margin-right: var(--spacing-sm);
+      margin-right: 12px;
       flex-shrink: 0;
     }
-    .notice-dot.read {
-      background: var(--border);
-    }
-    .notice-content {
-      flex: 1;
-    }
+    .notice-dot.read { background: #d9d9d9; }
+    .notice-content { flex: 1; min-width: 0; }
     .notice-name {
-      font-size: var(--font-size-md);
+      font-size: 14px;
       color: var(--text-primary);
-      margin-bottom: 2px;
+      margin-bottom: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.4;
     }
     .notice-desc {
-      font-size: var(--font-size-xs);
+      font-size: 12px;
       color: var(--text-tertiary);
+      line-height: 1.5;
     }
     .notice-time {
-      font-size: var(--font-size-xs);
+      font-size: 12px;
       color: var(--text-tertiary);
-      margin-left: var(--spacing-sm);
+      margin-left: 14px;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
+
+    /* ========== 图表卡片 ========== */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 768px) {
+      .charts-row { grid-template-columns: 1fr; }
+    }
+    .chart-card {
+      background: var(--bg-primary);
+      border-radius: 10px;
+      padding: 16px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* 环形图 */
+    .donut-chart {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      margin: 8px auto 0;
+    }
+    .donut-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .donut-center .donut-num {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .donut-center .donut-label {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+    .legend-row {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .legend-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    /* 条形图 */
+    .bar-chart { padding: 6px 0 2px; }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-label {
+      width: 56px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 20px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .bar-fill.green { background: var(--success); }
+    .bar-fill.yellow { background: var(--warning); }
+    .bar-fill.red { background: var(--danger); }
+    .bar-pct {
+      width: 40px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: left;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 趋势图 */
+    .trend-chart svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .trend-legend {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .trend-legend-line {
+      display: inline-block;
+      width: 16px;
+      height: 3px;
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    .charts-full { margin-bottom: 20px; }
   </style>
 </head>
 <body>
@@ -204,22 +343,17 @@
       <span class="breadcrumb-prefix">当前位置：</span>
       <span class="breadcrumb-item" onclick="goToHome()">首页</span>
       <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">政府端</span>
+      <span class="breadcrumb-item current">安全态势</span>
     </div>
-    
-    <!-- 页面标题 -->
-    <header class="page-header" style="display: none;">
-      <h1 class="page-title">工作台</h1>
-    </header>
-    
-    <!-- 统计卡片 -->
+
+    <!-- ① 核心指标卡片 -->
     <section class="stats-grid">
       <div class="stat-card">
         <div class="stat-title">监管企业</div>
         <div class="stat-value">328</div>
       </div>
       <div class="stat-card">
-        <div class="stat-title">今日巡查</div>
+        <div class="stat-title">今日任务</div>
         <div class="stat-value warning">12</div>
       </div>
       <div class="stat-card">
@@ -231,97 +365,208 @@
         <div class="stat-value success">98%</div>
       </div>
     </section>
-    
-    <!-- 快捷操作 -->
+
+    <!-- ② 快捷操作 -->
     <section class="quick-actions">
       <h2 class="quick-actions-title">快捷操作</h2>
       <div class="action-buttons">
-        <button class="btn btn-primary" onclick="goToModule('gov-quick-check')">
-          🔍&nbsp;&nbsp;一键巡查
+        <button class="btn btn-primary" onclick="goToModule('gov-check-task')">
+          一键检查<span class="btn-hint">默认筛选履职任务</span>
         </button>
         <button class="btn btn-primary" onclick="goToModule('gov-check-task')">
-          📋&nbsp;&nbsp;检查任务
+          检查任务
         </button>
         <button class="btn btn-primary" onclick="goToModule('gov-key-place')">
-          🏭&nbsp;&nbsp;重点场所
+          重点场所
         </button>
         <button class="btn btn-primary" onclick="goToModule('gov-hazard-manage')">
-          ⚠️&nbsp;&nbsp;隐患管理
+          隐患管理
         </button>
       </div>
     </section>
-    
-    <!-- 今日任务 -->
-    <section class="task-section">
-      <div class="task-title">今日任务</div>
-      <div class="task-list" id="taskList">
-        <div class="task-item">
-          <div class="task-icon warning">📋</div>
-          <div class="task-content">
-            <div class="task-name">南山区月度巡查</div>
-            <div class="task-desc">计划检查15家企业，已完成3家</div>
+
+    <!-- ③ 今日待办 + ④ 通知公告（左右并列） -->
+    <div class="dual-column">
+      <section class="task-section">
+        <div class="section-heading">今日待办</div>
+        <div class="task-list" id="taskList">
+          <div class="task-item">
+            <div class="task-icon warning">履</div>
+            <div class="task-content">
+              <div class="task-name">
+                南山区月度履职检查
+                <span class="task-type-tag duty">履职任务</span>
+              </div>
+              <div class="task-desc">计划检查15家企业，已完成3家</div>
+            </div>
+            <div class="task-action">
+              <button class="btn btn-primary btn-sm" onclick="continueTask('task1')">继续</button>
+            </div>
           </div>
-          <div class="task-action">
-            <button class="btn btn-primary btn-sm" onclick="continueTask('task1')">继续</button>
+          <div class="task-item">
+            <div class="task-icon danger">专</div>
+            <div class="task-content">
+              <div class="task-name">
+                创安电子消防通道专项检查
+                <span class="task-type-tag special">专项任务</span>
+              </div>
+              <div class="task-desc">专项检查，限期4月10日</div>
+            </div>
+            <div class="task-action">
+              <button class="btn btn-primary btn-sm" onclick="reviewHazard('hd1')">去处理</button>
+            </div>
           </div>
         </div>
-        <div class="task-item">
-          <div class="task-icon danger">🔴</div>
-          <div class="task-content">
-            <div class="task-name">隐患复查 - 创安电子</div>
-            <div class="task-desc">消防通道隐患整改复查</div>
+      </section>
+
+      <section class="notice-section">
+        <div class="section-heading">通知公告</div>
+        <div class="notice-list" id="noticeList">
+          <div class="notice-item" onclick="viewNotice('n1')">
+            <div class="notice-dot"></div>
+            <div class="notice-content">
+              <div class="notice-name">关于开展充换电设施专项检查的通知</div>
+              <div class="notice-desc">区应急管理局 · 2026-04-01</div>
+            </div>
+            <div class="notice-time">2天前</div>
           </div>
-          <div class="task-action">
-            <button class="btn btn-primary btn-sm" onclick="reviewHazard('hd1')">去复查</button>
+          <div class="notice-item" onclick="viewNotice('n2')">
+            <div class="notice-dot read"></div>
+            <div class="notice-content">
+              <div class="notice-name">4月份安全生产工作会议纪要</div>
+              <div class="notice-desc">区安委会 · 2026-03-28</div>
+            </div>
+            <div class="notice-time">5天前</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ⑤ 安全码色分布 + ⑥ 领域监管热力（左右并列） -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="section-heading">安全码色分布</div>
+        <div class="donut-chart">
+          <svg viewBox="0 0 160 160" width="160" height="160">
+            <!-- 绿码 290/328≈88.4% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke-width="24" stroke="#52c41a"
+              stroke-dasharray="333 443" stroke-dashoffset="0" transform="rotate(-90 80 80)"/>
+            <!-- 黄码 33/328≈10.1% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke-width="24" stroke="#faad14"
+              stroke-dasharray="38 738" stroke-dashoffset="-333" transform="rotate(-90 80 80)"/>
+            <!-- 红码 5/328≈1.5% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke-width="24" stroke="#ff4d4f"
+              stroke-dasharray="11 765" stroke-dashoffset="-371" transform="rotate(-90 80 80)"/>
+          </svg>
+          <div class="donut-center">
+            <div class="donut-num">328</div>
+            <div class="donut-label">监管企业总数</div>
+          </div>
+        </div>
+        <div class="legend-row">
+          <span><span class="legend-dot" style="background:#52c41a;"></span>绿码 290</span>
+          <span><span class="legend-dot" style="background:#faad14;"></span>黄码 33</span>
+          <span><span class="legend-dot" style="background:#ff4d4f;"></span>红码 5</span>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="section-heading">领域监管热力</div>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label">充换电</span>
+            <div class="bar-track"><div class="bar-fill green" style="width:100%;"></div></div>
+            <span class="bar-pct">100%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">危化品</span>
+            <div class="bar-track"><div class="bar-fill green" style="width:95%;"></div></div>
+            <span class="bar-pct">95%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">建筑</span>
+            <div class="bar-track"><div class="bar-fill yellow" style="width:73%;"></div></div>
+            <span class="bar-pct">73%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">消防</span>
+            <div class="bar-track"><div class="bar-fill yellow" style="width:78%;"></div></div>
+            <span class="bar-pct">78%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">工贸</span>
+            <div class="bar-track"><div class="bar-fill red" style="width:67%;"></div></div>
+            <span class="bar-pct">67%</span>
           </div>
         </div>
       </div>
-    </section>
-    
-    <!-- 通知公告 -->
-    <section class="notice-section">
-      <div class="notice-title">通知公告</div>
-      <div class="notice-list" id="noticeList">
-        <div class="notice-item" onclick="viewNotice('n1')">
-          <div class="notice-dot"></div>
-          <div class="notice-content">
-            <div class="notice-name">关于开展充换电设施专项检查的通知</div>
-            <div class="notice-desc">区应急管理局 · 2026-04-01</div>
+    </div>
+
+    <!-- ⑦ 安全趋势图 -->
+    <div class="charts-full">
+      <div class="chart-card">
+        <div class="section-heading">安全趋势（近6个月）</div>
+        <div class="trend-chart">
+          <svg viewBox="0 0 440 140" preserveAspectRatio="xMidYMid meet">
+            <!-- 网格线 -->
+            <line x1="40" y1="15" x2="420" y2="15" stroke="#e8e8e8" stroke-dasharray="4"/>
+            <line x1="40" y1="45" x2="420" y2="45" stroke="#e8e8e8" stroke-dasharray="4"/>
+            <line x1="40" y1="75" x2="420" y2="75" stroke="#e8e8e8" stroke-dasharray="4"/>
+            <line x1="40" y1="105" x2="420" y2="105" stroke="#e8e8e8" stroke-dasharray="4"/>
+            <!-- Y轴标签 -->
+            <text x="35" y="19" font-size="7" fill="#999" text-anchor="end">100%</text>
+            <text x="35" y="49" font-size="7" fill="#999" text-anchor="end">75%</text>
+            <text x="35" y="79" font-size="7" fill="#999" text-anchor="end">50%</text>
+            <text x="35" y="109" font-size="7" fill="#999" text-anchor="end">25%</text>
+            <!-- 检查完成率线 -->
+            <polyline points="60,75 120,63 180,57 240,45 300,39 360,27 420,21" fill="none" stroke="#1677ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- 检查完成率数据点 -->
+            <circle cx="60" cy="75" r="3" fill="#1677ff"/><circle cx="120" cy="63" r="3" fill="#1677ff"/>
+            <circle cx="180" cy="57" r="3" fill="#1677ff"/><circle cx="240" cy="45" r="3" fill="#1677ff"/>
+            <circle cx="300" cy="39" r="3" fill="#1677ff"/><circle cx="360" cy="27" r="3" fill="#1677ff"/>
+            <circle cx="420" cy="21" r="3" fill="#1677ff"/>
+            <!-- 隐患整改率线 -->
+            <polyline points="60,87 120,81 180,75 240,69 300,63 360,51 420,45" fill="none" stroke="#52c41a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- 隐患整改率数据点 -->
+            <circle cx="60" cy="87" r="3" fill="#52c41a"/><circle cx="120" cy="81" r="3" fill="#52c41a"/>
+            <circle cx="180" cy="75" r="3" fill="#52c41a"/><circle cx="240" cy="69" r="3" fill="#52c41a"/>
+            <circle cx="300" cy="63" r="3" fill="#52c41a"/><circle cx="360" cy="51" r="3" fill="#52c41a"/>
+            <circle cx="420" cy="45" r="3" fill="#52c41a"/>
+            <!-- X轴标签 -->
+            <text x="60" y="130" font-size="7" fill="#999" text-anchor="middle">1月</text>
+            <text x="120" y="130" font-size="7" fill="#999" text-anchor="middle">2月</text>
+            <text x="180" y="130" font-size="7" fill="#999" text-anchor="middle">3月</text>
+            <text x="240" y="130" font-size="7" fill="#999" text-anchor="middle">4月</text>
+            <text x="300" y="130" font-size="7" fill="#999" text-anchor="middle">5月</text>
+            <text x="360" y="130" font-size="7" fill="#999" text-anchor="middle">6月</text>
+            <text x="420" y="130" font-size="7" fill="#999" text-anchor="middle">7月</text>
+          </svg>
+          <div class="trend-legend">
+            <span><span class="trend-legend-line" style="background:#1677ff;"></span>检查完成率</span>
+            <span><span class="trend-legend-line" style="background:#52c41a;"></span>隐患整改率</span>
           </div>
-          <div class="notice-time">2天前</div>
-        </div>
-        <div class="notice-item" onclick="viewNotice('n2')">
-          <div class="notice-dot read"></div>
-          <div class="notice-content">
-            <div class="notice-name">4月份安全生产工作会议纪要</div>
-            <div class="notice-desc">区安委会 · 2026-03-28</div>
-          </div>
-          <div class="notice-time">5天前</div>
         </div>
       </div>
-    </section>
+    </div>
   </div>
-  
+
   <script>
     (function() {
       'use strict';
-      
-      const CONFIG = {
+
+      var CONFIG = {
         moduleId: 'gov-workbench',
-        moduleName: '工作台'
+        moduleName: '安全态势'
       };
-      
-      let state = {
+
+      var state = {
         initialized: false
       };
-      
+
       function init() {
         if (state.initialized) return;
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
         state.initialized = true;
       }
-      
-      // 面包屑导航
+
       window.goToHome = function() {
         try {
           if (parent && parent.router) {
@@ -329,8 +574,7 @@
           }
         } catch(e) {}
       };
-      
-      // 模块导航（通过父框架路由切换）
+
       window.goToModule = function(moduleId) {
         try {
           if (parent && parent.router) {
@@ -343,16 +587,15 @@
         }
       };
 
-      // 任务操作
       window.continueTask = function(taskId) {
         try {
           if (parent && parent.router) {
             parent.router.navigate('gov-check-task');
           } else {
-            showToast('即将跳转至检查任务页面');
+            showToast('即将跳转至检查管理');
           }
         } catch(e) {
-          showToast('即将跳转至检查任务页面');
+          showToast('即将跳转至检查管理');
         }
       };
 
@@ -361,14 +604,13 @@
           if (parent && parent.router) {
             parent.router.navigate('gov-hazard-manage');
           } else {
-            showToast('即将跳转至隐患管理页面');
+            showToast('即将跳转至隐患管理');
           }
         } catch(e) {
-          showToast('即将跳转至隐患管理页面');
+          showToast('即将跳转至隐患管理');
         }
       };
 
-      // 通知操作：点击后标记已读（红点变灰点）
       window.viewNotice = function(noticeId) {
         var item = document.querySelector('.notice-item[onclick*="' + noticeId + '"]');
         if (item) {
@@ -387,15 +629,14 @@
         document.body.appendChild(t);
         setTimeout(function() { t.remove(); }, 2000);
       }
-      
+
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
       } else {
         init();
       }
-      
+
       window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
         state.initialized = false;
       };
     })();
