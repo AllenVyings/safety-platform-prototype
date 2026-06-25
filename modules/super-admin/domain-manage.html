@@ -4,77 +4,133 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>领域小类管理 - 超管端</title>
-  
-  <script>console.log('[domain-manage] baseURI:', document.baseURI);</script>
-    <link rel="stylesheet" href="../../css/variables.css">
+
+  <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-        /* ========== 按钮样式 ========== */
-
+    /* ========== 页面特有覆盖 ========== */
     .btn-default:hover{color:var(--primary);border-color:var(--primary)}
-    
     .btn-primary:hover{background:var(--primary-hover)}
-    
     .btn-link:hover{color:var(--primary-hover)}
     .btn-link.btn-sm{font-size: var(--font-size-xs);padding: 1px var(--spacing-xs)}
-    
     .btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
-/* ========== 页面标题栏 ========== */
-    /* ========== 统计卡片 ========== */
 
-    .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-card-hover);
-    }
-    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; color: var(--primary); }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
+    /* ========== 统计卡片微调 ========== */
+    .stat-value { color: var(--primary); }
 
-    /* ========== 筛选栏 ========== */
-    
-    .filter-item { display: flex; align-items: center; gap: 6px; font-size: var(--font-size-sm); }
-    .filter-item select, .filter-item input {
-      padding: 6px 10px;
+    /* ========== 筛选栏控件统一 ========== */
+    .filter-bar select,
+    .filter-bar input[type="text"] {
+      height: 32px;
+      padding: 0 10px;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       font-size: var(--font-size-sm);
       background: var(--bg-primary);
-    }
-    .filter-item select:focus, .filter-item input:focus {
-      border-color: var(--primary);
+      color: var(--text-primary);
+      line-height: 32px;
       outline: none;
+      transition: border-color var(--duration-fast);
+    }
+    .filter-bar select:focus,
+    .filter-bar input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(22,119,255,0.1);
+    }
+    .filter-bar select { width: 240px; padding-right: 24px; }
+    .filter-bar input[type="text"] { width: 240px; }
+
+    .table-wrap {
+      flex: 1;
+      min-height: 0;
+      box-shadow: none;
+    }
+    .table-wrap table {
+      min-width: 980px;
+    }
+    .table-wrap td:not(.operation-col) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .table-wrap .domain-name {
+      min-width: 180px;
+      max-width: 260px;
+    }
+    .table-wrap .domain-name-cell {
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
     }
 
-    /* ========== 表格容器 ========== */
-    
-    .table-scroll { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-    thead tr { background: var(--bg-section); }
-    th { padding: 10px 12px; text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-section); white-space: nowrap; }
-    td { padding: 10px 12px; font-size: var(--font-size-sm); color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    /* 列表各列固定宽度 */
-    td:nth-child(1) { width: 60px; max-width: 60px; }  /* 序号 */
-    td:nth-child(2) { width: 120px; max-width: 120px; }  /* 领域编码 */
-    td:nth-child(3) { width: 180px; max-width: 180px; }  /* 领域名称 */
-    td:nth-child(4) { width: 120px; max-width: 120px; }  /* 所属行业 */
-    td:nth-child(5) { width: 120px; max-width: 120px; }  /* 所属模式 */
-    td:nth-child(6) { width: 200px; max-width: 200px; }  /* 监管单位 */
-    td:nth-child(7) { width: 80px; max-width: 80px; }  /* 状态 */
-    tbody tr:nth-child(even) { background: var(--bg-table-stripe); }
-    tbody tr:hover td { background: var(--bg-hover); }
-    /* 操作列固定在右侧，表头居中 */
-    th.operation-col, td.operation-col { box-shadow: -2px 0 6px rgba(0,0,0,0.06); }
-    td.operation-col .btn-link:last-child { margin-right: 0; }
+    /* ========== 页面布局：占满视窗 ========== */
+    .page-container[data-module="sa-domain-manage"] {
+      min-height: 100vh;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .page-container[data-module="sa-domain-manage"] > .breadcrumb,
+    .page-container[data-module="sa-domain-manage"] > .stat-cards,
+    .page-container[data-module="sa-domain-manage"] > .filter-bar,
+    .page-container[data-module="sa-domain-manage"] > .filter-card {
+      flex-shrink: 0;
+    }
 
-    /* ========== 分页 ========== */
-    /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
+    .table-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
+      flex: 1;
+      overflow: hidden;
+      border: 1px solid var(--border-section);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+      flex-shrink: 0;
+    }
+    .table-toolbar-title {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .table-toolbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* ========== 筛选栏卡片化（深圳港风格） ========== */
+    .filter-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      box-shadow: var(--shadow-sm, var(--shadow-card));
+      flex-shrink: 0;
+    }
+    .filter-card .filter-bar {
+      margin-bottom: 0;
+      background: transparent;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+    }
 
     /* ========== 标签样式 ========== */
-    
+    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500; }
     .tag-green { background: var(--success-light); color: var(--success); }
     .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
     .tag-orange { background: var(--warning-light); color: var(--warning); }
     .tag-blue { background: var(--primary-light); color: var(--primary); }
     .tag-purple { background: var(--primary-light); color: var(--primary); }
+    .tag-cyan { background: var(--info-light); color: var(--info); }
 
     /* ========== 弹窗样式 ========== */
     .modal-overlay {
@@ -87,6 +143,8 @@
       align-items: center;
     }
     .modal-overlay.active { display: flex; }
+    #checklistModal { z-index: 1100; }
+    #checklistLibModal { z-index: 1200; }
     .modal {
       background: var(--bg-primary);
       border-radius: var(--radius-xl);
@@ -308,6 +366,26 @@
       color: var(--text-secondary);
       line-height: 1.4;
     }
+    .status-options,
+    .dynamic-form-options {
+      display: flex;
+      gap: var(--spacing-lg);
+      height: 32px;
+      align-items: center;
+    }
+    .status-option,
+    .dynamic-form-option {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+    .status-option input,
+    .dynamic-form-option input {
+      margin: 0;
+    }
 
     /* ========== 详情展示 ========== */
     .detail-section {
@@ -376,7 +454,7 @@
       align-items: center;
       gap: var(--spacing-xs);
       background: var(--primary-light);
-      color: var(--primary, var(--primary));
+      color: var(--primary);
       border-radius: var(--radius-sm);
       padding: 3px var(--spacing-sm);
       font-size: var(--font-size-xs);
@@ -396,7 +474,7 @@
     .cl-tag-del {
       display: none;
       cursor: pointer;
-      color: var(--primary, var(--primary));
+      color: var(--primary);
       font-size: var(--font-size-md);
       line-height: 1;
       margin-left: 2px;
@@ -414,7 +492,7 @@
     .cl-tag-inline {
       display: inline-block;
       background: var(--primary-light);
-      color: var(--primary, var(--primary));
+      color: var(--primary);
       border-radius: var(--radius-sm);
       padding: 2px var(--spacing-sm);
       font-size: var(--font-size-xs);
@@ -434,6 +512,7 @@
     }
     .supervisor-table {
       width: 100%;
+      table-layout: fixed;
       border-collapse: collapse;
     }
     .supervisor-table th {
@@ -450,6 +529,14 @@
       font-size: var(--font-size-sm);
       color: var(--text-primary);
       border-bottom: 1px solid var(--border-light);
+    }
+    .supervisor-table th:nth-child(3),
+    .supervisor-table td:nth-child(3) {
+      width: 180px;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .supervisor-table tbody tr:last-child td {
       border-bottom: none;
@@ -672,6 +759,914 @@
       background: var(--primary-light);
       border-left: 3px solid var(--primary);
     }
+
+    /* ========== 动态表单配置面板 ========== */
+    .dynamic-form-config {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--bg-secondary, #fafafa);
+      border: 1px dashed var(--primary);
+      border-radius: 6px;
+    }
+    .dynamic-form-config.active {
+      display: block;
+    }
+    .df-config-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .df-config-summary {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      flex: 1;
+      min-width: 200px;
+    }
+    .df-config-summary.has-fields {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: var(--primary-light, #e6f7ff);
+    }
+    /* 二级弹窗 z-index 分层 */
+    #domainModal { z-index: 1000; }
+    #dfConfigModal, #dfPreviewModal { z-index: 1200; }
+    #supervisorModal, #checklistModal { z-index: 1100; }
+    #checklistLibModal { z-index: 1300; }
+    .df-config-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .df-config-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .df-config-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .df-config-body {
+      display: grid;
+      grid-template-columns: 220px 1fr 360px;
+      gap: 12px;
+      min-height: 360px;
+    }
+    /* 字段类型库 */
+    .df-field-library {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      padding: 10px;
+      overflow-y: auto;
+      max-height: 480px;
+    }
+    .df-library-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .df-field-type-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      margin-bottom: 4px;
+      background: var(--bg-secondary, #fafafa);
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-primary);
+      cursor: grab;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .df-field-type-item:hover {
+      background: var(--primary-light, #e6f7ff);
+      border-color: var(--primary);
+    }
+    .df-field-type-item:active {
+      cursor: grabbing;
+    }
+    .df-field-type-item.dragging {
+      opacity: 0.5;
+    }
+    .df-field-type-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--primary);
+    }
+    /* 排版区 */
+    .df-canvas {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      padding: 10px;
+      overflow-y: auto;
+      max-height: 480px;
+    }
+    .df-section-card {
+      margin-bottom: 10px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fff;
+    }
+    .df-section-card.drag-over {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.15);
+    }
+    .df-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--bg-secondary, #fafafa);
+      border-bottom: 1px solid var(--border-light);
+      border-radius: 4px 4px 0 0;
+      cursor: grab;
+      gap: 8px;
+    }
+    .df-section-header.preset {
+      cursor: default;
+      background: linear-gradient(90deg, var(--primary-light, #e6f7ff) 0%, #f7fbff 100%);
+      border-left: 3px solid var(--primary);
+      padding-left: 9px;
+    }
+    .df-section-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+    }
+    .df-section-icon {
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .df-section-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .df-section-tag {
+      font-size: 11px;
+      padding: 1px 6px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 2px;
+      margin-left: 4px;
+      flex-shrink: 0;
+    }
+    .df-section-tag.custom {
+      background: var(--success, #52c41a);
+    }
+    .df-section-count {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-left: 6px;
+      padding: 1px 6px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .df-collapse-btn {
+      flex-shrink: 0;
+    }
+    .df-section-card.collapsed .df-section-header {
+      border-bottom: none;
+      border-radius: 4px;
+    }
+    .df-section-actions {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .df-section-action-btn {
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .df-section-action-btn:hover:not(:disabled) {
+      background: rgba(0,0,0,0.06);
+      color: var(--text-primary);
+    }
+    .df-section-action-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .df-section-body {
+      padding: 10px;
+      min-height: 40px;
+      transition: all 0.2s;
+    }
+    .df-section-body.collapsed {
+      display: none;
+    }
+    .df-section-body.empty {
+      padding: 16px 10px;
+    }
+    .df-empty-hint {
+      text-align: center;
+      color: var(--text-placeholder, #bfbfbf);
+      font-size: 12px;
+      padding: 8px 0;
+      line-height: 1.6;
+    }
+    .df-empty-hint::before {
+      content: '💡 ';
+    }
+    .df-field-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      margin-bottom: 4px;
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: 3px;
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .df-field-row:hover {
+      border-color: var(--primary);
+    }
+    .df-field-row.selected {
+      background: var(--primary-light, #e6f7ff);
+      border-color: var(--primary);
+    }
+    .df-field-row.dragging {
+      opacity: 0.5;
+    }
+    .df-field-drag-handle {
+      color: var(--text-placeholder, #bfbfbf);
+      cursor: grab;
+      font-size: 12px;
+    }
+    .df-field-type-badge {
+      font-size: 10px;
+      padding: 1px 5px;
+      background: var(--bg-secondary, #f0f0f0);
+      color: var(--text-secondary);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .df-field-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text-primary);
+    }
+    .df-field-required-mark {
+      color: #f5222d;
+      font-weight: bold;
+    }
+    .df-field-key {
+      font-size: 10px;
+      color: var(--text-placeholder, #bfbfbf);
+      font-family: monospace;
+    }
+    .df-field-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .df-field-action-btn {
+      width: 20px;
+      height: 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 11px;
+      border-radius: 2px;
+    }
+    .df-field-action-btn:hover {
+      background: rgba(0,0,0,0.06);
+      color: var(--text-primary);
+    }
+    .df-drop-indicator {
+      height: 2px;
+      background: var(--primary);
+      margin: 2px 0;
+      border-radius: 1px;
+    }
+    /* 字段属性抽屉 */
+    .df-property-panel {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      padding: 12px;
+      overflow-y: auto;
+      max-height: 480px;
+    }
+    .df-property-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .df-property-empty {
+      text-align: center;
+      color: var(--text-placeholder, #bfbfbf);
+      font-size: 12px;
+      padding: 40px 0;
+    }
+    .df-property-form .form-item {
+      margin-bottom: 10px;
+    }
+    .df-property-form .form-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .df-property-form input[type="text"],
+    .df-property-form input[type="number"],
+    .df-property-form textarea,
+    .df-property-form select {
+      width: 100%;
+      height: 28px;
+      padding: 2px 6px;
+      font-size: 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 3px;
+    }
+    .df-property-form textarea {
+      height: auto;
+      min-height: 50px;
+      resize: vertical;
+    }
+    .df-property-form .field-width-options,
+    .df-property-form .checkbox-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      height: 28px;
+      font-size: 12px;
+    }
+    .df-property-form .checkbox-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .df-property-form .options-editor {
+      border: 1px solid var(--border-light);
+      border-radius: 3px;
+      padding: 6px;
+    }
+    .df-property-form .option-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .df-property-form .option-row input {
+      flex: 1;
+    }
+    .df-property-form .add-option-btn {
+      width: 100%;
+      height: 24px;
+      border: 1px dashed var(--border-light);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 11px;
+      border-radius: 3px;
+    }
+    .df-property-form .add-option-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    /* 板块新增按钮 */
+    .df-add-section-btn {
+      width: 100%;
+      padding: 8px;
+      border: 1px dashed var(--border-light);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    .df-add-section-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    /* 模式禁用态 */
+    .dynamic-form-options.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    /* ========== 预览弹窗 ========== */
+    .df-preview-hint {
+      padding: 8px 12px;
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #ad6800;
+      margin-bottom: 16px;
+    }
+    /* ========== 预览弹窗（对齐业务弹窗表单样式） ========== */
+    .df-preview-section {
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-section);
+      border: 1px solid var(--border-section);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
+      overflow: hidden;
+    }
+    .df-preview-section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-md);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-md);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      border-bottom: 1px solid var(--border-section);
+    }
+    .df-preview-section-header::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: var(--primary);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .df-preview-section-body {
+      padding: 0;
+    }
+    .df-preview-section-body .form-row {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    .df-preview-section-body .form-row:last-child {
+      margin-bottom: 0;
+    }
+    .df-preview-section-body .form-item {
+      flex: 1;
+      min-width: 0;
+    }
+    .df-preview-section-body .form-item.full-width {
+      flex: 0 0 100%;
+    }
+    .df-preview-section-body .form-label {
+      display: block;
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .df-preview-section-body .form-label .required {
+      color: var(--danger);
+      margin-left: 2px;
+    }
+    .df-preview-section-body .form-label .help {
+      font-size: var(--font-size-xs);
+      color: var(--text-tertiary);
+      font-weight: normal;
+      margin-left: 6px;
+    }
+    .df-preview-section-body .form-input,
+    .df-preview-section-body .form-select,
+    .df-preview-section-body .form-textarea {
+      width: 100%;
+      padding: var(--spacing-sm) 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      box-sizing: border-box;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .df-preview-section-body .form-input:focus,
+    .df-preview-section-body .form-select:focus,
+    .df-preview-section-body .form-textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    .df-preview-section-body .form-input.error,
+    .df-preview-section-body .form-textarea.error,
+    .df-preview-section-body .form-select.error {
+      border-color: var(--danger);
+    }
+    .df-preview-section-body .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .df-preview-section-body .cascade-selects {
+      display: flex;
+      gap: var(--spacing-xs);
+      flex-wrap: wrap;
+    }
+    .df-preview-section-body .cascade-selects .form-select {
+      flex: 1;
+      min-width: 80px;
+    }
+    .df-preview-section-body .switch-wrapper {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    .df-preview-section-body .switch {
+      position: relative;
+      width: 44px;
+      height: 22px;
+      background: var(--border);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: background var(--duration-normal);
+    }
+    .df-preview-section-body .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: var(--bg-primary);
+      border-radius: 50%;
+      transition: transform var(--duration-normal);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .df-preview-section-body .switch.active {
+      background: var(--primary);
+    }
+    .df-preview-section-body .switch.active::after {
+      transform: translateX(22px);
+    }
+    .df-preview-section-body .switch-label {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+    .df-preview-section-body .upload-placeholder {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-tertiary);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+      cursor: pointer;
+    }
+    .df-preview-section-body .field-radios,
+    .df-preview-section-body .field-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      align-items: center;
+      min-height: 36px;
+    }
+    .df-preview-section-body .field-radios label,
+    .df-preview-section-body .field-checkboxes label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+    }
+    .df-preview-section-body .richtext-placeholder {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      min-height: 80px;
+      padding: var(--spacing-sm) 12px;
+      background: var(--bg-primary);
+      color: var(--text-tertiary);
+      font-size: var(--font-size-sm);
+    }
+    .df-preview-field-error {
+      font-size: var(--font-size-xs);
+      color: var(--danger);
+      min-height: 0;
+      margin-top: 2px;
+    }
+    .df-preview-empty {
+      text-align: center;
+      padding: 60px 0;
+      color: var(--text-placeholder, #bfbfbf);
+      font-size: 14px;
+    }
+    .df-preview-empty::before {
+      content: '📭 ';
+      font-size: 32px;
+      display: block;
+      margin-bottom: 8px;
+    }
+    /* ========== 自定义确认/输入弹窗 ========== */
+    .df-custom-dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 1300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .df-custom-dialog {
+      background: #fff;
+      border-radius: 8px;
+      width: 400px;
+      max-width: 90vw;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .df-custom-dialog-header {
+      padding: 16px 20px 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .df-custom-dialog-body {
+      padding: 12px 20px 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .df-custom-dialog-body input[type="text"] {
+      width: 100%;
+      height: 32px;
+      margin-top: 8px;
+      padding: 4px 8px;
+      font-size: 13px;
+      border: 1px solid var(--border-light);
+      border-radius: 3px;
+      outline: none;
+    }
+    .df-custom-dialog-body input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(24,144,255,0.15);
+    }
+    .df-custom-dialog-body .df-dialog-warning {
+      color: #fa8c16;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .df-custom-dialog-footer {
+      padding: 8px 20px 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    /* 拖拽插入位置指示线 */
+    .df-field-row.drag-over-before::before {
+      content: '';
+      display: block;
+      height: 2px;
+      background: var(--primary);
+      margin: -4px 0 2px;
+      border-radius: 1px;
+    }
+    .df-field-row.drag-over-after::after {
+      content: '';
+      display: block;
+      height: 2px;
+      background: var(--primary);
+      margin: 2px 0 -4px;
+      border-radius: 1px;
+    }
+    .df-section-header.drag-over-before,
+    .df-preset-header.drag-over-before {
+      border-top: 2px solid var(--primary);
+    }
+    /* ========== 预设板块只读预览（对齐业务弹窗表单样式） ========== */
+    .df-preset-card {
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-section);
+      border: 1px solid var(--border-section);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
+      overflow: hidden;
+    }
+    .df-preset-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-md);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      border-bottom: 1px solid var(--border-section);
+      cursor: pointer;
+      user-select: none;
+      gap: 8px;
+    }
+    .df-preset-header::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: var(--primary);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .df-preset-header:hover {
+      background: var(--bg-section-alt, #f0f5ff);
+    }
+    .df-preset-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+      font-size: var(--font-size-md);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .df-preset-expand-hint {
+      font-size: var(--font-size-xs);
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+    .df-preset-body {
+      padding: 0;
+      background: transparent;
+      transition: all 0.2s;
+    }
+    .df-preset-body.collapsed {
+      display: none;
+    }
+    .df-preset-empty {
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: var(--font-size-sm);
+      padding: var(--spacing-lg) 0;
+      width: 100%;
+    }
+    /* 预设板块内表单行——复用 .form-row 布局规则 */
+    .df-preset-body .form-row {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    .df-preset-body .form-row:last-child {
+      margin-bottom: 0;
+    }
+    .df-preset-body .form-item {
+      flex: 1;
+      min-width: 0;
+    }
+    .df-preset-body .form-item.full-width {
+      flex: 0 0 100%;
+    }
+    .df-preset-body .form-label {
+      display: block;
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .df-preset-body .form-label .required {
+      color: var(--danger);
+      margin-left: 2px;
+    }
+    .df-preset-body .form-input,
+    .df-preset-body .form-select,
+    .df-preset-body .form-textarea {
+      width: 100%;
+      padding: var(--spacing-sm) 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      box-sizing: border-box;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .df-preset-body .form-input[readonly],
+    .df-preset-body .form-textarea[readonly] {
+      background: var(--bg-section-alt, #fafafa);
+      cursor: default;
+      color: var(--text-tertiary);
+    }
+    .df-preset-body .form-select[disabled] {
+      background: var(--bg-section-alt, #fafafa);
+      cursor: default;
+      color: var(--text-tertiary);
+    }
+    .df-preset-body .form-textarea {
+      resize: none;
+      min-height: 60px;
+    }
+    .df-preset-body .cascade-selects {
+      display: flex;
+      gap: var(--spacing-xs);
+      flex-wrap: wrap;
+    }
+    .df-preset-body .cascade-selects .form-select {
+      flex: 1;
+      min-width: 80px;
+    }
+    .df-preset-body .switch-wrapper {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    .df-preset-body .switch {
+      position: relative;
+      width: 44px;
+      height: 22px;
+      background: var(--border);
+      border-radius: 11px;
+      cursor: default;
+      transition: background var(--duration-normal);
+    }
+    .df-preset-body .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: var(--bg-primary);
+      border-radius: 50%;
+      transition: transform var(--duration-normal);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .df-preset-body .switch.active {
+      background: var(--primary);
+    }
+    .df-preset-body .switch.active::after {
+      transform: translateX(22px);
+    }
+    .df-preset-body .switch-label {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+    .df-preset-body .upload-placeholder {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-tertiary);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+      cursor: default;
+    }
+    .df-preset-body .field-radios,
+    .df-preset-body .field-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      align-items: center;
+      min-height: 36px;
+    }
+    .df-preset-body .field-radios label,
+    .df-preset-body .field-checkboxes label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      cursor: default;
+    }
+    .df-preset-body .richtext-placeholder {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      min-height: 80px;
+      padding: var(--spacing-sm) 12px;
+      background: var(--bg-primary);
+      color: var(--text-tertiary);
+      font-size: var(--font-size-sm);
+    }
+    /* 四方责任体等分组标签 */
+    .df-group-label {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      padding: var(--spacing-xs) 0;
+      border-bottom: 1px solid var(--border-section);
+      margin-bottom: var(--spacing-xs);
+    }
   </style>
 </head>
 <body>
@@ -689,73 +1684,91 @@
 
     <!-- 统计卡片 -->
     <div class="stat-cards">
-      <div class="stat-card">
-        <div class="stat-value" id="totalCount">12</div>
-        <div class="stat-label">领域总数</div>
+      <div class="stat-card" onclick="filterByStatus('')">
+        <div class="stat-icon blue">📋</div>
+        <div class="stat-content">
+          <div class="stat-label">领域总数</div>
+          <div class="stat-value" id="totalCount">23</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" id="enabledCount">10</div>
-        <div class="stat-label">启用中</div>
+      <div class="stat-card" onclick="filterByStatus('1')">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-content">
+          <div class="stat-label">启用中</div>
+          <div class="stat-value" id="enabledCount">22</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" id="disabledCount">2</div>
-        <div class="stat-label">停用中</div>
+      <div class="stat-card" onclick="filterByStatus('0')">
+        <div class="stat-icon gray">⏸</div>
+        <div class="stat-content">
+          <div class="stat-label">停用中</div>
+          <div class="stat-value" id="disabledCount">1</div>
+        </div>
       </div>
     </div>
 
     <!-- 筛选栏 -->
-    <div class="filter-bar">
-      <div class="filter-item">
-        <label>行业大类：</label>
-        <select id="filterIndustry" onchange="filterTable()">
-          <option value="">全部</option>
-          <option value="IND">工业制造</option>
-          <option value="CITY">城市运行</option>
-          <option value="CONS">建设工程</option>
-          <option value="CHEM">危险化学品</option>
-          <option value="TRANS">交通运输</option>
-          <option value="COMM">公共场所</option>
-          <option value="OTH">其他</option>
-        </select>
+    <div class="filter-card">
+      <div class="filter-bar">
+        <div class="filter-item">
+          <label>行业大类：</label>
+          <select id="filterIndustry">
+            <option value="">全部</option>
+            <option value="IND">工业制造类</option>
+            <option value="CITY">城市运行类</option>
+            <option value="CONS">建设工程类</option>
+            <option value="CHEM">危险化学品类</option>
+            <option value="TRANS">交通运输类</option>
+            <option value="COMM">公共场所类</option>
+            <option value="OTH">其他类</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>状态：</label>
+          <select id="filterStatus">
+            <option value="">全部</option>
+            <option value="1">启用</option>
+            <option value="0">停用</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>关键词：</label>
+          <input type="text" id="filterKeyword" placeholder="搜索领域名称、编码">
+        </div>
+        <button class="btn btn-primary" onclick="filterTable()">查询</button>
+        <button class="btn btn-default" onclick="resetFilter()">重置</button>
       </div>
-      <div class="filter-item">
-        <label>状态：</label>
-        <select id="filterStatus" onchange="filterTable()">
-          <option value="">全部</option>
-          <option value="1">启用</option>
-          <option value="0">停用</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <input type="text" id="filterKeyword" placeholder="搜索领域名称、编码" oninput="filterTable()">
-      </div>
-      <button class="btn btn-default" onclick="resetFilter()">重置</button>
-      <div style="flex: 1;"></div>
-      <button class="btn btn-default" onclick="showToast('批量导入功能开发中', 'info')">批量导入</button>
-      <button class="btn btn-default" onclick="showToast('批量导出功能开发中', 'info')">批量导出</button>
-      <button class="btn btn-primary" onclick="showAddModal()">+ 新增领域小类</button>
     </div>
 
     <!-- 数据表格 -->
-    <div class="table-wrap">
-      <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40px">☐</th>
-            <th style="width:120px">领域编码</th>
-            <th style="width:180px">领域名称</th>
-            <th style="width:120px">行业大类</th>
-            <th style="width:120px">模式</th>
-            <th style="width:80px">监管单位数</th>
-            <th style="width:80px">状态</th>
-            <th class="operation-col" style="width:180px">操作</th>
-          </tr>
-        </thead>
-        <tbody id="domainTable">
-          <!-- 数据由 renderDomainTable() 动态渲染 -->
-        </tbody>
-      </table>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <span class="table-toolbar-title">领域小类列表</span>
+        <div class="table-toolbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 新增领域小类</button>
+          <button class="btn btn-default btn-sm" onclick="showToast('批量导入功能开发中', 'info')">批量导入</button>
+          <button class="btn btn-default btn-sm" onclick="showToast('批量导出功能开发中', 'info')">批量导出</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)"></th>
+              <th class="col-index">序号</th>
+              <th>领域编码</th>
+              <th class="domain-name">领域名称</th>
+              <th>行业大类</th>
+              <th>模式</th>
+              <th>监管单位数</th>
+              <th>状态</th>
+              <th class="operation-col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="domainTable">
+            <!-- 数据由 renderDomainTable() 动态渲染 -->
+          </tbody>
+        </table>
       </div>
       <div class="pagination" id="paginationBar"></div>
     </div>
@@ -788,12 +1801,18 @@
             </div>
             <div class="form-item">
               <label class="form-label">领域小类名称 <span class="required">*</span></label>
-              <input type="text" class="form-input" id="domainName" placeholder="如：生产车间、商业综合体">
+              <input type="text" class="form-input" id="domainName" maxlength="100" placeholder="如：生产车间、商业综合体">
             </div>
           </div>
           <div class="form-row">
             <div class="form-item full-width">
-              <label class="form-label">所属模式 <span class="required">*</span></label>
+              <label class="form-label">领域小类描述</label>
+              <textarea class="form-textarea" id="domainDesc" maxlength="500" placeholder="对该领域小类的详细描述"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-item full-width">
+              <label class="form-label">业态模式 <span class="required">*</span></label>
               <div class="mode-options">
                 <div class="mode-option selected" onclick="selectMode(this, 'basic')">
                   <div class="mode-name">基础模式</div>
@@ -804,7 +1823,7 @@
                   <div class="mode-desc">项目基础信息、组织架构、项目人员、安全管控、履职任务、检查记录、隐患整改</div>
                 </div>
                 <div class="mode-option" onclick="selectMode(this, 'special')">
-                  <div class="mode-name">特殊场景模式</div>
+                  <div class="mode-name">重点场所模式</div>
                   <div class="mode-desc">独立场所管理，可关联给企业/项目/政府单位，多方共享查看</div>
                 </div>
                 <div class="mode-option" onclick="selectMode(this, 'other')">
@@ -818,17 +1837,33 @@
           <div class="form-row">
             <div class="form-item">
               <label class="form-label">状态 <span class="required">*</span></label>
-              <select class="form-select" id="domainStatus">
-                <option value="1">启用</option>
-                <option value="0">停用</option>
-              </select>
+              <div class="status-options" id="domainStatus">
+                <label class="status-option"><input type="radio" name="domainStatus" value="1" checked> 启用</label>
+                <label class="status-option"><input type="radio" name="domainStatus" value="0"> 停用</label>
+              </div>
+            </div>
+            <div class="form-item">
+              <label class="form-label">启用动态表单 <span class="required">*</span></label>
+              <div class="dynamic-form-options" id="dynamicFormEnabled">
+                <label class="dynamic-form-option"><input type="radio" name="dynamicFormEnabled" value="1"> 是</label>
+                <label class="dynamic-form-option"><input type="radio" name="dynamicFormEnabled" value="0" checked> 否</label>
+              </div>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-item full-width">
-              <label class="form-label">领域小类描述</label>
-              <textarea class="form-textarea" id="domainDesc" placeholder="对该领域小类的详细描述"></textarea>
-              <div class="form-hint">选填，帮助理解该领域小类的适用范围</div>
+        </div>
+
+        <!-- 动态表单配置（条件显示） -->
+        <div class="form-section" id="dynamicFormSection" style="display:none">
+          <div class="section-title">动态表单配置 <span class="section-hint">（启用动态表单为「是」时显示，点击「配置」管理扩展字段）</span></div>
+          <div class="dynamic-form-config" id="dynamicFormConfig">
+            <div class="df-config-header">
+              <div class="df-config-title">扩展字段编辑器</div>
+              <div class="df-config-hint">点击「配置」管理板块与字段，点击「预览」模拟企业端填报</div>
+            </div>
+            <div class="df-config-actions">
+              <button class="btn btn-primary btn-sm" onclick="dfOpenConfigModal()">⚙ 配置</button>
+              <button class="btn btn-default btn-sm" onclick="dfOpenPreviewModal()">👁 预览</button>
+              <div class="df-config-summary" id="dfConfigSummary">未配置任何字段</div>
             </div>
           </div>
         </div>
@@ -839,7 +1874,7 @@
           <div class="supervisor-section">
             <div class="supervisor-header">
               <div class="supervisor-title">已配置监管单位</div>
-              <button class="btn btn-primary btn-sm" onclick="showSupervisorModal()">+ 新增监管单位</button>
+              <button class="btn btn-primary btn-sm" onclick="showSupervisorModal()">选择监管单位</button>
             </div>
             <div class="supervisor-table-wrap">
               <table class="supervisor-table">
@@ -847,23 +1882,12 @@
                   <tr>
                     <th style="width:50px">序号</th>
                     <th style="width:90px">单位类型</th>
-                    <th>单位名称</th>
+                    <th style="width:180px">单位名称</th>
                     <th>检查表</th>
                     <th style="width:100px" class="action-col">操作</th>
                   </tr>
                 </thead>
-                <tbody id="supervisorTableBody">
-                  <!-- 新增页面：属地监管默认全选，合并到一行（与 addSupervisorsToTable 动态生成逻辑一致） -->
-                  <tr data-type="local" data-ids="org8,org9,org10,org11,org12">
-                    <td>1</td>
-                    <td><span class="tag tag-green">属地监管</span></td>
-                    <td>南山街道、粤海街道、西丽街道、南头街道、沙河街道</td>
-                    <td><span class="text-gray">未配置</span></td>
-                    <td class="action-col">
-                      <button class="btn-link" onclick="configChecklist('local')">配置检查表</button>
-                    </td>
-                  </tr>
-                </tbody>
+                <tbody id="supervisorTableBody"></tbody>
               </table>
             </div>
           </div>
@@ -873,7 +1897,7 @@
         <div class="form-section">
           <div class="section-header">
             <div class="section-title">检查表配置 <span class="section-hint">（选填，可后续配置）</span></div>
-            <button class="btn btn-primary btn-sm" onclick="showAddChecklistModal()">+ 新增检查表</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="showAddChecklistModal(event)">+ 新增检查表</button>
           </div>
           <div class="checklist-table-wrap">
             <table class="checklist-table">
@@ -901,6 +1925,61 @@
       <div class="modal-footer">
         <button class="btn btn-default" onclick="closeModal()">取消</button>
         <button class="btn btn-primary" onclick="saveDomain()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 动态表单配置二级弹窗 -->
+  <div class="modal-overlay" id="dfConfigModal">
+    <div class="modal modal-lg" style="max-width:1200px">
+      <div class="modal-header">
+        <h3 class="modal-title">动态表单配置</h3>
+        <button class="modal-close" onclick="dfCancelConfigModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="df-config-header">
+          <div class="df-config-title">扩展字段编辑器</div>
+          <div class="df-config-hint">左侧拖入字段类型 → 中部排版区拖拽排序 → 右侧配置字段属性</div>
+        </div>
+        <div class="df-config-body">
+          <!-- 左：字段类型库 -->
+          <div class="df-field-library" id="dfFieldLibrary">
+            <div class="df-library-title">字段类型</div>
+          </div>
+          <!-- 中：排版区 -->
+          <div class="df-canvas" id="dfCanvas">
+            <!-- 板块卡片由 JS 渲染 -->
+            <button class="df-add-section-btn" onclick="dfAddSection()">+ 新增自定义板块</button>
+          </div>
+          <!-- 右：字段属性抽屉 -->
+          <div class="df-property-panel" id="dfPropertyPanel">
+            <div class="df-property-title">字段属性</div>
+            <div class="df-property-empty">请选择中部排版区的字段</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="dfCancelConfigModal()">取消</button>
+        <button class="btn btn-primary" onclick="dfConfirmConfigModal()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 动态表单预览弹窗 -->
+  <div class="modal-overlay" id="dfPreviewModal">
+    <div class="modal modal-lg" style="max-width:900px">
+      <div class="modal-header">
+        <h3 class="modal-title">动态表单预览</h3>
+        <button class="modal-close" onclick="dfClosePreviewModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="df-preview-hint">模拟企业端填报：可实际输入数据测试校验规则，数据不保存</div>
+        <div id="dfPreviewBody">
+          <!-- 预览表单由 JS 渲染 -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="dfClosePreviewModal()">关闭</button>
       </div>
     </div>
   </div>
@@ -1052,6 +2131,15 @@
 
   <script>
 
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function showToast(msg, type) {
   type = type || 'info';
   var container = document.getElementById('toast-container');
@@ -1072,7 +2160,8 @@ function showToast(msg, type) {
   setTimeout(function() { toast.remove(); }, 3000);
 }
     // 显示新增弹窗
-    function showAddModal() {
+    async function showAddModal() {
+      await ensureGovOrgDataLoaded();
       document.getElementById('modalTitle').textContent = '新增领域小类';
       document.getElementById('domainModal').classList.add('active');
       resetForm();
@@ -1084,7 +2173,8 @@ function showToast(msg, type) {
     }
 
     // 显示编辑弹窗
-    function editDomain(id) {
+    async function editDomain(id) {
+      await ensureGovOrgDataLoaded();
       document.getElementById('modalTitle').textContent = '编辑领域小类';
       resetForm();
       // 编辑时：行业大类禁用不可修改
@@ -1107,9 +2197,12 @@ function showToast(msg, type) {
       document.getElementById('industryCategory').value = data.industry || ''; // 用行业代码（IND/CITY等）匹配 select option value
       document.getElementById('domainName').value = data.name || '';
       document.getElementById('domainDesc').value = data.desc || '';
-      document.getElementById('domainStatus').value = data.status || '1';
+      const statusInput = document.querySelector(`input[name="domainStatus"][value="${data.status || '1'}"]`);
+      if (statusInput) statusInput.checked = true;
+      const dynamicFormInput = document.querySelector(`input[name="dynamicFormEnabled"][value="${data.dynamicFormEnabled ? '1' : '0'}"]`);
+      if (dynamicFormInput) dynamicFormInput.checked = true;
 
-      // 模式选择
+      // 模式选择（需先于动态表单回填，因为预设板块依赖 mode）
       const modeMap = { basic: 0, project: 1, special: 2, other: 3 };
       const modeOptions = document.querySelectorAll('.mode-option');
       const modeIdx = modeMap[data.mode] ?? 0;
@@ -1118,6 +2211,17 @@ function showToast(msg, type) {
       });
       document.getElementById('domainMode').value = data.mode || 'basic';
 
+      // 其他模式禁用动态表单
+      const dfOptions = document.getElementById('dynamicFormEnabled');
+      if (data.mode === 'other') {
+        dfOptions.classList.add('disabled');
+      } else {
+        dfOptions.classList.remove('disabled');
+      }
+      // 回填动态表单配置
+      dfFillFromData(data);
+      dfUpdateConfigPanelVisibility();
+
       // 监管单位：清空表格，只保留表头，按数据重建
       const supBody = document.getElementById('supervisorTableBody');
       supBody.innerHTML = '';
@@ -1125,16 +2229,11 @@ function showToast(msg, type) {
       const localItems = [];
       if (data.supervisors && data.supervisors.length > 0) {
         data.supervisors.forEach(s => {
-          // 从 govOrgData 匹配 name 获取完整 id（修复 domainTableData 初始数据无 id 的问题）
-          let supId = s.id || '';
-          if (!supId && govOrgData[s.type]) {
-            const matched = govOrgData[s.type].find(org => org.name === s.name);
-            if (matched) supId = matched.id;
-          }
-          if (s.type === 'local') {
-            localItems.push({ id: supId, name: s.name });
+          const resolved = resolveSupervisor(s.type, s.name);
+          if (resolved.resolvedType === 'local') {
+            localItems.push({ id: resolved.id, name: resolved.name });
           } else {
-            addSupervisorsToTable(s.type, [{ id: supId, name: s.name }]);
+            addSupervisorsToTable(resolved.resolvedType, [{ id: resolved.id, name: resolved.name }]);
           }
         });
       }
@@ -1144,12 +2243,8 @@ function showToast(msg, type) {
       // 回填 _supClData（监管单位级检查表）
       if (data.supervisors && data.supervisors.length > 0) {
         data.supervisors.forEach(s => {
-          let supId = s.id || '';
-          if (!supId && govOrgData[s.type]) {
-            const matched = govOrgData[s.type].find(org => org.name === s.name);
-            if (matched) supId = matched.id;
-          }
-          const key = (s.type === 'local') ? 'local_' + localItems.map(i => i.id).join(',') : supId;
+          const resolved = resolveSupervisor(s.type, s.name);
+          const key = (resolved.resolvedType === 'local') ? 'local_' + localItems.map(i => i.id).join(',') : resolved.id;
           if (s.checklists && s.checklists.length > 0) {
             window._supClData[key] = [...s.checklists];
             // 回填后立即更新监管单位表格的检查表列
@@ -1211,7 +2306,7 @@ function showToast(msg, type) {
       document.getElementById('detailCode').textContent = domainData ? domainData.id : id;
       document.getElementById('detailName').textContent = domainData ? domainData.name : '';
       document.getElementById('detailIndustry').textContent = domainData && domainData.industryName ? domainData.industryName : '';
-      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', other: '其他模式' };
+      const modeMap = { basic: '基础模式', project: '项目模式', special: '重点场所模式', other: '其他模式' };
       const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', other: 'tag-cyan' };
       const mode = domainData ? domainData.mode : 'basic';
       document.getElementById('detailMode').innerHTML = `<span class="tag ${modeColorMap[mode]}">${modeMap[mode]}</span>`;
@@ -1244,14 +2339,20 @@ function showToast(msg, type) {
             </span>
           `).join('');
         }
-        supBody.innerHTML = supList.map((s, i) => `
-          <tr data-id="${s.id || ''}" data-sup-type="${s.type}" data-sup-name="${s.name}">
+        supBody.innerHTML = supList.map((s, i) => {
+          const resolved = resolveSupervisor(s.type, s.name);
+          const safeId = escapeHtml(resolved.id || s.id || '');
+          const safeName = escapeHtml(resolved.name || s.name);
+          const resolvedType = resolved.resolvedType || s.type;
+          return `
+          <tr data-id="${safeId}" data-sup-type="${resolvedType}" data-sup-name="${safeName}">
             <td>${i + 1}</td>
-            <td><span class="tag ${typeTagMap[s.type]}">${typeNameMap[s.type]}</span></td>
-            <td>${s.name}</td>
+            <td><span class="tag ${typeTagMap[resolvedType]}">${typeNameMap[resolvedType]}</span></td>
+            <td>${safeName}</td>
             <td class="cl-cell">${renderDetailClCell(s)}</td>
           </tr>
-        `).join('');
+        `;
+        }).join('');
       }
 
       // 填充检查表列表
@@ -1386,6 +2487,7 @@ function showToast(msg, type) {
       if (confirm(`确定要删除领域小类"${domainName}"吗？此操作不可恢复。`)) {
         domainTableData = domainTableData.filter(d => d.id !== id);
         renderDomainTable();
+        try { localStorage.setItem('sa_domain_data', JSON.stringify(domainTableData)); } catch(e) {}
         showToast('删除成功', 'success');
       }
     }
@@ -1395,10 +2497,23 @@ function showToast(msg, type) {
       document.querySelectorAll('.mode-option').forEach(el => el.classList.remove('selected'));
       element.classList.add('selected');
       document.getElementById('domainMode').value = mode;
+      // 其他模式禁用动态表单
+      const dfOptions = document.getElementById('dynamicFormEnabled');
+      if (mode === 'other') {
+        dfOptions.classList.add('disabled');
+        const noRadio = document.querySelector('input[name="dynamicFormEnabled"][value="0"]');
+        if (noRadio) noRadio.checked = true;
+        dfUpdateConfigPanelVisibility();
+      } else {
+        dfOptions.classList.remove('disabled');
+        // 切换模式时刷新预设板块
+        dfOnModeChange(mode);
+      }
     }
 
     // 显示监管单位选择弹窗
-    function showSupervisorModal() {
+    async function showSupervisorModal() {
+      await ensureGovOrgDataLoaded();
       document.getElementById('supervisorModal').classList.add('active');
       // 从主页面表格同步已选中的单位到selectedSupervisors
       syncSelectedFromTable();
@@ -1447,7 +2562,7 @@ function showToast(msg, type) {
         }
 
         names.forEach(name => {
-          const item = govOrgData[type].find(org => org.name === name);
+          const item = findSupervisorByName(type, name);
           if (item && !selectedSupervisors[type].includes(item.id)) {
             selectedSupervisors[type].push(item.id);
           }
@@ -1489,107 +2604,44 @@ function showToast(msg, type) {
         localTip.style.display = 'none';
       }
 
-      console.log('切换到页签:', type);
-
       // 切换页签时清空搜索并刷新待选列表
       document.getElementById('orgSearch').value = '';
       loadSourceList(type);
     }
 
     // ========== 领域小类表格数据（供详情/编辑使用） ==========
-    const industryMap = { IND: '工业制造', CITY: '城市运行', CONS: '建设工程', CHEM: '危险化学品', TRANS: '交通运输', COMM: '公共场所', OTH: '其他' };
-    const industryNameMap = { '工业制造': 'IND', '城市运行': 'CITY', '建设工程': 'CONS', '危险化学品': 'CHEM', '交通运输': 'TRANS', '公共场所': 'COMM', '其他': 'OTH' };
+    const industryMap = { IND: '工业制造类', CITY: '城市运行类', CONS: '建设工程类', CHEM: '危险化学品类', TRANS: '交通运输类', COMM: '公共场所类', OTH: '其他类' };
+    const industryNameMap = { '工业制造类': 'IND', '城市运行类': 'CITY', '建设工程类': 'CONS', '危险化学品类': 'CHEM', '交通运输类': 'TRANS', '公共场所类': 'COMM', '其他类': 'OTH' };
 
     const domainTableData = [
-      {
-        id: 'MANUFACTURING_001', name: '生产车间', industry: 'IND', industryName: '工业制造', mode: 'basic', status: '1',
-        desc: '工业企业的生产车间，包括电子产品生产、机械制造等',
-        supervisors: [
-          { type: 'industry', name: '工业和信息化局', checklists: ['工业制造通用检查表'] },
-          { type: 'professional', name: '应急管理局', checklists: ['生产设备专项检查表'] },
-          { type: 'local', name: '南山街道', checklists: ['工业制造通用检查表'] },
-          { type: 'local', name: '粤海街道', checklists: ['工业制造通用检查表'] },
-          { type: 'local', name: '西丽街道', checklists: ['工业制造通用检查表'] }
-        ],
-        checklists: [
-          { name: '工业制造通用检查表', frequency: '每日1次', skipHoliday: true },
-          { name: '生产设备专项检查表', frequency: '每周1次', skipHoliday: false }
-        ]
-      },
-      {
-        id: 'CITY_001', name: '充换电设施', industry: 'CITY', industryName: '城市运行', mode: 'basic', status: '1',
-        desc: '城市充换电设施的安全管理',
-        supervisors: [
-          { type: 'industry', name: '城市管理局', checklists: ['充换电站日常检查表'] },
-          { type: 'professional', name: '应急管理局', checklists: ['充换电站日常检查表'] },
-          { type: 'local', name: '沙河街道', checklists: ['充换电站日常检查表'] },
-          { type: 'local', name: '南头街道', checklists: ['充换电站日常检查表'] }
-        ],
-        checklists: [{ name: '充换电站日常检查表', frequency: '每日1次', skipHoliday: true }]
-      },
-      {
-        id: 'CONS_001', name: '建筑施工现场', industry: 'CONS', industryName: '建设工程', mode: 'project', status: '1',
-        desc: '建设工程施工现场的安全管理',
-        supervisors: [
-          { type: 'industry', name: '住建局', checklists: ['建筑施工安全检查表'] },
-          { type: 'professional', name: '应急管理局', checklists: ['建筑施工安全检查表'] },
-          { type: 'local', name: '宝安区政府', checklists: ['建筑施工安全检查表'] }
-        ],
-        checklists: []
-      },
-      {
-        id: 'EXHIBITION_001', name: '大型展会', industry: 'COMM', industryName: '公共场所', mode: 'special', status: '1',
-        desc: '大型展会活动安全管理',
-        supervisors: [
-          { type: 'industry', name: '商务局', checklists: ['大型展会安全检查表'] },
-          { type: 'professional', name: '应急管理局', checklists: ['大型展会安全检查表'] },
-          { type: 'local', name: '福田区政府', checklists: ['大型展会安全检查表'] }
-        ],
-        checklists: []
-      },
-      {
-        id: 'CUSTOM_001', name: '小微企业', industry: 'OTH', industryName: '其他', mode: 'other', status: '1',
-        desc: '企业专属定制业务',
-        supervisors: [
-          { type: 'professional', name: '应急管理局', checklists: ['定制业务检查表'] },
-          { type: 'local', name: '南山区政府', checklists: ['定制业务检查表'] }
-        ],
-        checklists: []
-      },
-      {
-        id: 'TRANS_001', name: '道路运输', industry: 'TRANS', industryName: '交通运输', mode: 'basic', status: '1',
-        desc: '道路运输企业安全管理',
-        supervisors: [
-          { type: 'industry', name: '交通局', checklists: ['道路运输安全检查表'] },
-          { type: 'professional', name: '应急管理局', checklists: ['道路运输安全检查表'] },
-          { type: 'local', name: '罗湖区政府', checklists: ['道路运输安全检查表'] }
-        ],
-        checklists: []
-      },
-      {
-        id: 'CHEM_001', name: '危险化学品仓储', industry: 'CHEM', industryName: '危险化学品', mode: 'basic', status: '0',
-        desc: '危险化学品仓储安全管理',
-        supervisors: [
-          { type: 'professional', name: '应急管理局', checklists: ['危化品仓储检查表'] },
-          { type: 'industry', name: '市场监管局', checklists: ['危化品仓储检查表'] },
-          { type: 'local', name: '深圳市政府', checklists: ['危化品仓储检查表'] }
-        ],
-        checklists: []
-      },
-      { id: 'TRANS_002', name: '港口码头', industry: 'TRANS', industryName: '交通运输', mode: 'basic', status: '1', desc: '港口码头安全管理', supervisors: [{ type: 'professional', name: '交通运输局', checklists: ['港口码头检查表'] }], checklists: [] },
-      { id: 'TRANS_003', name: '机场航站楼', industry: 'TRANS', industryName: '交通运输', mode: 'basic', status: '1', desc: '机场航站楼安全管理', supervisors: [{ type: 'professional', name: '交通运输局', checklists: ['机场安全检查表'] }], checklists: [] },
-      { id: 'CONS_002', name: '市政工程', industry: 'CONS', industryName: '建设工程', mode: 'basic', status: '1', desc: '市政工程施工安全管理', supervisors: [{ type: 'professional', name: '住房和建设局', checklists: ['市政工程检查表'] }], checklists: [] },
-      { id: 'CONS_003', name: '装修工程', industry: 'CONS', industryName: '建设工程', mode: 'basic', status: '1', desc: '装修工程安全管理', supervisors: [{ type: 'professional', name: '住房和建设局', checklists: ['装修工程检查表'] }], checklists: [] },
-      { id: 'COMM_002', name: '商场超市', industry: 'COMM', industryName: '公共场所', mode: 'basic', status: '1', desc: '商场超市安全管理', supervisors: [{ type: 'professional', name: '商务局', checklists: ['商场超市检查表'] }], checklists: [] },
-      { id: 'COMM_003', name: '餐饮场所', industry: 'COMM', industryName: '公共场所', mode: 'basic', status: '1', desc: '餐饮场所安全管理', supervisors: [{ type: 'professional', name: '市场监督管理局', checklists: ['餐饮场所检查表'] }], checklists: [] },
-      { id: 'COMM_004', name: '娱乐场所', industry: 'COMM', industryName: '公共场所', mode: 'basic', status: '1', desc: '娱乐场所安全管理', supervisors: [{ type: 'professional', name: '应急管理局', checklists: ['娱乐场所检查表'] }], checklists: [] },
-      { id: 'COMM_005', name: '体育场馆', industry: 'COMM', industryName: '公共场所', mode: 'basic', status: '1', desc: '体育场馆安全管理', supervisors: [{ type: 'professional', name: '城市管理局', checklists: ['体育场馆检查表'] }], checklists: [] },
-      { id: 'ENVI_002', name: '污水处理厂', industry: 'ENVI', industryName: '生态环境', mode: 'basic', status: '1', desc: '污水处理厂安全管理', supervisors: [{ type: 'professional', name: '城市管理局', checklists: ['污水处理检查表'] }], checklists: [] },
-      { id: 'ENVI_003', name: '垃圾处理场', industry: 'ENVI', industryName: '生态环境', mode: 'basic', status: '1', desc: '垃圾处理场安全管理', supervisors: [{ type: 'professional', name: '城市管理局', checklists: ['垃圾处理检查表'] }], checklists: [] },
-      { id: 'OTHE_001', name: '数据中心', industry: 'OTHE', industryName: '其他', mode: 'basic', status: '1', desc: '数据中心安全管理', supervisors: [{ type: 'professional', name: '工业和信息化局', checklists: ['数据中心检查表'] }], checklists: [] },
-      { id: 'OTHE_002', name: '金融机构', industry: 'OTHE', industryName: '其他', mode: 'basic', status: '1', desc: '金融机构安全管理', supervisors: [{ type: 'professional', name: '商务局', checklists: ['金融机构检查表'] }], checklists: [] },
-      { id: 'OTHE_003', name: '科研机构', industry: 'OTHE', industryName: '其他', mode: 'basic', status: '1', desc: '科研机构安全管理', supervisors: [{ type: 'professional', name: '工业和信息化局', checklists: ['科研机构检查表'] }], checklists: [] },
-      { id: 'OTHE_004', name: '仓储物流', industry: 'OTHE', industryName: '其他', mode: 'basic', status: '1', desc: '仓储物流安全管理', supervisors: [{ type: 'professional', name: '交通运输局', checklists: ['仓储物流检查表'] }], checklists: [] }
+      // ===== 公共场所类 (COMM) 18项 =====
+      { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', supervisors: [{ type: 'professional', name: '应急管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_002', name: '商业综合体', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '大型商业综合体安全管理', supervisors: [{ type: 'industry', name: '商务局', checklists: [] }, { type: 'professional', name: '应急管理局', checklists: [] }], checklists: [] },
+      { id: 'COMM_003', name: '物业小区', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '住宅物业小区安全管理', supervisors: [{ type: 'professional', name: '住房和建设局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_004', name: '超高层建筑', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '超高层建筑安全管理', supervisors: [{ type: 'professional', name: '住房和建设局', checklists: [] }, { type: 'local', name: '粤海街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_005', name: '文明施工', industry: 'COMM', industryName: '公共场所类', mode: 'project', status: '1', desc: '文明施工安全管理', supervisors: [{ type: 'industry', name: '住房和建设局', checklists: [] }, { type: 'professional', name: '应急管理局', checklists: [] }], checklists: [] },
+      { id: 'COMM_006', name: '"三小"场所（小商店—商场、市场、商店等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '商场、市场、商店等小商店场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_007', name: '"三小"场所（小餐饮（燃气））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '使用燃气的小餐饮场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'professional', name: '住房和建设局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_008', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等小美容休闲场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_009', name: '"三小"场所（小餐饮（仅用电））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '仅使用电力的小餐饮场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_010', name: '"三小"场所（小网吧）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小网吧场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_011', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '汽配、废品、五金、打印等小门店场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_012', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '托幼、晚托班、午休班、培训机构等小型学校幼儿园场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_013', name: '"三小"场所（小型多业态场所）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型多业态混合场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_014', name: '"三小"场所（小型医疗机构—口腔、中医等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '口腔、中医等小型医疗机构安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_015', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小KTV、酒吧、密室逃脱、剧本杀等小歌舞娱乐场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_016', name: '"三小"场所（小生产加工企业）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小生产加工企业场所安全管理', supervisors: [{ type: 'industry', name: '工业和信息化局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_017', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '群租房、公寓、民宿等小旅店场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_018', name: '"三小"场所（小型游乐场）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型游乐场安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      // ===== 建设工程类 (CONS) 1项 =====
+      { id: 'CONS_001', name: '房屋建设工程', industry: 'CONS', industryName: '建设工程类', mode: 'project', status: '1', desc: '房屋建设工程施工安全管理', supervisors: [{ type: 'industry', name: '住房和建设局', checklists: [] }, { type: 'professional', name: '应急管理局', checklists: [] }], checklists: [] },
+      // ===== 交通运输类 (TRANS) 1项 =====
+      { id: 'TRANS_001', name: '劝导路口', industry: 'TRANS', industryName: '交通运输类', mode: 'other', status: '1', desc: '交通安全劝导路口管理', supervisors: [{ type: 'industry', name: '交通运输局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      // ===== 危险化学品类 (CHEM) 2项 =====
+      { id: 'CHEM_001', name: '加油站', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '加油站安全管理', supervisors: [{ type: 'industry', name: '应急管理局', checklists: [] }, { type: 'professional', name: '市场监督管理局', checklists: [] }], checklists: [] },
+      { id: 'CHEM_002', name: '医药化工', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '0', desc: '医药化工企业安全管理', supervisors: [{ type: 'industry', name: '应急管理局', checklists: [] }, { type: 'professional', name: '工业和信息化局', checklists: [] }], checklists: [] },
+      // ===== 其他类 (OTH) 1项 =====
+      { id: 'OTH_001', name: '危险边坡', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡安全管理', supervisors: [{ type: 'professional', name: '规划和自然资源局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] }
     ];
 
     // 检查库模拟数据
@@ -1601,19 +2653,18 @@ function showToast(msg, type) {
       { id: 'lib5', name: '特种设备定期检验', category: 'industry', categoryName: '工业制造', itemType: '重点项', contents: [{ name: '特种设备证书有效' }, { name: '安全附件完好' }] },
     ];
 
-    // 政府组织架构数据（模拟从gov-org.html获取）
-    const govOrgData = {
-      industry: [
-        { id: 'org1', name: '工业和信息化局', type: 'industry' },
-        { id: 'org2', name: '市场监督管理局', type: 'industry' },
-        { id: 'org3', name: '商务局', type: 'industry' }
-      ],
-      professional: [
-        { id: 'org4', name: '应急管理局', type: 'professional' },
-        { id: 'org5', name: '住房和建设局', type: 'professional' },
-        { id: 'org6', name: '交通运输局', type: 'professional' },
-        { id: 'org7', name: '城市管理局', type: 'professional' }
-      ],
+    const fallbackNonStreetUnits = [
+      { id: 'org1', name: '工业和信息化局' },
+      { id: 'org2', name: '市场监督管理局' },
+      { id: 'org3', name: '商务局' },
+      { id: 'org4', name: '应急管理局' },
+      { id: 'org5', name: '住房和建设局' },
+      { id: 'org6', name: '交通运输局' },
+      { id: 'org7', name: '城市管理局' }
+    ];
+    const fallbackGovOrgData = {
+      industry: fallbackNonStreetUnits.map(item => ({ ...item, id: `industry_${item.id}`, type: 'industry' })),
+      professional: fallbackNonStreetUnits.map(item => ({ ...item, id: `professional_${item.id}`, type: 'professional' })),
       local: [
         { id: 'org8', name: '南山街道', type: 'local' },
         { id: 'org9', name: '粤海街道', type: 'local' },
@@ -1622,6 +2673,85 @@ function showToast(msg, type) {
         { id: 'org12', name: '沙河街道', type: 'local' }
       ]
     };
+    let govOrgData = fallbackGovOrgData;
+    let govOrgDataLoaded = false;
+
+    function flattenGovOrgNodes(nodes) {
+      const result = [];
+      nodes.forEach(node => {
+        result.push(node);
+        if (node.children && node.children.length) {
+          result.push(...flattenGovOrgNodes(node.children));
+        }
+      });
+      return result;
+    }
+
+    function extractGovOrgData(html) {
+      const match = html.match(/const\s+orgData\s*=\s*([\s\S]*?);\s*let\s+selectedNode/);
+      if (!match) return null;
+      return Function(`"use strict"; return (${match[1]});`)();
+    }
+
+    function normalizeGovUnitName(name) {
+      return name
+        .replace(/^区/, '')
+        .replace(/南山监管局$/, '')
+        .replace(/办事处$/, '')
+        .replace(/粵/g, '粤')
+        .trim();
+    }
+
+    function normalizeSupervisorName(name) {
+      return normalizeGovUnitName(String(name || ''))
+        .replace(/和综合执法局$/, '局')
+        .replace(/深圳市公安局交通管理支队南山大队$/, '交通管理大队');
+    }
+
+    function findSupervisorByName(type, name) {
+      const target = normalizeSupervisorName(name);
+      return (govOrgData[type] || []).find(org => normalizeSupervisorName(org.name) === target) || null;
+    }
+
+    function resolveSupervisor(type, name) {
+      const matched = findSupervisorByName(type, name);
+      if (matched) return { ...matched, resolvedType: type };
+      const fallbackTypes = ['industry', 'professional', 'local'].filter(item => item !== type);
+      for (const fallbackType of fallbackTypes) {
+        const fallbackMatched = findSupervisorByName(fallbackType, name);
+        if (fallbackMatched) return { ...fallbackMatched, resolvedType: fallbackType };
+      }
+      return { id: '', name, type, resolvedType: type };
+    }
+
+    function buildSupervisorSource(orgTree) {
+      const units = flattenGovOrgNodes(orgTree)
+        .filter(node => node.type === 'unit' && node.status === 'enabled');
+      const localUnits = units.filter(node => node.unitType === '街道办' || node.name.includes('街道办事处'));
+      const nonStreetUnits = units.filter(node => !localUnits.some(local => local.id === node.id));
+      return {
+        industry: nonStreetUnits.map(node => ({ id: `industry_${node.id}`, orgId: node.id, name: normalizeGovUnitName(node.name), type: 'industry' })),
+        professional: nonStreetUnits.map(node => ({ id: `professional_${node.id}`, orgId: node.id, name: normalizeGovUnitName(node.name), type: 'professional' })),
+        local: localUnits.map(node => ({ id: `local_${node.id}`, orgId: node.id, name: normalizeGovUnitName(node.name), type: 'local' }))
+      };
+    }
+
+    async function ensureGovOrgDataLoaded() {
+      if (govOrgDataLoaded) return;
+      try {
+        const response = await fetch('gov-org.html');
+        if (!response.ok) throw new Error('gov-org.html load failed');
+        const html = await response.text();
+        const orgTree = extractGovOrgData(html);
+        if (!orgTree) throw new Error('orgData not found');
+        govOrgData = buildSupervisorSource(orgTree);
+        govOrgDataLoaded = true;
+      } catch (error) {
+        govOrgData = fallbackGovOrgData;
+        govOrgDataLoaded = true;
+        showToast('政府组织架构数据读取失败，已使用本页备用数据', 'warning');
+      }
+    }
 
     // 当前已选中的监管单位（按类型存储）
     let selectedSupervisors = {
@@ -1648,7 +2778,9 @@ function showToast(msg, type) {
       } else {
         sourceList.innerHTML = filteredItems.map(item => {
           const isSelected = selectedIds.includes(item.id);
-          return `<div class="transfer-item"><input type="checkbox" id="${item.id}" ${isSelected ? 'checked' : ''} onchange="toggleSupervisor('${type}','${item.id}','${item.name}',this.checked)"><label for="${item.id}">${item.name}</label></div>`;
+          const safeId = escapeHtml(item.id);
+          const safeName = escapeHtml(item.name);
+          return `<div class="transfer-item"><input type="checkbox" id="${safeId}" data-type="${type}" data-id="${safeId}" data-name="${safeName}" ${isSelected ? 'checked' : ''} onchange="toggleSupervisorFromInput(this)"><label for="${safeId}">${safeName}</label></div>`;
         }).join('');
       }
       document.getElementById('sourceCount').textContent = `共 ${filteredItems.length} / ${allItems.length} 个`;
@@ -1667,10 +2799,12 @@ function showToast(msg, type) {
       // 显示所有单位，已选中的显示选中状态
       sourceList.innerHTML = allItems.map(item => {
         const isSelected = selectedIds.includes(item.id);
+        const safeId = escapeHtml(item.id);
+        const safeName = escapeHtml(item.name);
         return `
           <div class="transfer-item">
-            <input type="checkbox" id="${item.id}" ${isSelected ? 'checked' : ''} onchange="toggleSupervisor('${type}', '${item.id}', '${item.name}', this.checked)">
-            <label for="${item.id}">${item.name}</label>
+            <input type="checkbox" id="${safeId}" data-type="${type}" data-id="${safeId}" data-name="${safeName}" ${isSelected ? 'checked' : ''} onchange="toggleSupervisorFromInput(this)">
+            <label for="${safeId}">${safeName}</label>
           </div>
         `;
       }).join('');
@@ -1679,6 +2813,10 @@ function showToast(msg, type) {
     }
 
     // 切换监管单位选中状态
+    function toggleSupervisorFromInput(input) {
+      toggleSupervisor(input.dataset.type, input.dataset.id, input.dataset.name, input.checked);
+    }
+
     function toggleSupervisor(type, id, name, checked) {
       if (checked) {
         // 添加到已选列表
@@ -1728,7 +2866,7 @@ function showToast(msg, type) {
             // 清理顿号
             nameCell.innerHTML = nameCell.innerHTML.replace(/、+/g, '、').replace(/^、|、$/g, '');
             // 更新 data-ids
-            const govOrg = (govOrgData.local || []).find(g => g.name === name);
+            const govOrg = findSupervisorByName('local', name);
             if (govOrg) {
               const remaining = ids.filter(i => i !== govOrg.id);
               localRow.setAttribute('data-ids', remaining.join(','));
@@ -1763,19 +2901,27 @@ function showToast(msg, type) {
       if (type === 'local' && selectedIds.length === 0) {
         // 首次加载，默认全选
         selectedSupervisors.local = allItems.map(item => item.id);
-        targetList.innerHTML = allItems.map(item => `
-          <div class="transfer-item disabled">
-            <input type="checkbox" id="selected_${item.id}" checked disabled>
-            <label for="selected_${item.id}">${item.name}</label>
-          </div>
-        `).join('');
+        targetList.innerHTML = allItems.map(item => {
+          const safeId = escapeHtml(item.id);
+          const safeName = escapeHtml(item.name);
+          return `
+            <div class="transfer-item disabled">
+              <input type="checkbox" id="selected_${safeId}" checked disabled>
+              <label for="selected_${safeId}">${safeName}</label>
+            </div>
+          `;
+        }).join('');
       } else {
-        targetList.innerHTML = selectedItems.map(item => `
-          <div class="transfer-item">
-            <input type="checkbox" id="selected_${item.id}" checked onchange="toggleSupervisor('${type}', '${item.id}', '${item.name}', this.checked)">
-            <label for="selected_${item.id}">${item.name}</label>
-          </div>
-        `).join('');
+        targetList.innerHTML = selectedItems.map(item => {
+          const safeId = escapeHtml(item.id);
+          const safeName = escapeHtml(item.name);
+          return `
+            <div class="transfer-item">
+              <input type="checkbox" id="selected_${safeId}" data-type="${type}" data-id="${safeId}" data-name="${safeName}" checked onchange="toggleSupervisorFromInput(this)">
+              <label for="selected_${safeId}">${safeName}</label>
+            </div>
+          `;
+        }).join('');
       }
 
       updateSelectedCount();
@@ -1816,27 +2962,14 @@ function showToast(msg, type) {
 
     // 确认选择
     function confirmSupervisors() {
-      console.log('确认选择监管单位');
-
-      // 获取当前页签类型
-      const currentTab = document.querySelector('.tab.active');
-      const tabText = currentTab.textContent.trim();
-      const typeMap = {
-        '行业监管': 'industry',
-        '专业监管': 'professional',
-        '属地监管': 'local'
-      };
-      const type = typeMap[tabText];
-
-      // 获取该类型已选中的单位
-      const selectedIds = selectedSupervisors[type] || [];
-      const allItems = govOrgData[type] || [];
-      const selectedItems = allItems.filter(item => selectedIds.includes(item.id));
-
-      // 回显到主页面监管单位列表
-      if (selectedItems.length > 0) {
-        addSupervisorsToTable(type, selectedItems);
-      }
+      ['industry', 'professional', 'local'].forEach(type => {
+        const selectedIds = selectedSupervisors[type] || [];
+        const allItems = govOrgData[type] || [];
+        const selectedItems = allItems.filter(item => selectedIds.includes(item.id));
+        if (selectedItems.length > 0) {
+          addSupervisorsToTable(type, selectedItems);
+        }
+      });
 
       closeSupervisorModal();
     }
@@ -1872,20 +3005,21 @@ function showToast(msg, type) {
             // 追加 ID
             items.forEach(i => { if (i.id) ids.push(i.id); });
             existingRow.setAttribute('data-ids', ids.join(','));
+            nameCell.title = Array.from(nameCell.querySelectorAll('.local-name-item')).map(item => item.textContent.trim()).join('、');
           }
         } else {
           // 新增一行，合并所有街道名
           const existingRows = tbody.querySelectorAll('tr');
           const maxNum = existingRows.length + 1;
-          const nameList = items.map(i => `<span class="local-name-item">${i.name}</span>`).join('、');
-          const idList = items.map(i => i.id || '').filter(Boolean).join(',');
+          const nameList = items.map(i => `<span class="local-name-item">${escapeHtml(i.name)}</span>`).join('、');
+          const idList = items.map(i => i.id || '').filter(Boolean).map(escapeHtml).join(',');
           const newRow = document.createElement('tr');
           newRow.setAttribute('data-type', 'local');
           newRow.setAttribute('data-ids', idList);
           newRow.innerHTML = `
             <td>${maxNum}</td>
             <td><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
-            <td>${nameList}</td>
+            <td title="${items.map(i => escapeHtml(i.name)).join('、')}">${nameList}</td>
             <td><span class="text-gray">未配置</span></td>
             <td class="action-col">
               <button class="btn-link" onclick="configChecklist('local')">配置检查表</button>
@@ -1908,16 +3042,18 @@ function showToast(msg, type) {
       let maxNum = existingRows.length;
       newItems.forEach(item => {
         maxNum++;
+        const safeId = escapeHtml(item.id);
+        const safeName = escapeHtml(item.name);
         const newRow = document.createElement('tr');
         newRow.setAttribute('data-id', item.id);
         newRow.setAttribute('data-type', type);
         newRow.innerHTML = `
           <td>${maxNum}</td>
           <td><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
-          <td>${item.name}</td>
+          <td title="${safeName}">${safeName}</td>
           <td><span class="text-gray">未配置</span></td>
           <td class="action-col">
-            <button class="btn-link" onclick="configChecklist('${item.id}')">配置检查表</button>
+            <button class="btn-link" onclick="configChecklist('${safeId}')">配置检查表</button>
           </td>
         `;
         tbody.appendChild(newRow);
@@ -2040,7 +3176,6 @@ function showToast(msg, type) {
     }
 
     function configChecklist(id) {
-      console.log('[configChecklist] called with id:', id);
       // 入口时：将领域级检查表保存回独立存储（防止被覆盖）
       if (window._clModalMode === 'domain') {
         _syncDomainClFromTable();
@@ -2101,9 +3236,7 @@ function showToast(msg, type) {
     // 更新监管单位表格中指定 key 的检查表列
     // 更新监管单位表格中指定 key 的检查表列（同时更新新增/编辑弹窗 + 详情弹窗）
     function updateSupClCell(key) {
-      console.log('[updateSupClCell] called with key:', key);
       const list = window._supClData[key] || [];
-      console.log('[updateSupClCell] list:', list);
 
       // 属地监管：所有街道合并显示，key = 'local_id1,id2,...'
       let cellContent;
@@ -2124,14 +3257,11 @@ function showToast(msg, type) {
 
       // 同时更新两张表：新增/编辑弹窗 + 详情弹窗
       ['#supervisorTableBody', '#detailSupervisorTableBody'].forEach(bodyId => {
-        console.log('[updateSupClCell] checking bodyId:', bodyId);
         const targetRow = key.startsWith('local_')
           ? document.querySelector(`${bodyId} tr[data-type="local"]`)
           : document.querySelector(`${bodyId} tr[data-id="${key}"]`);
-        console.log('[updateSupClCell] targetRow:', targetRow);
         if (!targetRow) return;
         const clCell = targetRow.querySelector('td:nth-child(4)');
-        console.log('[updateSupClCell] clCell:', clCell, 'cellContent:', cellContent);
         if (clCell) clCell.innerHTML = cellContent;
       });
     }
@@ -2204,8 +3334,9 @@ function showToast(msg, type) {
       document.getElementById('checklistEmpty').style.display = 'none';
     }
 
-    function showAddChecklistModal() {
-      console.log('[showAddChecklistModal] called, _clModalMode:', window._clModalMode);
+    function showAddChecklistModal(event) {
+      if (event) event.stopPropagation();
+      if (document.getElementById('checklistModal')?.classList.contains('active')) return;
       // 先同步当前表格数据到领域级存储（防止 _domainClData 过期导致还原时清空）
       _syncDomainClFromTable();
       // 只在领域级模式才还原领域数据
@@ -2289,7 +3420,6 @@ function showToast(msg, type) {
 
     // 保存检查表
     function saveChecklist() {
-      console.log('[saveChecklist] called, _clModalMode:', window._clModalMode);
       // 先收集所有行内编辑的数据
       collectInlineEditData();
 
@@ -2340,15 +3470,9 @@ function showToast(msg, type) {
       // 监管单位模式：直接保存到 _supClData 并关闭（不走 closeChecklistModal 的还原逻辑）
       if (window._clModalMode === 'supervisor') {
         const key = window._currentSupClKey;
-        console.log('[saveChecklist-supervisor] key:', key);
-        console.log('[saveChecklist-supervisor] checklistTableData before save:', JSON.stringify(window.checklistTableData));
         if (key) {
           window._supClData[key] = [...window.checklistTableData];
-          console.log('[saveChecklist-supervisor] _supClData[' + key + ']:', JSON.stringify(window._supClData[key]));
           updateSupClCell(key);
-          console.log('[saveChecklist-supervisor] updateSupClCell called, checking DOM...');
-          const cellCheck = document.querySelector('#supervisorTableBody tr[data-type="local"] td:nth-child(4)');
-          console.log('[saveChecklist-supervisor] DOM cell innerHTML after update:', cellCheck ? cellCheck.innerHTML : 'cell not found');
         }
         // 隔离修复：保存监管单位检查表后，必须还原领域级表格
         // 关闭前还原，否则领域弹窗的"检查表配置"列表会被监管单位数据污染
@@ -2439,7 +3563,7 @@ function showToast(msg, type) {
 
     // 切换开关
     function toggleSwitch(element) {
-      element.classList.toggle('active', 'info');
+      element.classList.toggle('active');
     }
 
     // 编辑检查表
@@ -2550,23 +3674,1301 @@ function showToast(msg, type) {
       }
     }
 
+    function generateDomainCode(industry) {
+      const usedNumbers = domainTableData
+        .filter(d => d.industry === industry)
+        .map(d => Number((d.id || '').match(/(\d+)$/)?.[1]))
+        .filter(Number.isFinite);
+      const nextNo = (usedNumbers.length ? Math.max(...usedNumbers) : 0) + 1;
+      return `${industry}-${String(nextNo).padStart(3, '0')}`;
+    }
+
+    // ============ 动态表单配置 ============
+    const DF_FIELD_TYPES = [
+      { type: 'text', label: '单行文本', icon: '📝' },
+      { type: 'textarea', label: '多行文本', icon: '🗒️' },
+      { type: 'number', label: '数字', icon: '🔢' },
+      { type: 'date', label: '日期', icon: '📅' },
+      { type: 'datetime', label: '日期时间', icon: '🕑' },
+      { type: 'select-single', label: '下拉单选', icon: '▾' },
+      { type: 'select-multi', label: '下拉多选', icon: '▾▾' },
+      { type: 'radio', label: '单选按钮', icon: '◉' },
+      { type: 'checkbox', label: '复选框', icon: '☑' },
+      { type: 'switch', label: '开关', icon: '🔀' },
+      { type: 'richtext', label: '富文本', icon: '🎨' },
+      { type: 'file', label: '文件上传', icon: '📎' },
+      { type: 'image', label: '图片上传', icon: '🖼️' },
+      { type: 'region', label: '地区选择', icon: '📍' },
+      { type: 'department', label: '部门选择', icon: '🏢' },
+      { type: 'person', label: '人员选择', icon: '👤' }
+    ];
+    const DF_TYPE_LABEL_MAP = Object.fromEntries(DF_FIELD_TYPES.map(t => [t.type, t.label]));
+    // 模式与预设板块对照（含默认预填字段建议，C 优化）
+    // 预设板块配置：从实际业务弹窗（超管端企业/项目/政府端重点场所）读取字段
+    const DF_PRESET_SECTIONS = {
+      basic: [
+        {
+          name: '基本信息', type: 'preset', icon: '📋',
+          presetFields: [
+            { fieldKey: 'ent_name', fieldLabel: '企业名称', fieldType: 'text', required: true, fieldWidth: 'full' },
+            { fieldKey: 'credit_code', fieldLabel: '统一社会信用代码', fieldType: 'text', required: true, uniqueCheck: true, fieldWidth: 'half' },
+            { fieldKey: 'legal_person', fieldLabel: '法定代表人', fieldType: 'text', fieldWidth: 'half' },
+            { fieldKey: 'contact_phone', fieldLabel: '联系电话', fieldType: 'text', fieldWidth: 'half' },
+            { fieldKey: 'grid', fieldLabel: '归属网格', fieldType: 'region', fieldWidth: 'full' },
+            { fieldKey: 'reg_addr', fieldLabel: '注册地址', fieldType: 'text', fieldWidth: 'full' },
+            { fieldKey: 'biz_addr', fieldLabel: '经营地址', fieldType: 'text', fieldWidth: 'full' },
+            { fieldKey: 'ent_status', fieldLabel: '状态', fieldType: 'switch', required: true, fieldWidth: 'half' },
+            { fieldKey: 'ent_image', fieldLabel: '企业图片', fieldType: 'image', fieldWidth: 'full' },
+            { fieldKey: 'remark', fieldLabel: '备注', fieldType: 'textarea', fieldWidth: 'full' }
+          ]
+        },
+        {
+          name: '账号信息', type: 'preset', icon: '🔐',
+          presetFields: [
+            { fieldKey: 'account_name', fieldLabel: '账号名', fieldType: 'text', required: true, uniqueCheck: true, fieldWidth: 'half' },
+            { fieldKey: 'init_password', fieldLabel: '初始密码', fieldType: 'text', required: true, fieldWidth: 'half' }
+          ]
+        }
+      ],
+      project: [
+        {
+          name: '项目基本信息', type: 'preset', icon: '📋',
+          presetFields: [
+            { fieldKey: 'project_name', fieldLabel: '项目名称', fieldType: 'text', required: true, fieldWidth: 'full' },
+            { fieldKey: 'project_code', fieldLabel: '项目编号', fieldType: 'text', required: true, uniqueCheck: true, fieldWidth: 'half' },
+            { fieldKey: 'project_type', fieldLabel: '项目类型', fieldType: 'select-single', required: true, fieldWidth: 'half', options: '[{"value":"construct","label":"在建项目"},{"value":"operate","label":"运营项目"}]' },
+            { fieldKey: 'domain_sub', fieldLabel: '领域小类', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'project_status', fieldLabel: '项目状态', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'district', fieldLabel: '所属区', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'street', fieldLabel: '所属街道', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'community', fieldLabel: '所属社区', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'grid', fieldLabel: '所属网格', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'address', fieldLabel: '详细地址', fieldType: 'text', required: true, fieldWidth: 'full' },
+            { fieldKey: 'supervision_group', fieldLabel: '所属督导组', fieldType: 'select-single', fieldWidth: 'half' },
+            { fieldKey: 'project_desc', fieldLabel: '项目描述', fieldType: 'textarea', fieldWidth: 'full' }
+          ]
+        },
+        {
+          name: '四方责任体', type: 'preset', icon: '🏗️',
+          presetFields: [
+            { fieldKey: 'build_ent_name', fieldLabel: '企业名称', fieldType: 'text', required: true, fieldWidth: 'full', groupLabel: '建设单位' },
+            { fieldKey: 'build_ent_code', fieldLabel: '统一社会信用代码', fieldType: 'text', fieldWidth: 'half', groupLabel: '建设单位' },
+            { fieldKey: 'build_leader', fieldLabel: '负责人姓名', fieldType: 'text', fieldWidth: 'half', groupLabel: '建设单位' },
+            { fieldKey: 'build_phone', fieldLabel: '联系电话', fieldType: 'text', fieldWidth: 'half', groupLabel: '建设单位' },
+            { fieldKey: 'construct_ent_name', fieldLabel: '企业名称', fieldType: 'text', required: true, fieldWidth: 'full', groupLabel: '施工单位' },
+            { fieldKey: 'construct_ent_code', fieldLabel: '统一社会信用代码', fieldType: 'text', fieldWidth: 'half', groupLabel: '施工单位' },
+            { fieldKey: 'construct_leader', fieldLabel: '负责人姓名', fieldType: 'text', fieldWidth: 'half', groupLabel: '施工单位' },
+            { fieldKey: 'construct_phone', fieldLabel: '联系电话', fieldType: 'text', fieldWidth: 'half', groupLabel: '施工单位' },
+            { fieldKey: 'supervise_ent_name', fieldLabel: '企业名称', fieldType: 'text', required: true, fieldWidth: 'full', groupLabel: '监理单位' },
+            { fieldKey: 'supervise_ent_code', fieldLabel: '统一社会信用代码', fieldType: 'text', fieldWidth: 'half', groupLabel: '监理单位' },
+            { fieldKey: 'supervise_leader', fieldLabel: '负责人姓名', fieldType: 'text', fieldWidth: 'half', groupLabel: '监理单位' },
+            { fieldKey: 'supervise_phone', fieldLabel: '联系电话', fieldType: 'text', fieldWidth: 'half', groupLabel: '监理单位' },
+            { fieldKey: 'sub_ent_name', fieldLabel: '企业名称', fieldType: 'text', fieldWidth: 'full', groupLabel: '分包单位' },
+            { fieldKey: 'sub_ent_code', fieldLabel: '统一社会信用代码', fieldType: 'text', fieldWidth: 'half', groupLabel: '分包单位' },
+            { fieldKey: 'sub_leader', fieldLabel: '负责人姓名', fieldType: 'text', fieldWidth: 'half', groupLabel: '分包单位' },
+            { fieldKey: 'sub_phone', fieldLabel: '联系电话', fieldType: 'text', fieldWidth: 'half', groupLabel: '分包单位' }
+          ]
+        },
+        {
+          name: '账号信息', type: 'preset', icon: '🔐',
+          presetFields: [
+            { fieldKey: 'login_account', fieldLabel: '登录账号', fieldType: 'text', required: true, uniqueCheck: true, fieldWidth: 'half' },
+            { fieldKey: 'init_password', fieldLabel: '初始密码', fieldType: 'text', required: true, fieldWidth: 'half' }
+          ]
+        }
+      ],
+      special: [
+        {
+          name: '场所基本信息', type: 'preset', icon: '📍',
+          presetFields: [
+            { fieldKey: 'site_type', fieldLabel: '场所类型', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'site_name', fieldLabel: '场所名称', fieldType: 'text', required: true, fieldWidth: 'half' },
+            { fieldKey: 'site_address', fieldLabel: '场所地址', fieldType: 'text', required: true, fieldWidth: 'full' },
+            { fieldKey: 'site_scale', fieldLabel: '场所面积/规模', fieldType: 'text', fieldWidth: 'half' },
+            { fieldKey: 'risk_level', fieldLabel: '风险等级', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'site_owner', fieldLabel: '场所负责人', fieldType: 'text', required: true, fieldWidth: 'half' },
+            { fieldKey: 'owner_phone', fieldLabel: '联系方式', fieldType: 'text', fieldWidth: 'half' },
+            { fieldKey: 'belong_ent', fieldLabel: '所属企业', fieldType: 'select-single', fieldWidth: 'half' },
+            { fieldKey: 'supervise_freq', fieldLabel: '监管频次（次/月）', fieldType: 'number', fieldWidth: 'half' },
+            { fieldKey: 'supervise_org', fieldLabel: '监管责任单位', fieldType: 'select-single', fieldWidth: 'half' },
+            { fieldKey: 'supervise_person', fieldLabel: '监管责任人', fieldType: 'select-single', fieldWidth: 'half' },
+            { fieldKey: 'site_intro', fieldLabel: '场所简介', fieldType: 'textarea', fieldWidth: 'full' },
+            { fieldKey: 'site_photo', fieldLabel: '场所照片', fieldType: 'image', fieldWidth: 'full' }
+          ]
+        },
+        {
+          name: '责任人信息', type: 'preset', icon: '👤',
+          presetFields: [
+            { fieldKey: 'owner_name', fieldLabel: '责任人姓名', fieldType: 'text', required: true, fieldWidth: 'half' },
+            { fieldKey: 'owner_phone', fieldLabel: '联系电话', fieldType: 'text', required: true, fieldWidth: 'half' }
+          ]
+        }
+      ]
+    };
+    // 动态表单状态：{ sections: [{id,name,type,fields:[fieldObj],collapsed}], selectedFieldId }
+    let dfState = { sections: [], selectedFieldId: null };
+
+    // 自定义确认弹窗（替代 confirm）
+    function dfConfirmDialog(message, onConfirm) {
+      const overlay = document.createElement('div');
+      overlay.className = 'df-custom-dialog-overlay';
+      overlay.innerHTML = `
+        <div class="df-custom-dialog">
+          <div class="df-custom-dialog-header">确认操作</div>
+          <div class="df-custom-dialog-body">${message}</div>
+          <div class="df-custom-dialog-footer">
+            <button class="btn btn-default btn-sm" data-action="cancel">取消</button>
+            <button class="btn btn-primary btn-sm" data-action="confirm">确定</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      const close = () => overlay.remove();
+      overlay.querySelector('[data-action="cancel"]').addEventListener('click', close);
+      overlay.querySelector('[data-action="confirm"]').addEventListener('click', () => { close(); onConfirm(); });
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    }
+    // 自定义输入弹窗（替代 prompt）
+    function dfInputDialog({ title, label, defaultValue, maxLength, warning, onConfirm }) {
+      const overlay = document.createElement('div');
+      overlay.className = 'df-custom-dialog-overlay';
+      overlay.innerHTML = `
+        <div class="df-custom-dialog">
+          <div class="df-custom-dialog-header">${title || '请输入'}</div>
+          <div class="df-custom-dialog-body">
+            ${label || ''}
+            <input type="text" value="${(defaultValue || '').replace(/"/g, '&quot;')}" ${maxLength ? 'maxlength="' + maxLength + '"' : ''}>
+            ${warning ? '<div class="df-dialog-warning">' + warning + '</div>' : ''}
+          </div>
+          <div class="df-custom-dialog-footer">
+            <button class="btn btn-default btn-sm" data-action="cancel">取消</button>
+            <button class="btn btn-primary btn-sm" data-action="confirm">确定</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      const input = overlay.querySelector('input');
+      input.focus();
+      input.select();
+      const close = () => overlay.remove();
+      overlay.querySelector('[data-action="cancel"]').addEventListener('click', close);
+      overlay.querySelector('[data-action="confirm"]').addEventListener('click', () => {
+        const val = input.value.trim();
+        close();
+        onConfirm(val);
+      });
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { const val = input.value.trim(); close(); onConfirm(val); }
+        if (e.key === 'Escape') close();
+      });
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    }
+
+    function dfGenId(prefix) {
+      return prefix + '_' + Math.random().toString(36).slice(2, 9);
+    }
+    function dfGenFieldKey(existingKeys) {
+      let n = 1;
+      while (existingKeys.includes('field_' + String(n).padStart(3, '0'))) n++;
+      return 'field_' + String(n).padStart(3, '0');
+    }
+
+    // 渲染左侧字段类型库
+    function dfRenderLibrary() {
+      const lib = document.getElementById('dfFieldLibrary');
+      if (!lib) return;
+      const items = DF_FIELD_TYPES.map(t => `
+        <div class="df-field-type-item" draggable="true" data-type="${t.type}">
+          <span class="df-field-type-icon">${t.icon}</span>
+          <span>${t.label}</span>
+        </div>
+      `).join('');
+      lib.innerHTML = `<div class="df-library-title">字段类型</div>` + items;
+      // 绑定拖拽
+      lib.querySelectorAll('.df-field-type-item').forEach(el => {
+        el.addEventListener('dragstart', e => {
+          el.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'copy';
+          e.dataTransfer.setData('text/df-type', el.getAttribute('data-type'));
+        });
+        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+      });
+    }
+
+    // 渲染中部排版区
+    function dfRenderCanvas() {
+      const canvas = document.getElementById('dfCanvas');
+      if (!canvas) return;
+      const html = dfState.sections.map(sec => {
+        const isPreset = sec.type === 'preset';
+        const collapsed = !!sec.collapsed;
+        const icon = sec.icon || (isPreset ? '📋' : '🗂️');
+        const fieldCount = sec.fields.length;
+        const requiredCount = sec.fields.filter(f => f.required).length;
+
+        if (isPreset) {
+          // 预设板块：只读预览组件，对齐业务弹窗表单样式
+          const previewFieldsHtml = dfPresetFieldsToRows(sec.fields);
+          return `
+            <div class="df-preset-card ${collapsed ? 'collapsed' : ''}" data-section-id="${sec.id}" data-section-type="preset">
+              <div class="df-preset-header" onclick="dfToggleCollapse('${sec.id}')">
+                <div class="df-preset-header-left">
+                  <button class="df-section-action-btn df-collapse-btn" title="${collapsed ? '展开' : '收起'}">${collapsed ? '▶' : '▼'}</button>
+                  <span class="df-section-icon">${icon}</span>
+                  <span class="df-section-name">${sec.name}</span>
+                  <span class="df-section-tag">预设</span>
+                  <span class="df-section-count">${fieldCount} 字段${requiredCount > 0 ? ` · ${requiredCount} 必填` : ''}</span>
+                </div>
+                <span class="df-preset-expand-hint">${collapsed ? '点击展开' : '点击收起'}</span>
+              </div>
+              <div class="df-preset-body ${collapsed ? 'collapsed' : ''}">
+                ${previewFieldsHtml}
+              </div>
+            </div>
+          `;
+        }
+
+        // 自定义板块：可编辑模式
+        const emptyHint = sec.emptyHint || '拖入左侧字段类型至此';
+        const fieldsHtml = sec.fields.length === 0
+          ? `<div class="df-section-body empty"><div class="df-empty-hint">${emptyHint}</div></div>`
+          : `<div class="df-section-body">${sec.fields.map(f => dfFieldRowHtml(f)).join('')}</div>`;
+        return `
+          <div class="df-section-card" data-section-id="${sec.id}" data-section-type="custom">
+            <div class="df-section-header" draggable="true">
+              <div class="df-section-header-left">
+                <button class="df-section-action-btn df-collapse-btn" title="${collapsed ? '展开' : '收起'}" onclick="dfToggleCollapse('${sec.id}')">${collapsed ? '▶' : '▼'}</button>
+                <span class="df-section-icon">${icon}</span>
+                <span class="df-section-name">${sec.name}</span>
+                <span class="df-section-tag custom">自定义</span>
+                <span class="df-section-count" title="共 ${fieldCount} 个字段，必填 ${requiredCount} 个">${fieldCount} 字段${requiredCount > 0 ? ` · ${requiredCount} 必填` : ''}</span>
+              </div>
+              <div class="df-section-actions">
+                <button class="df-section-action-btn" title="上移" onclick="dfMoveSection('${sec.id}', -1)">↑</button>
+                <button class="df-section-action-btn" title="下移" onclick="dfMoveSection('${sec.id}', 1)">↓</button>
+                <button class="df-section-action-btn" title="重命名" onclick="dfRenameSection('${sec.id}')">✎</button>
+                <button class="df-section-action-btn" title="删除" onclick="dfDeleteSection('${sec.id}')">✕</button>
+              </div>
+            </div>
+            ${fieldsHtml}
+          </div>
+        `;
+      }).join('');
+      canvas.innerHTML = html + `<button class="df-add-section-btn" onclick="dfAddSection()">+ 新增自定义板块</button>`;
+      // 清除之前的拖拽指示线
+      const clearDragIndicators = () => {
+        canvas.querySelectorAll('.drag-over-before,.drag-over-after').forEach(el => {
+          el.classList.remove('drag-over-before', 'drag-over-after');
+        });
+        canvas.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      };
+      // 绑定板块拖拽接收字段类型
+      canvas.querySelectorAll('.df-section-card').forEach(card => {
+        const body = card.querySelector('.df-section-body');
+        if (!body) return;
+        body.addEventListener('dragover', e => {
+          if (!e.dataTransfer.types.includes('text/df-type') && !e.dataTransfer.types.includes('text/df-field')) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = e.dataTransfer.types.includes('text/df-type') ? 'copy' : 'move';
+          card.classList.add('drag-over');
+          // 字段行内精确位置指示线
+          clearDragIndicators();
+          const targetRow = e.target.closest('.df-field-row');
+          if (targetRow) {
+            const rect = targetRow.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+            targetRow.classList.add(e.clientY < midY ? 'drag-over-before' : 'drag-over-after');
+          }
+        });
+        body.addEventListener('dragleave', e => {
+          if (!body.contains(e.relatedTarget)) {
+            card.classList.remove('drag-over');
+            clearDragIndicators();
+          }
+        });
+        body.addEventListener('drop', e => {
+          e.preventDefault();
+          card.classList.remove('drag-over');
+          clearDragIndicators();
+          const sectionId = card.getAttribute('data-section-id');
+          // 拖入新字段类型
+          const fieldType = e.dataTransfer.getData('text/df-type');
+          if (fieldType) {
+            const targetRow = e.target.closest('.df-field-row');
+            const insertIdx = dfGetInsertIndex(sectionId, targetRow, e);
+            dfAddFieldAt(sectionId, fieldType, insertIdx);
+            return;
+          }
+          // 拖拽已有字段跨板块/板块内排序
+          const fieldId = e.dataTransfer.getData('text/df-field');
+          if (fieldId) {
+            const targetRow = e.target.closest('.df-field-row');
+            const insertIdx = dfGetInsertIndex(sectionId, targetRow, e);
+            dfMoveFieldTo(fieldId, sectionId, insertIdx);
+          }
+        });
+        // 板块头拖拽排序
+        const header = card.querySelector('.df-section-header');
+        if (header && header.getAttribute('draggable') === 'true') {
+          header.addEventListener('dragstart', e => {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/df-section', card.getAttribute('data-section-id'));
+            card.classList.add('dragging');
+          });
+          header.addEventListener('dragend', () => card.classList.remove('dragging'));
+        }
+      });
+      // canvas 接收板块拖拽排序
+      canvas.addEventListener('dragover', e => {
+        if (e.dataTransfer.types.includes('text/df-section')) {
+          e.preventDefault();
+          clearDragIndicators();
+          const targetCard = e.target.closest('.df-section-card') || e.target.closest('.df-preset-card');
+          if (targetCard) {
+            const rect = targetCard.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+            const header = targetCard.querySelector('.df-section-header') || targetCard.querySelector('.df-preset-header');
+            if (header) header.classList.toggle('drag-over-before', e.clientY < midY);
+          }
+        }
+      });
+      canvas.addEventListener('drop', e => {
+        const sectionId = e.dataTransfer.getData('text/df-section');
+        if (sectionId) {
+          clearDragIndicators();
+          const targetCard = e.target.closest('.df-section-card') || e.target.closest('.df-preset-card');
+          const fromIdx = dfState.sections.findIndex(s => s.id === sectionId);
+          if (fromIdx < 0) return;
+          const moved = dfState.sections.splice(fromIdx, 1)[0];
+          if (targetCard) {
+            const targetId = targetCard.getAttribute('data-section-id');
+            const toIdx = dfState.sections.findIndex(s => s.id === targetId);
+            const rect = targetCard.getBoundingClientRect();
+            const insertAfter = e.clientY > rect.top + rect.height / 2;
+            const pos = insertAfter ? toIdx + 1 : toIdx;
+            // 自定义板块可插入预设板块前后
+            dfState.sections.splice(pos, 0, moved);
+          } else {
+            dfState.sections.push(moved);
+          }
+          dfRenderCanvas();
+        }
+      });
+      // 绑定字段行点击选择 + 拖拽
+      canvas.querySelectorAll('.df-field-row').forEach(row => {
+        row.addEventListener('click', e => {
+          if (e.target.closest('.df-field-action-btn')) return;
+          const fieldId = row.getAttribute('data-field-id');
+          dfSelectField(fieldId);
+        });
+        row.setAttribute('draggable', 'true');
+        row.addEventListener('dragstart', e => {
+          e.stopPropagation();
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/df-field', row.getAttribute('data-field-id'));
+          row.classList.add('dragging');
+        });
+        row.addEventListener('dragend', () => {
+          row.classList.remove('dragging');
+          clearDragIndicators();
+        });
+      });
+    }
+
+    // 计算字段插入位置索引（基于拖拽指示线位置）
+    function dfGetInsertIndex(sectionId, targetRow, e) {
+      const sec = dfState.sections.find(s => s.id === sectionId);
+      if (!sec) return sec?.fields.length || 0;
+      if (!targetRow) return sec.fields.length;
+      const targetFieldId = targetRow.getAttribute('data-field-id');
+      const targetIdx = sec.fields.findIndex(f => f.id === targetFieldId);
+      if (targetIdx < 0) return sec.fields.length;
+      const rect = targetRow.getBoundingClientRect();
+      return e.clientY < rect.top + rect.height / 2 ? targetIdx : targetIdx + 1;
+    }
+
+    // 在指定位置插入新字段
+    function dfAddFieldAt(sectionId, fieldType, insertIdx) {
+      const sec = dfState.sections.find(s => s.id === sectionId);
+      if (!sec) return;
+      const allKeys = dfState.sections.flatMap(s => s.fields.map(f => f.fieldKey));
+      const newField = {
+        id: dfGenId('fld'),
+        fieldKey: dfGenFieldKey(allKeys),
+        fieldLabel: '',
+        fieldType,
+        required: false,
+        placeholder: '',
+        defaultValue: '',
+        validationRules: '',
+        options: '',
+        fieldWidth: 'half',
+        uniqueCheck: false,
+        helpText: '',
+        isLocked: false
+      };
+      sec.fields.splice(insertIdx, 0, newField);
+      dfState.selectedFieldId = newField.id;
+      dfRenderCanvas();
+      dfRenderPropertyPanel();
+    }
+
+    // 移动字段到目标板块的指定位置
+    function dfMoveFieldTo(fieldId, targetSectionId, insertIdx) {
+      let srcField = null;
+      for (const sec of dfState.sections) {
+        const idx = sec.fields.findIndex(f => f.id === fieldId);
+        if (idx >= 0) {
+          srcField = sec.fields.splice(idx, 1)[0];
+          break;
+        }
+      }
+      if (!srcField) return;
+      const targetSec = dfState.sections.find(s => s.id === targetSectionId);
+      if (targetSec) {
+        targetSec.fields.splice(insertIdx, 0, srcField);
+      }
+      dfRenderCanvas();
+    }
+
+    // 预设板块字段预览（只读表单控件样式，与新增企业弹窗一致）
+    // 预设字段控件 HTML（与业务新增弹窗一致的表单控件）
+    function dfPresetControlHtml(f) {
+      const options = f.options ? JSON.parse(f.options) : [];
+      const ph = f.placeholder || '';
+      switch (f.fieldType) {
+        case 'textarea':
+          return `<textarea class="form-textarea" placeholder="${ph}" readonly></textarea>`;
+        case 'number':
+          return `<input type="number" class="form-input" placeholder="${ph}" readonly>`;
+        case 'date':
+          return `<input type="date" class="form-input" readonly>`;
+        case 'datetime':
+          return `<input type="datetime-local" class="form-input" readonly>`;
+        case 'select-single':
+          return `<select class="form-select" disabled><option value="">${ph || '请选择'}</option>${options.map(o => `<option>${o.label}</option>`).join('')}</select>`;
+        case 'select-multi':
+          return `<select class="form-select" multiple disabled style="min-height:60px">${options.map(o => `<option>${o.label}</option>`).join('')}</select>`;
+        case 'radio':
+          return `<div class="field-radios">${options.map(o => `<label><input type="radio" name="preset_${f.fieldKey}" disabled> ${o.label}</label>`).join('')}</div>`;
+        case 'checkbox':
+          return `<div class="field-checkboxes">${options.map(o => `<label><input type="checkbox" disabled> ${o.label}</label>`).join('')}</div>`;
+        case 'switch':
+          return `<div class="switch-wrapper"><div class="switch active"></div><span class="switch-label">已激活</span></div>`;
+        case 'richtext':
+          return `<div class="richtext-placeholder">${ph || '富文本编辑器区域'}</div>`;
+        case 'file':
+          return `<div class="upload-placeholder">📎 点击上传文件</div>`;
+        case 'image':
+          return `<div class="upload-placeholder">🖼️ 点击上传图片</div>`;
+        case 'region':
+          return `<div class="cascade-selects"><select class="form-select" disabled><option>省</option><option>广东省</option></select><select class="form-select" disabled><option>市</option><option>深圳市</option></select><select class="form-select" disabled><option>区</option><option>南山区</option></select></div>`;
+        case 'department':
+          return `<select class="form-select" disabled><option value="">请选择部门</option><option>安全管理部</option></select>`;
+        case 'person':
+          return `<select class="form-select" disabled><option value="">请选择人员</option><option>张三</option></select>`;
+        default:
+          return `<input type="text" class="form-input" placeholder="${ph}" readonly>`;
+      }
+    }
+    // 预设字段行 HTML（对齐业务弹窗 form-item 布局）
+    function dfPresetFieldItemHtml(f) {
+      const requiredMark = f.required ? '<span class="required">*</span>' : '';
+      const isFull = f.fieldWidth === 'full';
+      return `
+        <div class="form-item${isFull ? ' full-width' : ''}">
+          <label class="form-label">${f.fieldLabel || '未命名'}${requiredMark}</label>
+          ${dfPresetControlHtml(f)}
+        </div>
+      `;
+    }
+    // 将预设字段按 half/full 分组为 form-row，支持 groupLabel 分组标签
+    function dfPresetFieldsToRows(fields) {
+      if (!fields || fields.length === 0) return '<div class="df-preset-empty">暂无预设字段</div>';
+      let html = '';
+      let lastGroup = null;
+      let i = 0;
+      while (i < fields.length) {
+        const f = fields[i];
+        // 插入分组标签（如四方责任体的"建设单位"/"施工单位"等）
+        if (f.groupLabel && f.groupLabel !== lastGroup) {
+          html += `<div class="form-row"><div class="form-item full-width"><div class="df-group-label">${f.groupLabel}</div></div></div>`;
+          lastGroup = f.groupLabel;
+        }
+        if (f.fieldWidth === 'full') {
+          html += `<div class="form-row">${dfPresetFieldItemHtml(f)}</div>`;
+          i++;
+        } else {
+          // half-width: 尝试两个一组
+          const next = (i + 1 < fields.length && fields[i + 1].fieldWidth !== 'full' && fields[i + 1].groupLabel === f.groupLabel) ? fields[i + 1] : null;
+          if (next) {
+            html += `<div class="form-row">${dfPresetFieldItemHtml(f)}${dfPresetFieldItemHtml(next)}</div>`;
+            i += 2;
+          } else {
+            html += `<div class="form-row">${dfPresetFieldItemHtml(f)}</div>`;
+            i++;
+          }
+        }
+      }
+      return html;
+    }
+
+    function dfFieldRowHtml(f) {
+      const requiredMark = f.required ? '<span class="df-field-required-mark">*</span>' : '';
+      const lockedIcon = f.isLocked ? ' 🔒' : '';
+      return `
+        <div class="df-field-row ${dfState.selectedFieldId === f.id ? 'selected' : ''}"
+             data-field-id="${f.id}"
+             data-field-key="${f.fieldKey}"
+             data-field-type="${f.fieldType}"
+             ${f.required ? 'data-required="1"' : ''}
+             ${f.uniqueCheck ? 'data-unique="1"' : ''}
+             ${f.isLocked ? 'data-locked="1"' : ''}
+             data-field-width="${f.fieldWidth}"
+             data-placeholder="${f.placeholder || ''}"
+             data-default-value="${f.defaultValue || ''}"
+             data-help-text="${f.helpText || ''}"
+             data-validation-rules="${f.validationRules || ''}"
+             data-options="${f.options || ''}">
+          <span class="df-field-drag-handle">⋮⋮</span>
+          <span class="df-field-type-badge">${DF_TYPE_LABEL_MAP[f.fieldType] || f.fieldType}</span>
+          <span class="df-field-label">${f.fieldLabel || '未命名字段'}${requiredMark}${lockedIcon}</span>
+          <span class="df-field-key">${f.fieldKey}</span>
+          <div class="df-field-actions">
+            <button class="df-field-action-btn" title="复制" onclick="event.stopPropagation(); dfDuplicateField('${f.id}')">⧉</button>
+            <button class="df-field-action-btn" title="删除" onclick="event.stopPropagation(); dfDeleteField('${f.id}')">✕</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 新增板块
+    function dfAddSection() {
+      dfInputDialog({
+        title: '新增自定义板块',
+        label: '板块名称：',
+        maxLength: 20,
+        warning: '最长 20 字符，同表单内不可重复',
+        onConfirm(name) {
+          if (!name) return;
+          if (name.length > 20) { showToast('板块名称最长 20 字符', 'warning'); return; }
+          if (dfState.sections.some(s => s.name === name)) { showToast('板块名称已存在', 'warning'); return; }
+          dfState.sections.push({
+            id: dfGenId('sec'),
+            name,
+            type: 'custom',
+            icon: '🗂️',
+            emptyHint: '拖入左侧字段类型至此',
+            collapsed: false,
+            fields: []
+          });
+          dfRenderCanvas();
+        }
+      });
+    }
+    function dfRenameSection(id) {
+      const sec = dfState.sections.find(s => s.id === id);
+      if (!sec || sec.type === 'preset') return;
+      dfInputDialog({
+        title: '重命名板块',
+        label: '板块名称：',
+        defaultValue: sec.name,
+        maxLength: 20,
+        warning: '最长 20 字符，同表单内不可重复',
+        onConfirm(name) {
+          if (!name) return;
+          if (name.length > 20) { showToast('板块名称最长 20 字符', 'warning'); return; }
+          if (dfState.sections.some(s => s.name === name && s.id !== id)) { showToast('板块名称已存在', 'warning'); return; }
+          sec.name = name;
+          dfRenderCanvas();
+        }
+      });
+    }
+    function dfDeleteSection(id) {
+      const sec = dfState.sections.find(s => s.id === id);
+      if (!sec || sec.type === 'preset') return;
+      const fieldCount = sec.fields.length;
+      const msg = fieldCount > 0
+        ? `删除板块将同时删除该板块下所有字段，且影响企业端已填数据展示，是否继续？`
+        : '确认删除该板块？';
+      dfConfirmDialog(msg, () => {
+        dfState.sections = dfState.sections.filter(s => s.id !== id);
+        if (dfState.selectedFieldId && sec.fields.some(f => f.id === dfState.selectedFieldId)) {
+          dfState.selectedFieldId = null;
+          dfRenderPropertyPanel();
+        }
+        dfRenderCanvas();
+      });
+    }
+    function dfMoveSection(id, dir) {
+      const idx = dfState.sections.findIndex(s => s.id === id);
+      if (idx < 0) return;
+      const sec = dfState.sections[idx];
+      const target = idx + dir;
+      if (target < 0 || target >= dfState.sections.length) return;
+      // 预设板块不可上移
+      if (sec.type === 'preset' && dir === -1) {
+        showToast('预设板块不可上移', 'warning');
+        return;
+      }
+      dfState.sections.splice(idx, 1);
+      dfState.sections.splice(target, 0, sec);
+      dfRenderCanvas();
+    }
+
+    // 新增字段
+    function dfAddField(sectionId, fieldType) {
+      const sec = dfState.sections.find(s => s.id === sectionId);
+      if (!sec) return;
+      dfAddFieldAt(sectionId, fieldType, sec.fields.length);
+    }
+    function dfDeleteField(id) {
+      for (const sec of dfState.sections) {
+        const idx = sec.fields.findIndex(f => f.id === id);
+        if (idx >= 0) {
+          dfConfirmDialog('确认删除该字段？已填报数据将保留但不再显示。', () => {
+            sec.fields.splice(idx, 1);
+            if (dfState.selectedFieldId === id) {
+              dfState.selectedFieldId = null;
+              dfRenderPropertyPanel();
+            }
+            dfRenderCanvas();
+          });
+          return;
+        }
+      }
+    }
+    function dfDuplicateField(id) {
+      for (const sec of dfState.sections) {
+        const idx = sec.fields.findIndex(f => f.id === id);
+        if (idx >= 0) {
+          const src = sec.fields[idx];
+          const allKeys = dfState.sections.flatMap(s => s.fields.map(f => f.fieldKey));
+          const copy = {
+            ...src,
+            id: dfGenId('fld'),
+            fieldKey: dfGenFieldKey(allKeys),
+            isLocked: false
+          };
+          sec.fields.splice(idx + 1, 0, copy);
+          dfRenderCanvas();
+          return;
+        }
+      }
+    }
+    function dfMoveField(id, targetSectionId) {
+      const sec = dfState.sections.find(s => s.id === targetSectionId);
+      dfMoveFieldTo(id, targetSectionId, sec ? sec.fields.length : 0);
+    }
+    function dfSelectField(id) {
+      dfState.selectedFieldId = id;
+      dfRenderCanvas();
+      dfRenderPropertyPanel();
+    }
+
+    // 渲染右侧属性面板
+    function dfRenderPropertyPanel() {
+      const panel = document.getElementById('dfPropertyPanel');
+      if (!panel) return;
+      if (!dfState.selectedFieldId) {
+        panel.innerHTML = `
+          <div class="df-property-title">字段属性</div>
+          <div class="df-property-empty">请选择中部排版区的字段</div>
+        `;
+        return;
+      }
+      const field = dfState.sections.flatMap(s => s.fields).find(f => f.id === dfState.selectedFieldId);
+      if (!field) {
+        dfState.selectedFieldId = null;
+        return dfRenderPropertyPanel();
+      }
+      const isOptionsType = ['select-single', 'select-multi', 'radio', 'checkbox'].includes(field.fieldType);
+      const isTextType = ['text', 'textarea'].includes(field.fieldType);
+      const isNumberType = field.fieldType === 'number';
+      const keyDisabled = field.isLocked;
+      const optionsArr = field.options ? JSON.parse(field.options) : [];
+      const optionsHtml = isOptionsType ? `
+        <div class="form-item">
+          <label class="form-label">选项配置</label>
+          <div class="options-editor">
+            ${optionsArr.map((opt, i) => `
+              <div class="option-row">
+                <input type="text" value="${opt.value || ''}" placeholder="value" oninput="dfUpdateOption(${i}, 'value', this.value)">
+                <input type="text" value="${opt.label || ''}" placeholder="label" oninput="dfUpdateOption(${i}, 'label', this.value)">
+                <button class="df-field-action-btn" onclick="dfRemoveOption(${i})">✕</button>
+              </div>
+            `).join('')}
+            <button class="add-option-btn" onclick="dfAddOption()">+ 新增选项</button>
+          </div>
+        </div>
+      ` : '';
+      const validationHtml = isTextType ? `
+        <div class="form-item">
+          <label class="form-label">最大长度</label>
+          <input type="number" value="${field.validationRules || ''}" placeholder="如 200" oninput="dfUpdateProperty('validationRules', this.value)">
+        </div>
+      ` : isNumberType ? `
+        <div class="form-item">
+          <label class="form-label">取值范围（min,max,step）</label>
+          <input type="text" value="${field.validationRules || ''}" placeholder="如 0,1000,1" oninput="dfUpdateProperty('validationRules', this.value)">
+        </div>
+      ` : '';
+      panel.innerHTML = `
+        <div class="df-property-title">字段属性 ${field.isLocked ? '<span style="color:#fa8c16;font-size:11px;">（已被使用，标识不可改）</span>' : ''}</div>
+        <div class="df-property-form">
+          <div class="form-item">
+            <label class="form-label">字段名称 <span style="color:#f5222d">*</span></label>
+            <input type="text" value="${field.fieldLabel}" maxlength="20" oninput="dfUpdateProperty('fieldLabel', this.value)">
+          </div>
+          <div class="form-item">
+            <label class="form-label">字段标识 <span style="color:#f5222d">*</span></label>
+            <input type="text" value="${field.fieldKey}" maxlength="30" ${keyDisabled ? 'disabled' : ''} oninput="dfUpdateProperty('fieldKey', this.value)">
+          </div>
+          <div class="form-item">
+            <label class="form-label">字段类型</label>
+            <input type="text" value="${DF_TYPE_LABEL_MAP[field.fieldType] || field.fieldType}" disabled>
+          </div>
+          <div class="form-item">
+            <label class="form-label">字段宽度</label>
+            <div class="field-width-options">
+              <label><input type="radio" name="fieldWidth" value="half" ${field.fieldWidth === 'half' ? 'checked' : ''} onchange="dfUpdateProperty('fieldWidth', 'half')"> 半行</label>
+              <label><input type="radio" name="fieldWidth" value="full" ${field.fieldWidth === 'full' ? 'checked' : ''} onchange="dfUpdateProperty('fieldWidth', 'full')"> 整行</label>
+            </div>
+          </div>
+          <div class="form-item">
+            <label class="form-label">校验</label>
+            <div class="checkbox-row">
+              <label><input type="checkbox" ${field.required ? 'checked' : ''} onchange="dfUpdateProperty('required', this.checked)"> 必填</label>
+              <label><input type="checkbox" ${field.uniqueCheck ? 'checked' : ''} onchange="dfUpdateProperty('uniqueCheck', this.checked)"> 唯一</label>
+            </div>
+          </div>
+          <div class="form-item">
+            <label class="form-label">占位提示</label>
+            <input type="text" value="${field.placeholder}" maxlength="50" oninput="dfUpdateProperty('placeholder', this.value)">
+          </div>
+          <div class="form-item">
+            <label class="form-label">默认值</label>
+            <input type="text" value="${field.defaultValue}" oninput="dfUpdateProperty('defaultValue', this.value)">
+          </div>
+          ${validationHtml}
+          ${optionsHtml}
+          <div class="form-item">
+            <label class="form-label">字段说明</label>
+            <textarea maxlength="100" oninput="dfUpdateProperty('helpText', this.value)">${field.helpText}</textarea>
+          </div>
+        </div>
+      `;
+    }
+    function dfUpdateProperty(key, value) {
+      const field = dfState.sections.flatMap(s => s.fields).find(f => f.id === dfState.selectedFieldId);
+      if (!field) return;
+      // 字段标识唯一性校验
+      if (key === 'fieldKey') {
+        const v = String(value).trim();
+        if (!/^[a-zA-Z0-9_]+$/.test(v)) {
+          showToast('字段标识仅支持英文/数字/下划线', 'warning');
+          dfRenderPropertyPanel();
+          return;
+        }
+        const exists = dfState.sections.flatMap(s => s.fields).some(f => f.fieldKey === v && f.id !== field.id);
+        if (exists) {
+          showToast('字段标识已存在', 'warning');
+          dfRenderPropertyPanel();
+          return;
+        }
+        field.fieldKey = v;
+      } else {
+        field[key] = value;
+      }
+      dfRenderCanvas();
+    }
+    function dfAddOption() {
+      const field = dfState.sections.flatMap(s => s.fields).find(f => f.id === dfState.selectedFieldId);
+      if (!field) return;
+      const arr = field.options ? JSON.parse(field.options) : [];
+      arr.push({ value: '', label: '' });
+      field.options = JSON.stringify(arr);
+      dfRenderPropertyPanel();
+    }
+    function dfUpdateOption(idx, key, value) {
+      const field = dfState.sections.flatMap(s => s.fields).find(f => f.id === dfState.selectedFieldId);
+      if (!field) return;
+      const arr = field.options ? JSON.parse(field.options) : [];
+      if (arr[idx]) arr[idx][key] = value;
+      field.options = JSON.stringify(arr);
+    }
+    function dfRemoveOption(idx) {
+      const field = dfState.sections.flatMap(s => s.fields).find(f => f.id === dfState.selectedFieldId);
+      if (!field) return;
+      const arr = field.options ? JSON.parse(field.options) : [];
+      arr.splice(idx, 1);
+      field.options = JSON.stringify(arr);
+      dfRenderPropertyPanel();
+    }
+
+    // 控制面板显示/隐藏
+    function dfUpdateConfigPanelVisibility() {
+      const enabled = document.querySelector('input[name="dynamicFormEnabled"]:checked')?.value === '1';
+      const section = document.getElementById('dynamicFormSection');
+      const panel = document.getElementById('dynamicFormConfig');
+      if (!section || !panel) return;
+      if (enabled) {
+        section.style.display = '';
+        panel.classList.add('active');
+        // 每次启用都重新初始化预设板块
+        dfInitPresetSections();
+        dfRenderSummary();
+      } else {
+        section.style.display = 'none';
+        panel.classList.remove('active');
+      }
+    }
+    // 渲染主弹窗内的配置摘要
+    function dfRenderSummary() {
+      const summary = document.getElementById('dfConfigSummary');
+      if (!summary) return;
+      const secCount = dfState.sections.length;
+      const fieldCount = dfState.sections.reduce((sum, s) => sum + s.fields.length, 0);
+      if (fieldCount === 0) {
+        summary.textContent = '未配置任何字段';
+        summary.classList.remove('has-fields');
+      } else {
+        summary.textContent = `共 ${secCount} 个板块，${fieldCount} 个字段`;
+        summary.classList.add('has-fields');
+      }
+    }
+    // 打开配置二级弹窗（深拷贝 dfState 为暂存副本）
+    let dfDraftState = null;
+    function dfOpenConfigModal() {
+      // 保存原始快照（取消时恢复）
+      window._dfStateSnapshot = dfState;
+      // 深拷贝当前 dfState 作为草稿
+      dfDraftState = JSON.parse(JSON.stringify(dfState));
+      // 切换 dfState 引用到草稿，使现有渲染逻辑作用于草稿
+      dfState = dfDraftState;
+      document.getElementById('dfConfigModal').classList.add('active');
+      dfRenderLibrary();
+      dfRenderCanvas();
+      dfRenderPropertyPanel();
+    }
+    // 确定按钮：草稿同步回主状态
+    function dfConfirmConfigModal() {
+      // dfState 已经是草稿引用，直接关闭弹窗即可
+      document.getElementById('dfConfigModal').classList.remove('active');
+      dfRenderSummary();
+      dfDraftState = null;
+    }
+    // 取消按钮：丢弃草稿，恢复原 dfState
+    function dfCancelConfigModal() {
+      // 重新从主表单数据恢复？不行——主表单还没保存。
+      // 取消=丢弃草稿，但 dfState 已被替换为草稿，需要从草稿之前的快照恢复。
+      // 简化方案：在 dfOpenConfigModal 时再存一份原始快照
+      document.getElementById('dfConfigModal').classList.remove('active');
+      if (window._dfStateSnapshot) {
+        dfState = window._dfStateSnapshot;
+        window._dfStateSnapshot = null;
+      }
+      dfDraftState = null;
+      dfRenderSummary();
+    }
+    // 打开预览弹窗
+    function dfOpenPreviewModal() {
+      document.getElementById('dfPreviewModal').classList.add('active');
+      dfRenderPreview();
+    }
+    function dfClosePreviewModal() {
+      document.getElementById('dfPreviewModal').classList.remove('active');
+    }
+    // 渲染预览表单
+    function dfRenderPreview() {
+      const body = document.getElementById('dfPreviewBody');
+      if (!body) return;
+      const totalFields = dfState.sections.reduce((sum, s) => sum + s.fields.length, 0);
+      if (totalFields === 0 && dfState.sections.length === 0) {
+        body.innerHTML = `<div class="df-preview-empty">未配置任何字段<br>请先点击「配置」按钮添加字段</div>`;
+        return;
+      }
+      const html = dfState.sections.map(sec => {
+        const fieldCount = sec.fields.length;
+        const requiredCount = sec.fields.filter(f => f.required).length;
+        const badge = fieldCount > 0 ? `<span class="df-section-count">${fieldCount} 字段${requiredCount > 0 ? ` · ${requiredCount} 必填` : ''}</span>` : '<span class="df-section-count">暂无字段</span>';
+        const fieldsHtml = sec.fields.length > 0
+          ? dfPreviewFieldsToRows(sec.fields, sec.type === 'preset')
+          : '<div class="df-empty-hint">该板块暂无字段</div>';
+        return `
+          <div class="df-preview-section">
+            <div class="df-preview-section-header">
+              <span>${sec.icon || '🗂️'}</span>
+              <span>${sec.name}</span>
+              ${badge}
+            </div>
+            <div class="df-preview-section-body">
+              ${fieldsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+      body.innerHTML = html;
+      // 绑定校验
+      body.querySelectorAll('[data-field-key]').forEach(el => {
+        const tag = el.tagName.toLowerCase();
+        const evt = (tag === 'select' || el.type === 'radio' || el.type === 'checkbox') ? 'change' : 'input';
+        el.addEventListener(evt, () => dfValidatePreviewField(el));
+      });
+    }
+    // 预览字段控件 HTML（可交互，对齐业务弹窗样式）
+    function dfPreviewControlHtml(f, isPreset) {
+      const dataAttrs = `data-field-key="${f.fieldKey}" data-required="${f.required ? '1' : '0'}" data-unique="${f.uniqueCheck ? '1' : '0'}" data-maxlength="${(f.validationRules && /^\d+$/.test(f.validationRules)) ? f.validationRules : ''}"`;
+      const ph = f.placeholder || '';
+      const options = f.options ? JSON.parse(f.options) : [];
+      switch (f.fieldType) {
+        case 'textarea':
+          return `<textarea class="form-textarea" ${dataAttrs} placeholder="${ph}"></textarea>`;
+        case 'number':
+          return `<input type="number" class="form-input" ${dataAttrs} placeholder="${ph}">`;
+        case 'date':
+          return `<input type="date" class="form-input" ${dataAttrs}>`;
+        case 'datetime':
+          return `<input type="datetime-local" class="form-input" ${dataAttrs}>`;
+        case 'select-single':
+          return `<select class="form-select" ${dataAttrs}><option value="">${ph || '请选择'}</option>${options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`;
+        case 'select-multi':
+          return `<select class="form-select" multiple ${dataAttrs} style="min-height:60px">${options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`;
+        case 'radio':
+          return `<div class="field-radios">${options.map(o => `<label><input type="radio" name="pv_${f.fieldKey}" value="${o.value}" ${dataAttrs}> ${o.label}</label>`).join('')}</div>`;
+        case 'checkbox':
+          return `<div class="field-checkboxes">${options.map(o => `<label><input type="checkbox" name="pv_${f.fieldKey}" value="${o.value}" ${dataAttrs}> ${o.label}</label>`).join('')}</div>`;
+        case 'switch':
+          return `<div class="switch-wrapper"><div class="switch" onclick="this.classList.toggle('active');this.nextElementSibling.textContent=this.classList.contains('active')?'已激活':'未激活'"></div><span class="switch-label">未激活</span></div>`;
+        case 'richtext':
+          return `<div class="richtext-placeholder" contenteditable="true" ${dataAttrs}>${ph || '富文本编辑器区域'}</div>`;
+        case 'file':
+          return `<div class="upload-placeholder">📎 点击上传文件</div>`;
+        case 'image':
+          return `<div class="upload-placeholder">🖼️ 点击上传图片</div>`;
+        case 'region':
+          return `<div class="cascade-selects"><select class="form-select" ${dataAttrs}><option value="">省</option><option>广东省</option></select><select class="form-select"><option value="">市</option><option>深圳市</option></select><select class="form-select"><option value="">区</option><option>南山区</option></select></div>`;
+        case 'department':
+          return `<select class="form-select" ${dataAttrs}><option value="">请选择部门</option><option>安全管理部</option></select>`;
+        case 'person':
+          return `<select class="form-select" ${dataAttrs}><option value="">请选择人员</option><option>张三</option></select>`;
+        default:
+          return `<input type="text" class="form-input" ${dataAttrs} placeholder="${ph}">`;
+      }
+    }
+    // 预览字段行 HTML（对齐业务弹窗 form-item 布局）
+    function dfPreviewFieldItemHtml(f, isPreset) {
+      const requiredMark = f.required ? '<span class="required">*</span>' : '';
+      const helpText = f.helpText ? `<span class="help">(${f.helpText})</span>` : '';
+      const isFull = f.fieldWidth === 'full';
+      return `
+        <div class="form-item${isFull ? ' full-width' : ''}">
+          <label class="form-label">${f.fieldLabel}${requiredMark}${helpText}</label>
+          ${dfPreviewControlHtml(f, isPreset)}
+          <div class="df-preview-field-error" data-error-for="${f.fieldKey}"></div>
+        </div>
+      `;
+    }
+    // 将预览字段按 half/full 分组为 form-row，支持 groupLabel 分组标签
+    function dfPreviewFieldsToRows(fields, isPreset) {
+      if (!fields || fields.length === 0) return '<div class="df-preset-empty">暂无字段</div>';
+      let html = '';
+      let lastGroup = null;
+      let i = 0;
+      while (i < fields.length) {
+        const f = fields[i];
+        if (f.groupLabel && f.groupLabel !== lastGroup) {
+          html += `<div class="form-row"><div class="form-item full-width"><div class="df-group-label">${f.groupLabel}</div></div></div>`;
+          lastGroup = f.groupLabel;
+        }
+        if (f.fieldWidth === 'full') {
+          html += `<div class="form-row">${dfPreviewFieldItemHtml(f, isPreset)}</div>`;
+          i++;
+        } else {
+          const next = (i + 1 < fields.length && fields[i + 1].fieldWidth !== 'full' && fields[i + 1].groupLabel === f.groupLabel) ? fields[i + 1] : null;
+          if (next) {
+            html += `<div class="form-row">${dfPreviewFieldItemHtml(f, isPreset)}${dfPreviewFieldItemHtml(next, isPreset)}</div>`;
+            i += 2;
+          } else {
+            html += `<div class="form-row">${dfPreviewFieldItemHtml(f, isPreset)}</div>`;
+            i++;
+          }
+        }
+      }
+      return html;
+    }
+    function dfValidatePreviewField(el) {
+      const fieldKey = el.getAttribute('data-field-key');
+      const errorEl = document.querySelector(`[data-error-for="${fieldKey}"]`);
+      if (!errorEl) return;
+      let value = '';
+      if (el.type === 'radio' || el.type === 'checkbox') {
+        const checked = document.querySelectorAll(`input[name="${el.name}"]:checked`);
+        value = Array.from(checked).map(c => c.value).join(',');
+      } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
+        value = Array.from(el.selectedOptions).map(o => o.value).join(',');
+      } else {
+        value = el.value;
+      }
+      const isRequired = el.getAttribute('data-required') === '1';
+      const isUnique = el.getAttribute('data-unique') === '1';
+      const maxLength = el.getAttribute('data-maxlength');
+      let error = '';
+      if (isRequired && !value) {
+        error = '该字段为必填';
+      } else if (maxLength && value.length > Number(maxLength)) {
+        error = `不能超过 ${maxLength} 个字符`;
+      } else if (isUnique && value) {
+        // 同弹窗内同 fieldKey 唯一性校验（模拟）
+        const sameValues = Array.from(document.querySelectorAll(`[data-field-key="${fieldKey}"]`))
+          .filter(other => other !== el && other.value === value);
+        if (sameValues.length > 0) error = `值「${value}」已存在（唯一性校验）`;
+      }
+      if (error) {
+        errorEl.textContent = error;
+        el.classList.add('error');
+      } else {
+        errorEl.textContent = '';
+        el.classList.remove('error');
+      }
+    }
+    function dfInitPresetSections() {
+      const mode = document.getElementById('domainMode').value;
+      const presets = DF_PRESET_SECTIONS[mode] || [];
+      dfState.sections = presets.map(p => ({
+        id: dfGenId('sec'),
+        name: p.name,
+        type: 'preset',
+        icon: p.icon,
+        emptyHint: p.emptyHint,
+        collapsed: true,
+        fields: (p.presetFields || []).map(f => ({
+          id: dfGenId('fld'),
+          fieldKey: f.fieldKey,
+          fieldLabel: f.fieldLabel,
+          fieldType: f.fieldType,
+          required: !!f.required,
+          placeholder: f.placeholder || '',
+          defaultValue: f.defaultValue || '',
+          validationRules: f.validationRules || '',
+          options: f.options || '',
+          fieldWidth: f.fieldWidth || 'half',
+          uniqueCheck: !!f.uniqueCheck,
+          helpText: f.helpText || '',
+          isLocked: false
+        }))
+      }));
+    }
+    // 切换模式时若动态表单已启用，刷新预设板块（保留自定义板块与字段）
+    function dfOnModeChange(mode) {
+      const enabled = document.querySelector('input[name="dynamicFormEnabled"]:checked')?.value === '1';
+      if (!enabled) return;
+      const presets = DF_PRESET_SECTIONS[mode] || [];
+      // 重置预设板块（仅保留自定义板块）
+      const customSecs = dfState.sections.filter(s => s.type === 'custom');
+      dfState.sections = [
+        ...presets.map(p => ({
+          id: dfGenId('sec'),
+          name: p.name,
+          type: 'preset',
+          icon: p.icon,
+          emptyHint: p.emptyHint,
+          collapsed: true,
+          fields: (p.presetFields || []).map(f => ({
+            id: dfGenId('fld'),
+            fieldKey: f.fieldKey,
+            fieldLabel: f.fieldLabel,
+            fieldType: f.fieldType,
+            required: !!f.required,
+            placeholder: f.placeholder || '',
+            defaultValue: f.defaultValue || '',
+            validationRules: f.validationRules || '',
+            options: f.options || '',
+            fieldWidth: f.fieldWidth || 'half',
+            uniqueCheck: !!f.uniqueCheck,
+            helpText: f.helpText || '',
+            isLocked: false
+          }))
+        })),
+        ...customSecs
+      ];
+      dfRenderCanvas();
+    }
+    // 折叠/展开板块
+    function dfToggleCollapse(id) {
+      const sec = dfState.sections.find(s => s.id === id);
+      if (!sec) return;
+      sec.collapsed = !sec.collapsed;
+      dfRenderCanvas();
+    }
+    // 重置动态表单状态（关闭弹窗/新增时调用）
+    function dfResetState() {
+      dfState = { sections: [], selectedFieldId: null };
+      const panel = document.getElementById('dynamicFormConfig');
+      if (panel) panel.classList.remove('active');
+      const section = document.getElementById('dynamicFormSection');
+      if (section) section.style.display = 'none';
+    }
+    // 编辑回填
+    function dfFillFromData(data) {
+      if (!data || !data.dynamicFormEnabled) {
+        dfResetState();
+        return;
+      }
+      // 编辑模式启用动态表单：显示 section 和 panel
+      const section = document.getElementById('dynamicFormSection');
+      const panel = document.getElementById('dynamicFormConfig');
+      if (section) section.style.display = '';
+      if (panel) panel.classList.add('active');
+      if (data.formSections && data.formSections.length > 0) {
+        // 找出当前 mode 的预设配置（用于回填 icon/emptyHint）
+        const mode = data.mode || 'basic';
+        const presetMap = Object.fromEntries((DF_PRESET_SECTIONS[mode] || []).map(p => [p.name, p]));
+        dfState.sections = data.formSections.map(s => {
+          const secFields = (data.formFields || []).filter(f => f.sectionId === s.id);
+          const preset = presetMap[s.name];
+          return {
+            id: s.id || dfGenId('sec'),
+            name: s.name,
+            type: s.type,
+            icon: preset?.icon || (s.type === 'preset' ? '📋' : '🗂️'),
+            emptyHint: preset?.emptyHint || '拖入左侧字段类型至此',
+            collapsed: false,
+            fields: secFields.map(f => ({
+              id: f.id || dfGenId('fld'),
+              fieldKey: f.fieldKey,
+              fieldLabel: f.fieldLabel,
+              fieldType: f.fieldType,
+              required: !!f.required,
+              placeholder: f.placeholder || '',
+              defaultValue: f.defaultValue || '',
+              validationRules: f.validationRules || '',
+              options: f.options || '',
+              fieldWidth: f.fieldWidth || 'half',
+              uniqueCheck: !!f.uniqueCheck,
+              helpText: f.helpText || '',
+              isLocked: !!f.isLocked
+            }))
+          };
+        });
+      } else {
+        dfInitPresetSections();
+      }
+      dfState.selectedFieldId = null;
+    }
+
+    // 初始化：绑定动态表单单选切换 + ESC 关闭弹窗
+    document.addEventListener('DOMContentLoaded', () => {
+      const radios = document.querySelectorAll('input[name="dynamicFormEnabled"]');
+      radios.forEach(r => r.addEventListener('change', dfUpdateConfigPanelVisibility));
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      const dfConfig = document.getElementById('dfConfigModal');
+      const dfPreview = document.getElementById('dfPreviewModal');
+      if (dfConfig && dfConfig.classList.contains('active')) {
+        dfCancelConfigModal();
+      } else if (dfPreview && dfPreview.classList.contains('active')) {
+        dfClosePreviewModal();
+      }
+    });
+
     // 保存
     function saveDomain() {
       const industry = document.getElementById('industryCategory').value;
-      const name = document.getElementById('domainName').value;
+      const name = document.getElementById('domainName').value.trim();
+      const dynamicFormEnabled = document.querySelector('input[name="dynamicFormEnabled"]:checked')?.value === '1';
+      // 动态表单：从 dfState 收集板块与字段定义（不从 DOM 读取，避免渲染格式干扰）
+      const formSections = [];
+      const formFields = [];
+      if (dynamicFormEnabled) {
+        dfState.sections.forEach((sec, sIdx) => {
+          formSections.push({
+            id: sec.id,
+            name: sec.name,
+            type: sec.type,
+            sortOrder: sIdx + 1
+          });
+          sec.fields.forEach((f, fIdx) => {
+            formFields.push({
+              id: f.id,
+              sectionId: sec.id,
+              fieldKey: f.fieldKey,
+              fieldLabel: f.fieldLabel,
+              fieldType: f.fieldType,
+              required: !!f.required,
+              placeholder: f.placeholder || '',
+              defaultValue: f.defaultValue || '',
+              validationRules: f.validationRules || '',
+              options: f.options || '',
+              fieldWidth: f.fieldWidth || 'half',
+              uniqueCheck: !!f.uniqueCheck,
+              helpText: f.helpText || '',
+              isLocked: !!f.isLocked,
+              sortOrder: fIdx + 1
+            });
+          });
+        });
+        // 校验：字段标识同领域内唯一
+        const keySet = new Set();
+        for (const f of formFields) {
+          if (keySet.has(f.fieldKey)) {
+            showToast(`字段标识「${f.fieldKey}」重复，请修改`, 'warning');
+            return;
+          }
+          keySet.add(f.fieldKey);
+        }
+        // 校验：字段名称必填
+        for (const f of formFields) {
+          if (!f.fieldLabel) {
+            showToast('字段名称不能为空', 'warning');
+            return;
+          }
+        }
+        // 校验：板块名称必填且唯一
+        const nameSet = new Set();
+        for (const s of formSections) {
+          if (!s.name) {
+            showToast('板块名称不能为空', 'warning');
+            return;
+          }
+          if (nameSet.has(s.name)) {
+            showToast(`板块名称「${s.name}」重复`, 'warning');
+            return;
+          }
+          nameSet.add(s.name);
+        }
+      }
+      const desc = document.getElementById('domainDesc').value.trim();
       const mode = document.getElementById('domainMode').value;
-      const status = document.getElementById('domainStatus').value;
-      const desc = document.getElementById('domainDesc').value;
+      const status = document.querySelector('input[name="domainStatus"]:checked')?.value || '1';
 
-      if (!industry || !name) {
-        showToast('请填写必填项：行业大类、领域小类名称', 'warning');
+      if (!industry) {
+        showToast('请选择行业大类', 'warning');
+        return;
+      }
+      if (!name) {
+        showToast('请输入领域小类名称', 'warning');
+        return;
+      }
+      if (name.length > 100) {
+        showToast('领域小类名称最长100字符', 'warning');
+        return;
+      }
+      if (desc.length > 500) {
+        showToast('领域小类描述最长500字符', 'warning');
+        return;
+      }
+      const isDuplicateName = domainTableData.some(d => d.industry === industry && d.name === name && d.id !== window._currentEditId);
+      if (isDuplicateName) {
+        showToast('该行业大类下已存在同名领域小类', 'warning');
         return;
       }
 
       // 收集监管单位（同时注入监管单位级检查表）
       const supervisors = [];
       const supRows = document.querySelectorAll('#supervisorTableBody tr');
-      const domainId = window._currentEditId || '';
+      const isEdit = Boolean(window._currentEditId);
       supRows.forEach(row => {
         const typeCell = row.querySelector('td:nth-child(2)');
         const nameCell = row.querySelector('td:nth-child(3)');
@@ -2604,38 +5006,45 @@ function showToast(msg, type) {
       clRows.forEach(row => {
         const nameEl = row.querySelector('.checklist-name');
         const freqEl = row.querySelector('.checklist-frequency');
-        const holidayEl = row.querySelector('.switch');
+        const holidayCell = row.cells[3];
         if (nameEl) {
           checklists.push({
             name: nameEl.textContent.trim(),
             frequency: freqEl ? freqEl.textContent.trim() : '',
-            skipHoliday: holidayEl ? holidayEl.classList.contains('active') : false
+            skipHoliday: holidayCell ? holidayCell.textContent.trim() === '是' : false
           });
         }
       });
 
       // 编辑模式
-      if (window._currentEditId) {
+      if (isEdit) {
         const idx = domainTableData.findIndex(d => d.id === window._currentEditId);
         if (idx >= 0) {
           domainTableData[idx] = {
             ...domainTableData[idx],
             name, industry, industryName: industryMap[industry] || '',
-            mode, status, desc, supervisors, checklists
+            mode, status, dynamicFormEnabled, desc, supervisors, checklists,
+            formSections: dynamicFormEnabled ? formSections : [],
+            formFields: dynamicFormEnabled ? formFields : []
           };
         }
         window._currentEditId = null;
       } else {
         // 新增模式
-        const newId = industry + '_' + Date.now().toString(36).toUpperCase();
-        domainTableData.push({
+        const newId = generateDomainCode(industry);
+        domainTableData.unshift({
           id: newId, name, industry, industryName: industryMap[industry] || '',
-          mode, status, desc, supervisors, checklists
+          mode, status, dynamicFormEnabled, desc, supervisors, checklists,
+          formSections: dynamicFormEnabled ? formSections : [],
+          formFields: dynamicFormEnabled ? formFields : []
         });
+        pg.setPage(1);
       }
 
       renderDomainTable();
-      showToast('保存成功', 'success');
+      // 同步领域小类数据到 localStorage，供其他模块（重点场所管理等）读取
+      try { localStorage.setItem('sa_domain_data', JSON.stringify(domainTableData)); } catch(e) {}
+      showToast(isEdit ? '保存成功' : '新增成功', 'success');
       closeModal();
     }
 
@@ -2648,10 +5057,14 @@ function showToast(msg, type) {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
-      const statusEl = document.getElementById('domainStatus');
-      if (statusEl) statusEl.value = '1';
-      // 清空模式选择
+      const statusEl = document.querySelector('input[name="domainStatus"][value="1"]');
+      if (statusEl) statusEl.checked = true;
+      const dynamicFormEl = document.querySelector('input[name="dynamicFormEnabled"][value="0"]');
+      if (dynamicFormEl) dynamicFormEl.checked = true;
+      // 重置模式选择
       document.querySelectorAll('.mode-option').forEach(el => el.classList.remove('selected'));
+      const basicModeOption = document.querySelector('.mode-option');
+      if (basicModeOption) basicModeOption.classList.add('selected');
       document.getElementById('domainMode').value = 'basic';
       // 清空监管单位表格
       const supBody = document.getElementById('supervisorTableBody');
@@ -2666,6 +5079,8 @@ function showToast(msg, type) {
       // 清空编辑状态
       window._currentEditId = null;
       window._currentDetailId = null;
+      // 重置动态表单状态
+      dfResetState();
     }
 
     /**
@@ -2727,7 +5142,7 @@ function showToast(msg, type) {
       const keyword = (document.getElementById('filterKeyword')?.value || '').toLowerCase();
       const tbody = document.getElementById('domainTable');
       if (!tbody) return;
-      const modeMap = { basic: '基础模式', project: '项目模式', special: '特殊场景模式', other: '其他模式' };
+      const modeMap = { basic: '基础模式', project: '项目模式', special: '重点场所模式', other: '其他模式' };
       const modeColorMap = { basic: 'tag-blue', project: 'tag-orange', special: 'tag-purple', other: 'tag-cyan' };
       const statusMap = { 1: { text: '启用', cls: 'tag-green' }, 0: { text: '停用', cls: 'tag-gray' } };
       const filtered = domainTableData.filter(d => {
@@ -2742,7 +5157,7 @@ function showToast(msg, type) {
       const pageData = filtered.slice(start, start + pg.size);
       
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-tertiary);padding: var(--spacing-xl);">暂无数据</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-tertiary);padding: var(--spacing-xl);">暂无数据</td></tr>`;
         pg.setTotal(0);
         return;
       }
@@ -2764,22 +5179,46 @@ function showToast(msg, type) {
         const mode = d.mode || 'basic';
         const st = d.status || '1';
         const supCount = d.supervisors ? d.supervisors.length : 0;
+        const rowNo = start + idx + 1;
+        const safeId = escapeHtml(d.id);
+        const safeName = escapeHtml(d.name);
+        const safeIndustryName = escapeHtml(d.industryName || '-');
         return `<tr>
-          <td><input type="checkbox" class="row-checkbox" data-id="${d.id}"></td>
-          <td title="${d.id}">${d.id}</td>
-          <td title="${d.name}">${d.name}</td>
-          <td title="${d.industryName || ''}">${d.industryName || '-'}</td>
+          <td class="col-check"><input type="checkbox" class="row-checkbox" data-id="${safeId}" onchange="syncSelectAllState()"></td>
+          <td class="col-index">${rowNo}</td>
+          <td title="${safeId}">${safeId}</td>
+          <td class="domain-name" title="${safeName}"><span class="domain-name-cell" onclick="viewDetail('${safeId}')">${safeName}</span></td>
+          <td title="${safeIndustryName}">${safeIndustryName}</td>
           <td><span class="tag ${modeColorMap[mode]}">${modeMap[mode]}</span></td>
           <td>${supCount}</td>
           <td><span class="tag ${statusMap[st].cls}">${statusMap[st].text}</span></td>
           <td class="operation-col">
-            <button class="btn-link" onclick="viewDetail('${d.id}')">详情</button>
-            <button class="btn-link" onclick="editDomain('${d.id}')">编辑</button>
-            <button class="btn-link danger" onclick="deleteDomain('${d.id}')">删除</button>
+            <div class="table-action-group">
+              <button class="btn-link" onclick="viewDetail('${safeId}')">详情</button>
+              <button class="btn-link" onclick="editDomain('${safeId}')">编辑</button>
+              <button class="btn-link danger" onclick="deleteDomain('${safeId}')">删除</button>
+            </div>
           </td>
         </tr>`;
       }).join('');
       pg.setTotal(filtered.length);
+      // 渲染后同步全选状态
+      syncSelectAllState();
+    }
+
+    // ========== 全选 / 批量操作 ==========
+    function toggleSelectAll(checked) {
+      document.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = checked; });
+      updateSelectedCount();
+    }
+
+    function syncSelectAllState() {
+      const all = document.querySelectorAll('.row-checkbox');
+      const selectAll = document.getElementById('selectAll');
+      if (!all.length) { selectAll.checked = false; selectAll.indeterminate = false; return; }
+      const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+      selectAll.checked = checkedCount === all.length;
+      selectAll.indeterminate = checkedCount > 0 && checkedCount < all.length;
     }
 
     // 筛选
@@ -2797,16 +5236,36 @@ function showToast(msg, type) {
       renderDomainTable();
     }
 
+    function filterByStatus(status) {
+      document.getElementById('filterStatus').value = status;
+      pg.setPage(1);
+      renderDomainTable();
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key !== 'Escape') return;
+      const activeModals = document.querySelectorAll('.modal-overlay.active');
+      if (!activeModals.length) return;
+      const activeModal = activeModals[activeModals.length - 1];
+      if (activeModal.id === 'domainModal') closeModal();
+      if (activeModal.id === 'supervisorModal') closeSupervisorModal();
+      if (activeModal.id === 'detailModal') closeDetailModal();
+      if (activeModal.id === 'checklistModal') closeChecklistModal();
+      if (activeModal.id === 'checklistLibModal') closeChecklistLibModal();
+    });
+
     // 面包屑导航
     function goToHome() {
       console.log('导航到首页');
     }
 
     function goToWorkbench() {
-      console.log('导航到工作bench');
+      console.log('导航到工作台');
     }
     // 页面加载时渲染列表表格
     renderDomainTable();
+    // 初始化时同步领域小类数据到 localStorage
+    try { localStorage.setItem('sa_domain_data', JSON.stringify(domainTableData)); } catch(e) {}
   </script>
 
 <!-- 检查表配置弹框 - checklist-modal.html -->
@@ -2859,8 +5318,8 @@ function showToast(msg, type) {
         <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <div class="section-title">检查内容</div>
           <div style="display: flex; gap: var(--spacing-sm);">
-            <button class="btn btn-default btn-sm" onclick="showChecklistLibModal()">检查库引用</button>
-            <button class="btn btn-primary btn-sm" onclick="addInlineCheckItem()">+ 新增检查项</button>
+            <button type="button" class="btn btn-default btn-sm" onclick="event.stopPropagation(); showChecklistLibModal()">检查库引用</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); addInlineCheckItem()">+ 新增检查项</button>
           </div>
         </div>
 
@@ -2873,13 +5332,13 @@ function showToast(msg, type) {
           <div class="empty-text">暂无检查内容</div>
           <div class="empty-hint">点击"新增检查项"或"检查库引用"添加</div>
         </div>
+      </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeChecklistModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveChecklist()">保存</button>
+      <button type="button" class="btn btn-default" onclick="closeChecklistModal()">取消</button>
+      <button type="button" class="btn btn-primary" onclick="saveChecklist()">保存</button>
     </div>
   </div>
-</div>
 </div>
 
 <!-- 检查库引用弹框 -->
@@ -3174,8 +5633,8 @@ function renderCheckitemList(items) {
       <input type="text" class="form-input inline-edit-name" value="${eH(item.name)}" placeholder="检查项名称"
         onkeydown="if(event.key==='Enter'){saveInlineItemName('${item.id}',this.value)}"
         onblur="saveInlineItemName('${item.id}',this.value)">
-      <button class="btn btn-default btn-sm" onclick="addInlineContent('${item.id}')">+ 添加检查内容</button>
-      <button class="btn-link btn-sm danger" onclick="deleteCheckItem('${item.id}')">删除</button>
+      <button type="button" class="btn btn-default btn-sm" onclick="event.stopPropagation(); addInlineContent('${item.id}')">+ 添加检查内容</button>
+      <button type="button" class="btn-link btn-sm danger" onclick="event.stopPropagation(); deleteCheckItem('${item.id}')">删除</button>
     </div>`;
     const contentsList = (item.contents || []).map(c => {
       return `<div class="checkitem-content" data-id="${c.id}">
@@ -3184,7 +5643,7 @@ function renderCheckitemList(items) {
         <input type="text" class="form-input inline-edit-content-standard" value="${eH(c.standard || '')}" placeholder="检查标准（选填）"
           onblur="saveInlineContentStd('${item.id}','${c.id}',this.value)">
         ${c.standard ? `<span class="help-icon" title="${eH(c.standard)}">?</span>` : ''}
-        <button class="btn-link btn-sm danger" onclick="deleteInlineContent('${item.id}','${c.id}')">删除</button>
+        <button type="button" class="btn-link btn-sm danger" onclick="event.stopPropagation(); deleteInlineContent('${item.id}','${c.id}')">删除</button>
       </div>`;
     }).join('');
     const contentsHtml = `<div class="checkitem-contents">
