@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>重点场所管理 - 政府端</title>
+  <title>重点场所管理 - 超管端</title>
 
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
@@ -14,31 +14,6 @@
     .btn-link:hover{color:var(--primary-hover)}
     .btn-link.btn-sm{font-size:var(--font-size-xs);padding:1px var(--spacing-xs)}
     .btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
-
-    /* ========== 页头（政府端） ========== */
-    .gov-page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--spacing-md);
-      background: var(--bg-primary);
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-    }
-    .gov-page-header .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
-    .gov-page-header .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-    .scope-tip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      color: var(--text-secondary);
-      background: var(--info-light, #e6f7ff);
-      padding: 2px 8px;
-      border-radius: var(--radius-md);
-      margin-left: 8px;
-    }
 
     /* ========== 领域卡片网格 ========== */
     .domain-card-grid {
@@ -866,18 +841,10 @@
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="gov-key-place">
+  <div class="module-page page-container" data-module="key-place">
 
     <!-- ========== 卡片视图 ========== -->
     <div class="card-view active" id="cardView">
-      <!-- 页头（政府端辖区标识） -->
-      <div class="gov-page-header">
-        <div>
-          <div class="page-title">重点场所管理<span class="scope-tip" id="scopeTipCard">🛡 监管单位：南山区应急管理局</span></div>
-          <div class="page-subtitle">按领域小类（重点场所模式）卡片下钻管理辖区内重点场所档案</div>
-        </div>
-      </div>
-
       <div class="page-body" style="display:block;">
       <!-- 卡片筛选区 -->
       <div class="filter-card">
@@ -1525,7 +1492,7 @@
       const titleEl = document.getElementById('drillTitle');
       if (titleEl) titleEl.textContent = domainName;
       try {
-        window.parent.postMessage({ type: 'setBreadcrumb', items: ['政府端', '重点场所管理', domainName] }, '*');
+        window.parent.postMessage({ type: 'setBreadcrumb', items: ['超管端', '重点场所管理', domainName] }, '*');
       } catch (e) {}
       // 重置区划筛选
       selectedRegion = { type: 'district', code: '440305', name: '南山区' };
@@ -1544,7 +1511,7 @@
       document.getElementById('drillView').classList.remove('active');
       document.getElementById('cardView').classList.add('active');
       try {
-        window.parent.postMessage({ type: 'setBreadcrumb', items: ['政府端', '重点场所管理'] }, '*');
+        window.parent.postMessage({ type: 'setBreadcrumb', items: ['超管端', '重点场所管理'] }, '*');
       } catch (e) {}
     }
 
@@ -2168,6 +2135,7 @@
       scfState.editIdx = editIdx;
       document.getElementById('scanConfigModalTitle').textContent = editIdx >= 0 ? '编辑扫码配置' : '添加扫码配置';
 
+      // 默认值或回填
       const row = editIdx >= 0 ? currentFormState.scanConfigs[editIdx] : null;
       const respType = row ? (row.resp_type || 'enterprise') : 'enterprise';
       document.getElementById('scfRespType').value = respType;
@@ -2175,6 +2143,7 @@
       document.getElementById('scfUnit').value = row ? parseScfInterval(row.freq).unit : 'week';
       document.getElementById('scfSkipHoliday').value = row && row.skip_holiday ? 'true' : 'false';
 
+      // 填充责任主体下拉，回填责任人与检查表
       populateScfRespIdSelect(respType, row ? row.resp_id : '');
       populateScfScannerSelect(respType, row ? row.resp_id : '', row ? row.scanner_id : '');
       populateScfClSelect(row ? row.cl_id : '');
@@ -2188,6 +2157,7 @@
     }
 
     function parseScfInterval(freq) {
+      // 解析 "每N{日|周|月}检查1次"；失败返回默认
       const m = (freq || '').match(/^每(\d+)(日|周|月)/);
       if (!m) return { interval: '1', unit: 'week' };
       const unit = m[2] === '日' ? 'day' : m[2] === '周' ? 'week' : 'month';
@@ -2247,9 +2217,12 @@
       populateScfScannerSelect(respType, respId, '');
     }
 
-    function onScfClIdChange() {}
+    function onScfClIdChange() {
+      // 占位：保留扩展（如显示检查表预览）
+    }
 
     function openKpChecklistFromScf() {
+      // 从扫码配置弹窗跳转到新建检查表弹窗
       openKpChecklistModal();
     }
 
@@ -2264,6 +2237,7 @@
       const skipHoliday = document.getElementById('scfSkipHoliday').value === 'true';
       const scannerId = document.getElementById('scfScanner').value;
 
+      // 解析名称
       let respName = '';
       if (respType === 'enterprise') {
         const ent = ENTERPRISE_POOL.find(x => x.id === respId);
@@ -2721,7 +2695,7 @@
     // ========== 导航 ==========
     function navigateTo(mod) {
       if (window.parent && window.parent.loadModule) {
-        window.parent.loadModule('government/' + mod);
+        window.parent.loadModule('super-admin/' + mod);
       }
     }
 
