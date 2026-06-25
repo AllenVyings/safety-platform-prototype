@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人中心 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .profile-page { padding: 20px 24px; background: var(--bg-page); min-height: 100vh; }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      background: var(--bg-primary);
+      padding: var(--spacing-md) 20px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    /* Tab */
+    .tab-container {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border-section);
+      background: var(--bg-section);
+      padding: 0 8px;
+    }
+    .tab-item {
+      padding: 14px 24px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tab-item:hover { color: var(--primary); }
+    .tab-item.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 500;
+      background: var(--bg-primary);
+    }
+    .tab-content {
+      display: none;
+      padding: 24px 32px;
+    }
+    .tab-content.active { display: block; }
+
+    /* Tab1: 个人信息 */
+    .profile-section {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .avatar-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg-section);
+      border-radius: 12px;
+    }
+    .avatar-large {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1890ff, #36cfc9);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: 600;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .avatar-name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .avatar-role { font-size: 12px; padding: 3px 10px; background: var(--primary-bg, #e6f4ff); color: var(--primary); border-radius: 10px; }
+    .avatar-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .avatar-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      background: #fff;
+      border: 1px solid var(--border-card);
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+    .avatar-btn:hover { color: var(--primary); border-color: var(--primary); }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      background: var(--bg-section);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .info-row {
+      display: flex;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-section);
+      align-items: center;
+      gap: 12px;
+    }
+    .info-row:nth-last-child(-n+2) { border-bottom: none; }
+    .info-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      min-width: 80px;
+    }
+    .info-value {
+      font-size: 13px;
+      color: var(--text-primary);
+      flex: 1;
+      font-weight: 500;
+    }
+    .info-edit {
+      font-size: 12px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 24px 0 12px;
+      padding-left: 10px;
+      border-left: 3px solid var(--primary);
+      border-bottom: none;
+      background: transparent;
+      border-radius: 0;
+      display: block;
+    }
+    .section-title::before { content: none; }
+
+    /* Tab2: 安全码管理 */
+    .qrcode-block {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .qrcode-card {
+      background: var(--bg-section);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+    .qrcode-image {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 16px;
+      background: #fff;
+      border: 8px solid #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .qrcode-image svg { width: 100%; height: 100%; }
+    .qrcode-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: var(--success-bg, #f6ffed);
+      color: var(--success, #52c41a);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .qrcode-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--success, #52c41a);
+      border-radius: 50%;
+    }
+    .qrcode-code {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      font-family: monospace;
+    }
+    .qrcode-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .btn {
+      padding: 7px 16px;
+      font-size: 13px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--border-card);
+      background: #fff;
+      color: var(--text-secondary);
+    }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .qrcode-info dl {
+      margin: 0;
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      row-gap: 14px;
+      column-gap: 16px;
+    }
+    .qrcode-info dt { font-size: 13px; color: var(--text-secondary); }
+    .qrcode-info dd { margin: 0; font-size: 13px; color: var(--text-primary); font-weight: 500; }
+
+    .scan-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .scan-stat {
+      background: var(--bg-section);
+      padding: 14px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .scan-stat-value { font-size: 22px; font-weight: 600; color: var(--primary); }
+    .scan-stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    .scan-history {
+      margin-top: 20px;
+      border: 1px solid var(--border-section);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .scan-history-header {
+      padding: 10px 14px;
+      background: var(--bg-section);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-section);
+    }
+    .scan-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 14px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border-section);
+    }
+    .scan-item:last-child { border-bottom: none; }
+    .scan-time { color: var(--text-secondary); }
+    .scan-action { color: var(--text-primary); }
+    .scan-result {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--success-bg, #f6ffed);
+      color: var(--success, #52c41a);
+    }
+
+    /* Tab3: 我的消息 */
+    .msg-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .msg-filters { display: flex; gap: 6px; }
+    .msg-filter-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      background: var(--bg-section);
+      border: 1px solid transparent;
+      border-radius: 16px;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+    .msg-filter-btn.active {
+      background: var(--primary-bg, #e6f4ff);
+      color: var(--primary);
+      border-color: var(--primary);
+      font-weight: 500;
+    }
+    .msg-actions { display: flex; gap: 8px; }
+
+    .msg-list { border: 1px solid var(--border-section); border-radius: 8px; overflow: hidden; }
+    .msg-item {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-section);
+      cursor: pointer;
+      transition: background 0.15s;
+      align-items: flex-start;
+    }
+    .msg-item:last-child { border-bottom: none; }
+    .msg-item:hover { background: var(--bg-section); }
+    .msg-item.unread { background: rgba(24, 144, 255, 0.04); }
+    .msg-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .msg-icon.icon-task { background: #e6f4ff; color: #1890ff; }
+    .msg-icon.icon-hazard { background: #fff2e8; color: #fa541c; }
+    .msg-icon.icon-system { background: #f9f0ff; color: #722ed1; }
+    .msg-icon.icon-todo { background: #fff7e6; color: #fa8c16; }
+
+    .msg-body { flex: 1; min-width: 0; }
+    .msg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      gap: 12px;
+    }
+    .msg-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .msg-item.unread .msg-title::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--danger, #ff4d4f);
+      border-radius: 50%;
+    }
+    .msg-time { font-size: 12px; color: var(--text-tertiary, #999); white-space: nowrap; }
+    .msg-content {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .msg-tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-right: 6px;
+    }
+    .msg-tag.tag-urgent { background: #fff1f0; color: #ff4d4f; }
+    .msg-tag.tag-normal { background: #f0f9ff; color: #1890ff; }
+
+    /* 变码记录 */
+    .code-change-list { border: 1px solid var(--border-section); border-radius: 8px; overflow: hidden; margin-top: 16px; }
+    .code-change-header { padding: 10px 14px; background: var(--bg-section); font-size: 13px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-section); }
+    .code-change-item { display: flex; align-items: center; padding: 10px 14px; font-size: 13px; border-bottom: 1px solid var(--border-section); gap: 12px; }
+    .code-change-item:last-child { border-bottom: none; }
+    .code-change-date { color: var(--text-secondary); min-width: 90px; }
+    .code-change-reason { flex: 1; color: var(--text-primary); }
+    .code-change-direction { display: flex; align-items: center; gap: 4px; font-size: 12px; min-width: 80px; }
+    .code-change-direction .arrow { color: var(--text-tertiary, #999); }
+    .code-change-person { color: var(--text-secondary); min-width: 60px; text-align: right; }
+    .code-dot-sm { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .code-dot-sm.green { background: var(--success, #52c41a); }
+    .code-dot-sm.yellow { background: var(--warning, #faad14); }
+    .code-dot-sm.red { background: var(--danger, #ff4d4f); }
+
+    /* 动态码 */
+    .dynamic-code-area { margin-top: 20px; text-align: center; }
+    .dynamic-code-card { display: inline-block; background: var(--bg-section); border-radius: 12px; padding: 24px; border: 2px dashed var(--border-light); position: relative; }
+    .dynamic-code-card .qrcode-image { width: 180px; height: 180px; margin: 0 auto 12px; }
+    .dynamic-code-timer { font-size: 16px; font-weight: 600; color: var(--danger, #ff4d4f); margin-top: 8px; }
+    .dynamic-code-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .dynamic-code-expired { font-size: 14px; color: var(--text-secondary); padding: 20px; }
+  </style>
+</head>
+<body>
+  <div class="profile-page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">个人中心</div>
+        <div class="page-subtitle">查看个人信息、安全码和系统消息</div>
+      </div>
+    </div>
+
+    <div class="tab-container">
+      <div class="tab-nav">
+        <div class="tab-item active" data-tab="info">👤 个人信息</div>
+        <div class="tab-item" data-tab="qrcode">🔖 安全码管理</div>
+        <div class="tab-item" data-tab="message">📬 我的消息 <span style="background:#ff4d4f;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:2px;">5</span></div>
+      </div>
+
+      <!-- Tab1: 个人信息 -->
+      <div class="tab-content active" data-content="info">
+        <div class="profile-section">
+          <div class="avatar-block">
+            <div class="avatar-large">王</div>
+            <div class="avatar-name">王科长</div>
+            <div class="avatar-role">科长</div>
+            <div class="avatar-actions">
+              <button class="avatar-btn">更换头像</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title">基本信息</div>
+            <div class="info-grid">
+              <div class="info-row">
+                <div class="info-label">姓名</div>
+                <div class="info-value">王建国</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">手机号</div>
+                <div class="info-value">138****6789</div>
+                <span class="info-edit">修改</span>
+              </div>
+              <div class="info-row">
+                <div class="info-label">角色</div>
+                <div class="info-value">科长</div>
+              </div>
+            </div>
+
+            <div class="section-title">所属组织</div>
+            <div class="info-grid">
+              <div class="info-row">
+                <div class="info-label">所属单位</div>
+                <div class="info-value" style="background:var(--bg-section);padding:4px 10px;border-radius:4px;color:var(--text-secondary);">XX 区应急管理局</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">所属科室</div>
+                <div class="info-value" style="background:var(--bg-section);padding:4px 10px;border-radius:4px;color:var(--text-secondary);">安全监督管理科</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab2: 安全码管理 -->
+      <div class="tab-content" data-content="qrcode">
+        <div class="qrcode-block">
+          <div class="qrcode-card">
+            <div class="qrcode-image">
+              <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="200" height="200" fill="#fff"/>
+                <g fill="#000">
+                  <rect x="10" y="10" width="50" height="50" fill="none" stroke="#000" stroke-width="8"/>
+                  <rect x="22" y="22" width="26" height="26"/>
+                  <rect x="140" y="10" width="50" height="50" fill="none" stroke="#000" stroke-width="8"/>
+                  <rect x="152" y="22" width="26" height="26"/>
+                  <rect x="10" y="140" width="50" height="50" fill="none" stroke="#000" stroke-width="8"/>
+                  <rect x="22" y="152" width="26" height="26"/>
+                  <rect x="70" y="20" width="8" height="8"/>
+                  <rect x="85" y="30" width="8" height="8"/>
+                  <rect x="100" y="20" width="8" height="8"/>
+                  <rect x="115" y="40" width="8" height="8"/>
+                  <rect x="70" y="50" width="8" height="8"/>
+                  <rect x="90" y="60" width="8" height="8"/>
+                  <rect x="110" y="50" width="8" height="8"/>
+                  <rect x="80" y="80" width="8" height="8"/>
+                  <rect x="100" y="90" width="8" height="8"/>
+                  <rect x="120" y="80" width="8" height="8"/>
+                  <rect x="140" y="90" width="8" height="8"/>
+                  <rect x="160" y="80" width="8" height="8"/>
+                  <rect x="180" y="100" width="8" height="8"/>
+                  <rect x="80" y="110" width="8" height="8"/>
+                  <rect x="100" y="120" width="8" height="8"/>
+                  <rect x="130" y="110" width="8" height="8"/>
+                  <rect x="150" y="130" width="8" height="8"/>
+                  <rect x="170" y="120" width="8" height="8"/>
+                  <rect x="80" y="150" width="8" height="8"/>
+                  <rect x="100" y="160" width="8" height="8"/>
+                  <rect x="120" y="170" width="8" height="8"/>
+                  <rect x="140" y="160" width="8" height="8"/>
+                  <rect x="160" y="170" width="8" height="8"/>
+                  <rect x="180" y="160" width="8" height="8"/>
+                </g>
+              </svg>
+            </div>
+            <div class="qrcode-status">有效</div>
+            <div style="font-size:13px;color:var(--text-primary);font-weight:500;">王建国 - 安全监督管理科</div>
+            <div class="qrcode-code">SCID: G-XX-AJ-K001-20240315</div>
+            <div class="qrcode-actions">
+              <button class="btn">下载</button>
+              <button class="btn btn-primary">打印</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title">安全码信息</div>
+            <div class="qrcode-info">
+              <dl>
+                <dt>码类型</dt><dd>政府人员码</dd>
+                <dt>持码人</dt><dd>王建国（科长）</dd>
+                <dt>所属单位</dt><dd>XX 区应急管理局</dd>
+                <dt>所属科室</dt><dd>安全监督管理科</dd>
+                <dt>有效期</dt><dd>2024-03-15 至 2027-03-14</dd>
+                <dt>颁发时间</dt><dd>2024-03-15</dd>
+                <dt>颁发单位</dt><dd>XX 区应急管理局</dd>
+                <dt>状态</dt><dd><span class="qrcode-status" style="font-size:11px;padding:2px 8px;">有效</span></dd>
+              </dl>
+            </div>
+
+            <div class="section-title">变码记录</div>
+            <div class="code-change-list">
+              <div class="code-change-header">安全码变更历史</div>
+              <div class="code-change-item">
+                <span class="code-change-date">2026-06-05</span>
+                <span class="code-change-reason">隐患超期未整改</span>
+                <span class="code-change-direction"><span class="code-dot-sm green"></span><span class="arrow">→</span><span class="code-dot-sm yellow"></span></span>
+                <span class="code-change-person">系统</span>
+              </div>
+              <div class="code-change-item">
+                <span class="code-change-date">2026-05-20</span>
+                <span class="code-change-reason">年度复核通过</span>
+                <span class="code-change-direction"><span class="code-dot-sm yellow"></span><span class="arrow">→</span><span class="code-dot-sm green"></span></span>
+                <span class="code-change-person">张伟</span>
+              </div>
+              <div class="code-change-item">
+                <span class="code-change-date">2026-04-12</span>
+                <span class="code-change-reason">重大隐患待整改</span>
+                <span class="code-change-direction"><span class="code-dot-sm yellow"></span><span class="arrow">→</span><span class="code-dot-sm red"></span></span>
+                <span class="code-change-person">系统</span>
+              </div>
+              <div class="code-change-item">
+                <span class="code-change-date">2026-03-28</span>
+                <span class="code-change-reason">整改完成复核通过</span>
+                <span class="code-change-direction"><span class="code-dot-sm red"></span><span class="arrow">→</span><span class="code-dot-sm yellow"></span></span>
+                <span class="code-change-person">陈敏</span>
+              </div>
+              <div class="code-change-item">
+                <span class="code-change-date">2026-01-15</span>
+                <span class="code-change-reason">初始颁发</span>
+                <span class="code-change-direction"><span class="code-dot-sm green"></span></span>
+                <span class="code-change-person">系统</span>
+              </div>
+            </div>
+
+            <div class="section-title">动态码</div>
+            <div class="dynamic-code-area">
+              <button class="btn btn-primary" id="btnGenDynamic" onclick="generateDynamicCode()">生成动态码</button>
+              <div id="dynamicCodeDisplay" style="display:none;">
+                <div class="dynamic-code-card">
+                  <div class="qrcode-image">
+                    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="200" height="200" fill="#fff"/>
+                      <g fill="#000">
+                        <rect x="10" y="10" width="50" height="50" fill="none" stroke="#000" stroke-width="8"/>
+                        <rect x="22" y="22" width="26" height="26"/>
+                        <rect x="140" y="10" width="50" height="50" fill="none" stroke="#000" stroke-width="8"/>
+                        <rect x="152" y="22" width="26" height="26"/>
+                        <rect x="10" y="140" width="50" height="50" fill="none" stroke="#000" stroke-width="8"/>
+                        <rect x="22" y="152" width="26" height="26"/>
+                        <rect x="75" y="25" width="8" height="8"/>
+                        <rect x="90" y="35" width="8" height="8"/>
+                        <rect x="110" y="25" width="8" height="8"/>
+                        <rect x="75" y="55" width="8" height="8"/>
+                        <rect x="95" y="65" width="8" height="8"/>
+                        <rect x="115" y="55" width="8" height="8"/>
+                        <rect x="85" y="85" width="8" height="8"/>
+                        <rect x="105" y="95" width="8" height="8"/>
+                        <rect x="125" y="85" width="8" height="8"/>
+                        <rect x="145" y="95" width="8" height="8"/>
+                        <rect x="165" y="85" width="8" height="8"/>
+                        <rect x="85" y="115" width="8" height="8"/>
+                        <rect x="105" y="125" width="8" height="8"/>
+                        <rect x="135" y="115" width="8" height="8"/>
+                        <rect x="155" y="135" width="8" height="8"/>
+                        <rect x="85" y="155" width="8" height="8"/>
+                        <rect x="105" y="165" width="8" height="8"/>
+                        <rect x="125" y="175" width="8" height="8"/>
+                        <rect x="145" y="165" width="8" height="8"/>
+                        <rect x="165" y="155" width="8" height="8"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <div style="font-size:13px;color:var(--text-primary);font-weight:500;">临时动态码</div>
+                  <div class="dynamic-code-timer" id="dynamicTimer">05:00</div>
+                  <div class="dynamic-code-label">有效期倒计时</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab3: 我的消息 -->
+      <div class="tab-content" data-content="message">
+        <div class="msg-toolbar">
+          <div class="msg-filters">
+            <button class="msg-filter-btn active">全部 <span style="margin-left:2px;">12</span></button>
+            <button class="msg-filter-btn">未读 <span style="margin-left:2px;color:#ff4d4f;">5</span></button>
+            <button class="msg-filter-btn">任务通知</button>
+            <button class="msg-filter-btn">隐患提醒</button>
+            <button class="msg-filter-btn">系统消息</button>
+          </div>
+          <div class="msg-actions">
+            <button class="btn">全部标为已读</button>
+            <button class="btn">清空</button>
+          </div>
+        </div>
+
+        <div class="msg-list">
+          <div class="msg-item unread">
+            <div class="msg-icon icon-hazard">⚠</div>
+            <div class="msg-body">
+              <div class="msg-header">
+                <div class="msg-title">
+                  <span class="msg-tag tag-urgent">紧急</span>
+                  隐患超期未整改
+                </div>
+                <div class="msg-time">10 分钟前</div>
+              </div>
+              <div class="msg-content">XX 化工"危化品仓库"存在的"消防通道堵塞"隐患已超过整改期限 2 天，请尽快督办处理。</div>
+            </div>
+          </div>
+
+          <div class="msg-item unread">
+            <div class="msg-icon icon-task">📋</div>
+            <div class="msg-body">
+              <div class="msg-header">
+                <div class="msg-title">
+                  <span class="msg-tag tag-normal">任务</span>
+                  专项任务已分配
+                </div>
+                <div class="msg-time">1 小时前</div>
+              </div>
+              <div class="msg-content">局领导分配的"端午节前危化品企业专项检查"任务已下发，覆盖 12 家企业，截止日期 2026-06-10。</div>
+            </div>
+          </div>
+
+          <div class="msg-item unread">
+            <div class="msg-icon icon-todo">⏰</div>
+            <div class="msg-body">
+              <div class="msg-header">
+                <div class="msg-title">履职任务即将到期</div>
+                <div class="msg-time">3 小时前</div>
+              </div>
+              <div class="msg-content">您本月还有 3 个履职任务未完成，距截止日期还有 5 天，请合理安排时间。</div>
+            </div>
+          </div>
+
+          <div class="msg-item unread">
+            <div class="msg-icon icon-hazard">⚠</div>
+            <div class="msg-body">
+              <div class="msg-header">
+                <div class="msg-title">企业自查上报新隐患</div>
+                <div class="msg-time">昨天 16:42</div>
+              </div>
+              <div class="msg-content">XX 机械加工厂上报新隐患"配电柜接地缺失"，等级中级，需安排复核。</div>
+            </div>
+          </div>
+
+          <div class="msg-item unread">
+            <div class="msg-icon icon-system">🔔</div>
+            <div class="msg-body">
+              <div class="msg-header">
+                <div class="msg-title">系统升级通知</div>
+                <div class="msg-time">昨天 09:00</div>
+              </div>
+              <div class="msg-content">安全码平台将于 2026-06-15 凌晨 02:00-04:00 进行系统升级，期间服务暂不可用，请提前安排工作。</div>
+            </div>
+          </div>
+
+          <div class="msg-item">
+            <div class="msg-icon icon-task">📋</div>
+            <div class="msg-body">
+              <div class="msg-header">
+                <div class="msg-title">检查任务已完成</div>
+                <div class="msg-time">2 天前</div>
+              </div>
+              <div class="msg-content">您 6 月 5 日发起的"XX 加油站履职检查"任务已由李巡查完成，共发现隐患 2 项。</div>
+            </div>
+          </div>
+
+          <div class="msg-item">
+            <div class="msg-icon icon-system">🔔</div>
+            <div class="msg-body">
+              <div class="msg-header">
+                <div class="msg-title">新增管控对象审批通知</div>
+                <div class="msg-time">3 天前</div>
+              </div>
+              <div class="msg-content">XX 化工提交"新增 3# 储罐"管控对象审批申请，已通过自动审批入档。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Hash routing: #info / #qrcode / #message / #settings / #help / #about
+    const HASH_TAB_MAP = {
+      'info': 'info', 'qrcode': 'qrcode', 'message': 'message',
+      'settings': 'info', 'help': 'info', 'about': 'info'
+    };
+
+    function activateTab(tabKey) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      const tab = document.querySelector(`.tab-item[data-tab="${tabKey}"]`);
+      const content = document.querySelector(`[data-content="${tabKey}"]`);
+      if (tab) tab.classList.add('active');
+      if (content) content.classList.add('active');
+    }
+
+    function handleHash() {
+      const hash = (location.hash || '#info').replace('#', '');
+      const tabKey = HASH_TAB_MAP[hash] || 'info';
+      activateTab(tabKey);
+    }
+
+    document.querySelectorAll('.tab-item').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activateTab(tab.dataset.tab);
+      });
+    });
+
+    window.addEventListener('hashchange', handleHash);
+    handleHash();
+
+    document.querySelectorAll('.msg-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.msg-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.msg-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.remove('unread');
+      });
+    });
+
+    // 动态码生成与倒计时
+    let dynamicTimerInterval = null;
+    function generateDynamicCode() {
+      const display = document.getElementById('dynamicCodeDisplay');
+      const btn = document.getElementById('btnGenDynamic');
+      display.style.display = '';
+      btn.textContent = '重新生成';
+      // 重置倒计时
+      let remaining = 300; // 5分钟
+      updateTimerDisplay(remaining);
+      if (dynamicTimerInterval) clearInterval(dynamicTimerInterval);
+      dynamicTimerInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(dynamicTimerInterval);
+          dynamicTimerInterval = null;
+          document.getElementById('dynamicTimer').textContent = '已过期';
+          document.getElementById('dynamicTimer').style.color = 'var(--text-secondary)';
+        } else {
+          updateTimerDisplay(remaining);
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = seconds % 60;
+      const el = document.getElementById('dynamicTimer');
+      if (el) {
+        el.textContent = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+        el.style.color = seconds <= 60 ? 'var(--danger, #ff4d4f)' : 'var(--danger, #ff4d4f)';
+      }
+    }
+  </script>
+</body>
+</html>

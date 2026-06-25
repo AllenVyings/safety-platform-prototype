@@ -1,0 +1,831 @@
+<!-- ⚠️ 已废弃：此页面已合并到 domain-supervise.html（任务配置Tab），菜单已移除，请勿使用 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任务配置 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面标题 ========== */
+    .page-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .page-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .page-desc { color: var(--text-secondary); font-size: var(--font-size-sm); margin-top: 4px; }
+
+    /* ========== 两级页签 ========== */
+    .tabs-l1 {
+      display: flex; gap: 0; background: var(--bg-primary);
+      padding: 0 var(--spacing-lg);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      border-bottom: 1px solid var(--border-light);
+      overflow-x: auto;
+    }
+    .tab-l1 {
+      padding: 14px var(--spacing-lg);
+      cursor: pointer; font-size: var(--font-size-base); font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all var(--duration-fast);
+    }
+    .tab-l1:hover { color: var(--primary); }
+    .tab-l1.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+    .tabs-l2 {
+      display: flex; gap: 8px; background: var(--bg-section);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .tab-l2 {
+      padding: 6px 14px; cursor: pointer; font-size: var(--font-size-sm);
+      color: var(--text-secondary); background: var(--bg-primary);
+      border: 1px solid var(--border-light); border-radius: 20px;
+      white-space: nowrap;
+      transition: all var(--duration-fast);
+    }
+    .tab-l2:hover { color: var(--primary); border-color: var(--primary); }
+    .tab-l2.active { color: #fff; background: var(--primary); border-color: var(--primary); }
+
+    /* ========== 内容区 ========== */
+    .config-container {
+      background: var(--bg-primary);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .current-target {
+      background: var(--bg-section-alt);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+    .current-target strong { color: var(--text-primary); font-weight: 600; }
+    .badge-key {
+      display: inline-block; background: var(--warning-light); color: var(--warning);
+      padding: 2px 8px; border-radius: 10px; font-size: var(--font-size-xs);
+      margin-left: var(--spacing-sm);
+    }
+
+    /* ========== 配置板块 ========== */
+    .config-section {
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-md);
+      overflow: hidden;
+    }
+    .config-section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px var(--spacing-md);
+      background: var(--bg-section);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .config-section-title {
+      font-size: var(--font-size-base); font-weight: 600;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .config-section-title .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      font-size: var(--font-size-xs); font-weight: 600;
+    }
+    .config-section-body { padding: var(--spacing-md); }
+    .section-tip { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+    /* ========== 检查表表格 ========== */
+    .checklist-table { width: 100%; border-collapse: collapse; }
+    .checklist-table th {
+      padding: 10px var(--spacing-sm); text-align: left;
+      font-size: var(--font-size-sm); font-weight: 600;
+      background: var(--bg-section-alt);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .checklist-table td {
+      padding: 10px var(--spacing-sm); font-size: var(--font-size-sm);
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+    .checklist-table tbody tr:hover td { background: var(--bg-hover); }
+    .freq-tag {
+      display: inline-block; padding: 2px 8px;
+      background: var(--info-light); color: var(--info);
+      border-radius: 4px; font-size: var(--font-size-xs);
+    }
+    .freq-none {
+      display: inline-block; padding: 2px 8px;
+      background: var(--bg-section-alt); color: var(--text-tertiary);
+      border-radius: 4px; font-size: var(--font-size-xs);
+    }
+
+    /* ========== 责任配置 ========== */
+    .dept-tag {
+      display: inline-block; padding: 4px 10px; margin: 4px 6px 4px 0;
+      background: var(--info-light); color: var(--info);
+      border-radius: 14px; font-size: var(--font-size-sm);
+    }
+    .dept-tag .remove {
+      margin-left: 6px; cursor: pointer; color: var(--text-tertiary);
+    }
+    .dept-tag .remove:hover { color: var(--danger); }
+    .radio-group { display: flex; gap: var(--spacing-md); align-items: center; }
+    .radio-group label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: var(--font-size-sm); }
+    .dept-select-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: var(--spacing-sm);
+    }
+    .dept-select-row select {
+      padding: 6px 10px; border: 1px solid var(--border-light);
+      border-radius: var(--radius-md); font-size: var(--font-size-sm);
+      flex: 1; max-width: 320px;
+    }
+
+    /* ========== 按钮 ========== */
+    .btn { padding: 6px 14px; border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid var(--border-light); background: var(--bg-primary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-default:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-link { padding: var(--spacing-xs) var(--spacing-sm); border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .btn-link:hover { text-decoration: underline; }
+    .btn-link.danger { color: var(--danger); }
+    .btn-sm { padding: 4px 10px; font-size: var(--font-size-xs); }
+
+    /* ========== 弹窗 ========== */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: 0 8px 32px rgba(0,0,0,0.18); width: 600px; max-height: 85vh; overflow: auto; }
+    .modal.wide { width: 720px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
+    .modal-body { padding: var(--spacing-lg); }
+    .modal-footer { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
+    .form-group { margin-bottom: var(--spacing-md); }
+    .form-label { display: block; font-size: var(--font-size-sm); font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
+    .form-control { width: 100%; padding: 7px 12px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: var(--font-size-sm); box-sizing: border-box; }
+    .form-control:focus { border-color: var(--primary); outline: none; }
+    .required { color: var(--danger); }
+
+    /* 频次组件 */
+    .freq-config {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; background: var(--bg-section-alt);
+      border-radius: var(--radius-md);
+    }
+    .freq-config input[type=number] {
+      width: 60px; text-align: center;
+      padding: 6px 8px; border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+    }
+    .freq-config select {
+      width: 80px; padding: 6px 8px;
+      border: 1px solid var(--border-light); border-radius: var(--radius-md);
+    }
+    .freq-config.disabled { opacity: 0.4; pointer-events: none; }
+    .freq-none-toggle {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 8px; font-size: var(--font-size-sm); color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    /* 检查项 */
+    .check-items {
+      border: 1px solid var(--border-light); border-radius: var(--radius-md);
+      max-height: 200px; overflow-y: auto;
+    }
+    .check-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-bottom: 1px solid var(--border-light);
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-item input[type=text] {
+      flex: 1; padding: 4px 8px; border: 1px solid var(--border-light);
+      border-radius: 4px; font-size: var(--font-size-sm);
+    }
+    .empty-state {
+      padding: 32px; text-align: center;
+      color: var(--text-tertiary); font-size: var(--font-size-sm);
+    }
+
+    /* 部门多选弹窗 */
+    .dept-tree {
+      max-height: 320px; overflow-y: auto;
+      border: 1px solid var(--border-light); border-radius: var(--radius-md);
+      padding: 8px;
+    }
+    .dept-node {
+      padding: 6px 8px; border-radius: 4px; cursor: pointer;
+      font-size: var(--font-size-sm);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .dept-node:hover { background: var(--bg-hover); }
+    .dept-node.level-1 { font-weight: 600; }
+    .dept-node.level-2 { padding-left: 24px; }
+    .dept-node.level-3 { padding-left: 44px; color: var(--text-secondary); }
+  </style>
+</head>
+<body class="prototype-body">
+
+<div class="page-header">
+  <div>
+    <div class="page-title">任务配置</div>
+    <div class="page-desc">按管控对象类型配置检查表、扫码责任与隐患责任，配置后对应类型下所有管控对象生效</div>
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <button class="btn btn-default" onclick="alert('打开配置历史记录')">📜 配置历史</button>
+  </div>
+</div>
+
+<!-- 一级页签：7 大类 -->
+<div class="tabs-l1" id="tabsL1"></div>
+
+<!-- 二级页签：动态加载 -->
+<div class="tabs-l2" id="tabsL2"></div>
+
+<!-- 配置区 -->
+<div class="config-container">
+  <div class="current-target" id="currentTarget">
+    当前配置：<strong>—</strong>
+  </div>
+
+  <!-- ① 检查表配置 -->
+  <div class="config-section">
+    <div class="config-section-header">
+      <div class="config-section-title">
+        <span class="num">1</span>检查表配置
+        <span class="section-tip">支持新增多个检查表，每个检查表配置名称、检查项、检查频次（频次可不配置）</span>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openChecklistModal()">+ 新增检查表</button>
+    </div>
+    <div class="config-section-body">
+      <table class="checklist-table" id="checklistTable">
+        <thead>
+          <tr>
+            <th style="width: 30%;">检查表名称</th>
+            <th style="width: 20%;">检查项数</th>
+            <th style="width: 25%;">检查频次</th>
+            <th style="width: 25%;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="checklistTbody">
+          <!-- 动态渲染 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ② 扫码责任配置 -->
+  <div class="config-section">
+    <div class="config-section-header">
+      <div class="config-section-title">
+        <span class="num">2</span>扫码责任配置
+        <span class="section-tip">配置完成后，所选部门下所有政府人员可对该类管控对象进行巡查</span>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openDeptModal('scan')">+ 选择部门</button>
+    </div>
+    <div class="config-section-body">
+      <div id="scanDeptList">
+        <span class="section-tip">暂未配置扫码责任部门</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 隐患责任配置（仅重点场所类显示） -->
+  <div class="config-section" id="hazardConfigSection">
+    <div class="config-section-header">
+      <div class="config-section-title">
+        <span class="num">3</span>隐患责任配置
+        <span class="section-tip">仅对重点场所有效，配置政府的隐患整改与复核义务</span>
+        <span class="badge-key" id="hazardKeyBadge" style="display:none;">仅重点场所</span>
+      </div>
+    </div>
+    <div class="config-section-body">
+      <!-- 整改义务 -->
+      <div style="margin-bottom: var(--spacing-md);">
+        <div class="form-label" style="margin-bottom: 8px;">① 隐患整改义务</div>
+        <div class="radio-group">
+          <label><input type="radio" name="fixDuty" value="yes" onchange="toggleFixDept(true)"> 是</label>
+          <label><input type="radio" name="fixDuty" value="no" checked onchange="toggleFixDept(false)"> 否</label>
+        </div>
+        <div class="dept-select-row" id="fixDeptRow" style="display: none;">
+          <span style="font-size: var(--font-size-sm); color: var(--text-secondary);">具体部门：</span>
+          <select id="fixDept">
+            <option value="">请选择部门</option>
+            <option>应急管理局</option>
+            <option>住建局</option>
+            <option>城管局</option>
+            <option>工业和信息化局</option>
+            <option>商务局</option>
+          </select>
+        </div>
+      </div>
+      <!-- 复核义务 -->
+      <div>
+        <div class="form-label" style="margin-bottom: 8px;">② 隐患复核义务</div>
+        <div class="radio-group">
+          <label><input type="radio" name="reviewDuty" value="yes" onchange="toggleReviewDept(true)"> 是</label>
+          <label><input type="radio" name="reviewDuty" value="no" checked onchange="toggleReviewDept(false)"> 否</label>
+        </div>
+        <div class="dept-select-row" id="reviewDeptRow" style="display: none;">
+          <span style="font-size: var(--font-size-sm); color: var(--text-secondary);">具体部门：</span>
+          <select id="reviewDept">
+            <option value="">请选择部门</option>
+            <option>应急管理局</option>
+            <option>住建局</option>
+            <option>城管局</option>
+            <option>工业和信息化局</option>
+            <option>商务局</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 非重点场所提示 -->
+  <div class="config-section" id="hazardConfigPlaceholder" style="display: none;">
+    <div class="config-section-body" style="text-align: center; padding: 24px; color: var(--text-tertiary); font-size: var(--font-size-sm);">
+      💡 隐患整改/复核配置仅对<strong style="color: var(--text-primary);">重点场所</strong>有效，当前管控类型不属于重点场所，无需配置
+    </div>
+  </div>
+
+  <div style="text-align: right; margin-top: var(--spacing-md);">
+    <button class="btn btn-default" onclick="resetConfig()">重置</button>
+    <button class="btn btn-primary" onclick="saveAllConfig()">保存配置</button>
+  </div>
+</div>
+
+<!-- ============ 弹窗：新增/编辑检查表 ============ -->
+<div class="modal-overlay" id="checklistModal">
+  <div class="modal wide">
+    <div class="modal-header">
+      <h3 class="modal-title" id="checklistModalTitle">新增检查表</h3>
+      <button class="modal-close" onclick="closeChecklistModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">检查表名称 <span class="required">*</span></label>
+        <input type="text" class="form-control" id="clName" placeholder="如：医院日常安全检查表">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">检查频次 <span style="color: var(--text-tertiary); font-weight: normal;">（可不配置，未配置则该检查表无时限要求）</span></label>
+        <div class="freq-config" id="freqConfigBox">
+          <span>每</span>
+          <input type="number" id="clInterval" value="1" min="1">
+          <select id="clUnit">
+            <option value="day">日</option>
+            <option value="week">周</option>
+            <option value="month">月</option>
+            <option value="quarter">季</option>
+            <option value="year">年</option>
+          </select>
+          <span>检查</span>
+          <input type="number" id="clTimes" value="1" min="1">
+          <span>次</span>
+        </div>
+        <label class="freq-none-toggle">
+          <input type="checkbox" id="clNoFreq" onchange="toggleFreqDisabled(this.checked)">
+          无频次要求（不参与定期检查、不影响变色）
+        </label>
+      </div>
+
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label class="form-label" style="margin: 0;">检查项内容 <span class="required">*</span></label>
+          <button class="btn btn-primary btn-sm" onclick="addCheckItem()">+ 新增检查项</button>
+        </div>
+        <div class="check-items" id="checkItemsList">
+          <div class="empty-state">暂无检查项，点击"新增检查项"添加</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeChecklistModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveChecklist()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 弹窗：选择部门（多选） ============ -->
+<div class="modal-overlay" id="deptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">选择部门</h3>
+      <button class="modal-close" onclick="closeDeptModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="text" class="form-control" id="deptSearch" placeholder="搜索部门名称" style="margin-bottom: var(--spacing-md);">
+      <div class="dept-tree" id="deptTree"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeDeptModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmDeptSelect()">确认选择</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============ 数据：7 大类 + 二级类型 ============
+  const CATEGORIES = [
+    {
+      id: 'COMM', name: '公共场所',
+      subs: [
+        { id: 'COMM_HOS', name: '医院', isKey: true },
+        { id: 'COMM_3S', name: '三小场所', isKey: true },
+        { id: 'COMM_CIN', name: '电影院', isKey: true },
+        { id: 'COMM_CHG', name: '电动自行车充电场所', isKey: false }
+      ]
+    },
+    {
+      id: 'IND', name: '工业制造业',
+      subs: [
+        { id: 'IND_HOT', name: '高温熔融企业', isKey: true },
+        { id: 'IND_PLT', name: '电镀企业', isKey: false },
+        { id: 'IND_MET', name: '金属制品企业', isKey: false }
+      ]
+    },
+    {
+      id: 'CONS', name: '建设工程',
+      subs: [
+        { id: 'CONS_HOUSE', name: '房屋建设工程项目', isKey: true },
+        { id: 'CONS_RAIL', name: '轨道交通建设工程项目', isKey: true }
+      ]
+    },
+    {
+      id: 'TRANS', name: '交通运输',
+      subs: [
+        { id: 'TRANS_BUS', name: '汽车客运站', isKey: true },
+        { id: 'TRANS_PORT', name: '口岸', isKey: true },
+        { id: 'TRANS_FRT', name: '普通货运企业', isKey: false }
+      ]
+    },
+    {
+      id: 'CITY', name: '城市运行',
+      subs: [
+        { id: 'CITY_SLUDGE', name: '污泥处理场站', isKey: false },
+        { id: 'CITY_SUB', name: '变电站', isKey: false },
+        { id: 'CITY_PARK', name: '公园', isKey: false }
+      ]
+    },
+    {
+      id: 'CHEM', name: '危险化学品',
+      subs: [
+        { id: 'CHEM_TOX', name: '剧毒化学品企业', isKey: true },
+        { id: 'CHEM_GAS', name: '加油站', isKey: true },
+        { id: 'CHEM_MED', name: '医药化工企业', isKey: true }
+      ]
+    },
+    {
+      id: 'OTH', name: '其他',
+      subs: [
+        { id: 'OTH_SLOPE', name: '边坡', isKey: false },
+        { id: 'OTH_AGRI', name: '农资门店', isKey: false }
+      ]
+    }
+  ];
+
+  // 部门列表（示例数据）
+  const DEPT_TREE = [
+    { id: 'D01', name: '应急管理局', level: 1, children: [
+      { id: 'D01-1', name: '安全监管科', level: 2 },
+      { id: 'D01-2', name: '危化品科', level: 2 }
+    ]},
+    { id: 'D02', name: '住建局', level: 1, children: [
+      { id: 'D02-1', name: '工程质量科', level: 2 },
+      { id: 'D02-2', name: '安全监督科', level: 2 }
+    ]},
+    { id: 'D03', name: '城管局', level: 1, children: [
+      { id: 'D03-1', name: '市容秩序科', level: 2 }
+    ]},
+    { id: 'D04', name: '工业和信息化局', level: 1, children: [
+      { id: 'D04-1', name: '安全生产科', level: 2 }
+    ]},
+    { id: 'D05', name: '商务局', level: 1, children: [
+      { id: 'D05-1', name: '市场监管科', level: 2 }
+    ]},
+    { id: 'D06', name: '南山街道办', level: 1, children: [
+      { id: 'D06-1', name: '南头社区', level: 2 },
+      { id: 'D06-2', name: '南光社区', level: 2 }
+    ]}
+  ];
+
+  // 配置数据（按二级类型 id 存）
+  const configStore = {};
+
+  // 当前选中的一级 / 二级
+  let currentL1 = CATEGORIES[0].id;
+  let currentL2 = CATEGORIES[0].subs[0].id;
+  let editingChecklistId = null;
+  let tempCheckItems = [];
+  let deptModalContext = null;  // 'scan' 或其他
+  let selectedDeptIds = [];
+
+  // ============ 初始化 ============
+  function init() {
+    renderTabsL1();
+    renderTabsL2();
+    loadConfig();
+  }
+
+  // ============ 渲染一级页签 ============
+  function renderTabsL1() {
+    const el = document.getElementById('tabsL1');
+    el.innerHTML = CATEGORIES.map(c =>
+      `<div class="tab-l1 ${c.id === currentL1 ? 'active' : ''}" onclick="switchL1('${c.id}')">${c.name}</div>`
+    ).join('');
+  }
+
+  // ============ 渲染二级页签 ============
+  function renderTabsL2() {
+    const cat = CATEGORIES.find(c => c.id === currentL1);
+    if (!cat) return;
+    const el = document.getElementById('tabsL2');
+    el.innerHTML = cat.subs.map(s =>
+      `<div class="tab-l2 ${s.id === currentL2 ? 'active' : ''}" onclick="switchL2('${s.id}')">
+        ${s.name}${s.isKey ? '<span style="color: var(--warning); margin-left: 4px;">★</span>' : ''}
+      </div>`
+    ).join('');
+  }
+
+  function switchL1(id) {
+    currentL1 = id;
+    const cat = CATEGORIES.find(c => c.id === id);
+    currentL2 = cat.subs[0].id;
+    renderTabsL1();
+    renderTabsL2();
+    loadConfig();
+  }
+
+  function switchL2(id) {
+    currentL2 = id;
+    renderTabsL2();
+    loadConfig();
+  }
+
+  // ============ 加载当前类型的配置 ============
+  function loadConfig() {
+    const cat = CATEGORIES.find(c => c.id === currentL1);
+    const sub = cat.subs.find(s => s.id === currentL2);
+
+    // 更新当前对象提示
+    document.getElementById('currentTarget').innerHTML =
+      `当前配置：<strong>${cat.name} / ${sub.name}</strong>` +
+      (sub.isKey ? '<span class="badge-key">重点场所</span>' : '');
+
+    // 隐患责任配置：仅重点场所
+    document.getElementById('hazardConfigSection').style.display = sub.isKey ? '' : 'none';
+    document.getElementById('hazardConfigPlaceholder').style.display = sub.isKey ? 'none' : '';
+    document.getElementById('hazardKeyBadge').style.display = sub.isKey ? '' : 'none';
+
+    // 加载数据
+    const cfg = configStore[currentL2] || { checklists: [], scanDepts: [], fixDuty: 'no', fixDept: '', reviewDuty: 'no', reviewDept: '' };
+    renderChecklists(cfg.checklists);
+    renderScanDepts(cfg.scanDepts);
+
+    // 隐患责任回显
+    document.querySelector(`input[name="fixDuty"][value="${cfg.fixDuty}"]`).checked = true;
+    document.getElementById('fixDept').value = cfg.fixDept || '';
+    document.getElementById('fixDeptRow').style.display = cfg.fixDuty === 'yes' ? 'flex' : 'none';
+    document.querySelector(`input[name="reviewDuty"][value="${cfg.reviewDuty}"]`).checked = true;
+    document.getElementById('reviewDept').value = cfg.reviewDept || '';
+    document.getElementById('reviewDeptRow').style.display = cfg.reviewDuty === 'yes' ? 'flex' : 'none';
+  }
+
+  // ============ 渲染检查表列表 ============
+  function renderChecklists(list) {
+    const tbody = document.getElementById('checklistTbody');
+    if (!list || list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 32px; color: var(--text-tertiary);">暂无检查表，点击右上角"+ 新增检查表"</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map((c, idx) => `
+      <tr>
+        <td>${c.name}</td>
+        <td>${(c.items || []).length} 项</td>
+        <td>${c.noFreq ? '<span class="freq-none">无频次要求</span>' : '<span class="freq-tag">' + formatFreq(c) + '</span>'}</td>
+        <td>
+          <button class="btn-link" onclick="editChecklist(${idx})">编辑</button>
+          <button class="btn-link danger" onclick="deleteChecklist(${idx})">删除</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function formatFreq(c) {
+    const unitMap = { day: '日', week: '周', month: '月', quarter: '季', year: '年' };
+    return `每${c.interval}${unitMap[c.unit]}检查${c.times}次`;
+  }
+
+  // ============ 渲染扫码部门 ============
+  function renderScanDepts(depts) {
+    const el = document.getElementById('scanDeptList');
+    if (!depts || depts.length === 0) {
+      el.innerHTML = `<span class="section-tip">暂未配置扫码责任部门</span>`;
+      return;
+    }
+    el.innerHTML = depts.map(d =>
+      `<span class="dept-tag">${d.name} <span class="remove" onclick="removeScanDept('${d.id}')">×</span></span>`
+    ).join('');
+  }
+
+  function removeScanDept(id) {
+    const cfg = configStore[currentL2] = configStore[currentL2] || { checklists: [], scanDepts: [] };
+    cfg.scanDepts = cfg.scanDepts.filter(d => d.id !== id);
+    renderScanDepts(cfg.scanDepts);
+  }
+
+  // ============ 检查表弹窗 ============
+  function openChecklistModal() {
+    editingChecklistId = null;
+    tempCheckItems = [];
+    document.getElementById('checklistModalTitle').textContent = '新增检查表';
+    document.getElementById('clName').value = '';
+    document.getElementById('clInterval').value = 1;
+    document.getElementById('clUnit').value = 'day';
+    document.getElementById('clTimes').value = 1;
+    document.getElementById('clNoFreq').checked = false;
+    toggleFreqDisabled(false);
+    renderCheckItems();
+    document.getElementById('checklistModal').classList.add('show');
+  }
+
+  function editChecklist(idx) {
+    const cfg = configStore[currentL2];
+    const cl = cfg.checklists[idx];
+    editingChecklistId = idx;
+    tempCheckItems = [...(cl.items || [])];
+    document.getElementById('checklistModalTitle').textContent = '编辑检查表';
+    document.getElementById('clName').value = cl.name;
+    document.getElementById('clInterval').value = cl.interval || 1;
+    document.getElementById('clUnit').value = cl.unit || 'day';
+    document.getElementById('clTimes').value = cl.times || 1;
+    document.getElementById('clNoFreq').checked = !!cl.noFreq;
+    toggleFreqDisabled(!!cl.noFreq);
+    renderCheckItems();
+    document.getElementById('checklistModal').classList.add('show');
+  }
+
+  function deleteChecklist(idx) {
+    if (!confirm('确认删除该检查表？')) return;
+    const cfg = configStore[currentL2];
+    cfg.checklists.splice(idx, 1);
+    renderChecklists(cfg.checklists);
+  }
+
+  function closeChecklistModal() {
+    document.getElementById('checklistModal').classList.remove('show');
+  }
+
+  function toggleFreqDisabled(disabled) {
+    const box = document.getElementById('freqConfigBox');
+    box.classList.toggle('disabled', disabled);
+  }
+
+  function addCheckItem() {
+    tempCheckItems.push({ name: '' });
+    renderCheckItems();
+  }
+
+  function removeCheckItem(idx) {
+    tempCheckItems.splice(idx, 1);
+    renderCheckItems();
+  }
+
+  function renderCheckItems() {
+    const el = document.getElementById('checkItemsList');
+    if (tempCheckItems.length === 0) {
+      el.innerHTML = `<div class="empty-state">暂无检查项,点击"新增检查项"添加</div>`;
+      return;
+    }
+    el.innerHTML = tempCheckItems.map((it, idx) => `
+      <div class="check-item">
+        <span style="color: var(--text-tertiary); width: 24px;">${idx + 1}.</span>
+        <input type="text" placeholder="请输入检查项内容" value="${it.name || ''}" oninput="tempCheckItems[${idx}].name = this.value">
+        <button class="btn-link danger btn-sm" onclick="removeCheckItem(${idx})">删除</button>
+      </div>
+    `).join('');
+  }
+
+  function saveChecklist() {
+    const name = document.getElementById('clName').value.trim();
+    if (!name) { alert('请填写检查表名称'); return; }
+    const validItems = tempCheckItems.filter(it => it.name && it.name.trim());
+    if (validItems.length === 0) { alert('请至少添加 1 个检查项'); return; }
+
+    const noFreq = document.getElementById('clNoFreq').checked;
+    const cl = {
+      name,
+      noFreq,
+      interval: parseInt(document.getElementById('clInterval').value) || 1,
+      unit: document.getElementById('clUnit').value,
+      times: parseInt(document.getElementById('clTimes').value) || 1,
+      items: validItems
+    };
+
+    const cfg = configStore[currentL2] = configStore[currentL2] || { checklists: [], scanDepts: [] };
+    if (editingChecklistId !== null) {
+      cfg.checklists[editingChecklistId] = cl;
+    } else {
+      cfg.checklists.push(cl);
+    }
+    renderChecklists(cfg.checklists);
+    closeChecklistModal();
+  }
+
+  // ============ 部门选择弹窗 ============
+  function openDeptModal(context) {
+    deptModalContext = context;
+    const cfg = configStore[currentL2] || {};
+    selectedDeptIds = (cfg.scanDepts || []).map(d => d.id);
+    renderDeptTree();
+    document.getElementById('deptModal').classList.add('show');
+  }
+
+  function closeDeptModal() {
+    document.getElementById('deptModal').classList.remove('show');
+  }
+
+  function renderDeptTree() {
+    const el = document.getElementById('deptTree');
+    let html = '';
+    DEPT_TREE.forEach(d1 => {
+      html += `<div class="dept-node level-1">
+        <input type="checkbox" id="dept-${d1.id}" ${selectedDeptIds.includes(d1.id) ? 'checked' : ''} onchange="toggleDept('${d1.id}', this.checked, '${d1.name.replace(/'/g, "\\'")}')">
+        <label for="dept-${d1.id}" style="cursor: pointer;">${d1.name}</label>
+      </div>`;
+      if (d1.children) {
+        d1.children.forEach(d2 => {
+          html += `<div class="dept-node level-2">
+            <input type="checkbox" id="dept-${d2.id}" ${selectedDeptIds.includes(d2.id) ? 'checked' : ''} onchange="toggleDept('${d2.id}', this.checked, '${d2.name.replace(/'/g, "\\'")}')">
+            <label for="dept-${d2.id}" style="cursor: pointer;">${d2.name}</label>
+          </div>`;
+        });
+      }
+    });
+    el.innerHTML = html;
+  }
+
+  function toggleDept(id, checked, name) {
+    if (checked) {
+      if (!selectedDeptIds.includes(id)) selectedDeptIds.push(id);
+    } else {
+      selectedDeptIds = selectedDeptIds.filter(x => x !== id);
+    }
+  }
+
+  function confirmDeptSelect() {
+    const cfg = configStore[currentL2] = configStore[currentL2] || { checklists: [], scanDepts: [] };
+    const allDepts = [];
+    DEPT_TREE.forEach(d1 => {
+      allDepts.push({ id: d1.id, name: d1.name });
+      if (d1.children) d1.children.forEach(d2 => allDepts.push({ id: d2.id, name: d2.name }));
+    });
+    cfg.scanDepts = allDepts.filter(d => selectedDeptIds.includes(d.id));
+    renderScanDepts(cfg.scanDepts);
+    closeDeptModal();
+  }
+
+  // ============ 隐患责任 ============
+  function toggleFixDept(show) {
+    document.getElementById('fixDeptRow').style.display = show ? 'flex' : 'none';
+  }
+  function toggleReviewDept(show) {
+    document.getElementById('reviewDeptRow').style.display = show ? 'flex' : 'none';
+  }
+
+  // ============ 保存/重置 ============
+  function saveAllConfig() {
+    const cfg = configStore[currentL2] = configStore[currentL2] || { checklists: [], scanDepts: [] };
+    cfg.fixDuty = document.querySelector('input[name="fixDuty"]:checked').value;
+    cfg.fixDept = document.getElementById('fixDept').value;
+    cfg.reviewDuty = document.querySelector('input[name="reviewDuty"]:checked').value;
+    cfg.reviewDept = document.getElementById('reviewDept').value;
+    alert('配置已保存!\n\n该配置已对 [' + getCurrentSubName() + '] 类型下所有管控对象生效');
+  }
+
+  function resetConfig() {
+    if (!confirm('确认重置当前管控类型的配置?所有未保存的修改将丢失。')) return;
+    delete configStore[currentL2];
+    loadConfig();
+  }
+
+  function getCurrentSubName() {
+    const cat = CATEGORIES.find(c => c.id === currentL1);
+    return cat.subs.find(s => s.id === currentL2).name;
+  }
+
+  // 启动
+  init();
+</script>
+</body>
+</html>

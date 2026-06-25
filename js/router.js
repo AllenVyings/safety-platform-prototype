@@ -24,11 +24,18 @@ class Router {
     const sideMenu = document.getElementById('side-menu');
     if (sideMenu) {
       sideMenu.addEventListener('click', (e) => {
-        // 父菜单：展开/折叠
+        // 父菜单：展开/折叠（手风琴模式）
         const parentItem = e.target.closest('.menu-parent');
         if (parentItem) {
           const group = parentItem.closest('.menu-group');
-          if (group) group.classList.toggle('expanded');
+          if (group) {
+            const isExpanded = group.classList.contains('expanded');
+            // 关闭其他展开的组
+            document.querySelectorAll('.menu-group.expanded').forEach(g => {
+              if (g !== group) g.classList.remove('expanded');
+            });
+            group.classList.toggle('expanded', !isExpanded);
+          }
           return;
         }
         // 子菜单或普通菜单项：导航
@@ -67,10 +74,13 @@ class Router {
     console.log(`[Router] 渲染菜单（${this.currentPortal}）：${menuItems.length} 项`);
     
     const html = menuItems.map(item => {
+      if (item.type === 'section') {
+        return `<div class="menu-section">${item.name}</div>`;
+      }
       if (item.children) {
         const hasActive = item.children.some(c => c.id === this.currentModule);
         const childrenHtml = item.children.map(c => `
-          <div class="menu-item menu-child ${c.disabled ? 'disabled' : ''} ${c.id === this.currentModule ? 'active' : ''}" 
+          <div class="menu-item menu-child ${c.disabled ? 'disabled' : ''} ${c.id === this.currentModule ? 'active' : ''}"
                data-module="${c.id}">
             <span class="name">${c.name}</span>
             ${c.badge ? `<span class="badge">${c.badge}</span>` : ''}
@@ -82,14 +92,14 @@ class Router {
               <span class="icon">${item.icon}</span>
               <span class="name">${item.name}</span>
               ${item.badge ? `<span class="badge">${item.badge}</span>` : ''}
-              <span class="menu-arrow">›</span>
+              <span class="menu-arrow">▶</span>
             </div>
             <div class="menu-children">${childrenHtml}</div>
           </div>
         `;
       }
       return `
-        <div class="menu-item ${item.disabled ? 'disabled' : ''} ${item.id === this.currentModule ? 'active' : ''}" 
+        <div class="menu-item ${item.disabled ? 'disabled' : ''} ${item.id === this.currentModule ? 'active' : ''}"
              data-module="${item.id}">
           <span class="icon">${item.icon}</span>
           <span class="name">${item.name}</span>
@@ -128,7 +138,10 @@ class Router {
     try {
       // 更新菜单激活状态
       this.updateMenuActive(moduleId);
-      
+
+      // 更新顶级面包屑
+      this.updateBreadcrumb(moduleId);
+
       // 加载模块页面
       await this.loadModule(menuItem);
       
@@ -242,6 +255,39 @@ class Router {
       }
     });
   }
+
+  /**
+   * 更新主框架顶级面包屑（深圳港 A 方案）
+   * 适配多 portal：企业端动态映射 enterprise-basic / enterprise-project
+   */
+  updateBreadcrumb(moduleId) {
+    const container = document.getElementById('breadcrumb');
+    if (!container) return;
+
+    // 企业端需要映射到具体的 menu 配置键
+    let portalKey = this.currentPortal;
+    if (this.currentPortal.startsWith('enterprise')) {
+      portalKey = this.currentPortal === 'enterprise-project'
+        ? 'enterprise-project'
+        : 'enterprise-basic';
+    }
+
+    const items = (typeof getBreadcrumb === 'function')
+      ? getBreadcrumb(portalKey, moduleId)
+      : [];
+
+    if (!items.length) {
+      container.innerHTML = '<span class="breadcrumb-current">工作台</span>';
+      return;
+    }
+
+    container.innerHTML = items.map((item, i) => {
+      if (i === items.length - 1) {
+        return `<span class="breadcrumb-current">${item.name}</span>`;
+      }
+      return `${item.name}<span>/</span>`;
+    }).join('');
+  }
   
   /**
    * 显示加载动画
@@ -269,3 +315,28 @@ class Router {
 
 // 创建全局路由实例
 const router = new Router();
+
+// 监听 iframe 子页面通过 postMessage 主动更新面包屑（深圳港 A 方案）
+// 用法：iframe 内 window.parent.postMessage({type:'setBreadcrumb', items:['菜单','子菜单','当前页']}, window.location.origin);
+window.addEventListener('message', function(event) {
+  if (event.origin !== window.location.origin) return;
+  if (!event.data || event.data.type !== 'setBreadcrumb') return;
+  const container = document.getElementById('breadcrumb');
+  if (!container) return;
+  const items = Array.isArray(event.data.items) ? event.data.items : [];
+  if (!items.length) return;
+  container.replaceChildren();
+  items.forEach((name, i) => {
+    const item = document.createElement('span');
+    item.textContent = String(name);
+    if (i === items.length - 1) {
+      item.className = 'breadcrumb-current';
+    }
+    container.appendChild(item);
+    if (i < items.length - 1) {
+      const separator = document.createElement('span');
+      separator.textContent = '/';
+      container.appendChild(separator);
+    }
+  });
+});

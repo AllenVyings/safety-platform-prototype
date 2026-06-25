@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>应急物资 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .page { padding: 20px 24px; background: var(--bg-page); min-height: 100vh; }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      background: var(--bg-primary);
+      padding: var(--spacing-md) 20px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .header-actions { display: flex; gap: 8px; }
+    .btn { padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border-card); background: #fff; color: var(--text-secondary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn:hover { color: var(--primary); border-color: var(--primary); }
+    .btn-primary:hover { background: #096dd9; border-color: #096dd9; color: #fff; }
+
+    .filter-bar {
+      background: var(--bg-primary);
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-group { display: flex; align-items: center; gap: 6px; }
+    .filter-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+    .filter-bar select, .filter-bar input {
+      padding: 6px 10px;
+      border: 1px solid var(--border-card);
+      border-radius: 4px;
+      font-size: 13px;
+      min-width: 130px;
+    }
+    .filter-bar input[type="search"] { min-width: 220px; }
+
+    .content-card {
+      background: var(--bg-primary);
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+    .table-toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-section);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-toolbar h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 11px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border-section); }
+    th { background: var(--bg-section); color: var(--text-secondary); font-weight: 500; }
+    tr:hover { background: var(--bg-section); }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+    .tag-blue { background: #e6f4ff; color: #1890ff; }
+    .tag-green { background: #f6ffed; color: #52c41a; }
+    .tag-orange { background: #fff7e6; color: #fa8c16; }
+    .tag-red { background: #fff1f0; color: #ff4d4f; }
+    .tag-gray { background: #f5f5f5; color: #8c8c8c; }
+
+    .action-link { color: var(--primary); font-size: 13px; cursor: pointer; }
+    .action-link + .action-link { margin-left: 12px; }
+
+    .pagination { padding: 12px 16px; text-align: right; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border-section); }
+    .pagination button { padding: 4px 10px; margin: 0 2px; border: 1px solid var(--border-card); background: #fff; cursor: pointer; border-radius: 4px; font-size: 12px; }
+    .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">应急物资</div>
+        <div class="page-subtitle">管理应急物资台账与有效期预警</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn">📥 批量导入</button>
+        <button class="btn btn-primary">+ 新增物资</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-group"><span class="filter-label">物资类型:</span>
+      <select>
+        <option>全部</option>
+        <option>防护</option>
+        <option>救援</option>
+        <option>通讯</option>
+        <option>医疗</option>
+      </select></div>
+      <div class="filter-group"><span class="filter-label">状态:</span>
+      <select>
+        <option>全部</option>
+        <option>正常</option>
+        <option>即将过期</option>
+        <option>已过期</option>
+      </select></div>
+      <input type="search" placeholder="搜索物资名称 / 编号">
+      <button class="btn btn-primary">查询</button>
+      <button class="btn">重置</button>
+    </div>
+
+    <div class="content-card">
+      <div class="table-toolbar">
+        <h3>物资清单（386 条）</h3>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>物资名称</th>
+            <th width="100">物资类型</th>
+            <th width="160">存放位置</th>
+            <th width="80">数量</th>
+            <th width="100">有效期</th>
+            <th width="100">状态</th>
+            <th width="120">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>正压式空气呼吸器</td>
+            <td><span class="tag tag-blue">救援</span></td>
+            <td>区中心应急物资库</td>
+            <td>82</td>
+            <td>2028-06</td>
+            <td><span class="tag tag-green">正常</span></td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>防化服</td>
+            <td><span class="tag tag-blue">防护</span></td>
+            <td>工业园区分库</td>
+            <td>35</td>
+            <td>2027-03</td>
+            <td><span class="tag tag-green">正常</span></td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>灭火器（4kg ABC 干粉）</td>
+            <td><span class="tag tag-blue">救援</span></td>
+            <td>区中心应急物资库</td>
+            <td>486</td>
+            <td>2028-12</td>
+            <td><span class="tag tag-green">正常</span></td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>急救包（综合型）</td>
+            <td><span class="tag tag-blue">医疗</span></td>
+            <td>街道办前置库</td>
+            <td>42</td>
+            <td>2026-08</td>
+            <td><span class="tag tag-orange">即将过期</span></td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>对讲机（手持式）</td>
+            <td><span class="tag tag-blue">通讯</span></td>
+            <td>区中心应急物资库</td>
+            <td>78</td>
+            <td>—</td>
+            <td><span class="tag tag-green">正常</span></td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>消防斧</td>
+            <td><span class="tag tag-blue">救援</span></td>
+            <td>区中心应急物资库</td>
+            <td>44</td>
+            <td>—</td>
+            <td><span class="tag tag-green">正常</span></td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>应急照明灯</td>
+            <td><span class="tag tag-blue">救援</span></td>
+            <td>区中心应急物资库</td>
+            <td>150</td>
+            <td>—</td>
+            <td><span class="tag tag-green">正常</span></td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>医用消毒酒精（500ml）</td>
+            <td><span class="tag tag-blue">医疗</span></td>
+            <td>街道办前置库</td>
+            <td>24</td>
+            <td>2026-06</td>
+            <td><span class="tag tag-red">已过期</span></td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        共 386 条 第 1 / 39 页
+        <button>‹</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>...</button>
+        <button>39</button>
+        <button>›</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

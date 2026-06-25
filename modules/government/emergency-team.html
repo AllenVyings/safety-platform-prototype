@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>应急队伍 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .page { padding: 20px 24px; background: var(--bg-page); min-height: 100vh; }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      background: var(--bg-primary);
+      padding: var(--spacing-md) 20px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .header-actions { display: flex; gap: 8px; }
+    .btn { padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border-card); background: #fff; color: var(--text-secondary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn:hover { color: var(--primary); border-color: var(--primary); }
+    .btn-primary:hover { background: #096dd9; border-color: #096dd9; color: #fff; }
+
+    .filter-bar {
+      background: var(--bg-primary);
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-bar select, .filter-bar input {
+      padding: 6px 10px;
+      border: 1px solid var(--border-card);
+      border-radius: 4px;
+      font-size: 13px;
+      min-width: 140px;
+    }
+    .filter-bar input[type="search"] { min-width: 220px; }
+    .filter-label { font-size: 13px; color: var(--text-secondary); }
+
+    .content-card {
+      background: var(--bg-primary);
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+    .table-toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-section);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-toolbar h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 11px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border-section); }
+    th { background: var(--bg-section); color: var(--text-secondary); font-weight: 500; }
+    tr:hover { background: var(--bg-section); }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+    .tag-blue { background: #e6f4ff; color: #1890ff; }
+    .tag-green { background: #f6ffed; color: #52c41a; }
+    .tag-orange { background: #fff7e6; color: #fa8c16; }
+    .tag-red { background: #fff1f0; color: #ff4d4f; }
+    .tag-purple { background: #f9f0ff; color: #722ed1; }
+    .tag-gray { background: #f5f5f5; color: #8c8c8c; }
+
+    .action-link { color: var(--primary); font-size: 13px; cursor: pointer; }
+    .action-link + .action-link { margin-left: 12px; }
+
+    .pagination { padding: 12px 16px; text-align: right; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border-section); }
+    .pagination button { padding: 4px 10px; margin: 0 2px; border: 1px solid var(--border-card); background: #fff; cursor: pointer; border-radius: 4px; font-size: 12px; }
+    .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">应急队伍</div>
+        <div class="page-subtitle">管理应急队伍基本信息与人员配置</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn">📥 批量导入</button>
+        <button class="btn btn-primary">+ 新增队伍</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <span class="filter-label">队伍类型:</span>
+      <select>
+        <option>全部</option>
+        <option>消防</option>
+        <option>医疗</option>
+        <option>专业救援</option>
+        <option>志愿者</option>
+      </select>
+      <input type="search" placeholder="搜索队伍名称 / 负责人">
+      <button class="btn btn-primary">查询</button>
+      <button class="btn">重置</button>
+    </div>
+
+    <div class="content-card">
+      <div class="table-toolbar">
+        <h3>队伍列表（12 条）</h3>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>队伍名称</th>
+            <th width="100">队伍类型</th>
+            <th width="100">负责人</th>
+            <th width="80">人数</th>
+            <th width="140">联系方式</th>
+            <th width="120">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>区综合应急救援大队</td>
+            <td><span class="tag tag-red">消防</span></td>
+            <td>陈大队长</td>
+            <td>32</td>
+            <td>138-0000-1001</td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>危化品事故专业救援队</td>
+            <td><span class="tag tag-orange">专业救援</span></td>
+            <td>李队长</td>
+            <td>18</td>
+            <td>138-0000-1002</td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>医疗救护应急队</td>
+            <td><span class="tag tag-green">医疗</span></td>
+            <td>王医生</td>
+            <td>15</td>
+            <td>138-0000-1003</td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>抗洪抢险救援队</td>
+            <td><span class="tag tag-orange">专业救援</span></td>
+            <td>赵队长</td>
+            <td>24</td>
+            <td>138-0000-1004</td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>森林消防应急中队</td>
+            <td><span class="tag tag-red">消防</span></td>
+            <td>孙队长</td>
+            <td>28</td>
+            <td>138-0000-1005</td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>应急通讯保障队</td>
+            <td><span class="tag tag-purple">志愿者</span></td>
+            <td>周工程师</td>
+            <td>12</td>
+            <td>138-0000-1006</td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>社区志愿者救援队</td>
+            <td><span class="tag tag-purple">志愿者</span></td>
+            <td>吴组长</td>
+            <td>20</td>
+            <td>138-0000-1007</td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+          <tr>
+            <td>急救医疗志愿队</td>
+            <td><span class="tag tag-green">医疗</span></td>
+            <td>刘主任</td>
+            <td>16</td>
+            <td>138-0000-1008</td>
+            <td>
+              <span class="action-link">查看</span>
+              <span class="action-link">编辑</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        共 12 条 第 1 / 2 页
+        <button>‹</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>›</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

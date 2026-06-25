@@ -1,0 +1,649 @@
+<!-- ⚠️ 已废弃：此页面已合并到 domain-supervise.html（进度监督Tab），菜单已移除，请勿使用 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>进度监督 - 政府端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+      background: var(--bg-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .page-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .page-desc { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+
+    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    .stat-card {
+      flex: 1;
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
+
+    .filter-bar {
+      display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);
+      align-items: center; flex-wrap: wrap;
+      background: var(--bg-section);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+    }
+    .filter-item { display: flex; align-items: center; gap: 4px; }
+    .filter-item label { font-size: var(--font-size-sm); color: var(--text-secondary); }
+    .filter-item select, .filter-item input {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+    }
+
+    .table-wrap {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .table-scroll { overflow-x: auto; }
+    .table-scroll table { width: 100%; min-width: 1100px; border-collapse: collapse; }
+    .table-scroll thead tr { background: var(--bg-section); }
+    .table-scroll th {
+      padding: 12px var(--spacing-md);
+      text-align: left;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-light);
+      white-space: nowrap;
+    }
+    .table-scroll th.center { text-align: center; }
+    .table-scroll td {
+      padding: 12px var(--spacing-md);
+      font-size: var(--font-size-sm);
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+    .table-scroll td.center { text-align: center; }
+    .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
+    .table-scroll tbody tr:hover td { background: var(--bg-hover); }
+
+    .group-row td {
+      background: var(--info-light) !important;
+      font-weight: 600;
+      color: var(--info);
+      font-size: var(--font-size-sm);
+    }
+
+    /* 检查单元格：未完成数 + 完成率 */
+    .check-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-width: 90px;
+    }
+    .incomplete-link {
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: var(--font-size-md);
+    }
+    .incomplete-link:hover { text-decoration: underline; }
+    .complete-rate {
+      font-size: var(--font-size-xs);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .rate-green { background: var(--success-light); color: var(--success); }
+    .rate-yellow { background: var(--warning-light); color: var(--warning); }
+    .rate-red { background: var(--error-light); color: var(--error); }
+    .rate-none { color: var(--text-tertiary); font-size: var(--font-size-xs); }
+
+    .obj-count {
+      display: inline-block;
+      padding: 2px 10px;
+      background: var(--bg-section-alt);
+      border-radius: 10px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .badge-key {
+      display: inline-block;
+      padding: 2px 6px;
+      background: var(--warning-light);
+      color: var(--warning);
+      font-size: var(--font-size-xs);
+      border-radius: var(--radius-sm);
+      margin-left: 6px;
+    }
+
+    /* 弹窗 */
+    .modal-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      width: 900px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-close {
+      background: none; border: none;
+      font-size: var(--font-size-xl);
+      cursor: pointer;
+      color: var(--text-tertiary);
+    }
+    .modal-body {
+      padding: var(--spacing-lg);
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-top: 1px solid var(--border-light);
+    }
+    .modal-info {
+      background: var(--info-light);
+      color: var(--info);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      margin-bottom: var(--spacing-md);
+    }
+    .modal-table { width: 100%; border-collapse: collapse; }
+    .modal-table th {
+      background: var(--bg-section);
+      padding: 10px;
+      text-align: left;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .modal-table td {
+      padding: 10px;
+      font-size: var(--font-size-sm);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .modal-table tbody tr:hover { background: var(--bg-hover); }
+
+    .legend {
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+    }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    .btn { padding: 6px var(--spacing-md); border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid var(--border-light); background: var(--bg-primary); }
+    .btn-primary { background: var(--primary); color: var(--bg-primary); border-color: var(--primary); }
+    .btn-default:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-link { padding: 2px 6px; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .btn-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="gov-progress-supervise">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">政府端</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-item">领域监管</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-item current">进度监督</span>
+    </div>
+
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">进度监督</div>
+        <div class="page-desc">按领域小类汇总管控对象的日/周/月/季/年检查完成情况，点击未完成数可查看具体清单</div>
+      </div>
+      <div class="legend">
+        <span>完成率：</span>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>≥90% 正常</div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--warning)"></span>80%~90% 预警</div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--error)"></span>&lt;80% 异常</div>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--primary);" id="statTotal">2,150</div>
+        <div class="stat-label">管控对象总数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--success);" id="statNormal">18</div>
+        <div class="stat-label">完成率正常领域</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--warning);" id="statWarn">3</div>
+        <div class="stat-label">完成率预警领域</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--error);" id="statAbnormal">1</div>
+        <div class="stat-label">完成率异常领域</div>
+      </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>统计周期：</label>
+        <select id="filterPeriod" onchange="loadTable()">
+          <option value="thisMonth">本月</option>
+          <option value="thisQuarter">本季度</option>
+          <option value="thisYear">本年</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>街道：</label>
+        <select id="filterStreet" onchange="loadCommunity(); loadTable()">
+          <option value="">全部</option>
+          <option value="街道A">街道A</option>
+          <option value="街道B">街道B</option>
+          <option value="街道C">街道C</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>社区：</label>
+        <select id="filterCommunity" onchange="loadGrid(); loadTable()">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>网格：</label>
+        <select id="filterGrid" onchange="loadTable()">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>领域大类：</label>
+        <select id="filterCategory" onchange="loadTable()">
+          <option value="">全部</option>
+          <option value="COMM">公共场所类</option>
+          <option value="IND">工业制造业类</option>
+          <option value="CONS">建设工程类</option>
+          <option value="TRANS">交通运输类</option>
+          <option value="CITY">城市运行类</option>
+          <option value="CHEM">危险化学品类</option>
+          <option value="OTH">其他类</option>
+        </select>
+      </div>
+      <button class="btn btn-default" onclick="resetFilter()">重置</button>
+      <div style="flex: 1;"></div>
+      <button class="btn btn-default" onclick="exportData()">📥 导出</button>
+    </div>
+
+    <!-- 主表 -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 200px;">领域标签名称</th>
+              <th class="center" style="width: 120px;">管控对象数量</th>
+              <th class="center" style="width: 120px;">日检查</th>
+              <th class="center" style="width: 120px;">周检查</th>
+              <th class="center" style="width: 120px;">月检查</th>
+              <th class="center" style="width: 120px;">季检查</th>
+              <th class="center" style="width: 120px;">年检查</th>
+            </tr>
+          </thead>
+          <tbody id="progressTableBody">
+            <!-- 渲染区 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 未完成清单弹窗 -->
+  <div class="modal-overlay" id="incompleteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">未完成清单</div>
+        <button class="modal-close" onclick="closeIncompleteModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-info" id="modalInfo"></div>
+        <table class="modal-table">
+          <thead>
+            <tr>
+              <th>街道</th>
+              <th>社区</th>
+              <th>网格</th>
+              <th>管控对象名称</th>
+              <th>最近一次检查时间</th>
+            </tr>
+          </thead>
+          <tbody id="incompleteListBody">
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeIncompleteModal()">关闭</button>
+        <button class="btn btn-primary" onclick="exportIncomplete()">导出清单</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== 数据 ==========
+    // 7大类领域 + 二级标签（与 task-config.html 保持一致）
+    const CATEGORIES = [
+      {
+        id: 'COMM', name: '公共场所类',
+        subs: [
+          { id: 'COMM_HOS', name: '医院', isKey: true },
+          { id: 'COMM_3S', name: '三小场所', isKey: true },
+          { id: 'COMM_CIN', name: '电影院', isKey: true },
+          { id: 'COMM_CHG', name: '电动自行车充电场所', isKey: false }
+        ]
+      },
+      {
+        id: 'IND', name: '工业制造业类',
+        subs: [
+          { id: 'IND_HOT', name: '高温熔融企业', isKey: true },
+          { id: 'IND_PLT', name: '电镀企业', isKey: false },
+          { id: 'IND_MET', name: '金属制品企业', isKey: false }
+        ]
+      },
+      {
+        id: 'CONS', name: '建设工程类',
+        subs: [
+          { id: 'CONS_HOUSE', name: '房屋建设工程项目', isKey: true },
+          { id: 'CONS_RAIL', name: '轨道交通建设工程项目', isKey: true }
+        ]
+      },
+      {
+        id: 'TRANS', name: '交通运输类',
+        subs: [
+          { id: 'TRANS_BUS', name: '汽车客运站', isKey: true },
+          { id: 'TRANS_PORT', name: '口岸', isKey: true },
+          { id: 'TRANS_FRT', name: '普通货运企业', isKey: false }
+        ]
+      },
+      {
+        id: 'CITY', name: '城市运行类',
+        subs: [
+          { id: 'CITY_SLUDGE', name: '污泥处理场站', isKey: false },
+          { id: 'CITY_SUB', name: '变电站', isKey: false },
+          { id: 'CITY_PARK', name: '公园', isKey: false }
+        ]
+      },
+      {
+        id: 'CHEM', name: '危险化学品类',
+        subs: [
+          { id: 'CHEM_TOX', name: '剧毒化学品企业', isKey: true },
+          { id: 'CHEM_GAS', name: '加油站', isKey: true },
+          { id: 'CHEM_MED', name: '医药化工企业', isKey: true }
+        ]
+      },
+      {
+        id: 'OTH', name: '其他类',
+        subs: [
+          { id: 'OTH_SLOPE', name: '边坡', isKey: false },
+          { id: 'OTH_AGRI', name: '农资门店', isKey: false }
+        ]
+      }
+    ];
+
+    // 模拟数据：每个二级标签的检查情况
+    // 字段：objCount 管控对象数 / daily/weekly/monthly/quarterly/yearly = { configured: bool, incomplete: 未完成数, total: 应检查数 }
+    // configured=false 表示该频次未配置检查表，单元格显示 "—"
+    const PROGRESS_DATA = {
+      COMM_HOS:   { objCount: 35,  daily: {c:true,  inc: 3,  total: 35}, weekly: {c:true,  inc: 2,  total: 35}, monthly: {c:true, inc: 1,  total: 35}, quarterly:{c:false}, yearly: {c:true, inc: 0, total: 35} },
+      COMM_3S:    { objCount: 856, daily: {c:false}, weekly: {c:true,  inc: 89, total: 856}, monthly: {c:true, inc: 32, total: 856}, quarterly:{c:false}, yearly: {c:false} },
+      COMM_CIN:   { objCount: 28,  daily: {c:false}, weekly: {c:true,  inc: 1,  total: 28}, monthly: {c:true, inc: 0,  total: 28}, quarterly:{c:false}, yearly: {c:true, inc: 0, total: 28} },
+      COMM_CHG:   { objCount: 412, daily: {c:false}, weekly: {c:false}, monthly: {c:true, inc: 45, total: 412}, quarterly:{c:false}, yearly: {c:false} },
+
+      IND_HOT:    { objCount: 18,  daily: {c:true,  inc: 1,  total: 18}, weekly: {c:true,  inc: 0,  total: 18}, monthly: {c:true, inc: 0,  total: 18}, quarterly:{c:false}, yearly: {c:false} },
+      IND_PLT:    { objCount: 42,  daily: {c:false}, weekly: {c:false}, monthly: {c:true, inc: 8,  total: 42}, quarterly:{c:true, inc: 2, total: 42}, yearly: {c:false} },
+      IND_MET:    { objCount: 156, daily: {c:false}, weekly: {c:false}, monthly: {c:true, inc: 28, total: 156}, quarterly:{c:false}, yearly: {c:false} },
+
+      CONS_HOUSE: { objCount: 23,  daily: {c:true,  inc: 0,  total: 23}, weekly: {c:true,  inc: 1,  total: 23}, monthly: {c:false}, quarterly:{c:false}, yearly: {c:false} },
+      CONS_RAIL:  { objCount: 5,   daily: {c:true,  inc: 0,  total: 5},  weekly: {c:true,  inc: 0,  total: 5},  monthly: {c:false}, quarterly:{c:false}, yearly: {c:false} },
+
+      TRANS_BUS:  { objCount: 8,   daily: {c:true,  inc: 0,  total: 8},  weekly: {c:true,  inc: 0,  total: 8},  monthly: {c:true, inc: 0,  total: 8},  quarterly:{c:false}, yearly: {c:false} },
+      TRANS_PORT: { objCount: 3,   daily: {c:false}, weekly: {c:true,  inc: 0,  total: 3},  monthly: {c:true, inc: 0,  total: 3},  quarterly:{c:false}, yearly: {c:true, inc: 0, total: 3} },
+      TRANS_FRT:  { objCount: 89,  daily: {c:false}, weekly: {c:false}, monthly: {c:true, inc: 18, total: 89}, quarterly:{c:false}, yearly: {c:false} },
+
+      CITY_SLUDGE:{ objCount: 12,  daily: {c:false}, weekly: {c:false}, monthly: {c:true, inc: 2,  total: 12}, quarterly:{c:true, inc: 0, total: 12}, yearly: {c:false} },
+      CITY_SUB:   { objCount: 67,  daily: {c:false}, weekly: {c:false}, monthly: {c:true, inc: 5,  total: 67}, quarterly:{c:false}, yearly: {c:false} },
+      CITY_PARK:  { objCount: 34,  daily: {c:false}, weekly: {c:true,  inc: 3,  total: 34}, monthly: {c:true, inc: 1,  total: 34}, quarterly:{c:false}, yearly: {c:false} },
+
+      CHEM_TOX:   { objCount: 6,   daily: {c:true,  inc: 0,  total: 6},  weekly: {c:true,  inc: 0,  total: 6},  monthly: {c:true, inc: 0,  total: 6},  quarterly:{c:false}, yearly: {c:false} },
+      CHEM_GAS:   { objCount: 42,  daily: {c:true,  inc: 2,  total: 42}, weekly: {c:true,  inc: 1,  total: 42}, monthly: {c:true, inc: 0,  total: 42}, quarterly:{c:false}, yearly: {c:false} },
+      CHEM_MED:   { objCount: 15,  daily: {c:false}, weekly: {c:true,  inc: 0,  total: 15}, monthly: {c:true, inc: 0,  total: 15}, quarterly:{c:false}, yearly: {c:false} },
+
+      OTH_SLOPE:  { objCount: 28,  daily: {c:false}, weekly: {c:false}, monthly: {c:true, inc: 12, total: 28}, quarterly:{c:false}, yearly: {c:false} },
+      OTH_AGRI:   { objCount: 87,  daily: {c:false}, weekly: {c:false}, monthly: {c:false}, quarterly:{c:true, inc: 5, total: 87}, yearly: {c:false} }
+    };
+
+    // 街道-社区-网格联动数据
+    const REGION_TREE = {
+      '街道A': {
+        '社区A1': ['网格A1-1', '网格A1-2', '网格A1-3'],
+        '社区A2': ['网格A2-1', '网格A2-2']
+      },
+      '街道B': {
+        '社区B1': ['网格B1-1', '网格B1-2'],
+        '社区B2': ['网格B2-1', '网格B2-2', '网格B2-3']
+      },
+      '街道C': {
+        '社区C1': ['网格C1-1'],
+        '社区C2': ['网格C2-1', '网格C2-2']
+      }
+    };
+
+    // ========== 工具函数 ==========
+    function calcRate(inc, total) {
+      if (!total) return 0;
+      return Math.round(((total - inc) / total) * 100);
+    }
+
+    function rateClass(rate) {
+      if (rate >= 90) return 'rate-green';
+      if (rate >= 80) return 'rate-yellow';
+      return 'rate-red';
+    }
+
+    function renderCheckCell(cellData, subId, freq, freqLabel) {
+      if (!cellData || !cellData.c) {
+        return '<span class="rate-none">—</span>';
+      }
+      const rate = calcRate(cellData.inc, cellData.total);
+      const cls = rateClass(rate);
+      const incHtml = cellData.inc > 0
+        ? `<span class="incomplete-link" onclick="openIncompleteModal('${subId}','${freq}','${freqLabel}')">${cellData.inc}</span>`
+        : `<span style="color: var(--success); font-weight: 600;">0</span>`;
+      return `
+        <div class="check-cell">
+          ${incHtml}
+          <span class="complete-rate ${cls}">${rate}%</span>
+        </div>
+      `;
+    }
+
+    // ========== 渲染主表 ==========
+    function loadTable() {
+      const filterCat = document.getElementById('filterCategory').value;
+      const tbody = document.getElementById('progressTableBody');
+      let html = '';
+
+      CATEGORIES.forEach(cat => {
+        if (filterCat && cat.id !== filterCat) return;
+
+        // 分组行
+        html += `<tr class="group-row"><td colspan="7">📂 ${cat.name}（${cat.subs.length}个二级标签）</td></tr>`;
+
+        cat.subs.forEach(sub => {
+          const data = PROGRESS_DATA[sub.id] || { objCount: 0 };
+          html += `
+            <tr>
+              <td>
+                ${sub.name}
+                ${sub.isKey ? '<span class="badge-key">重点</span>' : ''}
+              </td>
+              <td class="center"><span class="obj-count">${data.objCount}</span></td>
+              <td class="center">${renderCheckCell(data.daily, sub.id, 'daily', '日检查')}</td>
+              <td class="center">${renderCheckCell(data.weekly, sub.id, 'weekly', '周检查')}</td>
+              <td class="center">${renderCheckCell(data.monthly, sub.id, 'monthly', '月检查')}</td>
+              <td class="center">${renderCheckCell(data.quarterly, sub.id, 'quarterly', '季检查')}</td>
+              <td class="center">${renderCheckCell(data.yearly, sub.id, 'yearly', '年检查')}</td>
+            </tr>
+          `;
+        });
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    // ========== 联动筛选 ==========
+    function loadCommunity() {
+      const street = document.getElementById('filterStreet').value;
+      const sel = document.getElementById('filterCommunity');
+      sel.innerHTML = '<option value="">全部</option>';
+      if (street && REGION_TREE[street]) {
+        Object.keys(REGION_TREE[street]).forEach(c => {
+          sel.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+      }
+      loadGrid();
+    }
+
+    function loadGrid() {
+      const street = document.getElementById('filterStreet').value;
+      const community = document.getElementById('filterCommunity').value;
+      const sel = document.getElementById('filterGrid');
+      sel.innerHTML = '<option value="">全部</option>';
+      if (street && community && REGION_TREE[street] && REGION_TREE[street][community]) {
+        REGION_TREE[street][community].forEach(g => {
+          sel.innerHTML += `<option value="${g}">${g}</option>`;
+        });
+      }
+    }
+
+    function resetFilter() {
+      document.getElementById('filterPeriod').value = 'thisMonth';
+      document.getElementById('filterStreet').value = '';
+      document.getElementById('filterCommunity').innerHTML = '<option value="">全部</option>';
+      document.getElementById('filterGrid').innerHTML = '<option value="">全部</option>';
+      document.getElementById('filterCategory').value = '';
+      loadTable();
+    }
+
+    function exportData() {
+      alert('导出 Excel：已包含当前筛选条件下的全部数据');
+    }
+
+    // ========== 未完成清单弹窗 ==========
+    function openIncompleteModal(subId, freq, freqLabel) {
+      // 找到二级标签信息
+      let subInfo = null;
+      let catInfo = null;
+      CATEGORIES.forEach(c => {
+        c.subs.forEach(s => {
+          if (s.id === subId) { subInfo = s; catInfo = c; }
+        });
+      });
+      if (!subInfo) return;
+
+      const data = PROGRESS_DATA[subId];
+      document.getElementById('modalTitle').textContent = `${freqLabel}未完成清单 - ${subInfo.name}`;
+      document.getElementById('modalInfo').innerHTML =
+        `📊 <strong>${catInfo.name} / ${subInfo.name}</strong> ${freqLabel}应检 <strong>${data[freq].total}</strong> 个，未完成 <strong style="color:var(--error)">${data[freq].inc}</strong> 个`;
+
+      // 模拟生成未完成清单
+      const list = generateMockList(subInfo.name, data[freq].inc);
+      const tbody = document.getElementById('incompleteListBody');
+      tbody.innerHTML = list.map(item => `
+        <tr>
+          <td>${item.street}</td>
+          <td>${item.community}</td>
+          <td>${item.grid}</td>
+          <td>${item.name}</td>
+          <td>${item.lastCheck || '<span style="color:var(--text-tertiary)">从未检查</span>'}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('incompleteModal').classList.add('show');
+    }
+
+    function generateMockList(subName, count) {
+      const streets = ['街道A', '街道B', '街道C'];
+      const arr = [];
+      const max = Math.min(count, 20); // 最多展示20条
+      for (let i = 0; i < max; i++) {
+        const street = streets[i % 3];
+        const communities = Object.keys(REGION_TREE[street]);
+        const community = communities[i % communities.length];
+        const grids = REGION_TREE[street][community];
+        const grid = grids[i % grids.length];
+        const hasCheck = Math.random() > 0.3;
+        arr.push({
+          street,
+          community,
+          grid,
+          name: `${subName}-示例对象${String(i + 1).padStart(3, '0')}`,
+          lastCheck: hasCheck ? `2026-${String(Math.floor(Math.random()*3)+4).padStart(2,'0')}-${String(Math.floor(Math.random()*28)+1).padStart(2,'0')} ${String(Math.floor(Math.random()*10)+9).padStart(2,'0')}:30` : null
+        });
+      }
+      return arr;
+    }
+
+    function closeIncompleteModal() {
+      document.getElementById('incompleteModal').classList.remove('show');
+    }
+
+    function exportIncomplete() {
+      alert('导出当前未完成清单为 Excel');
+    }
+
+    // ========== 初始化 ==========
+    document.addEventListener('DOMContentLoaded', loadTable);
+    if (document.readyState !== 'loading') loadTable();
+  </script>
+</body>
+</html>

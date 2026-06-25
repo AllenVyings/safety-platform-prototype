@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>组织架构管理 - 政府端</title>
+
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+    body { margin: 0; }
+    .page-container[data-module="gov-org"] { height: 100vh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box; }
+    .page-container[data-module="gov-org"] .stat-cards { flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: var(--spacing-md); border-bottom: 1px solid var(--border-section); background: var(--bg-primary); }
+
+    /* 统计卡片 */
+    .page-container[data-module="gov-org"] .stat-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 14px 16px;
+      border: 1px solid rgba(22, 119, 255, 0.08);
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow: 0 8px 22px rgba(20, 54, 94, 0.06);
+      overflow: hidden;
+      transition: transform var(--duration-normal), box-shadow var(--duration-normal), border-color var(--duration-normal);
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(22, 119, 255, 0.18);
+      box-shadow: 0 12px 28px rgba(20, 54, 94, 0.1);
+    }
+    .stat-icon { position: relative; z-index: 1; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45); }
+    .stat-icon.blue { background: linear-gradient(135deg, #e6f4ff 0%, #bae0ff 100%); color: var(--primary); }
+    .stat-icon.green { background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%); color: var(--success); }
+    .stat-icon.orange { background: linear-gradient(135deg, #fff7e6 0%, #ffe7ba 100%); color: var(--warning); }
+    .stat-content { position: relative; z-index: 1; flex: 1; min-width: 0; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+    .stat-value { font-size: 28px; line-height: 1; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
+
+    /* 分屏视图 */
+    .split-view { display: flex; gap: 20px; flex: 1; min-height: 0; overflow: hidden; padding: var(--spacing-md) 8px 8px; }
+
+    /* 左侧树形面板 */
+    .tree-panel {
+      width: 320px;
+      flex-shrink: 0;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+    .tree-header { padding: var(--spacing-md); border-bottom: 1px solid var(--border-section); display: flex; flex-direction: column; gap: var(--spacing-sm); align-items: stretch; background: var(--bg-section); }
+    .tree-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
+    .tree-search { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); background: var(--bg-primary); }
+    .tree-search:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .tree-toolbar { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--spacing-sm); align-items: center; }
+    .tree-toolbar .btn { flex: 0 0 auto; }
+    .tree-body { flex: 1; overflow-y: auto; padding: var(--spacing-sm) 0; }
+
+    /* 右侧详情面板 */
+    .detail-panel {
+      flex: 1;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+    .detail-header { padding: var(--spacing-md) 20px; border-bottom: 1px solid var(--border-section); display: flex; align-items: center; gap: 24px; background: var(--bg-section); }
+    .detail-heading { min-width: 0; flex: 0 1 auto; }
+    .detail-title { display: block; font-size: var(--font-size-lg); font-weight: 600; }
+    .detail-path { margin-top: 4px; font-size: var(--font-size-xs); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .detail-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+    /* 树节点样式 */
+    .tree-node { display: flex; align-items: center; padding: 8px 12px 8px calc(12px + var(--level, 0) * 20px); cursor: pointer; transition: all var(--duration-fast); user-select: none; min-width: 0; }
+    .tree-node:hover { background: var(--bg-secondary); }
+    .tree-node.active { background: var(--primary-light); }
+    .tree-toggle { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; margin-right: 4px; cursor: pointer; transition: transform var(--duration-fast); flex-shrink: 0; border-radius: 3px; color: var(--text-tertiary); font-size: 9px; line-height: 1; }
+    .tree-toggle:hover { background: var(--bg-hover); }
+    .tree-toggle.expanded { transform: rotate(90deg); }
+    .tree-toggle.leaf { visibility: hidden; pointer-events: none; }
+    .tree-node-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-sm); font-size: var(--font-size-md); flex-shrink: 0; }
+    .tree-node-label { flex: 1; font-size: var(--font-size-sm); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .tree-node-badge { display: inline-flex; align-items: center; padding: 0 6px; height: 18px; font-size: 11px; line-height: 18px; border-radius: 4px; margin-left: 6px; flex-shrink: 0; }
+    .tree-node-badge.unit { background: rgba(22, 119, 255, 0.1); color: var(--primary); }
+    .tree-node-badge.dept { background: rgba(82, 196, 26, 0.12); color: var(--success); }
+    .tree-node-badge.lock { background: rgba(140, 140, 140, 0.12); color: var(--text-tertiary); padding: 0 4px; }
+    .tree-node-status { width: 8px; height: 8px; border-radius: 50%; margin-left: var(--spacing-sm); flex-shrink: 0; }
+    .tree-node-status.enabled { background: var(--green); }
+    .tree-node-status.disabled { background: var(--text3); }
+    .tree-children { display: none; }
+    .tree-children.show { display: block; }
+
+    /* 详情区域信息板块 */
+    .info-section { margin-bottom: var(--spacing-lg); background: var(--bg-section); border-radius: var(--radius-lg); padding: var(--spacing-md); border: 1px solid var(--border-section); }
+    .info-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text); margin-bottom: 12px; padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--border-section); }
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); }
+    .info-item { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+    .info-item.full { grid-column: span 2; }
+    .info-label { font-size: var(--font-size-xs); color: var(--text-secondary); display: inline-flex; align-items: center; gap: 4px; }
+    .info-value { font-size: var(--font-size-md); color: var(--text); }
+    .info-value.readonly { color: var(--text-secondary); }
+    .lock-icon { font-size: 11px; color: var(--text-tertiary); }
+
+    /* 关联管理员账号卡片 */
+    .account-card { background: var(--bg-primary); border: 1px solid var(--border-section); border-radius: var(--radius-lg); padding: var(--spacing-md); margin-top: 0; }
+    .account-info { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); }
+    .account-detail { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-lg); min-width: 0; }
+    .account-field { display: inline-flex; align-items: center; gap: var(--spacing-xs); white-space: nowrap; font-size: var(--font-size-sm); }
+    .account-field strong { color: var(--text-secondary); font-weight: 500; }
+
+    /* 操作栏 */
+    .action-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .action-tip { font-size: var(--font-size-xs); color: var(--text-secondary); display: inline-flex; align-items: center; gap: 4px; padding-left: 8px; border-left: 1px solid var(--border-section); }
+    .action-tip.warn { color: var(--warning); }
+    .btn-link[disabled], .btn-link:disabled { color: var(--text-tertiary); cursor: not-allowed; pointer-events: none; opacity: 0.5; }
+
+    /* 空状态 */
+    .empty-detail { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text3); }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* 弹窗 */
+    .modal-dialog { background: var(--bg-primary); border-radius: var(--radius-lg); width: 560px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); }
+    .modal-header { padding: var(--spacing-md) 20px; border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-close { width: 32px; height: 32px; border: none; background: none; font-size: var(--font-size-xxl); cursor: pointer; color: var(--text3); border-radius: var(--radius-sm); transition: all var(--duration-normal); }
+    .modal-close:hover { background: var(--border-light); color: var(--text); }
+    .modal-body { padding: 20px; background: var(--bg-primary); }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-section); display: flex; justify-content: flex-end; gap: 12px; background: var(--bg-section); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+
+    /* 表单样式 */
+    .form-group { margin-bottom: var(--spacing-md); }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-row { display: flex; gap: var(--spacing-md); }
+    .form-row .form-group { flex: 1; }
+    .form-label { display: block; font-size: var(--font-size-sm); color: var(--text); margin-bottom: 6px; }
+    .form-label .required { color: var(--error); margin-left: 2px; }
+    .form-input, .form-select { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); background: var(--bg-primary); transition: all var(--duration-normal); box-sizing: border-box; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .form-input:disabled, .form-select:disabled { background: #f1f3f5; border-color: #d9d9d9; color: #8c8c8c; cursor: not-allowed; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03); opacity: 1; }
+    .form-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; }
+    .form-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .switch-track { width: 40px; height: 22px; border-radius: 999px; background: var(--border); position: relative; transition: background var(--duration-normal); }
+    .switch-track::after { content: ''; position: absolute; width: 18px; height: 18px; left: 2px; top: 2px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm); transition: transform var(--duration-normal); }
+    .form-switch input:checked + .switch-track { background: var(--blue); }
+    .form-switch input:checked + .switch-track::after { transform: translateX(18px); }
+    .switch-text { font-size: var(--font-size-sm); color: var(--text); }
+    .form-hint { font-size: var(--font-size-xs); color: var(--text3); margin-top: var(--spacing-xs); }
+    .form-error { font-size: var(--font-size-xs); color: var(--error); margin-top: var(--spacing-xs); display: none; }
+    .form-error.show { display: block; }
+
+    /* 标签样式 */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500; }
+    .tag-green { background: var(--success-light); color: var(--success); }
+    .tag-blue { background: var(--primary-light); color: var(--primary); }
+    .tag-purple { background: rgba(146, 84, 222, 0.12); color: #722ed1; }
+    .tag-orange { background: rgba(250, 173, 20, 0.12); color: #d48806; }
+    .tag-gray { background: var(--bg-section); color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="page-container" data-module="gov-org">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">政府端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">组织架构管理</span>
+    </div>
+
+    <div class="split-view">
+      <!-- 左侧树形面板 -->
+      <div class="tree-panel">
+        <div class="tree-header">
+          <span class="tree-title">组织架构树</span>
+          <input type="search" class="tree-search" id="treeSearch" placeholder="搜索单位、科室" oninput="handleTreeSearch()">
+          <div class="tree-toolbar">
+            <button class="btn btn-link" onclick="expandAll()">展开全部</button>
+            <button class="btn btn-link" onclick="collapseAll()">收起全部</button>
+          </div>
+        </div>
+        <div class="tree-body" id="orgTree"></div>
+      </div>
+
+      <!-- 右侧详情面板 -->
+      <div class="detail-panel">
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-icon blue">🏛️</div>
+            <div class="stat-content">
+              <div class="stat-value" id="unitCount">0</div>
+              <div class="stat-label">单位总数</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">📋</div>
+            <div class="stat-content">
+              <div class="stat-value" id="deptCount">0</div>
+              <div class="stat-label">科室总数</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">👤</div>
+            <div class="stat-content">
+              <div class="stat-value" id="adminCount">0</div>
+              <div class="stat-label">政府管理员数</div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-header">
+          <div class="detail-heading">
+            <span class="detail-title" id="detailTitle">详情信息</span>
+            <div class="detail-path" id="detailPath">请在左侧选择组织节点</div>
+          </div>
+          <div class="action-bar" id="detailActions" style="display: none;">
+            <button class="btn-link" data-action="add-child" onclick="showAddChildModal()">新增</button>
+            <button class="btn-link" data-action="edit" onclick="showEditModal()">编辑</button>
+            <button class="btn-link" data-action="delete" onclick="deleteNode()">删除</button>
+          </div>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增/编辑弹窗 -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">新增组织</span>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="orgForm" onsubmit="event.preventDefault();">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">上级组织<span class="required">*</span></label>
+              <select class="form-select" id="formParent">
+                <option value="">请选择上级组织</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">组织类型<span class="required">*</span></label>
+              <select class="form-select" id="formType" onchange="onTypeChange()">
+                <option value="unit">下级单位</option>
+                <option value="dept">科室</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">名称<span class="required">*</span></label>
+              <input type="text" class="form-input" id="formName" placeholder="单位或科室名称（最长 100 字符）" maxlength="100">
+              <div class="form-error" id="errName">同级组织名称已存在</div>
+            </div>
+            <div class="form-group" id="formUnitTypeGroup">
+              <label class="form-label">单位类型<span class="required">*</span></label>
+              <select class="form-select" id="formUnitType">
+                <option value="委办局">委办局</option>
+                <option value="街道办">街道办</option>
+                <option value="督导组">督导组</option>
+                <option value="其他">其他</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">负责人</label>
+              <input type="text" class="form-input" id="formResponsiblePerson" placeholder="组织负责人姓名">
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系电话</label>
+              <input type="tel" class="form-input" id="formContactPhone" placeholder="13812345678 或 0755-12345678">
+              <div class="form-error" id="errPhone">请输入有效的联系电话</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">邮箱</label>
+              <input type="email" class="form-input" id="formEmail" placeholder="example@gov.cn">
+              <div class="form-error" id="errEmail">请输入有效的邮箱地址</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">排序<span class="required">*</span></label>
+              <input type="number" class="form-input" id="formSort" value="1" min="1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">状态<span class="required">*</span></label>
+              <label class="form-switch">
+                <input type="checkbox" id="formStatus" onchange="updateStatusSwitchText()" checked>
+                <span class="switch-track"></span>
+                <span class="switch-text" id="formStatusText">启用</span>
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div class="modal-overlay" id="confirmModal" style="display:none">
+    <div class="modal-dialog" style="width: 420px;">
+      <div class="modal-header">
+        <span class="modal-title" id="confirmTitle">确认操作</span>
+        <button class="modal-close" onclick="closeConfirmModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="confirmMessage" style="line-height: 1.6; font-size: var(--font-size-md); color: var(--text);"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeConfirmModal()">取消</button>
+        <button class="btn btn-primary" id="confirmOkBtn">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 组织架构数据（与超管端 §6.1.1「区应急管理局」NS-AMB 节点一致）
+    const orgData = [
+      {
+        id: 'root',
+        name: '区应急管理局',
+        type: 'unit',
+        unitType: '委办局',
+        status: 'enabled',
+        sort: 2,
+        parentId: null,
+        districtPath: '深圳市 / 南山区',
+        sourceType: 'sync',
+        isRoot: true,
+        responsiblePerson: '张主任',
+        contactPhone: '138****1002',
+        email: '',
+        extensionFields: '重点监管单位；平台侧维护联系人与账号策略',
+        lastSyncAt: '2026-06-18 09:12:33',
+        account: { username: 'nsamb-admin', status: 'enabled', lastLogin: '2026-04-02 09:30', contact: '张主任', mobile: '138****1002' },
+        children: [
+          { id: 'dept-amb-01', name: '督导检查科', type: 'dept', status: 'enabled', sort: 1, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '督导检查责任科室', children: [] },
+          { id: 'dept-amb-02', name: '综合协调科', type: 'dept', status: 'enabled', sort: 2, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '综合协调责任科室', children: [] },
+          { id: 'dept-amb-03', name: '区三防办', type: 'dept', status: 'enabled', sort: 3, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '三防协调责任科室', children: [] },
+          { id: 'dept-amb-04', name: '安全监管和执法科', type: 'dept', status: 'enabled', sort: 4, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '安全监管和执法责任科室', children: [] },
+          { id: 'dept-amb-05', name: '防灾减灾科', type: 'dept', status: 'enabled', sort: 5, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '防灾减灾责任科室', children: [] },
+          { id: 'dept-amb-06', name: '危化品监管和执法科', type: 'dept', status: 'enabled', sort: 6, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '危化品监管和执法责任科室', children: [] }
+        ]
+      }
+    ];
+
+    let selectedNode = null;
+    let isEditing = false;
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch];
+      });
+    }
+
+    function findNode(nodes, id) {
+      for (const node of nodes) {
+        if (node.id === id) return node;
+        if (node.children) {
+          const found = findNode(node.children, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    function findParentNode(nodes, id, parent = null) {
+      for (const node of nodes) {
+        if (node.id === id) return parent;
+        if (node.children) {
+          const found = findParentNode(node.children, id, node);
+          if (found !== undefined) return found;
+        }
+      }
+      return undefined;
+    }
+
+    function getNodePath(nodeId) {
+      const path = [];
+      function walk(nodes) {
+        for (const node of nodes) {
+          path.push(node.name);
+          if (node.id === nodeId) return true;
+          if (node.children && walk(node.children)) return true;
+          path.pop();
+        }
+        return false;
+      }
+      walk(orgData);
+      return path;
+    }
+
+    function getDeptLevel(node) {
+      if (!node || node.type !== 'dept') return 0;
+      let level = 1;
+      let parent = findParentNode(orgData, node.id);
+      while (parent && parent.type === 'dept') {
+        level += 1;
+        parent = findParentNode(orgData, parent.id);
+      }
+      return level;
+    }
+
+    function canAddChild(node) {
+      if (!node) return false;
+      if (node.type === 'unit') return true;
+      return node.type === 'dept' && getDeptLevel(node) < 3;
+    }
+
+    function canEdit(node) {
+      if (!node) return false;
+      if (node.isRoot) return false; // 本单位由超管端维护
+      return true;
+    }
+
+    function canDelete(node) {
+      if (!node) return false;
+      if (node.isRoot) return false;
+      return true;
+    }
+
+    function countNodes(nodes) {
+      return nodes.reduce(function(acc, node) {
+        const childStats = node.children && node.children.length ? countNodes(node.children) : { units: 0, depts: 0, admins: 0 };
+        return {
+          units: acc.units + childStats.units + (node.type === 'unit' ? 1 : 0),
+          depts: acc.depts + childStats.depts + (node.type === 'dept' ? 1 : 0),
+          admins: acc.admins + childStats.admins + (node.type === 'unit' && node.account ? 1 : 0)
+        };
+      }, { units: 0, depts: 0, admins: 0 });
+    }
+
+    function updateStats(scopeNode = selectedNode) {
+      const stats = scopeNode ? countNodes([scopeNode]) : countNodes(orgData);
+      document.getElementById('unitCount').textContent = stats.units;
+      document.getElementById('deptCount').textContent = stats.depts;
+      document.getElementById('adminCount').textContent = stats.admins;
+    }
+
+    function getNodeIcon(node) {
+      if (node.isRoot) return '🏛️';
+      return node.type === 'unit' ? '🏢' : '📋';
+    }
+
+    function getNodeBadgeHtml(node) {
+      if (node.isRoot) {
+        return '<span class="tree-node-badge unit">本单位</span><span class="tree-node-badge lock" title="由超管端维护">🔒</span>';
+      }
+      if (node.type === 'unit') {
+        return '<span class="tree-node-badge unit">下级单位</span>';
+      }
+      const level = getDeptLevel(node);
+      return `<span class="tree-node-badge dept">${level} 级科室</span>`;
+    }
+
+    function renderTree() {
+      const keyword = document.getElementById('treeSearch') ? document.getElementById('treeSearch').value.trim() : '';
+      const treeContainer = document.getElementById('orgTree');
+      const visibleData = keyword ? filterTreeData(orgData, keyword) : orgData;
+      treeContainer.innerHTML = visibleData.length ? renderNodes(visibleData, 0, Boolean(keyword)) : '<div style="padding:20px;text-align:center;color:var(--text-tertiary);">未找到匹配组织</div>';
+      bindTreeEvents();
+      if (keyword) expandAll();
+      updateStats();
+    }
+
+    function renderNodes(nodes, level, expandByDefault) {
+      let html = '';
+      nodes.forEach(node => {
+        const hasChildren = node.children && node.children.length > 0;
+        const icon = getNodeIcon(node);
+        const statusClass = node.status === 'enabled' ? 'enabled' : 'disabled';
+        const isActive = selectedNode && selectedNode.id === node.id ? 'active' : '';
+        const expandedClass = expandByDefault && hasChildren ? 'expanded' : (node.isRoot && hasChildren ? 'expanded' : '');
+        const showClass = (expandByDefault || node.isRoot) ? 'show' : '';
+
+        html += `
+          <div class="tree-node ${isActive}" data-id="${node.id}" style="--level:${level}">
+            <span class="tree-toggle ${hasChildren ? expandedClass : 'leaf'}" data-id="${node.id}">▶</span>
+            <span class="tree-node-icon">${icon}</span>
+            <span class="tree-node-label">${escapeHtml(node.name)}</span>
+            ${getNodeBadgeHtml(node)}
+            <span class="tree-node-status ${statusClass}"></span>
+          </div>
+        `;
+
+        if (hasChildren) {
+          html += `<div class="tree-children ${showClass}" data-parent="${node.id}">${renderNodes(node.children, level + 1, expandByDefault)}</div>`;
+        }
+      });
+      return html;
+    }
+
+    function filterTreeData(nodes, keyword) {
+      const lowerKeyword = keyword.toLowerCase();
+      return nodes.reduce(function(result, node) {
+        const children = node.children ? filterTreeData(node.children, keyword) : [];
+        const matched = node.name.toLowerCase().includes(lowerKeyword);
+        if (matched || children.length) {
+          result.push(Object.assign({}, node, { children: children }));
+        }
+        return result;
+      }, []);
+    }
+
+    function handleTreeSearch() {
+      renderTree();
+    }
+
+    function bindTreeEvents() {
+      document.querySelectorAll('.tree-node').forEach(node => {
+        node.addEventListener('click', function(e) {
+          if (!e.target.classList.contains('tree-toggle')) {
+            selectNode(this.dataset.id);
+          }
+        });
+      });
+      document.querySelectorAll('.tree-toggle:not(.leaf)').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleNode(this.dataset.id);
+        });
+      });
+    }
+
+    function toggleNode(nodeId) {
+      const toggle = document.querySelector(`.tree-toggle[data-id="${nodeId}"]`);
+      const children = document.querySelector(`.tree-children[data-parent="${nodeId}"]`);
+      if (toggle && children) {
+        toggle.classList.toggle('expanded');
+        children.classList.toggle('show');
+      }
+    }
+
+    function selectNode(nodeId) {
+      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+      const nodeEl = document.querySelector(`.tree-node[data-id="${nodeId}"]`);
+      if (nodeEl) nodeEl.classList.add('active');
+      selectedNode = findNode(orgData, nodeId);
+      renderDetail();
+    }
+
+    function expandAll() {
+      document.querySelectorAll('.tree-toggle:not(.leaf)').forEach(t => t.classList.add('expanded'));
+      document.querySelectorAll('.tree-children').forEach(c => c.classList.add('show'));
+    }
+
+    function collapseAll() {
+      document.querySelectorAll('.tree-toggle:not(.leaf)').forEach(t => t.classList.remove('expanded'));
+      document.querySelectorAll('.tree-children').forEach(c => c.classList.remove('show'));
+    }
+
+    function renderDetail() {
+      const detailBody = document.getElementById('detailBody');
+      const detailTitle = document.getElementById('detailTitle');
+      const detailPath = document.getElementById('detailPath');
+      const detailActions = document.getElementById('detailActions');
+      updateStats();
+
+      if (!selectedNode) {
+        detailTitle.textContent = '详情信息';
+        detailPath.textContent = '请在左侧选择组织节点';
+        detailActions.style.display = 'none';
+        detailBody.innerHTML = '<div class="empty-detail"><div class="empty-icon">🏛️</div><div>请在左侧选择组织节点查看详情</div></div>';
+        return;
+      }
+
+      detailTitle.textContent = selectedNode.name;
+      detailPath.textContent = getNodePath(selectedNode.id).join(' / ');
+      detailActions.style.display = 'flex';
+
+      const btnAdd = detailActions.querySelector('[data-action="add-child"]');
+      const btnEdit = detailActions.querySelector('[data-action="edit"]');
+      const btnDel = detailActions.querySelector('[data-action="delete"]');
+      btnAdd.style.display = canAddChild(selectedNode) ? '' : 'none';
+      btnEdit.style.display = canEdit(selectedNode) ? '' : 'none';
+      btnDel.style.display = canDelete(selectedNode) ? '' : 'none';
+
+      const typeText = selectedNode.isRoot
+        ? '单位（本单位/根）'
+        : (selectedNode.type === 'unit' ? '单位（下级单位）' : `科室（${getDeptLevel(selectedNode)} 级）`);
+      const statusText = selectedNode.status === 'enabled' ? '<span class="tag tag-green">启用</span>' : '<span class="tag tag-gray">停用</span>';
+      const parent = findParentNode(orgData, selectedNode.id);
+      const childCount = selectedNode.children ? selectedNode.children.length : 0;
+      const unitTypeBadge = { '委办局': 'tag-blue', '街道办': 'tag-purple', '督导组': 'tag-orange', '其他': 'tag-gray' };
+      const unitTypeFieldHtml = selectedNode.type === 'unit'
+        ? `<div class="info-item"><span class="info-label">单位类型</span><span class="info-value"><span class="tag ${unitTypeBadge[selectedNode.unitType] || 'tag-gray'}">${escapeHtml(selectedNode.unitType || '委办局')}</span></span></div>`
+        : '';
+      const contactFieldHtml = `
+            <div class="info-item"><span class="info-label">负责人</span><span class="info-value">${escapeHtml(selectedNode.responsiblePerson || '-')}</span></div>
+            <div class="info-item"><span class="info-label">联系电话</span><span class="info-value">${escapeHtml(selectedNode.contactPhone || '-')}</span></div>
+            <div class="info-item"><span class="info-label">邮箱</span><span class="info-value">${escapeHtml(selectedNode.email || '-')}</span></div>`;
+
+      let html = `
+        <div class="info-section">
+          <div class="info-section-title">基本信息</div>
+          <div class="info-grid">
+            <div class="info-item"><span class="info-label">组织类型</span><span class="info-value">${typeText}</span></div>
+            <div class="info-item"><span class="info-label">名称</span><span class="info-value">${escapeHtml(selectedNode.name)}</span></div>
+            ${unitTypeFieldHtml}
+            ${contactFieldHtml}
+            ${selectedNode.isRoot ? '' : `<div class="info-item"><span class="info-label">上级组织</span><span class="info-value">${parent ? escapeHtml(parent.name) : '-'}</span></div>`}
+            <div class="info-item"><span class="info-label">状态</span><span class="info-value">${statusText}</span></div>
+            <div class="info-item"><span class="info-label">排序</span><span class="info-value">${selectedNode.sort}</span></div>
+            <div class="info-item"><span class="info-label">直属下级数量</span><span class="info-value">${childCount}</span></div>
+          </div>
+        </div>
+      `;
+
+      if (selectedNode.isRoot && selectedNode.account) {
+        const account = selectedNode.account;
+        const accountStatusText = account.status === 'enabled' ? '<span class="tag tag-green">启用</span>' : '<span class="tag tag-gray">停用</span>';
+        html += `
+          <div class="info-section">
+            <div class="info-section-title">关联管理员账号</div>
+            <div class="account-card">
+              <div class="account-info">
+                <div class="account-detail">
+                  <span class="account-field"><strong>账号：</strong>${escapeHtml(account.username)}</span>
+                  <span class="account-field"><strong>联系人：</strong>${escapeHtml(account.contact)}</span>
+                  <span class="account-field"><strong>手机：</strong>${escapeHtml(account.mobile)}</span>
+                  <span class="account-field"><strong>最后登录：</strong>${escapeHtml(account.lastLogin)}</span>
+                  <span class="account-field"><strong>状态：</strong>${accountStatusText}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      detailBody.innerHTML = html;
+    }
+
+    function updateStatusSwitchText() {
+      document.getElementById('formStatusText').textContent = document.getElementById('formStatus').checked ? '启用' : '停用';
+    }
+
+    function buildParentOptions(forType, fixedParentId, excludeId) {
+      const select = document.getElementById('formParent');
+      select.innerHTML = '';
+      function addOption(node, level) {
+        const prefix = '　'.repeat(level);
+        const typeLabel = node.isRoot ? '[本单位]' : (node.type === 'unit' ? '[下级单位]' : `[${getDeptLevel(node)} 级科室]`);
+        const opt = document.createElement('option');
+        opt.value = node.id;
+        opt.textContent = prefix + typeLabel + ' ' + node.name;
+        select.appendChild(opt);
+      }
+      function walk(nodes, level) {
+        nodes.forEach(node => {
+          if (excludeId && (node.id === excludeId)) return;
+          // 单位可挂在 本单位/下级单位 下
+          // 科室可挂在 单位 或 1-2 级科室 下
+          const canBeParent = forType === 'unit'
+            ? (node.type === 'unit')
+            : (node.type === 'unit' || (node.type === 'dept' && getDeptLevel(node) < 3));
+          if (canBeParent) addOption(node, level);
+          if (node.children && node.children.length) walk(node.children, level + 1);
+        });
+      }
+      walk(orgData, 0);
+      if (fixedParentId) {
+        select.value = fixedParentId;
+      }
+    }
+
+    function onTypeChange() {
+      const type = document.getElementById('formType').value;
+      document.getElementById('formUnitTypeGroup').style.display = type === 'unit' ? '' : 'none';
+      // 重新构建父级下拉
+      const parentSelect = document.getElementById('formParent');
+      const currentParent = parentSelect.value;
+      buildParentOptions(type, currentParent, isEditing && selectedNode ? selectedNode.id : null);
+      if (currentParent) parentSelect.value = currentParent;
+    }
+
+    function showAddChildModal() {
+      if (!selectedNode) return;
+      if (!canAddChild(selectedNode)) {
+        showToast('该节点不允许新增子组织', 'warning');
+        return;
+      }
+      isEditing = false;
+      document.getElementById('modalTitle').textContent = '新增组织（在「' + selectedNode.name + '」下）';
+      // 决定默认组织类型
+      const formType = document.getElementById('formType');
+      if (selectedNode.type === 'dept') {
+        // 科室下只能新增科室
+        formType.value = 'dept';
+        formType.disabled = true;
+      } else {
+        formType.value = 'unit';
+        formType.disabled = false;
+      }
+      document.getElementById('formName').value = '';
+      document.getElementById('formResponsiblePerson').value = '';
+      document.getElementById('formContactPhone').value = '';
+      document.getElementById('formEmail').value = '';
+      document.getElementById('formSort').value = '1';
+      document.getElementById('formUnitType').value = '委办局';
+      document.getElementById('formStatus').checked = true;
+      updateStatusSwitchText();
+      document.getElementById('formParent').disabled = false;
+      onTypeChange();
+      document.getElementById('formParent').value = selectedNode.id;
+      hideErrors();
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function showEditModal() {
+      if (!selectedNode) return;
+      if (!canEdit(selectedNode)) {
+        showToast('本单位由超管端维护，政府端不可编辑', 'warning');
+        return;
+      }
+      isEditing = true;
+      document.getElementById('modalTitle').textContent = '编辑组织：' + selectedNode.name;
+      const formType = document.getElementById('formType');
+      formType.value = selectedNode.type;
+      formType.disabled = true; // 编辑时组织类型置灰
+      document.getElementById('formName').value = selectedNode.name;
+      document.getElementById('formResponsiblePerson').value = selectedNode.responsiblePerson || '';
+      document.getElementById('formContactPhone').value = selectedNode.contactPhone || '';
+      document.getElementById('formEmail').value = selectedNode.email || '';
+      document.getElementById('formSort').value = selectedNode.sort || 1;
+      document.getElementById('formUnitType').value = selectedNode.unitType || '委办局';
+      document.getElementById('formStatus').checked = selectedNode.status === 'enabled';
+      updateStatusSwitchText();
+      buildParentOptions(selectedNode.type, selectedNode.parentId, selectedNode.id);
+      document.getElementById('formParent').value = selectedNode.parentId || '';
+      document.getElementById('formParent').disabled = true; // 编辑时上级组织置灰
+      onTypeChange();
+      document.getElementById('formParent').disabled = true;
+      hideErrors();
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+      document.getElementById('formType').disabled = false;
+      document.getElementById('formParent').disabled = false;
+      isEditing = false;
+    }
+
+    function hideErrors() {
+      ['errName', 'errPhone', 'errEmail'].forEach(id => document.getElementById(id).classList.remove('show'));
+    }
+
+    function hasSiblingName(parentChildren, name, excludeId) {
+      return (parentChildren || []).some(function(node) {
+        return node.id !== excludeId && node.name === name;
+      });
+    }
+
+    function saveForm() {
+      hideErrors();
+      const type = document.getElementById('formType').value;
+      const name = document.getElementById('formName').value.trim();
+      const responsiblePerson = document.getElementById('formResponsiblePerson').value.trim();
+      const contactPhone = document.getElementById('formContactPhone').value.trim();
+      const email = document.getElementById('formEmail').value.trim();
+      const parentId = document.getElementById('formParent').value;
+      const sort = parseInt(document.getElementById('formSort').value) || 1;
+      const status = document.getElementById('formStatus').checked ? 'enabled' : 'disabled';
+      const unitType = type === 'unit' ? document.getElementById('formUnitType').value : '';
+
+      if (!name) {
+        showToast('请输入名称', 'warning');
+        return;
+      }
+      if (contactPhone && !/^(1\d{10}|0\d{2,3}-?\d{7,8})$/.test(contactPhone)) {
+        document.getElementById('errPhone').classList.add('show');
+        return;
+      }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('errEmail').classList.add('show');
+        return;
+      }
+      const parentNode = parentId ? findNode(orgData, parentId) : null;
+      if (!parentNode) {
+        showToast('请选择上级组织', 'warning');
+        return;
+      }
+      if (type === 'dept' && parentNode.type === 'dept' && getDeptLevel(parentNode) >= 3) {
+        showToast('科室层级最多 3 级', 'warning');
+        return;
+      }
+      if (hasSiblingName(parentNode.children, name, isEditing && selectedNode ? selectedNode.id : null)) {
+        document.getElementById('errName').classList.add('show');
+        return;
+      }
+
+      if (isEditing && selectedNode) {
+        selectedNode.name = name;
+        selectedNode.responsiblePerson = responsiblePerson;
+        selectedNode.contactPhone = contactPhone;
+        selectedNode.email = email;
+        selectedNode.unitType = unitType || selectedNode.unitType;
+        selectedNode.status = status;
+        selectedNode.sort = sort;
+        showToast('编辑成功（实际接入后会同步至超管端 §6.1.1）', 'success');
+      } else {
+        const id = (parentId || 'NEW') + '-' + Date.now().toString().slice(-5);
+        const newNode = {
+          id: id,
+          name: name,
+          type: type,
+          unitType: unitType,
+          status: status,
+          sort: sort,
+          parentId: parentId,
+          sourceType: 'manual',
+          responsiblePerson: responsiblePerson,
+          contactPhone: contactPhone,
+          email: email,
+          extensionFields: '政府端手工维护',
+          children: []
+        };
+        parentNode.children = parentNode.children || [];
+        parentNode.children.push(newNode);
+        selectedNode = newNode;
+        showToast('新增成功（实际接入后会同步至超管端 §6.1.1）', 'success');
+      }
+
+      closeModal();
+      renderTree();
+      // 重新选中
+      const targetId = selectedNode.id;
+      setTimeout(() => selectNode(targetId), 50);
+    }
+
+    function deleteNode() {
+      if (!selectedNode) return;
+      if (!canDelete(selectedNode)) {
+        showToast('本单位由超管端维护，政府端不可删除', 'warning');
+        return;
+      }
+      if (selectedNode.children && selectedNode.children.length > 0) {
+        showToast('该组织下有子组织，请先处理子组织（BR-GOV-ORG-05）', 'warning');
+        return;
+      }
+      const targetName = selectedNode.name;
+      showConfirm(
+        `确认删除「<strong>${escapeHtml(targetName)}</strong>」？<br><br><span style="color:var(--text-secondary);font-size:var(--font-size-sm)">注：若该节点有绑定用户或业务引用，将被拒绝并提示停用</span>`,
+        function() {
+          const parent = findParentNode(orgData, selectedNode.id);
+          if (parent) {
+            parent.children = parent.children.filter(c => c.id !== selectedNode.id);
+          }
+          selectedNode = null;
+          renderTree();
+          renderDetail();
+          showToast('删除成功（实际接入后会同步至超管端 §6.1.1）', 'success');
+        },
+        '删除组织'
+      );
+    }
+
+    let pendingConfirm = null;
+    function showConfirm(message, onConfirm, title) {
+      document.getElementById('confirmTitle').textContent = title || '确认操作';
+      document.getElementById('confirmMessage').innerHTML = message;
+      pendingConfirm = onConfirm;
+      document.getElementById('confirmOkBtn').onclick = function() {
+        const handler = pendingConfirm;
+        closeConfirmModal();
+        if (handler) handler();
+      };
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').style.display = 'none';
+      pendingConfirm = null;
+    }
+
+    function showToast(msg, type) {
+      type = type || 'info';
+      var container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+        document.body.appendChild(container);
+      }
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + type;
+      toast.style.cssText = 'padding:10px 20px;margin-bottom: var(--spacing-sm);border-radius: var(--radius-sm);background:var(--primary);color:var(--bg-primary);font-size: var(--font-size-md);animation:fadeIn 0.3s;';
+      if (type === 'success') toast.style.background = 'var(--success)';
+      if (type === 'warning') toast.style.background = 'var(--warning)';
+      if (type === 'error') toast.style.background = 'var(--danger)';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
+    // 初始化
+    renderTree();
+    setTimeout(() => {
+      selectNode('root');
+    }, 100);
+  </script>
+  <script>
+  (function() { 'use strict'; var CONFIG = { moduleId: 'gov-org', moduleName: '组织架构管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+  </script>
+  <script src="../../js/annotations.js"></script>
+</body>
+</html>

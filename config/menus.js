@@ -18,12 +18,12 @@ const MENU_CONFIG = {
     },
     {
       id: 'sa-gov-group',
-      name: '政府信息管理',
+      name: '政府单位管理',
       icon: '🏛️',
       children: [
         {
           id: 'sa-gov-org',
-          name: '政府组织架构管理',
+          name: '组织架构管理',
           module: 'super-admin/gov-org',
           path: 'modules/super-admin/gov-org.html',
           description: '管理政府组织架构与人员',
@@ -32,7 +32,7 @@ const MENU_CONFIG = {
         },
         {
           id: 'sa-gov-user',
-          name: '政府用户管理',
+          name: '人员账号管理',
           module: 'super-admin/gov-user',
           path: 'modules/super-admin/gov-user.html',
           description: '政府端用户账号管理',
@@ -65,6 +65,32 @@ const MENU_CONFIG = {
           disabled: false
         }
       ]
+    },
+    {
+      id: 'sa-project-group',
+      name: '项目管理',
+      icon: '🏗️',
+      children: [
+        {
+          id: 'sa-project-manage',
+          name: '项目信息管理',
+          module: 'super-admin/project-manage',
+          path: 'modules/super-admin/project-manage.html',
+          description: '项目信息增删改查与账号管理',
+          badge: null,
+          disabled: false
+        }
+      ]
+    },
+    {
+      id: 'sa-key-place',
+      name: '重点场所管理',
+      icon: '🏭',
+      module: 'super-admin/key-place',
+      path: 'modules/super-admin/key-place.html',
+      description: '重点场所信息管理',
+      badge: null,
+      disabled: false
     },
     {
       id: 'sa-domain-manage',
@@ -103,16 +129,6 @@ const MENU_CONFIG = {
       module: 'super-admin/regulation-lib',
       path: 'modules/super-admin/regulation-lib.html',
       description: '法规文件增删改查与条款管理',
-      badge: null,
-      disabled: false
-    },
-    {
-      id: 'sa-project-manage',
-      name: '项目信息管理',
-      icon: '🏗️',
-      module: 'super-admin/project-manage',
-      path: 'modules/super-admin/project-manage.html',
-      description: '项目信息增删改查与账号管理',
       badge: null,
       disabled: false
     },
@@ -188,75 +204,25 @@ const MENU_CONFIG = {
     }
   ],
   
-  // ========== 政府端菜单 ==========
+  // ========== 政府端菜单（V7.0 重构） ==========
   'government': [
     {
       id: 'gov-workbench',
-      name: '工作台',
+      name: '安全态势',
       icon: '📊',
       module: 'government/workbench',
       path: 'modules/government/workbench.html',
-      description: '待办事项与工作概览',
+      description: '辖区安全监管核心数据概览（含统计分析）',
       badge: null,
       disabled: false
     },
     {
-      id: 'gov-domain-supervise',
-      name: '领域监管管理',
-      icon: '🎯',
-      module: 'government/domain-supervise',
-      path: 'modules/government/domain-supervise.html',
-      description: '监管领域配置与统计',
-      badge: null,
-      disabled: false
-    },
-    {
-      id: 'gov-duty-supervise',
-      name: '日常履职监督',
-      icon: '👁️',
-      module: 'government/duty-supervise',
-      path: 'modules/government/duty-supervise.html',
-      description: '监管单位履职情况',
-      badge: null,
-      disabled: false
-    },
-    {
-      id: 'gov-quick-check',
-      name: '一键巡查',
-      icon: '🔍',
-      module: 'government/quick-check',
-      path: 'modules/government/quick-check.html',
-      description: '快速发起现场巡查',
-      badge: null,
-      disabled: false
-    },
-    {
-      id: 'gov-check-task',
-      name: '检查任务管理',
-      icon: '📋',
-      module: 'government/check-task',
-      path: 'modules/government/check-task.html',
-      description: '检查任务派发与跟踪',
-      badge: null,
-      disabled: false
-    },
-    {
-      id: 'gov-hazard-manage',
-      name: '隐患管理',
-      icon: '⚠️',
-      module: 'government/hazard-manage',
-      path: 'modules/government/hazard-manage.html',
-      description: '隐患发现与整改跟踪',
-      badge: null,
-      disabled: false
-    },
-    {
-      id: 'gov-key-place',
-      name: '重点场所管理',
-      icon: '🏭',
-      module: 'government/key-place',
-      path: 'modules/government/key-place.html',
-      description: '重点场所信息与管理',
+      id: 'gov-ent-manage',
+      name: '企业基本信息',
+      icon: '🏢',
+      module: 'government/ent-manage',
+      path: 'modules/government/ent-manage.html',
+      description: '辖区企业基本信息管理（含审批列表）',
       badge: null,
       disabled: false
     },
@@ -266,18 +232,146 @@ const MENU_CONFIG = {
       icon: '🏗️',
       module: 'government/project-manage',
       path: 'modules/government/project-manage.html',
-      description: '辖区内项目信息增删改查',
+      description: '辖区项目信息管理（含审批列表）',
       badge: null,
       disabled: false
     },
     {
-      id: 'gov-analytics',
-      name: '统计分析',
-      icon: '📈',
-      module: 'government/analytics',
-      path: 'modules/government/analytics.html',
-      description: '数据统计与报表',
-      badge: '开发中',
+      id: 'gov-key-place',
+      name: '重点场所管理',
+      icon: '🏭',
+      module: 'government/key-place',
+      path: 'modules/government/key-place.html',
+      description: '重点场所信息与管理（含审批列表）',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'gov-domain-supervise',
+      name: '领域监管',
+      icon: '🎯',
+      module: 'government/domain-supervise',
+      path: 'modules/government/domain-supervise.html',
+      description: '监管总览、任务配置、进度监督',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'gov-duty-supervise',
+      name: '履职管理',
+      icon: '👁️',
+      module: 'government/duty-supervise',
+      path: 'modules/government/duty-supervise.html',
+      description: '科室履职进度监督与催办督办',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'gov-check-task',
+      name: '检查管理',
+      icon: '📋',
+      module: 'government/check-task',
+      path: 'modules/government/check-task.html',
+      description: '履职任务与专项任务管理',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'gov-hazard-manage',
+      name: '隐患管理',
+      icon: '⚠️',
+      module: 'government/hazard-manage',
+      path: 'modules/government/hazard-manage.html',
+      description: '隐患全生命周期跟踪',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'gov-control-archive',
+      name: '管控档案',
+      icon: '📁',
+      module: 'government/control-archive',
+      path: 'modules/government/control-archive.html',
+      description: '辖区管控对象全量查阅（只读）',
+      badge: null,
+      disabled: false
+    },
+    {
+      id: 'gov-org-group',
+      name: '政府单位管理',
+      icon: '🏛️',
+      children: [
+        {
+          id: 'gov-org-manage',
+          name: '组织架构管理',
+          module: 'government/gov-org',
+          path: 'modules/government/gov-org.html',
+          description: '本单位及下级科室组织架构管理',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'gov-user-manage',
+          name: '人员账号管理',
+          module: 'government/gov-user',
+          path: 'modules/government/gov-user.html',
+          description: '本单位及下级科室人员账号管理',
+          badge: null,
+          disabled: false
+        }
+      ]
+    },
+    {
+      id: 'gov-emergency-group',
+      name: '应急资源',
+      icon: '🚨',
+      children: [
+        {
+          id: 'gov-emergency-plan',
+          name: '应急预案',
+          module: 'government/emergency-plan',
+          path: 'modules/government/emergency-plan.html',
+          description: '应急预案管理与评审',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'gov-emergency-supply',
+          name: '应急物资',
+          module: 'government/emergency-supply',
+          path: 'modules/government/emergency-supply.html',
+          description: '应急物资库存与有效期管理',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'gov-emergency-team',
+          name: '应急队伍',
+          module: 'government/emergency-team',
+          path: 'modules/government/emergency-team.html',
+          description: '应急救援队伍管理',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'gov-emergency-contact',
+          name: '联络通讯',
+          module: 'government/emergency-contact',
+          path: 'modules/government/emergency-contact.html',
+          description: '应急联络通讯录管理',
+          badge: null,
+          disabled: false
+        }
+      ]
+    },
+    {
+      id: 'gov-persuade',
+      name: '劝导路口',
+      icon: '🚧',
+      module: 'government/persuade',
+      path: 'modules/government/persuade.html',
+      description: '农村/社区交通安全劝导站管理',
+      badge: '待设计',
       disabled: true
     }
   ],
@@ -619,4 +713,42 @@ function getMenuItem(portal, menuId) {
     }
   }
   return null;
+}
+
+/**
+ * 根据 module 路径反查菜单项（用于 iframe 直接加载 module 时同步面包屑）
+ * @param {string} portal
+ * @param {string} module - 形如 'government/task-config'
+ * @returns {Array<{name:string}>} 面包屑数组
+ */
+function getBreadcrumbByModule(portal, module) {
+  const menu = getMenuConfig(portal);
+  for (const item of menu) {
+    if (item.module === module) return [{ name: item.name }];
+    if (item.children) {
+      for (const child of item.children) {
+        if (child.module === module) return [{ name: item.name }, { name: child.name }];
+      }
+    }
+  }
+  return [];
+}
+
+/**
+ * 根据菜单 ID 生成面包屑（含父菜单层级）
+ * @param {string} portal - 端标识
+ * @param {string} menuId - 菜单 ID
+ * @returns {Array<{name:string}>} 面包屑数组，最后一项为当前页
+ */
+function getBreadcrumb(portal, menuId) {
+  const menu = getMenuConfig(portal);
+  for (const item of menu) {
+    if (item.id === menuId) return [{ name: item.name }];
+    if (item.children) {
+      for (const child of item.children) {
+        if (child.id === menuId) return [{ name: item.name }, { name: child.name }];
+      }
+    }
+  }
+  return [];
 }
