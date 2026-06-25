@@ -3,33 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>政府组织架构管理 - 超管端</title>
+  <title>组织架构管理 - 超管端</title>
   
     <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-    /* 页面容器 */
-    /* 页面标题栏 */
-    
-    .page-title { font-size: var(--font-size-xl); font-weight: 600; color: var(--text); }
-    
-    /* 统计卡片 */
+    html, body { height: 100%; overflow: hidden; }
+    body { margin: 0; }
+    .page-container[data-module="sa-gov-org"] { height: 100vh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box; }
+    .page-container[data-module="sa-gov-org"] .stat-cards { flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: var(--spacing-md); border-bottom: 1px solid var(--border-section); background: var(--bg-primary); }
 
-    .stat-card:hover { 
-      background: linear-gradient(135deg, var(--bg-section) 0%, var(--border-section) 100%);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    /* 统计卡片 */
+    .page-container[data-module="sa-gov-org"] .stat-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 14px 16px;
+      border: 1px solid rgba(22, 119, 255, 0.08);
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow: 0 8px 22px rgba(20, 54, 94, 0.06);
+      overflow: hidden;
+      transition: transform var(--duration-normal), box-shadow var(--duration-normal), border-color var(--duration-normal);
     }
-    .stat-icon { width: 40px; height: 40px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-xxl); }
-    .stat-icon.blue { background: var(--primary-light); color: var(--primary); }
-    .stat-icon.green { background: var(--success-light); color: var(--success); }
-    .stat-icon.orange { background: var(--warning-light); color: var(--warning); }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(22, 119, 255, 0.18);
+      box-shadow: 0 12px 28px rgba(20, 54, 94, 0.1);
+    }
+    .stat-icon { position: relative; z-index: 1; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45); }
+    .stat-icon.blue { background: linear-gradient(135deg, #e6f4ff 0%, #bae0ff 100%); color: var(--primary); }
+    .stat-icon.green { background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%); color: var(--success); }
+    .stat-icon.orange { background: linear-gradient(135deg, #fff7e6 0%, #ffe7ba 100%); color: var(--warning); }
     .stat-icon.gray { background: var(--bg-section); color: var(--text-secondary); }
-    .stat-content { flex: 1; }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--spacing-xs); }
-    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; color: var(--text-primary); }
+    .stat-content { position: relative; z-index: 1; flex: 1; min-width: 0; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
+    .stat-value { font-size: 28px; line-height: 1; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
     
     /* 分屏视图 */
-    .split-view { display: flex; gap: 20px; height: calc(100vh - 240px); }
+    .split-view { display: flex; gap: 20px; flex: 1; min-height: 0; overflow: hidden; }
     
     /* 左侧树形面板 */
     .tree-panel { 
@@ -42,8 +56,12 @@
       flex-direction: column;
       box-shadow: var(--shadow-sm);
     }
-    .tree-header { padding: var(--spacing-md); border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); }
-    .tree-title { font-size: var(--font-size-md); font-weight: 600; }
+    .tree-header { padding: var(--spacing-md); border-bottom: 1px solid var(--border-section); display: flex; flex-direction: column; gap: var(--spacing-sm); align-items: stretch; background: var(--bg-section); }
+    .tree-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
+    .tree-search { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); background: var(--bg-primary); }
+    .tree-search:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .tree-toolbar { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--spacing-sm); align-items: center; }
+    .tree-toolbar .btn { flex: 0 0 auto; }
     .tree-body { flex: 1; overflow-y: auto; padding: var(--spacing-sm) 0; }
     
     /* 右侧详情面板 */
@@ -56,23 +74,26 @@
       flex-direction: column;
       box-shadow: var(--shadow-sm);
     }
-    .detail-header { padding: var(--spacing-md) 20px; border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); }
-    .detail-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .detail-header { padding: var(--spacing-md) 20px; border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-md); background: var(--bg-section); }
+    .detail-heading { min-width: 0; }
+    .detail-title { display: block; font-size: var(--font-size-lg); font-weight: 600; }
+    .detail-path { margin-top: 4px; font-size: var(--font-size-xs); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .detail-body { flex: 1; overflow-y: auto; padding: 20px; }
     
     /* 树节点样式 */
-    .tree-node { display: flex; align-items: center; padding: var(--spacing-sm) 12px; cursor: pointer; transition: all var(--duration-fast); user-select: none; }
+    .tree-node { display: flex; align-items: center; padding: 8px 12px 8px calc(12px + var(--level, 0) * 20px); cursor: pointer; transition: all var(--duration-fast); user-select: none; min-width: 0; }
     .tree-node:hover { background: var(--bg-secondary); }
     .tree-node.active { background: var(--primary-light); }
-    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-xs); font-size: 10px; color: var(--text3); cursor: pointer; transition: transform var(--duration-normal); flex-shrink: 0; }
+    .tree-toggle { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; margin-right: 4px; cursor: pointer; transition: transform var(--duration-fast); flex-shrink: 0; border-radius: 3px; color: var(--text-tertiary); font-size: 9px; line-height: 1; }
+    .tree-toggle:hover { background: var(--bg-hover); }
     .tree-toggle.expanded { transform: rotate(90deg); }
-    .tree-toggle.leaf { visibility: hidden; }
+    .tree-toggle.leaf { visibility: hidden; pointer-events: none; }
     .tree-node-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-sm); font-size: var(--font-size-md); flex-shrink: 0; }
-    .tree-node-label { flex: 1; font-size: var(--font-size-sm); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tree-node-label { flex: 1; font-size: var(--font-size-sm); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .tree-node-status { width: 8px; height: 8px; border-radius: 50%; margin-left: var(--spacing-sm); flex-shrink: 0; }
     .tree-node-status.enabled { background: var(--green); }
     .tree-node-status.disabled { background: var(--text3); }
-    
+
     .tree-children { display: none; }
     .tree-children.show { display: block; }
     
@@ -88,27 +109,30 @@
     /* 账号信息卡片 */
     .account-card { background: var(--bg-primary); border: 1px solid var(--border-section); border-radius: var(--radius-lg); padding: var(--spacing-md); margin-top: 12px; }
     .account-card-title { font-size: var(--font-size-sm); font-weight: 600; margin-bottom: 12px; }
-    .account-info { display: flex; align-items: center; justify-content: space-between; }
-    .account-detail { display: flex; flex-direction: column; gap: var(--spacing-xs); }
-    .account-actions { display: flex; gap: var(--spacing-sm); }
-    
+    .account-info { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); }
+    .account-detail { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-lg); min-width: 0; }
+    .account-field { display: inline-flex; align-items: center; gap: var(--spacing-xs); white-space: nowrap; }
+    .account-status-switch { position: relative; gap: 0; }
+    .account-status-switch .switch-track { width: 64px; }
+    .form-switch.account-status-switch input:checked + .switch-track::after { transform: translateX(42px); }
+    .account-status-switch .switch-text { position: absolute; top: 0; left: 22px; z-index: 1; width: 36px; text-align: center; color: #fff; font-size: var(--font-size-xs); line-height: 22px; pointer-events: none; }
+    .account-status-switch input:checked ~ .switch-text { left: 4px; }
+    .account-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--spacing-sm); }
+
     /* 操作栏 */
     .action-bar { display: flex; gap: 12px; }
-    .action-bar 
+
+    /* 空状态 */
     .empty-detail { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text3); }
     .empty-icon { font-size: 48px; margin-bottom: 12px; }
-    
-    /* 弹窗样式 */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-overlay.show { display: flex; }
-    
+
     /* 表格容器滚动 */
     .table-scroll { overflow-x: auto; }
     .table-scroll table { min-width: 1000px; }
-    
+
     /* 操作列固定 */
-    .action-col
-    
+    .action-col { white-space: nowrap; }
+
     /* 字段列省略 */
     .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
     .modal-dialog { background: var(--bg-primary); border-radius: var(--radius-lg); width: 520px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); }
@@ -128,12 +152,20 @@
     .form-label .required { color: var(--error); margin-left: 2px; }
     .form-input, .form-select { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); background: var(--bg-primary); transition: all var(--duration-normal); }
     .form-input:focus, .form-select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .form-input:disabled, .form-select:disabled { background: #f1f3f5; border-color: #d9d9d9; color: #8c8c8c; cursor: not-allowed; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03); opacity: 1; }
     .form-checkbox { display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; }
     .form-checkbox input { width: 16px; height: 16px; }
+    .form-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; }
+    .form-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .switch-track { width: 40px; height: 22px; border-radius: 999px; background: var(--border); position: relative; transition: background var(--duration-normal); }
+    .switch-track::after { content: ''; position: absolute; width: 18px; height: 18px; left: 2px; top: 2px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm); transition: transform var(--duration-normal); }
+    .form-switch input:checked + .switch-track { background: var(--blue); }
+    .form-switch input:checked + .switch-track::after { transform: translateX(18px); }
+    .switch-text { font-size: var(--font-size-sm); color: var(--text); }
     .form-hint { font-size: var(--font-size-xs); color: var(--text3); margin-top: var(--spacing-xs); }
     
     /* 标签样式 */
-    
+    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500; }
     .tag-green { background: var(--success-light); color: var(--success); }
     .tag-gray { background: var(--bg-section); color: var(--text-secondary); }
   </style>
@@ -145,35 +177,7 @@
       <span class="breadcrumb-prefix">当前位置：</span>
       <span class="breadcrumb-item">超管端</span>
       <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">政府端组织架构管理</span>
-    </div>
-    
-    <div class="page-header">
-      <h1 class="page-title">政府端组织架构管理</h1>
-    </div>
-    
-    <div class="stat-cards">
-      <div class="stat-card">
-        <div class="stat-icon blue">🏛️</div>
-        <div class="stat-content">
-          <div class="stat-value">8</div>
-          <div class="stat-label">单位总数</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon green">📋</div>
-        <div class="stat-content">
-          <div class="stat-value">24</div>
-          <div class="stat-label">科室总数</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon orange">👤</div>
-        <div class="stat-content">
-          <div class="stat-value">42</div>
-          <div class="stat-label">用户总数</div>
-        </div>
-      </div>
+      <span class="breadcrumb-item current">组织架构管理</span>
     </div>
     
     <div class="split-view">
@@ -181,11 +185,10 @@
       <div class="tree-panel">
         <div class="tree-header">
           <span class="tree-title">组织架构树</span>
-          <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
-            <button class="btn btn-link" onclick="expandAll()">展开</button>
-            <button class="btn btn-link" onclick="collapseAll()">收起</button>
-            <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 新增</button>
-           <button class="btn btn-default btn-sm" onclick="addUserFromOrg()">+ 新增用户</button>
+          <input type="search" class="tree-search" id="treeSearch" placeholder="搜索区划、单位、科室" oninput="handleTreeSearch()">
+          <div class="tree-toolbar">
+            <button class="btn btn-link" onclick="expandAll()">展开全部</button>
+            <button class="btn btn-link" onclick="collapseAll()">收起全部</button>
           </div>
         </div>
         <div class="tree-body" id="orgTree"></div>
@@ -193,12 +196,38 @@
       
       <!-- 右侧详情面板 -->
       <div class="detail-panel">
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-icon blue">🏛️</div>
+            <div class="stat-content">
+              <div class="stat-value" id="unitCount">0</div>
+              <div class="stat-label">单位总数</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">📋</div>
+            <div class="stat-content">
+              <div class="stat-value" id="deptCount">0</div>
+              <div class="stat-label">科室总数</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">👤</div>
+            <div class="stat-content">
+              <div class="stat-value" id="accountCount">0</div>
+              <div class="stat-label">超管账号数</div>
+            </div>
+          </div>
+        </div>
         <div class="detail-header">
-          <span class="detail-title" id="detailTitle">详情信息</span>
+          <div class="detail-heading">
+            <span class="detail-title" id="detailTitle">详情信息</span>
+            <div class="detail-path" id="detailPath">请在左侧选择组织节点</div>
+          </div>
           <div class="action-bar" id="detailActions" style="display: none;">
-            <button class="btn-link" onclick="showEditModal()">编辑</button>
-            <button class="btn-link" onclick="deleteNode()">删除</button>
-            <button class="btn-link" onclick="showAddChildModal()">新增下级</button>
+            <button class="btn-link" data-action="edit" onclick="showEditModal()">编辑</button>
+            <button class="btn-link" data-action="delete" onclick="deleteNode()">删除</button>
+            <button class="btn-link" data-action="add-child" onclick="showAddChildModal()">新增</button>
           </div>
         </div>
         <div class="detail-body" id="detailBody"></div>
@@ -210,61 +239,79 @@
   <div class="modal-overlay" id="modal">
     <div class="modal-dialog">
       <div class="modal-header">
-        <span class="modal-title" id="modalTitle">新增组织</span>
+        <span class="modal-title" id="modalTitle">新增</span>
         <button class="modal-close" onclick="closeModal()">×</button>
       </div>
       <div class="modal-body">
         <form id="orgForm">
-          <div class="form-group">
-            <label class="form-label">组织类型<span class="required">*</span></label>
-            <select class="form-select" id="formType" onchange="onTypeChange()">
-              <option value="unit">单位</option>
-              <option value="dept">科室</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">名称<span class="required">*</span></label>
-            <input type="text" class="form-input" id="formName" placeholder="请输入名称">
-          </div>
-          <div class="form-group">
-            <label class="form-label">所属区划<span class="required">*</span></label>
-            <select class="form-select" id="formDistrict">
-              <option value="">请选择所属区划</option>
-              <option value="NS">南山区</option>
-              <option value="FT">福田区</option>
-              <option value="BA">宝安区</option>
-              <option value="LG">龙岗区</option>
-              <option value="LH">龙华区</option>
-            </select>
-          </div>
-          <div class="form-group" id="formBelongUnitGroup" style="display: none;">
-            <label class="form-label">所属单位<span class="required">*</span></label>
-            <select class="form-select" id="formBelongUnit">
-              <option value="">请选择所属单位</option>
-            </select>
-            <div class="form-hint">科室类型必须选择所属单位</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">上级组织</label>
-            <select class="form-select" id="formParent">
-              <option value="">无（作为根节点）</option>
-            </select>
-            <div class="form-hint" id="parentHint">单位可挂在区或单位下；科室只能挂在单位下</div>
+          <div class="form-row">
+            <div class="form-group" id="formDistrictGroup">
+              <label class="form-label">所属区划<span class="required">*</span></label>
+              <select class="form-select" id="formDistrict">
+                <option value="">请选择所属区划</option>
+                <option value="NS">南山区</option>
+              </select>
+            </div>
+            <div class="form-group" id="formBelongUnitGroup" style="display: none;">
+              <label class="form-label" id="formBelongUnitLabel">所属单位<span class="required">*</span></label>
+              <select class="form-select" id="formBelongUnit">
+                <option value="">请选择所属单位</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">组织类型<span class="required">*</span></label>
+              <select class="form-select" id="formType" onchange="onTypeChange()">
+                <option value="unit">单位</option>
+                <option value="dept">科室</option>
+              </select>
+            </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">状态<span class="required">*</span></label>
-              <select class="form-select" id="formStatus">
-                <option value="enabled">启用</option>
-                <option value="disabled">停用</option>
-              </select>
+              <label class="form-label">名称<span class="required">*</span></label>
+              <input type="text" class="form-input" id="formName" placeholder="请输入名称">
             </div>
+            <div class="form-group">
+              <label class="form-label">负责人</label>
+              <input type="text" class="form-input" id="formResponsiblePerson" placeholder="请输入负责人">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">联系电话</label>
+              <input type="tel" class="form-input" id="formContactPhone" placeholder="请输入联系电话">
+            </div>
+            <div class="form-group">
+              <label class="form-label">邮箱</label>
+              <input type="email" class="form-input" id="formEmail" placeholder="请输入邮箱">
+            </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label class="form-label">排序<span class="required">*</span></label>
               <input type="number" class="form-input" id="formSort" value="1" min="1">
             </div>
+            <div class="form-group">
+              <label class="form-label">状态<span class="required">*</span></label>
+              <label class="form-switch">
+                <input type="checkbox" id="formStatus" onchange="updateStatusSwitchText()" checked>
+                <span class="switch-track"></span>
+                <span class="switch-text" id="formStatusText">启用</span>
+              </label>
+            </div>
           </div>
-          
+          <input type="hidden" id="formParent">
+          <div class="form-hint" id="parentHint" style="display: none;">单位可挂在区或单位下；科室只能挂在单位下</div>
+          <div class="form-group" id="formUnitTypeGroup">
+            <label class="form-label">单位类型<span class="required">*</span></label>
+            <select class="form-select" id="formUnitType">
+              <option value="委办局">委办局</option>
+              <option value="街道办">街道办</option>
+              <option value="督导组">督导组</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+
           <!-- 单位特有：生成账号选项 -->
           <div class="form-group" id="accountOption" style="background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-md);">
             <label class="form-checkbox">
@@ -292,45 +339,65 @@
         status: 'enabled',
         sort: 1,
         parentId: null,
+        districtCode: '440305',
+        sourceType: 'sync',
+        extensionFields: '南山区政府组织根节点；用于挂载区级监管部门和街道办事处',
         account: null,
         children: [
           {
-            id: 'NS-AMB',
-            name: '南山区应急管理局',
+            id: 'NS-TRAFFIC-POLICE',
+            name: '深圳市公安局交通管理支队南山大队',
             type: 'unit',
             status: 'enabled',
             sort: 1,
             parentId: 'NS',
-            account: { username: 'nsamb-admin', status: 'enabled', lastLogin: '2026-04-02 09:30' },
-            children: [
-              { id: 'NS-AMB-01', name: '综合协调科', type: 'dept', status: 'enabled', sort: 1, parentId: 'NS-AMB', account: null, children: [] },
-              { id: 'NS-AMB-02', name: '危化品监管科', type: 'dept', status: 'enabled', sort: 2, parentId: 'NS-AMB', account: null, children: [] },
-              { id: 'NS-AMB-03', name: '基础安全监管科', type: 'dept', status: 'enabled', sort: 3, parentId: 'NS-AMB', account: null, children: [] },
-              { id: 'NS-AMB-04', name: '执法监督科', type: 'dept', status: 'enabled', sort: 4, parentId: 'NS-AMB', account: null, children: [] }
-            ]
+            sourceType: 'sync',
+            extensionFields: '道路交通安全监管协同单位',
+            account: { username: 'nstraffic-admin', status: 'enabled', lastLogin: '2026-04-02 09:30', contact: '李警官', mobile: '138****1001' },
+            children: []
           },
           {
-            id: 'NS-STREET-01',
-            name: '桃源街道办',
+            id: 'NS-AMB',
+            name: '区应急管理局',
             type: 'unit',
             status: 'enabled',
             sort: 2,
             parentId: 'NS',
-            account: { username: 'tyjd-admin', status: 'enabled', lastLogin: '2026-04-01 14:20' },
+            sourceType: 'sync',
+            extensionFields: '重点监管单位；平台侧维护联系人与账号策略',
+            account: { username: 'nsamb-admin', status: 'enabled', lastLogin: '2026-04-02 09:30', contact: '张主任', mobile: '138****1002' },
             children: [
-              { id: 'NS-STREET-01-01', name: '安监科', type: 'dept', status: 'enabled', sort: 1, parentId: 'NS-STREET-01', account: null, children: [] }
+              { id: 'NS-AMB-01', name: '督导检查科', type: 'dept', status: 'enabled', sort: 1, parentId: 'NS-AMB', sourceType: 'sync', extensionFields: '督导检查责任科室', account: null, children: [] },
+              { id: 'NS-AMB-02', name: '综合协调科', type: 'dept', status: 'enabled', sort: 2, parentId: 'NS-AMB', sourceType: 'sync', extensionFields: '综合协调责任科室', account: null, children: [] },
+              { id: 'NS-AMB-03', name: '区三防办', type: 'dept', status: 'enabled', sort: 3, parentId: 'NS-AMB', sourceType: 'sync', extensionFields: '三防协调责任科室', account: null, children: [] },
+              { id: 'NS-AMB-04', name: '安全监管和执法科', type: 'dept', status: 'enabled', sort: 4, parentId: 'NS-AMB', sourceType: 'sync', extensionFields: '安全监管和执法责任科室', account: null, children: [] },
+              { id: 'NS-AMB-05', name: '防灾减灾科', type: 'dept', status: 'enabled', sort: 5, parentId: 'NS-AMB', sourceType: 'sync', extensionFields: '防灾减灾责任科室', account: null, children: [] },
+              { id: 'NS-AMB-06', name: '危化品监管和执法科', type: 'dept', status: 'enabled', sort: 6, parentId: 'NS-AMB', sourceType: 'sync', extensionFields: '危化品监管和执法责任科室', account: null, children: [] }
             ]
           },
-          {
-            id: 'NS-STREET-02',
-            name: '粤海街道办',
-            type: 'unit',
-            status: 'enabled',
-            sort: 3,
-            parentId: 'NS',
-            account: { username: 'yhjd-admin', status: 'disabled', lastLogin: '2026-03-28 10:15' },
-            children: []
-          }
+          { id: 'NS-EEB', name: '市生态环境局南山管理局', type: 'unit', status: 'enabled', sort: 3, parentId: 'NS', sourceType: 'sync', extensionFields: '生态环境监管协同单位', account: { username: 'nseeb-admin', status: 'enabled', lastLogin: '2026-04-01 10:12', contact: '王主任', mobile: '138****1003' }, children: [] },
+          { id: 'NS-EDU', name: '区教育局', type: 'unit', status: 'enabled', sort: 4, parentId: 'NS', sourceType: 'sync', extensionFields: '校园安全监管协同单位', account: { username: 'nsedu-admin', status: 'enabled', lastLogin: '2026-04-01 11:20', contact: '陈主任', mobile: '138****1004' }, children: [] },
+          { id: 'NS-IIT', name: '区工业和信息化局', type: 'unit', status: 'enabled', sort: 5, parentId: 'NS', sourceType: 'sync', extensionFields: '工贸企业监管协同单位', account: { username: 'nsiit-admin', status: 'enabled', lastLogin: '2026-04-01 13:20', contact: '刘主任', mobile: '138****1005' }, children: [] },
+          { id: 'NS-FIRE', name: '区消防救援局', type: 'unit', status: 'enabled', sort: 6, parentId: 'NS', sourceType: 'sync', extensionFields: '消防安全监管协同单位', account: { username: 'nsfire-admin', status: 'enabled', lastLogin: '2026-04-01 14:20', contact: '赵主任', mobile: '138****1006' }, children: [] },
+          { id: 'NS-HOUSING', name: '区住房和建设局', type: 'unit', status: 'enabled', sort: 7, parentId: 'NS', sourceType: 'sync', extensionFields: '建筑施工安全监管协同单位', account: { username: 'nshousing-admin', status: 'enabled', lastLogin: '2026-04-01 15:20', contact: '周主任', mobile: '138****1007' }, children: [] },
+          { id: 'NS-WATER', name: '区水务局', type: 'unit', status: 'enabled', sort: 8, parentId: 'NS', sourceType: 'sync', extensionFields: '水务设施安全监管协同单位', account: { username: 'nswater-admin', status: 'enabled', lastLogin: '2026-04-01 16:20', contact: '吴主任', mobile: '138****1008' }, children: [] },
+          { id: 'NS-COMMERCE', name: '区商务局', type: 'unit', status: 'enabled', sort: 9, parentId: 'NS', sourceType: 'sync', extensionFields: '商贸流通安全监管协同单位', account: { username: 'nscommerce-admin', status: 'enabled', lastLogin: '2026-04-01 17:20', contact: '郑主任', mobile: '138****1009' }, children: [] },
+          { id: 'NS-CULTURE', name: '区文化广电旅游体育局', type: 'unit', status: 'enabled', sort: 10, parentId: 'NS', sourceType: 'sync', extensionFields: '文旅体场所安全监管协同单位', account: { username: 'nsculture-admin', status: 'enabled', lastLogin: '2026-04-02 09:20', contact: '冯主任', mobile: '138****1010' }, children: [] },
+          { id: 'NS-HEALTH', name: '区卫生健康局', type: 'unit', status: 'enabled', sort: 11, parentId: 'NS', sourceType: 'sync', extensionFields: '医疗卫生安全监管协同单位', account: { username: 'nshealth-admin', status: 'enabled', lastLogin: '2026-04-02 10:20', contact: '蒋主任', mobile: '138****1011' }, children: [] },
+          { id: 'NS-URBAN', name: '区城市管理和综合执法局', type: 'unit', status: 'enabled', sort: 12, parentId: 'NS', sourceType: 'sync', extensionFields: '城管执法安全协同单位', account: { username: 'nsurban-admin', status: 'enabled', lastLogin: '2026-04-02 11:20', contact: '沈主任', mobile: '138****1012' }, children: [] },
+          { id: 'NS-MARKET', name: '市场监督管理局南山监管局', type: 'unit', status: 'enabled', sort: 13, parentId: 'NS', sourceType: 'sync', extensionFields: '市场监管安全协同单位', account: { username: 'nsmarket-admin', status: 'enabled', lastLogin: '2026-04-02 12:20', contact: '韩主任', mobile: '138****1013' }, children: [] },
+          { id: 'NS-NANTOU', name: '南头街道办事处', type: 'unit', status: 'enabled', sort: 14, parentId: 'NS', sourceType: 'sync', extensionFields: '街道安全监管责任单位', unitType: '街道办', account: { username: 'nsnantou-admin', status: 'enabled', lastLogin: '2026-04-02 13:20', contact: '杨主任', mobile: '138****1014' }, children: [
+            { id: 'NS-NANTOU-01', name: '安监科', type: 'dept', status: 'enabled', sort: 1, parentId: 'NS-NANTOU', sourceType: 'sync', extensionFields: '街道安监科室', account: null, children: [] }
+          ] },
+          { id: 'NS-NANSHAN-STREET', name: '南山街道办事处', type: 'unit', status: 'enabled', sort: 15, parentId: 'NS', sourceType: 'sync', extensionFields: '街道安全监管责任单位', unitType: '街道办', account: { username: 'nsstreet-admin', status: 'enabled', lastLogin: '2026-04-02 14:20', contact: '朱主任', mobile: '138****1015' }, children: [] },
+          { id: 'NS-XILI', name: '西丽街道办事处', type: 'unit', status: 'enabled', sort: 16, parentId: 'NS', sourceType: 'sync', extensionFields: '街道安全监管责任单位', unitType: '街道办', account: { username: 'nsxili-admin', status: 'enabled', lastLogin: '2026-04-02 15:20', contact: '秦主任', mobile: '138****1016' }, children: [] },
+          { id: 'NS-SHAHE', name: '沙河街道办事处', type: 'unit', status: 'enabled', sort: 17, parentId: 'NS', sourceType: 'sync', extensionFields: '街道安全监管责任单位', unitType: '街道办', account: { username: 'nsshahe-admin', status: 'enabled', lastLogin: '2026-04-02 16:20', contact: '许主任', mobile: '138****1017' }, children: [] },
+          { id: 'NS-SHEKOU', name: '蛇口街道办事处', type: 'unit', status: 'enabled', sort: 18, parentId: 'NS', sourceType: 'sync', extensionFields: '街道安全监管责任单位', unitType: '街道办', account: { username: 'nsshekou-admin', status: 'enabled', lastLogin: '2026-04-02 17:20', contact: '何主任', mobile: '138****1018' }, children: [] },
+          { id: 'NS-ZHAOSHANG', name: '招商街道办事处', type: 'unit', status: 'enabled', sort: 19, parentId: 'NS', sourceType: 'sync', extensionFields: '街道安全监管责任单位', unitType: '街道办', account: { username: 'nszhaoshang-admin', status: 'enabled', lastLogin: '2026-04-03 09:20', contact: '吕主任', mobile: '138****1019' }, children: [] },
+          { id: 'NS-YUEHAI', name: '粵海街道办事处', type: 'unit', status: 'enabled', sort: 20, parentId: 'NS', sourceType: 'sync', extensionFields: '街道安全监管责任单位', unitType: '街道办', account: { username: 'nsyuehai-admin', status: 'disabled', lastLogin: '2026-03-28 10:15', contact: '罗主任', mobile: '138****1020' }, children: [] },
+          { id: 'NS-TAOYUAN', name: '桃源街道办事处', type: 'unit', status: 'enabled', sort: 21, parentId: 'NS', sourceType: 'sync', extensionFields: '街道安全监管责任单位', unitType: '街道办', account: { username: 'nsty-admin', status: 'enabled', lastLogin: '2026-04-01 14:20', contact: '高主任', mobile: '138****1021' }, children: [
+            { id: 'NS-TAOYUAN-01', name: '安监科', type: 'dept', status: 'enabled', sort: 1, parentId: 'NS-TAOYUAN', sourceType: 'sync', extensionFields: '街道安监科室', account: null, children: [] }
+          ] }
         ]
       }
     ];
@@ -338,35 +405,64 @@
     let selectedNode = null;
     let isEditing = false;
     let editParentId = null;
+    let addFromNodeType = null;
     
-    // 渲染树
-    function renderTree() {
-      const treeContainer = document.getElementById('orgTree');
-      treeContainer.innerHTML = renderNodes(orgData, 0);
-      bindTreeEvents();
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch];
+      });
     }
-    
-    function renderNodes(nodes, level) {
+
+    function renderTree() {
+      const keyword = document.getElementById('treeSearch') ? document.getElementById('treeSearch').value.trim() : '';
+      const treeContainer = document.getElementById('orgTree');
+      const visibleData = keyword ? filterTree(orgData, keyword) : orgData;
+      treeContainer.innerHTML = visibleData.length ? renderNodes(visibleData, 0, Boolean(keyword)) : '<div style="padding:20px;text-align:center;color:var(--text-tertiary);">未找到匹配组织</div>';
+      bindTreeEvents();
+      if (keyword) expandAll();
+      updateStats();
+    }
+
+    function renderNodes(nodes, level, expandByDefault) {
       let html = '';
       nodes.forEach(node => {
         const hasChildren = node.children && node.children.length > 0;
         const icon = getNodeIcon(node.type);
         const statusClass = node.status === 'enabled' ? 'enabled' : 'disabled';
-        
+        const isActive = selectedNode && selectedNode.id === node.id ? 'active' : '';
+        const expandedClass = expandByDefault && hasChildren ? 'expanded' : '';
+        const showClass = expandByDefault ? 'show' : '';
+
         html += `
-          <div class="tree-node" data-id="${node.id}" style="padding-left: ${12 + level * 20}px">
-            <span class="tree-toggle ${hasChildren ? '' : 'leaf'}" data-id="${node.id}">▶</span>
+          <div class="tree-node ${isActive}" data-id="${node.id}" style="--level:${level}">
+            <span class="tree-toggle ${hasChildren ? expandedClass : 'leaf'}" data-id="${node.id}">▶</span>
             <span class="tree-node-icon">${icon}</span>
-            <span class="tree-node-label">${node.name}</span>
+            <span class="tree-node-label">${escapeHtml(node.name)}</span>
             <span class="tree-node-status ${statusClass}"></span>
           </div>
         `;
-        
+
         if (hasChildren) {
-          html += `<div class="tree-children" data-parent="${node.id}">${renderNodes(node.children, level + 1)}</div>`;
+          html += `<div class="tree-children ${showClass}" data-parent="${node.id}">${renderNodes(node.children, level + 1, expandByDefault)}</div>`;
         }
       });
       return html;
+    }
+
+    function filterTree(nodes, keyword) {
+      const lowerKeyword = keyword.toLowerCase();
+      return nodes.reduce(function(result, node) {
+        const children = node.children ? filterTree(node.children, keyword) : [];
+        const matched = node.name.toLowerCase().includes(lowerKeyword);
+        if (matched || children.length) {
+          result.push(Object.assign({}, node, { children: children }));
+        }
+        return result;
+      }, []);
+    }
+
+    function handleTreeSearch() {
+      renderTree();
     }
     
     function getNodeIcon(type) {
@@ -437,58 +533,153 @@
       }
       return undefined;
     }
-    
+
+    function getNodePath(nodeId) {
+      const path = [];
+      function walk(nodes) {
+        for (const node of nodes) {
+          path.push(node.name);
+          if (node.id === nodeId) return true;
+          if (node.children && walk(node.children)) return true;
+          path.pop();
+        }
+        return false;
+      }
+      walk(orgData);
+      return path;
+    }
+
+    function expandPathToNode(nodeId) {
+      const ids = [nodeId];
+      let parent = findParentNode(orgData, nodeId);
+      while (parent) {
+        ids.push(parent.id);
+        parent = findParentNode(orgData, parent.id);
+      }
+      ids.forEach(function(id) {
+        const toggle = document.querySelector(`.tree-toggle[data-id="${id}"]`);
+        const children = document.querySelector(`.tree-children[data-parent="${id}"]`);
+        if (toggle) toggle.classList.add('expanded');
+        if (children) children.classList.add('show');
+      });
+    }
+
+    function getNodeDistrictId(node) {
+      let current = node;
+      while (current) {
+        if (current.type === 'district') return current.id;
+        current = findParentNode(orgData, current.id);
+      }
+      return '';
+    }
+
+    function getDeptLevel(node) {
+      if (!node || node.type !== 'dept') return '-';
+      let level = 1;
+      let parent = findParentNode(orgData, node.id);
+      while (parent && parent.type === 'dept') {
+        level += 1;
+        parent = findParentNode(orgData, parent.id);
+      }
+      return level;
+    }
+
+    function canAddChild(node) {
+      if (!node) return false;
+      if (node.type === 'district' || node.type === 'unit') return true;
+      return node.type === 'dept' && getDeptLevel(node) < 3;
+    }
+
+    function countNodes(nodes) {
+      return nodes.reduce(function(acc, node) {
+        const childStats = node.children ? countNodes(node.children) : { units: 0, depts: 0, accounts: 0 };
+        return {
+          units: acc.units + childStats.units + (node.type === 'unit' ? 1 : 0),
+          depts: acc.depts + childStats.depts + (node.type === 'dept' ? 1 : 0),
+          accounts: acc.accounts + childStats.accounts + (node.type === 'unit' && node.account ? 1 : 0)
+        };
+      }, { units: 0, depts: 0, accounts: 0 });
+    }
+
+    function updateStats(scopeNode = selectedNode) {
+      const stats = scopeNode ? countNodes([scopeNode]) : countNodes(orgData);
+      document.getElementById('unitCount').textContent = stats.units;
+      document.getElementById('deptCount').textContent = stats.depts;
+      document.getElementById('accountCount').textContent = stats.accounts;
+    }
+
     function renderDetail() {
       const detailBody = document.getElementById('detailBody');
       const detailTitle = document.getElementById('detailTitle');
+      const detailPath = document.getElementById('detailPath');
       const detailActions = document.getElementById('detailActions');
-      
+      updateStats();
+
       if (!selectedNode) {
         detailTitle.textContent = '详情信息';
+        detailPath.textContent = '请在左侧选择组织节点';
         detailActions.style.display = 'none';
         detailBody.innerHTML = '<div class="empty-detail"><div class="empty-icon">🏛️</div><div>请在左侧选择组织节点查看详情</div></div>';
         return;
       }
-      
+
       detailTitle.textContent = selectedNode.name;
+      detailPath.textContent = getNodePath(selectedNode.id).join(' / ');
       detailActions.style.display = 'flex';
-      
-      const typeText = { 'district': '区', 'unit': '单位', 'dept': '科室' }[selectedNode.type];
+      detailActions.querySelector('[data-action="edit"]').style.display = selectedNode.type === 'district' ? 'none' : '';
+      detailActions.querySelector('[data-action="delete"]').style.display = selectedNode.type === 'district' ? 'none' : '';
+      detailActions.querySelector('[data-action="add-child"]').style.display = canAddChild(selectedNode) ? '' : 'none';
+
+      const typeText = { 'district': '区划', 'unit': '单位', 'dept': '科室' }[selectedNode.type];
       const statusText = selectedNode.status === 'enabled' ? '<span class="tag tag-green">启用</span>' : '<span class="tag tag-gray">停用</span>';
       const parent = findParentNode(orgData, selectedNode.id);
-      
+      const sourceText = selectedNode.sourceType === 'manual' ? '手工' : '同步';
+      const unitTypeFieldHtml = selectedNode.type === 'unit'
+        ? `<div class="info-item"><span class="info-label">单位类型</span><span class="info-value">${escapeHtml(selectedNode.unitType || '委办局')}</span></div>`
+        : '';
+      const contactFieldHtml = selectedNode.type === 'district' ? '' : `
+            <div class="info-item"><span class="info-label">负责人</span><span class="info-value">${escapeHtml(selectedNode.responsiblePerson || '-')}</span></div>
+            <div class="info-item"><span class="info-label">联系电话</span><span class="info-value">${escapeHtml(selectedNode.contactPhone || '-')}</span></div>
+            <div class="info-item"><span class="info-label">邮箱</span><span class="info-value">${escapeHtml(selectedNode.email || '-')}</span></div>`;
+
       let html = `
         <div class="info-section">
           <div class="info-section-title">基本信息</div>
           <div class="info-grid">
             <div class="info-item"><span class="info-label">组织类型</span><span class="info-value">${typeText}</span></div>
-            <div class="info-item"><span class="info-label">名称</span><span class="info-value">${selectedNode.name}</span></div>
-            <div class="info-item"><span class="info-label">上级组织</span><span class="info-value">${parent ? parent.name : '无'}</span></div>
+            <div class="info-item"><span class="info-label">名称</span><span class="info-value">${escapeHtml(selectedNode.name)}</span></div>
+            ${unitTypeFieldHtml}
+            ${contactFieldHtml}
+            <div class="info-item"><span class="info-label">上级组织</span><span class="info-value">${parent ? escapeHtml(parent.name) : '无'}</span></div>
             <div class="info-item"><span class="info-label">状态</span><span class="info-value">${statusText}</span></div>
             <div class="info-item"><span class="info-label">排序</span><span class="info-value">${selectedNode.sort}</span></div>
             <div class="info-item"><span class="info-label">下级数量</span><span class="info-value">${selectedNode.children ? selectedNode.children.length : 0}</span></div>
+            <div class="info-item"><span class="info-label">来源</span><span class="info-value">${sourceText}</span></div>
           </div>
         </div>
       `;
-      
-      // 账号信息（仅单位类型显示）
+
       if (selectedNode.type === 'unit') {
         const account = selectedNode.account;
         if (account) {
-          const accountStatus = account.status === 'enabled' 
-            ? '<span class="tag tag-green">启用</span>' 
-            : '<span class="tag tag-gray">停用</span>';
+          const accountChecked = account.status === 'enabled' ? 'checked' : '';
+          const accountStatusText = account.status === 'enabled' ? '启用' : '停用';
           html += `
             <div class="info-section">
-              <div class="info-section-title">超管账号</div>
+              <div class="info-section-title">单位超管账号</div>
               <div class="account-card">
                 <div class="account-info">
                   <div class="account-detail">
-                    <div><strong>账号：</strong>${account.username}</div>
-                    <div style="font-size: var(--font-size-xs); color: var(--text3); margin-top: var(--spacing-xs);">最后登录：${account.lastLogin}</div>
+                    <span class="account-field"><strong>账号：</strong>${escapeHtml(account.username)}</span>
+                    <span class="account-field"><strong>最后登录：</strong>${escapeHtml(account.lastLogin)}</span>
+                    <span class="account-field"><strong>状态：</strong><label class="form-switch account-status-switch">
+                      <input type="checkbox" onchange="toggleAccountStatus()" ${accountChecked}>
+                      <span class="switch-track"></span>
+                      <span class="switch-text">${accountStatusText}</span>
+                    </label></span>
                   </div>
                   <div class="account-actions">
-                    ${accountStatus}
+                    <button class="btn-link" onclick="resetPassword()">重置密码</button>
                   </div>
                 </div>
               </div>
@@ -497,7 +688,7 @@
         } else {
           html += `
             <div class="info-section">
-              <div class="info-section-title">超管账号</div>
+              <div class="info-section-title">单位超管账号</div>
               <div class="account-card" style="text-align: center; color: var(--text3);">
                 暂无账号，<button class="btn-link" onclick="generateAccount()">点击生成</button>
               </div>
@@ -505,35 +696,8 @@
           `;
         }
       }
-      
-      // 科室列表（仅单位类型显示）
-      if (selectedNode.type === 'unit') {
-        const depts = (selectedNode.children || []).filter(c => c.type === 'dept');
-        html += `
-          <div class="info-section">
-            <div class="info-section-title">科室列表（${depts.length}）</div>
-            ${depts.length > 0 ? `
-              <table style="width:100%;border-collapse:collapse;font-size: var(--font-size-sm);">
-                <thead><tr style="background:var(--bg-section);border-bottom:1px solid var(--border-section);">
-                  <th style="padding: var(--spacing-sm) 12px;text-align:left;font-weight:600;color:var(--text-secondary);">科室名称</th>
-                  <th style="padding: var(--spacing-sm) 12px;text-align:left;font-weight:600;color:var(--text-secondary);">状态</th>
-                  <th style="padding: var(--spacing-sm) 12px;text-align:left;font-weight:600;color:var(--text-secondary);">排序</th>
-                </tr></thead>
-                <tbody>
-                  ${depts.map(d => `
-                    <tr style="border-bottom:1px solid var(--bg-secondary);cursor:pointer;" onclick="selectNode('${d.id}')">
-                      <td style="padding: var(--spacing-sm) 12px;color:var(--text-primary);">${d.name}</td>
-                      <td style="padding: var(--spacing-sm) 12px;">${d.status === 'enabled' ? '<span class="tag tag-green">启用</span>' : '<span class="tag tag-gray">停用</span>'}</td>
-                      <td style="padding: var(--spacing-sm) 12px;color:var(--text-secondary);">${d.sort}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            ` : '<div style="text-align:center;color:var(--text-tertiary);padding:20px;">暂无科室</div>'}
-          </div>
-        `;
-      }
-      
+
+
       detailBody.innerHTML = html;
     }
     
@@ -548,15 +712,32 @@
       document.querySelectorAll('.tree-children').forEach(c => c.classList.remove('show'));
     }
     
+    function resetModalState() {
+      document.getElementById('formDistrictGroup').style.display = '';
+      document.getElementById('formDistrict').disabled = false;
+      document.getElementById('formType').disabled = false;
+      addFromNodeType = null;
+    }
+
+    function updateStatusSwitchText() {
+      document.getElementById('formStatusText').textContent = document.getElementById('formStatus').checked ? '启用' : '停用';
+    }
+
     // 弹窗操作
     function showAddModal() {
       isEditing = false;
       editParentId = null;
-      document.getElementById('modalTitle').textContent = '新增组织';
+      resetModalState();
+      document.getElementById('modalTitle').textContent = '新增';
       document.getElementById('formType').value = 'unit';
       document.getElementById('formName').value = '';
-      document.getElementById('formParent').innerHTML = buildParentOptions();
-      document.getElementById('formStatus').value = 'enabled';
+      document.getElementById('formResponsiblePerson').value = '';
+      document.getElementById('formContactPhone').value = '';
+      document.getElementById('formEmail').value = '';
+      document.getElementById('formParent').value = '';
+      document.getElementById('formUnitType').value = '委办局';
+      document.getElementById('formStatus').checked = true;
+      updateStatusSwitchText();
       document.getElementById('formSort').value = '1';
       document.getElementById('formCreateAccount').checked = true;
       document.getElementById('accountOption').style.display = 'block';
@@ -567,50 +748,87 @@
     function showEditModal() {
       if (!selectedNode) return;
       isEditing = true;
-      document.getElementById('modalTitle').textContent = '编辑组织';
+      resetModalState();
+      document.getElementById('modalTitle').textContent = '编辑';
+      document.getElementById('formDistrict').value = getNodeDistrictId(selectedNode) || '';
+      document.getElementById('formDistrict').disabled = true;
       document.getElementById('formType').value = selectedNode.type;
+      document.getElementById('formType').disabled = true;
       document.getElementById('formName').value = selectedNode.name;
-      document.getElementById('formParent').innerHTML = buildParentOptions(selectedNode.id);
-      document.getElementById('formStatus').value = selectedNode.status;
+      document.getElementById('formResponsiblePerson').value = selectedNode.responsiblePerson || '';
+      document.getElementById('formContactPhone').value = selectedNode.contactPhone || '';
+      document.getElementById('formEmail').value = selectedNode.email || '';
+      document.getElementById('formParent').value = selectedNode.parentId || '';
+      document.getElementById('formUnitType').value = selectedNode.unitType || '委办局';
+      document.getElementById('formStatus').checked = selectedNode.status === 'enabled';
+      updateStatusSwitchText();
       document.getElementById('formSort').value = selectedNode.sort;
-      document.getElementById('accountOption').style.display = selectedNode.type === 'unit' ? 'block' : 'none';
+      document.getElementById('accountOption').style.display = 'none';
       document.getElementById('formCreateAccount').checked = false;
       document.getElementById('modal').style.display = 'flex';
       onTypeChange();
+      if (selectedNode.type === 'dept') {
+        const unit = findBelongUnit(selectedNode);
+        if (unit) document.getElementById('formBelongUnit').value = unit.id;
+      }
     }
-    
+
     function showAddChildModal() {
       if (!selectedNode) return;
-      showAddModal();
-      // 设置父节点为当前选中节点
-      document.getElementById('formParent').value = selectedNode.id;
-      // 根据父节点类型限制子节点类型
-      if (selectedNode.type === 'dept') {
-        showToast('科室下不能再添加下级组织', 'warning');
-        closeModal();
+      if (!canAddChild(selectedNode)) {
+        showToast('科室层级最多 3 级', 'warning');
         return;
       }
+      showAddModal();
+      addFromNodeType = selectedNode.type;
+      document.getElementById('modalTitle').textContent = '新增';
+      document.getElementById('formType').value = selectedNode.type === 'dept' ? 'dept' : 'unit';
       onTypeChange();
+      document.getElementById('formParent').value = selectedNode.id;
+      if (selectedNode.type === 'district') {
+        document.getElementById('formDistrict').value = selectedNode.id;
+        document.getElementById('formDistrict').disabled = true;
+        document.getElementById('formType').value = 'unit';
+        document.getElementById('formType').disabled = true;
+      }
+      if (selectedNode.type === 'unit') document.getElementById('formBelongUnit').value = selectedNode.id;
+      if (selectedNode.type === 'dept') {
+        document.getElementById('formBelongUnit').value = selectedNode.id;
+      }
     }
     
     function buildParentOptions(excludeId = null) {
+      const type = document.getElementById('formType') ? document.getElementById('formType').value : 'unit';
       let options = '<option value="">无（作为根节点）</option>';
-      
+
       function addOptions(nodes, level = 0) {
         nodes.forEach(node => {
-          if (node.id !== excludeId) {
+          const canUseAsParent = type === 'unit'
+            ? (node.type === 'district' || node.type === 'unit')
+            : (node.type === 'unit' || (node.type === 'dept' && getDeptLevel(node) < 3));
+          if (node.id !== excludeId && !isNodeInSubtree(findNode(orgData, excludeId), node.id) && canUseAsParent) {
             const prefix = '　'.repeat(level);
             const typeLabel = node.type === 'district' ? '[区]' : node.type === 'unit' ? '[单位]' : '[科室]';
-            options += `<option value="${node.id}">${prefix}${typeLabel} ${node.name}</option>`;
-            if (node.children && node.children.length > 0) {
-              addOptions(node.children, level + 1);
-            }
+            options += `<option value="${node.id}">${prefix}${typeLabel} ${escapeHtml(node.name)}</option>`;
+          }
+          if (node.children && node.children.length > 0) {
+            addOptions(node.children, level + 1);
           }
         });
       }
-      
+
       addOptions(orgData);
       return options;
+    }
+
+    function findBelongUnit(node) {
+      let current = node;
+      while (current) {
+        const parent = findParentNode(orgData, current.id);
+        if (parent && parent.type === 'unit') return parent;
+        current = parent;
+      }
+      return null;
     }
     
     function onTypeChange() {
@@ -618,111 +836,269 @@
       const accountOption = document.getElementById('accountOption');
       const parentSelect = document.getElementById('formParent');
       const parentHint = document.getElementById('parentHint');
+      const districtGroup = document.getElementById('formDistrictGroup');
       const belongUnitGroup = document.getElementById('formBelongUnitGroup');
+      const unitTypeGroup = document.getElementById('formUnitTypeGroup');
+      const belongUnitLabel = document.getElementById('formBelongUnitLabel');
+      const isAddFromOrgNode = !isEditing && (addFromNodeType === 'unit' || addFromNodeType === 'dept');
 
-      // 只有单位类型才显示生成账号选项
-      accountOption.style.display = type === 'unit' ? 'block' : 'none';
+      const currentParent = parentSelect.value;
+      parentSelect.value = currentParent;
 
-      // 科室类型显示所属单位选择
+      districtGroup.style.display = isEditing || isAddFromOrgNode ? 'none' : '';
+      unitTypeGroup.style.display = type === 'unit' ? '' : 'none';
+
+      // 只有新增单位类型才显示生成账号选项
+      accountOption.style.display = !isEditing && type === 'unit' ? 'block' : 'none';
+
+      if (belongUnitLabel) {
+        belongUnitLabel.innerHTML = !isEditing && (addFromNodeType === 'unit' || addFromNodeType === 'dept')
+          ? '上级组织<span class="required">*</span>'
+          : '所属单位<span class="required">*</span>';
+      }
+
       if (belongUnitGroup) {
-        belongUnitGroup.style.display = type === 'dept' ? 'block' : 'none';
-        if (type === 'dept') {
+        belongUnitGroup.style.display = type === 'dept' || isAddFromOrgNode ? '' : 'none';
+        if (type === 'dept' || isAddFromOrgNode) {
           populateBelongUnits();
         }
       }
 
-      // 更新提示文字
       if (type === 'unit') {
-        parentHint.textContent = '单位可挂在区或单位下';
+        parentHint.textContent = '单位可挂在区划、上级单位或科室下';
       } else {
-        parentHint.textContent = '科室只能挂在单位下';
+        parentHint.textContent = '科室可挂在单位或 1-2 级科室下，最多 3 级';
       }
     }
 
     function populateBelongUnits() {
       const select = document.getElementById('formBelongUnit');
       if (!select) return;
-      select.innerHTML = '<option value="">请选择所属单位</option>';
-      orgData.filter(function(o) { return o.type === 'unit'; }).forEach(function(u) {
-        var opt = document.createElement('option');
-        opt.value = u.id;
-        opt.textContent = u.name;
+      select.innerHTML = '<option value="">请选择上级组织</option>';
+
+      function appendOption(node, level) {
+        const prefix = '　'.repeat(level);
+        const typeLabel = node.type === 'unit' ? '[单位]' : '[科室]';
+        const opt = document.createElement('option');
+        opt.value = node.id;
+        opt.textContent = prefix + typeLabel + ' ' + node.name;
         select.appendChild(opt);
-      });
+      }
+
+      function collectDeptOptions(node, level) {
+        const type = document.getElementById('formType').value;
+        if (!node.children) return;
+        node.children.forEach(function(child) {
+          if (child.type === 'dept') {
+            if (type !== 'dept' || getDeptLevel(child) < 3) {
+              appendOption(child, level);
+            }
+            collectDeptOptions(child, level + 1);
+          }
+        });
+      }
+
+      if (!isEditing && selectedNode && (addFromNodeType === 'unit' || addFromNodeType === 'dept')) {
+        const unit = selectedNode.type === 'unit' ? selectedNode : findBelongUnit(selectedNode);
+        if (unit) {
+          appendOption(unit, 0);
+          collectDeptOptions(unit, 1);
+        }
+        return;
+      }
+
+      function collectUnits(nodes, level) {
+        nodes.forEach(function(n) {
+          if (n.type === 'unit') appendOption(n, level);
+          if (n.children && n.children.length > 0) {
+            collectUnits(n.children, n.type === 'unit' ? level + 1 : level);
+          }
+        });
+      }
+      collectUnits(orgData, 0);
     }
     
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
+      resetModalState();
     }
     
     function saveForm() {
       const type = document.getElementById('formType').value;
       const name = document.getElementById('formName').value.trim();
-      const parent = document.getElementById('formParent').value;
-      const status = document.getElementById('formStatus').value;
+      const responsiblePerson = document.getElementById('formResponsiblePerson').value.trim();
+      const contactPhone = document.getElementById('formContactPhone').value.trim();
+      const email = document.getElementById('formEmail').value.trim();
+      const hiddenParentId = document.getElementById('formParent').value;
+      const belongUnitGroup = document.getElementById('formBelongUnitGroup');
+      const selectedUnitId = belongUnitGroup.style.display === 'none' ? '' : document.getElementById('formBelongUnit').value;
+      const selectedDistrictId = document.getElementById('formDistrict').value;
+      const parentId = isEditing
+        ? hiddenParentId
+        : (selectedUnitId || hiddenParentId || selectedDistrictId);
+      const status = document.getElementById('formStatus').checked ? 'enabled' : 'disabled';
       const sort = parseInt(document.getElementById('formSort').value) || 1;
+      const unitType = type === 'unit' ? document.getElementById('formUnitType').value : '';
       const createAccount = document.getElementById('formCreateAccount').checked;
-      
+
       if (!name) {
         showToast('请输入名称', 'warning');
         return;
       }
-      
-      // 模拟保存
-      const action = isEditing ? '编辑' : '新增';
-      let message = `${action}成功！\n\n类型：${type === 'unit' ? '单位' : '科室'}\n名称：${name}\n状态：${status === 'enabled' ? '启用' : '停用'}`;
-      
-      if (type === 'unit' && createAccount && !isEditing) {
-        message += '\n\n已自动生成超管账号，密码将通过短信发送';
+
+      const parentNode = parentId ? findNode(orgData, parentId) : null;
+      if (type === 'unit' && (!parentNode || (parentNode.type !== 'district' && parentNode.type !== 'unit' && parentNode.type !== 'dept'))) {
+        showToast('单位必须挂在区划、上级单位或科室下', 'warning');
+        return;
       }
-      
-      showToast(message.replace(/\n/g, ' '), 'success');
+      if (type === 'dept' && (!parentNode || (parentNode.type !== 'unit' && parentNode.type !== 'dept'))) {
+        showToast('科室必须挂在单位或上级科室下', 'warning');
+        return;
+      }
+      if (type === 'dept' && parentNode && parentNode.type === 'dept' && getDeptLevel(parentNode) >= 3) {
+        showToast('科室层级最多 3 级', 'warning');
+        return;
+      }
+      if (isEditing && parentId !== (selectedNode.parentId || '')) {
+        showToast('本页面不支持调整组织层级', 'warning');
+        return;
+      }
+      if (hasSiblingName(parentNode ? parentNode.children : orgData, name, isEditing ? selectedNode.id : null)) {
+        showToast('同级组织名称已存在', 'warning');
+        return;
+      }
+
+      if (isEditing && selectedNode) {
+        selectedNode.name = name;
+        selectedNode.responsiblePerson = responsiblePerson;
+        selectedNode.contactPhone = contactPhone;
+        selectedNode.email = email;
+        selectedNode.unitType = unitType;
+        selectedNode.status = status;
+        selectedNode.sort = sort;
+        showToast('编辑成功', 'success');
+      } else {
+        const id = (parentId || 'ROOT') + '-' + Date.now().toString().slice(-5);
+        const newNode = {
+          id: id,
+          name: name,
+          type: type,
+          responsiblePerson: responsiblePerson,
+          contactPhone: contactPhone,
+          email: email,
+          unitType: unitType,
+          status: status,
+          sort: sort,
+          parentId: parentId || null,
+          sourceType: 'manual',
+          extensionFields: '平台手工维护',
+          account: type === 'unit' && createAccount ? {
+            username: id.toLowerCase().replace(/-/g, '') + '-admin',
+            status: 'enabled',
+            lastLogin: '从未登录',
+            contact: '待维护',
+            mobile: ''
+          } : null,
+          children: []
+        };
+        if (parentNode) {
+          parentNode.children = parentNode.children || [];
+          parentNode.children.push(newNode);
+        } else {
+          orgData.push(newNode);
+        }
+        selectedNode = newNode;
+        showToast(type === 'unit' && createAccount ? '新增成功，已生成单位超管账号' : '新增成功', 'success');
+      }
+
       closeModal();
+      renderTree();
+      renderDetail();
+    }
+
+    function hasSiblingName(nodes, name, excludeId) {
+      return (nodes || []).some(function(node) {
+        return node.id !== excludeId && node.name === name;
+      });
+    }
+
+    function isNodeInSubtree(root, nodeId) {
+      if (!root || !root.children) return false;
+      return root.children.some(function(child) {
+        return child.id === nodeId || isNodeInSubtree(child, nodeId);
+      });
     }
     
     function deleteNode() {
       if (!selectedNode) return;
-      
-      // 检查是否有下级
+
       if (selectedNode.children && selectedNode.children.length > 0) {
-        showToast('该组织下有下级组织，请先删除下级组织', 'warning');
+        showToast('该组织下有子组织，请先处理子组织', 'warning');
         return;
       }
-      
+      if (selectedNode.userCount && selectedNode.userCount > 0) {
+        showToast('该组织下有用户，请先移除用户', 'warning');
+        return;
+      }
+      if (selectedNode.businessRefs && selectedNode.businessRefs > 0) {
+        showToast('该组织存在业务引用，建议停用后保留历史数据', 'warning');
+        return;
+      }
+      if (selectedNode.type === 'unit' && selectedNode.account) {
+        showToast('该单位已生成超管账号，不允许删除，请停用组织节点', 'warning');
+        return;
+      }
+
       if (confirm(`确定要删除"${selectedNode.name}"吗？`)) {
-        showToast('删除成功', 'success');
+        removeNode(orgData, selectedNode.id);
         selectedNode = null;
+        renderTree();
         renderDetail();
+        showToast('删除成功', 'success');
       }
     }
-    
+
+    function removeNode(nodes, id) {
+      const index = nodes.findIndex(function(node) { return node.id === id; });
+      if (index >= 0) {
+        nodes.splice(index, 1);
+        return true;
+      }
+      return nodes.some(function(node) {
+        return node.children && removeNode(node.children, id);
+      });
+    }
+
     function generateAccount() {
       if (!selectedNode || selectedNode.type !== 'unit') return;
-      
+      if (selectedNode.account) {
+        showToast('该单位已生成超管账号', 'warning');
+        return;
+      }
       const username = selectedNode.id.toLowerCase().replace(/-/g, '') + '-admin';
-      showToast('账号生成成功！账号：' + username + '，密码将通过短信发送给联系人', 'success');
-      
-      // 更新显示
       selectedNode.account = {
         username: username,
         status: 'enabled',
-        lastLogin: '从未登录'
+        lastLogin: '从未登录',
+        contact: '待维护',
+        mobile: ''
       };
       renderDetail();
+      updateStats();
+      showToast('账号生成成功！账号：' + username + '，密码将通过短信发送给联系人', 'success');
     }
-    
-    // 从组织树新增用户
-    function addUserFromOrg() {
-      if (!selectedNode || selectedNode.type === 'dept') {
-        showToast('请先选择一个单位节点', 'warning');
-        return;
-      }
-      // 导航到政府用户管理模块
-      if (window.parent && window.parent.goToModule) {
-        window.parent.goToModule('sa-gov-user');
-      } else {
-        showToast('即将跳转到政府用户管理页面');
-      }
+
+
+    function resetPassword() {
+      if (!selectedNode || !selectedNode.account) return;
+      showToast('密码已重置，请通过安全渠道通知用户', 'success');
+    }
+
+    function toggleAccountStatus() {
+      if (!selectedNode || !selectedNode.account) return;
+      selectedNode.account.status = selectedNode.account.status === 'enabled' ? 'disabled' : 'enabled';
+      renderDetail();
+      showToast('账号已' + (selectedNode.account.status === 'enabled' ? '启用' : '停用'), 'success');
     }
 
     function showToast(msg, type) {
@@ -747,15 +1123,13 @@
 
     // 初始化
     renderTree();
-    // 默认展开第一个节点
     setTimeout(() => {
-      const firstToggle = document.querySelector('.tree-toggle:not(.leaf)');
-      if (firstToggle) toggleNode(firstToggle.dataset.id);
+      expandPathToNode('NS');
       selectNode('NS');
     }, 100);
   </script>
 <script>
-(function() { 'use strict'; var CONFIG = { moduleId: 'sa-gov-org', moduleName: '政府组织架构管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+(function() { 'use strict'; var CONFIG = { moduleId: 'sa-gov-org', moduleName: '组织架构管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
 </script>
 <script src="../../js/annotations.js"></script>
 </body>
