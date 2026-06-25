@@ -297,6 +297,74 @@ var ANNOTATIONS_CONFIG = {
       description: '编辑区域名称、排序号和状态。区域编码不可修改。状态改为停用后，该区域下的场所和危险源不影响已有扫码配置，但新增扫码配置时不会自动包含停用区域下的对象。',
       prdRef: '6.4.4.4.3.5 区域编辑'
     }
+  ],
+
+  // ========== 超管端 - 重点场所管理 ==========
+  'super-admin/key-place': [
+    {
+      id: 'sa-kp-001',
+      selector: '#placeModal .modal-header',
+      position: 'top-right',
+      title: '新增/编辑重点场所弹窗',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '弹窗宽度 1100px，按基础信息、关联企业、隐患处置配置、扫码配置、扩展信息分区。各业务区块使用蓝灰层级底与页面背景区分，表格和输入内容保持白底以保证可读性。',
+      prdRef: '6.1.9.3.3 新增/编辑场所弹窗'
+    },
+    {
+      id: 'sa-kp-002',
+      selector: '#placeBasicSection',
+      position: 'top-right',
+      title: '基础信息区块层级',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '基础信息区为弹窗首个区块，场所名称为首项；区块不得使用与弹窗背景冲突的纯白底，需通过浅蓝灰底、边框和标题色条体现层级。',
+      prdRef: '6.1.9.3.3.1 区域一：基础信息'
+    },
+    {
+      id: 'sa-kp-003',
+      selector: '#placeEnterpriseSection',
+      position: 'top-right',
+      title: '关联企业行内编辑',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '关联企业为行内编辑列表，每行维护企业类型、企业名称和扫码/隐患角色复选。外层区块为蓝灰底，表格内容保持白底，避免与背景色冲突同时保障录入可读性。',
+      prdRef: '6.1.9.3.3.1.1 关联企业行内编辑'
+    }
+  ],
+
+  // ========== 政府端 - 重点场所管理 ==========
+  'government/key-place': [
+    {
+      id: 'gov-kp-001',
+      selector: '#placeModal .modal-header',
+      position: 'top-right',
+      title: '新增/编辑重点场所弹窗',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '政府端继承超管端重点场所新增/编辑交互。弹窗业务区块使用蓝灰层级底与页面背景区分，表格和输入内容保持白底以保证可读性。',
+      prdRef: '6.2.13 / 6.1.9.3.3 重点场所新增/编辑'
+    },
+    {
+      id: 'gov-kp-002',
+      selector: '#placeBasicSection',
+      position: 'top-right',
+      title: '基础信息区块层级',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '基础信息区为弹窗首个区块，场所名称为首项；区块不得使用与弹窗背景冲突的纯白底，需通过浅蓝灰底、边框和标题色条体现层级。',
+      prdRef: '6.1.9.3.3.1 区域一：基础信息'
+    },
+    {
+      id: 'gov-kp-003',
+      selector: '#placeEnterpriseSection',
+      position: 'top-right',
+      title: '关联企业行内编辑',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '关联企业为行内编辑列表，每行维护企业类型、企业名称和扫码/隐患角色复选。外层区块为蓝灰底，表格内容保持白底，避免与背景色冲突同时保障录入可读性。',
+      prdRef: '6.1.9.3.3.1.1 关联企业行内编辑'
+    }
   ]
 
 };

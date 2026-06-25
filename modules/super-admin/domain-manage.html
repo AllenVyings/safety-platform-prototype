@@ -282,54 +282,8 @@
     }
 
     /* ========== 监管单位配置 ========== */
-    .supervisor-section {
-      background: var(--bg-section);
-      border: 1px solid var(--border-section);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md);
-      margin-bottom: var(--spacing-md);
-    }
-    .supervisor-title {
-      font-size: var(--font-size-sm);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-md);
-    }
-    .supervisor-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing-sm);
-    }
-    .supervisor-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--spacing-xs);
-      padding: var(--spacing-xs) 10px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-xs);
-      color: var(--text-primary);
-    }
-    .supervisor-tag .remove {
-      color: var(--text-tertiary);
-      cursor: pointer;
-    }
-    .supervisor-tag .remove:hover {
-      color: var(--danger);
-    }
-    .supervisor-add {
-      padding: var(--spacing-xs) 10px;
-      border: 1px dashed var(--border);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-xs);
-      color: var(--primary);
-      cursor: pointer;
-      background: var(--bg-primary);
-    }
-    .supervisor-add:hover {
-      border-color: var(--primary);
-      background: var(--primary-light);
+    .supervisor-empty {
+      border-top: 1px solid var(--border-light);
     }
 
     /* ========== 模式选择 ========== */
@@ -509,10 +463,11 @@
     .supervisor-table-wrap {
       border: 1px solid var(--border-section);
       border-radius: var(--radius-lg);
+      min-height: 120px;
+      overflow: hidden;
     }
     .supervisor-table {
       width: 100%;
-      table-layout: fixed;
       border-collapse: collapse;
     }
     .supervisor-table th {
@@ -529,13 +484,28 @@
       font-size: var(--font-size-sm);
       color: var(--text-primary);
       border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
     }
-    .supervisor-table th:nth-child(3),
-    .supervisor-table td:nth-child(3) {
-      width: 180px;
-      max-width: 180px;
+    .supervisor-table .type-col,
+    .supervisor-table .type-cell {
+      white-space: nowrap;
+    }
+    .supervisor-table .name-cell {
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .supervisor-table .local-name-cell {
+      white-space: normal;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+    .supervisor-table .local-name-item {
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .supervisor-table .action-col {
+      text-align: center;
       white-space: nowrap;
     }
     .supervisor-table tbody tr:last-child td {
@@ -543,6 +513,9 @@
     }
     .supervisor-table tbody tr:hover {
       background: var(--bg-hover);
+    }
+    .supervisor-table .btn-link + .btn-link {
+      margin-left: var(--spacing-sm);
     }
     .text-gray {
       color: var(--text-tertiary);
@@ -558,6 +531,17 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
+    }
+    .section-header .section-title {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .section-header .section-title::before {
+      top: 50%;
+      transform: translateY(-50%);
     }
     .checklist-table-wrap {
       border: 1px solid var(--border-section);
@@ -1746,8 +1730,6 @@
         <span class="table-toolbar-title">领域小类列表</span>
         <div class="table-toolbar-actions">
           <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 新增领域小类</button>
-          <button class="btn btn-default btn-sm" onclick="showToast('批量导入功能开发中', 'info')">批量导入</button>
-          <button class="btn btn-default btn-sm" onclick="showToast('批量导出功能开发中', 'info')">批量导出</button>
         </div>
       </div>
       <div class="table-wrap">
@@ -1870,28 +1852,31 @@
 
         <!-- 监管单位配置 -->
         <div class="form-section">
-          <div class="section-title">监管单位配置 <span class="section-hint">（选填，可后续配置）</span></div>
-          <div class="supervisor-section">
-            <div class="supervisor-header">
-              <div class="supervisor-title">已配置监管单位</div>
-              <button class="btn btn-primary btn-sm" onclick="showSupervisorModal()">选择监管单位</button>
-            </div>
-            <div class="supervisor-table-wrap">
-              <table class="supervisor-table">
-                <thead>
-                  <tr>
-                    <th style="width:50px">序号</th>
-                    <th style="width:90px">单位类型</th>
-                    <th style="width:180px">单位名称</th>
-                    <th>检查表</th>
-                    <th style="width:100px" class="action-col">操作</th>
-                  </tr>
-                </thead>
-                <tbody id="supervisorTableBody"></tbody>
-              </table>
+          <div class="section-header">
+            <div class="section-title">监管单位配置 <span class="section-hint">（选填，可后续配置）</span></div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="showSupervisorModal()">选择监管单位</button>
+          </div>
+          <div class="supervisor-table-wrap">
+            <table class="supervisor-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th style="width:110px" class="type-col">单位类型</th>
+                  <th>单位名称</th>
+                  <th style="width:220px">检查表</th>
+                  <th style="width:150px" class="action-col">操作</th>
+                </tr>
+              </thead>
+              <tbody id="supervisorTableBody"></tbody>
+            </table>
+            <div class="empty-state supervisor-empty" id="supervisorEmpty" style="display:flex;">
+              <div class="empty-icon">—</div>
+              <div class="empty-text">暂无监管单位配置</div>
+              <div class="empty-hint">点击上方“选择监管单位”按钮添加</div>
             </div>
           </div>
         </div>
+
 
         <!-- 检查表配置 -->
         <div class="form-section">
@@ -2168,6 +2153,7 @@ function showToast(msg, type) {
       // 新增时：属地监管默认全选所有街道
       const supBody = document.getElementById('supervisorTableBody');
       if (supBody) supBody.innerHTML = '';
+      checkSupervisorEmpty();
       addSupervisorsToTable('local', govOrgData.local || []);
       document.getElementById('industryCategory').disabled = false;
     }
@@ -2225,6 +2211,7 @@ function showToast(msg, type) {
       // 监管单位：清空表格，只保留表头，按数据重建
       const supBody = document.getElementById('supervisorTableBody');
       supBody.innerHTML = '';
+      checkSupervisorEmpty();
       // 属地监管单独收集后批量传入
       const localItems = [];
       if (data.supervisors && data.supervisors.length > 0) {
@@ -2494,20 +2481,24 @@ function showToast(msg, type) {
 
     // 选择模式
     function selectMode(element, mode) {
+      const currentMode = document.getElementById('domainMode').value;
       document.querySelectorAll('.mode-option').forEach(el => el.classList.remove('selected'));
       element.classList.add('selected');
       document.getElementById('domainMode').value = mode;
+      const noRadio = document.querySelector('input[name="dynamicFormEnabled"][value="0"]');
+      if (currentMode !== mode && noRadio) {
+        noRadio.checked = true;
+        dfResetState();
+      }
       // 其他模式禁用动态表单
       const dfOptions = document.getElementById('dynamicFormEnabled');
       if (mode === 'other') {
         dfOptions.classList.add('disabled');
-        const noRadio = document.querySelector('input[name="dynamicFormEnabled"][value="0"]');
         if (noRadio) noRadio.checked = true;
-        dfUpdateConfigPanelVisibility();
+        dfResetState();
       } else {
         dfOptions.classList.remove('disabled');
-        // 切换模式时刷新预设板块
-        dfOnModeChange(mode);
+        dfUpdateConfigPanelVisibility();
       }
     }
 
@@ -2613,35 +2604,61 @@ function showToast(msg, type) {
     const industryMap = { IND: '工业制造类', CITY: '城市运行类', CONS: '建设工程类', CHEM: '危险化学品类', TRANS: '交通运输类', COMM: '公共场所类', OTH: '其他类' };
     const industryNameMap = { '工业制造类': 'IND', '城市运行类': 'CITY', '建设工程类': 'CONS', '危险化学品类': 'CHEM', '交通运输类': 'TRANS', '公共场所类': 'COMM', '其他类': 'OTH' };
 
+    const SUPERVISOR_TEST_UNITS = {
+      industry: {
+        iit: { type: 'industry', id: 'industry_NS-IIT', name: '工业和信息化局', checklists: [] },
+        market: { type: 'industry', id: 'industry_NS-MARKET', name: '市场监督管理局', checklists: [] },
+        commerce: { type: 'industry', id: 'industry_NS-COMMERCE', name: '商务局', checklists: [] },
+        emergency: { type: 'industry', id: 'industry_NS-AMB', name: '应急管理局', checklists: [] },
+        housing: { type: 'industry', id: 'industry_NS-HOUSING', name: '住房和建设局', checklists: [] },
+        transport: { type: 'industry', id: 'industry_NS-TRAFFIC-POLICE', name: '深圳市公安局交通管理支队南山大队', checklists: [] }
+      },
+      professional: {
+        iit: { type: 'professional', id: 'professional_NS-IIT', name: '工业和信息化局', checklists: [] },
+        market: { type: 'professional', id: 'professional_NS-MARKET', name: '市场监督管理局', checklists: [] },
+        emergency: { type: 'professional', id: 'professional_NS-AMB', name: '应急管理局', checklists: [] },
+        housing: { type: 'professional', id: 'professional_NS-HOUSING', name: '住房和建设局', checklists: [] },
+        resources: { type: 'professional', id: 'professional_NS-URBAN', name: '城市管理和综合执法局', checklists: [] }
+      },
+      local: {
+        nantou: { type: 'local', id: 'local_NS-NANTOU', name: '南头街道', checklists: [] },
+        nanshan: { type: 'local', id: 'local_NS-NANSHAN-STREET', name: '南山街道', checklists: [] },
+        xili: { type: 'local', id: 'local_NS-XILI', name: '西丽街道', checklists: [] },
+        shahe: { type: 'local', id: 'local_NS-SHAHE', name: '沙河街道', checklists: [] },
+        shekou: { type: 'local', id: 'local_NS-SHEKOU', name: '蛇口街道', checklists: [] }
+      }
+    };
+    const supUnit = (category, key) => ({ ...SUPERVISOR_TEST_UNITS[category][key], checklists: [] });
+
     const domainTableData = [
       // ===== 公共场所类 (COMM) 18项 =====
-      { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', supervisors: [{ type: 'professional', name: '应急管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_002', name: '商业综合体', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '大型商业综合体安全管理', supervisors: [{ type: 'industry', name: '商务局', checklists: [] }, { type: 'professional', name: '应急管理局', checklists: [] }], checklists: [] },
-      { id: 'COMM_003', name: '物业小区', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '住宅物业小区安全管理', supervisors: [{ type: 'professional', name: '住房和建设局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_004', name: '超高层建筑', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '超高层建筑安全管理', supervisors: [{ type: 'professional', name: '住房和建设局', checklists: [] }, { type: 'local', name: '粤海街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_005', name: '文明施工', industry: 'COMM', industryName: '公共场所类', mode: 'project', status: '1', desc: '文明施工安全管理', supervisors: [{ type: 'industry', name: '住房和建设局', checklists: [] }, { type: 'professional', name: '应急管理局', checklists: [] }], checklists: [] },
-      { id: 'COMM_006', name: '"三小"场所（小商店—商场、市场、商店等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '商场、市场、商店等小商店场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_007', name: '"三小"场所（小餐饮（燃气））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '使用燃气的小餐饮场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'professional', name: '住房和建设局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_008', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等小美容休闲场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_009', name: '"三小"场所（小餐饮（仅用电））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '仅使用电力的小餐饮场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_010', name: '"三小"场所（小网吧）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小网吧场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_011', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '汽配、废品、五金、打印等小门店场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_012', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '托幼、晚托班、午休班、培训机构等小型学校幼儿园场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_013', name: '"三小"场所（小型多业态场所）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型多业态混合场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_014', name: '"三小"场所（小型医疗机构—口腔、中医等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '口腔、中医等小型医疗机构安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_015', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小KTV、酒吧、密室逃脱、剧本杀等小歌舞娱乐场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_016', name: '"三小"场所（小生产加工企业）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小生产加工企业场所安全管理', supervisors: [{ type: 'industry', name: '工业和信息化局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_017', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '群租房、公寓、民宿等小旅店场所安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
-      { id: 'COMM_018', name: '"三小"场所（小型游乐场）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型游乐场安全管理', supervisors: [{ type: 'industry', name: '市场监督管理局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', supervisors: [supUnit('professional', 'emergency'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_002', name: '商业综合体', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '大型商业综合体安全管理', supervisors: [supUnit('industry', 'commerce'), supUnit('professional', 'emergency')], checklists: [] },
+      { id: 'COMM_003', name: '物业小区', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '住宅物业小区安全管理', supervisors: [supUnit('professional', 'housing'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_004', name: '超高层建筑', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '超高层建筑安全管理', supervisors: [supUnit('professional', 'housing'), supUnit('local', 'shekou')], checklists: [] },
+      { id: 'COMM_005', name: '文明施工', industry: 'COMM', industryName: '公共场所类', mode: 'project', status: '1', desc: '文明施工安全管理', supervisors: [supUnit('industry', 'housing'), supUnit('professional', 'emergency')], checklists: [] },
+      { id: 'COMM_006', name: '"三小"场所（小商店—商场、市场、商店等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '商场、市场、商店等小商店场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_007', name: '"三小"场所（小餐饮（燃气））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '使用燃气的小餐饮场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('professional', 'housing'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_008', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等小美容休闲场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_009', name: '"三小"场所（小餐饮（仅用电））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '仅使用电力的小餐饮场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_010', name: '"三小"场所（小网吧）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小网吧场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_011', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '汽配、废品、五金、打印等小门店场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_012', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '托幼、晚托班、午休班、培训机构等小型学校幼儿园场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_013', name: '"三小"场所（小型多业态场所）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型多业态混合场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_014', name: '"三小"场所（小型医疗机构—口腔、中医等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '口腔、中医等小型医疗机构安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_015', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小KTV、酒吧、密室逃脱、剧本杀等小歌舞娱乐场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_016', name: '"三小"场所（小生产加工企业）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小生产加工企业场所安全管理', supervisors: [supUnit('industry', 'iit'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_017', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '群租房、公寓、民宿等小旅店场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_018', name: '"三小"场所（小型游乐场）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型游乐场安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
       // ===== 建设工程类 (CONS) 1项 =====
-      { id: 'CONS_001', name: '房屋建设工程', industry: 'CONS', industryName: '建设工程类', mode: 'project', status: '1', desc: '房屋建设工程施工安全管理', supervisors: [{ type: 'industry', name: '住房和建设局', checklists: [] }, { type: 'professional', name: '应急管理局', checklists: [] }], checklists: [] },
+      { id: 'CONS_001', name: '房屋建设工程', industry: 'CONS', industryName: '建设工程类', mode: 'project', status: '1', desc: '房屋建设工程施工安全管理', supervisors: [supUnit('industry', 'housing'), supUnit('professional', 'emergency')], checklists: [] },
       // ===== 交通运输类 (TRANS) 1项 =====
-      { id: 'TRANS_001', name: '劝导路口', industry: 'TRANS', industryName: '交通运输类', mode: 'other', status: '1', desc: '交通安全劝导路口管理', supervisors: [{ type: 'industry', name: '交通运输局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] },
+      { id: 'TRANS_001', name: '劝导路口', industry: 'TRANS', industryName: '交通运输类', mode: 'other', status: '1', desc: '交通安全劝导路口管理', supervisors: [supUnit('industry', 'transport'), supUnit('local', 'nanshan')], checklists: [] },
       // ===== 危险化学品类 (CHEM) 2项 =====
-      { id: 'CHEM_001', name: '加油站', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '加油站安全管理', supervisors: [{ type: 'industry', name: '应急管理局', checklists: [] }, { type: 'professional', name: '市场监督管理局', checklists: [] }], checklists: [] },
-      { id: 'CHEM_002', name: '医药化工', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '0', desc: '医药化工企业安全管理', supervisors: [{ type: 'industry', name: '应急管理局', checklists: [] }, { type: 'professional', name: '工业和信息化局', checklists: [] }], checklists: [] },
+      { id: 'CHEM_001', name: '加油站', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '加油站安全管理', supervisors: [supUnit('industry', 'emergency'), supUnit('professional', 'market')], checklists: [] },
+      { id: 'CHEM_002', name: '医药化工', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '0', desc: '医药化工企业安全管理', supervisors: [supUnit('industry', 'emergency'), supUnit('professional', 'iit')], checklists: [] },
       // ===== 其他类 (OTH) 1项 =====
-      { id: 'OTH_001', name: '危险边坡', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡安全管理', supervisors: [{ type: 'professional', name: '规划和自然资源局', checklists: [] }, { type: 'local', name: '南山街道', checklists: [] }], checklists: [] }
+      { id: 'OTH_001', name: '危险边坡', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡安全管理', supervisors: [supUnit('professional', 'resources'), supUnit('local', 'nanshan')], checklists: [] }
     ];
 
     // 检查库模拟数据
@@ -2659,8 +2676,8 @@ function showToast(msg, type) {
       { id: 'org3', name: '商务局' },
       { id: 'org4', name: '应急管理局' },
       { id: 'org5', name: '住房和建设局' },
-      { id: 'org6', name: '交通运输局' },
-      { id: 'org7', name: '城市管理局' }
+      { id: 'org6', name: '深圳市公安局交通管理支队南山大队' },
+      { id: 'org7', name: '城市管理和综合执法局' }
     ];
     const fallbackGovOrgData = {
       industry: fallbackNonStreetUnits.map(item => ({ ...item, id: `industry_${item.id}`, type: 'industry' })),
@@ -3018,8 +3035,8 @@ function showToast(msg, type) {
           newRow.setAttribute('data-ids', idList);
           newRow.innerHTML = `
             <td>${maxNum}</td>
-            <td><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
-            <td title="${items.map(i => escapeHtml(i.name)).join('、')}">${nameList}</td>
+            <td class="type-cell"><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
+            <td class="local-name-cell" title="${items.map(i => escapeHtml(i.name)).join('、')}">${nameList}</td>
             <td><span class="text-gray">未配置</span></td>
             <td class="action-col">
               <button class="btn-link" onclick="configChecklist('local')">配置检查表</button>
@@ -3049,11 +3066,12 @@ function showToast(msg, type) {
         newRow.setAttribute('data-type', type);
         newRow.innerHTML = `
           <td>${maxNum}</td>
-          <td><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
-          <td title="${safeName}">${safeName}</td>
+          <td class="type-cell"><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
+          <td class="name-cell" title="${safeName}">${safeName}</td>
           <td><span class="text-gray">未配置</span></td>
           <td class="action-col">
             <button class="btn-link" onclick="configChecklist('${safeId}')">配置检查表</button>
+            <button class="btn-link danger" onclick="deleteSupervisorRow(this, '${type}', '${safeId}')">删除</button>
           </td>
         `;
         tbody.appendChild(newRow);
@@ -3070,6 +3088,12 @@ function showToast(msg, type) {
       // 属地监管：从合并行中移除单个街道
       if (type === 'local') {
         const ids = (row.getAttribute('data-ids') || '').split(',').filter(Boolean);
+        if (!id) {
+          selectedSupervisors.local = [];
+          row.remove();
+          updateRowNumbers();
+          return;
+        }
         const remainingIds = ids.filter(i => i !== id);
         if (remainingIds.length === 0) {
           row.remove(); // 最后一项，整行消失
@@ -3099,6 +3123,14 @@ function showToast(msg, type) {
           numCell.textContent = index + 1;
         }
       });
+      checkSupervisorEmpty();
+    }
+
+    function checkSupervisorEmpty() {
+      const tbody = document.getElementById('supervisorTableBody');
+      const emptyState = document.getElementById('supervisorEmpty');
+      if (!tbody || !emptyState) return;
+      emptyState.style.display = tbody.children.length === 0 ? 'flex' : 'none';
     }
 
     // 删除监管单位
@@ -3779,28 +3811,41 @@ function showToast(msg, type) {
       ],
       special: [
         {
-          name: '场所基本信息', type: 'preset', icon: '📍',
+          name: '基础信息', type: 'preset', icon: '🏭',
           presetFields: [
-            { fieldKey: 'site_type', fieldLabel: '场所类型', fieldType: 'select-single', required: true, fieldWidth: 'half' },
-            { fieldKey: 'site_name', fieldLabel: '场所名称', fieldType: 'text', required: true, fieldWidth: 'half' },
-            { fieldKey: 'site_address', fieldLabel: '场所地址', fieldType: 'text', required: true, fieldWidth: 'full' },
-            { fieldKey: 'site_scale', fieldLabel: '场所面积/规模', fieldType: 'text', fieldWidth: 'half' },
-            { fieldKey: 'risk_level', fieldLabel: '风险等级', fieldType: 'select-single', required: true, fieldWidth: 'half' },
-            { fieldKey: 'site_owner', fieldLabel: '场所负责人', fieldType: 'text', required: true, fieldWidth: 'half' },
-            { fieldKey: 'owner_phone', fieldLabel: '联系方式', fieldType: 'text', fieldWidth: 'half' },
-            { fieldKey: 'belong_ent', fieldLabel: '所属企业', fieldType: 'select-single', fieldWidth: 'half' },
-            { fieldKey: 'supervise_freq', fieldLabel: '监管频次（次/月）', fieldType: 'number', fieldWidth: 'half' },
-            { fieldKey: 'supervise_org', fieldLabel: '监管责任单位', fieldType: 'select-single', fieldWidth: 'half' },
-            { fieldKey: 'supervise_person', fieldLabel: '监管责任人', fieldType: 'select-single', fieldWidth: 'half' },
-            { fieldKey: 'site_intro', fieldLabel: '场所简介', fieldType: 'textarea', fieldWidth: 'full' },
-            { fieldKey: 'site_photo', fieldLabel: '场所照片', fieldType: 'image', fieldWidth: 'full' }
+            { fieldKey: 'place_name', fieldLabel: '场所名称', fieldType: 'text', required: true, fieldWidth: 'half' },
+            { fieldKey: 'status', fieldLabel: '状态', fieldType: 'switch', required: true, fieldWidth: 'half' },
+            { fieldKey: 'region', fieldLabel: '所属区划', fieldType: 'region', required: true, fieldWidth: 'half' },
+            { fieldKey: 'detail_address', fieldLabel: '详细地址', fieldType: 'text', required: true, fieldWidth: 'half' },
+            { fieldKey: 'place_images', fieldLabel: '场所图片', fieldType: 'image', fieldWidth: 'full' }
           ]
         },
         {
-          name: '责任人信息', type: 'preset', icon: '👤',
+          name: '关联企业', type: 'preset', icon: '🏢',
           presetFields: [
-            { fieldKey: 'owner_name', fieldLabel: '责任人姓名', fieldType: 'text', required: true, fieldWidth: 'half' },
-            { fieldKey: 'owner_phone', fieldLabel: '联系电话', fieldType: 'text', required: true, fieldWidth: 'half' }
+            { fieldKey: 'enterprise_type', fieldLabel: '企业类型', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'enterprise_name', fieldLabel: '企业名称', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'enterprise_scanner_role', fieldLabel: '扫码责任人', fieldType: 'checkbox', fieldWidth: 'half' },
+            { fieldKey: 'enterprise_hazard_handler_role', fieldLabel: '隐患整改人', fieldType: 'checkbox', fieldWidth: 'half' },
+            { fieldKey: 'enterprise_hazard_reviewer_role', fieldLabel: '隐患复核人', fieldType: 'checkbox', fieldWidth: 'half' }
+          ]
+        },
+        {
+          name: '隐患处置配置', type: 'preset', icon: '⚠️',
+          presetFields: [
+            { fieldKey: 'hazard_handler', fieldLabel: '隐患整改人', fieldType: 'person', required: true, fieldWidth: 'half' },
+            { fieldKey: 'hazard_reviewer', fieldLabel: '隐患复核人', fieldType: 'person', required: true, fieldWidth: 'half' }
+          ]
+        },
+        {
+          name: '扫码配置', type: 'preset', icon: '📱',
+          presetFields: [
+            { fieldKey: 'scan_resp_type', fieldLabel: '责任类型', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'scan_resp_subject', fieldLabel: '责任主体', fieldType: 'department', required: true, fieldWidth: 'half' },
+            { fieldKey: 'scan_person', fieldLabel: '扫码责任人', fieldType: 'person', fieldWidth: 'half' },
+            { fieldKey: 'scan_checklist', fieldLabel: '检查表', fieldType: 'select-single', required: true, fieldWidth: 'half' },
+            { fieldKey: 'scan_frequency', fieldLabel: '检查频次', fieldType: 'text', required: true, fieldWidth: 'half' },
+            { fieldKey: 'scan_skip_holiday', fieldLabel: '节假日规则', fieldType: 'switch', fieldWidth: 'half' }
           ]
         }
       ]
@@ -4507,7 +4552,7 @@ function showToast(msg, type) {
     }
 
     // 控制面板显示/隐藏
-    function dfUpdateConfigPanelVisibility() {
+    function dfUpdateConfigPanelVisibility(resetPresets = false) {
       const enabled = document.querySelector('input[name="dynamicFormEnabled"]:checked')?.value === '1';
       const section = document.getElementById('dynamicFormSection');
       const panel = document.getElementById('dynamicFormConfig');
@@ -4515,8 +4560,9 @@ function showToast(msg, type) {
       if (enabled) {
         section.style.display = '';
         panel.classList.add('active');
-        // 每次启用都重新初始化预设板块
-        dfInitPresetSections();
+        if (resetPresets || dfState.sections.length === 0) {
+          dfInitPresetSections();
+        }
         dfRenderSummary();
       } else {
         section.style.display = 'none';
@@ -4732,10 +4778,9 @@ function showToast(msg, type) {
         el.classList.remove('error');
       }
     }
-    function dfInitPresetSections() {
-      const mode = document.getElementById('domainMode').value;
+    function dfBuildPresetSections(mode) {
       const presets = DF_PRESET_SECTIONS[mode] || [];
-      dfState.sections = presets.map(p => ({
+      return presets.map(p => ({
         id: dfGenId('sec'),
         name: p.name,
         type: 'preset',
@@ -4758,6 +4803,10 @@ function showToast(msg, type) {
           isLocked: false
         }))
       }));
+    }
+    function dfInitPresetSections() {
+      const mode = document.getElementById('domainMode').value;
+      dfState.sections = dfBuildPresetSections(mode);
     }
     // 切换模式时若动态表单已启用，刷新预设板块（保留自定义板块与字段）
     function dfOnModeChange(mode) {
@@ -4808,6 +4857,8 @@ function showToast(msg, type) {
       if (panel) panel.classList.remove('active');
       const section = document.getElementById('dynamicFormSection');
       if (section) section.style.display = 'none';
+      const summary = document.getElementById('dfConfigSummary');
+      if (summary) summary.textContent = '未配置任何字段';
     }
     // 编辑回填
     function dfFillFromData(data) {
@@ -4823,34 +4874,64 @@ function showToast(msg, type) {
       if (data.formSections && data.formSections.length > 0) {
         // 找出当前 mode 的预设配置（用于回填 icon/emptyHint）
         const mode = data.mode || 'basic';
-        const presetMap = Object.fromEntries((DF_PRESET_SECTIONS[mode] || []).map(p => [p.name, p]));
-        dfState.sections = data.formSections.map(s => {
-          const secFields = (data.formFields || []).filter(f => f.sectionId === s.id);
-          const preset = presetMap[s.name];
-          return {
-            id: s.id || dfGenId('sec'),
-            name: s.name,
-            type: s.type,
-            icon: preset?.icon || (s.type === 'preset' ? '📋' : '🗂️'),
-            emptyHint: preset?.emptyHint || '拖入左侧字段类型至此',
-            collapsed: false,
-            fields: secFields.map(f => ({
-              id: f.id || dfGenId('fld'),
-              fieldKey: f.fieldKey,
-              fieldLabel: f.fieldLabel,
-              fieldType: f.fieldType,
-              required: !!f.required,
-              placeholder: f.placeholder || '',
-              defaultValue: f.defaultValue || '',
-              validationRules: f.validationRules || '',
-              options: f.options || '',
-              fieldWidth: f.fieldWidth || 'half',
-              uniqueCheck: !!f.uniqueCheck,
-              helpText: f.helpText || '',
-              isLocked: !!f.isLocked
-            }))
-          };
-        });
+        if (mode === 'special') {
+          const customSections = (data.formSections || []).filter(s => s.type === 'custom').map(s => {
+            const secFields = (data.formFields || []).filter(f => f.sectionId === s.id);
+            return {
+              id: s.id || dfGenId('sec'),
+              name: s.name,
+              type: s.type,
+              icon: '🗂️',
+              emptyHint: '拖入左侧字段类型至此',
+              collapsed: false,
+              fields: secFields.map(f => ({
+                id: f.id || dfGenId('fld'),
+                fieldKey: f.fieldKey,
+                fieldLabel: f.fieldLabel,
+                fieldType: f.fieldType,
+                required: !!f.required,
+                placeholder: f.placeholder || '',
+                defaultValue: f.defaultValue || '',
+                validationRules: f.validationRules || '',
+                options: f.options || '',
+                fieldWidth: f.fieldWidth || 'half',
+                uniqueCheck: !!f.uniqueCheck,
+                helpText: f.helpText || '',
+                isLocked: !!f.isLocked
+              }))
+            };
+          });
+          dfState.sections = [...dfBuildPresetSections(mode), ...customSections];
+        } else {
+          const presetMap = Object.fromEntries((DF_PRESET_SECTIONS[mode] || []).map(p => [p.name, p]));
+          dfState.sections = data.formSections.map(s => {
+            const secFields = (data.formFields || []).filter(f => f.sectionId === s.id);
+            const preset = presetMap[s.name];
+            return {
+              id: s.id || dfGenId('sec'),
+              name: s.name,
+              type: s.type,
+              icon: preset?.icon || (s.type === 'preset' ? '📋' : '🗂️'),
+              emptyHint: preset?.emptyHint || '拖入左侧字段类型至此',
+              collapsed: false,
+              fields: secFields.map(f => ({
+                id: f.id || dfGenId('fld'),
+                fieldKey: f.fieldKey,
+                fieldLabel: f.fieldLabel,
+                fieldType: f.fieldType,
+                required: !!f.required,
+                placeholder: f.placeholder || '',
+                defaultValue: f.defaultValue || '',
+                validationRules: f.validationRules || '',
+                options: f.options || '',
+                fieldWidth: f.fieldWidth || 'half',
+                uniqueCheck: !!f.uniqueCheck,
+                helpText: f.helpText || '',
+                isLocked: !!f.isLocked
+              }))
+            };
+          });
+        }
       } else {
         dfInitPresetSections();
       }
@@ -4860,7 +4941,7 @@ function showToast(msg, type) {
     // 初始化：绑定动态表单单选切换 + ESC 关闭弹窗
     document.addEventListener('DOMContentLoaded', () => {
       const radios = document.querySelectorAll('input[name="dynamicFormEnabled"]');
-      radios.forEach(r => r.addEventListener('change', dfUpdateConfigPanelVisibility));
+      radios.forEach(r => r.addEventListener('change', () => dfUpdateConfigPanelVisibility(true)));
     });
     document.addEventListener('keydown', e => {
       if (e.key !== 'Escape') return;
@@ -5069,6 +5150,7 @@ function showToast(msg, type) {
       // 清空监管单位表格
       const supBody = document.getElementById('supervisorTableBody');
       if (supBody) supBody.innerHTML = '';
+      checkSupervisorEmpty();
       // 清空检查表数据和表格
       window.checklistTableData = [];
       window._checkItems = [];

@@ -457,6 +457,7 @@
     }
     .kp-col { min-width: 0; }
     .kp-field { margin-bottom: var(--spacing-md); }
+    .kp-field-full { grid-column: 1 / -1; }
     .kp-field-label {
       display: block;
       font-size: var(--font-size-sm);
@@ -841,7 +842,7 @@
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="key-place">
+  <div class="module-page page-container" data-module="super-admin/key-place">
 
     <!-- ========== 卡片视图 ========== -->
     <div class="card-view active" id="cardView">
@@ -971,63 +972,56 @@
       </div>
       <div class="modal-body">
         <!-- ===== 双列基础信息 ===== -->
-        <div class="info-section" style="margin-bottom:var(--spacing-lg);">
+        <div class="info-section" id="placeBasicSection" style="margin-bottom:var(--spacing-lg);">
           <div class="section-title"><span class="section-title-text">基础信息</span></div>
           <div class="kp-form-grid">
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>场所名称</label>
+              <input type="text" class="kp-field-input" id="fPlaceName" placeholder="请输入场所名称" maxlength="100">
+            </div>
 
-            <!-- 左列 -->
-            <div class="kp-col">
-              <div class="kp-field">
-                <label class="kp-field-label"><span class="required">*</span>场所名称</label>
-                <input type="text" class="kp-field-input" id="fPlaceName" placeholder="请输入场所名称" maxlength="100">
-              </div>
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>状态</label>
+              <select class="kp-field-select" id="fStatus">
+                <option value="1">启用</option>
+                <option value="0">停用</option>
+              </select>
+            </div>
 
-              <div class="kp-field">
-                <label class="kp-field-label"><span class="required">*</span>所属区划</label>
-                <button type="button" class="kp-region-trigger placeholder" id="fRegionTrigger" onclick="toggleRegionPopover(event)">
-                  <span id="fRegionLabel">请选择所属区划</span>
-                  <span class="arrow">▼</span>
-                </button>
-                <div class="kp-region-popover" id="fRegionPopover" onclick="event.stopPropagation()">
-                  <input type="text" class="kp-region-search" id="fRegionSearch" placeholder="搜索区/街道/社区..." oninput="onRegionSearch()">
-                  <div class="kp-region-cols">
-                    <div class="kp-region-col" id="fRegionColDistrict"></div>
-                    <div class="kp-region-col" id="fRegionColStreet"></div>
-                    <div class="kp-region-col" id="fRegionColCommunity"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="kp-field">
-                <label class="kp-field-label"><span class="required">*</span>详细地址</label>
-                <div class="kp-locate-row">
-                  <input type="text" class="kp-field-input" id="fDetailAddress" placeholder="请输入详细地址" maxlength="200">
-                  <button type="button" class="kp-btn-locate" onclick="openMapModal()">📍 选点</button>
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>所属区划</label>
+              <button type="button" class="kp-region-trigger placeholder" id="fRegionTrigger" onclick="toggleRegionPopover(event)">
+                <span id="fRegionLabel">请选择所属区划</span>
+                <span class="arrow">▼</span>
+              </button>
+              <div class="kp-region-popover" id="fRegionPopover" onclick="event.stopPropagation()">
+                <input type="text" class="kp-region-search" id="fRegionSearch" placeholder="搜索区/街道/社区..." oninput="onRegionSearch()">
+                <div class="kp-region-cols">
+                  <div class="kp-region-col" id="fRegionColDistrict"></div>
+                  <div class="kp-region-col" id="fRegionColStreet"></div>
+                  <div class="kp-region-col" id="fRegionColCommunity"></div>
                 </div>
               </div>
             </div>
 
-            <!-- 右列 -->
-            <div class="kp-col">
-              <div class="kp-field">
-                <label class="kp-field-label"><span class="required">*</span>状态</label>
-                <select class="kp-field-select" id="fStatus">
-                  <option value="1">启用</option>
-                  <option value="0">停用</option>
-                </select>
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>详细地址</label>
+              <div class="kp-locate-row">
+                <input type="text" class="kp-field-input" id="fDetailAddress" placeholder="请输入详细地址" maxlength="200">
+                <button type="button" class="kp-btn-locate" onclick="openMapModal()">📍 选点</button>
               </div>
+            </div>
 
-              <div class="kp-field">
-                <label class="kp-field-label">场所图片</label>
-                <div class="kp-upload-area" id="fImagesArea"></div>
-                <div class="kp-upload-hint">支持 jpg/png，单张不超过 5MB，最多 5 张</div>
-              </div>
+            <div class="kp-field kp-field-full">
+              <label class="kp-field-label">场所图片</label>
+              <div class="kp-upload-area" id="fImagesArea"></div>
+              <div class="kp-upload-hint">支持 jpg/png，单张不超过 5MB，最多 5 张</div>
             </div>
           </div>
         </div>
 
         <!-- ===== 关联企业（N 对多 + 多角色） ===== -->
-        <div class="info-section" style="margin-bottom:var(--spacing-lg);">
+        <div class="info-section" id="placeEnterpriseSection" style="margin-bottom:var(--spacing-lg);">
           <div class="section-title">关联企业</div>
           <table class="kp-inline-table">
             <thead>
@@ -2095,39 +2089,46 @@
       const list = document.getElementById('fScanConfigList');
       if (!list) return;
       const arr = currentFormState.scanConfigs || [];
-      if (!arr.length) {
-        list.innerHTML = '<div class="empty-state" style="padding:16px;border:1px dashed var(--border-base);border-radius:6px;color:var(--text-tertiary);text-align:center;">暂无扫码配置，点击右上「+ 添加扫码配置」新增（可选项，留空表示无定期扫码任务）</div>';
-        return;
-      }
-      list.innerHTML = arr.map((row, idx) => {
+      const rows = arr.length ? arr.map((row, idx) => {
         const respTypeTxt = row.resp_type === 'gov' ? '政府' : '企业';
         const respName = row.resp_name ? escapeHtml(row.resp_name) : '<span style="color:var(--danger);">未指定主体</span>';
         const scannerTxt = escapeHtml(row.scanner_id ? row.scanner_name : '全员');
         const clTxt = row.cl_name ? escapeHtml(row.cl_name) : '<span style="color:var(--danger);">未指定检查表</span>';
         const freq = escapeHtml(row.freq || '未配置频次');
-        const skip = row.skip_holiday ? '<span style="color:var(--success);">过滤节假日</span>' : '不过滤节假日';
+        const skip = row.skip_holiday ? '过滤节假日' : '不过滤节假日';
         return `
-          <div class="kp-scf-card" style="border:1px solid var(--border-base);border-radius:6px;padding:12px 14px;margin-bottom:10px;background:var(--surface);">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
-              <div style="flex:1;min-width:0;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                  <span style="font-size:12px;padding:2px 8px;border-radius:10px;background:${row.resp_type==='gov'?'#e6f4ff':'#f0f5ff'};color:${row.resp_type==='gov'?'#1677ff':'#2f54eb'};">${respTypeTxt}</span>
-                  <span style="font-weight:600;font-size:14px;color:var(--text-primary);">${respName}</span>
-                  <span style="font-size:12px;color:var(--text-secondary);">· 扫码责任人：${scannerTxt}</span>
-                </div>
-                <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
-                  <div>📋 检查表：${clTxt}</div>
-                  <div>⏱ 检查计划：${freq} · ${skip}</div>
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;flex-shrink:0;">
-                <button type="button" class="btn btn-default btn-sm" onclick="editScanConfigItem(${idx})">编辑</button>
-                <button type="button" class="btn btn-default btn-sm" style="color:var(--danger);" onclick="delScanConfigItem(${idx})">删除</button>
-              </div>
-            </div>
-          </div>
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${respTypeTxt}</td>
+            <td>${respName}</td>
+            <td>${scannerTxt}</td>
+            <td>${clTxt}</td>
+            <td>${freq}</td>
+            <td>${skip}</td>
+            <td style="white-space:nowrap;">
+              <button type="button" class="btn btn-default btn-sm" onclick="editScanConfigItem(${idx})">编辑</button>
+              <button type="button" class="btn btn-default btn-sm" style="color:var(--danger);" onclick="delScanConfigItem(${idx})">删除</button>
+            </td>
+          </tr>
         `;
-      }).join('');
+      }).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无扫码配置，点击右上「+ 添加扫码配置」新增</td></tr>';
+      list.innerHTML = `
+        <table class="kp-inline-table">
+          <thead>
+            <tr>
+              <th style="width:52px;">序号</th>
+              <th style="width:80px;">责任类型</th>
+              <th>责任主体</th>
+              <th>扫码责任人</th>
+              <th>检查表</th>
+              <th style="width:130px;">检查频次</th>
+              <th style="width:110px;">节假日规则</th>
+              <th style="width:120px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
     }
 
     function openScanConfigModal(editIdx) {
@@ -2614,29 +2615,30 @@
         : '<div style="color:var(--text-tertiary);font-size:12px;">未关联企业</div>';
 
       const scansHtml = (p.scan_configs || []).length
-        ? (p.scan_configs || []).map(s => {
-          const respTypeTxt = s.resp_type === 'gov' ? '政府' : '企业';
-          const badgeBg = s.resp_type === 'gov' ? '#e6f4ff' : '#f0f5ff';
-          const badgeColor = s.resp_type === 'gov' ? '#1890ff' : '#2f54eb';
-          const scannerTxt = escapeHtml(s.scanner_name && s.scanner_name !== '全员' ? s.scanner_name : '全员');
-          const skipTxt = s.skip_holiday ? '<span style="color:var(--success);">过滤节假日</span>' : '不过滤节假日';
-          return `
-            <div class="kp-scf-card" style="border:1px solid var(--border-base);border-radius:6px;padding:12px 14px;margin-bottom:10px;background:var(--surface);">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-                <div style="min-width:0;flex:1;">
-                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <span style="font-size:12px;padding:2px 8px;border-radius:12px;background:${badgeBg};color:${badgeColor};">${respTypeTxt}</span>
-                    <strong style="font-size:14px;color:var(--text-primary);">${escapeHtml(s.resp_name || '—')}</strong>
-                    <span style="font-size:12px;color:var(--text-tertiary);">扫码责任人：${scannerTxt}</span>
-                  </div>
-                  <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);">
-                    <span>📋 检查表：${escapeHtml(s.cl_name || '—')}</span>
-                    <span>⏱ 检查计划：${escapeHtml(s.freq || '—')} · ${skipTxt}</span>
-                  </div>
-                </div>
-              </div>
-            </div>`;
-        }).join('')
+        ? `<table class="kp-inline-table"><thead><tr>
+            <th style="width:52px;">序号</th>
+            <th style="width:80px;">责任类型</th>
+            <th>责任主体</th>
+            <th>扫码责任人</th>
+            <th>检查表</th>
+            <th style="width:130px;">检查频次</th>
+            <th style="width:110px;">节假日规则</th>
+          </tr></thead><tbody>` +
+          (p.scan_configs || []).map((s, idx) => {
+            const respTypeTxt = s.resp_type === 'gov' ? '政府' : '企业';
+            const scannerTxt = escapeHtml(s.scanner_name && s.scanner_name !== '全员' ? s.scanner_name : '全员');
+            const skipTxt = s.skip_holiday ? '过滤节假日' : '不过滤节假日';
+            return `<tr>
+              <td>${idx + 1}</td>
+              <td>${respTypeTxt}</td>
+              <td>${escapeHtml(s.resp_name || '—')}</td>
+              <td>${scannerTxt}</td>
+              <td>${escapeHtml(s.cl_name || '—')}</td>
+              <td>${escapeHtml(s.freq || '—')}</td>
+              <td>${skipTxt}</td>
+            </tr>`;
+          }).join('') +
+          `</tbody></table>`
         : '<div style="color:var(--text-tertiary);font-size:12px;">未配置扫码任务</div>';
 
       document.getElementById('detailContent').innerHTML = `
@@ -2704,5 +2706,7 @@
     initPlaceData();
     renderDomainCards();
   </script>
+  <script src="../../config/annotations.js?v=20260625-kp-bg"></script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

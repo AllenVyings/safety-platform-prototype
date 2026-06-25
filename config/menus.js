@@ -87,7 +87,7 @@ const MENU_CONFIG = {
       name: '重点场所管理',
       icon: '🏭',
       module: 'super-admin/key-place',
-      path: 'modules/super-admin/key-place.html',
+      path: 'modules/super-admin/key-place.html?v=20260625-layout',
       description: '重点场所信息管理',
       badge: null,
       disabled: false
@@ -97,7 +97,7 @@ const MENU_CONFIG = {
       name: '领域小类管理',
       icon: '🏷️',
       module: 'super-admin/domain-manage',
-      path: 'modules/super-admin/domain-manage.html',
+      path: 'modules/super-admin/domain-manage.html?v=20260625-special-preset',
       description: '配置领域小类与监管单位',
       badge: null,
       disabled: false
