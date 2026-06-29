@@ -698,6 +698,73 @@
     .transfer-item.disabled label {
       cursor: not-allowed;
     }
+    /* 星号标记开关（穿梭框右侧已选列表） */
+    .star-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      user-select: none;
+      flex-shrink: 0;
+      margin-left: 8px;
+      border-radius: 4px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .star-toggle:hover {
+      transform: scale(1.2);
+    }
+    /* disabled 条目内的星号开关仍可交互 */
+    .transfer-item.disabled .star-toggle {
+      cursor: pointer;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .star-toggle.active {
+      color: #d48806;
+      background: #fffbe6;
+    }
+    .star-toggle.inactive {
+      color: #8c8c8c;
+      background: #f5f5f5;
+    }
+    /* 全选可管理按钮 */
+    .star-select-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--primary);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      margin-left: 12px;
+    }
+    .star-select-all:hover {
+      color: var(--primary-hover, #40a9ff);
+    }
+    .star-select-all input {
+      margin: 0;
+      cursor: pointer;
+    }
+    /* 表格内星号标记 */
+    .star-cell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .star-cell.active {
+      color: #d48806;
+    }
+    .star-cell.inactive {
+      color: #8c8c8c;
+    }
     .transfer-actions {
       display: flex;
       flex-direction: column;
@@ -1863,6 +1930,7 @@
                   <th style="width:50px">序号</th>
                   <th style="width:110px" class="type-col">单位类型</th>
                   <th>单位名称</th>
+                  <th style="width:80px">权限</th>
                   <th style="width:220px">检查表</th>
                   <th style="width:150px" class="action-col">操作</th>
                 </tr>
@@ -2011,6 +2079,10 @@
             <div class="transfer-header">
               <span class="transfer-title" id="targetTitle">已选行业主管部门</span>
               <span class="transfer-count" id="selectedCount">共 0 个</span>
+              <label class="star-select-all" id="starSelectAll">
+                <input type="checkbox" id="starSelectAllCheckbox" onchange="toggleAllStars(this)">
+                全选可管理
+              </label>
             </div>
             <div class="transfer-list transfer-list-selected" id="targetList">
               <!-- 已选项 -->
@@ -2073,7 +2145,7 @@
                   <th style="width:50px">序号</th>
                   <th style="width:90px">单位类型</th>
                   <th>单位名称</th>
-                  <th>检查表</th>
+                  <th style="width:80px">权限</th><th>检查表</th>
                 </tr>
               </thead>
               <tbody id="detailSupervisorTableBody">
@@ -2150,6 +2222,7 @@ function showToast(msg, type) {
       document.getElementById('modalTitle').textContent = '新增领域小类';
       document.getElementById('domainModal').classList.add('active');
       resetForm();
+      supervisorMarks = {};
       // 新增时：属地监管默认全选所有街道
       const supBody = document.getElementById('supervisorTableBody');
       if (supBody) supBody.innerHTML = '';
@@ -2211,6 +2284,18 @@ function showToast(msg, type) {
       // 监管单位：清空表格，只保留表头，按数据重建
       const supBody = document.getElementById('supervisorTableBody');
       supBody.innerHTML = '';
+      // 回填标记状态
+      supervisorMarks = {};
+      if (data.supervisors && data.supervisors.length > 0) {
+        data.supervisors.forEach(s => {
+          if (s.marked) {
+            const resolved = resolveSupervisor(s.type, s.name);
+            const resolvedType = resolved.resolvedType || s.type;
+            const resolvedId = resolved.id || s.id;
+            if (resolvedId) supervisorMarks[resolvedType + '_' + resolvedId] = true;
+          }
+        });
+      }
       checkSupervisorEmpty();
       // 属地监管单独收集后批量传入
       const localItems = [];
@@ -2331,11 +2416,15 @@ function showToast(msg, type) {
           const safeId = escapeHtml(resolved.id || s.id || '');
           const safeName = escapeHtml(resolved.name || s.name);
           const resolvedType = resolved.resolvedType || s.type;
+          const isMarked = s.marked ? 'active' : 'inactive';
+          const starChar = s.marked ? '★' : '☆';
+          const starTitle = s.marked ? '可管理' : '仅查看';
           return `
           <tr data-id="${safeId}" data-sup-type="${resolvedType}" data-sup-name="${safeName}">
             <td>${i + 1}</td>
             <td><span class="tag ${typeTagMap[resolvedType]}">${typeNameMap[resolvedType]}</span></td>
             <td>${safeName}</td>
+            <td><span class="star-cell ${isMarked}" title="${starTitle}">${starChar}</span></td>
             <td class="cl-cell">${renderDetailClCell(s)}</td>
           </tr>
         `;
@@ -2777,6 +2866,83 @@ function showToast(msg, type) {
       local: []
     };
 
+    // 监管单位标记状态：{ [type_id]: true } 表示可管理，未记录表示仅查看
+    let supervisorMarks = {};
+
+    // 判断监管单位是否被标记（可管理）
+    function isSupervisorMarked(type, id) {
+      return !!supervisorMarks[type + '_' + id];
+    }
+
+    // 切换监管单位星号标记
+    function toggleSupervisorStar(el) {
+      const type = el.getAttribute('data-type');
+      const id = el.getAttribute('data-id');
+      const key = type + '_' + id;
+      if (supervisorMarks[key]) {
+        delete supervisorMarks[key];
+        el.classList.remove('active');
+        el.classList.add('inactive');
+        el.textContent = '☆';
+        el.title = '仅查看';
+      } else {
+        supervisorMarks[key] = true;
+        el.classList.add('active');
+        el.classList.remove('inactive');
+        el.textContent = '★';
+        el.title = '可管理';
+      }
+      syncStarSelectAllCheckbox();
+    }
+
+    // 全选/全不选可管理标记
+    function toggleAllStars(checkbox) {
+      const currentTab = document.querySelector('#supervisorModal .tab.active');
+      const tabText = currentTab ? currentTab.textContent.trim() : '行业监管';
+      const typeMap = { '行业监管': 'industry', '专业监管': 'professional', '属地监管': 'local' };
+      const type = typeMap[tabText] || 'industry';
+      const stars = document.querySelectorAll('#targetList .star-toggle');
+      const markAll = checkbox.checked;
+      stars.forEach(el => {
+        const elType = el.getAttribute('data-type');
+        if (elType !== type) return;
+        const id = el.getAttribute('data-id');
+        const key = type + '_' + id;
+        if (markAll) {
+          supervisorMarks[key] = true;
+          el.classList.add('active');
+          el.classList.remove('inactive');
+          el.textContent = '★';
+          el.title = '可管理';
+        } else {
+          delete supervisorMarks[key];
+          el.classList.remove('active');
+          el.classList.add('inactive');
+          el.textContent = '☆';
+          el.title = '仅查看';
+        }
+      });
+    }
+
+    // 同步全选复选框状态
+    function syncStarSelectAllCheckbox() {
+      const currentTab = document.querySelector('#supervisorModal .tab.active');
+      const tabText = currentTab ? currentTab.textContent.trim() : '行业监管';
+      const typeMap = { '行业监管': 'industry', '专业监管': 'professional', '属地监管': 'local' };
+      const type = typeMap[tabText] || 'industry';
+      const stars = document.querySelectorAll('#targetList .star-toggle');
+      const typeStars = Array.from(stars).filter(el => el.getAttribute('data-type') === type);
+      const checkbox = document.getElementById('starSelectAllCheckbox');
+      if (typeStars.length === 0) {
+        checkbox.checked = false;
+        checkbox.indeterminate = false;
+      } else {
+        const markedCount = typeStars.filter(el => el.classList.contains('active')).length;
+        checkbox.checked = markedCount === typeStars.length;
+        checkbox.indeterminate = markedCount > 0 && markedCount < typeStars.length;
+      }
+    }
+
     // 过滤左侧待选列表（按搜索关键词）
     function filterSourceList() {
       const keyword = document.getElementById('orgSearch').value.trim();
@@ -2921,10 +3087,12 @@ function showToast(msg, type) {
         targetList.innerHTML = allItems.map(item => {
           const safeId = escapeHtml(item.id);
           const safeName = escapeHtml(item.name);
+          const isMarked = isSupervisorMarked(type, item.id);
           return `
             <div class="transfer-item disabled">
               <input type="checkbox" id="selected_${safeId}" checked disabled>
               <label for="selected_${safeId}">${safeName}</label>
+              <span class="star-toggle ${isMarked ? 'active' : 'inactive'}" data-type="${type}" data-id="${safeId}" title="${isMarked ? '可管理' : '仅查看'}" onclick="toggleSupervisorStar(this)">${isMarked ? '★' : '☆'}</span>
             </div>
           `;
         }).join('');
@@ -2932,16 +3100,19 @@ function showToast(msg, type) {
         targetList.innerHTML = selectedItems.map(item => {
           const safeId = escapeHtml(item.id);
           const safeName = escapeHtml(item.name);
+          const isMarked = isSupervisorMarked(type, item.id);
           return `
             <div class="transfer-item">
               <input type="checkbox" id="selected_${safeId}" data-type="${type}" data-id="${safeId}" data-name="${safeName}" checked onchange="toggleSupervisorFromInput(this)">
               <label for="selected_${safeId}">${safeName}</label>
+              <span class="star-toggle ${isMarked ? 'active' : 'inactive'}" data-type="${type}" data-id="${safeId}" title="${isMarked ? '可管理' : '仅查看'}" onclick="toggleSupervisorStar(this)">${isMarked ? '★' : '☆'}</span>
             </div>
           `;
         }).join('');
       }
 
       updateSelectedCount();
+      syncStarSelectAllCheckbox();
     }
 
     // 自动选中所有街道（属地监管）
@@ -2949,14 +3120,19 @@ function showToast(msg, type) {
       const targetList = document.getElementById('targetList');
       const localOrgs = govOrgData.local || [];
 
-      targetList.innerHTML = localOrgs.map(org => `
+      targetList.innerHTML = localOrgs.map(org => {
+        const isMarked = isSupervisorMarked('local', org.id);
+        return `
         <div class="transfer-item disabled">
           <input type="checkbox" id="selected_${org.id}" checked disabled>
           <label for="selected_${org.id}">${org.name}</label>
+          <span class="star-toggle ${isMarked ? 'active' : 'inactive'}" data-type="local" data-id="${org.id}" title="${isMarked ? '可管理' : '仅查看'}" onclick="toggleSupervisorStar(this)">${isMarked ? '★' : '☆'}</span>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       document.getElementById('selectedCount').textContent = `共 ${localOrgs.length} 个`;
+      syncStarSelectAllCheckbox();
     }
 
     // 移动到右侧（选中）- 已废弃，改用直接勾选
@@ -3030,6 +3206,11 @@ function showToast(msg, type) {
           const maxNum = existingRows.length + 1;
           const nameList = items.map(i => `<span class="local-name-item">${escapeHtml(i.name)}</span>`).join('、');
           const idList = items.map(i => i.id || '').filter(Boolean).map(escapeHtml).join(',');
+          // 属地监管权限列：逐个显示星号
+          const localMarkCells = items.map(i => {
+            const marked = isSupervisorMarked('local', i.id);
+            return `<span class="star-cell ${marked ? 'active' : 'inactive'}" title="${marked ? '可管理' : '仅查看'}">${marked ? '★' : '☆'}</span>`;
+          }).join(' ');
           const newRow = document.createElement('tr');
           newRow.setAttribute('data-type', 'local');
           newRow.setAttribute('data-ids', idList);
@@ -3037,6 +3218,7 @@ function showToast(msg, type) {
             <td>${maxNum}</td>
             <td class="type-cell"><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
             <td class="local-name-cell" title="${items.map(i => escapeHtml(i.name)).join('、')}">${nameList}</td>
+            <td>${localMarkCells}</td>
             <td><span class="text-gray">未配置</span></td>
             <td class="action-col">
               <button class="btn-link" onclick="configChecklist('local')">配置检查表</button>
@@ -3061,6 +3243,7 @@ function showToast(msg, type) {
         maxNum++;
         const safeId = escapeHtml(item.id);
         const safeName = escapeHtml(item.name);
+        const marked = isSupervisorMarked(type, item.id);
         const newRow = document.createElement('tr');
         newRow.setAttribute('data-id', item.id);
         newRow.setAttribute('data-type', type);
@@ -3068,6 +3251,7 @@ function showToast(msg, type) {
           <td>${maxNum}</td>
           <td class="type-cell"><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
           <td class="name-cell" title="${safeName}">${safeName}</td>
+          <td><span class="star-cell ${marked ? 'active' : 'inactive'}" title="${marked ? '可管理' : '仅查看'}">${marked ? '★' : '☆'}</span></td>
           <td><span class="text-gray">未配置</span></td>
           <td class="action-col">
             <button class="btn-link" onclick="configChecklist('${safeId}')">配置检查表</button>
@@ -5067,7 +5251,7 @@ function showToast(msg, type) {
           const localClData = (window._supClData && window._supClData[localKey]) || [];
           localNames.forEach((name, idx) => {
             const supId = localIds[idx] || '';
-            supervisors.push({ type, id: supId, name, checklists: localClData });
+            supervisors.push({ type, id: supId, name, marked: isSupervisorMarked('local', supId), checklists: localClData });
           });
         } else {
           // 行业/专业监管：data-id 为监管单位 ID
@@ -5075,7 +5259,7 @@ function showToast(msg, type) {
           const name = nameCell.textContent.trim();
           const clKey = supId;
           supervisors.push({
-            type, id: supId, name,
+            type, id: supId, name, marked: isSupervisorMarked(type, supId),
             checklists: (window._supClData && window._supClData[clKey]) || []
           });
         }
@@ -5192,6 +5376,7 @@ function showToast(msg, type) {
         case 'supervisor':
           // 关闭监管单位弹窗时：重置穿梭框状态
           window.selectedSupervisors = { industry: [], professional: [], local: [] };
+          supervisorMarks = {};
           window._currentSupClKey = null;
           break;
         case 'checklist':

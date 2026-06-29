@@ -774,6 +774,65 @@
       margin-bottom: 6px;
     }
     .cl-inline-content-row:last-child { margin-bottom: 0; }
+    /* ========== 推荐检查表弹窗 ========== */
+    .recommend-cl-group {
+      border: 1px solid var(--border-section, #e8e8e8);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .recommend-cl-group.selected { border-color: var(--primary); }
+    .recommend-cl-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      cursor: default;
+      transition: background 0.15s;
+    }
+    .recommend-cl-header:hover { background: var(--bg-secondary, #fafafa); }
+    .recommend-cl-master {
+      width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;
+    }
+    .recommend-cl-name {
+      flex: 1; font-size: 13px; color: var(--text-primary); min-width: 0; cursor: pointer;
+    }
+    .recommend-cl-name:hover { color: var(--primary); }
+    .recommend-cl-cnt {
+      font-size: 12px; color: var(--text-tertiary); white-space: nowrap;
+    }
+    .recommend-cl-expand {
+      width: 20px; height: 20px; cursor: pointer; flex-shrink: 0;
+      position: relative;
+    }
+    .recommend-cl-expand::after {
+      content: ''; position: absolute; top: 6px; left: 4px;
+      border: 5px solid transparent; border-top: 6px solid var(--text-tertiary);
+      transition: transform 0.15s;
+    }
+    .recommend-cl-expand.expanded::after { transform: rotate(180deg); }
+    .recommend-cl-items {
+      padding: 0 14px 10px 38px;
+      border-top: 1px dashed var(--border-section, #e8e8e8);
+      background: var(--bg-secondary, #fafafa);
+    }
+    .recommend-cl-item-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .recommend-cl-item-row + .recommend-cl-item-row { border-top: 1px solid var(--border-section, #f0f0f0); }
+    .recommend-cl-item-row input[type="checkbox"] {
+      width: 14px; height: 14px; margin-top: 2px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;
+    }
+    .recommend-cl-item-desc {
+      font-size: 13px; color: var(--text-primary); min-width: 0;
+    }
+    .recommend-cl-item-contents {
+      font-size: 12px; color: var(--text-tertiary); margin-left: auto; white-space: nowrap; flex-shrink: 0;
+    }
 
     /* section title — 与其他模块统一（左侧色条 + 中号粗体） */
     .info-section .section-title {
@@ -1138,14 +1197,15 @@
 
   <!-- ========== 扫码配置弹窗 ========== -->
   <div class="modal-overlay" id="scanConfigModal" style="display:none;">
-    <div class="modal-dialog" style="width:680px; max-height:90vh; overflow-y:auto;">
+    <div class="modal-dialog" style="width:900px; max-height:90vh; overflow-y:auto;">
       <div class="modal-header">
         <span class="modal-title" id="scanConfigModalTitle">添加扫码配置</span>
         <button class="modal-close" onclick="closeScanConfigModal()">&times;</button>
       </div>
       <div class="modal-body">
+        <!-- ===== 基本信息 ===== -->
         <div class="info-section" style="margin-bottom:var(--spacing-md);">
-          <div class="section-title">责任主体</div>
+          <div class="section-title">基本信息</div>
           <div class="kp-form-grid">
             <div class="kp-field">
               <label class="kp-field-label"><span class="required">*</span>责任类型</label>
@@ -1160,51 +1220,53 @@
                 <option value="">请选择</option>
               </select>
             </div>
-          </div>
-          <div class="kp-field">
-            <label class="kp-field-label">扫码责任人</label>
-            <select class="kp-field-select" id="scfScanner">
-              <option value="">全员（责任主体下所有人均可履职）</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="info-section" style="margin-bottom:var(--spacing-md);">
-          <div class="section-title">检查表</div>
-          <div class="kp-field">
-            <label class="kp-field-label"><span class="required">*</span>检查表</label>
-            <div style="display:flex; gap:8px; align-items:stretch;">
-              <select class="kp-field-select" id="scfClId" style="flex:1;" onchange="onScfClIdChange()">
-                <option value="">请选择检查表</option>
+            <div class="kp-field">
+              <label class="kp-field-label">扫码责任人</label>
+              <select class="kp-field-select" id="scfScanner">
+                <option value="">全员（责任主体下所有人均可履职）</option>
               </select>
-              <button type="button" class="btn btn-default btn-sm" onclick="openKpChecklistFromScf()">+ 新增检查表</button>
             </div>
-            <div id="scfClHint" style="font-size:12px;color:var(--text-tertiary);margin-top:6px;">支持从检查库引用，或新建场所专属检查表</div>
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>检查频次</label>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <span style="font-size:12px;color:var(--text-secondary);">每</span>
+                <input type="number" class="kp-field-input" id="scfInterval" value="1" min="1" style="width:70px;">
+                <select class="kp-field-select" id="scfUnit" style="width:100px;">
+                  <option value="day">日</option>
+                  <option value="week" selected>周</option>
+                  <option value="month">月</option>
+                  <option value="quarter">季</option>
+                  <option value="year">年</option>
+                </select>
+                <span style="font-size:12px;color:var(--text-secondary);">检查</span>
+                <input type="number" class="kp-field-input" id="scfTimes" value="1" min="1" style="width:70px;">
+                <span style="font-size:12px;color:var(--text-secondary);">次</span>
+              </div>
+            </div>
+            <div class="kp-field">
+              <label class="kp-field-label">跳过节假日</label>
+              <div style="display:flex;gap:16px;align-items:center;">
+                <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;"><input type="radio" name="scfSkipHoliday" value="false" checked> 否</label>
+                <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;"><input type="radio" name="scfSkipHoliday" value="true"> 是</label>
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- ===== 检查内容配置 ===== -->
         <div class="info-section">
-          <div class="section-title">检查计划</div>
-          <div class="kp-field">
-            <label class="kp-field-label"><span class="required">*</span>检查频次</label>
-            <div style="display:flex;gap:6px;align-items:center;">
-              <span style="font-size:12px;color:var(--text-secondary);">每</span>
-              <input type="number" class="kp-field-input" id="scfInterval" value="1" min="1" style="width:70px;">
-              <select class="kp-field-select" id="scfUnit" style="width:100px;">
-                <option value="day">日</option>
-                <option value="week" selected>周</option>
-                <option value="month">月</option>
-              </select>
-              <span style="font-size:12px;color:var(--text-secondary);">检查 1 次</span>
-            </div>
+          <div class="section-title">
+            <span class="section-title-text">检查内容配置</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="openRecommendClModal()">推荐检查表</button>
+            <button type="button" class="btn btn-default btn-sm" onclick="addScfCheckItem()">+ 新增检查项</button>
           </div>
           <div class="kp-field">
-            <label class="kp-field-label">跳过节假日</label>
-            <select class="kp-field-select" id="scfSkipHoliday">
-              <option value="false">否</option>
-              <option value="true">是</option>
-            </select>
-            <div style="font-size:12px;color:var(--text-tertiary);margin-top:6px;">开启后，节假日不发起检查任务，顺延至节后</div>
+            <div id="scfCheckItems"></div>
+            <div class="empty-state" id="scfCheckEmpty" style="display:none;padding:24px 0;">
+              <div class="empty-state-text">暂无检查内容，请选择推荐检查表或手动新增</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1215,37 +1277,20 @@
     </div>
   </div>
 
-  <!-- ========== 新增检查表弹窗（复用 §6.1.5 简化版） ========== -->
-  <div class="modal-overlay" id="kpChecklistModal" style="display:none;">
-    <div class="modal-dialog" style="width:900px; max-height:90vh; overflow-y:auto;">
+  <!-- ========== 推荐检查表弹窗 ========== -->
+  <div class="modal-overlay" id="recommendClModal" style="display:none;">
+    <div class="modal-dialog" style="width:640px;max-height:80vh;overflow-y:auto;">
       <div class="modal-header">
-        <span class="modal-title" id="kpChecklistTitle">新增检查表</span>
-        <button class="modal-close" onclick="closeKpChecklistModal()">&times;</button>
+        <span class="modal-title">推荐检查表</span>
+        <button class="modal-close" onclick="closeRecommendClModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="info-section" style="margin-bottom:var(--spacing-md);">
-          <div class="section-title">基础信息</div>
-          <div class="kp-field">
-            <label class="kp-field-label"><span class="required">*</span>检查表名称</label>
-            <input type="text" class="kp-field-input" id="kpClName" placeholder="如：充电桩日常检查表" maxlength="100">
-          </div>
-        </div>
-
-        <div class="info-section">
-          <div class="section-title">
-            <span class="section-title-text">检查内容</span>
-            <button type="button" class="btn btn-primary btn-sm" onclick="addKpChecklistItem()">+ 新增检查项</button>
-          </div>
-          <div id="kpClItemList" style="margin-top:12px;"></div>
-          <div class="empty-state" id="kpClEmpty" style="display:none;">
-            <div class="empty-state-icon">📋</div>
-            <div class="empty-state-text">暂无检查内容，请新增</div>
-          </div>
-        </div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">勾选需要引用的检查表，确认后检查内容将合并到检查内容配置中</div>
+        <div id="recommendClList"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeKpChecklistModal()">取消</button>
-        <button class="btn btn-primary" onclick="saveKpChecklist()">保存</button>
+        <button class="btn btn-default" onclick="closeRecommendClModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmRecommendCl()">确认</button>
       </div>
     </div>
   </div>
@@ -1317,11 +1362,24 @@
       { id: 'gov_3', name: '南山区市场监督管理局', persons: [{id:'gp_3_1',name:'石磊'},{id:'gp_3_2',name:'熊倩'}] }
     ];
     const CHECKLIST_LIB = [
-      { id: 'cl_lib_1', name: '充电桩日常安全检查表' },
-      { id: 'cl_lib_2', name: '消防设施巡查表' },
-      { id: 'cl_lib_3', name: '高层建筑外立面检查表' },
-      { id: 'cl_lib_4', name: '边坡稳定性巡查表' },
-      { id: 'cl_lib_5', name: '电气线路检查表' }
+      { id: 'cl_lib_1', name: '充电桩日常安全检查表', items: [
+        { id: 'i1_1', desc: '充电桩本体', contents: [{ name: '外观完好无破损', standard: '无裂纹、无变形' }, { name: '充电接口无松动', standard: '插拔力≤50N' }] },
+        { id: 'i1_2', desc: '电气安全', contents: [{ name: '漏电保护器有效', standard: '动作电流≤30mA' }, { name: '接地电阻合格', standard: '≤4Ω' }] }
+      ]},
+      { id: 'cl_lib_2', name: '消防设施巡查表', items: [
+        { id: 'i2_1', desc: '灭火器', contents: [{ name: '压力表在绿区', standard: '1.0~1.4MPa' }, { name: '有效期未过', standard: '5年内' }] },
+        { id: 'i2_2', desc: '消防通道', contents: [{ name: '通道畅通无堵塞', standard: '宽度≥1.2m' }] }
+      ]},
+      { id: 'cl_lib_3', name: '高层建筑外立面检查表', items: [
+        { id: 'i3_1', desc: '外墙饰面', contents: [{ name: '无脱落风险', standard: '空鼓率<5%' }, { name: '幕墙胶缝完好', standard: '无开裂' }] }
+      ]},
+      { id: 'cl_lib_4', name: '边坡稳定性巡查表', items: [
+        { id: 'i4_1', desc: '坡体表面', contents: [{ name: '无新增裂缝', standard: '裂缝宽度<2mm' }, { name: '排水沟畅通', standard: '无淤积' }] }
+      ]},
+      { id: 'cl_lib_5', name: '电气线路检查表', items: [
+        { id: 'i5_1', desc: '配电箱', contents: [{ name: '箱体完好上锁', standard: '锁具有效' }, { name: '标识清晰', standard: '回路标识完整' }] },
+        { id: 'i5_2', desc: '线缆', contents: [{ name: '无老化破损', standard: '绝缘电阻≥0.5MΩ' }] }
+      ]}
     ];
 
     // ========== 重点场所模拟数据（按领域小类分组） ==========
@@ -2083,7 +2141,202 @@
     }
 
     // ========== 扫码配置（弹窗式配置 + 列表回显） ==========
-    let scfState = { editIdx: -1 };
+    let scfState = { editIdx: -1, referencedCls: [], checkItems: [] };
+
+    // 推荐检查表弹窗
+    // recommendClSelection: { clId, selectedItemIds:[] }[] — 每个检查表选了哪些检查项
+    let recommendClSelection = [];
+    let recommendClExpanded = {}; // clId → true/false
+
+    function openRecommendClModal() {
+      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
+      // 初始选中 = 当前已引用的检查项（按 sourceClId 分组）
+      recommendClSelection = [];
+      recommendClExpanded = {};
+      const grouped = {};
+      scfState.checkItems.forEach(it => {
+        if (it.sourceClId) {
+          if (!grouped[it.sourceClId]) grouped[it.sourceClId] = [];
+          grouped[it.sourceClId].push(it.sourceItemId);
+        }
+      });
+      allCl.forEach(cl => {
+        const selItemIds = grouped[cl.id] || [];
+        if (selItemIds.length || scfState.referencedCls.some(c => c.id === cl.id)) {
+          recommendClSelection.push({ clId: cl.id, selectedItemIds: selItemIds.length ? selItemIds.slice() : (cl.items || []).map(it => it.id) });
+        }
+        recommendClExpanded[cl.id] = false;
+      });
+      renderRecommendClList();
+      document.getElementById('recommendClModal').style.display = 'flex';
+    }
+
+    function closeRecommendClModal() {
+      document.getElementById('recommendClModal').style.display = 'none';
+    }
+
+    function renderRecommendClList() {
+      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
+      const listEl = document.getElementById('recommendClList');
+      if (!allCl.length) {
+        listEl.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);padding:24px;">暂无可选检查表</div>';
+        return;
+      }
+      listEl.innerHTML = allCl.map(cl => {
+        const sel = recommendClSelection.find(s => s.clId === cl.id);
+        const hasSelection = !!sel;
+        const allItemIds = (cl.items || []).map(it => it.id);
+        const allChecked = hasSelection && sel.selectedItemIds.length === allItemIds.length && allItemIds.length > 0;
+        const someChecked = hasSelection && sel.selectedItemIds.length > 0 && !allChecked;
+        const source = CHECKLIST_LIB.some(l => l.id === cl.id) ? '库' : '专属';
+        const expanded = recommendClExpanded[cl.id];
+        const itemCnt = allItemIds.length;
+
+        let itemsHtml = '';
+        if (expanded && cl.items && cl.items.length) {
+          itemsHtml = '<div class="recommend-cl-items">' +
+            cl.items.map(it => {
+              const itemChecked = hasSelection && sel.selectedItemIds.includes(it.id);
+              const contentStr = (it.contents || []).map(c => c.name).join('、');
+              return `
+                <label class="recommend-cl-item-row" data-item-id="${escapeHtml(it.id)}">
+                  <input type="checkbox" ${itemChecked ? 'checked' : ''} onchange="toggleRecommendClItem('${escapeHtml(cl.id)}','${escapeHtml(it.id)}',this.checked)">
+                  <span class="recommend-cl-item-desc">${escapeHtml(it.desc || '未命名检查项')}</span>
+                  ${contentStr ? '<span class="recommend-cl-item-contents">' + escapeHtml(contentStr) + '</span>' : ''}
+                </label>
+              `;
+            }).join('') +
+          '</div>';
+        }
+
+        return `
+          <div class="recommend-cl-group${hasSelection && sel.selectedItemIds.length > 0 ? ' selected' : ''}" data-cl-id="${escapeHtml(cl.id)}">
+            <div class="recommend-cl-header">
+              <input type="checkbox" class="recommend-cl-master" ${allChecked ? 'checked' : ''} ${someChecked ? 'style="opacity:0.5"' : ''} onchange="toggleRecommendClAll('${escapeHtml(cl.id)}',this.checked)">
+              <span class="recommend-cl-name" onclick="toggleRecommendClExpand('${escapeHtml(cl.id)}')">[${source}] ${escapeHtml(cl.name)}</span>
+              <span class="recommend-cl-cnt">${hasSelection ? sel.selectedItemIds.length + '/' : ''}${itemCnt} 项</span>
+              <span class="recommend-cl-expand${expanded ? ' expanded' : ''}" onclick="toggleRecommendClExpand('${escapeHtml(cl.id)}')"></span>
+            </div>
+            ${itemsHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleRecommendClExpand(clId) {
+      recommendClExpanded[clId] = !recommendClExpanded[clId];
+      renderRecommendClList();
+    }
+
+    function toggleRecommendClAll(clId, checked) {
+      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
+      const cl = allCl.find(c => c.id === clId);
+      if (!cl) return;
+      if (checked) {
+        const allItemIds = (cl.items || []).map(it => it.id);
+        const existing = recommendClSelection.find(s => s.clId === clId);
+        if (existing) { existing.selectedItemIds = allItemIds.slice(); }
+        else { recommendClSelection.push({ clId, selectedItemIds: allItemIds.slice() }); }
+      } else {
+        recommendClSelection = recommendClSelection.filter(s => s.clId !== clId);
+      }
+      renderRecommendClList();
+    }
+
+    function toggleRecommendClItem(clId, itemId, checked) {
+      let sel = recommendClSelection.find(s => s.clId === clId);
+      if (checked) {
+        if (!sel) { sel = { clId, selectedItemIds: [] }; recommendClSelection.push(sel); }
+        if (!sel.selectedItemIds.includes(itemId)) sel.selectedItemIds.push(itemId);
+      } else {
+        if (sel) {
+          sel.selectedItemIds = sel.selectedItemIds.filter(id => id !== itemId);
+          if (!sel.selectedItemIds.length) recommendClSelection = recommendClSelection.filter(s => s.clId !== clId);
+        }
+      }
+      renderRecommendClList();
+    }
+
+    function confirmRecommendCl() {
+      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
+      // 清除所有来自推荐检查表的检查项
+      scfState.checkItems = scfState.checkItems.filter(it => !it.sourceClId);
+      scfState.referencedCls = [];
+
+      // 按 selection 重新添加
+      let addedCount = 0;
+      recommendClSelection.forEach(sel => {
+        if (!sel.selectedItemIds.length) return;
+        const cl = allCl.find(c => c.id === sel.clId);
+        if (!cl) return;
+        scfState.referencedCls.push({ id: cl.id, name: cl.name });
+        (cl.items || []).forEach(it => {
+          if (!sel.selectedItemIds.includes(it.id)) return;
+          scfState.checkItems.push({
+            id: 'scf_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+            sourceClId: cl.id,
+            sourceItemId: it.id,
+            desc: it.desc || '',
+            contents: (it.contents || []).map(c => ({ name: c.name || '', standard: c.standard || '' }))
+          });
+          addedCount++;
+        });
+      });
+
+      renderScfCheckItems();
+      closeRecommendClModal();
+      if (addedCount) showToast(`已引用 ${addedCount} 个检查项`, 'success');
+    }
+
+    // 检查项操作
+    function addScfCheckItem() {
+      scfState.checkItems.push({ id: 'scf_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), desc: '', contents: [] });
+      renderScfCheckItems();
+    }
+    function delScfCheckItem(idx) {
+      const it = scfState.checkItems[idx];
+      if (it.contents.length && !confirm('该检查项下有 ' + it.contents.length + ' 条检查内容，是否一并删除？')) return;
+      scfState.checkItems.splice(idx, 1);
+      renderScfCheckItems();
+    }
+    function addScfCheckContent(itemIdx) {
+      scfState.checkItems[itemIdx].contents.push({ name: '', standard: '' });
+      renderScfCheckItems();
+    }
+    function delScfCheckContent(itemIdx, ci) {
+      scfState.checkItems[itemIdx].contents.splice(ci, 1);
+      renderScfCheckItems();
+    }
+    function onScfItemDescChange(idx, v) { scfState.checkItems[idx].desc = v; }
+    function onScfContentChange(itemIdx, ci, field, v) { scfState.checkItems[itemIdx].contents[ci][field] = v; }
+
+    // 渲染检查项列表
+    function renderScfCheckItems() {
+      const container = document.getElementById('scfCheckItems');
+      const empty = document.getElementById('scfCheckEmpty');
+      if (!scfState.checkItems.length) { container.innerHTML = ''; empty.style.display = 'flex'; return; }
+      empty.style.display = 'none';
+      container.innerHTML = scfState.checkItems.map((it, idx) => {
+        const contents = it.contents.map((c, ci) => `
+          <div class="cl-inline-content-row">
+            <input type="text" class="kp-field-input" placeholder="检查内容名称" value="${escapeHtml(c.name || '')}" oninput="onScfContentChange(${idx},${ci},'name',this.value)">
+            <input type="text" class="kp-field-input" placeholder="检查标准（选填）" value="${escapeHtml(c.standard || '')}" oninput="onScfContentChange(${idx},${ci},'standard',this.value)">
+            <button type="button" class="kp-row-del" onclick="delScfCheckContent(${idx},${ci})">删</button>
+          </div>
+        `).join('');
+        return `
+          <div class="cl-inline-item">
+            <div class="cl-inline-item-header">
+              <span style="font-size:12px;color:var(--text-secondary);">检查项 ${idx+1}</span>
+              <input type="text" class="kp-field-input" placeholder="检查项描述（选填）" value="${escapeHtml(it.desc || '')}" oninput="onScfItemDescChange(${idx},this.value)">
+              <button type="button" class="btn btn-default btn-sm" onclick="addScfCheckContent(${idx})">+ 添加内容</button>
+              <button type="button" class="kp-row-del" onclick="delScfCheckItem(${idx})">删除项</button>
+            </div>
+            <div class="cl-inline-contents">${contents || '<div style="color:var(--text-tertiary);font-size:12px;padding:6px 0;">尚无检查内容，点击右上「+ 添加内容」</div>'}</div>
+          </div>
+        `;
+      }).join('');
+    }
 
     function renderScanConfigList() {
       const list = document.getElementById('fScanConfigList');
@@ -2093,7 +2346,8 @@
         const respTypeTxt = row.resp_type === 'gov' ? '政府' : '企业';
         const respName = row.resp_name ? escapeHtml(row.resp_name) : '<span style="color:var(--danger);">未指定主体</span>';
         const scannerTxt = escapeHtml(row.scanner_id ? row.scanner_name : '全员');
-        const clTxt = row.cl_name ? escapeHtml(row.cl_name) : '<span style="color:var(--danger);">未指定检查表</span>';
+        const clTxt = row.cl_name ? escapeHtml(row.cl_name) : '<span style="color:var(--danger);">未配置</span>';
+        const itemCnt = (row.check_items || []).length;
         const freq = escapeHtml(row.freq || '未配置频次');
         const skip = row.skip_holiday ? '过滤节假日' : '不过滤节假日';
         return `
@@ -2103,6 +2357,7 @@
             <td>${respName}</td>
             <td>${scannerTxt}</td>
             <td>${clTxt}</td>
+            <td>${itemCnt} 项</td>
             <td>${freq}</td>
             <td>${skip}</td>
             <td style="white-space:nowrap;">
@@ -2111,7 +2366,7 @@
             </td>
           </tr>
         `;
-      }).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无扫码配置，点击右上「+ 添加扫码配置」新增</td></tr>';
+      }).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无扫码配置，点击右上「+ 添加扫码配置」新增</td></tr>';
       list.innerHTML = `
         <table class="kp-inline-table">
           <thead>
@@ -2121,6 +2376,7 @@
               <th>责任主体</th>
               <th>扫码责任人</th>
               <th>检查表</th>
+              <th style="width:70px;">检查项</th>
               <th style="width:130px;">检查频次</th>
               <th style="width:110px;">节假日规则</th>
               <th style="width:120px;">操作</th>
@@ -2134,6 +2390,8 @@
     function openScanConfigModal(editIdx) {
       if (typeof editIdx !== 'number') editIdx = -1;
       scfState.editIdx = editIdx;
+      scfState.referencedCls = [];
+      scfState.checkItems = [];
       document.getElementById('scanConfigModalTitle').textContent = editIdx >= 0 ? '编辑扫码配置' : '添加扫码配置';
 
       // 默认值或回填
@@ -2142,12 +2400,29 @@
       document.getElementById('scfRespType').value = respType;
       document.getElementById('scfInterval').value = row ? parseScfInterval(row.freq).interval : '1';
       document.getElementById('scfUnit').value = row ? parseScfInterval(row.freq).unit : 'week';
-      document.getElementById('scfSkipHoliday').value = row && row.skip_holiday ? 'true' : 'false';
+      document.getElementById('scfTimes').value = row ? parseScfInterval(row.freq).times : '1';
+      const skipVal = row && row.skip_holiday ? 'true' : 'false';
+      document.querySelectorAll('input[name="scfSkipHoliday"]').forEach(r => { r.checked = r.value === skipVal; });
 
       // 填充责任主体下拉，回填责任人与检查表
       populateScfRespIdSelect(respType, row ? row.resp_id : '');
       populateScfScannerSelect(respType, row ? row.resp_id : '', row ? row.scanner_id : '');
-      populateScfClSelect(row ? row.cl_id : '');
+      // 回填已选推荐检查表和检查项
+      if (row) {
+        if (row.referenced_cls && row.referenced_cls.length) {
+          scfState.referencedCls = row.referenced_cls.slice();
+        }
+        if (row.check_items && row.check_items.length) {
+          scfState.checkItems = row.check_items.map(it => ({
+            id: it.id || 'scf_' + Date.now(),
+            sourceClId: it.sourceClId || '',
+            sourceItemId: it.sourceItemId || '',
+            desc: it.desc || '',
+            contents: (it.contents || []).map(c => ({ name: c.name || '', standard: c.standard || '' }))
+          }));
+        }
+      }
+      renderScfCheckItems();
 
       document.getElementById('scanConfigModal').style.display = 'flex';
     }
@@ -2158,11 +2433,11 @@
     }
 
     function parseScfInterval(freq) {
-      // 解析 "每N{日|周|月}检查1次"；失败返回默认
-      const m = (freq || '').match(/^每(\d+)(日|周|月)/);
-      if (!m) return { interval: '1', unit: 'week' };
-      const unit = m[2] === '日' ? 'day' : m[2] === '周' ? 'week' : 'month';
-      return { interval: m[1], unit };
+      // 解析 "每N{日|周|月|季|年}检查M次"
+      const m = (freq || '').match(/^每(\d+)(日|周|月|季|年)检查(\d+)次/);
+      if (!m) return { interval: '1', unit: 'week', times: '1' };
+      const unitMap = { '日': 'day', '周': 'week', '月': 'month', '季': 'quarter', '年': 'year' };
+      return { interval: m[1], unit: unitMap[m[2]] || 'week', times: m[3] };
     }
 
     function populateScfRespIdSelect(respType, selectedId) {
@@ -2195,17 +2470,6 @@
       sel.innerHTML = opts;
     }
 
-    function populateScfClSelect(selectedClId) {
-      const sel = document.getElementById('scfClId');
-      const allChecklists = [
-        ...CHECKLIST_LIB.map(c => ({ id: c.id, name: c.name, source: '库' })),
-        ...(currentFormState.checklistsCustom || []).map(c => ({ id: c.id, name: c.name, source: '专属' }))
-      ];
-      let opts = '<option value="">请选择检查表</option>';
-      opts += allChecklists.map(c => `<option value="${escapeHtml(c.id)}" ${selectedClId===c.id?'selected':''}>[${escapeHtml(c.source)}] ${escapeHtml(c.name)}</option>`).join('');
-      sel.innerHTML = opts;
-    }
-
     function onScfRespTypeChange() {
       const respType = document.getElementById('scfRespType').value;
       populateScfRespIdSelect(respType, '');
@@ -2218,24 +2482,15 @@
       populateScfScannerSelect(respType, respId, '');
     }
 
-    function onScfClIdChange() {
-      // 占位：保留扩展（如显示检查表预览）
-    }
-
-    function openKpChecklistFromScf() {
-      // 从扫码配置弹窗跳转到新建检查表弹窗
-      openKpChecklistModal();
-    }
-
     function saveScanConfig() {
       const respType = document.getElementById('scfRespType').value;
       const respId = document.getElementById('scfRespId').value;
       if (!respId) { showToast('请选择责任主体', 'error'); return; }
-      const clId = document.getElementById('scfClId').value;
-      if (!clId) { showToast('请选择检查表', 'error'); return; }
+      if (!scfState.checkItems.length) { showToast('请至少添加一个检查项', 'error'); return; }
       const interval = document.getElementById('scfInterval').value || '1';
       const unit = document.getElementById('scfUnit').value || 'week';
-      const skipHoliday = document.getElementById('scfSkipHoliday').value === 'true';
+      const times = document.getElementById('scfTimes').value || '1';
+      const skipHoliday = document.querySelector('input[name="scfSkipHoliday"]:checked').value === 'true';
       const scannerId = document.getElementById('scfScanner').value;
 
       // 解析名称
@@ -2259,17 +2514,23 @@
           scannerName = p ? p.name : '';
         }
       }
-      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
-      const cl = allCl.find(c => c.id === clId);
-      const clName = cl ? cl.name : '';
-      const unitTxt = unit === 'day' ? '日' : unit === 'week' ? '周' : '月';
-      const freq = '每' + interval + unitTxt + '检查1次';
+      const unitTxt = unit === 'day' ? '日' : unit === 'week' ? '周' : unit === 'month' ? '月' : unit === 'quarter' ? '季' : '年';
+      const freq = '每' + interval + unitTxt + '检查' + times + '次';
+
+      // 生成合并检查表名称
+      const clNames = scfState.referencedCls.map(c => c.name);
+      const clName = clNames.length ? clNames.join(' + ') : '自定义检查表';
 
       const newRow = {
         resp_type: respType, resp_id: respId, resp_name: respName,
         scanner_id: scannerId, scanner_name: scannerName,
-        freq: freq, cl_id: clId, cl_name: clName,
-        skip_holiday: skipHoliday
+        freq: freq, cl_name: clName,
+        skip_holiday: skipHoliday,
+        referenced_cls: scfState.referencedCls.slice(),
+        check_items: scfState.checkItems.map(it => ({
+          id: it.id, sourceClId: it.sourceClId || '', sourceItemId: it.sourceItemId || '', desc: it.desc,
+          contents: it.contents.map(c => ({ name: c.name, standard: c.standard }))
+        }))
       };
       if (scfState.editIdx >= 0) {
         currentFormState.scanConfigs[scfState.editIdx] = newRow;
@@ -2488,89 +2749,6 @@
       document.getElementById('fDetailAddress').value = mapState.address;
       closeMapModal();
       showToast('位置已回填（经纬度已保存）', 'success');
-    }
-
-    // ========== 新增检查表弹窗（场所私有） ==========
-    // 从 scanConfigModal 内点击「+ 新增检查表」打开；保存后写入 checklistsCustom 并回填 scfClId 下拉
-    let kpClState = { editIdx: -1, items: [] };
-
-    function openKpChecklistModal() {
-      kpClState = { editIdx: -1, items: [] };
-      document.getElementById('kpChecklistTitle').textContent = '新增检查表（场所专属）';
-      document.getElementById('kpClName').value = '';
-      renderKpClItems();
-      document.getElementById('kpChecklistModal').style.display = 'flex';
-    }
-    function closeKpChecklistModal() {
-      document.getElementById('kpChecklistModal').style.display = 'none';
-    }
-    function addKpChecklistItem() {
-      kpClState.items.push({ id: 'item_' + Date.now() + Math.random().toString(36).slice(2,6), desc: '', contents: [] });
-      renderKpClItems();
-    }
-    function delKpClItem(idx) {
-      const it = kpClState.items[idx];
-      if (it.contents.length && !confirm('该检查项下有 ' + it.contents.length + ' 条检查内容，是否一并删除？')) return;
-      kpClState.items.splice(idx, 1);
-      renderKpClItems();
-    }
-    function addKpClContent(itemIdx) {
-      kpClState.items[itemIdx].contents.push({ name: '', standard: '' });
-      renderKpClItems();
-    }
-    function delKpClContent(itemIdx, ci) {
-      kpClState.items[itemIdx].contents.splice(ci, 1);
-      renderKpClItems();
-    }
-    function onKpClItemDescChange(idx, v) { kpClState.items[idx].desc = v; }
-    function onKpClContentChange(itemIdx, ci, field, v) { kpClState.items[itemIdx].contents[ci][field] = v; }
-    function renderKpClItems() {
-      const list = document.getElementById('kpClItemList');
-      const empty = document.getElementById('kpClEmpty');
-      if (!kpClState.items.length) {
-        list.innerHTML = '';
-        empty.style.display = 'flex';
-        return;
-      }
-      empty.style.display = 'none';
-      list.innerHTML = kpClState.items.map((it, idx) => {
-        const contents = it.contents.map((c, ci) => `
-          <div class="cl-inline-content-row">
-            <input type="text" class="kp-field-input" placeholder="检查内容名称" value="${escapeHtml(c.name || '')}" oninput="onKpClContentChange(${idx},${ci},'name',this.value)">
-            <input type="text" class="kp-field-input" placeholder="检查标准（选填）" value="${escapeHtml(c.standard || '')}" oninput="onKpClContentChange(${idx},${ci},'standard',this.value)">
-            <button type="button" class="kp-row-del" onclick="delKpClContent(${idx},${ci})">删</button>
-          </div>
-        `).join('');
-        return `
-          <div class="cl-inline-item">
-            <div class="cl-inline-item-header">
-              <span style="font-size:12px;color:var(--text-secondary);">检查项 ${idx+1}</span>
-              <input type="text" class="kp-field-input" placeholder="检查项描述（选填）" value="${escapeHtml(it.desc || '')}" oninput="onKpClItemDescChange(${idx},this.value)">
-              <button type="button" class="btn btn-default btn-sm" onclick="addKpClContent(${idx})">+ 添加内容</button>
-              <button type="button" class="kp-row-del" onclick="delKpClItem(${idx})">删除项</button>
-            </div>
-            <div class="cl-inline-contents">${contents || '<div style="color:var(--text-tertiary);font-size:12px;padding:6px 0;">尚无检查内容，点击右上「+ 添加内容」</div>'}</div>
-          </div>
-        `;
-      }).join('');
-    }
-    function saveKpChecklist() {
-      const name = document.getElementById('kpClName').value.trim();
-      if (!name) { showToast('请输入检查表名称', 'error'); return; }
-      if (!kpClState.items.length) { showToast('请至少添加一个检查项', 'error'); return; }
-      for (const it of kpClState.items) {
-        if (!it.contents.length) { showToast('每个检查项至少需要一条检查内容', 'error'); return; }
-      }
-      const newCl = {
-        id: 'cl_kp_' + Date.now(),
-        name: name,
-        items: kpClState.items.slice()
-      };
-      currentFormState.checklistsCustom.push(newCl);
-
-      populateScfClSelect(newCl.id);
-      document.getElementById('kpChecklistModal').style.display = 'none';
-      showToast('检查表已保存（场所专属），已回填到扫码配置', 'success');
     }
 
     // ========== 删除 ==========
