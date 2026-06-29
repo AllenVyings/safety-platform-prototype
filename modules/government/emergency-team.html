@@ -7,13 +7,23 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-    .page { padding: 20px 24px; background: var(--bg-page); min-height: 100vh; }
+    /* ===== 布局：禁止外层滚动，填满 iframe ===== */
+    html, body { height: 100%; overflow: hidden; }
+    body { margin: 0; }
+    .page-container[data-module="emergency-team"] {
+      height: 100vh; min-height: 0;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-sizing: border-box;
+    }
+    .page-container[data-module="emergency-team"] > .page-content {
+      flex: 1; min-height: 0; overflow-y: auto;
+      padding: 0 var(--spacing-md) var(--spacing-md);
+    }
+
+    /* ===== 页面头部 ===== */
     .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      background: var(--bg-primary);
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; background: var(--bg-primary);
       padding: var(--spacing-md) 20px;
       border-radius: var(--radius-lg);
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -21,44 +31,58 @@
     .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
     .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
     .header-actions { display: flex; gap: 8px; }
+
+    /* ===== 按钮 ===== */
     .btn { padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border-card); background: #fff; color: var(--text-secondary); }
     .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
     .btn:hover { color: var(--primary); border-color: var(--primary); }
     .btn-primary:hover { background: #096dd9; border-color: #096dd9; color: #fff; }
 
-    .filter-bar {
-      background: var(--bg-primary);
-      padding: 12px 16px;
-      border-radius: 10px;
+    /* ===== 统计卡 ===== */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--bg-primary); padding: 16px 20px;
+      border-radius: 10px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      border: none; border-left: 4px solid transparent;
+    }
+    .stat-card.blue { border-left-color: #1890ff; }
+    .stat-card.green { border-left-color: #52c41a; }
+    .stat-card.red { border-left-color: #ff4d4f; }
+    .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    /* ===== 筛选区 ===== */
+    .filter-card {
+      background: var(--bg-primary); border-radius: 10px;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
       margin-bottom: 16px;
     }
-    .filter-bar select, .filter-bar input {
-      padding: 6px 10px;
-      border: 1px solid var(--border-card);
-      border-radius: 4px;
-      font-size: 13px;
-      min-width: 140px;
+    .filter-bar {
+      padding: 12px 16px;
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
     }
-    .filter-bar input[type="search"] { min-width: 220px; }
-    .filter-label { font-size: 13px; color: var(--text-secondary); }
+    .filter-item { display: flex; align-items: center; gap: 6px; }
+    .filter-item label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+    .filter-bar select,
+    .filter-bar input[type="text"],
+    .filter-bar input[type="search"] {
+      width: 240px; height: 32px;
+      padding: 0 10px; border: 1px solid var(--border-card);
+      border-radius: 4px; font-size: 13px;
+      box-sizing: border-box;
+    }
 
+    /* ===== 内容卡 / 表格 ===== */
     .content-card {
-      background: var(--bg-primary);
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-      overflow: hidden;
+      background: var(--bg-primary); border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); overflow: hidden;
     }
     .table-toolbar {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border-section);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 12px 16px; border-bottom: 1px solid var(--border-section);
+      display: flex; justify-content: space-between; align-items: center;
     }
     .table-toolbar h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
 
@@ -67,52 +91,85 @@
     th { background: var(--bg-section); color: var(--text-secondary); font-weight: 500; }
     tr:hover { background: var(--bg-section); }
 
+    /* ===== 标签 ===== */
     .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
-    .tag-blue { background: #e6f4ff; color: #1890ff; }
-    .tag-green { background: #f6ffed; color: #52c41a; }
-    .tag-orange { background: #fff7e6; color: #fa8c16; }
-    .tag-red { background: #fff1f0; color: #ff4d4f; }
-    .tag-purple { background: #f9f0ff; color: #722ed1; }
-    .tag-gray { background: #f5f5f5; color: #8c8c8c; }
+    .tag-red { background: #fff1f0; color: #ff4d4f; }      /* 消防 */
+    .tag-green { background: #f6ffed; color: #52c41a; }     /* 医疗 */
+    .tag-blue { background: #e6f4ff; color: #1890ff; }      /* 专业救援 */
+    .tag-purple { background: #f9f0ff; color: #722ed1; }    /* 志愿者 */
 
+    /* ===== 操作链接 ===== */
     .action-link { color: var(--primary); font-size: 13px; cursor: pointer; }
     .action-link + .action-link { margin-left: 12px; }
 
+    /* ===== 分页 ===== */
     .pagination { padding: 12px 16px; text-align: right; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border-section); }
     .pagination button { padding: 4px 10px; margin: 0 2px; border: 1px solid var(--border-card); background: #fff; cursor: pointer; border-radius: 4px; font-size: 12px; }
     .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
   </style>
 </head>
 <body>
-  <div class="page">
+  <div class="page-container" data-module="emergency-team">
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">政府端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item">应急资源</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">应急队伍</span>
+    </div>
+    <div class="page-content">
+
+    <!-- 页面头部 -->
     <div class="page-header">
       <div>
         <div class="page-title">应急队伍</div>
         <div class="page-subtitle">管理应急队伍基本信息与人员配置</div>
       </div>
-      <div class="header-actions">
-        <button class="btn">📥 批量导入</button>
-        <button class="btn btn-primary">+ 新增队伍</button>
+    </div>
+
+    <!-- 统计卡 -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-value">12</div>
+        <div class="stat-label">队伍总数</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-value">215</div>
+        <div class="stat-label">总人数</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-value">4</div>
+        <div class="stat-label">专业队伍数</div>
       </div>
     </div>
 
-    <div class="filter-bar">
-      <span class="filter-label">队伍类型:</span>
-      <select>
-        <option>全部</option>
-        <option>消防</option>
-        <option>医疗</option>
-        <option>专业救援</option>
-        <option>志愿者</option>
-      </select>
-      <input type="search" placeholder="搜索队伍名称 / 负责人">
-      <button class="btn btn-primary">查询</button>
-      <button class="btn">重置</button>
+    <!-- 筛选区 -->
+    <div class="filter-card">
+      <div class="filter-bar">
+        <div class="filter-item">
+          <label>队伍类型：</label>
+          <select id="filterType">
+            <option value="">全部</option>
+            <option value="消防">消防</option>
+            <option value="医疗">医疗</option>
+            <option value="专业救援">专业救援</option>
+            <option value="志愿者">志愿者</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>关键词：</label>
+          <input type="text" id="filterKeyword" placeholder="搜索队伍名称 / 负责人">
+        </div>
+        <button class="btn btn-primary" id="btnSearch">查询</button>
+        <button class="btn" id="btnReset">重置</button>
+      </div>
     </div>
 
+    <!-- 列表 -->
     <div class="content-card">
       <div class="table-toolbar">
-        <h3>队伍列表（12 条）</h3>
+        <h3 id="tableTitle">队伍列表（12 条）</h3>
       </div>
       <table>
         <thead>
@@ -125,105 +182,166 @@
             <th width="120">操作</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>区综合应急救援大队</td>
-            <td><span class="tag tag-red">消防</span></td>
-            <td>陈大队长</td>
-            <td>32</td>
-            <td>138-0000-1001</td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>危化品事故专业救援队</td>
-            <td><span class="tag tag-orange">专业救援</span></td>
-            <td>李队长</td>
-            <td>18</td>
-            <td>138-0000-1002</td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>医疗救护应急队</td>
-            <td><span class="tag tag-green">医疗</span></td>
-            <td>王医生</td>
-            <td>15</td>
-            <td>138-0000-1003</td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>抗洪抢险救援队</td>
-            <td><span class="tag tag-orange">专业救援</span></td>
-            <td>赵队长</td>
-            <td>24</td>
-            <td>138-0000-1004</td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>森林消防应急中队</td>
-            <td><span class="tag tag-red">消防</span></td>
-            <td>孙队长</td>
-            <td>28</td>
-            <td>138-0000-1005</td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>应急通讯保障队</td>
-            <td><span class="tag tag-purple">志愿者</span></td>
-            <td>周工程师</td>
-            <td>12</td>
-            <td>138-0000-1006</td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>社区志愿者救援队</td>
-            <td><span class="tag tag-purple">志愿者</span></td>
-            <td>吴组长</td>
-            <td>20</td>
-            <td>138-0000-1007</td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>急救医疗志愿队</td>
-            <td><span class="tag tag-green">医疗</span></td>
-            <td>刘主任</td>
-            <td>16</td>
-            <td>138-0000-1008</td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
+        <tbody id="tableBody">
         </tbody>
       </table>
-      <div class="pagination">
-        共 12 条 第 1 / 2 页
-        <button>‹</button>
-        <button class="active">1</button>
-        <button>2</button>
-        <button>›</button>
+      <div class="pagination" id="pagination">
       </div>
     </div>
-  </div>
+
+    </div><!-- /.page-content -->
+  </div><!-- /.page-container -->
+
+  <script>
+  (function() {
+    'use strict';
+
+    /* ===== escapeHtml 防 XSS ===== */
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+
+    /* ===== 队伍类型 → 标签样式映射 ===== */
+    var TYPE_TAG_MAP = {
+      '消防':     'tag-red',
+      '医疗':     'tag-green',
+      '专业救援': 'tag-blue',
+      '志愿者':   'tag-purple'
+    };
+
+    /* ===== 模拟数据 ===== */
+    var TEAMS = [
+      { name: '区综合应急救援大队',   type: '消防',   leader: '陈大队长', count: 32, phone: '138-0000-1001' },
+      { name: '危化品事故专业救援队', type: '专业救援', leader: '李队长',   count: 18, phone: '138-0000-1002' },
+      { name: '医疗救护应急队',       type: '医疗',   leader: '王医生',   count: 15, phone: '138-0000-1003' },
+      { name: '抗洪抢险救援队',       type: '专业救援', leader: '赵队长',   count: 24, phone: '138-0000-1004' },
+      { name: '森林消防应急中队',     type: '消防',   leader: '孙队长',   count: 28, phone: '138-0000-1005' },
+      { name: '应急通讯保障队',       type: '志愿者', leader: '周工程师', count: 12, phone: '138-0000-1006' },
+      { name: '社区志愿者救援队',     type: '志愿者', leader: '吴组长',   count: 20, phone: '138-0000-1007' },
+      { name: '急救医疗志愿队',       type: '医疗',   leader: '刘主任',   count: 16, phone: '138-0000-1008' },
+      { name: '地质灾害专业救援队',   type: '专业救援', leader: '郑队长',   count: 22, phone: '138-0000-1009' },
+      { name: '海上搜救志愿队',       type: '志愿者', leader: '何船长',   count: 14, phone: '138-0000-1010' },
+      { name: '城市消防特勤中队',     type: '消防',   leader: '冯队长',   count: 35, phone: '138-0000-1011' },
+      { name: '院前急救队',           type: '医疗',   leader: '许主任',   count: 9,  phone: '138-0000-1012' }
+    ];
+
+    /* ===== 分页状态 ===== */
+    var PAGE_SIZE = 10;
+    var currentPage = 1;
+    var filteredData = TEAMS.slice(); // 初始为全量
+
+    /* ===== 渲染表格 ===== */
+    function renderTable() {
+      var tbody = document.getElementById('tableBody');
+      var total = filteredData.length;
+      var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      var start = (currentPage - 1) * PAGE_SIZE;
+      var end = Math.min(start + PAGE_SIZE, total);
+      var rows = '';
+
+      for (var i = start; i < end; i++) {
+        var t = filteredData[i];
+        var tagClass = TYPE_TAG_MAP[t.type] || 'tag-blue';
+        rows +=
+          '<tr>' +
+            '<td>' + escapeHtml(t.name) + '</td>' +
+            '<td><span class="tag ' + tagClass + '">' + escapeHtml(t.type) + '</span></td>' +
+            '<td>' + escapeHtml(t.leader) + '</td>' +
+            '<td>' + t.count + '</td>' +
+            '<td>' + escapeHtml(t.phone) + '</td>' +
+            '<td>' +
+              '<span class="action-link" data-action="view" data-index="' + i + '">查看</span>' +
+              '<span class="action-link" data-action="edit" data-index="' + i + '">编辑</span>' +
+            '</td>' +
+          '</tr>';
+      }
+
+      tbody.innerHTML = rows;
+      document.getElementById('tableTitle').textContent = '队伍列表（' + total + ' 条）';
+      renderPagination(total, totalPages);
+    }
+
+    /* ===== 渲染分页 ===== */
+    function renderPagination(total, totalPages) {
+      var container = document.getElementById('pagination');
+      if (total === 0) { container.innerHTML = ''; return; }
+
+      var html = '共 ' + total + ' 条 第 ' + currentPage + ' / ' + totalPages + ' 页 ';
+      html += '<button data-page="prev">‹</button>';
+
+      for (var p = 1; p <= totalPages; p++) {
+        html += '<button data-page="' + p + '"' + (p === currentPage ? ' class="active"' : '') + '>' + p + '</button>';
+      }
+
+      html += '<button data-page="next">›</button>';
+      container.innerHTML = html;
+    }
+
+    /* ===== 筛选逻辑 ===== */
+    function doFilter() {
+      var typeVal = document.getElementById('filterType').value;
+      var kwVal = document.getElementById('filterKeyword').value.trim().toLowerCase();
+
+      filteredData = TEAMS.filter(function(t) {
+        if (typeVal && t.type !== typeVal) return false;
+        if (kwVal && t.name.toLowerCase().indexOf(kwVal) === -1 && t.leader.toLowerCase().indexOf(kwVal) === -1) return false;
+        return true;
+      });
+
+      currentPage = 1;
+      renderTable();
+    }
+
+    /* ===== 重置筛选 ===== */
+    function doReset() {
+      document.getElementById('filterType').value = '';
+      document.getElementById('filterKeyword').value = '';
+      filteredData = TEAMS.slice();
+      currentPage = 1;
+      renderTable();
+    }
+
+    /* ===== 事件绑定 ===== */
+    document.getElementById('btnSearch').addEventListener('click', doFilter);
+    document.getElementById('btnReset').addEventListener('click', doReset);
+
+    // 回车触发查询
+    document.getElementById('filterKeyword').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doFilter();
+    });
+
+    // 分页点击
+    document.getElementById('pagination').addEventListener('click', function(e) {
+      var btn = e.target.closest('button[data-page]');
+      if (!btn) return;
+      var page = btn.getAttribute('data-page');
+      var totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
+      if (page === 'prev') { if (currentPage > 1) currentPage--; }
+      else if (page === 'next') { if (currentPage < totalPages) currentPage++; }
+      else { currentPage = parseInt(page, 10); }
+      renderTable();
+    });
+
+    // 操作链接点击（查看/编辑）
+    document.getElementById('tableBody').addEventListener('click', function(e) {
+      var link = e.target.closest('.action-link');
+      if (!link) return;
+      var action = link.getAttribute('data-action');
+      var index = parseInt(link.getAttribute('data-index'), 10);
+      var team = filteredData[index];
+      if (!team) return;
+      // 原型演示：alert 替代弹窗
+      alert(action === 'view' ? '查看：' + team.name : '编辑：' + team.name);
+    });
+
+    /* ===== 初始渲染 ===== */
+    renderTable();
+  })();
+  </script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

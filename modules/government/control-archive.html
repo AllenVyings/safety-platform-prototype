@@ -368,6 +368,13 @@
   </style>
 </head>
 <body>
+  <div class="page-container" data-module="control-archive">
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">政府端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">管控档案</span>
+    </div>
   <div class="page">
     <div class="page-header">
       <div>
@@ -511,6 +518,7 @@
   </div>
 
   <script>
+    function escapeHtml(v) { return String(v == null ? '' : v).replace(/[&<>'"]/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]; }); }
     /* ==================== 树数据 ==================== */
     const TREE_DATA = [
       {
@@ -783,10 +791,10 @@
       const toggleClass = hasChildren ? (node.expanded ? 'expanded' : '') : 'leaf';
       const childrenClass = node.expanded ? '' : 'collapsed';
       let html = `
-        <div class="tree-node level-${node.level}" data-id="${node.id}" data-name="${node.name}">
+        <div class="tree-node level-${node.level}" data-id="${node.id}" data-name="${escapeHtml(node.name)}">
           <span class="tree-toggle ${toggleClass}">▶</span>
           <span class="tree-icon">${node.icon}</span>
-          <span>${node.name}</span>
+          <span>${escapeHtml(node.name)}</span>
           <span class="tree-count">${node.count}</span>
         </div>
       `;
@@ -863,17 +871,17 @@
           : `<span class="resp-unconfig">未配置</span>`;
         html += `
           <tr>
-            <td><div class="obj-name" title="${row.name}">${row.name}</div></td>
-            <td><span class="type-tag ${t.cls}">${t.name}</span></td>
+            <td><div class="obj-name" title="${escapeHtml(row.name)}">${escapeHtml(row.name)}</div></td>
+            <td><span class="type-tag ${t.cls}">${escapeHtml(t.name)}</span></td>
             <td>
               <span class="code-status">
                 <span class="code-dot ${row.codeStatus}"></span>
-                ${row.codeName}
+                ${escapeHtml(row.codeName)}
               </span>
             </td>
             <td>${responsibleHtml}</td>
-            <td>${row.lastCheck}</td>
-            <td><span class="action-link" onclick="viewDetail('${row.id}')">查看详情</span></td>
+            <td>${escapeHtml(row.lastCheck)}</td>
+            <td><span class="action-link" onclick="viewDetail('${escapeHtml(row.id)}')">查看详情</span></td>
           </tr>
         `;
       });
@@ -1021,5 +1029,6 @@
       renderArchiveRows(ARCHIVE_DATA);
     });
   </script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

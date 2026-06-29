@@ -349,8 +349,8 @@
           { id: 'dept-amb-01', name: '督导检查科', type: 'dept', status: 'enabled', sort: 1, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '督导检查责任科室', children: [] },
           { id: 'dept-amb-02', name: '综合协调科', type: 'dept', status: 'enabled', sort: 2, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '综合协调责任科室', children: [] },
           { id: 'dept-amb-03', name: '区三防办', type: 'dept', status: 'enabled', sort: 3, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '三防协调责任科室', children: [] },
-          { id: 'dept-amb-04', name: '安全监管和执法科', type: 'dept', status: 'enabled', sort: 4, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '安全监管和执法责任科室', children: [] },
-          { id: 'dept-amb-05', name: '防灾减灾科', type: 'dept', status: 'enabled', sort: 5, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '防灾减灾责任科室', children: [] },
+          { id: 'dept-amb-04', name: '安全监管和执法科', type: 'dept', status: 'enabled', sort: 4, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '安全监管和执法责任科室', hasUsers: true, children: [] },
+          { id: 'dept-amb-05', name: '防灾减灾科', type: 'dept', status: 'enabled', sort: 5, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '防灾减灾责任科室', hasBusinessRefs: true, children: [] },
           { id: 'dept-amb-06', name: '危化品监管和执法科', type: 'dept', status: 'enabled', sort: 6, parentId: 'root', sourceType: 'sync', responsiblePerson: '', contactPhone: '', email: '', extensionFields: '危化品监管和执法责任科室', children: [] }
         ]
       }
@@ -417,6 +417,17 @@
       if (!node) return false;
       if (node.type === 'unit') return true;
       return node.type === 'dept' && getDeptLevel(node) < 3;
+    }
+
+    function getUnitDepth(node) {
+      if (!node || node.type !== 'unit') return 0;
+      let depth = 1;
+      let parent = findParentNode(orgData, node.id);
+      while (parent && parent.type === 'unit') {
+        depth += 1;
+        parent = findParentNode(orgData, parent.id);
+      }
+      return depth;
     }
 
     function canEdit(node) {
@@ -692,7 +703,11 @@
         return;
       }
       isEditing = false;
-      document.getElementById('modalTitle').textContent = '新增组织（在「' + selectedNode.name + '」下）';
+      document.getElementById('modalTitle').textContent = '新增';
+      // BR-GOV-ORG-13: 下级单位超过 5 级时提示
+      if (selectedNode.type === 'unit' && getUnitDepth(selectedNode) >= 5) {
+        showToast('已超出建议层级，请联系超管确认架构合理性（BR-GOV-ORG-13）', 'warning');
+      }
       // 决定默认组织类型
       const formType = document.getElementById('formType');
       if (selectedNode.type === 'dept') {
@@ -725,7 +740,7 @@
         return;
       }
       isEditing = true;
-      document.getElementById('modalTitle').textContent = '编辑组织：' + selectedNode.name;
+      document.getElementById('modalTitle').textContent = '编辑';
       const formType = document.getElementById('formType');
       formType.value = selectedNode.type;
       formType.disabled = true; // 编辑时组织类型置灰
@@ -850,9 +865,17 @@
         showToast('该组织下有子组织，请先处理子组织（BR-GOV-ORG-05）', 'warning');
         return;
       }
+      if (selectedNode.hasUsers) {
+        showToast('该组织下有用户，请先移除用户（BR-GOV-ORG-06）', 'warning');
+        return;
+      }
+      if (selectedNode.hasBusinessRefs) {
+        showToast('该组织存在业务引用，建议停用后保留历史数据（BR-GOV-ORG-07）', 'warning');
+        return;
+      }
       const targetName = selectedNode.name;
       showConfirm(
-        `确认删除「<strong>${escapeHtml(targetName)}</strong>」？<br><br><span style="color:var(--text-secondary);font-size:var(--font-size-sm)">注：若该节点有绑定用户或业务引用，将被拒绝并提示停用</span>`,
+        `确认删除「<strong>${escapeHtml(targetName)}</strong>」？`,
         function() {
           const parent = findParentNode(orgData, selectedNode.id);
           if (parent) {

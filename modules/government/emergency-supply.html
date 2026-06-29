@@ -7,242 +7,753 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-    .page { padding: 20px 24px; background: var(--bg-page); min-height: 100vh; }
+    /* ========== 页面基础 ========== */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ========== 页面标题栏 ========== */
     .page-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: var(--spacing-md);
       background: var(--bg-primary);
-      padding: var(--spacing-md) 20px;
+      padding: var(--spacing-md) var(--spacing-lg);
       border-radius: var(--radius-lg);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-sm);
     }
-    .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
-    .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-    .header-actions { display: flex; gap: 8px; }
-    .btn { padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border-card); background: #fff; color: var(--text-secondary); }
-    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .btn:hover { color: var(--primary); border-color: var(--primary); }
-    .btn-primary:hover { background: #096dd9; border-color: #096dd9; color: #fff; }
+    .page-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .page-subtitle { font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs); }
+    .header-actions { display: flex; gap: var(--spacing-sm); }
 
-    .filter-bar {
-      background: var(--bg-primary);
-      padding: 12px 16px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    /* ========== 统计卡片 ========== */
+    .stat-cards {
       display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    .stat-card {
+      flex: 1;
+      background: linear-gradient(135deg, var(--bg-section) 0%, var(--bg-section-alt) 100%);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      display: flex;
+      align-items: center;
       gap: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--duration-normal);
+    }
+    .stat-card:hover {
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--border-section) 100%);
+      box-shadow: var(--shadow-md);
+    }
+    .stat-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--font-size-xxl);
+      flex-shrink: 0;
+    }
+    .stat-icon.blue { background: var(--primary-light); color: var(--primary); }
+    .stat-icon.green { background: var(--success-light); color: var(--success); }
+    .stat-icon.orange { background: var(--warning-light); color: var(--warning); }
+    .stat-icon.red { background: var(--error-light); color: var(--error); }
+    .stat-content { flex: 1; }
+    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
+
+    /* ========== 筛选栏 ========== */
+    .filter-bar {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      background: var(--bg-section);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
     }
-    .filter-group { display: flex; align-items: center; gap: 6px; }
-    .filter-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
-    .filter-bar select, .filter-bar input {
-      padding: 6px 10px;
-      border: 1px solid var(--border-card);
-      border-radius: 4px;
-      font-size: 13px;
-      min-width: 130px;
-    }
-    .filter-bar input[type="search"] { min-width: 220px; }
-
-    .content-card {
-      background: var(--bg-primary);
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-      overflow: hidden;
-    }
-    .table-toolbar {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border-section);
+    .filter-item {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: var(--spacing-xs);
     }
-    .table-toolbar h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .filter-item label {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .filter-item select, .filter-item input {
+      width: 240px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+    }
+    .filter-item select:focus, .filter-item input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: var(--shadow-input-focus);
+    }
+    .filter-item input::placeholder {
+      color: var(--text-placeholder);
+    }
 
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 11px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border-section); }
-    th { background: var(--bg-section); color: var(--text-secondary); font-weight: 500; }
-    tr:hover { background: var(--bg-section); }
+    /* ========== 表格容器 ========== */
+    .table-wrap {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .table-scroll { overflow-x: auto; }
+    .table-scroll table { width: 100%; min-width: 900px; border-collapse: collapse; }
+    .table-scroll thead tr { background: var(--bg-section); }
+    .table-scroll th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
+    .table-scroll td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
+    .table-scroll tbody tr:nth-child(even) { background: var(--bg-table-stripe); }
+    .table-scroll tbody tr:hover td { background: var(--bg-hover); }
 
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
-    .tag-blue { background: #e6f4ff; color: #1890ff; }
-    .tag-green { background: #f6ffed; color: #52c41a; }
-    .tag-orange { background: #fff7e6; color: #fa8c16; }
-    .tag-red { background: #fff1f0; color: #ff4d4f; }
-    .tag-gray { background: #f5f5f5; color: #8c8c8c; }
+    /* 即将过期行高亮 */
+    .table-scroll tbody tr.row-expiring td { background: #fffbe6; }
+    .table-scroll tbody tr.row-expiring:nth-child(even) td { background: #fff9db; }
+    .table-scroll tbody tr.row-expiring:hover td { background: #fff3c4; }
 
-    .action-link { color: var(--primary); font-size: 13px; cursor: pointer; }
-    .action-link + .action-link { margin-left: 12px; }
+    /* 已过期行高亮 */
+    .table-scroll tbody tr.row-expired td { background: #fff1f0; }
+    .table-scroll tbody tr.row-expired:nth-child(even) td { background: #ffe8e6; }
+    .table-scroll tbody tr.row-expired:hover td { background: #ffdbd9; }
 
-    .pagination { padding: 12px 16px; text-align: right; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border-section); }
-    .pagination button { padding: 4px 10px; margin: 0 2px; border: 1px solid var(--border-card); background: #fff; cursor: pointer; border-radius: 4px; font-size: 12px; }
-    .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    /* ========== 标签样式 ========== */
+    .tag { display: inline-block; padding: 2px var(--spacing-sm); border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
+    .tag-green { background: var(--success-light); color: var(--success); }
+    .tag-orange { background: var(--warning-light); color: var(--warning); }
+    .tag-red { background: var(--error-light); color: var(--error); }
+    .tag-blue { background: var(--info-light); color: var(--info); }
+    .tag-purple { background: #f9f0ff; color: #722ed1; }
+
+    /* 物资类型标签 */
+    .type-protect { background: #e6f4ff; color: #1890ff; }
+    .type-rescue { background: #fff1f0; color: #ff4d4f; }
+    .type-comm { background: #f9f0ff; color: #722ed1; }
+    .type-medical { background: #f6ffed; color: #52c41a; }
+
+    /* ========== 操作列 ========== */
+    .action-col .btn-link { margin-right: 4px; }
+    .action-col .btn-link:last-child { margin-right: 0; }
+
+    /* ========== 弹窗 ========== */
+    .modal-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; display: none; }
+    .modal-container.show { display: flex; align-items: center; justify-content: center; }
+    .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); }
+    .modal-dialog { position: relative; background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-elevated); max-height: 90vh; display: flex; flex-direction: column; animation: modalSlideIn 0.3s ease-out; }
+    @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); background: var(--bg-section); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 500; color: var(--text-primary); }
+    .modal-close { width: 32px; height: 32px; border: none; background: transparent; font-size: var(--font-size-xxl); color: var(--text-tertiary); cursor: pointer; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; transition: background-color var(--duration-fast), color var(--duration-fast); }
+    .modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .modal-body { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); background: var(--bg-section); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+
+    /* ========== 表单 ========== */
+    .form-group { margin-bottom: var(--spacing-md); }
+    .form-label { display: block; margin-bottom: var(--spacing-xs); font-size: var(--font-size-md); color: var(--text-primary); font-weight: 500; }
+    .form-input, .form-select {
+      width: 100%;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-md);
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      transition: all var(--duration-fast);
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: var(--shadow-input-focus);
+    }
+    .form-input:disabled, .form-select:disabled {
+      background: var(--bg-section);
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+
+    /* ========== 详情信息 ========== */
+    .info-section { margin-bottom: var(--spacing-md); background: var(--bg-section); border-radius: var(--radius-lg); padding: var(--spacing-md); border: 1px solid var(--border-section); }
+    .info-section-title { font-size: var(--font-size-md); font-weight: 600; margin-bottom: var(--spacing-sm); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--border-section); }
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
+    .info-value { font-size: var(--font-size-md); color: var(--text-primary); }
+
+    /* ========== Toast ========== */
+    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: var(--spacing-sm); }
+    .toast { padding: 12px 20px; border-radius: var(--radius-md); background: var(--bg-primary); box-shadow: 0 4px 16px rgba(0,0,0,0.12); font-size: var(--font-size-sm); color: var(--text-primary); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: var(--spacing-sm); border-left: 4px solid var(--primary); max-width: 420px; }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
+
+    /* ========== 空状态 ========== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      color: var(--text-tertiary);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-text { font-size: var(--font-size-md); }
   </style>
 </head>
 <body>
-  <div class="page">
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="module-page page-container" data-module="emergency-supply">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">政府端</span>
+      <span class="breadcrumb-separator">›</span>
+      <span class="breadcrumb-item">应急资源</span>
+      <span class="breadcrumb-separator">›</span>
+      <span class="breadcrumb-item current">应急物资</span>
+    </div>
+
+    <!-- 页面标题 -->
     <div class="page-header">
       <div>
-        <div class="page-title">应急物资</div>
-        <div class="page-subtitle">管理应急物资台账与有效期预警</div>
+        <h1 class="page-title">应急物资</h1>
+        <div class="page-subtitle">管理应急物资台账与有效期预警（BR-GOV-EM-02：有效期前30天自动标记即将过期）</div>
       </div>
       <div class="header-actions">
-        <button class="btn">📥 批量导入</button>
-        <button class="btn btn-primary">+ 新增物资</button>
+        <button class="btn btn-default" onclick="handleExport()">导出台账</button>
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增物资</button>
       </div>
     </div>
 
+    <!-- 统计卡片 -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-icon blue">&#x1F4E6;</div>
+        <div class="stat-content">
+          <div class="stat-value" style="color: var(--primary);" id="statTotal">0</div>
+          <div class="stat-label">物资总数</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">&#x2705;</div>
+        <div class="stat-content">
+          <div class="stat-value" style="color: var(--success);" id="statNormal">0</div>
+          <div class="stat-label">正常</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">&#x26A0;</div>
+        <div class="stat-content">
+          <div class="stat-value" style="color: var(--warning);" id="statExpiring">0</div>
+          <div class="stat-label">即将过期</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">&#x26D4;</div>
+        <div class="stat-content">
+          <div class="stat-value" style="color: var(--error);" id="statExpired">0</div>
+          <div class="stat-label">已过期</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 筛选栏 -->
     <div class="filter-bar">
-      <div class="filter-group"><span class="filter-label">物资类型:</span>
-      <select>
-        <option>全部</option>
-        <option>防护</option>
-        <option>救援</option>
-        <option>通讯</option>
-        <option>医疗</option>
-      </select></div>
-      <div class="filter-group"><span class="filter-label">状态:</span>
-      <select>
-        <option>全部</option>
-        <option>正常</option>
-        <option>即将过期</option>
-        <option>已过期</option>
-      </select></div>
-      <input type="search" placeholder="搜索物资名称 / 编号">
-      <button class="btn btn-primary">查询</button>
-      <button class="btn">重置</button>
+      <div class="filter-item">
+        <label>物资类型：</label>
+        <select id="filterType" onchange="applyFilter()">
+          <option value="">全部</option>
+          <option value="防护">防护</option>
+          <option value="救援">救援</option>
+          <option value="通讯">通讯</option>
+          <option value="医疗">医疗</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>状态：</label>
+        <select id="filterStatus" onchange="applyFilter()">
+          <option value="">全部</option>
+          <option value="正常">正常</option>
+          <option value="即将过期">即将过期</option>
+          <option value="已过期">已过期</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>关键词：</label>
+        <input type="text" id="filterKeyword" placeholder="搜索物资名称、存放位置" oninput="applyFilter()">
+      </div>
+      <button class="btn btn-primary" onclick="applyFilter()">查询</button>
+      <button class="btn btn-default" onclick="resetFilter()">重置</button>
     </div>
 
-    <div class="content-card">
-      <div class="table-toolbar">
-        <h3>物资清单（386 条）</h3>
+    <!-- 表格 -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>物资名称</th>
+              <th width="90">物资类型</th>
+              <th width="160">存放位置</th>
+              <th width="80">数量</th>
+              <th width="110">有效期</th>
+              <th width="90">状态</th>
+              <th width="120" class="action-col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="supplyTableBody">
+            <!-- 动态渲染 -->
+          </tbody>
+        </table>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>物资名称</th>
-            <th width="100">物资类型</th>
-            <th width="160">存放位置</th>
-            <th width="80">数量</th>
-            <th width="100">有效期</th>
-            <th width="100">状态</th>
-            <th width="120">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>正压式空气呼吸器</td>
-            <td><span class="tag tag-blue">救援</span></td>
-            <td>区中心应急物资库</td>
-            <td>82</td>
-            <td>2028-06</td>
-            <td><span class="tag tag-green">正常</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>防化服</td>
-            <td><span class="tag tag-blue">防护</span></td>
-            <td>工业园区分库</td>
-            <td>35</td>
-            <td>2027-03</td>
-            <td><span class="tag tag-green">正常</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>灭火器（4kg ABC 干粉）</td>
-            <td><span class="tag tag-blue">救援</span></td>
-            <td>区中心应急物资库</td>
-            <td>486</td>
-            <td>2028-12</td>
-            <td><span class="tag tag-green">正常</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>急救包（综合型）</td>
-            <td><span class="tag tag-blue">医疗</span></td>
-            <td>街道办前置库</td>
-            <td>42</td>
-            <td>2026-08</td>
-            <td><span class="tag tag-orange">即将过期</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>对讲机（手持式）</td>
-            <td><span class="tag tag-blue">通讯</span></td>
-            <td>区中心应急物资库</td>
-            <td>78</td>
-            <td>—</td>
-            <td><span class="tag tag-green">正常</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>消防斧</td>
-            <td><span class="tag tag-blue">救援</span></td>
-            <td>区中心应急物资库</td>
-            <td>44</td>
-            <td>—</td>
-            <td><span class="tag tag-green">正常</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>应急照明灯</td>
-            <td><span class="tag tag-blue">救援</span></td>
-            <td>区中心应急物资库</td>
-            <td>150</td>
-            <td>—</td>
-            <td><span class="tag tag-green">正常</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td>医用消毒酒精（500ml）</td>
-            <td><span class="tag tag-blue">医疗</span></td>
-            <td>街道办前置库</td>
-            <td>24</td>
-            <td>2026-06</td>
-            <td><span class="tag tag-red">已过期</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="pagination">
-        共 386 条 第 1 / 39 页
-        <button>‹</button>
-        <button class="active">1</button>
-        <button>2</button>
-        <button>3</button>
-        <button>...</button>
-        <button>39</button>
-        <button>›</button>
+      <div class="pagination" id="paginationBar"></div>
+    </div>
+  </div>
+
+  <!-- ========== 查看详情弹窗 ========== -->
+  <div class="modal-container" id="modal-view">
+    <div class="modal-overlay" onclick="closeModal('modal-view')"></div>
+    <div class="modal-dialog" style="width: 640px;">
+      <div class="modal-header">
+        <span class="modal-title">物资详情</span>
+        <button class="modal-close" onclick="closeModal('modal-view')">&times;</button>
+      </div>
+      <div class="modal-body" id="viewBody">
+        <!-- 动态渲染 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-view')">关闭</button>
       </div>
     </div>
   </div>
+
+  <!-- ========== 编辑弹窗 ========== -->
+  <div class="modal-container" id="modal-edit">
+    <div class="modal-overlay" onclick="closeModal('modal-edit')"></div>
+    <div class="modal-dialog" style="width: 640px;">
+      <div class="modal-header">
+        <span class="modal-title" id="editTitle">编辑物资</span>
+        <button class="modal-close" onclick="closeModal('modal-edit')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <div class="form-group">
+            <label class="form-label">物资名称 <span style="color: var(--error);">*</span></label>
+            <input class="form-input" type="text" id="editName" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">物资类型 <span style="color: var(--error);">*</span></label>
+            <select class="form-select" id="editType" required>
+              <option value="">请选择</option>
+              <option value="防护">防护</option>
+              <option value="救援">救援</option>
+              <option value="通讯">通讯</option>
+              <option value="医疗">医疗</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">存放位置 <span style="color: var(--error);">*</span></label>
+            <input class="form-input" type="text" id="editLocation" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">数量 <span style="color: var(--error);">*</span></label>
+            <input class="form-input" type="number" id="editQuantity" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">有效期</label>
+            <input class="form-input" type="date" id="editExpiry">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-edit')">取消</button>
+        <button class="btn btn-primary" onclick="submitEdit()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      var CONFIG = {
+        moduleId: 'emergency-supply',
+        moduleName: '应急物资',
+        EXPIRY_WARNING_DAYS: 30  // BR-GOV-EM-02: 有效期前30天标记即将过期
+      };
+
+      var state = {
+        initialized: false,
+        currentPage: 1,
+        currentEditId: null
+      };
+
+      // ========== XSS 防护 ==========
+      function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // ========== 状态计算（BR-GOV-EM-02） ==========
+      function computeStatus(expiryDate) {
+        if (!expiryDate) return '正常';
+        var now = new Date();
+        now.setHours(0, 0, 0, 0);
+        var expiry = new Date(expiryDate);
+        expiry.setHours(0, 0, 0, 0);
+        var diffMs = expiry.getTime() - now.getTime();
+        var diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return '已过期';
+        if (diffDays <= CONFIG.EXPIRY_WARNING_DAYS) return '即将过期';
+        return '正常';
+      }
+
+      // ========== 模拟数据（至少10条，含即将过期和已过期） ==========
+      var supplyList = [
+        { id: 'EM001', name: '正压式空气呼吸器', type: '救援', location: '区中心应急物资库', quantity: 82, expiry: '2028-06-30' },
+        { id: 'EM002', name: '防化服', type: '防护', location: '工业园区分库', quantity: 35, expiry: '2027-03-15' },
+        { id: 'EM003', name: '灭火器（4kg ABC干粉）', type: '救援', location: '区中心应急物资库', quantity: 486, expiry: '2028-12-20' },
+        { id: 'EM004', name: '急救包（综合型）', type: '医疗', location: '街道办前置库', quantity: 42, expiry: '2026-07-20' },
+        { id: 'EM005', name: '对讲机（手持式）', type: '通讯', location: '区中心应急物资库', quantity: 78, expiry: '2029-05-10' },
+        { id: 'EM006', name: '消防斧', type: '救援', location: '区中心应急物资库', quantity: 44, expiry: null },
+        { id: 'EM007', name: '应急照明灯', type: '救援', location: '区中心应急物资库', quantity: 150, expiry: null },
+        { id: 'EM008', name: '医用消毒酒精（500ml）', type: '医疗', location: '街道办前置库', quantity: 24, expiry: '2026-05-15' },
+        { id: 'EM009', name: '防毒面具（全面罩）', type: '防护', location: '工业园区分库', quantity: 60, expiry: '2026-07-10' },
+        { id: 'EM010', name: '卫星电话', type: '通讯', location: '区中心应急物资库', quantity: 8, expiry: '2027-08-25' },
+        { id: 'EM011', name: '止血带（军用型）', type: '医疗', location: '街道办前置库', quantity: 200, expiry: '2026-06-05' },
+        { id: 'EM012', name: '安全帽（V型）', type: '防护', location: '工业园区分库', quantity: 120, expiry: '2026-12-31' },
+        { id: 'EM013', name: '救生衣（自动充气）', type: '救援', location: '区中心应急物资库', quantity: 65, expiry: '2028-03-20' },
+        { id: 'EM014', name: '便携式发电机（3kW）', type: '通讯', location: '区中心应急物资库', quantity: 12, expiry: '2027-11-08' }
+      ];
+
+      // 为每条数据计算状态
+      function enrichSupplyList() {
+        for (var i = 0; i < supplyList.length; i++) {
+          supplyList[i].status = computeStatus(supplyList[i].expiry);
+        }
+      }
+
+      // ========== 统计数据 ==========
+      function computeStats(data) {
+        var total = data.length;
+        var normal = 0, expiring = 0, expired = 0;
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].status === '正常') normal++;
+          else if (data[i].status === '即将过期') expiring++;
+          else if (data[i].status === '已过期') expired++;
+        }
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statNormal').textContent = normal;
+        document.getElementById('statExpiring').textContent = expiring;
+        document.getElementById('statExpired').textContent = expired;
+      }
+
+      // ========== 物资类型标签 class ==========
+      function getTypeClass(type) {
+        switch (type) {
+          case '防护': return 'type-protect';
+          case '救援': return 'type-rescue';
+          case '通讯': return 'type-comm';
+          case '医疗': return 'type-medical';
+          default: return 'tag-gray';
+        }
+      }
+
+      // ========== 状态标签 class ==========
+      function getStatusClass(status) {
+        switch (status) {
+          case '正常': return 'tag-green';
+          case '即将过期': return 'tag-orange';
+          case '已过期': return 'tag-red';
+          default: return 'tag-gray';
+        }
+      }
+
+      // ========== 行高亮 class ==========
+      function getRowClass(status) {
+        switch (status) {
+          case '即将过期': return 'row-expiring';
+          case '已过期': return 'row-expired';
+          default: return '';
+        }
+      }
+
+      // ========== 筛选 ==========
+      function getFilteredData() {
+        var filterType = document.getElementById('filterType').value;
+        var filterStatus = document.getElementById('filterStatus').value;
+        var keyword = document.getElementById('filterKeyword').value.trim().toLowerCase();
+
+        var result = [];
+        for (var i = 0; i < supplyList.length; i++) {
+          var s = supplyList[i];
+          if (filterType && s.type !== filterType) continue;
+          if (filterStatus && s.status !== filterStatus) continue;
+          if (keyword) {
+            var match = s.name.toLowerCase().indexOf(keyword) >= 0 ||
+                        s.location.toLowerCase().indexOf(keyword) >= 0;
+            if (!match) continue;
+          }
+          result.push(s);
+        }
+        return result;
+      }
+
+      // ========== 表格渲染 ==========
+      function renderTable(data) {
+        var tbody = document.getElementById('supplyTableBody');
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-tertiary);">暂无物资数据</td></tr>';
+          return;
+        }
+
+        // 分页
+        var pgState = pg ? pg.getState() : { page: 1, size: 10 };
+        var start = (pgState.page - 1) * pgState.size;
+        var end = Math.min(start + pgState.size, data.length);
+        var pageData = data.slice(start, end);
+
+        var html = '';
+        for (var i = 0; i < pageData.length; i++) {
+          var s = pageData[i];
+          var rowClass = getRowClass(s.status);
+          html += '<tr class="' + escapeHtml(rowClass) + '">';
+          html += '<td>' + escapeHtml(s.name) + '</td>';
+          html += '<td><span class="tag ' + getTypeClass(s.type) + '">' + escapeHtml(s.type) + '</span></td>';
+          html += '<td>' + escapeHtml(s.location) + '</td>';
+          html += '<td>' + escapeHtml(s.quantity) + '</td>';
+          html += '<td>' + (s.expiry ? escapeHtml(s.expiry) : '<span style="color: var(--text-tertiary);">长期有效</span>') + '</td>';
+          html += '<td><span class="tag ' + getStatusClass(s.status) + '">' + escapeHtml(s.status) + '</span></td>';
+          html += '<td class="action-col">';
+          html += '<button class="btn-link" onclick="viewSupply(\'' + escapeHtml(s.id) + '\')">查看</button>';
+          html += '<button class="btn-link" onclick="editSupply(\'' + escapeHtml(s.id) + '\')">编辑</button>';
+          html += '</td>';
+          html += '</tr>';
+        }
+        tbody.innerHTML = html;
+      }
+
+      window.applyFilter = function() {
+        var data = getFilteredData();
+        computeStats(data);
+        if (pg) {
+          pg.setTotal(data.length);
+          pg.setPage(1);
+        }
+        renderTable(data);
+      };
+
+      window.resetFilter = function() {
+        document.getElementById('filterType').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterKeyword').value = '';
+        applyFilter();
+      };
+
+      // ========== 弹窗控制 ==========
+      window.openModal = function(id) {
+        document.getElementById(id).classList.add('show');
+      };
+      window.closeModal = function(id) {
+        document.getElementById(id).classList.remove('show');
+      };
+
+      // ========== Toast ==========
+      window.showToast = function(msg) {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = msg;
+        container.appendChild(toast);
+        setTimeout(function() { toast.classList.add('out'); }, 2500);
+        setTimeout(function() { toast.remove(); }, 2800);
+      };
+
+      // ========== 查看详情 ==========
+      window.viewSupply = function(id) {
+        var s = getSupplyById(id);
+        if (!s) return;
+        var html = '';
+        html += '<div class="info-section">';
+        html += '<div class="info-section-title">基本信息</div>';
+        html += '<div class="info-grid">';
+        html += '<div class="info-item"><span class="info-label">物资编号</span><span class="info-value">' + escapeHtml(s.id) + '</span></div>';
+        html += '<div class="info-item"><span class="info-label">物资名称</span><span class="info-value">' + escapeHtml(s.name) + '</span></div>';
+        html += '<div class="info-item"><span class="info-label">物资类型</span><span class="info-value"><span class="tag ' + getTypeClass(s.type) + '">' + escapeHtml(s.type) + '</span></span></div>';
+        html += '<div class="info-item"><span class="info-label">存放位置</span><span class="info-value">' + escapeHtml(s.location) + '</span></div>';
+        html += '<div class="info-item"><span class="info-label">当前库存</span><span class="info-value">' + escapeHtml(s.quantity) + '</span></div>';
+        html += '<div class="info-item"><span class="info-label">有效期</span><span class="info-value">' + (s.expiry ? escapeHtml(s.expiry) : '长期有效') + '</span></div>';
+        html += '<div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag ' + getStatusClass(s.status) + '">' + escapeHtml(s.status) + '</span></span></div>';
+        html += '</div>';
+        html += '</div>';
+        document.getElementById('viewBody').innerHTML = html;
+        openModal('modal-view');
+      };
+
+      // ========== 编辑物资 ==========
+      window.editSupply = function(id) {
+        var s = getSupplyById(id);
+        if (!s) return;
+        state.currentEditId = id;
+        document.getElementById('editTitle').textContent = '编辑物资';
+        document.getElementById('editName').value = s.name;
+        document.getElementById('editType').value = s.type;
+        document.getElementById('editLocation').value = s.location;
+        document.getElementById('editQuantity').value = s.quantity;
+        document.getElementById('editExpiry').value = s.expiry || '';
+        openModal('modal-edit');
+      };
+
+      // ========== 新增物资 ==========
+      window.openAddModal = function() {
+        state.currentEditId = null;
+        document.getElementById('editTitle').textContent = '新增物资';
+        document.getElementById('editName').value = '';
+        document.getElementById('editType').value = '';
+        document.getElementById('editLocation').value = '';
+        document.getElementById('editQuantity').value = '';
+        document.getElementById('editExpiry').value = '';
+        openModal('modal-edit');
+      };
+
+      // ========== 提交编辑/新增 ==========
+      window.submitEdit = function() {
+        var name = document.getElementById('editName').value.trim();
+        var type = document.getElementById('editType').value;
+        var location = document.getElementById('editLocation').value.trim();
+        var quantity = document.getElementById('editQuantity').value;
+        var expiry = document.getElementById('editExpiry').value || null;
+
+        if (!name) { showToast('请填写物资名称'); return; }
+        if (!type) { showToast('请选择物资类型'); return; }
+        if (!location) { showToast('请填写存放位置'); return; }
+        if (!quantity || parseInt(quantity) < 0) { showToast('请填写有效数量'); return; }
+
+        if (state.currentEditId) {
+          // 编辑
+          var s = getSupplyById(state.currentEditId);
+          if (s) {
+            s.name = name;
+            s.type = type;
+            s.location = location;
+            s.quantity = parseInt(quantity);
+            s.expiry = expiry;
+            s.status = computeStatus(expiry);
+          }
+          showToast('物资信息已更新');
+        } else {
+          // 新增
+          var newId = 'EM' + String(supplyList.length + 1).padStart(3, '0');
+          supplyList.push({
+            id: newId,
+            name: name,
+            type: type,
+            location: location,
+            quantity: parseInt(quantity),
+            expiry: expiry,
+            status: computeStatus(expiry)
+          });
+          showToast('物资已添加');
+        }
+
+        closeModal('modal-edit');
+        applyFilter();
+      };
+
+      // ========== 导出台账 ==========
+      window.handleExport = function() {
+        showToast('物资台账导出中，完成后将自动下载');
+      };
+
+      // ========== 工具函数 ==========
+      function getSupplyById(id) {
+        for (var i = 0; i < supplyList.length; i++) {
+          if (supplyList[i].id === id) return supplyList[i];
+        }
+        return null;
+      }
+
+      // ========== 面包屑推送 ==========
+      function pushBreadcrumb() {
+        try {
+          if (window.parent && window.parent.postMessage) {
+            window.parent.postMessage({
+              type: 'breadcrumb',
+              moduleId: CONFIG.moduleId,
+              moduleName: CONFIG.moduleName,
+              path: [
+                { label: '政府端' },
+                { label: '应急资源' },
+                { label: '应急物资' }
+              ]
+            }, '*');
+          }
+        } catch (e) { /* iframe 跨域忽略 */ }
+      }
+
+      // ========== 初始化 ==========
+      var pg = null;
+
+      function init() {
+        if (state.initialized) return;
+        console.log('[' + CONFIG.moduleId + '] 模块初始化');
+        state.initialized = true;
+
+        // 计算状态
+        enrichSupplyList();
+
+        // 初始化分页
+        pg = new Pagination('paginationBar', {
+          total: supplyList.length,
+          size: 10,
+          onChange: function(page, size) {
+            state.currentPage = page;
+            var data = getFilteredData();
+            renderTable(data);
+          }
+        });
+
+        // 初始渲染
+        applyFilter();
+
+        // 面包屑
+        pushBreadcrumb();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+      window.destroyModule = function() {
+        console.log('[' + CONFIG.moduleId + '] 模块销毁');
+        state.initialized = false;
+      };
+    })();
+  </script>
+  <script src="../../js/pagination.js"></script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

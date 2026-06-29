@@ -7,324 +7,775 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-    .page { padding: 20px 24px; background: var(--bg-page); min-height: 100vh; }
+    /* ========== 页面级布局：禁止外层滚动，填满 iframe ========== */
+    html, body { height: 100%; overflow: hidden; }
+    body { margin: 0; }
+    .page-container[data-module="emergency-plan"] {
+      height: 100vh;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .page-container[data-module="emergency-plan"] > .page-content {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 0 var(--spacing-lg) var(--spacing-lg);
+    }
+
+    /* ========== 页面标题栏 ========== */
     .page-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: var(--spacing-md);
       background: var(--bg-primary);
-      padding: var(--spacing-md) 20px;
+      padding: var(--spacing-md) var(--spacing-lg);
       border-radius: var(--radius-lg);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-header);
     }
-    .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
-    .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-    .header-actions { display: flex; gap: 8px; }
-    .btn { padding: 7px 16px; font-size: 13px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border-card); background: #fff; color: var(--text-secondary); }
-    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .btn:hover { color: var(--primary); border-color: var(--primary); }
-    .btn-primary:hover { color: #fff; background: #096dd9; border-color: #096dd9; }
+    .page-title { font-size: var(--font-size-xl); font-weight: 600; }
+    .page-subtitle { font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px; }
+    .header-actions { display: flex; gap: var(--spacing-sm); }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
+    /* ========== 统计卡片 ========== */
+    .stat-cards {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
     }
     .stat-card {
-      background: var(--bg-primary);
-      padding: 16px 20px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-      border: none;
-      border-left: 4px solid transparent;
-    }
-    .stat-card:hover { background: var(--bg-primary); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); }
-    .stat-card.blue { border-left-color: #1890ff; }
-    .stat-card.green { border-left-color: #52c41a; }
-    .stat-card.orange { border-left-color: #fa8c16; }
-    .stat-card.red { border-left-color: #ff4d4f; }
-    .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
-    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-
-    .filter-bar {
-      background: var(--bg-primary);
-      padding: 12px 16px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      flex: 1;
+      background: linear-gradient(135deg, var(--bg-section) 0%, var(--bg-section-alt) 100%);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
       display: flex;
+      align-items: center;
       gap: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--duration-normal);
+    }
+    .stat-card:hover {
+      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--border-section) 100%);
+      box-shadow: var(--shadow-md);
+    }
+    .stat-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--font-size-xxl);
+      flex-shrink: 0;
+    }
+    .stat-icon.blue { background: var(--primary-light); color: var(--primary); }
+    .stat-icon.green { background: var(--success-light); color: var(--success); }
+    .stat-icon.orange { background: var(--warning-light); color: var(--warning); }
+    .stat-content { flex: 1; }
+    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
+    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
+
+    /* ========== 筛选栏 ========== */
+    .filter-bar {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      background: var(--bg-section);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-section);
     }
-    .filter-group { display: flex; align-items: center; gap: 6px; }
-    .filter-label { font-size: 13px; color: var(--text-secondary); }
-    .filter-bar select, .filter-bar input {
-      padding: 6px 10px;
-      border: 1px solid var(--border-card);
-      border-radius: 4px;
-      font-size: 13px;
-      min-width: 140px;
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
     }
-    .filter-bar input[type="search"] { min-width: 220px; }
-
-    .content-card {
+    .filter-item label {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .filter-item select,
+    .filter-item input[type="text"] {
+      width: 240px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
       background: var(--bg-primary);
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      color: var(--text-primary);
+    }
+    .filter-item select:focus,
+    .filter-item input[type="text"]:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: var(--shadow-input-focus);
+    }
+    .filter-item input[type="text"]::placeholder {
+      color: var(--text-placeholder);
+    }
+
+    /* ========== 表格容器 ========== */
+    .table-wrap {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
       overflow: hidden;
+      box-shadow: var(--shadow-card);
     }
     .table-toolbar {
-      padding: 12px 16px;
+      padding: var(--spacing-sm) var(--spacing-md);
       border-bottom: 1px solid var(--border-section);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .table-toolbar h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .table-toolbar h3 { margin: 0; font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
 
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border-section); }
-    th { background: var(--bg-section); color: var(--text-secondary); font-weight: 500; }
-    tr:hover { background: var(--bg-section); }
+    .table-scroll { overflow-x: auto; }
+    .table-scroll table { width: 100%; min-width: 1000px; border-collapse: collapse; }
+    .table-scroll thead tr { background: var(--bg-section); }
+    .table-scroll th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
+    .table-scroll td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
+    .table-scroll tbody tr:nth-child(even) { background: var(--bg-table-stripe); }
+    .table-scroll tbody tr:hover td { background: var(--bg-hover); }
 
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
-    .tag-blue { background: #e6f4ff; color: #1890ff; }
-    .tag-green { background: #f6ffed; color: #52c41a; }
-    .tag-orange { background: #fff7e6; color: #fa8c16; }
-    .tag-red { background: #fff1f0; color: #ff4d4f; }
-    .tag-gray { background: #f5f5f5; color: #8c8c8c; }
-    .tag-purple { background: #f9f0ff; color: #722ed1; }
+    /* ========== 标签样式 ========== */
+    .tag { display: inline-block; padding: 2px var(--spacing-sm); border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
+    /* 状态标签：草稿=灰、已发布=绿、已归档=蓝 */
+    .tag-draft { background: var(--bg-section-alt); color: var(--text-secondary); }
+    .tag-published { background: var(--success-light); color: var(--success); }
+    .tag-archived { background: var(--info-light); color: var(--info); }
+    /* 预案类型标签：综合=蓝、专项=橙、现场处置=紫 */
+    .tag-comprehensive { background: var(--info-light); color: var(--info); }
+    .tag-special { background: var(--warning-light); color: #d48806; }
+    .tag-on-site { background: #f9f0ff; color: #722ed1; }
+    /* 级别标签 */
+    .tag-district { background: #e6f7ff; color: #096dd9; }
+    .tag-street { background: #fff7e6; color: #d48806; }
 
-    .action-link { color: var(--primary); font-size: 13px; cursor: pointer; }
-    .action-link + .action-link { margin-left: 12px; }
-    .action-link.danger { color: #ff4d4f; }
+    /* ========== 操作链接 ========== */
+    .btn-link { padding: 0; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .btn-link:hover { text-decoration: underline; }
+    .btn-link + .btn-link { margin-left: 12px; }
+    .btn-link.danger { color: var(--error); }
 
-    .file-icon { color: #1890ff; margin-right: 4px; }
+    /* 预案名称可点击 */
+    .plan-name-link { color: var(--primary); cursor: pointer; }
+    .plan-name-link:hover { text-decoration: underline; }
 
-    .pagination { padding: 12px 16px; text-align: right; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border-section); }
-    .pagination button { padding: 4px 10px; margin: 0 2px; border: 1px solid var(--border-card); background: #fff; cursor: pointer; border-radius: 4px; font-size: 12px; }
-    .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    /* ========== 弹窗 ========== */
+    .modal-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; display: none; }
+    .modal-container.show { display: flex; align-items: center; justify-content: center; }
+    .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); }
+    .modal-dialog { position: relative; background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-elevated); max-height: 90vh; display: flex; flex-direction: column; animation: modalSlideIn 0.3s ease-out; }
+    @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); background: var(--bg-section); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 500; color: var(--text-primary); }
+    .modal-close { width: 32px; height: 32px; border: none; background: transparent; font-size: var(--font-size-xxl); color: var(--text-tertiary); cursor: pointer; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; transition: background-color var(--duration-fast), color var(--duration-fast); }
+    .modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .modal-body { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); background: var(--bg-section); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+
+    /* ========== 详情行 ========== */
+    .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 100px; flex-shrink: 0; color: var(--text-secondary); font-size: var(--font-size-sm); }
+    .detail-value { flex: 1; font-size: var(--font-size-sm); color: var(--text-primary); min-width: 0; overflow-wrap: break-word; }
+
+    /* ========== 评审提醒条 ========== */
+    .review-alert {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--warning-light);
+      border: 1px solid #ffe58f;
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      color: #d48806;
+    }
+    .review-alert-icon { flex-shrink: 0; }
+
+    /* ========== Toast ========== */
+    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: var(--spacing-sm); }
+    .toast { padding: 12px 20px; border-radius: var(--radius-md); background: var(--bg-primary); box-shadow: 0 4px 16px rgba(0,0,0,0.12); font-size: var(--font-size-sm); color: var(--text-primary); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: var(--spacing-sm); border-left: 4px solid var(--primary); max-width: 420px; }
+    .toast.success { border-left-color: var(--success); }
+    .toast.warning { border-left-color: var(--warning); }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="page-header">
-      <div>
-        <div class="page-title">应急预案</div>
-        <div class="page-subtitle">管理本单位的应急预案文件与责任分工</div>
-      </div>
-      <div class="header-actions">
-        <button class="btn">📥 批量导入</button>
-        <button class="btn">📤 导出</button>
-        <button class="btn btn-primary">+ 新增预案</button>
-      </div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="page-container" data-module="emergency-plan">
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-prefix">当前位置：</span>
+      <span class="breadcrumb-item">政府端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item">应急资源</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">应急预案</span>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-value">28</div>
-        <div class="stat-label">预案总数</div>
+    <div class="page-content">
+      <!-- 页面标题 -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">应急预案</div>
+          <div class="page-subtitle">管理本单位的应急预案文件与评审周期</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-default" onclick="exportPlans()">导出</button>
+          <button class="btn btn-primary" onclick="openAddModal()">+ 新增预案</button>
+        </div>
       </div>
-      <div class="stat-card green">
-        <div class="stat-value">24</div>
-        <div class="stat-label">在用</div>
-      </div>
-      <div class="stat-card orange">
-        <div class="stat-value">3</div>
-        <div class="stat-label">待复审</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-value">1</div>
-        <div class="stat-label">已过期</div>
-      </div>
-    </div>
 
-    <div class="filter-bar">
-      <div class="filter-group">
-        <span class="filter-label">预案类型:</span>
-        <select>
-          <option>全部</option>
-          <option>综合预案</option>
-          <option>专项预案</option>
-          <option>现场处置方案</option>
-        </select>
+      <!-- 统计卡片：3 张 -->
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-icon blue">&#x1F4C4;</div>
+          <div class="stat-content">
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-label">预案总数</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">&#x2705;</div>
+          <div class="stat-content">
+            <div class="stat-value" id="statPublished">0</div>
+            <div class="stat-label">已发布</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">&#x23F0;</div>
+          <div class="stat-content">
+            <div class="stat-value" id="statReviewDue">0</div>
+            <div class="stat-label">待评审</div>
+          </div>
+        </div>
       </div>
-      <div class="filter-group">
-        <span class="filter-label">级别:</span>
-        <select>
-          <option>全部</option>
-          <option>区级</option>
-          <option>街道级</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">状态:</span>
-        <select>
-          <option>全部</option>
-          <option>在用</option>
-          <option>待复审</option>
-          <option>已过期</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <input type="search" placeholder="搜索预案名称 / 编号">
-      </div>
-      <button class="btn btn-primary">查询</button>
-      <button class="btn">重置</button>
-    </div>
 
-    <div class="content-card">
-      <div class="table-toolbar">
-        <h3>预案列表（28 条）</h3>
+      <!-- 评审提醒条（BR-GOV-EM-01：到期前30天提醒） -->
+      <div class="review-alert" id="reviewAlert" style="display:none;">
+        <span class="review-alert-icon">&#x26A0;</span>
+        <span id="reviewAlertText"></span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>预案名称</th>
-            <th width="100">预案类型</th>
-            <th width="80">级别</th>
-            <th width="140">编制单位</th>
-            <th width="100">版本</th>
-            <th width="110">下次评审日期</th>
-            <th width="80">状态</th>
-            <th width="180">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="file-icon">📄</span>XX 区危险化学品事故综合应急预案</td>
-            <td><span class="tag tag-blue">综合预案</span></td>
-            <td>区级</td>
-            <td>应急指挥科</td>
-            <td>V3.2</td>
-            <td>2025-08-15</td>
-            <td><span class="tag tag-green">在用</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="file-icon">📄</span>烟花爆竹爆炸事故专项应急预案</td>
-            <td><span class="tag tag-purple">专项预案</span></td>
-            <td>区级</td>
-            <td>安全监督科</td>
-            <td>V2.0</td>
-            <td>2025-06-20</td>
-            <td><span class="tag tag-green">在用</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="file-icon">📄</span>加油站火灾爆炸现场处置方案</td>
-            <td><span class="tag tag-orange">现场处置</span></td>
-            <td>街道级</td>
-            <td>安全监督科</td>
-            <td>V1.5</td>
-            <td>2025-04-10</td>
-            <td><span class="tag tag-green">在用</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="file-icon">📄</span>有限空间作业事故应急预案</td>
-            <td><span class="tag tag-purple">专项预案</span></td>
-            <td>区级</td>
-            <td>工贸监管科</td>
-            <td>V2.1</td>
-            <td>2025-03-22</td>
-            <td><span class="tag tag-orange">待复审</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-              <span class="action-link">发布</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="file-icon">📄</span>洪涝灾害应急预案</td>
-            <td><span class="tag tag-blue">综合预案</span></td>
-            <td>区级</td>
-            <td>应急指挥科</td>
-            <td>V4.0</td>
-            <td>2025-03-01</td>
-            <td><span class="tag tag-green">在用</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="file-icon">📄</span>森林火灾扑救应急预案</td>
-            <td><span class="tag tag-purple">专项预案</span></td>
-            <td>街道级</td>
-            <td>应急指挥科</td>
-            <td>V2.3</td>
-            <td>2024-12-15</td>
-            <td><span class="tag tag-green">在用</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="file-icon">📄</span>建筑施工坍塌事故应急预案</td>
-            <td><span class="tag tag-purple">专项预案</span></td>
-            <td>街道级</td>
-            <td>建筑监管科</td>
-            <td>V1.8</td>
-            <td>2024-10-10</td>
-            <td><span class="tag tag-orange">待复审</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-              <span class="action-link">发布</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="file-icon">📄</span>大型群众性活动公共安全应急预案</td>
-            <td><span class="tag tag-blue">综合预案</span></td>
-            <td>区级</td>
-            <td>应急指挥科</td>
-            <td>V1.0</td>
-            <td>2024-05-01</td>
-            <td><span class="tag tag-red">已过期</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">归档</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="file-icon">📄</span>食品安全突发事件应急预案</td>
-            <td><span class="tag tag-purple">专项预案</span></td>
-            <td>街道级</td>
-            <td>食品监管科</td>
-            <td>V1.2</td>
-            <td>2024-08-08</td>
-            <td><span class="tag tag-orange">待复审</span></td>
-            <td>
-              <span class="action-link">查看</span>
-              <span class="action-link">编辑</span>
-              <span class="action-link">发布</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="pagination">
-        共 28 条 第 1 / 3 页
-        <button>‹</button>
-        <button class="active">1</button>
-        <button>2</button>
-        <button>3</button>
-        <button>›</button>
+
+      <!-- 筛选区 -->
+      <div class="filter-bar">
+        <div class="filter-item">
+          <label>预案类型：</label>
+          <select id="filterType" onchange="applyFilter()">
+            <option value="">全部</option>
+            <option value="COMPREHENSIVE">综合预案</option>
+            <option value="SPECIAL">专项预案</option>
+            <option value="ON_SITE">现场处置方案</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>级别：</label>
+          <select id="filterLevel" onchange="applyFilter()">
+            <option value="">全部</option>
+            <option value="DISTRICT">区级</option>
+            <option value="STREET">街道级</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>状态：</label>
+          <select id="filterStatus" onchange="applyFilter()">
+            <option value="">全部</option>
+            <option value="DRAFT">草稿</option>
+            <option value="PUBLISHED">已发布</option>
+            <option value="ARCHIVED">已归档</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>关键词：</label>
+          <input type="text" id="filterKeyword" placeholder="搜索预案名称、编号" oninput="applyFilter()">
+        </div>
+        <button class="btn btn-primary" onclick="applyFilter()">查询</button>
+        <button class="btn btn-default" onclick="resetFilter()">重置</button>
+      </div>
+
+      <!-- 表格 -->
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <h3 id="tableTitle">预案列表</h3>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>预案名称</th>
+                <th width="100">预案类型</th>
+                <th width="80">级别</th>
+                <th width="140">编制单位</th>
+                <th width="70">版本</th>
+                <th width="80">状态</th>
+                <th width="110">下次评审日期</th>
+                <th width="160">操作</th>
+              </tr>
+            </thead>
+            <tbody id="planTableBody">
+              <!-- 动态渲染 -->
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="paginationBar"></div>
       </div>
     </div>
   </div>
+
+  <!-- ========== 预案详情弹窗 ========== -->
+  <div class="modal-container" id="modal-detail">
+    <div class="modal-overlay" onclick="closeModal('modal-detail')"></div>
+    <div class="modal-dialog" style="width: 680px;">
+      <div class="modal-header">
+        <span class="modal-title">预案详情</span>
+        <button class="modal-close" onclick="closeModal('modal-detail')">&times;</button>
+      </div>
+      <div class="modal-body" id="detailBody">
+        <!-- 动态渲染 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-detail')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 发布确认弹窗 ========== -->
+  <div class="modal-container" id="modal-publish">
+    <div class="modal-overlay" onclick="closeModal('modal-publish')"></div>
+    <div class="modal-dialog" style="width: 480px;">
+      <div class="modal-header">
+        <span class="modal-title">发布预案</span>
+        <button class="modal-close" onclick="closeModal('modal-publish')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: var(--font-size-md); color: var(--text-primary);">确认发布预案「<span id="publishPlanName"></span>」？</p>
+        <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 8px;">发布后预案将进入生效状态，相关人员将收到通知。</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-publish')">取消</button>
+        <button class="btn btn-primary" onclick="confirmPublish()">确认发布</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 归档确认弹窗 ========== -->
+  <div class="modal-container" id="modal-archive">
+    <div class="modal-overlay" onclick="closeModal('modal-archive')"></div>
+    <div class="modal-dialog" style="width: 480px;">
+      <div class="modal-header">
+        <span class="modal-title">归档预案</span>
+        <button class="modal-close" onclick="closeModal('modal-archive')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: var(--font-size-md); color: var(--text-primary);">确认归档预案「<span id="archivePlanName"></span>」？</p>
+        <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 8px;">归档后预案将不再生效，如需重新使用需重新发布。</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-archive')">取消</button>
+        <button class="btn btn-primary" onclick="confirmArchive()">确认归档</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      var CONFIG = {
+        moduleId: 'emergency-plan',
+        moduleName: '应急预案'
+      };
+
+      /* ========== HTML 转义（防 XSS） ========== */
+      function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      /* ========== 状态 ========== */
+      var state = {
+        initialized: false,
+        currentPage: 1,
+        currentPlanId: null
+      };
+
+      /* ========== 枚举映射 ========== */
+      var PLAN_TYPE_MAP = {
+        COMPREHENSIVE: { label: '综合预案', cls: 'tag-comprehensive' },
+        SPECIAL:       { label: '专项预案', cls: 'tag-special' },
+        ON_SITE:       { label: '现场处置', cls: 'tag-on-site' }
+      };
+
+      var LEVEL_MAP = {
+        DISTRICT: { label: '区级', cls: 'tag-district' },
+        STREET:   { label: '街道级', cls: 'tag-street' }
+      };
+
+      var STATUS_MAP = {
+        DRAFT:     { label: '草稿',   cls: 'tag-draft' },
+        PUBLISHED: { label: '已发布', cls: 'tag-published' },
+        ARCHIVED:  { label: '已归档', cls: 'tag-archived' }
+      };
+
+      /* ========== 模拟数据（至少 8 条） ========== */
+      var planList = [
+        {
+          planId: 'EP-2024-001', planName: 'XX区危险化学品事故综合应急预案',
+          planType: 'COMPREHENSIVE', level: 'DISTRICT', responsibleOrg: '应急指挥科',
+          version: 'V3.2', status: 'PUBLISHED', publishDate: '2024-08-15', reviewDate: '2025-08-15'
+        },
+        {
+          planId: 'EP-2024-002', planName: '烟花爆竹爆炸事故专项应急预案',
+          planType: 'SPECIAL', level: 'DISTRICT', responsibleOrg: '安全监督科',
+          version: 'V2.0', status: 'PUBLISHED', publishDate: '2024-06-20', reviewDate: '2025-06-20'
+        },
+        {
+          planId: 'EP-2024-003', planName: '加油站火灾爆炸现场处置方案',
+          planType: 'ON_SITE', level: 'STREET', responsibleOrg: '安全监督科',
+          version: 'V1.5', status: 'PUBLISHED', publishDate: '2024-04-10', reviewDate: '2025-04-10'
+        },
+        {
+          planId: 'EP-2024-004', planName: '有限空间作业事故应急预案',
+          planType: 'SPECIAL', level: 'DISTRICT', responsibleOrg: '工贸监管科',
+          version: 'V2.1', status: 'DRAFT', publishDate: '', reviewDate: '2025-03-22'
+        },
+        {
+          planId: 'EP-2024-005', planName: '洪涝灾害应急预案',
+          planType: 'COMPREHENSIVE', level: 'DISTRICT', responsibleOrg: '应急指挥科',
+          version: 'V4.0', status: 'PUBLISHED', publishDate: '2024-03-01', reviewDate: '2025-03-01'
+        },
+        {
+          planId: 'EP-2024-006', planName: '森林火灾扑救应急预案',
+          planType: 'SPECIAL', level: 'STREET', responsibleOrg: '应急指挥科',
+          version: 'V2.3', status: 'PUBLISHED', publishDate: '2024-12-15', reviewDate: '2025-12-15'
+        },
+        {
+          planId: 'EP-2024-007', planName: '建筑施工坍塌事故应急预案',
+          planType: 'SPECIAL', level: 'STREET', responsibleOrg: '建筑监管科',
+          version: 'V1.8', status: 'DRAFT', publishDate: '', reviewDate: '2025-10-10'
+        },
+        {
+          planId: 'EP-2024-008', planName: '大型群众性活动公共安全应急预案',
+          planType: 'COMPREHENSIVE', level: 'DISTRICT', responsibleOrg: '应急指挥科',
+          version: 'V1.0', status: 'ARCHIVED', publishDate: '2024-05-01', reviewDate: '2025-05-01'
+        },
+        {
+          planId: 'EP-2024-009', planName: '食品安全突发事件应急预案',
+          planType: 'SPECIAL', level: 'STREET', responsibleOrg: '食品监管科',
+          version: 'V1.2', status: 'PUBLISHED', publishDate: '2024-08-08', reviewDate: '2025-08-08'
+        },
+        {
+          planId: 'EP-2024-010', planName: '特种设备事故应急预案',
+          planType: 'SPECIAL', level: 'DISTRICT', responsibleOrg: '特种设备科',
+          version: 'V2.5', status: 'PUBLISHED', publishDate: '2024-09-01', reviewDate: '2025-09-01'
+        },
+        {
+          planId: 'EP-2025-011', planName: '地震灾害应急预案',
+          planType: 'COMPREHENSIVE', level: 'DISTRICT', responsibleOrg: '应急指挥科',
+          version: 'V1.0', status: 'DRAFT', publishDate: '', reviewDate: '2026-06-29'
+        },
+        {
+          planId: 'EP-2025-012', planName: '燃气泄漏现场处置方案',
+          planType: 'ON_SITE', level: 'STREET', responsibleOrg: '燃气监管科',
+          version: 'V1.1', status: 'PUBLISHED', publishDate: '2025-01-15', reviewDate: '2026-01-15'
+        }
+      ];
+
+      /* ========== 统计计算 ========== */
+      function computeStats(data) {
+        var total = data.length;
+        var published = 0;
+        var reviewDue = 0;
+        var now = new Date();
+        var thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+        for (var i = 0; i < data.length; i++) {
+          var p = data[i];
+          if (p.status === 'PUBLISHED') published++;
+          // BR-GOV-EM-01：已发布预案每年至少评审一次，到期前30天提醒
+          if (p.status === 'PUBLISHED' && p.reviewDate) {
+            var reviewDt = new Date(p.reviewDate);
+            if (reviewDt <= thirtyDaysLater) reviewDue++;
+          }
+        }
+
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statPublished').textContent = published;
+        document.getElementById('statReviewDue').textContent = reviewDue;
+
+        // 评审提醒条
+        var alertEl = document.getElementById('reviewAlert');
+        var alertTextEl = document.getElementById('reviewAlertText');
+        if (reviewDue > 0) {
+          alertEl.style.display = 'flex';
+          alertTextEl.textContent = '有 ' + reviewDue + ' 份已发布预案即将到达评审日期（30天内），请及时安排评审。';
+        } else {
+          alertEl.style.display = 'none';
+        }
+      }
+
+      /* ========== 筛选逻辑 ========== */
+      function getFilteredData() {
+        var filterType = document.getElementById('filterType').value;
+        var filterLevel = document.getElementById('filterLevel').value;
+        var filterStatus = document.getElementById('filterStatus').value;
+        var keyword = document.getElementById('filterKeyword').value.trim().toLowerCase();
+
+        var result = [];
+        for (var i = 0; i < planList.length; i++) {
+          var p = planList[i];
+          if (filterType && p.planType !== filterType) continue;
+          if (filterLevel && p.level !== filterLevel) continue;
+          if (filterStatus && p.status !== filterStatus) continue;
+          if (keyword && p.planName.toLowerCase().indexOf(keyword) < 0 && p.planId.toLowerCase().indexOf(keyword) < 0) continue;
+          result.push(p);
+        }
+        return result;
+      }
+
+      /* ========== 表格渲染 ========== */
+      function renderTable(data) {
+        var tbody = document.getElementById('planTableBody');
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-tertiary);">暂无预案数据</td></tr>';
+          document.getElementById('tableTitle').textContent = '预案列表（0 条）';
+          return;
+        }
+
+        document.getElementById('tableTitle').textContent = '预案列表（' + data.length + ' 条）';
+
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+          var p = data[i];
+          var typeInfo = PLAN_TYPE_MAP[p.planType] || { label: p.planType, cls: 'tag-draft' };
+          var levelInfo = LEVEL_MAP[p.level] || { label: p.level, cls: '' };
+          var statusInfo = STATUS_MAP[p.status] || { label: p.status, cls: 'tag-draft' };
+
+          html += '<tr>';
+          html += '<td><span class="plan-name-link" onclick="viewPlan(\'' + escapeHtml(p.planId) + '\')">' + escapeHtml(p.planName) + '</span></td>';
+          html += '<td><span class="tag ' + typeInfo.cls + '">' + escapeHtml(typeInfo.label) + '</span></td>';
+          html += '<td><span class="tag ' + levelInfo.cls + '">' + escapeHtml(levelInfo.label) + '</span></td>';
+          html += '<td>' + escapeHtml(p.responsibleOrg) + '</td>';
+          html += '<td>' + escapeHtml(p.version) + '</td>';
+          html += '<td><span class="tag ' + statusInfo.cls + '">' + escapeHtml(statusInfo.label) + '</span></td>';
+          html += '<td>' + escapeHtml(p.reviewDate || '—') + '</td>';
+          html += '<td>' + getActionButtons(p) + '</td>';
+          html += '</tr>';
+        }
+        tbody.innerHTML = html;
+      }
+
+      function getActionButtons(p) {
+        var btns = '';
+        btns += '<button class="btn-link" onclick="viewPlan(\'' + escapeHtml(p.planId) + '\')">查看</button>';
+
+        if (p.status === 'DRAFT') {
+          btns += '<button class="btn-link" onclick="editPlan(\'' + escapeHtml(p.planId) + '\')">编辑</button>';
+          btns += '<button class="btn-link" onclick="publishPlan(\'' + escapeHtml(p.planId) + '\')">发布</button>';
+        } else if (p.status === 'PUBLISHED') {
+          btns += '<button class="btn-link" onclick="editPlan(\'' + escapeHtml(p.planId) + '\')">编辑</button>';
+          btns += '<button class="btn-link" onclick="archivePlan(\'' + escapeHtml(p.planId) + '\')">归档</button>';
+        } else if (p.status === 'ARCHIVED') {
+          // 已归档：仅查看
+        }
+        return btns;
+      }
+
+      /* ========== 筛选/重置 ========== */
+      window.applyFilter = function() {
+        var data = getFilteredData();
+        renderTable(data);
+        computeStats(data);
+        if (typeof pg !== 'undefined' && pg) {
+          pg.setTotal(data.length);
+          pg.setPage(1);
+        }
+      };
+
+      window.resetFilter = function() {
+        document.getElementById('filterType').value = '';
+        document.getElementById('filterLevel').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterKeyword').value = '';
+        applyFilter();
+      };
+
+      /* ========== 弹窗控制 ========== */
+      window.openModal = function(id) {
+        document.getElementById(id).classList.add('show');
+      };
+      window.closeModal = function(id) {
+        document.getElementById(id).classList.remove('show');
+      };
+
+      /* ========== Toast ========== */
+      window.showToast = function(msg, type) {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast' + (type ? ' ' + type : '');
+        toast.textContent = msg;
+        container.appendChild(toast);
+        setTimeout(function() { toast.classList.add('out'); }, 2500);
+        setTimeout(function() { toast.remove(); }, 2800);
+      };
+
+      /* ========== 查看预案详情 ========== */
+      window.viewPlan = function(planId) {
+        var p = getPlanById(planId);
+        if (!p) return;
+        renderPlanDetail(p);
+        openModal('modal-detail');
+      };
+
+      function getPlanById(planId) {
+        for (var i = 0; i < planList.length; i++) {
+          if (planList[i].planId === planId) return planList[i];
+        }
+        return null;
+      }
+
+      function renderPlanDetail(p) {
+        var typeInfo = PLAN_TYPE_MAP[p.planType] || { label: p.planType, cls: 'tag-draft' };
+        var levelInfo = LEVEL_MAP[p.level] || { label: p.level, cls: '' };
+        var statusInfo = STATUS_MAP[p.status] || { label: p.status, cls: 'tag-draft' };
+
+        var html = '';
+        html += '<div class="detail-row"><span class="detail-label">预案编号</span><span class="detail-value">' + escapeHtml(p.planId) + '</span></div>';
+        html += '<div class="detail-row"><span class="detail-label">预案名称</span><span class="detail-value">' + escapeHtml(p.planName) + '</span></div>';
+        html += '<div class="detail-row"><span class="detail-label">预案类型</span><span class="detail-value"><span class="tag ' + typeInfo.cls + '">' + escapeHtml(typeInfo.label) + '</span></span></div>';
+        html += '<div class="detail-row"><span class="detail-label">级别</span><span class="detail-value"><span class="tag ' + levelInfo.cls + '">' + escapeHtml(levelInfo.label) + '</span></span></div>';
+        html += '<div class="detail-row"><span class="detail-label">编制单位</span><span class="detail-value">' + escapeHtml(p.responsibleOrg) + '</span></div>';
+        html += '<div class="detail-row"><span class="detail-label">版本</span><span class="detail-value">' + escapeHtml(p.version) + '</span></div>';
+        html += '<div class="detail-row"><span class="detail-label">状态</span><span class="detail-value"><span class="tag ' + statusInfo.cls + '">' + escapeHtml(statusInfo.label) + '</span></span></div>';
+        html += '<div class="detail-row"><span class="detail-label">发布日期</span><span class="detail-value">' + escapeHtml(p.publishDate || '—') + '</span></div>';
+        html += '<div class="detail-row"><span class="detail-label">下次评审日期</span><span class="detail-value">' + escapeHtml(p.reviewDate || '—') + '</span></div>';
+
+        document.getElementById('detailBody').innerHTML = html;
+      }
+
+      /* ========== 编辑预案 ========== */
+      window.editPlan = function(planId) {
+        showToast('进入预案编辑：' + planId);
+      };
+
+      /* ========== 发布预案 ========== */
+      window.publishPlan = function(planId) {
+        var p = getPlanById(planId);
+        if (!p) return;
+        state.currentPlanId = planId;
+        document.getElementById('publishPlanName').textContent = p.planName;
+        openModal('modal-publish');
+      };
+
+      window.confirmPublish = function() {
+        var p = getPlanById(state.currentPlanId);
+        if (p) {
+          p.status = 'PUBLISHED';
+          p.publishDate = new Date().toISOString().slice(0, 10);
+        }
+        closeModal('modal-publish');
+        showToast('预案已发布：' + (p ? p.planId : ''), 'success');
+        applyFilter();
+      };
+
+      /* ========== 归档预案 ========== */
+      window.archivePlan = function(planId) {
+        var p = getPlanById(planId);
+        if (!p) return;
+        state.currentPlanId = planId;
+        document.getElementById('archivePlanName').textContent = p.planName;
+        openModal('modal-archive');
+      };
+
+      window.confirmArchive = function() {
+        var p = getPlanById(state.currentPlanId);
+        if (p) {
+          p.status = 'ARCHIVED';
+        }
+        closeModal('modal-archive');
+        showToast('预案已归档：' + (p ? p.planId : ''), 'success');
+        applyFilter();
+      };
+
+      /* ========== 新增预案 ========== */
+      window.openAddModal = function() {
+        showToast('打开新增预案表单');
+      };
+
+      /* ========== 导出 ========== */
+      window.exportPlans = function() {
+        showToast('预案列表导出中，完成后将自动下载');
+      };
+
+      /* ========== 面包屑推送 ========== */
+      function pushBreadcrumb() {
+        try {
+          if (window.parent && window.parent.postMessage) {
+            window.parent.postMessage({
+              type: 'breadcrumb',
+              moduleId: CONFIG.moduleId,
+              moduleName: CONFIG.moduleName,
+              path: [
+                { label: '政府端' },
+                { label: '应急资源' },
+                { label: '应急预案' }
+              ]
+            }, '*');
+          }
+        } catch (e) { /* iframe 跨域忽略 */ }
+      }
+
+      /* ========== 初始化 ========== */
+      var pg = null;
+
+      function init() {
+        if (state.initialized) return;
+        state.initialized = true;
+
+        // 初始渲染
+        var data = getFilteredData();
+        renderTable(data);
+        computeStats(data);
+
+        // 分页（默认每页 10 条）
+        pg = new Pagination('paginationBar', {
+          total: data.length,
+          size: 10,
+          onChange: function(page, size) {
+            state.currentPage = page;
+          }
+        });
+
+        // 面包屑
+        pushBreadcrumb();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+      window.destroyModule = function() {
+        state.initialized = false;
+      };
+    })();
+  </script>
+  <script src="../../js/pagination.js"></script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>
