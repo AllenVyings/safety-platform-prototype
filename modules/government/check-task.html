@@ -508,13 +508,18 @@
         titleEl.textContent = '任务详情 — ' + taskId;
 
         var timeline = [];
-        timeline.push({ text: '任务创建', time: task.planDate + ' 09:00', dot: 'timeline-dot-blue' });
+        var createWay = task.type === '履职任务' ? '履职自动生成' : '专项手动创建';
+        timeline.push({ text: '任务创建（' + createWay + '）', time: task.planDate + ' 09:00', dot: 'timeline-dot-blue' });
 
         if (task.status === '执行中') {
           timeline.push({ text: '开始执行', time: task.planDate + ' 14:30', dot: 'timeline-dot-orange' });
         } else if (task.status === '已完成') {
           timeline.push({ text: '开始执行', time: task.planDate + ' 10:00', dot: 'timeline-dot-orange' });
-          timeline.push({ text: '检查完成，结果：合格', time: task.planDate + ' 16:00', dot: 'timeline-dot-green' });
+          timeline.push({ text: '提交结果', time: task.planDate + ' 16:00', dot: 'timeline-dot-green' });
+          var stats = completedStats[taskId];
+          if (stats && stats.hazards && stats.hazards.length > 0) {
+            timeline.push({ text: '发现隐患（' + stats.hazards.length + ' 条，已联动创建至隐患管理）', time: task.planDate + ' 16:05', dot: 'timeline-dot-red' });
+          }
         } else if (task.status === '已逾期') {
           timeline.push({ text: '任务已逾期，未在计划日期内完成', time: '已逾期', dot: 'timeline-dot-red' });
         } else if (task.status === '已取消') {
