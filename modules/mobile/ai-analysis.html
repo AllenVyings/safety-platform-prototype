@@ -287,8 +287,8 @@
         <div class="ai-field">
           <div class="ai-field-label"><span class="req">*</span> 隐患等级</div>
           <div class="ai-field-radio-group" id="rLevelGroup">
-            <div class="ai-field-radio normal" onclick="selectReportLevel(this,'normal')">一般</div>
-            <div class="ai-field-radio major" onclick="selectReportLevel(this,'major')">重大</div>
+            <div class="ai-field-radio normal" onclick="selectReportLevel(this,'normal')">一般隐患</div>
+            <div class="ai-field-radio major" onclick="selectReportLevel(this,'major')">重大隐患</div>
           </div>
         </div>
         <div class="ai-field">
@@ -679,6 +679,11 @@
       reportLevel = level;
       document.querySelectorAll('#rLevelGroup .ai-field-radio').forEach(function(r) { r.classList.remove('active'); });
       el.classList.add('active');
+      // PRD §4.10.1：根据隐患等级自动默认整改期限（重大=3天，一般=15天）
+      var defaultDays = level === 'major' ? 3 : 15;
+      reportDays = defaultDays;
+      document.getElementById('rStepperValue').textContent = defaultDays;
+      document.getElementById('rStepperMinus').disabled = defaultDays <= 1;
       validateReportForm();
     }
 
@@ -792,5 +797,6 @@
       }, 1500);
     }
   </script>
+<script src="../../js/annotations.js"></script>
 </body>
 </html>

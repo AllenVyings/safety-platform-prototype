@@ -366,8 +366,8 @@
         </div>
         <div class="ce-sub-standard">灭火器压力指针应在绿区；消防通道无堆放杂物、宽度≥1.2m；消防栓出水压力≥0.1MPa</div>
         <div class="ce-judge-btns">
-          <div class="ce-judge-btn hazard" onclick="judge(this,0,'hazard')">有隐患</div>
-          <div class="ce-judge-btn safe" onclick="judge(this,0,'safe')">无隐患</div>
+          <div class="ce-judge-btn hazard" onclick="judge(this,0,'hazard')">异常</div>
+          <div class="ce-judge-btn safe" onclick="judge(this,0,'safe')">正常</div>
           <div class="ce-judge-btn na" onclick="judge(this,0,'na')">不涉及</div>
         </div>
         <div class="ce-na-reason"><textarea placeholder="请说明不涉及的原因..."></textarea></div>
@@ -471,7 +471,7 @@
     <div class="ce-hazard-panel" id="hazardsPanel">
       <div class="ce-hazard-empty" id="hazardEmpty">
         <div class="ce-hazard-empty-icon">📋</div>
-        <div class="ce-hazard-empty-text">暂无隐患记录</div>
+        <div class="ce-hazard-empty-text">暂无异常记录</div>
       </div>
       <div id="hazardList"></div>
       <div style="height:72px;"></div>
@@ -483,7 +483,6 @@
   <div class="ce-bottom-bar">
     <button class="ce-bar-btn add" onclick="openDrawer(-1)">新增</button>
     <button class="ce-bar-btn submit" onclick="handleSubmit()">提交</button>
-    <button class="ce-bar-btn ai" onclick="goAiAnalysis()">🤖</button>
   </div>
 
   <!-- 抽屉遮罩 -->
@@ -554,7 +553,7 @@
   <div class="ce-confirm-mask" id="confirmMask">
     <div class="ce-confirm-dialog">
       <div class="ce-confirm-title">确认提交</div>
-      <div class="ce-confirm-msg" id="confirmMsg">请确认余下X项无隐患</div>
+      <div class="ce-confirm-msg" id="confirmMsg">请确认余下X项正常</div>
       <div class="ce-confirm-btns">
         <button class="ce-confirm-cancel" onclick="closeConfirm()">取消</button>
         <button class="ce-confirm-ok" onclick="openSubmitDrawer()">确认</button>
@@ -652,17 +651,6 @@ function showToast(msg, type) {
     var drawerLevel = '';
     var drawerDeadlineMode = '';
     var drawerDays = 1;
-
-    /* ========== 跳转AI分析前保存隐患 ========== */
-    function goAiAnalysis() {
-      try {
-        localStorage.setItem('checkExecuteHazards', JSON.stringify(hazards));
-        var judgments = {};
-        checkItems.forEach(function(item) { if (item.judgment) judgments[item.idx] = item.judgment; });
-        localStorage.setItem('checkExecuteJudgments', JSON.stringify(judgments));
-      } catch(e) {}
-      parent.navigateTo('ai-analysis');
-    }
 
     /* ========== 页签切换 ========== */
     function switchTab(tab) {
@@ -1031,7 +1019,7 @@ function showToast(msg, type) {
       checkItems.forEach(function(item) { if (!item.judgment) unjudged++; });
 
       if (unjudged > 0) {
-        document.getElementById('confirmMsg').textContent = '请确认余下' + unjudged + '项无隐患';
+        document.getElementById('confirmMsg').textContent = '请确认余下' + unjudged + '项正常';
         document.getElementById('confirmMask').classList.add('show');
       } else {
         openSubmitDrawer();
@@ -1093,7 +1081,7 @@ function showToast(msg, type) {
       if (hasHazard) {
         showToast('提交成功！发现' + hazards.length + '处隐患，已自动创建隐患记录。（原型演示）', 'success');
       } else {
-        showToast('提交成功！本次检查全部无隐患。（原型演示）', 'success');
+        showToast('提交成功！本次检查全部正常。（原型演示）', 'success');
       }
       try { parent.navigateTo('check-list'); } catch(e) {}
     }
@@ -1291,5 +1279,6 @@ function showToast(msg, type) {
       } catch(e) {}
     })();
   </script>
+<script src="../../js/annotations.js"></script>
 </body>
 </html>

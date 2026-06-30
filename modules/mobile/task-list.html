@@ -132,8 +132,8 @@
       font-size: 11px; padding: 2px var(--wc-gap-md); border-radius: var(--wc-btn-radius); margin-left: var(--wc-gap-md); flex-shrink: 0;
     }
     .tl-type.inspect { background: var(--wc-icon-bg-blue); color: var(--brand-blue); }
-    .tl-type.rectify { background: #fff7e6; color: #fa8c16; }
-    .tl-type.special { background: var(--wc-icon-bg-purple); color: #722ed1; }
+    .tl-type.rectify { background: #fff1f0; color: #cf1322; }
+    .tl-type.special { background: #fff7e6; color: #fa8c16; }
     .tl-meta { font-size: var(--wc-font-small); color: #888; margin-bottom: var(--wc-gap-md); }
     .tl-meta-source { display: flex; align-items: center; gap: var(--wc-gap-sm); }
     .tl-urgency-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
@@ -198,21 +198,25 @@
     <div class="tl-header">
       <div class="tl-title">任务管理</div>
       <div class="tl-stat-row">
+        <div class="tl-stat" onclick="filterByStatus('all')">
+          <div class="tl-stat-num" id="statTotal">8</div>
+          <div class="tl-stat-label">任务总数</div>
+        </div>
         <div class="tl-stat" onclick="filterByStatus('pending')">
           <div class="tl-stat-num" id="statPending">3</div>
-          <div class="tl-stat-label">待处理</div>
+          <div class="tl-stat-label">待执行</div>
         </div>
         <div class="tl-stat" onclick="filterByStatus('progress')">
-          <div class="tl-stat-num" id="statProgress">2</div>
-          <div class="tl-stat-label">进行中</div>
+          <div class="tl-stat-num" id="statProgress">3</div>
+          <div class="tl-stat-label">执行中</div>
         </div>
         <div class="tl-stat" onclick="filterByStatus('done')">
-          <div class="tl-stat-num" id="statDone">5</div>
+          <div class="tl-stat-num" id="statDone">1</div>
           <div class="tl-stat-label">已完成</div>
         </div>
         <div class="tl-stat" onclick="filterByStatus('overdue')">
           <div class="tl-stat-num" id="statOverdue">1</div>
-          <div class="tl-stat-label">已超期</div>
+          <div class="tl-stat-label">已逾期</div>
         </div>
       </div>
       <div class="tl-search-wrap">
@@ -228,18 +232,18 @@
         <div class="tl-filter-row">
           <span class="tl-filter-row-label">状态</span>
           <span class="tl-chip active" data-filter="status" data-value="all" onclick="setFilter(this)">全部</span>
-          <span class="tl-chip" data-filter="status" data-value="pending" onclick="setFilter(this)">待处理</span>
-          <span class="tl-chip" data-filter="status" data-value="progress" onclick="setFilter(this)">进行中</span>
+          <span class="tl-chip" data-filter="status" data-value="pending" onclick="setFilter(this)">待执行</span>
+          <span class="tl-chip" data-filter="status" data-value="progress" onclick="setFilter(this)">执行中</span>
           <span class="tl-chip" data-filter="status" data-value="done" onclick="setFilter(this)">已完成</span>
-          <span class="tl-chip" data-filter="status" data-value="overdue" onclick="setFilter(this)">已超期</span>
+          <span class="tl-chip" data-filter="status" data-value="overdue" onclick="setFilter(this)">已逾期</span>
         </div>
         <!-- 第二行：类型+紧急度+来源+排序 -->
         <div class="tl-filter-row">
           <span class="tl-filter-row-label">类型</span>
           <span class="tl-chip active" data-filter="type" data-value="all" onclick="setFilter(this)">全部</span>
-          <span class="tl-chip" data-filter="type" data-value="inspect" onclick="setFilter(this)">履职检查</span>
+          <span class="tl-chip" data-filter="type" data-value="inspect" onclick="setFilter(this)">履职任务</span>
           <span class="tl-chip" data-filter="type" data-value="rectify" onclick="setFilter(this)">隐患整改</span>
-          <span class="tl-chip" data-filter="type" data-value="special" onclick="setFilter(this)">专项检查</span>
+          <span class="tl-chip" data-filter="type" data-value="special" onclick="setFilter(this)">专项任务</span>
           <span class="tl-chip" data-filter="urgency" data-value="red" onclick="setFilter(this)"><span class="filter-dot" style="background:var(--code-red)"></span>紧急</span>
           <span class="tl-chip" data-filter="urgency" data-value="yellow" onclick="setFilter(this)"><span class="filter-dot" style="background:var(--code-yellow)"></span>一般</span>
           <span class="tl-chip" data-filter="urgency" data-value="green" onclick="setFilter(this)"><span class="filter-dot" style="background:var(--code-green)"></span>低</span>
@@ -252,7 +256,7 @@
         </div>
         <!-- 排序浮层 -->
         <div class="tl-sort-popup" id="sortPopup">
-          <div class="tl-sort-option active" data-sort="deadline" onclick="setSort(this)">按截止时间</div>
+          <div class="tl-sort-option active" data-sort="deadline" onclick="setSort(this)">按计划日期</div>
           <div class="tl-sort-option" data-sort="urgency" onclick="setSort(this)">按紧急程度</div>
           <div class="tl-sort-option" data-sort="created" onclick="setSort(this)">按创建时间</div>
         </div>
@@ -261,7 +265,7 @@
           <div class="tl-sort-option active" data-source="all" onclick="setSource(this)">全部来源</div>
           <div class="tl-sort-option" data-source="龙华区应急管理局" onclick="setSource(this)">龙华区应急管理局</div>
           <div class="tl-sort-option" data-source="企业自查" onclick="setSource(this)">企业自查</div>
-          <div class="tl-sort-option" data-source="消防专项" onclick="setSource(this)">消防专项检查</div>
+          <div class="tl-sort-option" data-source="消防专项" onclick="setSource(this)">消防专项任务</div>
         </div>
       </div>
 
@@ -297,14 +301,14 @@
       {
         id: 1, title: '配电房灭火器更换', type: 'rectify', typeLabel: '隐患整改',
         urgency: 'red', urgencyLabel: '紧急',
-        source: '消防专项检查', sourceUnit: '消防专项',
+        source: '消防专项任务', sourceUnit: '消防专项',
         object: 'A栋配电房', person: '王操作',
         deadline: '2025-01-18', status: 'overdue', overdueDays: 2,
         desc: '配电房灭火器已过期，需立即更换为5kg干粉灭火器，共3处。',
         target: 'hazard-detail'
       },
       {
-        id: 2, title: 'A栋日常安全巡查', type: 'inspect', typeLabel: '履职检查',
+        id: 2, title: 'A栋日常安全巡查', type: 'inspect', typeLabel: '履职任务',
         urgency: 'red', urgencyLabel: '紧急',
         source: '履职检查配置', sourceUnit: '企业自查',
         object: 'A栋生产车间', person: '李安全',
@@ -322,7 +326,7 @@
         target: 'hazard-detail'
       },
       {
-        id: 4, title: '春节前专项安全检查', type: 'special', typeLabel: '专项检查',
+        id: 4, title: '春节前专项安全检查', type: 'special', typeLabel: '专项任务',
         urgency: 'yellow', urgencyLabel: '一般',
         source: '龙华区应急管理局', sourceUnit: '龙华区应急管理局',
         object: '全企业', person: '李安全',
@@ -331,7 +335,7 @@
         target: 'check-list'
       },
       {
-        id: 5, title: 'B栋月度消防检查', type: 'inspect', typeLabel: '履职检查',
+        id: 5, title: 'B栋月度消防检查', type: 'inspect', typeLabel: '履职任务',
         urgency: 'green', urgencyLabel: '低',
         source: '履职检查配置', sourceUnit: '企业自查',
         object: 'B栋仓库', person: '赵管理',
@@ -340,7 +344,7 @@
         target: 'check-list'
       },
       {
-        id: 6, title: '实验室化学品存放检查', type: 'inspect', typeLabel: '履职检查',
+        id: 6, title: '实验室化学品存放检查', type: 'inspect', typeLabel: '履职任务',
         urgency: 'gray', urgencyLabel: '',
         source: '履职检查配置', sourceUnit: '企业自查',
         object: 'D栋实验室', person: '陈研发',
@@ -349,7 +353,7 @@
         target: 'check-list'
       },
       {
-        id: 7, title: 'C栋办公区灭火器月检', type: 'inspect', typeLabel: '履职检查',
+        id: 7, title: 'C栋办公区灭火器月检', type: 'inspect', typeLabel: '履职任务',
         urgency: 'green', urgencyLabel: '低',
         source: '履职检查配置', sourceUnit: '企业自查',
         object: 'C栋办公区', person: '刘主任',
@@ -529,14 +533,16 @@
       }
       document.getElementById('drawerTags').innerHTML = tagsHtml;
 
-      var statusText = { pending: '待处理', progress: '进行中', done: '已完成', overdue: '已超期' };
-      var deadlineDisplay = t.status === 'overdue' ? t.deadline + '（超期' + t.overdueDays + '天）' : t.deadline;
+      var statusText = { pending: '待执行', progress: '执行中', done: '已完成', overdue: '已逾期' };
+      var deadlineDisplay = t.status === 'overdue' ? t.deadline + '（逾期' + t.overdueDays + '天）' : t.deadline;
+      var taskNo = (t.type === 'special' ? 'ZX' : 'PC') + (t.deadline || '').replace(/-/g, '').slice(0, 8) + String(t.id).padStart(2, '0');
 
       var bodyHtml =
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">任务编号</span><span class="tl-drawer-info-value">' + taskNo + '</span></div>' +
         '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">来源</span><span class="tl-drawer-info-value">' + t.source + '</span></div>' +
-        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">关联对象</span><span class="tl-drawer-info-value">' + t.object + '</span></div>' +
-        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">责任人</span><span class="tl-drawer-info-value">' + t.person + '</span></div>' +
-        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">截止时间</span><span class="tl-drawer-info-value">' + deadlineDisplay + '</span></div>' +
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">管控对象</span><span class="tl-drawer-info-value">' + t.object + '</span></div>' +
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">检查人</span><span class="tl-drawer-info-value">' + t.person + '</span></div>' +
+        '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">计划日期</span><span class="tl-drawer-info-value">' + deadlineDisplay + '</span></div>' +
         '<div class="tl-drawer-info-row"><span class="tl-drawer-info-label">状态</span><span class="tl-drawer-info-value">' + (statusText[t.status] || '') + '</span></div>' +
         '<div class="tl-drawer-req">' + t.desc + '</div>';
       document.getElementById('drawerBody').innerHTML = bodyHtml;
@@ -582,5 +588,6 @@
     // ===== 初始渲染 =====
     renderTasks();
   </script>
+<script src="../../js/annotations.js"></script>
 </body>
 </html>

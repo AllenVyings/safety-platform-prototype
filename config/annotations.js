@@ -365,6 +365,858 @@ var ANNOTATIONS_CONFIG = {
       description: '关联企业为行内编辑列表，每行维护企业类型、企业名称和扫码/隐患角色复选。外层区块为蓝灰底，表格内容保持白底，避免与背景色冲突同时保障录入可读性。',
       prdRef: '6.1.9.3.3.1.1 关联企业行内编辑'
     }
+  ],
+
+  // ========== 超管端 - 企业基本信息管理 ==========
+  'super-admin/ent-manage': [
+    {
+      id: 'sa-ent-001',
+      selector: '#breadcrumb',
+      position: 'top-right',
+      title: '页面布局与双树',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '左树右表双栏布局。左侧导航树提供区划树与领域树两个 Tab，默认展示区划树并展开到街道节点；右侧自上而下为统计卡区、筛选区、列表工具栏、表格、分页区。两棵树 count 口径统一为企业数量。',
+      prdRef: '6.1.3.3.1 列表页'
+    },
+    {
+      id: 'sa-ent-002',
+      selector: '.stat-cards',
+      position: 'top-right',
+      title: '统计卡区',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '顶部 4 列 grid 布局，展示企业总数、启用数、审批数、停用数。每个统计卡左侧带色条指示器（总计=主色、启用=成功色、审批=警告色、停用=灰色），数字 28px/700 突出，无 emoji 图标。',
+      prdRef: '6.1.3.3.1 统计卡区'
+    },
+    {
+      id: 'sa-ent-003',
+      selector: '.filter-card',
+      position: 'top-right',
+      title: '筛选区',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '字段名+中文全角冒号+控件结构，查询控件宽度统一 240px、高度 32px。默认提供查询+重置两个按钮，查询为主按钮、重置为次按钮。',
+      prdRef: '6.1.3.3.1 筛选区 / 通用查询字段规范'
+    },
+    {
+      id: 'sa-ent-004',
+      selector: '.table-card',
+      position: 'top-right',
+      title: '企业列表',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '列顺序：复选框 / 序号 / 企业名称 / 统一社会信用代码 / 管理员账号 / 归属网格 / 主领域小类 / 经营地址 / 状态 / 注册时间 / 操作。操作列含编辑、详情、停用/启用、逻辑删除。企业状态仅启用/停用，待审核只作为审批单状态。',
+      prdRef: '6.1.3.3.1 列表字段 / 6.0 企业状态规则'
+    },
+    {
+      id: 'sa-ent-005',
+      selector: '#addModal',
+      position: 'top-right',
+      title: '新增企业弹窗',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '弹窗宽度 800px，单页表单布局，以分区标题分隔 3 区：基本信息、领域与监管、账号信息。modal-body 区域独立滚动。关联领域小类多选，第一个选择的领域小类默认作为主领域小类；监管单位由归属网格和领域小类配置自动计算，只读展示。',
+      prdRef: '6.1.3.3.2 新增/编辑'
+    },
+    {
+      id: 'sa-ent-006',
+      selector: '#editModal',
+      position: 'top-right',
+      title: '编辑企业弹窗',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '编辑弹窗 2 区（基本信息、领域与监管），无账号信息区。统一社会信用代码不可修改（disabled）；归属网格不可修改（disabled），变更归属网格需走停用+新建流程。',
+      prdRef: '6.1.3.3.2 新增与编辑差异'
+    },
+    {
+      id: 'sa-ent-007',
+      selector: '#auditModal',
+      position: 'top-right',
+      title: '审批单列表弹窗',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '标题显示当前待审批数量，如「审批单列表（3条待审批）」。列：企业名称、统一社会信用代码、申请类型（注册/企业名称变更/停用）、审批单状态（待审批/已通过/已驳回）、申请时间、操作（通过/驳回）。仅待审批状态可操作，驳回需填写原因。',
+      prdRef: '6.1.3.3.4 审核流程'
+    }
+  ],
+
+  // ========== 超管端 - 政府端组织架构管理 ==========
+  'super-admin/gov-org': [
+    {
+      id: 'sa-go-001',
+      selector: '#breadcrumb',
+      position: 'top-right',
+      title: '页面布局',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '左树右表双栏布局。左侧组织树展示区→单位→科室 3 级（科室为末级，不可再下挂），右侧展示统计卡、单位/科室详情和操作区。组织树仅保留展开/收起全部按钮且右对齐。',
+      prdRef: '6.1.1.3 页面设计'
+    },
+    {
+      id: 'sa-go-002',
+      selector: '.stat-cards',
+      position: 'top-right',
+      title: '统计卡区',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '展示单位数、科室数、账号数等关键指标。模拟数据仅保留南山区及指定单位，区级节点新增组织时锁定所属区划并隐藏上级组织字段。',
+      prdRef: '6.1.1.3 统计卡'
+    },
+    {
+      id: 'sa-go-003',
+      selector: '#detailBody',
+      position: 'top-right',
+      title: '单位/科室详情',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '详情区按选中节点类型动态切换字段。区节点新增组织时锁定所属区划；区级节点隐藏编辑、删除按钮。删除前强校验组织下是否有用户账号。',
+      prdRef: '6.1.1.3 详情 / 6.1.1.4 业务规则'
+    },
+    {
+      id: 'sa-go-004',
+      selector: '#detailActions',
+      position: 'top-right',
+      title: '操作按钮',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '操作按钮按节点类型和权限互斥显示：新增下级、编辑、删除。删除需二次确认，且强校验组织下用户账号，存在账号时阻断并列举待办项。',
+      prdRef: '6.1.1.4 业务规则 / 6.1.1.5 权限控制'
+    }
+  ],
+
+  // ========== 超管端 - 人员账号管理 ==========
+  'super-admin/gov-user': [
+    {
+      id: 'sa-gu-001',
+      selector: '#breadcrumb',
+      position: 'top-right',
+      title: '页面布局',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '左树右表双栏布局。左侧组织树同源 §6.1.1，右侧展示统计卡、筛选区、列表。支持新增/编辑/删除/详情/重置密码；审批列表 badge 显示待审批数，支持批量导入。',
+      prdRef: '6.1.2.3 页面设计'
+    },
+    {
+      id: 'sa-gu-002',
+      selector: '.stat-cards',
+      position: 'top-right',
+      title: '统计卡区',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '展示人员总数、启用、停用、待审批等关键指标。统计卡样式与超管端企业基本信息一致：色条指示器、无 emoji、数字突出。',
+      prdRef: '6.1.2.3 统计卡'
+    },
+    {
+      id: 'sa-gu-003',
+      selector: '.filter-card, .filter-bar',
+      position: 'top-right',
+      title: '筛选区',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '按关键字、所属单位/科室、角色、状态等筛选。查询控件宽度高度统一，默认提供查询+重置按钮。',
+      prdRef: '6.1.2.3 筛选区 / 通用查询字段规范'
+    },
+    {
+      id: 'sa-gu-004',
+      selector: '#editModal',
+      position: 'top-right',
+      title: '新增/编辑弹窗',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: 'leaderId 在 openEditModal 回填，saveUser 双分支持久化。BR-GOV-10 onDeptChange 科室选择时管理部门默认勾选；BR-GOV-12 批量删除待办校验，blockedUsers 阻断并列举待办项。',
+      prdRef: '6.1.2.4 业务规则 BR-GOV-10/12'
+    },
+    {
+      id: 'sa-gu-005',
+      selector: '#deleteModal',
+      position: 'top-right',
+      title: '删除二次确认',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '删除前强校验用户是否有待办任务（检查记录、隐患复核、审批单等），存在待办时阻断删除并列举待办项，避免账号删除导致业务数据孤立。',
+      prdRef: '6.1.2.4 BR-GOV-12 批量删除待办校验'
+    }
+  ],
+
+  // ========== 超管端 - 领域小类管理 ==========
+  'super-admin/domain-manage': [
+    {
+      id: 'sa-dm-001',
+      selector: '#breadcrumb',
+      position: 'top-right',
+      title: '页面布局',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '领域小类管理按行业大类（工业制造、城市运行、建设工程、危险化学品、交通运输、公共场所、其他）组织，每个行业大类下挂载领域小类。支持业态模式（基础/项目/特殊/其他）配置。',
+      prdRef: '6.1.5 功能概述'
+    },
+    {
+      id: 'sa-dm-002',
+      selector: '.domain-list, .domain-card',
+      position: 'top-right',
+      title: '领域小类列表',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '领域小类为政府端领域监管、企业端安全管控对象、检查库管理的上游数据源。业态模式=基础模式的领域小类用于企业基本信息关联；项目/特殊/其他模式对应不同管控对象类型。',
+      prdRef: '6.1.5.2 业态模式与对象类型映射'
+    },
+    {
+      id: 'sa-dm-003',
+      selector: '#checklistModal',
+      position: 'top-right',
+      title: '检查表配置弹窗',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '为领域小类配置检查表模板、检查周期（日/周/月/季度）、适用范围、责任人、责任科室。一个领域可配置多套检查表，默认频次对该领域全部管控对象生效，可单独覆盖。',
+      prdRef: '6.1.5.x 检查表配置 / 6.2.2.3 Tab2 检查表配置'
+    },
+    {
+      id: 'sa-dm-004',
+      selector: '#checklistLibModal',
+      position: 'top-right',
+      title: '检查库管理',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '检查库为检查表模板的上游，支持动态表单配置（§6.1.5.9）。检查项支持单选/多选/文本/数值/图片等题型，检查表模板从检查库引用生成。',
+      prdRef: '6.1.5.9 动态表单配置'
+    },
+    {
+      id: 'sa-dm-005',
+      selector: '#checkitemList',
+      position: 'top-right',
+      title: '检查项列表',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '检查项按分组组织，支持排序、启停、必填标记。检查项变更影响下游所有引用该模板的检查表配置和已生成的检查任务。',
+      prdRef: '6.1.5.9 检查项管理'
+    }
+  ],
+
+  // ========== 政府端 - 企业基本信息 ==========
+  'government/ent-manage': [
+    {
+      id: 'gov-ent-001',
+      selector: '#breadcrumb',
+      position: 'top-right',
+      title: '页面布局',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '政府端企业基本信息用于管理本单位有权限的企业基础信息、经营信息、监管关系、安全码状态与风险等级。支持多维筛选、详情查看、新增企业、编辑企业、停用/逻辑删除、批量导入/导出、行业统计、高级查询。',
+      prdRef: '6.2.7 功能概述'
+    },
+    {
+      id: 'gov-ent-002',
+      selector: '.stat-cards',
+      position: 'top-right',
+      title: '统计卡区',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '展示辖区企业总数、启用、待审批、停用等指标，仅统计本单位权限范围内的企业。统计卡样式与超管端一致。',
+      prdRef: '6.2.7.3 统计卡'
+    },
+    {
+      id: 'gov-ent-003',
+      selector: '.filter-card, .filter-bar',
+      position: 'top-right',
+      title: '筛选区与高级查询',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '基础筛选按企业名称、信用代码、归属网格、领域小类、状态等；高级查询支持按经营信息、监管关系、安全码色、风险等级等多维度组合查询。',
+      prdRef: '6.2.7.3 筛选 / 高级查询'
+    },
+    {
+      id: 'gov-ent-004',
+      selector: '#addModal',
+      position: 'top-right',
+      title: '新增企业弹窗',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '政府端新增企业仅录入本单位权限范围内企业。弹窗分区与超管端一致（基本信息/领域与监管/账号信息），但监管单位按本单位职责范围自动计算。',
+      prdRef: '6.2.7.3 新增/编辑'
+    },
+    {
+      id: 'gov-ent-005',
+      selector: '#auditModal',
+      position: 'top-right',
+      title: '审批单列表',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '政府端处理本单位权限范围内的审批单（注册、企业名称变更、停用）。审批通过/驳回与停用/逻辑删除文案对齐 §6.0 企业基本信息统一规则。',
+      prdRef: '6.2.7.3 审核流程 / 6.0 统一规则'
+    },
+    {
+      id: 'gov-ent-006',
+      selector: '#archiveModal',
+      position: 'top-right',
+      title: '企业档案',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '企业档案聚合展示企业基础信息、经营信息、关联领域小类、监管信息、账号信息、安全码档案、检查/隐患历史记录。政府端仅查看本辖区企业档案。',
+      prdRef: '6.2.7.3 企业档案'
+    }
+  ],
+
+  // ========== 政府端 - 组织架构管理 ==========
+  'government/gov-org': [
+    {
+      id: 'gov-go-001',
+      selector: '#breadcrumb',
+      position: 'top-right',
+      title: '页面布局',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '政府端组织架构管理仅展示本单位及下级单位/科室，不可跨单位管理。左树右表布局，组织树同源超管端 §6.1.1 但按本单位权限过滤。',
+      prdRef: '6.2.8.3 组织架构管理（政府端）'
+    },
+    {
+      id: 'gov-go-002',
+      selector: '.stat-cards',
+      position: 'top-right',
+      title: '统计卡区',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '展示本单位下级单位数、科室数、账号数。统计口径仅本单位权限范围内。',
+      prdRef: '6.2.8.3 统计卡'
+    },
+    {
+      id: 'gov-go-003',
+      selector: '#detailBody',
+      position: 'top-right',
+      title: '单位/科室详情',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '详情区按选中节点类型动态切换。政府端可编辑本单位及下级组织信息，但不可修改上级组织。删除前强校验组织下用户账号。',
+      prdRef: '6.2.8.3 详情 / 6.2.8.4 业务规则'
+    },
+    {
+      id: 'gov-go-004',
+      selector: '#confirmModal',
+      position: 'top-right',
+      title: '删除二次确认',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '删除组织需二次确认，强校验组织下用户账号和业务数据。政府端仅可删除本单位下级空组织。',
+      prdRef: '6.2.8.4 业务规则 / 6.0.6 删除规则'
+    }
+  ],
+
+  // ========== 政府端 - 人员账号管理 ==========
+  'government/gov-user': [
+    {
+      id: 'gov-gu-001',
+      selector: '#breadcrumb',
+      position: 'top-right',
+      title: '页面布局',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '政府端人员账号管理复用 §6.1.2 交互，4 分布局（组织树+统计卡+筛选+列表）。仅管理本单位及下级组织内的人员账号，支持新增/编辑/删除/详情/重置密码；审批列表 badge 显示待审批数，支持批量导入。',
+      prdRef: '6.2.8.4 人员账号管理（政府端）'
+    },
+    {
+      id: 'gov-gu-002',
+      selector: '.stat-cards',
+      position: 'top-right',
+      title: '统计卡区',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '展示本单位人员总数、启用、停用、待审批。统计口径仅本单位权限范围内，组织树展示下级单位（含 toggleSubUnit 展开）。',
+      prdRef: '6.2.8.4 统计卡'
+    },
+    {
+      id: 'gov-gu-003',
+      selector: '#editModal',
+      position: 'top-right',
+      title: '新增/编辑弹窗',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: 'BR-GOV-USER-03 saveUser 用 ownOrg.name 兼容下级单位；GOV_ORG 扩展 subUnits（龙华/民治街道办事处含 3 科室），所属单位下拉补下级单位，_updateStats/renderTable 识别 sub-unit id 聚合用户。',
+      prdRef: '6.2.8.4 BR-GOV-USER-03'
+    },
+    {
+      id: 'gov-gu-004',
+      selector: '#approvalModal',
+      position: 'top-right',
+      title: '审批列表',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '政府端审批列表处理本单位人员账号注册、变更、停用审批单。审批通过后账号生效，驳回需填写原因。',
+      prdRef: '6.2.8.4 审核流程'
+    },
+    {
+      id: 'gov-gu-005',
+      selector: '#deleteModal',
+      position: 'top-right',
+      title: '删除二次确认',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '删除前强校验用户是否有待办任务（检查记录、隐患复核、审批单等），存在待办时阻断删除并列举待办项。政府端仅可删除本单位及下级组织内的人员账号。',
+      prdRef: '6.2.8.4 BR-GOV-USER 删除校验'
+    }
+  ],
+
+  // ========== 移动端 ==========
+  'mobile/login': [
+    {
+      id: 'm-login-001',
+      selector: '.login-card',
+      position: 'top-right',
+      title: '账号登录',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '从业人员使用账号密码登录移动端。登录后系统按角色（主要负责人/安全管理人员/从业人员）加载对应工作台。密码连续5次错误锁定账号30分钟。',
+      prdRef: '6.3.1 登录认证'
+    },
+    {
+      id: 'm-login-002',
+      selector: '.login-card select',
+      position: 'top-right',
+      title: '领域小类 + 审批单位',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '注册时必选领域小类（危险化学品生产/储存/使用/运输、金属非金属矿山、煤矿、房屋建筑工程、市政工程等8类）和审批单位（监管主体：龙华区应急管理局/消防救援大队/住建局/自然资源局），用于绑定企业所属监管单位。',
+      prdRef: '6.3.1 注册字段 BR-MOB-LOGIN-01'
+    },
+    {
+      id: 'm-login-003',
+      selector: 'a[onclick*="showFirstLogin"]',
+      position: 'top-right',
+      title: '首次登录改密',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '首次登录强制修改初始密码，需输入原密码+新密码+确认新密码，新密码不少于8位含数字字母组合。改密成功后跳转工作台。',
+      prdRef: '6.3.1 BR-MOB-LOGIN-02 首次改密'
+    }
+  ],
+
+  'mobile/workbench': [
+    {
+      id: 'm-wb-001',
+      selector: '.wb-header',
+      position: 'top-right',
+      title: '工作台首页',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '登录后默认首页。顶部显示企业名称+用户角色（主要负责人/安全管理人员/从业人员），下方统计今日待办（待排查/隐患待整改/超期任务）。常用功能入口4个。',
+      prdRef: '6.3.2 工作台'
+    },
+    {
+      id: 'm-wb-002',
+      selector: '.wb-stats',
+      position: 'top-right',
+      title: '今日待办统计',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '实时计算当前用户的今日待办：待排查（pending检查表数）、隐患待整改（red状态）、超期任务（overdue）。点击数字跳转对应列表页。',
+      prdRef: '6.3.2 待办聚合'
+    },
+    {
+      id: 'm-wb-003',
+      selector: '.wb-grid',
+      position: 'top-right',
+      title: '常用功能',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '4个常用入口：码上排查（scan）、隐患排查（my-hazards）、任务管理（task-list）、安全管控对象（control-list）。按角色权限动态显示，从业人员隐藏任务管理。',
+      prdRef: '6.3.2 功能入口'
+    }
+  ],
+
+  'mobile/scan': [
+    {
+      id: 'm-scan-001',
+      selector: '.scan-frame',
+      position: 'top-right',
+      title: '扫码识别',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '调起摄像头扫描安全码（企业码/场所码/危险源码/重点场所码）。识别成功后加载对应检查表，进入码上排查流程。',
+      prdRef: '6.3.3 BR-INS-01 扫码触发检查'
+    },
+    {
+      id: 'm-scan-002',
+      selector: '.scan-types',
+      position: 'top-right',
+      title: '码类型识别',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '4种码类型：企业码（蓝）、场所码（绿）、危险源码（红）、重点场所码（橙）。扫码后 toast 提示"已识别X码，加载对应检查表"，跳转 check-list 页面。',
+      prdRef: '6.3.3 BR-INS-01'
+    }
+  ],
+
+  'mobile/check-list': [
+    {
+      id: 'm-cl-001',
+      selector: '.cl-info-card',
+      position: 'top-right',
+      title: '检查信息',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '显示当前管控对象（安全管控对象名称、位置信息）、检查时间（自动填充当前时间）、检查人。从来源码页面自动带入对象信息。',
+      prdRef: '6.3.4 检查信息'
+    },
+    {
+      id: 'm-cl-002',
+      selector: '.cl-card',
+      position: 'top-right',
+      title: '检查表选择',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '列出该管控对象适用的检查表。系统推荐项标记"系统推荐"蓝色徽章。状态分待排查（yellow）/已排查（green，左侧绿色竖条）。点击卡片进入 check-execute 执行排查。',
+      prdRef: '6.3.4 检查表推荐 BR-INS-02'
+    }
+  ],
+
+  'mobile/check-execute': [
+    {
+      id: 'm-ce-001',
+      selector: '.ce-header',
+      position: 'top-right',
+      title: '检查表执行',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '按检查表逐项排查。每项可选合格/不合格/不适用。不合格项必填隐患描述+照片。所有项完成后提交。',
+      prdRef: '6.3.5 检查执行'
+    },
+    {
+      id: 'm-ce-002',
+      selector: '.ce-submit',
+      position: 'top-right',
+      title: '提交检查记录',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '提交时校验必填项。存在不合格项自动生成隐患记录，进入隐患整改流程。全部合格则检查记录归档，更新码色计算数据。',
+      prdRef: '6.3.5 BR-INS-03 自动转隐患'
+    }
+  ],
+
+  'mobile/check-detail': [
+    {
+      id: 'm-cd-001',
+      selector: '.cd-card',
+      position: 'top-right',
+      title: '检查记录详情',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '查看历史检查记录详情：检查表名称、检查人、检查时间、各检查项结果（合格/不合格/不适用）、附件照片、备注。',
+      prdRef: '6.3.6 检查记录详情'
+    }
+  ],
+
+  'mobile/my-hazards': [
+    {
+      id: 'm-mh-001',
+      selector: '.mh-bar',
+      position: 'top-right',
+      title: '隐患统计条',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '顶部统计条显示我排查的隐患分布：待整改（red）、整改中（yellow）、已整改（green）。下方为隐患卡片列表。',
+      prdRef: '6.3.7 隐患统计'
+    },
+    {
+      id: 'm-mh-002',
+      selector: '.mh-filter-chip',
+      position: 'top-right',
+      title: '状态筛选',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '状态筛选标签：待整改/整改中/已整改。点击切换显示对应状态隐患。待整改为 red（红色），整改中为 orange（橙色），已整改为 green（绿色）。',
+      prdRef: '6.3.7 状态术语 BR-HAZ-01'
+    },
+    {
+      id: 'm-mh-003',
+      selector: '.mh-card',
+      position: 'top-right',
+      title: '隐患卡片',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '卡片显示隐患类型、安全管控对象、整改状态、整改期限。点击进入隐患详情。状态颜色与统计条一致。',
+      prdRef: '6.3.7 隐患列表'
+    }
+  ],
+
+  'mobile/hazard-detail': [
+    {
+      id: 'm-hd-001',
+      selector: '.hd-info',
+      position: 'top-right',
+      title: '隐患基本信息',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '显示隐患编号（HD-YYYY-MMDD-NNN）、隐患类型、安全管控对象、责任人、整改期限、隐患描述、整改状态。',
+      prdRef: '6.3.8 隐患详情'
+    },
+    {
+      id: 'm-hd-002',
+      selector: '.hd-timeline',
+      position: 'top-right',
+      title: '整改进度时间线',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '5节点时间线：隐患发现→整改分配→整改中→整改完成→复核确认。当前节点高亮显示。整改中状态显示"● 整改中"黄色标识。',
+      prdRef: '6.3.8 BR-HAZ-02 整改流程'
+    }
+  ],
+
+  'mobile/hazard-stats': [
+    {
+      id: 'm-hs-001',
+      selector: '.hs-stats',
+      position: 'top-right',
+      title: '隐患统计',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '统计当前用户负责的隐患：总数、待整改（red）、整改中（yellow）、待验收（blue）、已整改（green）。',
+      prdRef: '6.3.9 隐患统计'
+    },
+    {
+      id: 'm-hs-002',
+      selector: '.hs-list',
+      position: 'top-right',
+      title: '隐患等级分布',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '按隐患等级分类：重大（red，红色）、较大（orange）、一般（yellow）。重大隐患 urgency 标识为红色，状态为"待整改"。',
+      prdRef: '6.3.9 BR-HAZ-03 等级配色'
+    }
+  ],
+
+  'mobile/task-list': [
+    {
+      id: 'm-tl-001',
+      selector: '.tl-stats',
+      position: 'top-right',
+      title: '任务统计',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '统计当前用户任务：任务总数、待处理、进行中、已完成、已超期。数字与实际任务列表一致（如8=3+3+1+1）。',
+      prdRef: '6.3.10 任务统计'
+    },
+    {
+      id: 'm-tl-002',
+      selector: '.tl-card',
+      position: 'top-right',
+      title: '任务卡片',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '卡片显示任务名称、类型标签（日常/专项/整改）。日常=蓝色、专项=橙色、整改=红色。点击进入任务详情。',
+      prdRef: '6.3.10 BR-TASK-01 类型配色'
+    }
+  ],
+
+  'mobile/enterprise-code': [
+    {
+      id: 'm-ec-001',
+      selector: '.ec-card',
+      position: 'top-right',
+      title: '企业码详情',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '显示企业基本信息：企业名称、统一社会信用代码、所属领域、审批单位、码色（green/yellow/red）。码色实时反映企业安全状况。',
+      prdRef: '6.3.11 企业码'
+    },
+    {
+      id: 'm-ec-002',
+      selector: '.ec-sub',
+      position: 'top-right',
+      title: '下级场所码/危险源码',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '企业码下挂载场所码和危险源码。点击下级码可进入对应详情页。码色按上下级关联计算（异常占比>20%码色变黄）。',
+      prdRef: '6.3.11 BR-CODE-01 上下关联'
+    }
+  ],
+
+  'mobile/place-code': [
+    {
+      id: 'm-pc-001',
+      selector: '.pc-info',
+      position: 'top-right',
+      title: '场所码详情',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '显示场所信息：场所名称、所属企业、位置、负责人、码色。顶部显示"上级：企业名称（企业码）"可点击返回上级。',
+      prdRef: '6.3.12 场所码'
+    },
+    {
+      id: 'm-pc-002',
+      selector: '.pc-hazard-stats',
+      position: 'top-right',
+      title: '隐患统计',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '统计该场所下的隐患：待整改/整改中/已整改。状态术语统一使用"待整改"（非"未整改"）。点击查看隐患列表。',
+      prdRef: '6.3.12 BR-HAZ-01 状态术语'
+    }
+  ],
+
+  'mobile/hazard-code': [
+    {
+      id: 'm-hc-001',
+      selector: '.hc-info',
+      position: 'top-right',
+      title: '危险源码详情',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '显示危险源信息：名称、等级（重大/较大/一般）、R值、责任部门、所属场所、码色。顶部"上级：场所名称（场所码）"可点击返回。',
+      prdRef: '6.3.13 危险源码'
+    },
+    {
+      id: 'm-hc-002',
+      selector: '.hc-meta',
+      position: 'top-right',
+      title: '危险源元数据',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '危险源等级标签：重大（red红色）、较大（orange）、一般（yellow）。R值反映风险分级。状态术语统一使用"待整改"。',
+      prdRef: '6.3.13 BR-HAZ 等级配色'
+    }
+  ],
+
+  'mobile/code-change': [
+    {
+      id: 'm-cc-001',
+      selector: '.chart-section',
+      position: 'top-right',
+      title: '变码原因分布',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '环形图展示变码原因占比：履职检查（green 50%）、隐患整改（yellow 30%）、上下关联（red 20%）。中心显示管控对象总数。',
+      prdRef: '6.3.14 变码记录'
+    },
+    {
+      id: 'm-cc-002',
+      selector: '.m-tabs',
+      position: 'top-right',
+      title: '变码记录分类',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '3个Tab：履职检查、隐患整改、上下关联。每个Tab列出对应原因的变码记录，包含对象名称、责任人、超期情况、整改状态。状态术语"待整改"。',
+      prdRef: '6.3.14 变码分类'
+    }
+  ],
+
+  'mobile/control-list': [
+    {
+      id: 'm-ctrl-001',
+      selector: '.cl-tabs',
+      position: 'top-right',
+      title: '管控对象树',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '默认显示"对象"Tab：树形结构展示企业码（ent蓝色）→场所码（place绿色）→危险源码（hazard红色）→重点场所码（keyplace橙色）。点击树节点进入对应码详情。',
+      prdRef: '6.3.15 安全管控对象'
+    },
+    {
+      id: 'm-ctrl-002',
+      selector: '.cl-sub-tab',
+      position: 'top-right',
+      title: '人员分类',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '"人员"Tab按 PRD 角色分类：主要负责人/安全管理人员/从业人员。每位人员显示姓名+岗位+角色。重点部位标记为"重点场所码"。',
+      prdRef: '6.3.15 BR-MOB-CTRL 角色术语'
+    }
+  ],
+
+  'mobile/profile': [
+    {
+      id: 'm-pf-001',
+      selector: '.pf-header',
+      position: 'top-right',
+      title: '个人信息',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '显示用户头像、姓名、角色标签（如"安全管理人员 · 创安电子科技"）、所属企业。角色按 PRD 术语：主要负责人/安全管理人员/从业人员。',
+      prdRef: '6.3.16 个人中心'
+    },
+    {
+      id: 'm-pf-002',
+      selector: '.pf-legend',
+      position: 'top-right',
+      title: '隐患图例',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '统计图例使用 PRD 状态术语："● 待整改 N"（红色）、"● 整改中 N"（黄色）、"● 已整改 N"（绿色）。不使用"未整改"。',
+      prdRef: '6.3.16 BR-HAZ-01 状态术语'
+    }
+  ],
+
+  'mobile/settings': [
+    {
+      id: 'm-st-001',
+      selector: '.st-version',
+      position: 'top-right',
+      title: '版本信息',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '显示当前系统版本："安全码管理平台 V7.0"。版本号与 PRD V7.0 保持一致。',
+      prdRef: '6.3.17 版本信息'
+    },
+    {
+      id: 'm-st-002',
+      selector: '.st-list',
+      position: 'top-right',
+      title: '设置项',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '设置项：消息通知、缓存清理、修改密码、关于我们、退出登录。退出登录返回 login 页面并清除本地缓存。',
+      prdRef: '6.3.17 设置项'
+    }
+  ],
+
+  'mobile/my-inspections': [
+    {
+      id: 'm-mi-001',
+      selector: '.mi-list',
+      position: 'top-right',
+      title: '我的检查记录',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '列出当前用户的检查记录：检查表名称、检查对象、检查时间、结果（合格/不合格）。点击查看检查详情。',
+      prdRef: '6.3.18 我的检查'
+    }
+  ],
+
+  'mobile/inspection-stats': [
+    {
+      id: 'm-is-001',
+      selector: '.is-chart',
+      position: 'top-right',
+      title: '检查统计',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '统计当前用户的检查情况：本月检查次数、合格率、隐患发现数。支持按周/月/季度切换。',
+      prdRef: '6.3.19 检查统计'
+    }
+  ],
+
+  'mobile/ai-analysis': [
+    {
+      id: 'm-ai-001',
+      selector: '.ai-card',
+      position: 'top-right',
+      title: 'AI 智能分析',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: 'AI 分析安全隐患趋势：高发隐患类型、高发场所、整改效率。提供风险预警和建议。基于历史检查+隐患数据建模。',
+      prdRef: '6.3.20 AI分析'
+    }
+  ],
+
+  'mobile/qr-preview': [
+    {
+      id: 'm-qr-001',
+      selector: '.qr-card',
+      position: 'top-right',
+      title: '二维码预览',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '预览安全码二维码：码类型（企业码/场所码/危险源码/重点场所码）、码色（green/yellow/red）、对象名称、扫码次数。支持下载/打印。',
+      prdRef: '6.3.21 二维码预览'
+    }
   ]
 
 };
