@@ -45,10 +45,34 @@
     .field-error { color: var(--error); font-size: var(--font-size-xs); margin-top: var(--spacing-xs); display: none; }
     .has-error .editable-field { border-color: var(--error); }
     .has-error .field-error { display: block; }
+
+    /* ========== 安全码信息 ========== */
+    .safety-code-card { display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-md); background: var(--bg-section-alt); border-radius: var(--radius-md); border: 1px solid var(--border-light); }
+    .safety-code-qr { width: 96px; height: 96px; border-radius: var(--radius-sm); background: linear-gradient(135deg, #eef2ff 0%, #e6f7ff 100%); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 11px; text-align: center; flex-shrink: 0; }
+    .safety-code-meta { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--spacing-sm) var(--spacing-md); }
+    .safety-code-meta .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .safety-code-meta .info-label { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+    .safety-code-meta .info-value { font-size: var(--font-size-md); color: var(--text-primary); font-weight: 500; }
+
+    /* ========== 审批记录表 ========== */
+    .audit-record-table { width: 100%; border-collapse: collapse; }
+    .audit-record-table th, .audit-record-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); }
+    .audit-record-table th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-secondary); }
+    .audit-record-table tr:last-child td { border-bottom: none; }
+
+    /* ========== 弹窗表单 ========== */
+    .modal-form .form-group { margin-bottom: var(--spacing-md); }
+    .modal-form .form-label { display: block; margin-bottom: 6px; font-size: var(--font-size-sm); color: var(--text-secondary); font-weight: 500; }
+    .modal-form .form-label .required { color: var(--error); margin-left: 4px; }
+    .modal-form .form-control { width: 100%; box-sizing: border-box; padding: var(--spacing-sm) 12px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); font-size: var(--font-size-md); background: var(--bg-primary); }
+    .modal-form .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .modal-form textarea.form-control { min-height: 80px; resize: vertical; font-family: inherit; }
+    .modal-form .form-hint { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px; }
+    .modal-form .readonly-text { padding: var(--spacing-sm) 12px; background: var(--bg-section-alt); border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: var(--font-size-md); }
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="ent-info">
+  <div class="module-page page-container" data-module="enterprise/ent-info">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -59,6 +83,7 @@
     
     <!-- 页面标题栏已隐藏 -->
     <div style="display: flex; justify-content: flex-end; margin-bottom: var(--spacing-md);">
+      <button class="btn btn-default" onclick="requestDisable()">停用申请</button>
       <button class="btn btn-primary" id="editBtn" onclick="toggleEdit()">编辑</button>
     </div>
     
@@ -72,7 +97,7 @@
           <div class="info-grid">
             <div class="info-item">
               <span class="info-label">企业名称</span>
-              <span class="info-value readonly-field">创安电子科技有限公司</span>
+              <span class="info-value"><input class="editable-field" data-field="entName" data-original="创安电子科技有限公司" value="创安电子科技有限公司" readonly style="width:100%;box-sizing:border-box;"></span>
             </div>
             <div class="info-item">
               <span class="info-label">统一社会信用代码</span>
@@ -89,29 +114,50 @@
             </div>
             <div class="info-item">
               <span class="info-label">注册地址</span>
-              <span class="info-value readonly-field">深圳市南山区科技园南区</span>
+              <span class="info-value"><input class="editable-field" data-field="regAddress" value="深圳市南山区科技园南区" readonly style="width:100%;box-sizing:border-box;"></span>
             </div>
             <div class="info-item">
               <span class="info-label">经营地址</span>
               <span class="info-value"><input class="editable-field" data-field="bizAddress" value="深圳市南山区科技园南区A栋" readonly style="width:100%;box-sizing:border-box;"></span>
             </div>
             <div class="info-item">
-              <span class="info-label">所属网格</span>
+              <span class="info-label">归属网格</span>
               <span class="info-value readonly-field">南山区-南山街道-第12网格</span>
             </div>
             <div class="info-item">
               <span class="info-label">监管单位</span>
               <span class="info-value readonly-field">南山区应急管理局</span>
             </div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+              <span class="info-label">企业图片</span>
+              <span class="info-value">
+                <div class="image-upload-area" id="entImageArea" style="display:flex;flex-wrap:wrap;gap:var(--spacing-sm);">
+                  <div class="image-thumb" style="width:96px;height:96px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center;background-image:url('https://placehold.co/96x96/eef2ff/1677ff/png?text=图片1');"></div>
+                  <div class="image-thumb" style="width:96px;height:96px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center;background-image:url('https://placehold.co/96x96/eef2ff/1677ff/png?text=图片2');"></div>
+                  <button class="image-add-btn" type="button" onclick="showToast('图片上传：最多 5 张，jpg/png，单张 ≤5MB')" style="width:96px;height:96px;border:1px dashed var(--border-figma);border-radius:var(--radius-sm);background:var(--bg-section-alt);color:var(--text-secondary);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;">+</button>
+                </div>
+                <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:var(--spacing-xs);">最多 5 张，jpg/png，单张 ≤5MB；编辑模式下可上传/删除</div>
+              </span>
+            </div>
             <div class="info-item">
               <span class="info-label">企业状态</span>
-              <span class="info-value"><span class="tag tag-green">正常</span></span>
+              <span class="info-value"><span class="tag tag-green">启用</span></span>
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+              <span class="info-label">备注</span>
+              <span class="info-value"><input class="editable-field" data-field="remark" value="高新技术企业，主营电子元器件制造与销售" readonly style="width:100%;box-sizing:border-box;"></span>
             </div>
           </div>
         </div>
         
         <div class="info-section">
           <div class="info-section-title">关联领域小类</div>
+          <div class="info-grid" style="margin-bottom: var(--spacing-md);">
+            <div class="info-item">
+              <span class="info-label">主领域小类</span>
+              <span class="info-value readonly-field">充换电设施</span>
+            </div>
+          </div>
           <div class="tag-list" id="categoryTags">
             <span class="tag-item">充换电设施</span>
             <span class="tag-item">工业制造</span>
@@ -132,10 +178,172 @@
             </div>
             <div class="info-item">
               <span class="info-label">账号状态</span>
-              <span class="info-value"><span class="tag tag-green">正常</span></span>
+              <span class="info-value"><span class="tag tag-green">启用</span></span>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 安全码信息 -->
+    <div class="info-card" style="margin-top: var(--spacing-md);">
+      <div class="info-header">
+        <span class="info-title">安全码信息</span>
+      </div>
+      <div class="info-body">
+        <div class="safety-code-card">
+          <div class="safety-code-qr">安全码<br>截图占位</div>
+          <div class="safety-code-meta">
+            <div class="info-item">
+              <span class="info-label">安全码状态</span>
+              <span class="info-value"><span class="tag tag-green">正常</span></span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">安全码等级</span>
+              <span class="info-value"><span class="tag tag-blue">绿色（低风险）</span></span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">最近生成时间</span>
+              <span class="info-value">2026-06-28 06:00</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">有效期至</span>
+              <span class="info-value">2026-07-28 06:00</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">最近扫码次数</span>
+              <span class="info-value">128 次</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">最近隐患数</span>
+              <span class="info-value">0 条</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 审批记录 -->
+    <div class="info-card" style="margin-top: var(--spacing-md);">
+      <div class="info-header">
+        <span class="info-title">审批记录</span>
+      </div>
+      <div class="info-body">
+        <div class="table-wrapper">
+          <table class="audit-record-table" id="auditRecordTable">
+            <thead>
+              <tr>
+                <th>申请类型</th>
+                <th>提交时间</th>
+                <th>审批单位</th>
+                <th>审批状态</th>
+                <th>操作时间</th>
+                <th>操作人</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>企业注册</td>
+                <td>2026-05-10 09:30</td>
+                <td>南山区南山街道办</td>
+                <td><span class="tag tag-green">通过</span></td>
+                <td>2026-05-12 14:20</td>
+                <td>李科员</td>
+              </tr>
+              <tr>
+                <td>企业名称变更</td>
+                <td>2026-06-15 11:00</td>
+                <td>南山区应急管理局</td>
+                <td><span class="tag tag-green">通过</span></td>
+                <td>2026-06-17 16:45</td>
+                <td>王科长</td>
+              </tr>
+              <tr>
+                <td>企业名称变更</td>
+                <td>2026-06-29 10:20</td>
+                <td>南山区应急管理局</td>
+                <td><span class="tag tag-orange">待审核</span></td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 企业名称变更申请弹窗 -->
+  <div class="modal-overlay" id="modalNameChange">
+    <div class="modal-dialog" style="width: 520px;">
+      <div class="modal-header">
+        <span class="modal-title">企业名称变更申请</span>
+        <button class="modal-close" onclick="closeModal('modalNameChange')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label">原企业名称</label>
+            <div class="readonly-text" id="ncOriginalName">创安电子科技有限公司</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">变更后企业名称<span class="required">*</span></label>
+            <input type="text" class="form-control" id="ncNewName" placeholder="请输入变更后的企业名称">
+            <div class="form-hint">企业名称变更需提交审批，审批通过后生效；驳回后保持原名称。</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">审批单位<span class="required">*</span></label>
+            <select class="form-control" id="ncApprover">
+              <option value="">请选择审批单位</option>
+              <option value="南山区南山街道办">南山区南山街道办（属地街道办）</option>
+              <option value="南山区应急管理局">南山区应急管理局（领域可管理单位）</option>
+            </select>
+            <div class="form-hint">系统按属地街道办与主领域小类可管理单位计算可选审批单位，请指定一个。</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">申请说明</label>
+            <textarea class="form-control" id="ncReason" placeholder="请简要说明变更原因"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modalNameChange')">取消</button>
+        <button class="btn btn-primary" onclick="submitNameChange()">提交申请</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 企业停用申请弹窗 -->
+  <div class="modal-overlay" id="modalDisable">
+    <div class="modal-dialog" style="width: 480px;">
+      <div class="modal-header">
+        <span class="modal-title">企业停用申请</span>
+        <button class="modal-close" onclick="closeModal('modalDisable')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label">企业名称</label>
+            <div class="readonly-text">创安电子科技有限公司</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">审批单位<span class="required">*</span></label>
+            <select class="form-control" id="disApprover">
+              <option value="">请选择审批单位</option>
+              <option value="南山区南山街道办">南山区南山街道办（属地街道办）</option>
+              <option value="南山区应急管理局">南山区应急管理局（领域可管理单位）</option>
+            </select>
+            <div class="form-hint">企业停用需提交审批；通过后企业状态变为停用，历史检查、隐患、档案、安全码、审批记录均保留。</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">停用原因<span class="required">*</span></label>
+            <textarea class="form-control" id="disReason" placeholder="请说明停用原因"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modalDisable')">取消</button>
+        <button class="btn btn-primary" onclick="submitDisable()">提交申请</button>
       </div>
     </div>
   </div>
@@ -161,41 +369,117 @@
       }
       
       window.toggleEdit = function() {
-        state.isEditing = !state.isEditing;
         var btn = document.getElementById('editBtn');
         var editableFields = document.querySelectorAll('.editable-field');
 
-        if (state.isEditing) {
+        if (!state.isEditing) {
+          state.isEditing = true;
           btn.textContent = '保存';
           btn.className = 'btn btn-primary';
           editableFields.forEach(function(f) {
             f.removeAttribute('readonly');
             f.classList.add('editing');
           });
-        } else {
-          // 校验联系电话
-          var phoneField = document.querySelector('[data-field="phone"]');
-          var phoneFg = document.getElementById('fg-phone');
-          if (phoneField) {
-            var phone = phoneField.value.trim();
-            var phoneReg = /^1\d{10}$/;
-            if (!phoneReg.test(phone)) {
-              phoneFg.classList.add('has-error');
-              phoneField.focus();
-              return;
-            }
-            phoneFg.classList.remove('has-error');
-          }
+          return;
+        }
 
+        var phoneField = document.querySelector('[data-field="phone"]');
+        var phoneFg = document.getElementById('fg-phone');
+        if (phoneField) {
+          var phone = phoneField.value.trim();
+          var phoneReg = /^1\d{10}$/;
+          if (!phoneReg.test(phone)) {
+            phoneFg.classList.add('has-error');
+            phoneField.focus();
+            return;
+          }
+          phoneFg.classList.remove('has-error');
+        }
+
+        var nameField = document.querySelector('[data-field="entName"]');
+        var newName = nameField ? nameField.value.trim() : '';
+        var nameChanged = nameField && newName !== nameField.dataset.original;
+
+        // 企业名称变更需走审批弹窗（BR-ENT-SELF-03），不能直接保存
+        if (nameChanged) {
+          // 先退出编辑态、恢复原名称，再打开名称变更弹窗
+          state.isEditing = false;
           btn.textContent = '编辑';
           btn.className = 'btn btn-default';
           editableFields.forEach(function(f) {
             f.setAttribute('readonly', 'readonly');
             f.classList.remove('editing');
           });
-          showToast('保存成功！');
+          nameField.value = nameField.dataset.original;
+          openModal('modalNameChange');
+          var ncNewName = document.getElementById('ncNewName');
+          var ncOriginal = document.getElementById('ncOriginalName');
+          if (ncNewName) { ncNewName.value = newName; }
+          if (ncOriginal) { ncOriginal.textContent = nameField.dataset.original; }
+          return;
         }
+
+        state.isEditing = false;
+        btn.textContent = '编辑';
+        btn.className = 'btn btn-default';
+        editableFields.forEach(function(f) {
+          f.setAttribute('readonly', 'readonly');
+          f.classList.remove('editing');
+        });
+        showToast('保存成功！');
       };
+
+      window.requestDisable = function() {
+        openModal('modalDisable');
+      };
+
+      window.openModal = function(id) {
+        var m = document.getElementById(id);
+        if (m) { m.classList.add('show'); }
+      };
+
+      window.closeModal = function(id) {
+        var m = document.getElementById(id);
+        if (m) { m.classList.remove('show'); }
+      };
+
+      window.submitNameChange = function() {
+        var newName = document.getElementById('ncNewName').value.trim();
+        var approver = document.getElementById('ncApprover').value;
+        if (!newName) { showToast('请填写变更后企业名称'); return; }
+        if (!approver) { showToast('请选择审批单位'); return; }
+        appendAuditRecord('企业名称变更', approver, '待审核');
+        closeModal('modalNameChange');
+        document.getElementById('ncNewName').value = '';
+        document.getElementById('ncApprover').value = '';
+        document.getElementById('ncReason').value = '';
+        showToast('企业名称变更申请已提交，待 ' + approver + ' 审批；页面继续显示当前已生效名称。');
+      };
+
+      window.submitDisable = function() {
+        var approver = document.getElementById('disApprover').value;
+        var reason = document.getElementById('disReason').value.trim();
+        if (!approver) { showToast('请选择审批单位'); return; }
+        if (!reason) { showToast('请填写停用原因'); return; }
+        appendAuditRecord('企业停用', approver, '待审核');
+        closeModal('modalDisable');
+        document.getElementById('disApprover').value = '';
+        document.getElementById('disReason').value = '';
+        showToast('停用申请已提交，待 ' + approver + ' 审批。');
+      };
+
+      function appendAuditRecord(type, approver, status) {
+        var table = document.getElementById('auditRecordTable');
+        if (!table) return;
+        var tbody = table.querySelector('tbody');
+        var tr = document.createElement('tr');
+        var now = new Date();
+        var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+        var ts = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+        var tagClass = status === '待审核' ? 'tag-orange' : (status === '通过' ? 'tag-green' : 'tag-red');
+        tr.innerHTML = '<td>' + type + '</td><td>' + ts + '</td><td>' + approver + '</td><td><span class="tag ' + tagClass + '">' + status + '</span></td><td>—</td><td>—</td>';
+        tbody.insertBefore(tr, tbody.firstChild);
+      }
 
       // 关联领域小类由监管端维护，企业端只读展示（BR-ENT-02-04），不提供编辑功能
 
