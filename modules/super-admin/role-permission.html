@@ -10,7 +10,7 @@
 <style>
 .breadcrumb-item:hover{color:var(--primary)}
 .main-layout{display:flex;gap: var(--spacing-md);margin-top: var(--spacing-md);min-height:calc(100vh - 80px)}
-.left-panel{width:300px;flex-shrink:0;background:var(--bg-primary);border-radius: var(--radius-lg);padding:0;box-shadow: var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
+.tree-panel{width:300px;flex-shrink:0;background:var(--bg-primary);border-radius: var(--radius-lg);padding:0;box-shadow: var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
 .left-header{padding: 14px var(--spacing-md);border-bottom:1px solid var(--border-light);font-size: var(--font-size-md);font-weight:600;color:var(--text-primary);display:flex;justify-content:space-between;align-items:center}
 .left-body{flex:1;overflow-y:auto;padding: var(--spacing-sm) 0}
 .role-group{margin-bottom: var(--spacing-xs)}
@@ -54,7 +54,7 @@
 .btn-sm{padding:3px 10px;font-size: var(--font-size-xs)}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal{background:var(--bg-primary);border-radius:10px;width:520px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-dialog{background:var(--bg-primary);border-radius:10px;width:520px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-md) 20px;border-bottom:1px solid var(--border-light);flex-shrink:0}
 .modal-title{font-size: var(--font-size-lg);font-weight:600;color:var(--text-primary)}
 .modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius: var(--radius-md);cursor:pointer;font-size: var(--font-size-md);color:var(--text-tertiary);transition:all .2s}
@@ -65,8 +65,8 @@
 .form-group{display:flex;flex-direction:column;flex:1;min-width:160px}
 .form-label{font-size: var(--font-size-sm);color:var(--text-primary);margin-bottom:5px;font-weight:500}
 .form-label .required{color:var(--danger);margin-right:2px}
-.form-control{padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
-.form-control:focus{border-color:var(--primary)}
+.form-input,.form-select{padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-input:focus,.form-select:focus{border-color:var(--primary)}
 
 .tag-info{background:var(--primary-light);color:var(--primary)}
 #_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding: 10px var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius: var(--radius-md);font-size: var(--font-size-md);z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
@@ -75,7 +75,7 @@
 </style>
 </head>
 <body>
-<div class="page-container" data-module="sa-role-permission">
+<div class="page-container" data-module="super-admin/role-permission">
   <div class="breadcrumb" id="breadcrumb">
     <span class="breadcrumb-prefix">当前位置：</span>
     <span class="breadcrumb-item">超管端</span>
@@ -85,7 +85,7 @@
 
   <div class="main-layout">
     <!-- 左侧角色列表 -->
-    <div class="left-panel">
+    <div class="tree-panel">
       <div class="left-header">
         <span>角色列表</span>
         <button class="btn btn-primary btn-sm" onclick="openAddRoleModal()">+ 新增角色</button>
@@ -105,7 +105,7 @@
 
 <!-- 新增角色弹窗 -->
 <div class="modal-overlay" id="modal-add-role">
-  <div class="modal">
+  <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title">新增角色</span>
       <div class="modal-close" onclick="closeModal('modal-add-role')">&#x2715;</div>
@@ -114,17 +114,17 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label"><span class="required">*</span>角色名称</label>
-          <input class="form-control" id="fRoleName" placeholder="请输入角色名称">
+          <input class="form-input" id="fRoleName" placeholder="请输入角色名称">
         </div>
         <div class="form-group">
           <label class="form-label"><span class="required">*</span>角色编码</label>
-          <input class="form-control" id="fRoleCode" placeholder="请输入角色编码（大写英文）">
+          <input class="form-input" id="fRoleCode" placeholder="请输入角色编码（大写英文）">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label"><span class="required">*</span>所属端</label>
-          <select class="form-control" id="fRoleSide">
+          <select class="form-select" id="fRoleSide">
             <option value="">请选择</option>
             <option value="super">超管端</option>
             <option value="gov">政府端</option>
@@ -136,7 +136,7 @@
       <div class="form-row">
         <div class="form-group" style="flex:1">
           <label class="form-label">描述</label>
-          <input class="form-control" id="fRoleDesc" placeholder="请输入角色描述（选填）">
+          <input class="form-input" id="fRoleDesc" placeholder="请输入角色描述（选填）">
         </div>
       </div>
     </div>

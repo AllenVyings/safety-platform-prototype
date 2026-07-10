@@ -8,8 +8,8 @@ const MENU_CONFIG = {
   'super-admin': [
     {
       id: 'sa-workbench',
-      name: '工作台',
-      icon: '📊',
+      name: '安全态势',
+      icon: '📈',
       module: 'super-admin/workbench',
       path: 'modules/super-admin/workbench.html',
       description: '系统概览与快捷操作',
@@ -133,16 +133,6 @@ const MENU_CONFIG = {
       disabled: false
     },
     {
-      id: 'sa-business-mode',
-      name: '业态模式管理',
-      icon: '🔧',
-      module: 'super-admin/business-mode',
-      path: 'modules/super-admin/business-mode.html',
-      description: '四种业态模式配置与菜单规则管理',
-      badge: '待开发',
-      disabled: true
-    },
-    {
       id: 'sa-role-permission',
       name: '角色权限管理',
       icon: '🔐',
@@ -172,36 +162,6 @@ const MENU_CONFIG = {
       badge: '待开发',
       disabled: true
     },
-    {
-      id: 'sa-notice-manage',
-      name: '通知公告管理',
-      icon: '📢',
-      module: 'super-admin/notice-manage',
-      path: 'modules/super-admin/notice-manage.html',
-      description: '平台级通知公告发布',
-      badge: '待开发',
-      disabled: true
-    },
-    {
-      id: 'sa-data-stats',
-      name: '数据统计',
-      icon: '📊',
-      module: 'super-admin/data-stats',
-      path: 'modules/super-admin/data-stats.html',
-      description: '跨端全局数据统计',
-      badge: '待开发',
-      disabled: true
-    },
-    {
-      id: 'sa-system-monitor',
-      name: '系统监控',
-      icon: '📈',
-      module: 'super-admin/system-monitor',
-      path: 'modules/super-admin/system-monitor.html',
-      description: '系统运行状态监控',
-      badge: null,
-      disabled: false
-    }
   ],
   
   // ========== 政府端菜单（V7.0 重构） ==========

@@ -24,13 +24,18 @@
 /* 右侧内容 */
 .content-panel{flex:1;background:var(--bg-primary);border-radius: var(--radius-lg);box-shadow:0 1px 3px rgba(0,0,0,.06);padding: var(--spacing-lg);overflow:auto}
 
-/* 统计卡片 - .stat-cards, .stat-card, .stat-icon, .stat-content, .stat-label, .stat-value 由 framework.css 提供 */
+/* 统计卡片 - .stats-row, .stat-card, .stat-card-body, .stat-label, .stat-value, .stat-indicator 由 framework.css 提供 */
 
 /* 查询区 */
-.query-bar{display:flex;gap: 10px;margin-bottom: var(--spacing-md);flex-wrap:wrap}
-.query-bar input,.query-bar select{padding: 7px 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none}
-.query-bar input:focus,.query-bar select:focus{border-color:var(--primary)}
-.query-bar input{min-width:160px}
+/* 筛选栏卡片 */
+.filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+.filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+.filter-card .filter-item{display:flex;align-items:center;gap:6px}
+.filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
+/* 表格工具栏 */
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md);flex-shrink:0}
+.table-toolbar-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+.table-toolbar-actions{display:flex;gap:8px}
 
 /* 表格 */
 .table-scroll{overflow-x:auto}
@@ -48,12 +53,12 @@
 /* 标签 */
 
 /* 弹窗 */
-.modal-box{background:var(--bg-primary);border-radius: var(--radius-lg);width:640px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.modal-dialog{background:var(--bg-primary);border-radius: var(--radius-lg);width:640px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .form-row{display:flex;gap: 12px;margin-bottom: 12px}
 .form-group label .required{color:var(--danger);margin-left: 2px}
 
 /* 确认弹窗 */
-.confirm-modal .modal-box{width:420px}
+.confirm-modal .modal-dialog{width:420px}
 .confirm-modal .confirm-content{font-size: var(--font-size-md);color:var(--text-primary);line-height:1.8;padding: var(--spacing-sm) 0}
 .confirm-modal .confirm-content .highlight{color:var(--danger);font-weight:600}
 
@@ -68,7 +73,7 @@
 </style>
 </head>
 <body>
-<div class="page-container" data-module="ent-user">
+<div class="page-container" data-module="enterprise/ent-user">
   <div class="breadcrumb" id="breadcrumb">
     <span class="breadcrumb-prefix">当前位置：</span>
     <span class="breadcrumb-item">企业端</span>
@@ -87,54 +92,53 @@
     <!-- 右侧用户列表 -->
     <div class="content-panel">
       <!-- 统计卡片 -->
-      <div class="stat-cards">
+      <div class="stats-row">
         <div class="stat-card">
-          <div class="stat-icon blue">👥</div>
-          <div class="stat-content">
+          <div class="stat-card-body">
             <div class="stat-label">用户总数</div>
-            <div class="stat-value">25</div>
+            <div class="stat-value" id="statTotal">25</div>
           </div>
+          <div class="stat-indicator" style="background: var(--primary);"></div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon green">✅</div>
-          <div class="stat-content">
+          <div class="stat-card-body">
             <div class="stat-label">正常账号</div>
-            <div class="stat-value" style="color:var(--success)">22</div>
+            <div class="stat-value" id="statNormal" style="color:var(--success)">22</div>
           </div>
+          <div class="stat-indicator" style="background: var(--success);"></div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon orange">⛔</div>
-          <div class="stat-content">
+          <div class="stat-card-body">
             <div class="stat-label">停用账号</div>
-            <div class="stat-value" style="color:var(--danger)">3</div>
+            <div class="stat-value" id="statDisabled" style="color:var(--danger)">3</div>
           </div>
+          <div class="stat-indicator" style="background: var(--danger);"></div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon blue">🔑</div>
-          <div class="stat-content">
+          <div class="stat-card-body">
             <div class="stat-label">管理员</div>
-            <div class="stat-value" style="color:var(--primary)">2</div>
+            <div class="stat-value" id="statAdmin" style="color:var(--primary)">2</div>
           </div>
+          <div class="stat-indicator" style="background: var(--primary);"></div>
         </div>
       </div>
 
       <!-- 查询区 -->
-      <div class="query-bar">
-        <input type="text" placeholder="姓名/手机号" id="searchName">
-        <select id="searchDept">
-          <option value="">全部部门</option>
-          <option value="1">安全部</option>
-          <option value="2">技术部</option>
-          <option value="3">工程部</option>
-        </select>
-        <select id="searchStatus">
-          <option value="">全部状态</option>
-          <option value="normal">正常</option>
-          <option value="disabled">停用</option>
-        </select>
-        <button class="btn btn-primary btn-sm" onclick="showToast('搜索')">🔍 搜索</button>
-        <button class="btn btn-default btn-sm" onclick="showToast('重置')">重置</button>
-        <button class="btn btn-primary btn-sm" style="margin-leftauto" onclick="openAddModal()">+ 新增用户</button>
+      <div class="filter-card">
+        <div class="filter-bar">
+          <div class="filter-item"><label>关键词：</label><input type="text" placeholder="姓名/手机号" id="searchName"></div>
+          <div class="filter-item"><label>部门：</label><select id="searchDept"><option value="">全部部门</option><option value="1">安全部</option><option value="2">技术部</option><option value="3">工程部</option></select></div>
+          <div class="filter-item"><label>状态：</label><select id="searchStatus"><option value="">全部状态</option><option value="normal">正常</option><option value="disabled">停用</option></select></div>
+          <button class="btn btn-primary" onclick="showToast('搜索')">查询</button>
+          <button class="btn btn-default" onclick="showToast('重置')">重置</button>
+        </div>
+      </div>
+
+      <div class="table-toolbar">
+        <span class="table-toolbar-title">用户列表</span>
+        <div class="table-toolbar-actions">
+          <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
+        </div>
       </div>
 
       <!-- 表格 -->
@@ -224,7 +228,7 @@
 
 <!-- 新增/编辑用户弹窗 -->
 <div class="modal-overlay" id="userModal">
-  <div class="modal-box">
+  <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle">新增用户</span>
       <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -295,7 +299,7 @@
 
 <!-- 重置密码确认弹窗 -->
 <div class="modal-overlay confirm-modal" id="resetPwdModal">
-  <div class="modal-box">
+  <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title">重置密码确认</span>
       <button class="modal-close" onclick="closeModal('resetPwdModal')">&times;</button>
@@ -314,7 +318,7 @@
 
 <!-- 用户详情弹窗 -->
 <div class="modal-overlay" id="modal-user-detail">
-  <div class="modal-box">
+  <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title">用户详情</span>
       <button class="modal-close" onclick="closeModal('modal-user-detail')">&times;</button>

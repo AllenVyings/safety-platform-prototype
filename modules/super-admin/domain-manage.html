@@ -15,8 +15,6 @@
     .btn-link.btn-sm{font-size: var(--font-size-xs);padding: 1px var(--spacing-xs)}
     .btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
 
-    /* ========== 统计卡片微调 ========== */
-    .stat-value { color: var(--primary); }
 
     /* ========== 筛选栏控件统一 ========== */
     .filter-bar select,
@@ -72,7 +70,7 @@
       overflow: hidden;
     }
     .page-container[data-module="super-admin/domain-manage"] > .breadcrumb,
-    .page-container[data-module="super-admin/domain-manage"] > .stat-cards,
+    .page-container[data-module="super-admin/domain-manage"] > .stats-row,
     .page-container[data-module="super-admin/domain-manage"] > .filter-bar,
     .page-container[data-module="super-admin/domain-manage"] > .filter-card {
       flex-shrink: 0;
@@ -137,7 +135,7 @@
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: var(--overlay-bg);
       z-index: 1000;
       justify-content: center;
       align-items: center;
@@ -145,7 +143,7 @@
     .modal-overlay.active { display: flex; }
     #checklistModal { z-index: 1100; }
     #checklistLibModal { z-index: 1200; }
-    .modal {
+    .modal-dialog {
       background: var(--bg-primary);
       border-radius: var(--radius-xl);
       width: 90%;
@@ -724,8 +722,8 @@
       pointer-events: auto;
     }
     .star-toggle.active {
-      color: #d48806;
-      background: #fffbe6;
+      color: var(--warning);
+      background: var(--warning-light);
     }
     .star-toggle.inactive {
       color: #8c8c8c;
@@ -760,7 +758,7 @@
       line-height: 1;
     }
     .star-cell.active {
-      color: #d48806;
+      color: var(--warning);
     }
     .star-cell.inactive {
       color: #8c8c8c;
@@ -1092,7 +1090,7 @@
       color: var(--text-primary);
     }
     .df-field-required-mark {
-      color: #f5222d;
+      color: var(--danger);
       font-weight: bold;
     }
     .df-field-key {
@@ -1734,27 +1732,27 @@
     </div>
 
     <!-- 统计卡片 -->
-    <div class="stat-cards">
+    <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat-card" onclick="filterByStatus('')">
-        <div class="stat-icon blue">📋</div>
-        <div class="stat-content">
+        <div class="stat-card-body">
           <div class="stat-label">领域总数</div>
           <div class="stat-value" id="totalCount">23</div>
         </div>
+        <div class="stat-indicator" style="background: var(--primary);"></div>
       </div>
       <div class="stat-card" onclick="filterByStatus('1')">
-        <div class="stat-icon green">✅</div>
-        <div class="stat-content">
+        <div class="stat-card-body">
           <div class="stat-label">启用中</div>
           <div class="stat-value" id="enabledCount">22</div>
         </div>
+        <div class="stat-indicator" style="background: var(--success);"></div>
       </div>
       <div class="stat-card" onclick="filterByStatus('0')">
-        <div class="stat-icon gray">⏸</div>
-        <div class="stat-content">
+        <div class="stat-card-body">
           <div class="stat-label">停用中</div>
           <div class="stat-value" id="disabledCount">1</div>
         </div>
+        <div class="stat-indicator" style="background: var(--text-tertiary);"></div>
       </div>
     </div>
 
@@ -1825,7 +1823,7 @@
 
   <!-- 新增/编辑弹窗 -->
   <div class="modal-overlay" id="domainModal">
-    <div class="modal" style="width: 900px; max-width: 95vw;">
+    <div class="modal-dialog" style="width: 900px; max-width: 95vw;">
       <div class="modal-header">
         <h3 class="modal-title" id="modalTitle">新增领域小类</h3>
         <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -2103,7 +2101,7 @@
 
   <!-- 详情弹窗 -->
   <div class="modal-overlay" id="detailModal">
-    <div class="modal" style="width: 900px; max-width: 95vw;">
+    <div class="modal-dialog" style="width: 900px; max-width: 95vw;">
       <div class="modal-header">
         <h3 class="modal-title">领域小类详情</h3>
         <button class="modal-close" onclick="closeDetailModal()">&times;</button>
@@ -4646,11 +4644,11 @@ function showToast(msg, type) {
         <div class="df-property-title">字段属性 ${field.isLocked ? '<span style="color:#fa8c16;font-size:11px;">（已被使用，标识不可改）</span>' : ''}</div>
         <div class="df-property-form">
           <div class="form-item">
-            <label class="form-label">字段名称 <span style="color:#f5222d">*</span></label>
+            <label class="form-label">字段名称 <span style="color:var(--danger)">*</span></label>
             <input type="text" value="${field.fieldLabel}" maxlength="20" oninput="dfUpdateProperty('fieldLabel', this.value)">
           </div>
           <div class="form-item">
-            <label class="form-label">字段标识 <span style="color:#f5222d">*</span></label>
+            <label class="form-label">字段标识 <span style="color:var(--danger)">*</span></label>
             <input type="text" value="${field.fieldKey}" maxlength="30" ${keyDisabled ? 'disabled' : ''} oninput="dfUpdateProperty('fieldKey', this.value)">
           </div>
           <div class="form-item">
@@ -5537,7 +5535,7 @@ function showToast(msg, type) {
 
 <!-- 检查表配置弹框 - checklist-modal.html -->
 <div class="modal-overlay" id="checklistModal">
-  <div class="modal" style="width: 900px; max-width: 95vw; max-height: 90vh;">
+  <div class="modal-dialog" style="width: 900px; max-width: 95vw; max-height: 90vh;">
     <div class="modal-header">
       <h3 class="modal-title" id="checklistModalTitle">新增检查表配置</h3>
       <button class="modal-close" onclick="closeChecklistModal()">&times;</button>
@@ -5610,7 +5608,7 @@ function showToast(msg, type) {
 
 <!-- 检查库引用弹框 -->
 <div class="modal-overlay" id="checklistLibModal">
-  <div class="modal" style="width: 600px;">
+  <div class="modal-dialog" style="width: 600px;">
     <div class="modal-header">
       <h3 class="modal-title">从检查库引用</h3>
       <button class="modal-close" onclick="closeChecklistLibModal()">&times;</button>

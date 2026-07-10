@@ -42,17 +42,22 @@
     .editable-field { background: var(--bg-primary); padding: var(--spacing-sm) 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-primary); outline: none; }
     .editable-field.editing { border: 1px solid var(--border-figma); }
     .editable-field.editing:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
-    .field-error { color: var(--error); font-size: var(--font-size-xs); margin-top: var(--spacing-xs); display: none; }
-    .has-error .editable-field { border-color: var(--error); }
+    .field-error { color: var(--danger); font-size: var(--font-size-xs); margin-top: var(--spacing-xs); display: none; }
+    .has-error .editable-field { border-color: var(--danger); }
     .has-error .field-error { display: block; }
 
     /* ========== 安全码信息 ========== */
     .safety-code-card { display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-md); background: var(--bg-section-alt); border-radius: var(--radius-md); border: 1px solid var(--border-light); }
-    .safety-code-qr { width: 96px; height: 96px; border-radius: var(--radius-sm); background: linear-gradient(135deg, #eef2ff 0%, #e6f7ff 100%); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 11px; text-align: center; flex-shrink: 0; }
+    .safety-code-qr { width: 96px; height: 96px; border-radius: var(--radius-sm); background: linear-gradient(135deg, #eef2ff 0%, #e6f7ff 100%); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0; }
     .safety-code-meta { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--spacing-sm) var(--spacing-md); }
     .safety-code-meta .info-item { display: flex; flex-direction: column; gap: 4px; }
     .safety-code-meta .info-label { font-size: var(--font-size-xs); color: var(--text-tertiary); }
     .safety-code-meta .info-value { font-size: var(--font-size-md); color: var(--text-primary); font-weight: 500; }
+    .code-cell{display:inline-flex;align-items:center;cursor:help}
+    .qrcode-icon{width:48px;height:48px;color:var(--primary)}
+    .code-cell.red .qrcode-icon{color:var(--danger)}
+    .code-cell.yellow .qrcode-icon{color:var(--warning)}
+    .code-cell.green .qrcode-icon{color:var(--success)}
 
     /* ========== 审批记录表 ========== */
     .audit-record-table { width: 100%; border-collapse: collapse; }
@@ -63,10 +68,10 @@
     /* ========== 弹窗表单 ========== */
     .modal-form .form-group { margin-bottom: var(--spacing-md); }
     .modal-form .form-label { display: block; margin-bottom: 6px; font-size: var(--font-size-sm); color: var(--text-secondary); font-weight: 500; }
-    .modal-form .form-label .required { color: var(--error); margin-left: 4px; }
-    .modal-form .form-control { width: 100%; box-sizing: border-box; padding: var(--spacing-sm) 12px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); font-size: var(--font-size-md); background: var(--bg-primary); }
-    .modal-form .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
-    .modal-form textarea.form-control { min-height: 80px; resize: vertical; font-family: inherit; }
+    .modal-form .form-label .required { color: var(--danger); margin-left: 4px; }
+    .modal-form .form-input,.modal-form .form-select { width: 100%; box-sizing: border-box; padding: var(--spacing-sm) 12px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); font-size: var(--font-size-md); background: var(--bg-primary); }
+    .modal-form .form-input:focus,.modal-form .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .modal-form textarea.form-input { min-height: 80px; resize: vertical; font-family: inherit; }
     .modal-form .form-hint { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px; }
     .modal-form .readonly-text { padding: var(--spacing-sm) 12px; background: var(--bg-section-alt); border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: var(--font-size-md); }
   </style>
@@ -192,7 +197,7 @@
       </div>
       <div class="info-body">
         <div class="safety-code-card">
-          <div class="safety-code-qr">安全码<br>截图占位</div>
+          <div class="safety-code-qr"><span class="code-cell green" id="entSafetyCodeIcon"></span></div>
           <div class="safety-code-meta">
             <div class="info-item">
               <span class="info-label">安全码状态</span>
@@ -288,12 +293,12 @@
           </div>
           <div class="form-group">
             <label class="form-label">变更后企业名称<span class="required">*</span></label>
-            <input type="text" class="form-control" id="ncNewName" placeholder="请输入变更后的企业名称">
+            <input type="text" class="form-input" id="ncNewName" placeholder="请输入变更后的企业名称">
             <div class="form-hint">企业名称变更需提交审批，审批通过后生效；驳回后保持原名称。</div>
           </div>
           <div class="form-group">
             <label class="form-label">审批单位<span class="required">*</span></label>
-            <select class="form-control" id="ncApprover">
+            <select class="form-select" id="ncApprover">
               <option value="">请选择审批单位</option>
               <option value="南山区南山街道办">南山区南山街道办（属地街道办）</option>
               <option value="南山区应急管理局">南山区应急管理局（领域可管理单位）</option>
@@ -302,7 +307,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">申请说明</label>
-            <textarea class="form-control" id="ncReason" placeholder="请简要说明变更原因"></textarea>
+            <textarea class="form-input" id="ncReason" placeholder="请简要说明变更原因"></textarea>
           </div>
         </div>
       </div>
@@ -328,7 +333,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">审批单位<span class="required">*</span></label>
-            <select class="form-control" id="disApprover">
+            <select class="form-select" id="disApprover">
               <option value="">请选择审批单位</option>
               <option value="南山区南山街道办">南山区南山街道办（属地街道办）</option>
               <option value="南山区应急管理局">南山区应急管理局（领域可管理单位）</option>
@@ -337,7 +342,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">停用原因<span class="required">*</span></label>
-            <textarea class="form-control" id="disReason" placeholder="请说明停用原因"></textarea>
+            <textarea class="form-input" id="disReason" placeholder="请说明停用原因"></textarea>
           </div>
         </div>
       </div>
@@ -349,6 +354,8 @@
   </div>
   
   <script>
+    // 安全码图标 SVG（stroke-based，§4.23 标准）
+    var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
     (function() {
       'use strict';
       
@@ -365,6 +372,9 @@
       function init() {
         if (state.initialized) return;
         console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        // 填充安全码图标
+        var iconEl = document.getElementById('entSafetyCodeIcon');
+        if (iconEl) iconEl.innerHTML = QR_ICON_SVG;
         state.initialized = true;
       }
       

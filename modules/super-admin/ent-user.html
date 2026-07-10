@@ -9,8 +9,8 @@
 
 <style>
 .breadcrumb-item:hover{color:var(--primary)}
-.main-layout{display:flex;gap: var(--spacing-md);margin-top: var(--spacing-md);min-height:calc(100vh - 100px)}
-.tree-panel{width:260px;flex-shrink:0;background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);height:fit-content;position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto}
+.main-layout{display:flex;flex-direction:row;gap: var(--spacing-md);margin-top: var(--spacing-md);height:calc(100vh - 80px)}
+.tree-panel{width:260px;flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md);display:flex;flex-direction:column;overflow:hidden}
 .tree-panel-title{font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border-light)}
 .tree-tabs{display:flex;border-bottom:1px solid var(--border-light);margin-bottom:12px}
 .tree-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size: var(--font-size-sm);color:var(--text-secondary);border-bottom:2px solid transparent}
@@ -27,17 +27,15 @@
 .tree-node-icon{margin-right: var(--spacing-xs)}
 .tree-node-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tree-node-count{font-size:11px;color:var(--text-tertiary);background:var(--border-light);padding:2px 6px;border-radius:10px}
+#orgTree{flex:1;overflow-y:auto;min-height:0}
 .right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap: var(--spacing-md)}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 
-.stat-card-label{font-size: var(--font-size-xs);color:var(--text-tertiary);margin-bottom:6px}
-.stat-card-value{font-size:22px;font-weight:700;color:var(--text-primary)}
-.stat-card-sub{font-size:11px;color:var(--border);margin-top:2px}
-.query-bar{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md) 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
-.query-bar .q-item{display:flex;align-items:center;gap:6px}
-.query-bar label{font-size: var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
-.query-bar select,.query-bar input{padding:5px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s}
-.query-bar select:focus,.query-bar input:focus{border-color:var(--primary)}
+.filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px}
+.filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;width:100%}
+.filter-card .filter-item{display:flex;align-items:center;gap:6px}
+.filter-card label{font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
+.filter-card select,.filter-card input{padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:border-color .2s;width:240px;height:32px;box-sizing:border-box}
+.filter-card select:focus,.filter-card input:focus{border-color:var(--primary)}
 
 .btn-default:hover{color:var(--primary);border-color:var(--primary)}
 
@@ -48,9 +46,12 @@
 
 .btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
 .table-card{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);flex:1;overflow:hidden}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md);flex-shrink:0}
+.table-toolbar-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+.table-toolbar-actions{display:flex;gap:8px}
 .table-container{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size: var(--font-size-sm);min-width:900px}
-thead th{background:var(--bg-tertiary);padding:10px 12px;text-align:left;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;position:relative}
+thead th{background:var(--bg-tertiary);padding:10px 12px;text-align:center;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;position:relative}
 tbody td{padding:10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary);max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 tbody tr:hover{background:var(--bg-section)}
 tbody tr:last-child td{border-bottom:none}
@@ -68,12 +69,19 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 .action-col{box-shadow:-2px 0 4px rgba(0,0,0,.04)}
 .action-col .btn-link:last-child{margin-right:0}
 
-.tag-success{background:var(--success-light);color:var(--success)}
-.tag-error{background:var(--danger-light);color:var(--danger)}
+.tag-green{background:var(--success-light);color:var(--success)}
+.tag-red{background:var(--danger-light);color:var(--danger)}
 .tag-gray{background:var(--bg-secondary);color:var(--text-tertiary)}
+
+/* 安全码列样式 */
+.code-cell{display:inline-flex;align-items:center;cursor:help}
+.qrcode-icon{width:20px;height:20px;color:var(--text-secondary)}
+.code-cell.red .qrcode-icon{color:var(--danger)}
+.code-cell.yellow .qrcode-icon{color:var(--warning)}
+.code-cell.green .qrcode-icon{color:var(--success)}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal{background:var(--bg-primary);border-radius:10px;width:900px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);width:800px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-md) 20px;border-bottom:1px solid var(--border-light);flex-shrink:0}
 .modal-title{font-size: var(--font-size-lg);font-weight:600;color:var(--text-primary)}
 .modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius: var(--radius-md);cursor:pointer;font-size: var(--font-size-md);color:var(--text-tertiary);transition:all .2s}
@@ -81,13 +89,15 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 .modal-body{padding: 20px var(--spacing-lg);overflow-y:auto;flex:1}
 .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-light);flex-shrink:0}
 .form-section{margin-bottom: var(--spacing-md)}
-.form-section-title{font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary);padding:0 0 10px;margin-bottom:10px;border-bottom:1px solid var(--border-light)}
+.form-section-title{font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary);padding:0 0 10px;margin-bottom:10px;border-bottom:2px solid var(--primary)}
 .form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
 .form-group{display:flex;flex-direction:column;flex:1;min-width:160px}
 .form-label{font-size: var(--font-size-sm);color:var(--text-primary);margin-bottom:5px;font-weight:500}
 .form-label .required{color:var(--danger);margin-right:2px}
-.form-control{padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
-.form-control:focus{border-color:var(--primary)}
+.form-input{padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-input:focus{border-color:var(--primary)}
+.form-select{padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box;background:var(--bg-primary)}
+.form-select:focus{border-color:var(--primary)}
 .no-data td{text-align:center;color:var(--border);padding:40px 0}
 /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
 
@@ -113,7 +123,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 </style>
 </head>
 <body>
-<div class="page-container" data-module="sa-ent-user">
+<div class="page-container" data-module="super-admin/ent-user">
   <div class="breadcrumb" id="breadcrumb">
     <span class="breadcrumb-prefix">当前位置：</span>
     <span class="breadcrumb-item">超管端</span>
@@ -135,32 +145,38 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
     <div class="right-panel">
       <!-- 统计卡片 -->
       <div class="stats-row">
-        <div class="stat-card" style="background:var(--primary-light)"><div class="stat-card-label">用户总数</div><div class="stat-card-value" id="statTotal" style="color:var(--primary)">0</div><div class="stat-card-sub">全部用户</div></div>
-        <div class="stat-card" style="background:var(--danger-light)"><div class="stat-card-label">红码</div><div class="stat-card-value" id="statRed" style="color:var(--danger)">0</div><div class="stat-card-sub">高风险</div></div>
-        <div class="stat-card" style="background:var(--warning-light)"><div class="stat-card-label">黄码</div><div class="stat-card-value" id="statYellow" style="color:var(--warning)">0</div><div class="stat-card-sub">中风险</div></div>
-        <div class="stat-card" style="background:var(--success-light)"><div class="stat-card-label">绿码</div><div class="stat-card-value" id="statGreen" style="color:var(--success)">0</div><div class="stat-card-sub">正常</div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">用户总数</div><div class="stat-value" id="statTotal">0</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">红码</div><div class="stat-value" id="statRed">0</div></div><div class="stat-indicator" style="background:var(--danger)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">黄码</div><div class="stat-value" id="statYellow">0</div></div><div class="stat-indicator" style="background:var(--warning)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">绿码</div><div class="stat-value" id="statGreen">0</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>
       </div>
       <!-- 查询条件 -->
-      <div class="query-bar">
-        <div class="q-item"><label>姓名</label>
-          <input id="filterName" placeholder="请输入姓名" style="width:120px">
+      <div class="filter-card">
+        <div class="filter-bar">
+        <div class="filter-item"><label>姓名：</label>
+          <input id="filterName" placeholder="请输入姓名">
         </div>
-        <div class="q-item"><label>账号</label>
-          <input id="filterAccount" placeholder="请输入账号" style="width:120px">
+        <div class="filter-item"><label>账号：</label>
+          <input id="filterAccount" placeholder="请输入账号">
         </div>
-        <div class="q-item"><label>管控层级</label>
+        <div class="filter-item"><label>管控层级：</label>
           <select id="filterLevel"><option value="">全部</option><option>领导层</option><option>管理层</option><option>员工层</option></select>
         </div>
-        <div class="q-item"><label>启用状态</label>
+        <div class="filter-item"><label>启用状态：</label>
           <select id="filterStatus"><option value="">全部</option><option>启用</option><option>停用</option></select>
         </div>
-        <button class="btn btn-default" onclick="renderTable()">搜索</button>
+        <button class="btn btn-primary" onclick="renderTable()">查询</button>
         <button class="btn btn-default" onclick="resetFilter()">重置</button>
-        <div style="flex:1"></div>
-        <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
+        </div>
       </div>
       <!-- 用户列表 -->
       <div class="table-card">
+        <div class="table-toolbar">
+          <span class="table-toolbar-title">用户列表</span>
+          <div class="table-toolbar-actions">
+            <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
+          </div>
+        </div>
         <div class="table-container table-scroll">
           <table>
             <thead><tr>
@@ -179,7 +195,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 
 <!-- 新增/编辑弹窗 -->
 <div class="modal-overlay" id="editModal">
-  <div class="modal">
+  <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle">新增用户</span>
       <div class="modal-close" onclick="closeModal('editModal')">&#x2715;</div>
@@ -191,25 +207,25 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
           <div class="form-row">
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>用户姓名</label>
-              <input class="form-control" name="userName" id="editUserName" required>
+              <input class="form-input" name="userName" id="editUserName" required>
             </div>
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>联系电话</label>
-              <input class="form-control" name="userPhone" id="editUserPhone" required>
+              <input class="form-input" name="userPhone" id="editUserPhone" required>
             </div>
             <div class="form-group">
               <label class="form-label">邮箱</label>
-              <input class="form-control" name="userEmail" id="editUserEmail" type="email">
+              <input class="form-input" name="userEmail" id="editUserEmail" type="email">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">职务</label>
-              <input class="form-control" name="userPosition" id="editUserPosition">
+              <input class="form-input" name="userPosition" id="editUserPosition">
             </div>
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>所属部门</label>
-              <select class="form-control" name="userDept" id="editUserDept" required>
+              <select class="form-select" name="userDept" id="editUserDept" required>
                 <option value="">请选择</option>
                 <option>安全部</option><option>技术部</option><option>生产部</option>
                 <option>质检部</option><option>运营部</option><option>风控部</option>
@@ -218,7 +234,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
             </div>
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>员工层级</label>
-              <select class="form-control" name="userLevel" id="editUserLevel" required onchange="onLevelChange()">
+              <select class="form-select" name="userLevel" id="editUserLevel" required onchange="onLevelChange()">
                 <option value="">请选择</option>
                 <option>领导层</option>
                 <option>管理层</option>
@@ -229,7 +245,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">分管领导</label>
-              <select class="form-control" name="superiorId" id="editSuperiorId">
+              <select class="form-select" name="superiorId" id="editSuperiorId">
                 <option value="">请选择</option>
               </select>
             </div>
@@ -251,7 +267,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
             </div>
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>角色类型</label>
-              <select class="form-control" name="userRole" id="editUserRole" required>
+              <select class="form-select" name="userRole" id="editUserRole" required>
                 <option value="">请选择</option>
                 <option>企业管理员</option>
                 <option>普通用户</option>
@@ -261,14 +277,14 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
           <div class="form-row">
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>启用状态</label>
-              <select class="form-control" name="userStatus" id="editUserStatus" required>
+              <select class="form-select" name="userStatus" id="editUserStatus" required>
                 <option value="启用">启用</option>
                 <option value="停用">停用</option>
               </select>
             </div>
             <div class="form-group" style="flex:2">
               <label class="form-label">备注</label>
-              <input class="form-control" name="remark" id="editRemark" placeholder="请输入备注信息（200字以内）">
+              <input class="form-input" name="remark" id="editRemark" placeholder="请输入备注信息（200字以内）">
             </div>
           </div>
         </div>
@@ -277,11 +293,11 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
           <div class="form-row">
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>账号</label>
-              <input class="form-control" name="userAccount" id="editUserAccount" required placeholder="4-20位字母或数字">
+              <input class="form-input" name="userAccount" id="editUserAccount" required placeholder="4-20位字母或数字">
             </div>
             <div class="form-group">
               <label class="form-label" id="pwdLabel"><span class="required">*</span>密码</label>
-              <input class="form-control" name="userPassword" id="editUserPassword" type="password" placeholder="默认Abc@123456">
+              <input class="form-input" name="userPassword" id="editUserPassword" type="password" placeholder="默认Abc@123456">
             </div>
           </div>
         </div>
@@ -296,7 +312,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 
 <!-- 删除弹窗 -->
 <div class="modal-overlay" id="deleteModal">
-  <div class="modal" style="width:400px">
+  <div class="modal-dialog" style="width:400px">
     <div class="modal-header">
       <span class="modal-title">确认删除</span>
       <div class="modal-close" onclick="closeModal('deleteModal')">&#x2715;</div>
@@ -314,7 +330,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 
 <!-- 重置密码弹窗 -->
 <div class="modal-overlay" id="resetPwdModal">
-  <div class="modal" style="width:400px">
+  <div class="modal-dialog" style="width:400px">
     <div class="modal-header">
       <span class="modal-title">重置密码</span>
       <div class="modal-close" onclick="closeModal('resetPwdModal')">&#x2715;</div>
@@ -323,7 +339,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
       <p>为用户 <strong id="resetPwdUserName"></strong> 重置密码</p>
       <div class="form-group" style="margin-top:15px">
         <label class="form-label">新密码</label>
-        <input class="form-control" id="newPassword" type="password" placeholder="请输入新密码">
+        <input class="form-input" id="newPassword" type="password" placeholder="请输入新密码">
       </div>
     </div>
     <div class="modal-footer">
@@ -335,7 +351,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 
 <!-- 详情弹窗 -->
 <div class="modal-overlay" id="detailModal">
-  <div class="modal">
+  <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title">用户详情</span>
       <div class="modal-close" onclick="closeModal('detailModal')">&#x2715;</div>
@@ -401,14 +417,14 @@ const districtData=[
 // 领域树数据源：从 domain-manage.html 的真实数据构建（行业大类 → 领域小类）
 // 行业大类映射（与 domain-manage.html 一致）
 const industryCategoryMap={
-  'IND':{id:'cat_ind',name:'工业制造类',type:'category'},
-  'CITY':{id:'cat_city',name:'城市运行类',type:'category'},
-  'TRANS':{id:'cat_trans',name:'交通运输类',type:'category'},
-  'CONS':{id:'cat_cons',name:'建设工程类',type:'category'},
-  'COMM':{id:'cat_comm',name:'公共场所类',type:'category'},
-  'ENVI':{id:'cat_envi',name:'生态环境类',type:'category'},
-  'CHEM':{id:'cat_chem',name:'危险化学品类',type:'category'},
-  'OTHE':{id:'cat_othe',name:'其他类',type:'category'}
+  'IND':{id:'cat_ind',name:'工业制造类',type:'category',icon:'&#127981;'},
+  'CITY':{id:'cat_city',name:'城市运行类',type:'category',icon:'&#127961;'},
+  'TRANS':{id:'cat_trans',name:'交通运输类',type:'category',icon:'&#128666;'},
+  'CONS':{id:'cat_cons',name:'建设工程类',type:'category',icon:'&#127959;'},
+  'COMM':{id:'cat_comm',name:'公共场所类',type:'category',icon:'&#127978;'},
+  'ENVI':{id:'cat_envi',name:'生态环境类',type:'category',icon:'&#127807;'},
+  'CHEM':{id:'cat_chem',name:'危险化学品类',type:'category',icon:'&#9888;'},
+  'OTHE':{id:'cat_othe',name:'其他类',type:'category',icon:'&#128203;'}
 };
 
 // 领域小类数据（从 domain-manage.html 同步）
@@ -445,6 +461,7 @@ function buildIndustryTree(){
       id:cat.id,
       name:cat.name,
       type:'category',
+      icon:cat.icon,
       count:0,
       children:[]
     };
@@ -453,14 +470,13 @@ function buildIndustryTree(){
   for(const sub of domainSubcategories){
     const cat=categoryMap[sub.industry];
     if(cat){
-      // 统计该领域小类下的用户数
-      const userCount=allUsers.filter(u=>u.industry===sub.industry).length;
+      // mock 数据仅关联到大类，小类级别无法细分统计，count 显示 0
       cat.children.push({
         id:sub.id,
         name:sub.name,
         type:'subcategory',
         industry:sub.industry,
-        count:userCount
+        count:0
       });
       cat.count+=userCount;
     }
@@ -474,133 +490,6 @@ function buildIndustryTree(){
   return tree;
 }
 
-// 旧的静态数据（已废弃，保留结构参考）
-const industryData=[
-  {
-    id:'cat_manufacturing',
-    name:'制造业',
-    level:1,
-    type:'category',
-    count:312,
-    children:[
-      {
-        id:'sub_machinery',
-        name:'机械制造',
-        level:2,
-        type:'subcategory',
-        categoryId:'cat_manufacturing',
-        count:156,
-        children:[
-          {id:1,name:'腾讯科技（深圳）有限公司',level:3,type:'enterprise',subcategoryId:'sub_machinery',count:12,isEnterprise:true},
-          {id:4,name:'大疆创新科技有限公司',level:3,type:'enterprise',subcategoryId:'sub_machinery',count:8,isEnterprise:true}
-        ]
-      },
-      {
-        id:'sub_electronics',
-        name:'电子制造',
-        level:2,
-        type:'subcategory',
-        categoryId:'cat_manufacturing',
-        count:156,
-        children:[
-          {id:2,name:'华为技术有限公司',level:3,type:'enterprise',subcategoryId:'sub_electronics',count:35,isEnterprise:true}
-        ]
-      }
-    ]
-  },
-  {
-    id:'cat_construction',
-    name:'建筑业',
-    level:1,
-    type:'category',
-    count:189,
-    children:[
-      {
-        id:'sub_building',
-        name:'房屋建筑',
-        level:2,
-        type:'subcategory',
-        categoryId:'cat_construction',
-        count:189,
-        children:[
-          {id:3,name:'比亚迪建设工程有限公司',level:3,type:'enterprise',subcategoryId:'sub_building',count:28,isEnterprise:true}
-        ]
-      }
-    ]
-  },
-  {
-    id:'cat_logistics',
-    name:'物流运输',
-    level:1,
-    type:'category',
-    count:156,
-    children:[
-      {
-        id:'sub_express',
-        name:'快递物流',
-        level:2,
-        type:'subcategory',
-        categoryId:'cat_logistics',
-        count:156,
-        children:[
-          {id:5,name:'顺丰速运有限公司',level:3,type:'enterprise',subcategoryId:'sub_express',count:15,isEnterprise:true}
-        ]
-      }
-    ]
-  },
-  {
-    id:'cat_finance',
-    name:'金融服务',
-    level:1,
-    type:'category',
-    count:234,
-    children:[
-      {
-        id:'sub_banking',
-        name:'银行服务',
-        level:2,
-        type:'subcategory',
-        categoryId:'cat_finance',
-        count:234,
-        children:[
-          {id:6,name:'招商银行股份有限公司',level:3,type:'enterprise',subcategoryId:'sub_banking',count:22,isEnterprise:true}
-        ]
-      }
-    ]
-  },
-  {
-    id:'cat_internet',
-    name:'互联网',
-    level:1,
-    type:'category',
-    count:245,
-    children:[
-      {
-        id:'sub_software',
-        name:'软件开发',
-        level:2,
-        type:'subcategory',
-        categoryId:'cat_internet',
-        count:120,
-        children:[
-          {id:7,name:'金蝶软件（中国）有限公司',level:3,type:'enterprise',subcategoryId:'sub_software',count:18,isEnterprise:true}
-        ]
-      },
-      {
-        id:'sub_ecommerce',
-        name:'电子商务',
-        level:2,
-        type:'subcategory',
-        categoryId:'cat_internet',
-        count:125,
-        children:[
-          {id:8,name:'深圳前海微众银行',level:3,type:'enterprise',subcategoryId:'sub_ecommerce',count:25,isEnterprise:true}
-        ]
-      }
-    ]
-  }
-];
-
 // ========== 用户数据 ==========
 // 字段：id, userName, userAccount, userPhone, userEmail, userDept, userPosition, 
 //       userLevel(领导层/管理层/员工层), userRole(企业管理员/普通用户), 
@@ -608,27 +497,27 @@ const industryData=[
 //       superiorId(分管领导ID), manageDepts(管辖部门数组), remark
 // 用户数据：enterpriseId 关联区划树企业节点，industry 关联领域树行业大类
 let allUsers=[
-  {id:1,userName:'张三',userAccount:'zhangsan001',userPhone:'13800138001',userEmail:'zhangsan@tencent.com',userDept:'安全部',userPosition:'安全主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-01-15',safetyCode:'绿',superiorId:null,manageDepts:['安全部','技术部'],remark:'',enterpriseId:1,industry:'IND'},
-  {id:2,userName:'李四',userAccount:'lisi002',userPhone:'13800138002',userEmail:'lisi@tencent.com',userDept:'技术部',userPosition:'工程师',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-02-20',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
-  {id:3,userName:'王五',userAccount:'wangwu003',userPhone:'13800138003',userEmail:'wangwu@huawei.com',userDept:'生产部',userPosition:'部门经理',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-03-10',safetyCode:'黄',superiorId:null,manageDepts:['生产部','质检部'],remark:'负责生产安全',enterpriseId:2,industry:'IND'},
-  {id:4,userName:'赵六',userAccount:'zhaoliu004',userPhone:'13800138004',userEmail:'zhaoliu@byd.com',userDept:'质检部',userPosition:'质检员',userLevel:'员工层',userRole:'普通用户',userStatus:'停用',createTime:'2024-04-05',safetyCode:'红',superiorId:3,manageDepts:[],remark:'',enterpriseId:3,industry:'CONS'},
-  {id:5,userName:'钱七',userAccount:'qianqi005',userPhone:'13800138005',userEmail:'qianqi@sf.com',userDept:'运营部',userPosition:'运营专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-05-12',safetyCode:'绿',superiorId:6,manageDepts:[],remark:'',enterpriseId:5,industry:'TRANS'},
-  {id:6,userName:'孙八',userAccount:'sunba006',userPhone:'13800138006',userEmail:'sunba@cmb.com',userDept:'风控部',userPosition:'风控主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-06-18',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'},
-  {id:7,userName:'周九',userAccount:'zhoujiu007',userPhone:'13800138007',userEmail:'zhoujiu@tencent.com',userDept:'技术部',userPosition:'高级工程师',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-07-01',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
-  {id:8,userName:'吴十',userAccount:'wushi008',userPhone:'13800138008',userEmail:'wushi@huawei.com',userDept:'生产部',userPosition:'生产主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-07-15',safetyCode:'黄',superiorId:3,manageDepts:['生产部'],remark:'',enterpriseId:2,industry:'IND'},
-  {id:9,userName:'郑十一',userAccount:'zheng11',userPhone:'13800138009',userEmail:'zheng11@byd.com',userDept:'质检部',userPosition:'质检主管',userLevel:'管理层',userRole:'普通用户',userStatus:'启用',createTime:'2024-08-01',safetyCode:'绿',superiorId:null,manageDepts:['质检部'],remark:'',enterpriseId:3,industry:'CONS'},
-  {id:10,userName:'王十二',userAccount:'wang12',userPhone:'13800138010',userEmail:'wang12@sf.com',userDept:'运营部',userPosition:'运营经理',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-08-10',safetyCode:'绿',superiorId:null,manageDepts:['运营部'],remark:'',enterpriseId:5,industry:'TRANS'},
-  {id:11,userName:'李十三',userAccount:'li13',userPhone:'13800138011',userEmail:'li13@cmb.com',userDept:'风控部',userPosition:'风控专员',userLevel:'员工层',userRole:'普通用户',userStatus:'停用',createTime:'2024-08-20',safetyCode:'黄',superiorId:6,manageDepts:[],remark:'',enterpriseId:6,industry:'OTHE'},
-  {id:12,userName:'张十四',userAccount:'zhang14',userPhone:'13800138012',userEmail:'zhang14@tencent.com',userDept:'安全部',userPosition:'安全员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-01',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
-  {id:13,userName:'刘十五',userAccount:'liu15',userPhone:'13800138013',userEmail:'liu15@huawei.com',userDept:'生产部',userPosition:'生产专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-10',safetyCode:'绿',superiorId:8,manageDepts:[],remark:'',enterpriseId:2,industry:'IND'},
-  {id:14,userName:'陈十六',userAccount:'chen16',userPhone:'13800138014',userEmail:'chen16@byd.com',userDept:'质检部',userPosition:'质检员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-15',safetyCode:'黄',superiorId:9,manageDepts:[],remark:'',enterpriseId:3,industry:'CONS'},
-  {id:15,userName:'杨十七',userAccount:'yang17',userPhone:'13800138015',userEmail:'yang17@sf.com',userDept:'运营部',userPosition:'运营专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-20',safetyCode:'绿',superiorId:10,manageDepts:[],remark:'',enterpriseId:5,industry:'TRANS'},
-  {id:16,userName:'黄十八',userAccount:'huang18',userPhone:'13800138016',userEmail:'huang18@cmb.com',userDept:'风控部',userPosition:'风控经理',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-01',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'},
-  {id:17,userName:'赵十九',userAccount:'zhao19',userPhone:'13800138017',userEmail:'zhao19@tencent.com',userDept:'技术部',userPosition:'技术总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-10',safetyCode:'绿',superiorId:null,manageDepts:['技术部','研发部'],remark:'',enterpriseId:1,industry:'IND'},
-  {id:18,userName:'钱二十',userAccount:'qian20',userPhone:'13800138018',userEmail:'qian20@huawei.com',userDept:'生产部',userPosition:'生产总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-15',safetyCode:'黄',superiorId:null,manageDepts:['生产部','质检部'],remark:'',enterpriseId:2,industry:'IND'},
-  {id:19,userName:'孙二一',userAccount:'sun21',userPhone:'13800138019',userEmail:'sun21@byd.com',userDept:'质检部',userPosition:'质检总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'停用',createTime:'2024-10-20',safetyCode:'红',superiorId:null,manageDepts:['质检部'],remark:'',enterpriseId:3,industry:'CONS'},
-  {id:20,userName:'周二二',userAccount:'zhou22',userPhone:'13800138020',userEmail:'zhou22@sf.com',userDept:'运营部',userPosition:'运营总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-11-01',safetyCode:'绿',superiorId:null,manageDepts:['运营部'],remark:'',enterpriseId:5,industry:'TRANS'},
-  {id:21,userName:'吴二三',userAccount:'wu23',userPhone:'13800138021',userEmail:'wu23@cmb.com',userDept:'风控部',userPosition:'风控总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-11-10',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'}
+  {id:1,userName:'张三',userAccount:'zhangsan001',userPhone:'13800138001',userEmail:'zhangsan@tencent.com',userDept:'安全部',userPosition:'安全主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-01-15 09:30',safetyCode:'绿',superiorId:null,manageDepts:['安全部','技术部'],remark:'',enterpriseId:1,industry:'IND'},
+  {id:2,userName:'李四',userAccount:'lisi002',userPhone:'13800138002',userEmail:'lisi@tencent.com',userDept:'技术部',userPosition:'工程师',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-02-20 14:15',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
+  {id:3,userName:'王五',userAccount:'wangwu003',userPhone:'13800138003',userEmail:'wangwu@huawei.com',userDept:'生产部',userPosition:'部门经理',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-03-10 10:00',safetyCode:'黄',superiorId:null,manageDepts:['生产部','质检部'],remark:'负责生产安全',enterpriseId:2,industry:'IND'},
+  {id:4,userName:'赵六',userAccount:'zhaoliu004',userPhone:'13800138004',userEmail:'zhaoliu@byd.com',userDept:'质检部',userPosition:'质检员',userLevel:'员工层',userRole:'普通用户',userStatus:'停用',createTime:'2024-04-05 16:45',safetyCode:'红',superiorId:3,manageDepts:[],remark:'',enterpriseId:3,industry:'CONS'},
+  {id:5,userName:'钱七',userAccount:'qianqi005',userPhone:'13800138005',userEmail:'qianqi@sf.com',userDept:'运营部',userPosition:'运营专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-05-12 08:20',safetyCode:'绿',superiorId:6,manageDepts:[],remark:'',enterpriseId:5,industry:'TRANS'},
+  {id:6,userName:'孙八',userAccount:'sunba006',userPhone:'13800138006',userEmail:'sunba@cmb.com',userDept:'风控部',userPosition:'风控主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-06-18 11:30',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'},
+  {id:7,userName:'周九',userAccount:'zhoujiu007',userPhone:'13800138007',userEmail:'zhoujiu@tencent.com',userDept:'技术部',userPosition:'高级工程师',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-07-01 13:00',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
+  {id:8,userName:'吴十',userAccount:'wushi008',userPhone:'13800138008',userEmail:'wushi@huawei.com',userDept:'生产部',userPosition:'生产主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-07-15 15:45',safetyCode:'黄',superiorId:3,manageDepts:['生产部'],remark:'',enterpriseId:2,industry:'IND'},
+  {id:9,userName:'郑十一',userAccount:'zheng11',userPhone:'13800138009',userEmail:'zheng11@byd.com',userDept:'质检部',userPosition:'质检主管',userLevel:'管理层',userRole:'普通用户',userStatus:'启用',createTime:'2024-08-01 09:00',safetyCode:'绿',superiorId:null,manageDepts:['质检部'],remark:'',enterpriseId:3,industry:'CONS'},
+  {id:10,userName:'王十二',userAccount:'wang12',userPhone:'13800138010',userEmail:'wang12@sf.com',userDept:'运营部',userPosition:'运营经理',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-08-10 10:30',safetyCode:'绿',superiorId:null,manageDepts:['运营部'],remark:'',enterpriseId:5,industry:'TRANS'},
+  {id:11,userName:'李十三',userAccount:'li13',userPhone:'13800138011',userEmail:'li13@cmb.com',userDept:'风控部',userPosition:'风控专员',userLevel:'员工层',userRole:'普通用户',userStatus:'停用',createTime:'2024-08-20 17:00',safetyCode:'黄',superiorId:6,manageDepts:[],remark:'',enterpriseId:6,industry:'OTHE'},
+  {id:12,userName:'张十四',userAccount:'zhang14',userPhone:'13800138012',userEmail:'zhang14@tencent.com',userDept:'安全部',userPosition:'安全员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-01 08:15',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
+  {id:13,userName:'刘十五',userAccount:'liu15',userPhone:'13800138013',userEmail:'liu15@huawei.com',userDept:'生产部',userPosition:'生产专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-10 14:30',safetyCode:'绿',superiorId:8,manageDepts:[],remark:'',enterpriseId:2,industry:'IND'},
+  {id:14,userName:'陈十六',userAccount:'chen16',userPhone:'13800138014',userEmail:'chen16@byd.com',userDept:'质检部',userPosition:'质检员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-15 11:00',safetyCode:'黄',superiorId:9,manageDepts:[],remark:'',enterpriseId:3,industry:'CONS'},
+  {id:15,userName:'杨十七',userAccount:'yang17',userPhone:'13800138015',userEmail:'yang17@sf.com',userDept:'运营部',userPosition:'运营专员',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-09-20 16:20',safetyCode:'绿',superiorId:10,manageDepts:[],remark:'',enterpriseId:5,industry:'TRANS'},
+  {id:16,userName:'黄十八',userAccount:'huang18',userPhone:'13800138016',userEmail:'huang18@cmb.com',userDept:'风控部',userPosition:'风控经理',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-01 09:45',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'},
+  {id:17,userName:'赵十九',userAccount:'zhao19',userPhone:'13800138017',userEmail:'zhao19@tencent.com',userDept:'技术部',userPosition:'技术总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-10 10:00',safetyCode:'绿',superiorId:null,manageDepts:['技术部','研发部'],remark:'',enterpriseId:1,industry:'IND'},
+  {id:18,userName:'钱二十',userAccount:'qian20',userPhone:'13800138018',userEmail:'qian20@huawei.com',userDept:'生产部',userPosition:'生产总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-10-15 13:30',safetyCode:'黄',superiorId:null,manageDepts:['生产部','质检部'],remark:'',enterpriseId:2,industry:'IND'},
+  {id:19,userName:'孙二一',userAccount:'sun21',userPhone:'13800138019',userEmail:'sun21@byd.com',userDept:'质检部',userPosition:'质检总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'停用',createTime:'2024-10-20 15:00',safetyCode:'红',superiorId:null,manageDepts:['质检部'],remark:'',enterpriseId:3,industry:'CONS'},
+  {id:20,userName:'周二二',userAccount:'zhou22',userPhone:'13800138020',userEmail:'zhou22@sf.com',userDept:'运营部',userPosition:'运营总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-11-01 08:00',safetyCode:'绿',superiorId:null,manageDepts:['运营部'],remark:'',enterpriseId:5,industry:'TRANS'},
+  {id:21,userName:'吴二三',userAccount:'wu23',userPhone:'13800138021',userEmail:'wu23@cmb.com',userDept:'风控部',userPosition:'风控总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-11-10 14:00',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'}
 ];
 
 // 企业组织架构数据（用于所属部门、管辖部门下拉框）
@@ -697,19 +586,17 @@ function renderNodes(nodes,level){
     const isEnterprise=node.isEnterprise;
     const isSelected=selectedNode&&selectedNode.id===node.id;
     // 根据节点类型显示不同图标
-    let icon='&#128196;'; // 默认文件图标
-    if(isEnterprise){
-      icon='&#127970;'; // 企业图标
-    }else if(node.type==='category'){
-      icon='&#128188;'; // 行业大类图标（公文包）
-    }else if(node.type==='subcategory'){
-      icon='&#128194;'; // 领域小类图标（文件夹）
-    }else if(hasChildren){
-      icon='&#128193;'; // 有子节点的文件夹
+    let icon=node.icon||'&#128196;';
+    if(!node.icon){
+      if(isEnterprise){
+        icon='&#127970;';
+      }else if(hasChildren){
+        icon='&#128193;';
+      }
     }
     return`<div class="tree-node-wrapper">
       <div class="tree-node ${isSelected?'active':''}" data-id="${node.id}" data-enterprise="${isEnterprise||false}" data-type="${node.type||''}" onclick="selectTreeNode(${JSON.stringify(node).replace(/"/g,'&quot;')})" style="padding-left:${12+level*16}px">
-        <span class="toggle ${hasChildren?'collapsed':''}" onclick="toggleNode(this,event)">&#9654;</span>
+        ${hasChildren?'<span class="toggle collapsed" onclick="toggleNode(this,event)">&#9654;</span>':'<span class="toggle" style="visibility:hidden">&#9654;</span>'}
         <span class="tree-node-icon">${icon}</span>
         <span class="tree-node-label">${node.name}</span>
         <span class="tree-node-count">${node.count||0}${isEnterprise?'人':''}</span>
@@ -871,21 +758,12 @@ function findNodePath(nodes,targetId,currentPath=[]){
   return[];
 }
 
-// 安全码图标生成（全局函数，列表和详情共用）
-function getSafetyCodeIcon(code){
-  const colors={'红':'var(--danger)','黄':'var(--warning)','绿':'var(--success)'};
-  const color=colors[code]||'var(--text-tertiary)';
-  // 使用SVG二维码图标
-  return`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle">
-    <rect x="3" y="3" width="7" height="7" rx="1" fill="${color}" opacity="0.3"/>
-    <rect x="14" y="3" width="7" height="7" rx="1" fill="${color}" opacity="0.3"/>
-    <rect x="3" y="14" width="7" height="7" rx="1" fill="${color}" opacity="0.3"/>
-    <rect x="14" y="14" width="7" height="7" rx="1" fill="${color}"/>
-    <rect x="5" y="5" width="3" height="3" fill="${color}"/>
-    <rect x="16" y="5" width="3" height="3" fill="${color}"/>
-    <rect x="5" y="16" width="3" height="3" fill="${color}"/>
-  </svg>`;
-}
+// 安全码 QR 图标（stroke-based，颜色由 .code-cell 父级控制）
+const QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
+
+// 安全码颜色类名映射（中文→CSS类名）
+function getCodeStateClass(code){return{'红':'red','黄':'yellow','绿':'green'}[code]||'';}
+function getCodeLabel(code){return code?code+'码':'—';}
 
 // ========== 用户列表 ==========
 function renderTable(){
@@ -933,8 +811,8 @@ function renderTable(){
     <td title="${user.userPhone}">${user.userPhone.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2')}</td>
     <td title="${user.userPosition||''}">${user.userPosition||'-'}</td>
     <td title="${user.userLevel}">${user.userLevel}</td>
-    <td style="text-align:center" title="安全码：${user.safetyCode}码">${getSafetyCodeIcon(user.safetyCode)}</td>
-    <td title="${user.userStatus}"><span class="tag ${user.userStatus==='启用'?'tag-success':'tag-gray'}">${user.userStatus}</span></td>
+    <td style="text-align:center"><span class="code-cell ${getCodeStateClass(user.safetyCode)}" title="${getCodeLabel(user.safetyCode)}">${QR_ICON_SVG}</span></td>
+    <td title="${user.userStatus}"><span class="tag ${user.userStatus==='启用'?'tag-green':'tag-gray'}">${user.userStatus}</span></td>
     <td title="${user.createTime}">${user.createTime}</td>
     <td class="action-col">
       <button class="btn-link" onclick="openEditModal(${user.id})">编辑</button>
@@ -960,6 +838,7 @@ function resetFilter(){
   document.getElementById('filterName').value='';
   document.getElementById('filterAccount').value='';
   document.getElementById('filterLevel').value='';
+  document.getElementById('filterStatus').value='';
   selectedNode=null;
   currentPage=1;
   pg.setPage(1);
@@ -1045,14 +924,18 @@ function saveUser(){
     allUsers.push({
       id:newId,
       ...data,
-      createTime:new Date().toISOString().split('T')[0]
+      createTime:new Date().toISOString().split('T')[0]+' '+new Date().toTimeString().slice(0,5)
     });
   }
 
   closeModal('editModal');
   renderTable();
   updateStats();
-  showToast(editingId?'修改成功':'新增成功', 'success');
+  if(editingId){
+    showToast('修改成功', 'success');
+  }else{
+    showToast('账号已创建，初始密码为Abc@123456', 'success');
+  }
 }
 
 function openDeleteModal(id){
@@ -1093,28 +976,28 @@ function openDetailModal(id){
   const superiorUser=allUsers.find(u=>u.id===user.superiorId);
   const manageDeptsText=user.manageDepts&&user.manageDepts.length>0?user.manageDepts.join('、'):'-';
   document.getElementById('detailContent').innerHTML=`<div class="form-row">
-    <div class="form-group"><label class="form-label">用户姓名</label><div class="form-control" style="background:var(--bg-secondary)">${user.userName}</div></div>
-    <div class="form-group"><label class="form-label">账号</label><div class="form-control" style="background:var(--bg-secondary)">${user.userAccount}</div></div>
-    <div class="form-group"><label class="form-label">联系电话</label><div class="form-control" style="background:var(--bg-secondary)">${user.userPhone}</div></div>
+    <div class="form-group"><label class="form-label">用户姓名</label><div class="form-input" style="background:var(--bg-secondary)">${user.userName}</div></div>
+    <div class="form-group"><label class="form-label">账号</label><div class="form-input" style="background:var(--bg-secondary)">${user.userAccount}</div></div>
+    <div class="form-group"><label class="form-label">联系电话</label><div class="form-input" style="background:var(--bg-secondary)">${user.userPhone}</div></div>
   </div>
   <div class="form-row">
-    <div class="form-group"><label class="form-label">邮箱</label><div class="form-control" style="background:var(--bg-secondary)">${user.userEmail||'-'}</div></div>
-    <div class="form-group"><label class="form-label">职务</label><div class="form-control" style="background:var(--bg-secondary)">${user.userPosition||'-'}</div></div>
-    <div class="form-group"><label class="form-label">所属部门</label><div class="form-control" style="background:var(--bg-secondary)">${user.userDept||'-'}</div></div>
+    <div class="form-group"><label class="form-label">邮箱</label><div class="form-input" style="background:var(--bg-secondary)">${user.userEmail||'-'}</div></div>
+    <div class="form-group"><label class="form-label">职务</label><div class="form-input" style="background:var(--bg-secondary)">${user.userPosition||'-'}</div></div>
+    <div class="form-group"><label class="form-label">所属部门</label><div class="form-input" style="background:var(--bg-secondary)">${user.userDept||'-'}</div></div>
   </div>
   <div class="form-row">
-    <div class="form-group"><label class="form-label">员工层级</label><div class="form-control" style="background:var(--bg-secondary)">${user.userLevel}</div></div>
-    <div class="form-group"><label class="form-label">分管领导</label><div class="form-control" style="background:var(--bg-secondary)">${superiorUser?superiorUser.userName:'-'}</div></div>
-    <div class="form-group"><label class="form-label">管辖部门</label><div class="form-control" style="background:var(--bg-secondary)">${manageDeptsText}</div></div>
+    <div class="form-group"><label class="form-label">员工层级</label><div class="form-input" style="background:var(--bg-secondary)">${user.userLevel}</div></div>
+    <div class="form-group"><label class="form-label">分管领导</label><div class="form-input" style="background:var(--bg-secondary)">${superiorUser?superiorUser.userName:'-'}</div></div>
+    <div class="form-group"><label class="form-label">管辖部门</label><div class="form-input" style="background:var(--bg-secondary)">${manageDeptsText}</div></div>
   </div>
   <div class="form-row">
-    <div class="form-group"><label class="form-label">角色类型</label><div class="form-control" style="background:var(--bg-secondary)">${user.userRole}</div></div>
-    <div class="form-group"><label class="form-label">启用状态</label><div class="form-control" style="background:var(--bg-secondary)"><span class="tag ${user.userStatus==='启用'?'tag-success':'tag-gray'}">${user.userStatus}</span></div></div>
-    <div class="form-group"><label class="form-label">安全码</label><div class="form-control" style="background:var(--bg-secondary);display:flex;align-items:center;gap: var(--spacing-sm)">${getSafetyCodeIcon(user.safetyCode)}<span style="color:${user.safetyCode==='红'?'var(--danger)':user.safetyCode==='黄'?'var(--warning)':'var(--success)'}">${user.safetyCode}码</span></div></div>
+    <div class="form-group"><label class="form-label">角色类型</label><div class="form-input" style="background:var(--bg-secondary)">${user.userRole}</div></div>
+    <div class="form-group"><label class="form-label">启用状态</label><div class="form-input" style="background:var(--bg-secondary)"><span class="tag ${user.userStatus==='启用'?'tag-green':'tag-gray'}">${user.userStatus}</span></div></div>
+    <div class="form-group"><label class="form-label">安全码</label><div class="form-input" style="background:var(--bg-secondary);display:flex;align-items:center"><span class="code-cell ${getCodeStateClass(user.safetyCode)}">${QR_ICON_SVG}</span><span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">${user.safetyCode||'—'}</span><span style="margin-left:8px;color:${user.safetyCode==='红'?'var(--danger)':user.safetyCode==='黄'?'var(--warning)':'var(--success)'};">（${getCodeLabel(user.safetyCode)}）</span></div></div>
   </div>
   <div class="form-row">
-    <div class="form-group" style="flex:1"><label class="form-label">备注</label><div class="form-control" style="background:var(--bg-secondary);min-height:60px">${user.remark||'-'}</div></div>
-    <div class="form-group"><label class="form-label">创建时间</label><div class="form-control" style="background:var(--bg-secondary)">${user.createTime}</div></div>
+    <div class="form-group" style="flex:1"><label class="form-label">备注</label><div class="form-input" style="background:var(--bg-secondary);min-height:60px">${user.remark||'-'}</div></div>
+    <div class="form-group"><label class="form-label">创建时间</label><div class="form-input" style="background:var(--bg-secondary)">${user.createTime}</div></div>
   </div>`;
   document.getElementById('detailModal').classList.add('show');
 }

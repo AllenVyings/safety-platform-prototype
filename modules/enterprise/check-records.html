@@ -41,7 +41,7 @@
     /* ========== 标签样式 ========== */
 
     /* ========== 弹窗 ========== */
-    .modal-box { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 680px; max-height: 80vh; overflow: auto; }
+    .modal-dialog { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 680px; max-height: 80vh; overflow: auto; }
     .modal-head { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
     .modal-head-title { font-size: var(--font-size-lg); font-weight: 600; }
     .modal-head-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
@@ -63,10 +63,20 @@
     .detail-check-row .check-result { font-weight: 500; }
     .detail-check-row .check-remark { color: var(--text-tertiary); font-size: var(--font-size-xs); }
     .detail-check-row.header { font-weight: 600; color: var(--text-secondary); background: var(--bg-tertiary); padding: var(--spacing-sm); border-radius: var(--radius-sm); border-bottom: none; }
+
+    /* 筛选栏卡片 */
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
+    /* 表格工具栏 */
+    .table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md);flex-shrink:0}
+    .table-toolbar-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+    .table-toolbar-actions{display:flex;gap:8px}
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="ent-check-records">
+  <div class="module-page page-container" data-module="enterprise/check-records">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -77,22 +87,30 @@
     
     <!-- 页面标题栏已隐藏 -->
     
-    <div class="stat-cards">
-      <div class="stat-card"><div class="stat-value" style="color: var(--blue);">68</div><div class="stat-label">检查总次数</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--green);">52</div><div class="stat-label">自查次数</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--orange);">16</div><div class="stat-label">政府检查</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--green);">95%</div><div class="stat-label">正常率</div></div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">检查总次数</div><div class="stat-value" id="statTotal">68</div></div><div class="stat-indicator" style="background: var(--info);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">自查次数</div><div class="stat-value" id="statSelf">52</div></div><div class="stat-indicator" style="background: var(--success);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">政府检查</div><div class="stat-value" id="statGov">16</div></div><div class="stat-indicator" style="background: var(--warning);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">正常率</div><div class="stat-value" id="statRate">95%</div></div><div class="stat-indicator" style="background: var(--success);"></div></div>
     </div>
     
-    <div class="filter-bar">
-      <div class="filter-item"><label>检查类型：</label><select><option>全部</option><option>日常自查</option><option>政府检查</option><option>专项检查</option></select></div>
-      <div class="filter-item"><label>检查结果：</label><select><option>全部</option><option>正常</option><option>异常</option><option>不适用</option></select></div>
-      <div class="filter-item"><label>时间范围：</label><input type="date" id="filterDateStart"> <span style="color:var(--text-secondary)">至</span> <input type="date" id="filterDateEnd"></div>
-      <button class="btn btn-default" onclick="resetFilters()">重置</button>
-      <div style="flex: 1;"></div>
-      <button class="btn btn-primary" onclick="openAddModal()">+ 新增自查</button>
+    <div class="filter-card">
+      <div class="filter-bar">
+        <div class="filter-item"><label>检查类型：</label><select><option>全部</option><option>日常自查</option><option>政府检查</option><option>专项检查</option></select></div>
+        <div class="filter-item"><label>检查结果：</label><select><option>全部</option><option>正常</option><option>异常</option><option>不适用</option></select></div>
+        <div class="filter-item"><label>时间范围：</label><input type="date" id="filterDateStart"> <span style="color:var(--text-secondary)">至</span> <input type="date" id="filterDateEnd"></div>
+        <button class="btn btn-primary" onclick="renderTable()">查询</button>
+        <button class="btn btn-default" onclick="resetFilters()">重置</button>
+      </div>
     </div>
-    
+
+    <div class="table-toolbar">
+      <span class="table-toolbar-title">检查记录</span>
+      <div class="table-toolbar-actions">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增自查</button>
+      </div>
+    </div>
+
     <div class="table-wrap">
       <div class="table-scroll">
         <table>
@@ -171,7 +189,7 @@
 
   <!-- 检查详情弹窗 -->
   <div class="modal-overlay" id="modal-check-detail">
-    <div class="modal-box">
+    <div class="modal-dialog">
       <div class="modal-head">
         <span class="modal-head-title">检查记录详情</span>
         <button class="modal-head-close" onclick="closeCheckDetail()">&times;</button>

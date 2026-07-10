@@ -30,16 +30,15 @@
     .btn-primary:hover { background: #096dd9; border-color: #096dd9; color: #fff; }
 
     .filter-bar {
-      background: var(--bg-primary);
-      padding: 12px 16px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
       display: flex;
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 16px;
     }
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
     .filter-bar input {
       padding: 6px 10px;
       border: 1px solid var(--border-card);
@@ -71,12 +70,68 @@
     .action-link { color: var(--primary); font-size: 13px; cursor: pointer; }
     .action-link + .action-link { margin-left: 12px; }
 
+    /* ===== 弹窗 ===== */
+    .modal-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; display: none; }
+    .modal-container.show { display: flex; align-items: center; justify-content: center; }
+    .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); }
+    .modal-dialog { position: relative; background: var(--bg-primary); border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); max-height: 90vh; display: flex; flex-direction: column; animation: modalSlideIn 0.3s ease-out; }
+    @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border-section); background: var(--bg-section); border-radius: 10px 10px 0 0; }
+    .modal-title { font-size: 16px; font-weight: 500; color: var(--text-primary); }
+    .modal-close { width: 32px; height: 32px; border: none; background: transparent; font-size: 20px; color: var(--text-tertiary); cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border-section); background: var(--bg-section); border-radius: 0 0 10px 10px; }
+
+    /* ===== 表单 ===== */
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    .form-label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-primary); }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: 6px 10px; border: 1px solid var(--border-card); border-radius: 4px; font-size: 13px; color: var(--text-primary); background: #fff; box-sizing: border-box; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+    .form-textarea { resize: vertical; min-height: 72px; }
+    .required { color: #ff4d4f; }
+
+    /* ===== 详情 ===== */
+    .info-section { margin-bottom: 16px; background: var(--bg-section); border-radius: 8px; padding: 14px 16px; border: 1px solid var(--border-section); }
+    .info-section-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-section); }
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .info-item { display: flex; flex-direction: column; gap: 2px; }
+    .info-label { font-size: 12px; color: var(--text-secondary); }
+    .info-value { font-size: 13px; color: var(--text-primary); }
+
+    /* ===== 导入步骤 ===== */
+    .import-steps { display: flex; gap: 0; margin-bottom: 20px; }
+    .import-step { flex: 1; text-align: center; padding: 12px 8px; background: var(--bg-section); border: 1px solid var(--border-section); font-size: 13px; color: var(--text-secondary); }
+    .import-step:first-child { border-radius: 6px 0 0 6px; }
+    .import-step:last-child { border-radius: 0 6px 6px 0; }
+    .import-step.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .import-step-num { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--bg-section-alt); color: var(--text-secondary); line-height: 22px; font-size: 12px; margin-right: 6px; }
+    .import-step.active .import-step-num { background: rgba(255,255,255,0.3); color: #fff; }
+    .upload-area { border: 1px dashed var(--border-card); border-radius: 6px; padding: 32px; text-align: center; color: var(--text-tertiary); cursor: pointer; margin-bottom: 12px; }
+    .upload-area:hover { border-color: var(--primary); }
+    .import-tips { background: var(--bg-section); border-radius: 6px; padding: 12px 16px; font-size: 12px; color: var(--text-secondary); line-height: 1.8; }
+    .import-tips strong { color: var(--text-primary); }
+
+    /* ===== Toast ===== */
+    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 10px 16px; border-radius: 4px; background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.12); font-size: 13px; color: var(--text-primary); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--primary); max-width: 380px; }
+    .toast.success { border-left-color: var(--success); }
+    .toast.warning { border-left-color: var(--warning); }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
+
     .pagination { padding: 12px 16px; text-align: right; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border-section); }
     .pagination button { padding: 4px 10px; margin: 0 2px; border: 1px solid var(--border-card); background: #fff; cursor: pointer; border-radius: 4px; font-size: 12px; }
     .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
   </style>
 </head>
 <body>
+  <div class="toast-container" id="toastContainer"></div>
+
   <div class="page-container" data-module="government/emergency-contact">
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -93,20 +148,20 @@
         <div class="page-subtitle">管理应急联络人员通讯信息</div>
       </div>
       <div class="header-actions">
-        <button class="btn">📥 导入</button>
-        <button class="btn btn-primary">+ 新增联系人</button>
+        <button class="btn" onclick="openModal('modal-import-contact')">导入</button>
+        <button class="btn btn-primary" onclick="openAddContact()">+ 新增联系人</button>
       </div>
     </div>
 
-    <div class="filter-bar">
-      <input type="search" placeholder="搜索姓名 / 单位 / 电话">
-      <button class="btn btn-primary">查询</button>
-      <button class="btn">重置</button>
-    </div>
+    <div class="filter-card"><div class="filter-bar">
+      <input type="search" id="filterKeyword" placeholder="搜索姓名 / 单位 / 电话">
+      <button class="btn btn-primary" onclick="doFilter()">查询</button>
+      <button class="btn" onclick="doReset()">重置</button>
+    </div></div>
 
     <div class="content-card">
       <div class="table-toolbar">
-        <h3>通讯录（86 条）</h3>
+        <h3 id="tableTitle">通讯录</h3>
       </div>
       <table>
         <thead>
@@ -117,97 +172,373 @@
             <th width="140">办公电话</th>
             <th width="140">手机号</th>
             <th width="120">分管领域</th>
-            <th width="80">操作</th>
+            <th width="120">操作</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>陈月明</td>
-            <td>科长</td>
-            <td>应急指挥科</td>
-            <td>0838-1234567</td>
-            <td>138-0000-1001</td>
-            <td>应急指挥</td>
-            <td><span class="action-link">编辑</span></td>
-          </tr>
-          <tr>
-            <td>王建国</td>
-            <td>副科长</td>
-            <td>安全监督科</td>
-            <td>0838-1234568</td>
-            <td>138-0000-1002</td>
-            <td>安全监管</td>
-            <td><span class="action-link">编辑</span></td>
-          </tr>
-          <tr>
-            <td>李明浩</td>
-            <td>队长</td>
-            <td>危化品救援队</td>
-            <td>0838-1234569</td>
-            <td>138-0000-1003</td>
-            <td>危化品救援</td>
-            <td><span class="action-link">编辑</span></td>
-          </tr>
-          <tr>
-            <td>赵海波</td>
-            <td>中队长</td>
-            <td>森林消防中队</td>
-            <td>0838-1234570</td>
-            <td>138-0000-1004</td>
-            <td>森林消防</td>
-            <td><span class="action-link">编辑</span></td>
-          </tr>
-          <tr>
-            <td>钱晓峰</td>
-            <td>主任</td>
-            <td>区人民医院急诊科</td>
-            <td>120</td>
-            <td>138-0000-1005</td>
-            <td>医疗救护</td>
-            <td><span class="action-link">编辑</span></td>
-          </tr>
-          <tr>
-            <td>孙望秋</td>
-            <td>工程师</td>
-            <td>应急通讯保障队</td>
-            <td>0838-1234571</td>
-            <td>138-0000-1006</td>
-            <td>通讯保障</td>
-            <td><span class="action-link">编辑</span></td>
-          </tr>
-          <tr>
-            <td>周文杰</td>
-            <td>队长</td>
-            <td>区消防救援大队</td>
-            <td>0838-1234572</td>
-            <td>138-0000-1007</td>
-            <td>消防救援</td>
-            <td><span class="action-link">编辑</span></td>
-          </tr>
-          <tr>
-            <td>吴志强</td>
-            <td>组长</td>
-            <td>社区志愿者救援队</td>
-            <td>0838-1234573</td>
-            <td>138-0000-1008</td>
-            <td>社区救援</td>
-            <td><span class="action-link">编辑</span></td>
-          </tr>
+        <tbody id="contactTableBody">
+          <!-- 动态渲染 -->
         </tbody>
       </table>
-      <div class="pagination">
-        共 86 条 第 1 / 9 页
-        <button>‹</button>
-        <button class="active">1</button>
-        <button>2</button>
-        <button>3</button>
-        <button>...</button>
-        <button>9</button>
-        <button>›</button>
-      </div>
+      <div class="pagination" id="contactPagination"></div>
     </div>
     </div><!-- /.page-content -->
   </div>
-  <script src="../../js/annotations.js"></script>
+
+  <!-- ========== 新增/编辑联系人弹窗 ========== -->
+  <div class="modal-container" id="modal-add-contact">
+    <div class="modal-overlay" onclick="closeModal('modal-add-contact')"></div>
+    <div class="modal-dialog" style="width:600px;">
+      <div class="modal-header">
+        <span class="modal-title" id="addContactTitle">新增联系人</span>
+        <button class="modal-close" onclick="closeModal('modal-add-contact')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="contactForm" onsubmit="return false;">
+          <input type="hidden" id="contactFormIndex" value="">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">姓名 <span class="required">*</span></label>
+              <input class="form-input" id="contactFormName" placeholder="请输入姓名" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">职务 <span class="required">*</span></label>
+              <input class="form-input" id="contactFormTitle" placeholder="请输入职务" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">联系电话 <span class="required">*</span></label>
+              <input class="form-input" id="contactFormPhone" placeholder="请输入联系电话" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">邮箱</label>
+              <input class="form-input" id="contactFormEmail" type="email" placeholder="请输入邮箱地址">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">所属单位 <span class="required">*</span></label>
+              <input class="form-input" id="contactFormOrg" placeholder="请输入所属单位" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">负责领域</label>
+              <input class="form-input" id="contactFormDomain" placeholder="请输入负责领域">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <textarea class="form-textarea" id="contactFormRemark" rows="3" placeholder="请输入备注信息"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-add-contact')">取消</button>
+        <button class="btn btn-primary" onclick="saveContact()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 联系人详情弹窗 ========== -->
+  <div class="modal-container" id="modal-detail-contact">
+    <div class="modal-overlay" onclick="closeModal('modal-detail-contact')"></div>
+    <div class="modal-dialog" style="width:700px;">
+      <div class="modal-header">
+        <span class="modal-title">联系人详情</span>
+        <button class="modal-close" onclick="closeModal('modal-detail-contact')">&times;</button>
+      </div>
+      <div class="modal-body" id="detailContactBody">
+        <!-- 动态渲染 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-detail-contact')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 批量导入弹窗 ========== -->
+  <div class="modal-container" id="modal-import-contact">
+    <div class="modal-overlay" onclick="closeModal('modal-import-contact')"></div>
+    <div class="modal-dialog" style="width:560px;">
+      <div class="modal-header">
+        <span class="modal-title">批量导入联系人</span>
+        <button class="modal-close" onclick="closeModal('modal-import-contact')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="import-steps">
+          <div class="import-step active" id="importStep1"><span class="import-step-num">1</span>下载模板</div>
+          <div class="import-step" id="importStep2"><span class="import-step-num">2</span>上传文件</div>
+        </div>
+        <!-- 步骤1：下载模板 -->
+        <div id="importContent1">
+          <p style="font-size:14px;color:var(--text-primary);margin-bottom:12px;">请先下载导入模板，按模板格式填写联系人信息后上传。</p>
+          <div style="background:var(--bg-section);border-radius:6px;padding:16px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="showToast('模板下载中...','success')">
+              <span style="font-size:24px;">&#x1F4C1;</span>
+              <div>
+                <div style="font-size:14px;color:var(--primary);font-weight:500;">联络通讯导入模板.xlsx</div>
+                <div style="font-size:12px;color:var(--text-secondary);">包含姓名、职务、联系电话、邮箱、所属单位、负责领域等字段</div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="goImportStep2()">下一步：上传文件</button>
+        </div>
+        <!-- 步骤2：上传文件 -->
+        <div id="importContent2" style="display:none;">
+          <div class="upload-area" onclick="showToast('文件选择功能演示','warning')">
+            <div style="font-size:32px;margin-bottom:8px;">&#x1F4E4;</div>
+            <div style="font-size:14px;">点击或拖拽上传 Excel 文件</div>
+            <div style="font-size:12px;margin-top:4px;">支持 .xlsx / .xls 格式，单次最多 500 条</div>
+          </div>
+          <div class="import-tips">
+            <strong>注意事项：</strong><br>
+            1. 请严格按模板格式填写，不要修改表头名称和顺序<br>
+            2. 姓名、职务、联系电话、所属单位为必填项<br>
+            3. 联系电话格式：手机号或区号-号码<br>
+            4. 重复数据（按姓名+手机号判断）将自动跳过<br>
+            5. 导入结果将显示成功/失败条数和失败原因
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;">
+            <button class="btn btn-default" style="flex:1;" onclick="goImportStep1()">上一步</button>
+            <button class="btn btn-primary" style="flex:1;" onclick="confirmImport()">确认导入</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+
+    /* ===== escapeHtml 防 XSS ===== */
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+
+    /* ===== Toast ===== */
+    window.showToast = function(msg, type) {
+      var container = document.getElementById('toastContainer');
+      var toast = document.createElement('div');
+      toast.className = 'toast' + (type ? ' ' + type : '');
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(function() { toast.classList.add('out'); }, 2500);
+      setTimeout(function() { toast.remove(); }, 2800);
+    };
+
+    /* ===== 弹窗控制 ===== */
+    window.openModal = function(id) {
+      document.getElementById(id).classList.add('show');
+    };
+    window.closeModal = function(id) {
+      document.getElementById(id).classList.remove('show');
+      // 重置导入步骤
+      if (id === 'modal-import-contact') {
+        document.getElementById('importStep1').classList.add('active');
+        document.getElementById('importStep2').classList.remove('active');
+        document.getElementById('importContent1').style.display = '';
+        document.getElementById('importContent2').style.display = 'none';
+      }
+    };
+
+    /* ===== 模拟数据 ===== */
+    var CONTACTS = [
+      { name: '陈月明', title: '科长', phone: '138-0000-1001', officePhone: '0838-1234567', email: 'chenym@gov.cn', org: '应急指挥科', domain: '应急指挥', remark: '' },
+      { name: '王建国', title: '副科长', phone: '138-0000-1002', officePhone: '0838-1234568', email: 'wangjg@gov.cn', org: '安全监督科', domain: '安全监管', remark: '' },
+      { name: '李明浩', title: '队长', phone: '138-0000-1003', officePhone: '0838-1234569', email: 'limh@gov.cn', org: '危化品救援队', domain: '危化品救援', remark: '' },
+      { name: '赵海波', title: '中队长', phone: '138-0000-1004', officePhone: '0838-1234570', email: 'zhaohb@gov.cn', org: '森林消防中队', domain: '森林消防', remark: '' },
+      { name: '钱晓峰', title: '主任', phone: '138-0000-1005', officePhone: '120', email: 'qianxf@hospital.cn', org: '区人民医院急诊科', domain: '医疗救护', remark: '' },
+      { name: '孙望秋', title: '工程师', phone: '138-0000-1006', officePhone: '0838-1234571', email: 'sunwq@gov.cn', org: '应急通讯保障队', domain: '通讯保障', remark: '' },
+      { name: '周文杰', title: '队长', phone: '138-0000-1007', officePhone: '0838-1234572', email: 'zhouwj@gov.cn', org: '区消防救援大队', domain: '消防救援', remark: '' },
+      { name: '吴志强', title: '组长', phone: '138-0000-1008', officePhone: '0838-1234573', email: 'wuzq@gov.cn', org: '社区志愿者救援队', domain: '社区救援', remark: '' }
+    ];
+
+    var filteredData = CONTACTS.slice();
+
+    /* ===== 渲染表格 ===== */
+    function renderTable() {
+      var tbody = document.getElementById('contactTableBody');
+      var total = filteredData.length;
+      document.getElementById('tableTitle').textContent = '通讯录（' + total + ' 条）';
+
+      if (total === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-tertiary);">暂无联系人数据</td></tr>';
+        return;
+      }
+
+      var html = '';
+      for (var i = 0; i < filteredData.length; i++) {
+        var c = filteredData[i];
+        html += '<tr>';
+        html += '<td>' + escapeHtml(c.name) + '</td>';
+        html += '<td>' + escapeHtml(c.title) + '</td>';
+        html += '<td>' + escapeHtml(c.org) + '</td>';
+        html += '<td>' + escapeHtml(c.officePhone || '—') + '</td>';
+        html += '<td>' + escapeHtml(c.phone) + '</td>';
+        html += '<td>' + escapeHtml(c.domain) + '</td>';
+        html += '<td>';
+        html += '<span class="action-link" data-action="view" data-index="' + i + '">查看</span>';
+        html += '<span class="action-link" data-action="edit" data-index="' + i + '">编辑</span>';
+        html += '</td>';
+        html += '</tr>';
+      }
+      tbody.innerHTML = html;
+    }
+
+    /* ===== 筛选 ===== */
+    window.doFilter = function() {
+      var kw = document.getElementById('filterKeyword').value.trim().toLowerCase();
+      filteredData = CONTACTS.filter(function(c) {
+        if (!kw) return true;
+        return c.name.toLowerCase().indexOf(kw) >= 0 ||
+               c.org.toLowerCase().indexOf(kw) >= 0 ||
+               c.phone.indexOf(kw) >= 0;
+      });
+      renderTable();
+    };
+
+    window.doReset = function() {
+      document.getElementById('filterKeyword').value = '';
+      filteredData = CONTACTS.slice();
+      renderTable();
+    };
+
+    /* ===== 新增联系人 ===== */
+    window.openAddContact = function() {
+      document.getElementById('addContactTitle').textContent = '新增联系人';
+      document.getElementById('contactFormIndex').value = '';
+      document.getElementById('contactFormName').value = '';
+      document.getElementById('contactFormTitle').value = '';
+      document.getElementById('contactFormPhone').value = '';
+      document.getElementById('contactFormEmail').value = '';
+      document.getElementById('contactFormOrg').value = '';
+      document.getElementById('contactFormDomain').value = '';
+      document.getElementById('contactFormRemark').value = '';
+      openModal('modal-add-contact');
+    };
+
+    /* ===== 保存联系人（新增/编辑） ===== */
+    window.saveContact = function() {
+      var name = document.getElementById('contactFormName').value.trim();
+      var title = document.getElementById('contactFormTitle').value.trim();
+      var phone = document.getElementById('contactFormPhone').value.trim();
+      var org = document.getElementById('contactFormOrg').value.trim();
+      if (!name) { showToast('请输入姓名', 'warning'); return; }
+      if (!title) { showToast('请输入职务', 'warning'); return; }
+      if (!phone) { showToast('请输入联系电话', 'warning'); return; }
+      if (!org) { showToast('请输入所属单位', 'warning'); return; }
+      var email = document.getElementById('contactFormEmail').value.trim();
+      var domain = document.getElementById('contactFormDomain').value.trim();
+      var remark = document.getElementById('contactFormRemark').value.trim();
+      var editIdx = document.getElementById('contactFormIndex').value;
+      if (editIdx !== '') {
+        var idx = parseInt(editIdx, 10);
+        if (filteredData[idx]) {
+          filteredData[idx].name = name;
+          filteredData[idx].title = title;
+          filteredData[idx].phone = phone;
+          filteredData[idx].email = email;
+          filteredData[idx].org = org;
+          filteredData[idx].domain = domain;
+          filteredData[idx].remark = remark;
+        }
+        closeModal('modal-add-contact');
+        showToast('联系人已更新：' + name, 'success');
+      } else {
+        CONTACTS.unshift({ name: name, title: title, phone: phone, officePhone: phone, email: email, org: org, domain: domain, remark: remark });
+        closeModal('modal-add-contact');
+        showToast('联系人已创建：' + name, 'success');
+        doFilter();
+        return;
+      }
+      renderTable();
+    };
+
+    /* ===== 查看联系人详情 ===== */
+    window.viewContact = function(index) {
+      var c = filteredData[index];
+      if (!c) return;
+      var html = '';
+      html += '<div class="info-section">';
+      html += '<div class="info-section-title">基本信息</div>';
+      html += '<div class="info-grid">';
+      html += '<div class="info-item"><span class="info-label">姓名</span><span class="info-value">' + escapeHtml(c.name) + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">职务</span><span class="info-value">' + escapeHtml(c.title) + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">办公电话</span><span class="info-value">' + escapeHtml(c.officePhone || '—') + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">手机号</span><span class="info-value">' + escapeHtml(c.phone) + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">邮箱</span><span class="info-value">' + escapeHtml(c.email || '—') + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">所属单位</span><span class="info-value">' + escapeHtml(c.org) + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">负责领域</span><span class="info-value">' + escapeHtml(c.domain || '—') + '</span></div>';
+      html += '</div></div>';
+      if (c.remark) {
+        html += '<div class="info-section">';
+        html += '<div class="info-section-title">备注</div>';
+        html += '<div style="font-size:13px;color:var(--text-primary);">' + escapeHtml(c.remark) + '</div>';
+        html += '</div>';
+      }
+      document.getElementById('detailContactBody').innerHTML = html;
+      openModal('modal-detail-contact');
+    };
+
+    /* ===== 编辑联系人 ===== */
+    window.editContact = function(index) {
+      var c = filteredData[index];
+      if (!c) return;
+      document.getElementById('addContactTitle').textContent = '编辑联系人';
+      document.getElementById('contactFormIndex').value = index;
+      document.getElementById('contactFormName').value = c.name;
+      document.getElementById('contactFormTitle').value = c.title;
+      document.getElementById('contactFormPhone').value = c.phone;
+      document.getElementById('contactFormEmail').value = c.email || '';
+      document.getElementById('contactFormOrg').value = c.org;
+      document.getElementById('contactFormDomain').value = c.domain || '';
+      document.getElementById('contactFormRemark').value = c.remark || '';
+      openModal('modal-add-contact');
+    };
+
+    /* ===== 导入步骤切换 ===== */
+    window.goImportStep2 = function() {
+      document.getElementById('importStep1').classList.remove('active');
+      document.getElementById('importStep2').classList.add('active');
+      document.getElementById('importContent1').style.display = 'none';
+      document.getElementById('importContent2').style.display = '';
+    };
+
+    window.goImportStep1 = function() {
+      document.getElementById('importStep1').classList.add('active');
+      document.getElementById('importStep2').classList.remove('active');
+      document.getElementById('importContent1').style.display = '';
+      document.getElementById('importContent2').style.display = 'none';
+    };
+
+    window.confirmImport = function() {
+      closeModal('modal-import-contact');
+      showToast('联系人导入成功：8 条新增，0 条跳过', 'success');
+    };
+
+    /* ===== 表格操作事件 ===== */
+    document.getElementById('contactTableBody').addEventListener('click', function(e) {
+      var link = e.target.closest('.action-link');
+      if (!link) return;
+      var action = link.getAttribute('data-action');
+      var index = parseInt(link.getAttribute('data-index'), 10);
+      if (action === 'view') {
+        viewContact(index);
+      } else if (action === 'edit') {
+        editContact(index);
+      }
+    });
+
+    /* ===== 搜索回车 ===== */
+    document.getElementById('filterKeyword').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doFilter();
+    });
+
+    /* ===== 初始渲染 ===== */
+    renderTable();
+  })();
+  </script>
 </body>
 </html>

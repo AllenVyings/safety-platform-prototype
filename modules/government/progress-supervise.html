@@ -21,26 +21,16 @@
     .page-title { font-size: var(--font-size-lg); font-weight: 600; }
     .page-desc { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 4px; }
 
-    .stat-cards { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .stat-card {
-      flex: 1;
-      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: var(--shadow-sm);
-    }
-    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
+    .stats-row { grid-template-columns: repeat(4, 1fr); }
 
     .filter-bar {
-      display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);
+      display: flex; gap: var(--spacing-sm);
       align-items: center; flex-wrap: wrap;
-      background: var(--bg-section);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-light);
     }
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
     .filter-item { display: flex; align-items: center; gap: 4px; }
     .filter-item label { font-size: var(--font-size-sm); color: var(--text-secondary); }
     .filter-item select, .filter-item input {
@@ -109,7 +99,7 @@
     }
     .rate-green { background: var(--success-light); color: var(--success); }
     .rate-yellow { background: var(--warning-light); color: var(--warning); }
-    .rate-red { background: var(--error-light); color: var(--error); }
+    .rate-red { background: var(--danger-light); color: var(--danger); }
     .rate-none { color: var(--text-tertiary); font-size: var(--font-size-xs); }
 
     .obj-count {
@@ -142,7 +132,7 @@
       align-items: center;
     }
     .modal-overlay.show { display: flex; }
-    .modal {
+    .modal-dialog {
       background: var(--bg-primary);
       border-radius: var(--radius-lg);
       box-shadow: 0 8px 32px rgba(0,0,0,0.18);
@@ -221,7 +211,7 @@
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="gov-progress-supervise">
+  <div class="module-page page-container" data-module="government/progress-supervise">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -242,32 +232,44 @@
         <span>完成率：</span>
         <div class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>≥90% 正常</div>
         <div class="legend-item"><span class="legend-dot" style="background:var(--warning)"></span>80%~90% 预警</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--error)"></span>&lt;80% 异常</div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--danger)"></span>&lt;80% 异常</div>
       </div>
     </div>
 
     <!-- 统计卡片 -->
-    <div class="stat-cards">
+    <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-value" style="color: var(--primary);" id="statTotal">2,150</div>
-        <div class="stat-label">管控对象总数</div>
+        <div class="stat-card-body">
+          <div class="stat-label">管控对象总数</div>
+          <div class="stat-value" id="statTotal">2,150</div>
+        </div>
+        <div class="stat-indicator" style="background: var(--primary);"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" style="color: var(--success);" id="statNormal">18</div>
-        <div class="stat-label">完成率正常领域</div>
+        <div class="stat-card-body">
+          <div class="stat-label">完成率正常领域</div>
+          <div class="stat-value" id="statNormal">18</div>
+        </div>
+        <div class="stat-indicator" style="background: var(--success);"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" style="color: var(--warning);" id="statWarn">3</div>
-        <div class="stat-label">完成率预警领域</div>
+        <div class="stat-card-body">
+          <div class="stat-label">完成率预警领域</div>
+          <div class="stat-value" id="statWarn">3</div>
+        </div>
+        <div class="stat-indicator" style="background: var(--warning);"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" style="color: var(--error);" id="statAbnormal">1</div>
-        <div class="stat-label">完成率异常领域</div>
+        <div class="stat-card-body">
+          <div class="stat-label">完成率异常领域</div>
+          <div class="stat-value" id="statAbnormal">1</div>
+        </div>
+        <div class="stat-indicator" style="background: var(--danger);"></div>
       </div>
     </div>
 
     <!-- 筛选栏 -->
-    <div class="filter-bar">
+    <div class="filter-card"><div class="filter-bar">
       <div class="filter-item">
         <label>统计周期：</label>
         <select id="filterPeriod" onchange="loadTable()">
@@ -313,7 +315,7 @@
       <button class="btn btn-default" onclick="resetFilter()">重置</button>
       <div style="flex: 1;"></div>
       <button class="btn btn-default" onclick="exportData()">📥 导出</button>
-    </div>
+    </div></div>
 
     <!-- 主表 -->
     <div class="table-wrap">
@@ -340,7 +342,7 @@
 
   <!-- 未完成清单弹窗 -->
   <div class="modal-overlay" id="incompleteModal">
-    <div class="modal">
+    <div class="modal-dialog">
       <div class="modal-header">
         <div class="modal-title" id="modalTitle">未完成清单</div>
         <button class="modal-close" onclick="closeIncompleteModal()">×</button>
@@ -593,7 +595,7 @@
       const data = PROGRESS_DATA[subId];
       document.getElementById('modalTitle').textContent = `${freqLabel}未完成清单 - ${subInfo.name}`;
       document.getElementById('modalInfo').innerHTML =
-        `📊 <strong>${catInfo.name} / ${subInfo.name}</strong> ${freqLabel}应检 <strong>${data[freq].total}</strong> 个，未完成 <strong style="color:var(--error)">${data[freq].inc}</strong> 个`;
+        `📊 <strong>${catInfo.name} / ${subInfo.name}</strong> ${freqLabel}应检 <strong>${data[freq].total}</strong> 个，未完成 <strong style="color:var(--danger)">${data[freq].inc}</strong> 个`;
 
       // 模拟生成未完成清单
       const list = generateMockList(subInfo.name, data[freq].inc);

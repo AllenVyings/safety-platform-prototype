@@ -187,12 +187,29 @@
       font-weight: 500;
       margin-bottom: 8px;
     }
+    .code-cell {
+      display: inline-flex;
+      align-items: center;
+      cursor: help;
+    }
+    .qrcode-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+    .code-cell.green .qrcode-icon { color: var(--success); }
+    .code-cell.yellow .qrcode-icon { color: var(--warning); }
+    .code-cell.red .qrcode-icon { color: var(--danger); }
     .qrcode-status::before {
       content: '';
       width: 6px;
       height: 6px;
       background: var(--success, #52c41a);
       border-radius: 50%;
+    }
+    .qrcode-status .qrcode-icon {
+      width: 14px;
+      height: 14px;
     }
     .qrcode-code {
       font-size: 13px;
@@ -382,8 +399,8 @@
     .code-change-direction .arrow { color: var(--text-tertiary, #999); }
     .code-change-person { color: var(--text-secondary); min-width: 60px; text-align: right; }
     .code-dot-sm { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .code-dot-sm.green { background: var(--success, #52c41a); }
-    .code-dot-sm.yellow { background: var(--warning, #faad14); }
+    .code-dot-sm.green { background: var(--success); }
+    .code-dot-sm.yellow { background: var(--warning); }
     .code-dot-sm.red { background: var(--danger, #ff4d4f); }
 
     /* 动态码 */
@@ -396,7 +413,7 @@
   </style>
 </head>
 <body>
-  <div class="page-container" data-module="profile">
+  <div class="page-container" data-module="government/profile">
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
       <span class="breadcrumb-item">政府端</span>
@@ -504,7 +521,7 @@
                 </g>
               </svg>
             </div>
-            <div class="qrcode-status">有效</div>
+            <div class="qrcode-status"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>有效</div>
             <div style="font-size:13px;color:var(--text-primary);font-weight:500;">王建国 - 安全监督管理科</div>
             <div class="qrcode-code">SCID: G-XX-AJ-K001-20240315</div>
             <div class="qrcode-actions">
@@ -524,7 +541,7 @@
                 <dt>有效期</dt><dd>2024-03-15 至 2027-03-14</dd>
                 <dt>颁发时间</dt><dd>2024-03-15</dd>
                 <dt>颁发单位</dt><dd>XX 区应急管理局</dd>
-                <dt>状态</dt><dd><span class="qrcode-status" style="font-size:11px;padding:2px 8px;">有效</span></dd>
+                <dt>状态</dt><dd><span class="qrcode-status" style="font-size:11px;padding:2px 8px;"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>有效</span></dd>
               </dl>
             </div>
 
@@ -716,6 +733,9 @@
   </div>
 
   <script>
+    var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
+    function getCodeLabel(cs) { return cs === 'red' ? '红码' : cs === 'yellow' ? '黄码' : '绿码'; }
+
     // Hash routing: #info / #qrcode / #message / #settings / #help / #about
     const HASH_TAB_MAP = {
       'info': 'info', 'qrcode': 'qrcode', 'message': 'message',

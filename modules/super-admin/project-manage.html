@@ -32,11 +32,7 @@
 .right-content{flex:1;display:flex;flex-direction:column;gap: var(--spacing-md);overflow:hidden}
 .right-content .table-card{flex:1;display:flex;flex-direction:column}
 .right-content .table-container{flex:1;overflow:auto}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 
-.stat-card-label{font-size: var(--font-size-xs);color:var(--text-tertiary);margin-bottom:6px}
-.stat-card-value{font-size:22px;font-weight:700;color:var(--text-primary)}
-.stat-card-sub{font-size:11px;color:var(--border);margin-top:2px}
 .query-bar{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md) 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
 .query-bar .q-item{display:flex;align-items:center;gap:6px}
 .query-bar label{font-size: var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
@@ -85,10 +81,11 @@ thead th:nth-child(9),tbody td:nth-child(9){width:120px;max-width:120px}
 .tag-orange{background:var(--warning-light);color:var(--warning)}
 .tag-red{background:var(--danger-light);color:var(--danger)}
 .tag-gray{background:var(--bg-secondary);color:var(--text-tertiary)}
+.tag-yellow{background:#fef3cd;color:#b7791f}
 /* 弹窗 */
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal{background:var(--bg-primary);border-radius:10px;width:900px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-dialog{background:var(--bg-primary);border-radius:10px;width:900px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-md) 20px;border-bottom:1px solid var(--border-light);flex-shrink:0}
 .modal-title{font-size: var(--font-size-lg);font-weight:600;color:var(--text-primary)}
 .modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius: var(--radius-md);cursor:pointer;font-size: var(--font-size-md);color:var(--text-tertiary);transition:all .2s}
@@ -102,12 +99,12 @@ thead th:nth-child(9),tbody td:nth-child(9){width:120px;max-width:120px}
 .form-group{display:flex;flex-direction:row;align-items:center;flex:1;min-width:400px;max-width:420px}
 .form-label{flex-shrink:0;width:80px;margin-bottom:0;margin-right:10px;text-align:right;font-size: var(--font-size-sm);color:var(--text-primary)}
 .form-label .required{color:var(--danger);margin-right:2px}
-.form-control{flex:1;height:36px;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;box-sizing:border-box}
-.form-control:focus{border-color:var(--primary)}
-textarea.form-control{height:auto;min-height:80px;padding:10px 12px}
-select.form-control{cursor:pointer;background:var(--bg-primary)}
-.form-control:disabled{background:var(--bg-secondary);color:var(--text-tertiary);cursor:not-allowed}
-textarea.form-control{min-height:60px;resize:vertical}
+.form-input,.form-select{flex:1;height:36px;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;box-sizing:border-box}
+.form-input:focus,.form-select:focus{border-color:var(--primary)}
+textarea.form-input{height:auto;min-height:80px;padding:10px 12px}
+select.form-select{cursor:pointer;background:var(--bg-primary)}
+.form-input:disabled,.form-select:disabled{background:var(--bg-secondary);color:var(--text-tertiary);cursor:not-allowed}
+textarea.form-input{min-height:60px;resize:vertical}
 /* 详情 */
 .detail-row{display:flex;border-bottom:1px solid var(--border-light);line-height:44px}
 .detail-row:last-child{border-bottom:none}
@@ -116,7 +113,7 @@ textarea.form-control{min-height:60px;resize:vertical}
 .detail-section-title{padding: 0 var(--spacing-xs) 10px;margin-bottom: var(--spacing-xs);border-bottom:1px solid var(--border-light);font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary)}
 .detail-section{margin-bottom:14px}
 /* 弹窗统一布局 */
-.modal{width:900px;max-width:95vw}
+.modal-dialog{width:900px;max-width:95vw}
 .modal-body{padding: 20px var(--spacing-lg);overflow-y:auto;flex:1}
 .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-light);flex-shrink:0}
 /* 表单 */
@@ -126,9 +123,9 @@ textarea.form-control{min-height:60px;resize:vertical}
 .form-row:last-child{margin-bottom:0}
 .form-group{display:flex!important;flex-direction:row!important;align-items:center!important;flex:1;min-width:0;max-width:calc(50% - 8px)}
 .form-group .form-label{flex-shrink:0;width:80px;margin-bottom:0!important;margin-right:10px;text-align:right;font-size: var(--font-size-sm);color:var(--text-primary)}
-.form-group .form-control{flex:1;height:36px;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box}
-.form-group textarea.form-control{height:auto;min-height:80px;padding:10px 12px}
-.form-group select.form-control{cursor:pointer;background:var(--bg-primary)}
+.form-group .form-input,.form-group .form-select{flex:1;height:36px;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box}
+.form-group textarea.form-input{height:auto;min-height:80px;padding:10px 12px}
+.form-group select.form-select{cursor:pointer;background:var(--bg-primary)}
 .form-group[style*="flex:2"]{max-width:420px}
 /* 详情 */
 .detail-row{display:flex;border-bottom:1px solid var(--border-light);line-height:44px;align-items:flex-start}
@@ -148,26 +145,29 @@ textarea.form-control{min-height:60px;resize:vertical}
 .party-inputs{display:flex;gap:12px;flex:1}
 .party-inputs .form-group{flex:1;min-width:120px;margin-bottom:0;flex-direction:column;align-items:stretch}
 .party-inputs .form-group .form-label{width:auto;text-align:left;margin-bottom:5px;margin-right:0}
-.party-inputs .form-group .form-control{width:100%}
+.party-inputs .form-group .form-input,.party-inputs .form-group .form-select{width:100%}
 /* 分包操作 */
 .subcontract-btns{display:flex;gap: var(--spacing-sm);margin-top: var(--spacing-sm)}
 .subcontract-btns 
 /* Toast */
 #_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding: 10px var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius: var(--radius-md);font-size: var(--font-size-md);z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
 .no-data td{text-align:center;color:var(--border);padding:40px 0}
-/* 安全码图标 */
-.safety-code-icon{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;background:var(--bg-secondary);border-radius: var(--radius-sm);cursor:pointer}
-.safety-code-icon:hover{background:var(--primary-light)}
-.safety-code-icon svg{width:20px;height:20px}
+/* 安全码图标 — SKILL.md §4.23 标准样式 */
+.code-cell{display:inline-flex;align-items:center;cursor:help}
+.qrcode-icon{width:20px;height:20px;color:var(--text-secondary)}
+.code-cell.red .qrcode-icon{color:var(--danger)}
+.code-cell.yellow .qrcode-icon{color:var(--warning)}
+.code-cell.green .qrcode-icon{color:var(--success)}
 </style>
 </head>
 <body>
-<div class="page-container" data-module="sa-project-manage">
+<div class="page-container" data-module="super-admin/project-manage">
   <div class="breadcrumb" id="breadcrumb">
     <span class="breadcrumb-prefix">当前位置：</span>
     <span class="breadcrumb-item">超管端</span>
     <span class="breadcrumb-separator">&gt;</span>
     <span class="breadcrumb-item current">项目信息管理</span>
+    <span class="region-tag" style="margin-left:8px;background:var(--info-light,#e8f4fd);color:var(--info,var(--primary))">角色：<select id="roleSwitch" onchange="switchRole(this.value)" style="border:none;background:transparent;font-size:12px;color:inherit;cursor:pointer"><option value="领导">领导</option><option value="监管人员">监管人员</option></select></span>
   </div>
   <div class="main-layout">
     <!-- 左侧树形区域 -->
@@ -188,10 +188,10 @@ textarea.form-control{min-height:60px;resize:vertical}
     <div class="right-content">
     <!-- 统计卡片 -->
     <div class="stats-row" id="statsRow">
-      <div class="stat-card"><div class="stat-card-label">项目总数</div><div class="stat-card-value" id="statTotal">0</div><div class="stat-card-sub">全部项目</div></div>
-      <div class="stat-card"><div class="stat-card-label">在建项目</div><div class="stat-card-value" id="statBuilding" style="color:var(--success)">0</div><div class="stat-card-sub">进行中</div></div>
-      <div class="stat-card"><div class="stat-card-label">停工项目</div><div class="stat-card-value" id="statStopped" style="color:var(--warning)">0</div><div class="stat-card-sub">暂停中</div></div>
-      <div class="stat-card"><div class="stat-card-label">竣工项目</div><div class="stat-card-value" id="statCompleted" style="color:var(--primary)">0</div><div class="stat-card-sub">已完成</div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">项目总数</div><div class="stat-value" id="statTotal">0</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">在建项目</div><div class="stat-value" id="statBuilding">0</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">停工项目</div><div class="stat-value" id="statStopped">0</div></div><div class="stat-indicator" style="background:var(--warning)"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">竣工项目</div><div class="stat-value" id="statCompleted">0</div></div><div class="stat-indicator" style="background:var(--text-tertiary)"></div></div>
     </div>
     <!-- 查询条件 -->
     <div class="query-bar">
@@ -199,7 +199,7 @@ textarea.form-control{min-height:60px;resize:vertical}
         <select id="filterType"><option value="">全部</option><option value="1">在建项目</option><option value="2">运营项目</option></select>
       </div>
       <div class="q-item"><label>项目状态</label>
-        <select id="filterStatus"><option value="">全部</option><option value="1">筹备中</option><option value="2">在建</option><option value="3">停工</option><option value="4">竣工</option></select>
+        <select id="filterStatus"><option value="">全部</option><option value="1">未开工</option><option value="2">在建</option><option value="3">停工</option><option value="4">竣工</option></select>
       </div>
       <div class="q-item"><label>领域小类</label>
         <select id="filterDomain"><option value="">全部</option></select>
@@ -210,7 +210,7 @@ textarea.form-control{min-height:60px;resize:vertical}
       <div class="q-item"><label></label>
         <input id="filterKeyword" placeholder="搜索项目名称/编号..." style="width:180px">
       </div>
-      <button class="btn btn-default" onclick="renderTable()">搜索</button>
+      <button class="btn btn-default" onclick="renderTable()">查询</button>
       <button class="btn btn-default" onclick="resetFilters()">重置</button>
       <div style="flex:1"></div>
       <button class="btn btn-primary" onclick="openAddModal()">+ 新增项目</button>
@@ -235,7 +235,7 @@ textarea.form-control{min-height:60px;resize:vertical}
 
 <!-- 新增/编辑项目弹窗 -->
 <div class="modal-overlay" id="editModal">
-  <div class="modal">
+  <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle">新增项目</span>
       <div class="modal-close" onclick="closeModal('editModal')">&#x2715;</div>
@@ -246,31 +246,31 @@ textarea.form-control{min-height:60px;resize:vertical}
         <div class="form-section-title">基础信息</div>
         <!-- 第1行：项目名称 + 项目编号 -->
         <div class="form-row">
-          <div class="form-group"><label class="form-label"><span class="required">*</span>项目名称</label><input class="form-control" id="fProjectName" type="text" placeholder="请输入项目全称"></div>
-          <div class="form-group"><label class="form-label"><span class="required">*</span>项目编号</label><input class="form-control" id="fProjectNo" type="text" placeholder="施工许可证号/统一社会信用代码"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>项目名称</label><input class="form-input" id="fProjectName" type="text" placeholder="请输入项目全称"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>项目编号</label><input class="form-input" id="fProjectNo" type="text" placeholder="施工许可证号/统一社会信用代码"></div>
         </div>
         <!-- 第2行：项目类型 + 领域小类 -->
         <div class="form-row">
           <div class="form-group"><label class="form-label"><span class="required">*</span>项目类型</label>
-            <select class="form-control" id="fProjectCategory" onchange="onProjectCategoryChange()">
+            <select class="form-select" id="fProjectCategory" onchange="onProjectCategoryChange()">
               <option value="">请选择项目类型</option>
               <option value="1">在建项目</option>
               <option value="2">运营项目</option>
             </select>
           </div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>领域小类</label>
-            <select class="form-control" id="fDomain" onchange="onDomainChange()"><option value="">请选择领域小类</option></select>
+            <select class="form-select" id="fDomain" onchange="onDomainChange()"><option value="">请选择领域小类</option></select>
           </div>
         </div>
         <!-- 第3行：项目小类 + 项目状态 -->
         <div class="form-row" id="projectTypeRow">
           <div class="form-group"><label class="form-label"><span class="required">*</span>项目小类</label>
-            <select class="form-control" id="fProjectType"><option value="">请先选择领域小类</option></select>
+            <select class="form-select" id="fProjectType"><option value="">请先选择领域小类</option></select>
           </div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>项目状态</label>
-            <select class="form-control" id="fProjectStatus">
+            <select class="form-select" id="fProjectStatus">
               <option value="">请选择项目状态</option>
-              <option value="1">筹备中</option>
+              <option value="1">未开工</option>
               <option value="2">在建</option>
               <option value="3">停工</option>
               <option value="4">竣工</option>
@@ -279,7 +279,7 @@ textarea.form-control{min-height:60px;resize:vertical}
         </div>
         <div class="form-row" id="operationStatusRow" style="display:none">
           <div class="form-group"><label class="form-label"><span class="required">*</span>项目状态</label>
-            <select class="form-control" id="fOperationStatus">
+            <select class="form-select" id="fOperationStatus">
               <option value="">请选择项目状态</option>
               <option value="1">正常运营</option>
               <option value="2">暂停运营</option>
@@ -291,32 +291,32 @@ textarea.form-control{min-height:60px;resize:vertical}
         <!-- 四级区划 -->
         <div class="form-row">
           <div class="form-group"><label class="form-label"><span class="required">*</span>所属区</label>
-            <select class="form-control" id="fDistrict" onchange="onDistrictChange()"><option value="">请选择区</option></select>
+            <select class="form-select" id="fDistrict" onchange="onDistrictChange()"><option value="">请选择区</option></select>
           </div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>所属街道</label>
-            <select class="form-control" id="fStreet" onchange="onStreetChange()"><option value="">请选择街道</option></select>
+            <select class="form-select" id="fStreet" onchange="onStreetChange()"><option value="">请选择街道</option></select>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label"><span class="required">*</span>所属社区</label>
-            <select class="form-control" id="fCommunity" onchange="onCommunityChange()"><option value="">请选择社区</option></select>
+            <select class="form-select" id="fCommunity" onchange="onCommunityChange()"><option value="">请选择社区</option></select>
           </div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>所属网格</label>
-            <select class="form-control" id="fGrid"><option value="">请选择网格</option></select>
+            <select class="form-select" id="fGrid"><option value="">请选择网格</option></select>
           </div>
         </div>
         <!-- 第6行：详细地址 + 所属督导组 -->
         <div class="form-row" id="supervisionGroupRow">
-          <div class="form-group"><label class="form-label"><span class="required">*</span>详细地址</label><input class="form-control" id="fAddress" type="text" placeholder="请输入具体地址"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>详细地址</label><input class="form-input" id="fAddress" type="text" placeholder="请输入具体地址"></div>
           <div class="form-group"><label class="form-label">所属督导组</label>
-            <select class="form-control" id="fSupervisionGroup"><option value="">请选择督导组（选填）</option>
+            <select class="form-select" id="fSupervisionGroup"><option value="">请选择督导组（选填）</option>
               <option value="1">第一督导组</option><option value="2">第二督导组</option><option value="3">第三督导组</option>
             </select>
           </div>
         </div>
         <!-- 第7行：项目描述（独占一行，标签在上） -->
         <div class="form-row">
-          <div class="form-group" style="flex:1;max-width:100%;flex-direction:column;align-items:flex-start"><label class="form-label" style="width:auto;margin-bottom:5px">项目描述</label><textarea class="form-control" id="fDescription" placeholder="请输入项目概况说明（选填）" style="height:80px;resize:vertical;width:100%"></textarea></div>
+          <div class="form-group" style="flex:1;max-width:100%;flex-direction:column;align-items:flex-start"><label class="form-label" style="width:auto;margin-bottom:5px">项目描述</label><textarea class="form-input" id="fDescription" placeholder="请输入项目概况说明（选填）" style="height:80px;resize:vertical;width:100%"></textarea></div>
         </div>
       </div>
       <!-- 四方责任体/运营单位 -->
@@ -325,28 +325,28 @@ textarea.form-control{min-height:60px;resize:vertical}
         <div class="party-row">
           <div class="party-label"><span class="required">*</span>建设单位</div>
           <div class="party-inputs">
-            <div class="form-group" style="flex:2;position:relative"><input class="form-control" id="fParty1Name" placeholder="输入或点击右侧图标选择企业"><span class="input-suffix-btn" onclick="openEnterpriseSelect(1)" title="选择企业">&#128269;</span></div>
-            <div class="form-group"><input class="form-control" id="fParty1Credit" placeholder="统一社会信用代码"></div>
-            <div class="form-group"><input class="form-control" id="fParty1Contact" placeholder="负责人姓名"></div>
-            <div class="form-group"><input class="form-control" id="fParty1Phone" placeholder="联系电话"></div>
+            <div class="form-group" style="flex:2;position:relative"><input class="form-input" id="fParty1Name" placeholder="输入或点击右侧图标选择企业"><span class="input-suffix-btn" onclick="openEnterpriseSelect(1)" title="选择企业">&#128269;</span></div>
+            <div class="form-group"><input class="form-input" id="fParty1Credit" placeholder="统一社会信用代码"></div>
+            <div class="form-group"><input class="form-input" id="fParty1Contact" placeholder="负责人姓名"></div>
+            <div class="form-group"><input class="form-input" id="fParty1Phone" placeholder="联系电话"></div>
           </div>
         </div>
         <div class="party-row">
           <div class="party-label"><span class="required">*</span>施工单位</div>
           <div class="party-inputs">
-            <div class="form-group" style="flex:2;position:relative"><input class="form-control" id="fParty2Name" placeholder="输入或点击右侧图标选择企业"><span class="input-suffix-btn" onclick="openEnterpriseSelect(2)" title="选择企业">&#128269;</span></div>
-            <div class="form-group"><input class="form-control" id="fParty2Credit" placeholder="统一社会信用代码"></div>
-            <div class="form-group"><input class="form-control" id="fParty2Contact" placeholder="负责人姓名"></div>
-            <div class="form-group"><input class="form-control" id="fParty2Phone" placeholder="联系电话"></div>
+            <div class="form-group" style="flex:2;position:relative"><input class="form-input" id="fParty2Name" placeholder="输入或点击右侧图标选择企业"><span class="input-suffix-btn" onclick="openEnterpriseSelect(2)" title="选择企业">&#128269;</span></div>
+            <div class="form-group"><input class="form-input" id="fParty2Credit" placeholder="统一社会信用代码"></div>
+            <div class="form-group"><input class="form-input" id="fParty2Contact" placeholder="负责人姓名"></div>
+            <div class="form-group"><input class="form-input" id="fParty2Phone" placeholder="联系电话"></div>
           </div>
         </div>
         <div class="party-row">
           <div class="party-label"><span class="required">*</span>监理单位</div>
           <div class="party-inputs">
-            <div class="form-group" style="flex:2;position:relative"><input class="form-control" id="fParty3Name" placeholder="输入或点击右侧图标选择企业"><span class="input-suffix-btn" onclick="openEnterpriseSelect(3)" title="选择企业">&#128269;</span></div>
-            <div class="form-group"><input class="form-control" id="fParty3Credit" placeholder="统一社会信用代码"></div>
-            <div class="form-group"><input class="form-control" id="fParty3Contact" placeholder="负责人姓名"></div>
-            <div class="form-group"><input class="form-control" id="fParty3Phone" placeholder="联系电话"></div>
+            <div class="form-group" style="flex:2;position:relative"><input class="form-input" id="fParty3Name" placeholder="输入或点击右侧图标选择企业"><span class="input-suffix-btn" onclick="openEnterpriseSelect(3)" title="选择企业">&#128269;</span></div>
+            <div class="form-group"><input class="form-input" id="fParty3Credit" placeholder="统一社会信用代码"></div>
+            <div class="form-group"><input class="form-input" id="fParty3Contact" placeholder="负责人姓名"></div>
+            <div class="form-group"><input class="form-input" id="fParty3Phone" placeholder="联系电话"></div>
           </div>
         </div>
         <div id="subcontractRows"></div>
@@ -358,8 +358,8 @@ textarea.form-control{min-height:60px;resize:vertical}
       <div class="form-section">
         <div class="form-section-title">账号信息</div>
         <div class="form-row">
-          <div class="form-group" style="flex:1"><label class="form-label"><span class="required">*</span>登录账号</label><input class="form-control" id="fLoginAccount" type="text" placeholder="4-32位字母或数字" style="width:100%"></div>
-          <div class="form-group" id="pwdFieldGroup" style="flex:1;display:none;visibility:hidden"><label class="form-label" id="pwdLabel"><span class="required">*</span>初始密码</label><input class="form-control" id="fLoginPwd" type="password" placeholder="默认Abc@123456" style="width:100%"></div>
+          <div class="form-group" style="flex:1"><label class="form-label"><span class="required">*</span>登录账号</label><input class="form-input" id="fLoginAccount" type="text" placeholder="4-32位字母或数字" style="width:100%"></div>
+          <div class="form-group" id="pwdFieldGroup" style="flex:1;display:none;visibility:hidden"><label class="form-label" id="pwdLabel"><span class="required">*</span>初始密码</label><input class="form-input" id="fLoginPwd" type="password" placeholder="默认Abc@123456" style="width:100%"></div>
         </div>
       </div>
     </div>
@@ -372,7 +372,7 @@ textarea.form-control{min-height:60px;resize:vertical}
 
 <!-- 企业选择弹窗 -->
 <div class="modal-overlay" id="enterpriseSelectModal">
-  <div class="modal" style="width:850px;max-height:85vh">
+  <div class="modal-dialog" style="width:850px;max-height:85vh">
     <div class="modal-header">
       <span class="modal-title">选择企业</span>
       <div class="modal-close" onclick="closeModal('enterpriseSelectModal')">&#x2715;</div>
@@ -380,7 +380,7 @@ textarea.form-control{min-height:60px;resize:vertical}
     <div class="modal-body" style="padding:20px 24px;display:flex;flex-direction:column;overflow:hidden">
       <div class="filter-row" style="margin-bottom: var(--spacing-md);flex-shrink:0;display:flex;align-items:center;gap:12px">
         <span class="filter-label" style="flex-shrink:0">关键词</span>
-        <input class="form-control" id="entSearchKeyword" type="text" placeholder="企业名称/统一社会信用代码" style="width:280px;flex-shrink:0">
+        <input class="form-input" id="entSearchKeyword" type="text" placeholder="企业名称/统一社会信用代码" style="width:280px;flex-shrink:0">
         <button class="btn btn-primary" onclick="renderEnterpriseList()" style="flex-shrink:0">查询</button>
         <button class="btn btn-default" onclick="document.getElementById('entSearchKeyword').value='';renderEnterpriseList()" style="flex-shrink:0;margin-left:0">重置</button>
       </div>
@@ -416,7 +416,7 @@ textarea.form-control{min-height:60px;resize:vertical}
 
 <!-- 删除确认弹窗 -->
 <div class="modal-overlay" id="deleteModal">
-  <div class="modal" style="width:400px">
+  <div class="modal-dialog" style="width:400px">
     <div class="modal-header">
       <span class="modal-title">确认删除</span>
       <div class="modal-close" onclick="closeModal('deleteModal')">&#x2715;</div>
@@ -437,7 +437,7 @@ textarea.form-control{min-height:60px;resize:vertical}
 
 <!-- 详情弹窗 -->
 <div class="modal-overlay" id="detailModal">
-  <div class="modal" style="width:900px;max-width:95vw">
+  <div class="modal-dialog" style="width:900px;max-width:95vw">
     <div class="modal-header">
       <span class="modal-title">项目详情</span>
       <div class="modal-close" onclick="closeModal('detailModal')">&#x2715;</div>
@@ -451,7 +451,7 @@ textarea.form-control{min-height:60px;resize:vertical}
 
 <!-- 重置密码确认弹窗 -->
 <div class="modal-overlay" id="resetPwdModal">
-  <div class="modal" style="width:400px">
+  <div class="modal-dialog" style="width:400px">
     <div class="modal-header">
       <span class="modal-title">重置密码</span>
       <div class="modal-close" onclick="closeModal('resetPwdModal')">&#x2715;</div>
@@ -472,6 +472,12 @@ textarea.form-control{min-height:60px;resize:vertical}
 
 <script src="../../js/pagination.js"></script>
 <script>
+// ==================== 当前用户角色（模拟：领导/监管人员，删除和重置密码仅领导可用） ====================
+var currentUserRole = '领导';
+
+// ==================== 安全码 QR 图标 SVG — SKILL.md §4.23 ====================
+var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
+
 // ==================== 数据 ====================
 var _pid = 100;
 function _pidGen(){return 'p' + (_pid++);}
@@ -499,11 +505,11 @@ var regionMap = {
 };
 
 // 状态映射（在建项目）
-var statusMap = {'1':'筹备中','2':'在建','3':'停工','4':'竣工'};
-var statusTagMap = {'1':'tag-gray','2':'tag-green','3':'tag-orange','4':'tag-blue'};
+var statusMap = {'1':'未开工','2':'在建','3':'停工','4':'竣工'};
+var statusTagMap = {'1':'tag-gray','2':'tag-green','3':'tag-yellow','4':'tag-blue'};
 // 状态映射（运营项目）
 var operationStatusMap = {'1':'正常运营','2':'暂停运营','3':'关闭'};
-var operationStatusTagMap = {'1':'tag-green','2':'tag-orange','3':'tag-gray'};
+var operationStatusTagMap = {'1':'tag-green','2':'tag-yellow','3':'tag-gray'};
 
 // 模拟项目数据
 var allProjects = [
@@ -648,6 +654,18 @@ function renderTable(){
       statusCls = statusTagMap[p.projectStatus] || 'tag-default';
       statusName = statusMap[p.projectStatus] || '—';
     }
+    // 码色：基于项目状态 + ID 哈希分配（停工→黄/红，在建→绿/黄，其余→绿）
+    var codeColor = p.codeColor;
+    if(!codeColor){
+      var hash = 0;
+      for(var i=0;i<(p.id||'').length;i++){ hash = (hash*31 + p.id.charCodeAt(i)) & 0xffffffff; }
+      hash = Math.abs(hash);
+      if(p.projectStatus === '3'){ codeColor = (hash % 3 === 0) ? 'red' : 'yellow'; }
+      else if(p.projectStatus === '2'){ codeColor = (hash % 7 === 0) ? 'yellow' : 'green'; }
+      else { codeColor = 'green'; }
+    }
+    var codeLabel = codeColor === 'red' ? '红码' : codeColor === 'yellow' ? '黄码' : '绿码';
+    var codeColorHex = codeColor === 'red' ? '#ff4d4f' : codeColor === 'yellow' ? '#faad14' : '#52c41a';
     var seq = start + idx + 1;
     return '<tr>' +
       '<td>' + seq + '</td>' +
@@ -657,15 +675,22 @@ function renderTable(){
       '<td>' + (p.projectType||'') + '</td>' +
       '<td><span class="tag ' + statusCls + '">' + statusName + '</span></td>' +
       '<td title="' + (p.districtName||'') + ' / ' + (p.streetName||'') + ' / ' + (p.communityName||'') + ' / ' + (p.gridName||'') + '">' + (p.districtName||'') + ' / ' + (p.streetName||'') + ' / ' + (p.communityName||'') + ' / ' + (p.gridName||'') + '</td>' +
-      '<td><div class="safety-code-icon" title="安全码：' + p.safetyCode + '" onclick="showToast(\'安全码：' + p.safetyCode + '\')"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" fill="var(--success)"/><rect x="14" y="3" width="7" height="7" rx="1" fill="var(--success)"/><rect x="3" y="14" width="7" height="7" rx="1" fill="var(--success)"/><rect x="14" y="14" width="7" height="7" rx="1" fill="var(--success)"/></svg></div></td>' +
+      '<td><span class="code-cell ' + codeColor + '" title="安全码：' + p.safetyCode + '（' + codeLabel + '）" onclick="showToast(\'安全码：' + p.safetyCode + '（' + codeLabel + '）\')">' + QR_ICON_SVG + '</span></td>' +
       '<td>' + (p.createTime||'') + '</td>' +
-      '<td class="action-col"><button class="btn btn-link" onclick="viewDetail(\'' + p.id + '\')">查看</button> <button class="btn btn-link" onclick="openEditModal(\'' + p.id + '\')">编辑</button> <button class="btn btn-link" onclick="deleteProject(\'' + p.id + '\')">删除</button> <button class="btn btn-link" onclick="resetPwd(\'' + p.id + '\')">重置密码</button></td>' +
+      '<td class="action-col"><button class="btn btn-link" onclick="viewDetail(\'' + p.id + '\')">查看</button> <button class="btn btn-link" onclick="openEditModal(\'' + p.id + '\')">编辑</button>' + (currentUserRole === '领导' ? ' <button class="btn btn-link" style="color:var(--danger)" onclick="deleteProject(\'' + p.id + '\')">删除</button> <button class="btn btn-link" onclick="resetPwd(\'' + p.id + '\')">重置密码</button>' : '') + '</td>' +
       '</tr>';
   }).join('');
   pg.setTotal(pgState.total);
 }
 
 // ==================== 分页逻辑已由 pagination.js 组件接管 ====================
+
+// ==================== 角色切换 ====================
+function switchRole(role){
+  currentUserRole = role;
+  renderTable();
+  showToast('已切换为' + role + '角色');
+}
 
 function resetFilters(){
   document.getElementById('filterType').value = '';
@@ -807,10 +832,10 @@ function addSubcontractor(name, creditCode, contact, phone){
   row.id = 'sub_' + _subcontractCount;
   row.innerHTML = '<div class="party-label">分包单位</div>' +
     '<div class="party-inputs">' +
-      '<div class="form-group" style="flex:2;position:relative"><input class="form-control" id="fSubName_' + _subcontractCount + '" placeholder="输入或点击右侧图标选择企业" value="' + (name||'') + '"><span class="input-suffix-btn" onclick="openEnterpriseSelect(4,' + _subcontractCount + ')" title="选择企业">&#128269;</span></div>' +
-      '<div class="form-group"><input class="form-control" id="fSubCredit_' + _subcontractCount + '" placeholder="统一社会信用代码" value="' + (creditCode||'') + '"></div>' +
-      '<div class="form-group"><input class="form-control" id="fSubContact_' + _subcontractCount + '" placeholder="负责人姓名" value="' + (contact||'') + '"></div>' +
-      '<div class="form-group"><input class="form-control" id="fSubPhone_' + _subcontractCount + '" placeholder="联系电话" value="' + (phone||'') + '"></div>' +
+      '<div class="form-group" style="flex:2;position:relative"><input class="form-input" id="fSubName_' + _subcontractCount + '" placeholder="输入或点击右侧图标选择企业" value="' + (name||'') + '"><span class="input-suffix-btn" onclick="openEnterpriseSelect(4,' + _subcontractCount + ')" title="选择企业">&#128269;</span></div>' +
+      '<div class="form-group"><input class="form-input" id="fSubCredit_' + _subcontractCount + '" placeholder="统一社会信用代码" value="' + (creditCode||'') + '"></div>' +
+      '<div class="form-group"><input class="form-input" id="fSubContact_' + _subcontractCount + '" placeholder="负责人姓名" value="' + (contact||'') + '"></div>' +
+      '<div class="form-group"><input class="form-input" id="fSubPhone_' + _subcontractCount + '" placeholder="联系电话" value="' + (phone||'') + '"></div>' +
     '</div>' +
     '<button class="btn btn-link btn-sm" style="color:var(--danger)" onclick="removeSubcontractor(\'sub_' + _subcontractCount + '\')">删除</button>';
   document.getElementById('subcontractRows').appendChild(row);
@@ -837,6 +862,14 @@ function saveProject(){
   var loginAccount = document.getElementById('fLoginAccount').value.trim();
   if(!projectCategory || !projectNo || !projectName || !domainId || !projectStatus || !districtCode || !streetCode || !communityCode || !gridCode || !address || !loginAccount){
     showToast('请填写所有必填项'); return;
+  }
+  // BR-08: 项目编号唯一性校验
+  var dupNo = allProjects.find(function(x){return x.projectNo === projectNo && (!currentEditProject || x.id !== currentEditProject.id);});
+  if(dupNo){ showToast('项目编号已存在，请勿重复'); return; }
+  // BR-09: 登录账号唯一性校验（仅新增时）
+  if(!currentEditProject){
+    var dupAcc = allProjects.find(function(x){return x.loginAccount === loginAccount;});
+    if(dupAcc){ showToast('登录账号已存在，请更换'); return; }
   }
   if(projectCategory !== '2' && !projectType){
     showToast('请选择项目小类'); return;
@@ -957,6 +990,18 @@ function viewDetail(id){
     statusName = statusMap[p.projectStatus] || '—';
   }
   var categoryName = p.projectCategory === '2' ? '运营项目' : '在建项目';
+  // 码色计算（与列表渲染一致）
+  var codeColor = p.codeColor;
+  if(!codeColor){
+    var hash = 0;
+    for(var i=0;i<(p.id||'').length;i++){ hash = (hash*31 + p.id.charCodeAt(i)) & 0xffffffff; }
+    hash = Math.abs(hash);
+    if(p.projectStatus === '3'){ codeColor = (hash % 3 === 0) ? 'red' : 'yellow'; }
+    else if(p.projectStatus === '2'){ codeColor = (hash % 7 === 0) ? 'yellow' : 'green'; }
+    else { codeColor = 'green'; }
+  }
+  var codeLabel = codeColor === 'red' ? '红码' : codeColor === 'yellow' ? '黄码' : '绿码';
+  var codeTagCls = codeColor === 'red' ? 'tag-red' : codeColor === 'yellow' ? 'tag-yellow' : 'tag-green';
   // 单栏布局（与编辑页面保持一致）
   var html = '';
   // 基础信息
@@ -971,6 +1016,8 @@ function viewDetail(id){
   // 第3行：项目小类 + 项目状态
   html += '<div class="detail-row"><div class="detail-label">项目小类</div><div class="detail-value">' + (p.projectType||'—') + '</div></div>';
   html += '<div class="detail-row"><div class="detail-label">项目状态</div><div class="detail-value"><span class="tag ' + statusCls + '">' + statusName + '</span></div></div>';
+  // 第3.5行：安全码（SKILL.md §4.23 三段式：图标 + 编码 + 码色标签）
+  html += '<div class="detail-row"><div class="detail-label">安全码</div><div class="detail-value"><span class="code-cell ' + codeColor + '">' + QR_ICON_SVG + '</span><span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">' + (p.safetyCode||'—') + '</span><span style="margin-left:8px;color:' + codeColorHex + ';">（' + codeLabel + '）</span></div></div>';
   // 第4行：四级区划
   html += '<div class="detail-row"><div class="detail-label">所属区划</div><div class="detail-value">' + (p.districtName||'') + ' / ' + (p.streetName||'') + ' / ' + (p.communityName||'') + ' / ' + (p.gridName||'') + '</div></div>';
   // 第5行：详细地址 + 所属督导组

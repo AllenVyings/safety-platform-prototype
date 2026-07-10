@@ -14,11 +14,15 @@
     /* ========== 统计卡片 ========== */
     
     /* ========== 筛选栏 ========== */
-    .filter-item select, .filter-item input { 
-      padding: 6px 10px; 
-      border: 1px solid var(--border-figma); 
-      border-radius: var(--radius-sm); 
-      font-size: var(--font-size-xs); 
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
+    .filter-item select, .filter-item input {
+      padding: 6px 10px;
+      border: 1px solid var(--border-figma);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
       background: var(--bg-primary);
     }
     .filter-item select:focus, .filter-item input:focus {
@@ -45,7 +49,7 @@
     /* ========== 标签样式 ========== */
 
     /* ========== 弹窗 ========== */
-    .modal-box { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 600px; max-height: 80vh; overflow: auto; }
+    .modal-dialog { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 600px; max-height: 80vh; overflow: auto; }
     .modal-head { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
     .modal-head-title { font-size: var(--font-size-lg); font-weight: 600; }
     .modal-head-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
@@ -73,7 +77,7 @@
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="ent-hazard-fix">
+  <div class="module-page page-container" data-module="enterprise/hazard-fix">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -84,20 +88,23 @@
     
     <!-- 页面标题栏已隐藏 -->
     
-    <div class="stat-cards">
-      <div class="stat-card"><div class="stat-value" style="color: var(--blue);">12</div><div class="stat-label">隐患总数</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--orange);">3</div><div class="stat-label">待整改</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--green);">8</div><div class="stat-label">已整改</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--error);">1</div><div class="stat-label">已逾期</div></div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">隐患总数</div><div class="stat-value" id="statTotal">12</div></div><div class="stat-indicator" style="background: var(--info);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">待整改</div><div class="stat-value" id="statPending">3</div></div><div class="stat-indicator" style="background: var(--warning);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">已整改</div><div class="stat-value" id="statFixed">8</div></div><div class="stat-indicator" style="background: var(--success);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">已逾期</div><div class="stat-value" id="statOverdue">1</div></div><div class="stat-indicator" style="background: var(--danger);"></div></div>
     </div>
 
-    <div class="filter-bar">
-      <div class="filter-item"><label>整改状态：</label><select><option>全部</option><option>待整改</option><option>整改中</option><option>待验收</option><option>已整改</option><option>已逾期</option></select></div>
-      <div class="filter-item"><label>隐患等级：</label><select><option>全部</option><option>一般隐患</option><option>重大隐患</option></select></div>
-      <div class="filter-item"><input type="text" placeholder="搜索隐患描述"></div>
-      <button class="btn btn-default" onclick="resetFilters()">重置</button>
-      <div style="flex: 1;"></div>
-      <button class="btn btn-primary" onclick="openReportModal()">+ 上报隐患</button>
+    <div class="filter-card">
+      <div class="filter-bar">
+        <div class="filter-item"><label>整改状态：</label><select><option>全部</option><option>待整改</option><option>整改中</option><option>待验收</option><option>已整改</option><option>已逾期</option></select></div>
+        <div class="filter-item"><label>隐患等级：</label><select><option>全部</option><option>一般隐患</option><option>重大隐患</option></select></div>
+        <div class="filter-item"><label>关键词：</label><input type="text" placeholder="搜索隐患描述"></div>
+        <button class="btn btn-primary" onclick="resetFilters()">查询</button>
+        <button class="btn btn-default" onclick="resetFilters()">重置</button>
+        <div style="flex: 1;"></div>
+        <button class="btn btn-primary" onclick="openReportModal()">+ 上报隐患</button>
+      </div>
     </div>
     
     <div class="table-wrap">
@@ -181,7 +188,7 @@
                 <span class="timeline-step">闭环</span>
               </div>
             </td>
-            <td><span class="tag tag-orange" style="background: var(--danger-light); color: var(--error);">已逾期</span></td>
+            <td><span class="tag tag-orange" style="background: var(--danger-light); color: var(--danger);">已逾期</span></td>
             <td class="action-col"><button class="btn-link danger" onclick="fillRectify('HD2026032001')">立即整改</button><button class="btn-link" onclick="viewDetail('HD2026032001')">详情</button></td>
           </tr>
         </tbody>
@@ -205,7 +212,7 @@
 
   <!-- 填写整改弹窗 -->
   <div class="modal-overlay" id="modal-rectify">
-    <div class="modal-box">
+    <div class="modal-dialog">
       <div class="modal-head">
         <span class="modal-head-title">填写整改信息</span>
         <button class="modal-head-close" onclick="closeHazardFixModal('modal-rectify')">&times;</button>
@@ -259,7 +266,7 @@
 
   <!-- 申请验收弹窗 -->
   <div class="modal-overlay" id="modal-recheck">
-    <div class="modal-box">
+    <div class="modal-dialog">
       <div class="modal-head">
         <span class="modal-head-title">申请验收</span>
         <button class="modal-head-close" onclick="closeHazardFixModal('modal-recheck')">&times;</button>
@@ -297,7 +304,7 @@
 
   <!-- 隐患详情弹窗 -->
   <div class="modal-overlay" id="modal-hazard-detail">
-    <div class="modal-box">
+    <div class="modal-dialog">
       <div class="modal-head">
         <span class="modal-head-title">隐患详情</span>
         <button class="modal-head-close" onclick="closeHazardFixModal('modal-hazard-detail')">&times;</button>

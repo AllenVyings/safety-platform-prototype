@@ -23,13 +23,8 @@
 .tree-children{padding-left:18px;display:none}
 .tree-children.show{display:block}
 .right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--spacing-md);min-height:0}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding:0 2px}
 .page-header .badge{background:var(--danger);color:#fff;padding:1px 6px;border-radius:8px;font-size:11px;margin-left:4px}
-.stat-card{padding:16px 20px;background:var(--bg-primary);border-radius:10px;border:1px solid var(--border-section);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
-.stat-card-label{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-bottom:4px}
-.stat-card-value{font-size:22px;font-weight:700;color:var(--text-primary)}
-.stat-card-sub{font-size:11px;color:var(--border);margin-top:2px}
 .query-bar{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;border:1px solid var(--border-section)}
 .query-bar .q-item{display:flex;align-items:center;gap:6px}
 .query-bar label{font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
@@ -52,7 +47,7 @@
 
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal{background:var(--bg-primary);border-radius:10px;width:640px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-dialog{background:var(--bg-primary);border-radius:10px;width:640px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding:var(--spacing-md) 20px;border-bottom:1px solid var(--border-light);flex-shrink:0}
 .modal-title{font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary)}
 .modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);cursor:pointer;font-size:var(--font-size-md);color:var(--text-tertiary);transition:all .2s}
@@ -65,8 +60,8 @@
 .form-group{display:flex;flex-direction:column;flex:1;min-width:160px}
 .form-label{font-size:var(--font-size-sm);color:var(--text-primary);margin-bottom:5px;font-weight:500}
 .form-label .required{color:var(--danger);margin-right:2px}
-.form-control{padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
-.form-control:focus{border-color:var(--primary)}
+.form-input,.form-select{padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-input:focus,.form-select:focus{border-color:var(--primary)}
 .multi-select{position:relative;width:100%}
 .multi-select-input{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-primary);cursor:pointer;transition:border-color .2s;min-height:34px}
 .multi-select-input:hover{border-color:var(--primary-hover)}
@@ -128,10 +123,10 @@
       <!-- 统计卡片 -->
       <!-- 人员账号概览（已移除标题） -->
       <div class="stats-row" id="statsRow">
-        <div class="stat-card"><div class="stat-card-label">用户总数</div><div class="stat-card-value" id="statTotal" style="color:var(--primary)">0</div><div class="stat-card-sub">政府用户</div></div>
-        <div class="stat-card"><div class="stat-card-label">启用中</div><div class="stat-card-value" id="statNormal" style="color:var(--success)">0</div><div class="stat-card-sub">已启用</div></div>
-        <div class="stat-card"><div class="stat-card-label">停用中</div><div class="stat-card-value" id="statDisabled" style="color:var(--text-tertiary)">0</div><div class="stat-card-sub">已停用</div></div>
-        <div class="stat-card"><div class="stat-card-label">领导层</div><div class="stat-card-value" id="statLeader" style="color:var(--warning)">0</div><div class="stat-card-sub">领导层用户</div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">用户总数</div><div class="stat-value" id="statTotal">0</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">启用中</div><div class="stat-value" id="statNormal">0</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">停用中</div><div class="stat-value" id="statDisabled">0</div></div><div class="stat-indicator" style="background:var(--warning)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">领导层</div><div class="stat-value" id="statLeader">0</div></div><div class="stat-indicator" style="background:var(--text-tertiary)"></div></div>
       </div>
       <!-- 查询条件 -->
       <div class="query-bar">
@@ -181,31 +176,31 @@
 
 <!-- 新增/编辑弹窗 -->
 <div class="modal-overlay" id="editModal">
-  <div class="modal">
+  <div class="modal-dialog">
     <div class="modal-header"><span class="modal-title" id="modalTitle">新增用户</span><div class="modal-close" onclick="closeModal('editModal')">&#x2715;</div></div>
     <div class="modal-body">
       <div class="form-section">
         <div class="form-section-title">基本信息</div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label"><span class="required">*</span>用户姓名</label><input class="form-control" id="fName" type="text" placeholder="请输入用户姓名"></div>
-          <div class="form-group"><label class="form-label"><span class="required">*</span>手机号码</label><input class="form-control" id="fMobile" type="text" placeholder="请输入手机号码" oninput="syncAccountFromMobile()"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>用户姓名</label><input class="form-input" id="fName" type="text" placeholder="请输入用户姓名"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>手机号码</label><input class="form-input" id="fMobile" type="text" placeholder="请输入手机号码" oninput="syncAccountFromMobile()"></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label"><span class="required">*</span>所属单位</label>
-            <select class="form-control" id="fOrg" onchange="onOrgChange()">
+            <select class="form-select" id="fOrg" onchange="onOrgChange()">
               <option value="gov_org">区应急管理局</option>
               <option value="sub-lh">龙华街道办事处</option>
               <option value="sub-mz">民治街道办事处</option>
             </select>
           </div>
           <div class="form-group"><label class="form-label">所属科室</label>
-            <select class="form-control" id="fDept"><option value="">请选择所属科室</option></select>
+            <select class="form-select" id="fDept"><option value="">请选择所属科室</option></select>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label"><span class="required">*</span>职务</label><input class="form-control" id="fTitle" type="text" placeholder="请输入职务"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>职务</label><input class="form-input" id="fTitle" type="text" placeholder="请输入职务"></div>
           <div class="form-group"><label class="form-label"><span class="required">*</span>用户层级</label>
-            <select class="form-control" id="fUserType">
+            <select class="form-select" id="fUserType">
               <option value="">请选择用户层级</option><option>领导层</option><option>监管层</option><option>巡查层</option>
             </select>
           </div>
@@ -227,24 +222,24 @@
             </div>
           </div>
           <div class="form-group"><label class="form-label">上级领导</label>
-            <select class="form-control" id="fLeader"><option value="">请选择上级领导（选填）</option></select>
+            <select class="form-select" id="fLeader"><option value="">请选择上级领导（选填）</option></select>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label"><span class="required">*</span>状态</label>
-            <select class="form-control" id="fStatus"><option value="启用" selected>启用</option><option value="停用">停用</option></select>
+            <select class="form-select" id="fStatus"><option value="启用" selected>启用</option><option value="停用">停用</option></select>
           </div>
-          <div class="form-group"><label class="form-label">邮箱</label><input class="form-control" id="fEmail" type="email" placeholder="请输入邮箱（选填）"></div>
+          <div class="form-group"><label class="form-label">邮箱</label><input class="form-input" id="fEmail" type="email" placeholder="请输入邮箱（选填）"></div>
         </div>
         <div class="form-row">
-          <div class="form-group" style="flex:1 0 100%"><label class="form-label">备注</label><textarea class="form-control" id="fRemark" placeholder="请输入备注（选填，200字以内）" style="min-height:60px;resize:vertical"></textarea></div>
+          <div class="form-group" style="flex:1 0 100%"><label class="form-label">备注</label><textarea class="form-input" id="fRemark" placeholder="请输入备注（选填，200字以内）" style="min-height:60px;resize:vertical"></textarea></div>
         </div>
       </div>
       <div class="form-section">
         <div class="form-section-title">账号信息</div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label"><span class="required">*</span>账号（手机号）</label><input class="form-control" id="fAccount" type="text" placeholder="自动填充手机号" disabled style="background:var(--bg-secondary);cursor:not-allowed;"></div>
-          <div class="form-group"><label class="form-label" id="pwdLabel"><span class="required">*</span>用户密码</label><input class="form-control" id="fPwd" type="password" placeholder="默认Abc@123456"></div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>账号（手机号）</label><input class="form-input" id="fAccount" type="text" placeholder="自动填充手机号" disabled style="background:var(--bg-secondary);cursor:not-allowed;"></div>
+          <div class="form-group"><label class="form-label" id="pwdLabel"><span class="required">*</span>用户密码</label><input class="form-input" id="fPwd" type="password" placeholder="默认Abc@123456"></div>
         </div>
       </div>
     </div>
@@ -257,7 +252,7 @@
 
 <!-- 详情弹窗 -->
 <div class="modal-overlay" id="detailModal">
-  <div class="modal" style="width:560px">
+  <div class="modal-dialog" style="width:560px">
     <div class="modal-header"><span class="modal-title">用户详情</span><div class="modal-close" onclick="closeModal('detailModal')">&#x2715;</div></div>
     <div class="modal-body" id="detailBody" style="padding:20px 24px"></div>
     <div class="modal-footer" style="justify-content:center"><button class="btn btn-default" onclick="closeModal('detailModal')">关闭</button></div>
@@ -266,7 +261,7 @@
 
 <!-- 删除确认弹窗 -->
 <div class="modal-overlay" id="deleteModal">
-  <div class="modal" style="width:400px">
+  <div class="modal-dialog" style="width:400px">
     <div class="modal-header"><span class="modal-title">确认删除</span><div class="modal-close" onclick="closeModal('deleteModal')">&#x2715;</div></div>
     <div class="modal-body" style="padding:28px 24px;text-align:center">
       <div style="width:48px;height:48px;margin:0 auto 16px;background:var(--danger-light);border-radius:50%;display:flex;align-items:center;justify-content:center">
@@ -284,7 +279,7 @@
 
 <!-- 重置密码确认弹窗 -->
 <div class="modal-overlay" id="resetPwdModal">
-  <div class="modal" style="width:400px">
+  <div class="modal-dialog" style="width:400px">
     <div class="modal-header"><span class="modal-title">重置密码</span><div class="modal-close" onclick="closeModal('resetPwdModal')">&#x2715;</div></div>
     <div class="modal-body" style="padding:28px 24px;text-align:center">
       <div style="width:48px;height:48px;margin:0 auto 16px;background:var(--warning-light);border-radius:50%;display:flex;align-items:center;justify-content:center">
@@ -302,7 +297,7 @@
 
 <!-- 审批列表弹窗（政府端特有） -->
 <div class="modal-overlay" id="approvalModal">
-  <div class="modal" style="width:540px">
+  <div class="modal-dialog" style="width:540px">
     <div class="modal-header"><span class="modal-title">待审批列表</span><div class="modal-close" onclick="closeModal('approvalModal')">&#x2715;</div></div>
     <div class="modal-body">
       <div class="approval-card">
@@ -328,7 +323,7 @@
 
 <!-- 批量导入弹窗（政府端特有） -->
 <div class="modal-overlay" id="importModal">
-  <div class="modal" style="width:480px">
+  <div class="modal-dialog" style="width:480px">
     <div class="modal-header"><span class="modal-title">批量导入用户</span><div class="modal-close" onclick="closeModal('importModal')">&#x2715;</div></div>
     <div class="modal-body" style="text-align:center;padding:36px 24px">
       <div style="width:64px;height:64px;margin:0 auto 16px;background:var(--bg-section);border-radius:12px;display:flex;align-items:center;justify-content:center">

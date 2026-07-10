@@ -22,42 +22,7 @@
     .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 
     /* 统计卡 */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .stat-card {
-      background: var(--bg-primary);
-      padding: 16px 20px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border: none;
-      border-left: 4px solid #1890ff;
-    }
-    .stat-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .stat-card.blue { border-left-color: #1890ff; }
-    .stat-card.orange { border-left-color: #fa8c16; }
-    .stat-card.purple { border-left-color: #722ed1; }
-    .stat-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-    .stat-icon.blue { background: #e6f4ff; color: #1890ff; }
-    .stat-icon.orange { background: #fff7e6; color: #fa8c16; }
-    .stat-icon.purple { background: #f9f0ff; color: #722ed1; }
-    .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
-    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .stats-row { margin-bottom: 16px; }
 
     /* 分屏布局 */
     .split-view { display: flex; gap: 16px; }
@@ -188,10 +153,13 @@
     .filter-bar {
       display: flex;
       gap: 10px;
-      margin-bottom: 14px;
       flex-wrap: wrap;
       align-items: center;
     }
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
     .filter-bar select,
     .filter-bar input {
       padding: 6px 10px;
@@ -231,21 +199,19 @@
     .type-tag.keyplace { background: #f9f0ff; color: #722ed1; }
 
     /* 安全码状态 */
-    .code-status {
+    .code-cell {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 13px;
+      cursor: help;
     }
-    .code-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
+    .qrcode-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
     }
-    .code-dot.green { background: #52c41a; }
-    .code-dot.yellow { background: #faad14; }
-    .code-dot.red { background: #ff4d4f; }
+    .code-cell.green .qrcode-icon { color: var(--success); }
+    .code-cell.yellow .qrcode-icon { color: var(--warning); }
+    .code-cell.red .qrcode-icon { color: var(--danger); }
 
     /* 监管责任人 */
     .resp-unconfig { color: #ff4d4f; font-size: 13px; }
@@ -333,9 +299,9 @@
       display: inline-flex; align-items: center; gap: 8px;
       padding: 6px 16px; border-radius: 6px; font-size: 14px; font-weight: 600;
     }
-    .code-badge.green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
-    .code-badge.yellow { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
-    .code-badge.red { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+    .code-badge.green { background: var(--success-light); color: var(--success); border: 1px solid #b7eb8f; }
+    .code-badge.yellow { background: var(--warning-light); color: var(--warning); border: 1px solid #ffe58f; }
+    .code-badge.red { background: var(--danger-light); color: var(--danger); border: 1px solid #ffccc7; }
 
     /* 变更历史小时间轴 */
     .change-history { margin-top: 12px; padding-left: 16px; border-left: 2px solid var(--border-section); }
@@ -347,9 +313,9 @@
       background: var(--primary); border: 2px solid var(--bg-primary);
       box-shadow: 0 0 0 2px #e6f4ff;
     }
-    .change-item.warn::before { background: #faad14; box-shadow: 0 0 0 2px #fffbe6; }
-    .change-item.error::before { background: #ff4d4f; box-shadow: 0 0 0 2px #fff2f0; }
-    .change-item.done::before { background: #52c41a; box-shadow: 0 0 0 2px #f6ffed; }
+    .change-item.warn::before { background: var(--warning); box-shadow: 0 0 0 2px var(--warning-light); }
+    .change-item.error::before { background: var(--danger); box-shadow: 0 0 0 2px var(--danger-light); }
+    .change-item.done::before { background: var(--success); box-shadow: 0 0 0 2px var(--success-light); }
     .change-time { color: var(--text-tertiary); font-size: 12px; }
     .change-text { color: var(--text-primary); margin-top: 2px; }
 
@@ -359,16 +325,47 @@
     .sub-table td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--border-section); color: var(--text-primary); }
     .sub-table tbody tr:hover { background: var(--bg-section); }
     .sub-table .tag { display: inline-block; padding: 1px 8px; border-radius: 3px; font-size: 12px; }
-    .sub-table .tag-green { background: #f6ffed; color: #52c41a; }
-    .sub-table .tag-yellow { background: #fffbe6; color: #d48806; }
-    .sub-table .tag-red { background: #fff2f0; color: #ff4d4f; }
-    .sub-table .tag-blue { background: #e6f4ff; color: #1890ff; }
+    .sub-table .tag-green { background: var(--success-light); color: var(--success); }
+    .sub-table .tag-yellow { background: var(--warning-light); color: var(--warning); }
+    .sub-table .tag-red { background: var(--danger-light); color: var(--danger); }
+    .sub-table .tag-blue { background: var(--primary-light); color: var(--primary); }
     .sub-table .tag-gray { background: #f5f5f5; color: #999; }
     .sub-table .empty-row td { text-align: center; color: var(--text-tertiary); padding: 24px 0; }
+
+    /* 行展开 */
+    .expand-toggle {
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 12px;
+      margin-right: 4px;
+      transition: transform 0.15s;
+      display: inline-block;
+      width: 16px;
+      text-align: center;
+    }
+    .expand-toggle:hover { color: var(--primary); }
+    .expand-toggle.expanded { transform: rotate(90deg); }
+    tr.archive-row { cursor: pointer; }
+    tr.archive-row:hover { background: var(--bg-section); }
+    tr.sub-row { display: none; }
+    tr.sub-row.show { display: table-row; }
+    tr.sub-row td { padding: 0; background: #fafafa; }
+    .sub-row-content { padding: 8px 12px 8px 48px; }
+    .sub-row-content .sub-table { margin-top: 0; }
+
+    /* 重点场所状态标签 */
+    .status-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+    .status-tag.enabled { background: var(--success-light); color: var(--success); }
+    .status-tag.disabled { background: var(--bg-secondary); color: var(--text-tertiary); }
   </style>
 </head>
 <body>
-  <div class="page-container" data-module="control-archive">
+  <div class="page-container" data-module="government/control-archive">
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
       <span class="breadcrumb-item">政府端</span>
@@ -384,34 +381,34 @@
     </div>
 
     <!-- 统计卡 -->
-    <div class="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-icon blue">📦</div>
-        <div>
-          <div class="stat-value">486</div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-body">
           <div class="stat-label">管控对象总数</div>
+          <div class="stat-value">486</div>
         </div>
+        <div class="stat-indicator" style="background: var(--primary);"></div>
       </div>
-      <div class="stat-card blue">
-        <div class="stat-icon blue">🏢</div>
-        <div>
-          <div class="stat-value">126</div>
+      <div class="stat-card">
+        <div class="stat-card-body">
           <div class="stat-label">企业</div>
+          <div class="stat-value">126</div>
         </div>
+        <div class="stat-indicator" style="background: var(--primary);"></div>
       </div>
-      <div class="stat-card orange">
-        <div class="stat-icon orange">📋</div>
-        <div>
-          <div class="stat-value">238</div>
+      <div class="stat-card">
+        <div class="stat-card-body">
           <div class="stat-label">项目</div>
+          <div class="stat-value">238</div>
         </div>
+        <div class="stat-indicator" style="background: var(--warning);"></div>
       </div>
-      <div class="stat-card purple">
-        <div class="stat-icon purple">📍</div>
-        <div>
-          <div class="stat-value">122</div>
+      <div class="stat-card">
+        <div class="stat-card-body">
           <div class="stat-label">重点场所</div>
+          <div class="stat-value">122</div>
         </div>
+        <div class="stat-indicator" style="background: var(--accent);"></div>
       </div>
     </div>
 
@@ -448,7 +445,7 @@
 
         <div class="detail-body">
           <!-- 筛选 -->
-          <div class="filter-bar">
+          <div class="filter-card"><div class="filter-bar">
             <select id="filterType">
               <option value="">全部对象类型</option>
               <option value="enterprise">企业</option>
@@ -464,11 +461,11 @@
             <input type="search" id="filterSearch" placeholder="搜索对象名称">
             <button class="btn btn-primary" onclick="applyFilters()">查询</button>
             <button class="btn" onclick="resetFilters()">重置</button>
-          </div>
+          </div></div>
 
           <!-- 主表格 -->
           <table>
-            <thead>
+            <thead id="archiveThead">
               <tr>
                 <th>对象名称</th>
                 <th>对象类型</th>
@@ -519,6 +516,8 @@
 
   <script>
     function escapeHtml(v) { return String(v == null ? '' : v).replace(/[&<>'"]/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]; }); }
+    var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
+    function getCodeLabel(cs) { return cs === 'red' ? '红码' : cs === 'yellow' ? '黄码' : '绿码'; }
     /* ==================== 树数据 ==================== */
     const TREE_DATA = [
       {
@@ -564,11 +563,18 @@
             ]
           },
           {
-            id: 'crowded', name: '人员密集场所', icon: '👥', count: 30, level: 2, expanded: false,
+            id: 'crowded', name: '人员密集场所', icon: '👥', count: 30, level: 2, expanded: false, mode: 'keyplace',
             children: [
               { id: 'crowded-mall', name: '商场超市', icon: '🛒', count: 12, level: 3 },
               { id: 'crowded-edu', name: '学校 / 培训', icon: '🏫', count: 10, level: 3 },
               { id: 'crowded-hosp', name: '医院 / 养老', icon: '🏥', count: 8, level: 3 }
+            ]
+          },
+          {
+            id: 'charging', name: '充电场所', icon: '🔋', count: 18, level: 2, expanded: false, mode: 'keyplace',
+            children: [
+              { id: 'charging-station', name: '充电站', icon: '⚡', count: 12, level: 3 },
+              { id: 'charging-pile', name: '充电桩', icon: '🔌', count: 6, level: 3 }
             ]
           }
         ]
@@ -632,7 +638,37 @@
         codeStatus: 'yellow', codeName: '黄码',
         responsible: '张丽华',
         lastCheck: '2026-05-25'
+      },
+      {
+        id: 'K003', type: 'keyplace', typeName: '重点场所',
+        name: 'ZZ工贸车间A',
+        codeStatus: 'green', codeName: '绿码',
+        responsible: '周敏',
+        lastCheck: '2026-06-02'
+      },
+      {
+        id: 'K004', type: 'keyplace', typeName: '重点场所',
+        name: '充电站南山区科技园站',
+        codeStatus: 'green', codeName: '绿码',
+        responsible: '李强',
+        lastCheck: '2026-06-04'
+      },
+      {
+        id: 'K005', type: 'keyplace', typeName: '重点场所',
+        name: '充电站前海站',
+        codeStatus: 'yellow', codeName: '黄码',
+        responsible: '王芳',
+        lastCheck: '2026-05-22'
       }
+    ];
+
+    /* ==================== 重点场所专用数据 ==================== */
+    const KEYPLACE_DATA = [
+      { id: 'K001', name: 'XX化工危化品储罐区', domain: '危化品储存', address: '南山区科技园路18号（厂区内）', enterprise: '深圳市XX化工有限公司', codeStatus: 'green', codeName: '绿码', status: '启用' },
+      { id: 'K002', name: 'YY油气北区加油站', domain: '危化品运输', address: '南山区港湾大道88号（北区）', enterprise: 'YY油气运输集团有限公司', codeStatus: 'yellow', codeName: '黄码', status: '启用' },
+      { id: 'K003', name: 'ZZ工贸车间A', domain: '特种设备', address: '南山区西丽街道工业路36号', enterprise: 'ZZ工贸实业有限公司', codeStatus: 'green', codeName: '绿码', status: '启用' },
+      { id: 'K004', name: '充电站南山区科技园站', domain: '充电场所', address: '南山区科技园南路66号', enterprise: '', codeStatus: 'green', codeName: '绿码', status: '启用' },
+      { id: 'K005', name: '充电站前海站', domain: '充电场所', address: '南山区前海路128号', enterprise: '', codeStatus: 'yellow', codeName: '黄码', status: '启用' },
     ];
 
     /* ==================== 类型元数据 ==================== */
@@ -776,6 +812,43 @@
           { id: 'HD2026040801', desc: '卸油区静电接地装置失效', level: '一般隐患', status: '待复核' }
         ],
         children: []
+      },
+      K003: {
+        address: '南山区西丽街道工业路36号', code: '440305-CS-003',
+        codeHistory: [
+          { time: '2026-06-02', text: '定期巡检通过，维持绿码', type: 'done' }
+        ],
+        inspections: [
+          { date: '2026-06-02', type: '定期巡检', result: '合格', inspector: '周敏' }
+        ],
+        hazards: [],
+        children: []
+      },
+      K004: {
+        address: '南山区科技园南路66号', code: '440305-CD-004',
+        codeHistory: [
+          { time: '2026-06-04', text: '定期巡检通过，维持绿码', type: 'done' }
+        ],
+        inspections: [
+          { date: '2026-06-04', type: '定期巡检', result: '合格', inspector: '李强' }
+        ],
+        hazards: [],
+        children: []
+      },
+      K005: {
+        address: '南山区前海路128号', code: '440305-CD-005',
+        codeHistory: [
+          { time: '2026-05-22', text: '整改进行中，维持黄码', type: 'warn' },
+          { time: '2026-04-10', text: '绿码 → 黄码（充电设施安全指标不达标）', type: 'warn' }
+        ],
+        inspections: [
+          { date: '2026-05-22', type: '复查', result: '整改中', inspector: '王芳' },
+          { date: '2026-04-10', type: '专项检查', result: '不合格', inspector: '王芳' }
+        ],
+        hazards: [
+          { id: 'HD2026041002', desc: '充电桩接地保护不达标', level: '一般隐患', status: '待复核' }
+        ],
+        children: []
       }
     };
 
@@ -786,12 +859,13 @@
       bindTreeEvents();
     }
 
-    function renderTreeNode(node) {
+    function renderTreeNode(node, parentMode) {
       const hasChildren = node.children && node.children.length > 0;
       const toggleClass = hasChildren ? (node.expanded ? 'expanded' : '') : 'leaf';
       const childrenClass = node.expanded ? '' : 'collapsed';
+      const mode = node.mode || parentMode || 'default';
       let html = `
-        <div class="tree-node level-${node.level}" data-id="${node.id}" data-name="${escapeHtml(node.name)}">
+        <div class="tree-node level-${node.level}" data-id="${node.id}" data-name="${escapeHtml(node.name)}" data-mode="${mode}">
           <span class="tree-toggle ${toggleClass}">▶</span>
           <span class="tree-icon">${node.icon}</span>
           <span>${escapeHtml(node.name)}</span>
@@ -800,7 +874,7 @@
       `;
       if (hasChildren) {
         html += `<div class="tree-children ${childrenClass}">`;
-        node.children.forEach(c => { html += renderTreeNode(c); });
+        node.children.forEach(c => { html += renderTreeNode(c, mode); });
         html += `</div>`;
       }
       return html;
@@ -844,6 +918,7 @@
           document.querySelector('#detailTitle span:nth-child(2)').textContent = name;
           document.getElementById('detailBreadcrumb').textContent = bcText;
           document.getElementById('detailCount').textContent = count + ' 条';
+          currentMode = n.dataset.mode || 'default';
           applyFilters();
         });
       });
@@ -860,8 +935,44 @@
       document.querySelectorAll('.tree-children').forEach(c => c.classList.add('collapsed'));
     }
 
-    /* ==================== 渲染档案表格 ==================== */
+    /* ==================== 当前模式 ==================== */
+    let currentMode = 'default';
+
+    /* ==================== 表头渲染 ==================== */
+    function renderDefaultThead() {
+      return `<tr>
+        <th>对象名称</th>
+        <th>对象类型</th>
+        <th>安全码状态</th>
+        <th>监管责任人</th>
+        <th>上次检查日期</th>
+        <th style="width: 80px;">操作</th>
+      </tr>`;
+    }
+    function renderKeyplaceThead() {
+      return `<tr>
+        <th>场所名称</th>
+        <th>所属领域</th>
+        <th>详细地址</th>
+        <th>所属企业</th>
+        <th>码色</th>
+        <th>状态</th>
+        <th style="width: 80px;">操作</th>
+      </tr>`;
+    }
+
+    /* ==================== 行展开 ==================== */
+    function toggleExpand(id) {
+      var toggle = document.getElementById('toggle-' + id);
+      var subRow = document.getElementById('sub-' + id);
+      if (!toggle || !subRow) return;
+      toggle.classList.toggle('expanded');
+      subRow.classList.toggle('show');
+    }
+
+    /* ==================== 渲染档案表格（默认模式） ==================== */
     function renderArchiveRows(data) {
+      document.getElementById('archiveThead').innerHTML = renderDefaultThead();
       const tbody = document.getElementById('archiveTbody');
       let html = '';
       data.forEach(row => {
@@ -869,21 +980,72 @@
         const responsibleHtml = row.responsible
           ? `<span>${row.responsible}</span>`
           : `<span class="resp-unconfig">未配置</span>`;
+        const detail = DETAIL_MAP[row.id];
+        const canExpand = (row.type === 'enterprise' || row.type === 'project') && detail && detail.children && detail.children.length > 0;
+
+        if (canExpand) {
+          // Build children rows for sub-table
+          let childRows = '';
+          detail.children.forEach(c => {
+            const codeDotCls = c.code === '绿码' ? 'green' : (c.code === '红码' ? 'red' : 'yellow');
+            const childTypeCls = c.type === '重点场所' ? 'keyplace' : (c.type === '项目' ? 'project' : 'enterprise');
+            childRows += '<tr><td>' + escapeHtml(c.name) + '</td><td><span class="type-tag ' + childTypeCls + '">' + escapeHtml(c.type) + '</span></td><td><span class="code-cell ' + codeDotCls + '">' + QR_ICON_SVG + escapeHtml(c.code) + '</span></td></tr>';
+          });
+
+          html += `
+            <tr class="archive-row" onclick="toggleExpand('${escapeHtml(row.id)}')">
+              <td><span class="expand-toggle" id="toggle-${escapeHtml(row.id)}">▶</span><div class="obj-name" title="${escapeHtml(row.name)}">${escapeHtml(row.name)}</div></td>
+              <td><span class="type-tag ${t.cls}">${escapeHtml(t.name)}</span></td>
+              <td><span class="code-cell ${row.codeStatus}">${QR_ICON_SVG}${escapeHtml(row.codeName)}</span></td>
+              <td>${responsibleHtml}</td>
+              <td>${escapeHtml(row.lastCheck)}</td>
+              <td><span class="action-link" onclick="event.stopPropagation(); viewDetail('${escapeHtml(row.id)}')">查看详情</span></td>
+            </tr>
+            <tr class="sub-row" id="sub-${escapeHtml(row.id)}">
+              <td colspan="6">
+                <div class="sub-row-content">
+                  <table class="sub-table">
+                    <thead><tr><th>对象名称</th><th>对象类型</th><th>安全码</th></tr></thead>
+                    <tbody>${childRows}</tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>`;
+        } else {
+          html += `
+            <tr>
+              <td><div class="obj-name" title="${escapeHtml(row.name)}">${escapeHtml(row.name)}</div></td>
+              <td><span class="type-tag ${t.cls}">${escapeHtml(t.name)}</span></td>
+              <td><span class="code-cell ${row.codeStatus}">${QR_ICON_SVG}${escapeHtml(row.codeName)}</span></td>
+              <td>${responsibleHtml}</td>
+              <td>${escapeHtml(row.lastCheck)}</td>
+              <td><span class="action-link" onclick="viewDetail('${escapeHtml(row.id)}')">查看详情</span></td>
+            </tr>`;
+        }
+      });
+      tbody.innerHTML = html;
+    }
+
+    /* ==================== 渲染重点场所列表（重点场所模式） ==================== */
+    function renderKeyplaceRows(data) {
+      document.getElementById('archiveThead').innerHTML = renderKeyplaceThead();
+      const tbody = document.getElementById('archiveTbody');
+      let html = '';
+      data.forEach(row => {
+        const statusCls = row.status === '启用' ? 'enabled' : 'disabled';
+        const enterpriseHtml = row.enterprise
+          ? escapeHtml(row.enterprise)
+          : '<span style="color: var(--text-tertiary);">—</span>';
         html += `
           <tr>
-            <td><div class="obj-name" title="${escapeHtml(row.name)}">${escapeHtml(row.name)}</div></td>
-            <td><span class="type-tag ${t.cls}">${escapeHtml(t.name)}</span></td>
-            <td>
-              <span class="code-status">
-                <span class="code-dot ${row.codeStatus}"></span>
-                ${escapeHtml(row.codeName)}
-              </span>
-            </td>
-            <td>${responsibleHtml}</td>
-            <td>${escapeHtml(row.lastCheck)}</td>
+            <td><span class="action-link" onclick="viewDetail('${escapeHtml(row.id)}')">${escapeHtml(row.name)}</span></td>
+            <td><span class="type-tag keyplace">${escapeHtml(row.domain)}</span></td>
+            <td>${escapeHtml(row.address)}</td>
+            <td>${enterpriseHtml}</td>
+            <td><span class="code-cell ${row.codeStatus}">${QR_ICON_SVG}${escapeHtml(row.codeName)}</span></td>
+            <td><span class="status-tag ${statusCls}">${escapeHtml(row.status)}</span></td>
             <td><span class="action-link" onclick="viewDetail('${escapeHtml(row.id)}')">查看详情</span></td>
-          </tr>
-        `;
+          </tr>`;
       });
       tbody.innerHTML = html;
     }
@@ -916,7 +1078,7 @@
         html += '<div class="detail-section">';
         html += '<div class="section-title">安全码信息</div>';
         html += '<div style="margin-bottom: 8px;"><span class="code-badge ' + row.codeStatus + '">';
-        html += '<span class="code-dot ' + row.codeStatus + '"></span>';
+        html += QR_ICON_SVG;
         html += '当前：' + row.codeName + '</span></div>';
         html += '<div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">码色变更历史</div>';
         html += '<div class="change-history">';
@@ -973,7 +1135,7 @@
           detail.children.forEach(c => {
             const codeDotCls = c.code === '绿码' ? 'green' : (c.code === '红码' ? 'red' : 'yellow');
             html += '<tr><td>' + c.name + '</td><td>' + c.type + '</td>';
-            html += '<td><span class="code-status"><span class="code-dot ' + codeDotCls + '"></span>' + c.code + '</span></td></tr>';
+            html += '<td><span class="code-cell ' + codeDotCls + '">' + QR_ICON_SVG + c.code + '</span></td></tr>';
           });
           html += '</tbody></table>';
         }
@@ -1003,24 +1165,39 @@
       const codeVal = document.getElementById('filterCode').value;
       const searchVal = document.getElementById('filterSearch').value.trim().toLowerCase();
 
-      let filtered = ARCHIVE_DATA;
-      if (typeVal) {
-        filtered = filtered.filter(r => r.type === typeVal);
+      if (currentMode === 'keyplace') {
+        let filtered = KEYPLACE_DATA;
+        if (codeVal) {
+          filtered = filtered.filter(r => r.codeStatus === codeVal);
+        }
+        if (searchVal) {
+          filtered = filtered.filter(r => r.name.toLowerCase().includes(searchVal));
+        }
+        renderKeyplaceRows(filtered);
+      } else {
+        let filtered = ARCHIVE_DATA;
+        if (typeVal) {
+          filtered = filtered.filter(r => r.type === typeVal);
+        }
+        if (codeVal) {
+          filtered = filtered.filter(r => r.codeStatus === codeVal);
+        }
+        if (searchVal) {
+          filtered = filtered.filter(r => r.name.toLowerCase().includes(searchVal));
+        }
+        renderArchiveRows(filtered);
       }
-      if (codeVal) {
-        filtered = filtered.filter(r => r.codeStatus === codeVal);
-      }
-      if (searchVal) {
-        filtered = filtered.filter(r => r.name.toLowerCase().includes(searchVal));
-      }
-      renderArchiveRows(filtered);
     }
 
     function resetFilters() {
       document.getElementById('filterType').value = '';
       document.getElementById('filterCode').value = '';
       document.getElementById('filterSearch').value = '';
-      renderArchiveRows(ARCHIVE_DATA);
+      if (currentMode === 'keyplace') {
+        renderKeyplaceRows(KEYPLACE_DATA);
+      } else {
+        renderArchiveRows(ARCHIVE_DATA);
+      }
     }
 
     /* ==================== 初始化 ==================== */

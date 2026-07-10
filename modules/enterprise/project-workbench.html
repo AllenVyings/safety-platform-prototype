@@ -27,6 +27,11 @@
 .safety-code{display:flex;align-items:center;gap: var(--spacing-sm);padding: var(--spacing-sm) var(--spacing-md);background:var(--bg-hover);border-radius: var(--radius-md)}
 .safety-code-label{font-size: var(--font-size-xs);color:var(--text-secondary)}
 .safety-code-value{font-size: var(--font-size-md);font-weight:600;color:var(--primary);font-family:monospace}
+.code-cell{display:inline-flex;align-items:center;cursor:help}
+.qrcode-icon{width:20px;height:20px;color:var(--text-secondary)}
+.code-cell.red .qrcode-icon{color:var(--danger)}
+.code-cell.yellow .qrcode-icon{color:var(--warning)}
+.code-cell.green .qrcode-icon{color:var(--success)}
 
 /* 快捷操作 */
 .quick-actions{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md) 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
@@ -43,8 +48,7 @@
 .action-icon.cyan{background:var(--info-light)}
 .action-name{font-size: var(--font-size-sm);color:var(--text-primary)}
 
-/* 统计卡片 - .stat-cards, .stat-card, .stat-icon, .stat-content, .stat-label, .stat-value 由 framework.css 提供 */
-.stat-card-sub{font-size: var(--font-size-xs);color:var(--text-disabled);margin-top: var(--spacing-xs)}
+/* 统计卡片 - .stats-row, .stat-card, .stat-card-body, .stat-label, .stat-value, .stat-indicator 由 framework.css 提供 */
 
 /* 内容区 */
 .content-grid{display:grid;grid-template-columns:1fr 1fr;gap: var(--spacing-md)}
@@ -140,6 +144,7 @@
       <div class="project-status">
         <div class="status-badge status-building">在建</div>
         <div class="safety-code">
+          <span class="code-cell green" id="safetyCodeIcon"></span>
           <span class="safety-code-label">安全码</span>
           <span class="safety-code-value">P202401001</span>
         </div>
@@ -178,38 +183,34 @@
     </div>
 
     <!-- 统计卡片 -->
-    <div class="stat-cards">
+    <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-icon blue">🔍</div>
-        <div class="stat-content">
-          <div class="stat-label">今日待检查</div>
-          <div class="stat-value" style="color:var(--primary)">5</div>
-          <div class="stat-card-sub">项检查任务</div>
+        <div class="stat-card-body">
+          <div class="stat-label">今日待检查（项检查任务）</div>
+          <div class="stat-value" id="statCheck" style="color:var(--primary)">5</div>
         </div>
+        <div class="stat-indicator" style="background: var(--primary);"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon orange">⚠️</div>
-        <div class="stat-content">
-          <div class="stat-label">待整改隐患</div>
-          <div class="stat-value" style="color:var(--danger)">3</div>
-          <div class="stat-card-sub">项待处理</div>
+        <div class="stat-card-body">
+          <div class="stat-label">待整改隐患（项待处理）</div>
+          <div class="stat-value" id="statHazard" style="color:var(--danger)">3</div>
         </div>
+        <div class="stat-indicator" style="background: var(--warning);"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon green">📋</div>
-        <div class="stat-content">
-          <div class="stat-label">履职任务</div>
-          <div class="stat-value" style="color:var(--success)">8/10</div>
-          <div class="stat-card-sub">本月完成率80%</div>
+        <div class="stat-card-body">
+          <div class="stat-label">履职任务（本月完成率80%）</div>
+          <div class="stat-value" id="statRate" style="color:var(--success)">8/10</div>
         </div>
+        <div class="stat-indicator" style="background: var(--success);"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon gray">📊</div>
-        <div class="stat-content">
-          <div class="stat-label">检查记录</div>
-          <div class="stat-value">128</div>
-          <div class="stat-card-sub">累计检查次数</div>
+        <div class="stat-card-body">
+          <div class="stat-label">检查记录（累计检查次数）</div>
+          <div class="stat-value" id="statTotal">128</div>
         </div>
+        <div class="stat-indicator" style="background: var(--text-tertiary);"></div>
       </div>
     </div>
 
@@ -371,6 +372,9 @@
 </div>
 
 <script>
+// 安全码图标 SVG（stroke-based，§4.23 标准）
+var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
+document.getElementById('safetyCodeIcon').innerHTML=QR_ICON_SVG;
 function showToast(msg){
   var el = document.getElementById('_toast');
   if(!el){

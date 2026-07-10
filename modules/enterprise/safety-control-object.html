@@ -13,7 +13,7 @@
 /* 面包屑由 framework.css 提供，无需额外样式 */
 body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--text-primary);background:var(--bg-primary)}
 .layout-wrap{display:flex;flex:1;min-height:0;gap: 12px}
-.left-panel{width:400px;background:var(--bg-primary);border-right:1px solid var(--border-section);display:flex;flex-direction:column;min-height:0;padding: 12px}
+.tree-panel{width:400px;background:var(--bg-primary);border-right:1px solid var(--border-section);display:flex;flex-direction:column;min-height:0;padding: 12px}
 .panel-header{padding:0 0 12px 0;border-bottom:1px solid var(--border-section)}
 .panel-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: 0}
 .search-box{position:relative}
@@ -52,7 +52,7 @@ tr:hover td{background:var(--bg-section-alt)}
 .tag-info{background:var(--primary-light);color:var(--primary)}
 .risk-high{color:var(--danger);font-weight:500}
 .modal-overlay.hidden{display:none}
-.modal{background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);max-height:90vh;overflow-y:auto}
+.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);max-height:90vh;overflow-y:auto}
 .form-label .required{color:var(--danger)}
 .form-input:focus,.form-select:focus{border-color:var(--primary)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap: 10px}
@@ -72,6 +72,11 @@ tr:hover td{background:var(--bg-section-alt)}
 .qrcode-placeholder{width:180px;height:180px;background:var(--bg-secondary);border:1px dashed var(--border);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;margin: 0 auto 12px;font-size:var(--font-size-sm);color:var(--text-tertiary)}
 .qrcode-info{font-size:var(--font-size-sm);color:var(--text-secondary)}
 .qrcode-actions{display:flex;gap: 6px;justify-content:center;margin-top: 12px}
+.code-cell{display:inline-flex;align-items:center;cursor:help}
+.qrcode-icon{width:20px;height:20px;color:var(--text-secondary)}
+.code-cell.red .qrcode-icon{color:var(--danger)}
+.code-cell.yellow .qrcode-icon{color:var(--warning)}
+.code-cell.green .qrcode-icon{color:var(--success)}
 .hidden{display:none!important}
 .multi-select{position:relative;width:100%}
 .multi-select-trigger{display:flex;align-items:center;justify-content:space-between;padding: 7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-primary);cursor:pointer;min-height:36px}
@@ -131,7 +136,7 @@ tr:hover td{background:var(--bg-section-alt)}
   <span class="breadcrumb-item current">安全管控对象</span>
 </div>
 <div class="layout-wrap">
-<div class="left-panel">
+<div class="tree-panel">
 <div class="panel-header"><div class="panel-title">安全管控对象</div></div>
 <div style="padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light)">
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap: var(--spacing-sm)">
@@ -482,13 +487,13 @@ tr:hover td{background:var(--bg-section-alt)}
 </tbody></table></div></div>
 </div></div>
 
-<div id="modal-qrcode" class="modal-overlay hidden" onclick="hideModal('qrcode')"><div class="modal" onclick="event.stopPropagation()" style="width:400px"><div class="modal-header"><div class="modal-title">场所二维码</div><span class="modal-close" onclick="hideModal('qrcode')">&times;</span></div><div class="modal-body"><div class="qrcode-container"><div class="qrcode-placeholder">📱 二维码占位<br><span style="font-size:var(--font-size-xs)">200×200</span></div><div class="qrcode-info"><p><strong>场所名称：</strong>办公室</p><p><strong>场所编码：</strong>XM2024001-R01-P01</p><p><strong>所属区域：</strong>办公生活区</p></div><div class="qrcode-actions"><button class="btn btn-primary btn-sm">下载二维码</button><button class="btn btn-default btn-sm">打印二维码</button></div></div></div></div></div>
+<div id="modal-qrcode" class="modal-overlay hidden" onclick="hideModal('qrcode')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:400px"><div class="modal-header"><div class="modal-title">场所二维码</div><span class="modal-close" onclick="hideModal('qrcode')">&times;</span></div><div class="modal-body"><div class="qrcode-container"><div class="qrcode-placeholder">📱 二维码占位<br><span style="font-size:var(--font-size-xs)">200×200</span></div><div class="qrcode-info"><p><strong>场所名称：</strong>办公室</p><p><strong>场所编码：</strong>XM2024001-R01-P01</p><p><strong>所属区域：</strong>办公生活区</p></div><div class="qrcode-actions"><button class="btn btn-primary btn-sm">下载二维码</button><button class="btn btn-default btn-sm">打印二维码</button></div></div></div></div></div>
 
-<div id="modal-region" class="modal-overlay hidden" onclick="hideModal('region')"><div class="modal" onclick="event.stopPropagation()" style="width:420px"><div class="modal-header"><div class="modal-title">编辑区域</div><span class="modal-close" onclick="hideModal('region')">&times;</span></div><div class="modal-body"><div class="form-group"><label class="form-label">区域名称 <span class="required">*</span></label><input type="text" class="form-input" placeholder="请输入区域名称"></div><div class="form-group"><label class="form-label">排序号</label><input type="number" class="form-input" value="1"></div><div class="form-group"><label class="form-label">状态 <span class="required">*</span></label><div style="display:flex;gap: var(--spacing-md);align-items:center"><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="editRegionStatus" value="enabled" checked> 启用</label><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="editRegionStatus" value="disabled"> 停用</label></div></div></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('region')">取消</button><button class="btn btn-primary">确定</button></div></div></div>
+<div id="modal-region" class="modal-overlay hidden" onclick="hideModal('region')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:420px"><div class="modal-header"><div class="modal-title">编辑区域</div><span class="modal-close" onclick="hideModal('region')">&times;</span></div><div class="modal-body"><div class="form-group"><label class="form-label">区域名称 <span class="required">*</span></label><input type="text" class="form-input" placeholder="请输入区域名称"></div><div class="form-group"><label class="form-label">排序号</label><input type="number" class="form-input" value="1"></div><div class="form-group"><label class="form-label">状态 <span class="required">*</span></label><div style="display:flex;gap: var(--spacing-md);align-items:center"><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="editRegionStatus" value="enabled" checked> 启用</label><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="editRegionStatus" value="disabled"> 停用</label></div></div></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('region')">取消</button><button class="btn btn-primary">确定</button></div></div></div>
 
 
 <div id="modal-scanConfig" class="modal-overlay hidden" onclick="hideModal('scanConfig')">
-<div class="modal" onclick="event.stopPropagation()" style="width:800px;max-height:90vh;overflow:hidden">
+<div class="modal-dialog" onclick="event.stopPropagation()" style="width:800px;max-height:90vh;overflow:hidden">
 <div class="modal-header">
   <div class="modal-title">扫码配置 - 办公室</div>
   <span class="modal-close" onclick="hideModal('scanConfig')">&times;</span>
@@ -627,11 +632,11 @@ tr:hover td{background:var(--bg-section-alt)}
 </div>
 </div>
 
-<div id="modal-deleteRegion" class="modal-overlay hidden" onclick="hideModal('deleteRegion')"><div class="modal" onclick="event.stopPropagation()" style="width:600px"><div class="modal-header"><div class="modal-title">删除区域 - 施工区域</div><span class="modal-close" onclick="hideModal('deleteRegion')">&times;</span></div><div class="modal-body" style="text-align:left"><div class="alert-warning mb-12"><p style="color:var(--warning-hover);font-weight:500">⚠️ 该区域下还有 3 个对象，请先迁移到其他位置</p><p style="color:var(--text-secondary);font-size:var(--font-size-sm)">删除区域前，必须将区域下的对象迁移至其他区域或项目直属</p></div><h5 style="font-size:var(--font-size-md);font-weight:600;margin-bottom: var(--spacing-sm)">待迁移对象</h5><div style="margin-bottom:var(--spacing-sm)"><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>🏢</span><span>1号施工区域</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option>项目直属</option><option>办公生活区</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>🏢</span><span>材料堆放区</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option selected>项目直属</option><option>办公生活区</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>⚠️</span><span>塔吊作业区</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option>项目直属</option><option selected>办公生活区</option></select></div></div><p class="text-muted">迁移后，对象编码保持不变，仅 parent_id 更新</p></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('deleteRegion')">取消</button><button class="btn btn-primary">确认删除并迁移</button></div></div></div>
+<div id="modal-deleteRegion" class="modal-overlay hidden" onclick="hideModal('deleteRegion')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:600px"><div class="modal-header"><div class="modal-title">删除区域 - 施工区域</div><span class="modal-close" onclick="hideModal('deleteRegion')">&times;</span></div><div class="modal-body" style="text-align:left"><div class="alert-warning mb-12"><p style="color:var(--warning-hover);font-weight:500">⚠️ 该区域下还有 3 个对象，请先迁移到其他位置</p><p style="color:var(--text-secondary);font-size:var(--font-size-sm)">删除区域前，必须将区域下的对象迁移至其他区域或项目直属</p></div><h5 style="font-size:var(--font-size-md);font-weight:600;margin-bottom: var(--spacing-sm)">待迁移对象</h5><div style="margin-bottom:var(--spacing-sm)"><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>🏢</span><span>1号施工区域</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option>项目直属</option><option>办公生活区</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>🏢</span><span>材料堆放区</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option selected>项目直属</option><option>办公生活区</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>⚠️</span><span>塔吊作业区</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option>项目直属</option><option selected>办公生活区</option></select></div></div><p class="text-muted">迁移后，对象编码保持不变，仅 parent_id 更新</p></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('deleteRegion')">取消</button><button class="btn btn-primary">确认删除并迁移</button></div></div></div>
 
 <!-- 专属检查表弹窗 (与新增检查表结构一致，去掉扫码责任人、检查频次、完成规则) -->
 <div id="modal-exclusiveChecklist" class="modal-overlay hidden" onclick="hideModal('exclusiveChecklist')">
-<div class="modal" onclick="event.stopPropagation()" style="width:800px;max-height:90vh;overflow:visible">
+<div class="modal-dialog" onclick="event.stopPropagation()" style="width:800px;max-height:90vh;overflow:visible">
 <div class="modal-header">
   <div class="modal-title">📋 配置专属检查表</div>
   <span class="modal-close" onclick="hideModal('exclusiveChecklist')">&times;</span>
@@ -692,7 +697,7 @@ tr:hover td{background:var(--bg-section-alt)}
 </div>
 
 <div id="modal-addScanConfig" class="modal-overlay hidden" onclick="hideModal('addScanConfig')">
-<div class="modal" onclick="event.stopPropagation()" style="width:800px;max-height:90vh;overflow:visible">
+<div class="modal-dialog" onclick="event.stopPropagation()" style="width:800px;max-height:90vh;overflow:visible">
 <div class="modal-header">
   <div class="modal-title" id="scanConfigModalTitle">新增检查表</div>
   <span class="modal-close" onclick="hideModal('addScanConfig')">&times;</span>
@@ -718,7 +723,7 @@ tr:hover td{background:var(--bg-section-alt)}
           </div>
           <div class="tree-select-dropdown" id="scanCascaderDropdown" style="display:none;position:absolute;top:100%;left:0;width:600px;margin-top: var(--spacing-xs);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:100;overflow:hidden">
             <div style="display:flex;height:300px">
-              <div class="tree-panel" style="width:220px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">
+              <div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">
                 <div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectTreeNode(this,'project')">
                   <span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span>
                   <span>🏢 深圳市安全项目</span>
@@ -862,7 +867,7 @@ tr:hover td{background:var(--bg-section-alt)}
 
 <!-- 检查库引用弹窗 -->
 <div id="modal-scanCheckLib" class="modal-overlay hidden" onclick="hideModal('scanCheckLib')">
-<div class="modal" onclick="event.stopPropagation()" style="width:700px">
+<div class="modal-dialog" onclick="event.stopPropagation()" style="width:700px">
 <div class="modal-header">
   <div class="modal-title">从检查库引用</div>
   <span class="modal-close" onclick="hideModal('scanCheckLib')">&times;</span>
@@ -892,9 +897,12 @@ tr:hover td{background:var(--bg-section-alt)}
 </div>
 </div>
 
-<div id="modal-personSelector" class="modal-overlay hidden" onclick="hideModal('personSelector')"><div class="modal" onclick="event.stopPropagation()" style="width:500px;max-height:80vh"><div class="modal-header"><div class="modal-title">选择人员</div><span class="modal-close" onclick="hideModal('personSelector')">&times;</span></div><div class="modal-body" style="text-align:left;max-height:60vh;overflow-y:auto"><div style="margin-bottom: var(--spacing-sm)"><input type="text" class="form-input" placeholder="搜索姓名/手机号" style="width:100%"></div><div id="personList"><div style="padding:var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)"><label style="display:flex;align-items:center;gap: var(--spacing-sm);cursor:pointer;padding: 6px"><input type="checkbox" value="zhangsan"><div style="flex:1"><div style="font-weight:500">张三</div><div style="font-size:var(--font-size-xs);color:var(--text-tertiary)">项目经理 · 13800138000</div></div></label></div><div style="padding: var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)"><label style="display:flex;align-items:center;gap: var(--spacing-sm);cursor:pointer;padding: 6px"><input type="checkbox" value="lisi"><div style="flex:1"><div style="font-weight:500">李四</div><div style="font-size:var(--font-size-xs);color:var(--text-tertiary)">安全员 · 13900139000</div></div></label></div><div style="padding: var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)"><label style="display:flex;align-items:center;gap: var(--spacing-sm);cursor:pointer;padding: 6px"><input type="checkbox" value="wangwu"><div style="flex:1"><div style="font-weight:500">王五</div><div style="font-size:var(--font-size-xs);color:var(--text-tertiary)">质量员 · 13700137000</div></div></label></div></div></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('personSelector')">取消</button><button class="btn btn-primary" onclick="confirmPersonSelect()">确定</button></div></div></div>
+<div id="modal-personSelector" class="modal-overlay hidden" onclick="hideModal('personSelector')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:500px;max-height:80vh"><div class="modal-header"><div class="modal-title">选择人员</div><span class="modal-close" onclick="hideModal('personSelector')">&times;</span></div><div class="modal-body" style="text-align:left;max-height:60vh;overflow-y:auto"><div style="margin-bottom: var(--spacing-sm)"><input type="text" class="form-input" placeholder="搜索姓名/手机号" style="width:100%"></div><div id="personList"><div style="padding:var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)"><label style="display:flex;align-items:center;gap: var(--spacing-sm);cursor:pointer;padding: 6px"><input type="checkbox" value="zhangsan"><div style="flex:1"><div style="font-weight:500">张三</div><div style="font-size:var(--font-size-xs);color:var(--text-tertiary)">项目经理 · 13800138000</div></div></label></div><div style="padding: var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)"><label style="display:flex;align-items:center;gap: var(--spacing-sm);cursor:pointer;padding: 6px"><input type="checkbox" value="lisi"><div style="flex:1"><div style="font-weight:500">李四</div><div style="font-size:var(--font-size-xs);color:var(--text-tertiary)">安全员 · 13900139000</div></div></label></div><div style="padding: var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)"><label style="display:flex;align-items:center;gap: var(--spacing-sm);cursor:pointer;padding: 6px"><input type="checkbox" value="wangwu"><div style="flex:1"><div style="font-weight:500">王五</div><div style="font-size:var(--font-size-xs);color:var(--text-tertiary)">质量员 · 13700137000</div></div></label></div></div></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('personSelector')">取消</button><button class="btn btn-primary" onclick="confirmPersonSelect()">确定</button></div></div></div>
 
 <script>
+
+// 安全码图标 SVG（stroke-based，§4.23 标准）
+var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
 
 function showToast(msg, type) {
   type = type || 'info';
@@ -2108,7 +2116,7 @@ function getCascaderTreeHTML(){
 function renderRectifyDropdown(){
   var dd=document.getElementById('rectifyCascaderDropdown');
   if(dd.children.length>0)return;
-  dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:200px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
+  dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
     '<div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectRectifyNode(this,\'project\')">'+
       '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>'+
     '<div class="tree-children" id="rectify-tree-project" style="display:none;padding-left: var(--spacing-md)">'+
@@ -2217,7 +2225,7 @@ function toggleHazardRectifyCascader(){
 function renderHazardRectifyDropdown(){
   var dd=document.getElementById('hazardRectifyCascaderDropdown');
   if(dd.children.length>0)return;
-  dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:200px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
+  dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
     '<div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'project\')">'+
       '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>'+
     '<div class="tree-children" id="hazard-rectify-tree-project" style="display:none;padding-left: var(--spacing-md)">'+
@@ -2300,7 +2308,7 @@ function toggleHazardReviewerCascader(){
 function renderHazardReviewerDropdown(){
   var dd=document.getElementById('hazardReviewerCascaderDropdown');
   if(dd.children.length>0)return;
-  dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:200px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
+  dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
     '<div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'project\')">'+
       '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>'+
     '<div class="tree-children" id="hazard-reviewer-tree-project" style="display:none;padding-left: var(--spacing-md)">'+
@@ -2384,7 +2392,7 @@ var selectedReviewerUsers=[];
 function renderReviewerDropdown(){
   var dd=document.getElementById('reviewerCascaderDropdown');
   if(dd.children.length>0)return;
-  dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:200px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
+  dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
     '<div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectReviewerNode(this,\'project\')">'+
       '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>'+
     '<div class="tree-children" id="reviewer-tree-project" style="display:none;padding-left: var(--spacing-md)">'+

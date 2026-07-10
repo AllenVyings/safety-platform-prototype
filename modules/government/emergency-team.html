@@ -39,20 +39,10 @@
     .btn-primary:hover { background: #096dd9; border-color: #096dd9; color: #fff; }
 
     /* ===== 统计卡 ===== */
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 12px; margin-bottom: 16px;
+    .stats-row {
+      grid-template-columns: repeat(3, 1fr);
     }
-    .stat-card {
-      background: var(--bg-primary); padding: 16px 20px;
-      border-radius: 10px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-      border: none; border-left: 4px solid transparent;
-    }
-    .stat-card.blue { border-left-color: #1890ff; }
-    .stat-card.green { border-left-color: #52c41a; }
-    .stat-card.red { border-left-color: #ff4d4f; }
-    .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
-    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    /* 统计卡片 - .stats-row, .stat-card, .stat-card-body, .stat-label, .stat-value, .stat-indicator 由 framework.css 提供 */
 
     /* ===== 筛选区 ===== */
     .filter-card {
@@ -93,14 +83,55 @@
 
     /* ===== 标签 ===== */
     .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
-    .tag-red { background: #fff1f0; color: #ff4d4f; }      /* 消防 */
-    .tag-green { background: #f6ffed; color: #52c41a; }     /* 医疗 */
-    .tag-blue { background: #e6f4ff; color: #1890ff; }      /* 专业救援 */
+    .tag-red { background: var(--danger-light); color: var(--danger); }      /* 消防 */
+    .tag-green { background: var(--success-light); color: var(--success); }     /* 医疗 */
+    .tag-blue { background: var(--primary-light); color: var(--primary); }      /* 专业救援 */
     .tag-purple { background: #f9f0ff; color: #722ed1; }    /* 志愿者 */
 
     /* ===== 操作链接 ===== */
     .action-link { color: var(--primary); font-size: 13px; cursor: pointer; }
     .action-link + .action-link { margin-left: 12px; }
+
+    /* ===== 弹窗 ===== */
+    .modal-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; display: none; }
+    .modal-container.show { display: flex; align-items: center; justify-content: center; }
+    .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); }
+    .modal-dialog { position: relative; background: var(--bg-primary); border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); max-height: 90vh; display: flex; flex-direction: column; animation: modalSlideIn 0.3s ease-out; }
+    @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border-section); background: var(--bg-section); border-radius: 10px 10px 0 0; }
+    .modal-title { font-size: 16px; font-weight: 500; color: var(--text-primary); }
+    .modal-close { width: 32px; height: 32px; border: none; background: transparent; font-size: 20px; color: var(--text-tertiary); cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border-section); background: var(--bg-section); border-radius: 0 0 10px 10px; }
+
+    /* ===== 表单 ===== */
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    .form-label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-primary); }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: 6px 10px; border: 1px solid var(--border-card); border-radius: 4px; font-size: 13px; color: var(--text-primary); background: #fff; box-sizing: border-box; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+    .form-textarea { resize: vertical; min-height: 72px; }
+    .required { color: var(--danger); }
+
+    /* ===== 详情 ===== */
+    .info-section { margin-bottom: 16px; background: var(--bg-section); border-radius: 8px; padding: 14px 16px; border: 1px solid var(--border-section); }
+    .info-section-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-section); }
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .info-item { display: flex; flex-direction: column; gap: 2px; }
+    .info-label { font-size: 12px; color: var(--text-secondary); }
+    .info-value { font-size: 13px; color: var(--text-primary); }
+
+    /* ===== Toast ===== */
+    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 10px 16px; border-radius: 4px; background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.12); font-size: 13px; color: var(--text-primary); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--primary); max-width: 380px; }
+    .toast.success { border-left-color: var(--success); }
+    .toast.warning { border-left-color: var(--warning); }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
 
     /* ===== 分页 ===== */
     .pagination { padding: 12px 16px; text-align: right; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border-section); }
@@ -109,6 +140,8 @@
   </style>
 </head>
 <body>
+  <div class="toast-container" id="toastContainer"></div>
+
   <div class="page-container" data-module="government/emergency-team">
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -126,21 +159,33 @@
         <div class="page-title">应急队伍</div>
         <div class="page-subtitle">管理应急队伍基本信息与人员配置</div>
       </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="openAddTeam()">+ 新增队伍</button>
+      </div>
     </div>
 
     <!-- 统计卡 -->
-    <div class="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-value">12</div>
-        <div class="stat-label">队伍总数</div>
+    <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card">
+        <div class="stat-card-body">
+          <div class="stat-label">队伍总数</div>
+          <div class="stat-value">12</div>
+        </div>
+        <div class="stat-indicator" style="background: var(--primary);"></div>
       </div>
-      <div class="stat-card green">
-        <div class="stat-value">215</div>
-        <div class="stat-label">总人数</div>
+      <div class="stat-card">
+        <div class="stat-card-body">
+          <div class="stat-label">总人数</div>
+          <div class="stat-value">215</div>
+        </div>
+        <div class="stat-indicator" style="background: var(--success);"></div>
       </div>
-      <div class="stat-card red">
-        <div class="stat-value">4</div>
-        <div class="stat-label">专业队伍数</div>
+      <div class="stat-card">
+        <div class="stat-card-body">
+          <div class="stat-label">专业队伍数</div>
+          <div class="stat-value">4</div>
+        </div>
+        <div class="stat-indicator" style="background: var(--danger);"></div>
       </div>
     </div>
 
@@ -192,6 +237,81 @@
     </div><!-- /.page-content -->
   </div><!-- /.page-container -->
 
+  <!-- ========== 新增/编辑队伍弹窗 ========== -->
+  <div class="modal-container" id="modal-add-team">
+    <div class="modal-overlay" onclick="closeModal('modal-add-team')"></div>
+    <div class="modal-dialog" style="width:600px;">
+      <div class="modal-header">
+        <span class="modal-title" id="addTeamTitle">新增队伍</span>
+        <button class="modal-close" onclick="closeModal('modal-add-team')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="teamForm" onsubmit="return false;">
+          <input type="hidden" id="teamFormIndex" value="">
+          <div class="form-group">
+            <label class="form-label">队伍名称 <span class="required">*</span></label>
+            <input class="form-input" id="teamFormName" placeholder="请输入队伍名称" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">队伍类型 <span class="required">*</span></label>
+              <select class="form-select" id="teamFormType" required>
+                <option value="">请选择</option>
+                <option value="消防">消防</option>
+                <option value="医疗">医疗</option>
+                <option value="专业救援">专业救援</option>
+                <option value="志愿者">志愿者</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">人数 <span class="required">*</span></label>
+              <input class="form-input" id="teamFormCount" type="number" min="1" placeholder="请输入人数" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">负责人 <span class="required">*</span></label>
+              <input class="form-input" id="teamFormLeader" placeholder="请输入负责人姓名" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系电话 <span class="required">*</span></label>
+              <input class="form-input" id="teamFormPhone" placeholder="请输入联系电话" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">装备描述</label>
+            <textarea class="form-textarea" id="teamFormEquip" rows="3" placeholder="请描述队伍主要装备"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <textarea class="form-textarea" id="teamFormRemark" rows="2" placeholder="请输入备注信息"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-add-team')">取消</button>
+        <button class="btn btn-primary" onclick="saveTeam()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 队伍详情弹窗 ========== -->
+  <div class="modal-container" id="modal-detail-team">
+    <div class="modal-overlay" onclick="closeModal('modal-detail-team')"></div>
+    <div class="modal-dialog" style="width:700px;">
+      <div class="modal-header">
+        <span class="modal-title">队伍详情</span>
+        <button class="modal-close" onclick="closeModal('modal-detail-team')">&times;</button>
+      </div>
+      <div class="modal-body" id="detailTeamBody">
+        <!-- 动态渲染 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-detail-team')">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <script>
   (function() {
     'use strict';
@@ -203,6 +323,25 @@
       return div.innerHTML;
     }
 
+    /* ===== Toast ===== */
+    window.showToast = function(msg, type) {
+      var container = document.getElementById('toastContainer');
+      var toast = document.createElement('div');
+      toast.className = 'toast' + (type ? ' ' + type : '');
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(function() { toast.classList.add('out'); }, 2500);
+      setTimeout(function() { toast.remove(); }, 2800);
+    };
+
+    /* ===== 弹窗控制 ===== */
+    window.openModal = function(id) {
+      document.getElementById(id).classList.add('show');
+    };
+    window.closeModal = function(id) {
+      document.getElementById(id).classList.remove('show');
+    };
+
     /* ===== 队伍类型 → 标签样式映射 ===== */
     var TYPE_TAG_MAP = {
       '消防':     'tag-red',
@@ -213,18 +352,18 @@
 
     /* ===== 模拟数据 ===== */
     var TEAMS = [
-      { name: '区综合应急救援大队',   type: '消防',   leader: '陈大队长', count: 32, phone: '138-0000-1001' },
-      { name: '危化品事故专业救援队', type: '专业救援', leader: '李队长',   count: 18, phone: '138-0000-1002' },
-      { name: '医疗救护应急队',       type: '医疗',   leader: '王医生',   count: 15, phone: '138-0000-1003' },
-      { name: '抗洪抢险救援队',       type: '专业救援', leader: '赵队长',   count: 24, phone: '138-0000-1004' },
-      { name: '森林消防应急中队',     type: '消防',   leader: '孙队长',   count: 28, phone: '138-0000-1005' },
-      { name: '应急通讯保障队',       type: '志愿者', leader: '周工程师', count: 12, phone: '138-0000-1006' },
-      { name: '社区志愿者救援队',     type: '志愿者', leader: '吴组长',   count: 20, phone: '138-0000-1007' },
-      { name: '急救医疗志愿队',       type: '医疗',   leader: '刘主任',   count: 16, phone: '138-0000-1008' },
-      { name: '地质灾害专业救援队',   type: '专业救援', leader: '郑队长',   count: 22, phone: '138-0000-1009' },
-      { name: '海上搜救志愿队',       type: '志愿者', leader: '何船长',   count: 14, phone: '138-0000-1010' },
-      { name: '城市消防特勤中队',     type: '消防',   leader: '冯队长',   count: 35, phone: '138-0000-1011' },
-      { name: '院前急救队',           type: '医疗',   leader: '许主任',   count: 9,  phone: '138-0000-1012' }
+      { name: '区综合应急救援大队',   type: '消防',   leader: '陈大队长', count: 32, phone: '138-0000-1001', equip: '消防车3辆、水带200米、破拆工具若干', remark: '区级骨干救援力量' },
+      { name: '危化品事故专业救援队', type: '专业救援', leader: '李队长',   count: 18, phone: '138-0000-1002', equip: '防化服20套、气体检测仪5台', remark: '' },
+      { name: '医疗救护应急队',       type: '医疗',   leader: '王医生',   count: 15, phone: '138-0000-1003', equip: '急救箱15个、担架5副', remark: '' },
+      { name: '抗洪抢险救援队',       type: '专业救援', leader: '赵队长',   count: 24, phone: '138-0000-1004', equip: '冲锋舟3艘、救生衣50件', remark: '' },
+      { name: '森林消防应急中队',     type: '消防',   leader: '孙队长',   count: 28, phone: '138-0000-1005', equip: '风力灭火机10台、消防水带500米', remark: '' },
+      { name: '应急通讯保障队',       type: '志愿者', leader: '周工程师', count: 12, phone: '138-0000-1006', equip: '卫星电话3部、中继台2套', remark: '' },
+      { name: '社区志愿者救援队',     type: '志愿者', leader: '吴组长',   count: 20, phone: '138-0000-1007', equip: '手电筒20把、急救包20个', remark: '' },
+      { name: '急救医疗志愿队',       type: '医疗',   leader: '刘主任',   count: 16, phone: '138-0000-1008', equip: 'AED除颤仪2台、急救箱8个', remark: '' },
+      { name: '地质灾害专业救援队',   type: '专业救援', leader: '郑队长',   count: 22, phone: '138-0000-1009', equip: '生命探测仪2台、液压破拆工具3套', remark: '' },
+      { name: '海上搜救志愿队',       type: '志愿者', leader: '何船长',   count: 14, phone: '138-0000-1010', equip: '搜救艇2艘、救生圈20个', remark: '' },
+      { name: '城市消防特勤中队',     type: '消防',   leader: '冯队长',   count: 35, phone: '138-0000-1011', equip: '消防车4辆、云梯车1辆', remark: '' },
+      { name: '院前急救队',           type: '医疗',   leader: '许主任',   count: 9,  phone: '138-0000-1012', equip: '救护车2辆、急救设备齐全', remark: '' }
     ];
 
     /* ===== 分页状态 ===== */
@@ -271,13 +410,13 @@
       if (total === 0) { container.innerHTML = ''; return; }
 
       var html = '共 ' + total + ' 条 第 ' + currentPage + ' / ' + totalPages + ' 页 ';
-      html += '<button data-page="prev">‹</button>';
+      html += '<button data-page="prev">&#x2039;</button>';
 
       for (var p = 1; p <= totalPages; p++) {
         html += '<button data-page="' + p + '"' + (p === currentPage ? ' class="active"' : '') + '>' + p + '</button>';
       }
 
-      html += '<button data-page="next">›</button>';
+      html += '<button data-page="next">&#x203A;</button>';
       container.innerHTML = html;
     }
 
@@ -304,6 +443,117 @@
       currentPage = 1;
       renderTable();
     }
+
+    /* ===== 新增队伍 ===== */
+    window.openAddTeam = function() {
+      document.getElementById('addTeamTitle').textContent = '新增队伍';
+      document.getElementById('teamFormIndex').value = '';
+      document.getElementById('teamFormName').value = '';
+      document.getElementById('teamFormType').value = '';
+      document.getElementById('teamFormCount').value = '';
+      document.getElementById('teamFormLeader').value = '';
+      document.getElementById('teamFormPhone').value = '';
+      document.getElementById('teamFormEquip').value = '';
+      document.getElementById('teamFormRemark').value = '';
+      openModal('modal-add-team');
+    };
+
+    /* ===== 保存队伍（新增/编辑） ===== */
+    window.saveTeam = function() {
+      var name = document.getElementById('teamFormName').value.trim();
+      var type = document.getElementById('teamFormType').value;
+      var count = document.getElementById('teamFormCount').value;
+      var leader = document.getElementById('teamFormLeader').value.trim();
+      var phone = document.getElementById('teamFormPhone').value.trim();
+      if (!name) { showToast('请输入队伍名称', 'warning'); return; }
+      if (!type) { showToast('请选择队伍类型', 'warning'); return; }
+      if (!count || parseInt(count) < 1) { showToast('请输入有效人数', 'warning'); return; }
+      if (!leader) { showToast('请输入负责人', 'warning'); return; }
+      if (!phone) { showToast('请输入联系电话', 'warning'); return; }
+      var equip = document.getElementById('teamFormEquip').value.trim();
+      var remark = document.getElementById('teamFormRemark').value.trim();
+      var editIdx = document.getElementById('teamFormIndex').value;
+      if (editIdx !== '') {
+        var idx = parseInt(editIdx, 10);
+        if (filteredData[idx]) {
+          filteredData[idx].name = name;
+          filteredData[idx].type = type;
+          filteredData[idx].count = parseInt(count, 10);
+          filteredData[idx].leader = leader;
+          filteredData[idx].phone = phone;
+          filteredData[idx].equip = equip;
+          filteredData[idx].remark = remark;
+        }
+        closeModal('modal-add-team');
+        showToast('队伍已更新：' + name, 'success');
+      } else {
+        var newTeam = { name: name, type: type, count: parseInt(count, 10), leader: leader, phone: phone, equip: equip, remark: remark };
+        TEAMS.unshift(newTeam);
+        closeModal('modal-add-team');
+        showToast('队伍已创建：' + name, 'success');
+        doFilter();
+        return;
+      }
+      renderTable();
+    };
+
+    /* ===== 查看队伍详情 ===== */
+    window.viewTeam = function(index) {
+      var t = filteredData[index];
+      if (!t) return;
+      var tagClass = TYPE_TAG_MAP[t.type] || 'tag-blue';
+      var html = '';
+      html += '<div class="info-section">';
+      html += '<div class="info-section-title">基本信息</div>';
+      html += '<div class="info-grid">';
+      html += '<div class="info-item"><span class="info-label">队伍名称</span><span class="info-value">' + escapeHtml(t.name) + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">队伍类型</span><span class="info-value"><span class="tag ' + tagClass + '">' + escapeHtml(t.type) + '</span></span></div>';
+      html += '<div class="info-item"><span class="info-label">负责人</span><span class="info-value">' + escapeHtml(t.leader) + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">人数</span><span class="info-value">' + t.count + ' 人</span></div>';
+      html += '<div class="info-item"><span class="info-label">联系电话</span><span class="info-value">' + escapeHtml(t.phone) + '</span></div>';
+      html += '<div class="info-item"><span class="info-label">装备描述</span><span class="info-value">' + escapeHtml(t.equip || '—') + '</span></div>';
+      html += '</div></div>';
+      if (t.remark) {
+        html += '<div class="info-section">';
+        html += '<div class="info-section-title">备注</div>';
+        html += '<div style="font-size:13px;color:var(--text-primary);">' + escapeHtml(t.remark) + '</div>';
+        html += '</div>';
+      }
+      // 队伍成员列表
+      html += '<div class="info-section">';
+      html += '<div class="info-section-title">队伍成员</div>';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+      html += '<thead><tr style="background:var(--bg-section);"><th style="padding:8px 12px;text-align:left;">姓名</th><th style="padding:8px 12px;text-align:left;">职务</th><th style="padding:8px 12px;text-align:left;">联系方式</th></tr></thead>';
+      html += '<tbody>';
+      var members = [
+        { name: t.leader, role: '队长', phone: t.phone },
+        { name: '队员甲', role: '副队长', phone: '139-xxxx-0001' },
+        { name: '队员乙', role: '队员', phone: '139-xxxx-0002' },
+        { name: '队员丙', role: '队员', phone: '139-xxxx-0003' }
+      ];
+      for (var m = 0; m < members.length; m++) {
+        html += '<tr style="border-bottom:1px solid var(--border-section);"><td style="padding:8px 12px;">' + escapeHtml(members[m].name) + '</td><td style="padding:8px 12px;">' + escapeHtml(members[m].role) + '</td><td style="padding:8px 12px;">' + escapeHtml(members[m].phone) + '</td></tr>';
+      }
+      html += '</tbody></table></div>';
+      document.getElementById('detailTeamBody').innerHTML = html;
+      openModal('modal-detail-team');
+    };
+
+    /* ===== 编辑队伍 ===== */
+    window.editTeam = function(index) {
+      var t = filteredData[index];
+      if (!t) return;
+      document.getElementById('addTeamTitle').textContent = '编辑队伍';
+      document.getElementById('teamFormIndex').value = index;
+      document.getElementById('teamFormName').value = t.name;
+      document.getElementById('teamFormType').value = t.type;
+      document.getElementById('teamFormCount').value = t.count;
+      document.getElementById('teamFormLeader').value = t.leader;
+      document.getElementById('teamFormPhone').value = t.phone;
+      document.getElementById('teamFormEquip').value = t.equip || '';
+      document.getElementById('teamFormRemark').value = t.remark || '';
+      openModal('modal-add-team');
+    };
 
     /* ===== 事件绑定 ===== */
     document.getElementById('btnSearch').addEventListener('click', doFilter);
@@ -332,10 +582,11 @@
       if (!link) return;
       var action = link.getAttribute('data-action');
       var index = parseInt(link.getAttribute('data-index'), 10);
-      var team = filteredData[index];
-      if (!team) return;
-      // 原型演示：alert 替代弹窗
-      alert(action === 'view' ? '查看：' + team.name : '编辑：' + team.name);
+      if (action === 'view') {
+        viewTeam(index);
+      } else if (action === 'edit') {
+        editTeam(index);
+      }
     });
 
     /* ===== 初始渲染 ===== */

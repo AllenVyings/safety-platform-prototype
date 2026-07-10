@@ -40,33 +40,15 @@
     }
     
     /* ========== 统计卡片区 ========== */
-    .stats-cards {
-      display: flex;
-      gap: var(--spacing-md);
-      padding: var(--spacing-md) 20px;
-      background: var(--bg-section);
-      border-bottom: 1px solid var(--border-section);
-      flex-shrink: 0;
-    }
-    
-    .stat-card.blue { background: var(--primary-light); }
-    .stat-card.green { background: var(--success-light); }
-    .stat-card.gray { background: var(--bg-secondary); }
-    .stat-label {
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary);
-    }
-    .stat-value {
-      font-size: 28px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .stat-card.blue .stat-value { color: var(--primary); }
-    .stat-card.green .stat-value { color: var(--success); }
-    .stat-card.gray .stat-value { color: var(--text-tertiary); }
+    /* 统计卡片 - .stats-row, .stat-card, .stat-card-body, .stat-label, .stat-value, .stat-indicator 由 framework.css 提供 */
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
     
     /* ========== 筛选栏 ========== */
-    
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
+
     .filter-item {
       display: flex;
       align-items: center;
@@ -211,7 +193,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: var(--overlay-bg);
       display: none;
       justify-content: center;
       align-items: center;
@@ -651,7 +633,7 @@
 </head>
 <body>
   <!-- ========== 页面容器 ========== -->
-  <div class="page-container" data-module="sa-regulation-lib">
+  <div class="page-container" data-module="super-admin/regulation-lib">
     <!-- 面包屑 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -663,50 +645,61 @@
     <!-- 主内容区 -->
     <div class="main-content">
       <!-- 统计卡片区 -->
-      <div class="stats-cards">
-        <div class="stat-card blue">
-          <div class="stat-label">法规总数</div>
-          <div class="stat-value" id="statTotal">156</div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">法规总数</div>
+            <div class="stat-value" id="statTotal">156</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--primary);"></div>
         </div>
-        <div class="stat-card green">
-          <div class="stat-label">现行法规</div>
-          <div class="stat-value" id="statActive">142</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">现行法规</div>
+            <div class="stat-value" id="statActive">142</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--success);"></div>
         </div>
-        <div class="stat-card gray">
-          <div class="stat-label">废止法规</div>
-          <div class="stat-value" id="statRepealed">14</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">废止法规</div>
+            <div class="stat-value" id="statRepealed">14</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--text-tertiary);"></div>
         </div>
       </div>
       
       <!-- 筛选栏 -->
-      <div class="filter-bar">
-        <div class="filter-item">
-          <label>法规类型</label>
-          <select id="filterType">
-            <option value="">全部</option>
-            <option value="law">法律</option>
-            <option value="admin_regulation">行政法规</option>
-            <option value="dept_rule">部门规章</option>
-            <option value="local_regulation">地方性法规</option>
-            <option value="national_standard">国家标准</option>
-            <option value="industry_standard">行业标准</option>
-          </select>
+      <div class="filter-card">
+        <div class="filter-bar">
+          <div class="filter-item">
+            <label>法规类型：</label>
+            <select id="filterType">
+              <option value="">全部</option>
+              <option value="law">法律</option>
+              <option value="admin_regulation">行政法规</option>
+              <option value="dept_rule">部门规章</option>
+              <option value="local_regulation">地方性法规</option>
+              <option value="national_standard">国家标准</option>
+              <option value="industry_standard">行业标准</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>关键词：</label>
+            <input type="text" id="filterKeyword" placeholder="搜索法规名称">
+          </div>
+          <div class="filter-item">
+            <label>状态：</label>
+            <select id="filterStatus">
+              <option value="">全部</option>
+              <option value="active">现行</option>
+              <option value="repealed">废止</option>
+
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="searchRegulations()">查询</button>
+          <button class="btn btn-default" onclick="resetFilters()">重置</button>
         </div>
-        <div class="filter-item">
-          <label>关键词</label>
-          <input type="text" id="filterKeyword" placeholder="搜索法规名称">
-        </div>
-        <div class="filter-item">
-          <label>状态</label>
-          <select id="filterStatus">
-            <option value="">全部</option>
-            <option value="active">现行</option>
-            <option value="repealed">废止</option>
-            
-          </select>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="searchRegulations()">搜索</button>
-        <button class="btn btn-default btn-sm" onclick="resetFilters()">重置</button>
       </div>
       
       <!-- 批量操作栏 -->

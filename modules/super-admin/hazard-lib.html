@@ -37,7 +37,7 @@
     }
     
     /* ========== 左侧面板 ========== */
-    .left-panel { 
+    .tree-panel { 
       width: 260px; 
       height: 100%;
       background: var(--bg-primary); 
@@ -164,37 +164,15 @@
     }
     
     /* ========== 统计卡片区 ========== */
-    .stats-row {
-      display: flex;
-      gap: var(--spacing-md);
-      padding: var(--spacing-md) 20px;
-      background: var(--bg-section);
-      border-bottom: 1px solid var(--border-section);
-      flex-shrink: 0;
-    }
+    /* .stats-row, .stat-card, .stat-card-body, .stat-label, .stat-value, .stat-indicator 由 framework.css 提供 */
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
 
-    .stat-card.blue { background: var(--primary-light); }
-    .stat-card.orange { background: var(--warning-light); }
-    .stat-card.red { background: var(--danger-light); }
-    
-    .stat-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--font-size-xxl);
-    }
-    .stat-card.blue .stat-icon { background: var(--primary-light); color: var(--primary); }
-    .stat-card.orange .stat-icon { background: var(--warning-light); color: var(--warning); }
-    .stat-card.red .stat-icon { background: var(--danger-light); color: var(--danger); }
-    
-    .stat-info { flex: 1; }
-    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; color: var(--text-primary); }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 2px; }
-    
+
     /* ========== 筛选条件栏 ========== */
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
 
     .filter-bar select,
     .filter-bar input[type="text"] {
@@ -622,7 +600,7 @@
   </style>
 </head>
 <body>
-  <div class="page-container" data-module="sa-hazard-lib">
+  <div class="page-container" data-module="super-admin/hazard-lib">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -634,7 +612,7 @@
     <!-- 分屏布局 -->
     <div class="layout-split">
       <!-- 左侧行业领域树 -->
-      <div class="left-panel">
+      <div class="tree-panel">
         <div class="panel-header">
           <span class="panel-title">行业领域</span>
         </div>
@@ -651,53 +629,53 @@
         <div class="content-area">
           <!-- 统计卡片 -->
           <div class="stats-row">
-            <div class="stat-card blue">
-              <div class="stat-icon">📊</div>
-              <div class="stat-info">
-                <div class="stat-value" id="totalCount">245</div>
+            <div class="stat-card">
+              <div class="stat-card-body">
                 <div class="stat-label">隐患总数</div>
+                <div class="stat-value" id="totalCount">245</div>
               </div>
+              <div class="stat-indicator" style="background: var(--primary);"></div>
             </div>
-            <div class="stat-card orange">
-              <div class="stat-icon">⚠️</div>
-              <div class="stat-info">
-                <div class="stat-value" id="normalCount">198</div>
+            <div class="stat-card">
+              <div class="stat-card-body">
                 <div class="stat-label">一般隐患</div>
+                <div class="stat-value" id="normalCount">198</div>
               </div>
+              <div class="stat-indicator" style="background: var(--warning);"></div>
             </div>
-            <div class="stat-card red">
-              <div class="stat-icon">🔴</div>
-              <div class="stat-info">
-                <div class="stat-value" id="majorCount">47</div>
+            <div class="stat-card">
+              <div class="stat-card-body">
                 <div class="stat-label">重大隐患</div>
+                <div class="stat-value" id="majorCount">47</div>
               </div>
+              <div class="stat-indicator" style="background: var(--danger);"></div>
             </div>
           </div>
           
           <!-- 筛选条件 -->
-          <div class="filter-bar">
-            <label style="font-size: var(--font-size-sm);color:var(--text-secondary)">隐患类别</label>
-            <select id="filterCategory">
-              <option value="">全部</option>
-              <option value="设备类">设备类</option>
-              <option value="管理类">管理类</option>
-              <option value="作业类">作业类</option>
-              <option value="环境类">环境类</option>
-            </select>
-            <label style="font-size: var(--font-size-sm);color:var(--text-secondary)">隐患级别</label>
-            <select id="filterLevel">
-              <option value="">全部</option>
-              <option value="一般隐患">一般隐患</option>
-              <option value="重大隐患">重大隐患</option>
-            </select>
-            <label style="font-size: var(--font-size-sm);color:var(--text-secondary)">状态</label>
-            <select id="filterStatus">
-              <option value="">全部</option>
-              <option value="启用">启用</option>
-              <option value="停用">停用</option>
-            </select>
-            <input type="text" placeholder="搜索关键词（名称、描述）..." id="searchInput">
-            <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+          <div class="filter-card">
+            <div class="filter-bar">
+              <div class="filter-item"><label>隐患类别：</label><select id="filterCategory">
+                <option value="">全部</option>
+                <option value="设备类">设备类</option>
+                <option value="管理类">管理类</option>
+                <option value="作业类">作业类</option>
+                <option value="环境类">环境类</option>
+              </select></div>
+              <div class="filter-item"><label>隐患级别：</label><select id="filterLevel">
+                <option value="">全部</option>
+                <option value="一般隐患">一般隐患</option>
+                <option value="重大隐患">重大隐患</option>
+              </select></div>
+              <div class="filter-item"><label>状态：</label><select id="filterStatus">
+                <option value="">全部</option>
+                <option value="启用">启用</option>
+                <option value="停用">停用</option>
+              </select></div>
+              <div class="filter-item"><label>关键词：</label><input type="text" placeholder="搜索名称、描述" id="searchInput"></div>
+              <button class="btn btn-primary" onclick="filterHazardList()">查询</button>
+              <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+            </div>
           </div>
           
           <!-- 操作按钮 -->

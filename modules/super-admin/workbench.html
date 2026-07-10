@@ -1,30 +1,397 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>工作台</title>
-  
-    <link rel="stylesheet" href="../../css/variables.css">
+  <title>安全态势</title>
+  <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
   <style>
-.workbench-page {
-      padding: var(--spacing-lg);
-      background: var(--bg-page);
+    /* ========== 设计令牌（统一系统） ========== */
+    .workbench-page {
+      /* 间距 */
+      --space-page: 20px;        /* 页面 padding */
+      --space-section: 20px;     /* section 之间间距 */
+      --space-card: 12px;        /* 同行卡片间距 */
+      --pad-card-y: 16px;        /* 卡片上下内边距 */
+      --pad-card-x: 20px;        /* 卡片左右内边距 */
+
+      /* 圆角 */
+      --radius-card: 8px;
+      --radius-pill: 12px;
+
+      /* 阴影 */
+      --shadow-card: 0 1px 2px rgba(17,24,39,0.04);
+      --shadow-hover: 0 4px 12px rgba(17,24,39,0.08);
+
+      /* 文本 */
+      --text-1: #111827;
+      --text-2: #374151;
+      --text-3: #6B7280;
+      --text-4: #9CA3AF;
+
+      /* 颜色 */
+      --color-border: #E5E7EB;
+      --color-border-soft: #F1F5F9;
+      --color-bg-soft: #F8FAFC;
+      --color-primary: #3B82F6;
+
+      padding: var(--space-page);
+      background: #F5F7FA;
       min-height: 100vh;
     }
 
-    /* ========== 统计卡片 ========== */
-    .stat-cards {
+    /* ========== 通用卡片基底 ========== */
+    .workbench-page .page-header-card,
+    .workbench-page .kpi-card,
+    .workbench-page .chart-card,
+    .workbench-page .duty-table-wrap,
+    .workbench-page .domain-card {
+      background: #fff;
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      transition: box-shadow 0.2s ease;
+    }
+    .workbench-page .kpi-card:hover,
+    .workbench-page .domain-card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* ========== 顶部卡片 ========== */
+    .page-header-card {
+      display: flex;
+      align-items: center;
+      padding: var(--pad-card-y) var(--pad-card-x);
+      margin-bottom: var(--space-section);
+    }
+    .page-header-card .page-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-1);
+      position: relative;
+      padding-left: 12px;
+      flex-shrink: 0;
+    }
+    .page-header-card .page-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 3px;
+      background: var(--color-primary);
+      border-radius: 2px;
+    }
+    .page-header-card .toolbar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-3);
+      margin-left: auto;
+    }
+    .page-header-card select {
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 6px 28px 6px 10px;
+      font-size: 13px;
+      color: var(--text-1);
+      background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 8px center;
+      appearance: none;
+      cursor: pointer;
+      min-width: 130px;
+      transition: border-color 0.2s;
+    }
+    .page-header-card select:hover { border-color: var(--color-primary); }
+
+    /* ========== 区块标题 ========== */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-1);
+      margin: var(--space-section) 0 12px;
+      padding-left: 10px;
+      position: relative;
+    }
+    .section-title:first-of-type { margin-top: 0; }
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 3px;
+      bottom: 3px;
+      width: 3px;
+      background: var(--color-primary);
+      border-radius: 2px;
+    }
+    .section-title .sub-desc {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-4);
+    }
+
+    /* ========== KPI 卡片 ========== */
+    .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-lg);
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-card);
+      margin-bottom: var(--space-card);
+    }
+    .kpi-card {
+      padding: var(--pad-card-y) var(--pad-card-x);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .kpi-card .kpi-label {
+      font-size: 13px;
+      color: var(--text-3);
+    }
+    .kpi-card .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-card .kpi-sub {
+      font-size: 12px;
+      color: var(--text-4);
+    }
+    .kpi-card .kpi-sub .strong-green { color: #10B981; font-weight: 600; }
+    .kpi-card .kpi-sub .strong-red { color: #EF4444; font-weight: 600; }
+    .kpi-card .kpi-sub .strong-yellow { color: #F59E0B; font-weight: 600; }
+    .kpi-card .kpi-sub .strong-blue { color: var(--color-primary); font-weight: 600; }
+    .kpi-card.danger .kpi-value { color: #EF4444; }
+    .kpi-card.warning .kpi-value { color: #F59E0B; }
+    .kpi-card.success .kpi-value { color: #10B981; }
+
+    /* ========== 图表卡片 ========== */
+    .chart-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-card);
+    }
+    .chart-row.three-col { grid-template-columns: repeat(3, 1fr); }
+    .chart-row.four-col { grid-template-columns: repeat(4, 1fr); }
+    .chart-card,
+    .duty-table-wrap {
+      padding: var(--pad-card-y) var(--pad-card-x);
+    }
+    .chart-card .chart-head,
+    .duty-table-wrap .chart-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .chart-card .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+    .chart-card .chart-legend,
+    .duty-table-wrap .chart-legend {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-3);
+      align-items: center;
+    }
+    .chart-legend b { color: var(--text-1); font-weight: 600; margin-left: 4px; }
+    .chart-legend .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .chart-container {
+      width: 100%;
+      height: 240px;
+    }
+
+    /* ========== 环形图卡片 ========== */
+    .ring-card {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .ring-card .ring-chart {
+      width: 140px;
+      height: 140px;
+      flex-shrink: 0;
+    }
+    .ring-card .ring-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .ring-card .ring-info .info-title {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+    .ring-card .ring-info .info-num {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+      font-variant-numeric: tabular-nums;
+    }
+    .ring-card .legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 0;
+      margin: 0;
+    }
+    .ring-card .legend-list li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-3);
+      list-style: none;
+    }
+    .ring-card .legend-list li .num {
+      margin-left: auto;
+      color: var(--text-1);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .ring-card .rate-text {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-3);
+    }
+    .ring-card .rate-text b { color: #10B981; font-weight: 600; }
+
+    /* ========== 表格 ========== */
+    .duty-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+    .duty-table th {
+      background: var(--color-bg-soft);
+      color: var(--text-2);
+      font-weight: 600;
+      padding: 10px 12px;
+      text-align: center;
+      border: 1px solid var(--color-border);
+    }
+    .duty-table td {
+      padding: 10px 12px;
+      text-align: center;
+      border: 1px solid var(--color-border);
+      color: var(--text-2);
+      transition: background 0.15s;
+    }
+    .duty-table td.level-cell {
+      background: var(--color-bg-soft);
+      font-weight: 600;
+      color: var(--text-1);
+    }
+    .duty-table tbody tr:hover td { background: rgba(59,130,246,0.04); }
+    .duty-table tbody tr:hover td.level-cell { background: #EFF6FF; }
+    .rate-pill {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 12px;
+      min-width: 48px;
+    }
+    .rate-pill.green { background: #ECFDF5; color: #10B981; }
+    .rate-pill.yellow { background: #FFFBEB; color: #F59E0B; }
+    .rate-pill.red { background: #FEF2F2; color: #EF4444; }
+
+    /* ========== 领域卡片 ========== */
+    .domain-card {
+      padding: var(--pad-card-y) var(--pad-card-x);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .domain-card .domain-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--color-border-soft);
+    }
+    .domain-card .domain-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .domain-card .domain-name .ic {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+    .domain-card .domain-total {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+    .domain-card .domain-total b {
+      color: var(--text-1);
+      font-size: 16px;
+      font-weight: 700;
+      margin-right: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .domain-card .domain-chart {
+      width: 100%;
+      height: 130px;
+    }
+
+    /* ========== 三色图例 ========== */
+    .code-legend {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-3);
+      padding-top: 8px;
+      border-top: 1px solid var(--color-border-soft);
+      font-variant-numeric: tabular-nums;
+    }
+    .code-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .code-legend i {
+      width: 8px; height: 8px; border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 1280px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .chart-row, .chart-row.three-col, .chart-row.four-col { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="module-page workbench-page" data-module="sa-workbench">
+  <div class="module-page workbench-page" data-module="super-admin/workbench">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -32,96 +399,593 @@
       <span class="breadcrumb-separator">&gt;</span>
       <span class="breadcrumb-item">超管端</span>
       <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">工作台</span>
+      <span class="breadcrumb-item current">安全态势</span>
     </div>
-    
-    <!-- 页面标题 -->
-    <header class="page-header">
-      <h1 class="page-title">工作台</h1>
-    </header>
-    
-    <!-- 统计卡片 -->
-    <section class="stat-cards">
-      <div class="stat-card">
-        <div class="stat-icon blue">🏢</div>
-        <div class="stat-content">
-          <div class="stat-label">企业总数</div>
-          <div class="stat-value">128</div>
+
+    <!-- 顶部卡片：基础底数 + 数据周期 -->
+    <div class="page-header-card">
+      <h1 class="page-title">基础底数</h1>
+      <div class="toolbar-item">
+        <span>📅 数据周期：</span>
+        <select id="filterRange">
+          <option value="year">最近一年</option>
+          <option value="month">最近 30 天</option>
+          <option value="7d" selected>最近 7 天</option>
+          <option value="today">今日</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ========== 区块 1：管控对象 ========== -->
+    <div class="section-title">
+      管控对象
+      <span class="sub-desc">— 辖区所有安全管控对象三色分布</span>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">管控对象总数</div>
+        <div class="kpi-value">83,524</div>
+        <div class="kpi-sub">绿灯率 <span class="strong-green">72.6%</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">绿码（正常）</div>
+        <div class="kpi-value" style="color:#10B981;">1,425</div>
+        <div class="kpi-sub">占 <span class="strong-green">71.5%</span></div>
+      </div>
+      <div class="kpi-card warning">
+        <div class="kpi-label">黄码（预警）</div>
+        <div class="kpi-value">524</div>
+        <div class="kpi-sub">占 <span class="strong-yellow">26.3%</span></div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-label">红码（异常）</div>
+        <div class="kpi-value">22</div>
+        <div class="kpi-sub">占 <span class="strong-red">1.1%</span></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">场所码三色分布</div>
+          <div class="chart-legend">
+            <span><i class="dot" style="background:#10B981"></i>绿码</span>
+            <span><i class="dot" style="background:#F59E0B"></i>黄码</span>
+            <span><i class="dot" style="background:#EF4444"></i>红码</span>
+          </div>
+        </div>
+        <div class="ring-card">
+          <div id="placeRing" class="ring-chart"></div>
+          <div class="ring-info">
+            <div class="info-title">场所码总数</div>
+            <div class="info-num">6,855</div>
+            <ul class="legend-list">
+              <li><i style="background:#10B981;width:8px;height:8px;border-radius:50%;display:inline-block;"></i>绿码<span class="num">4,952</span></li>
+              <li><i style="background:#F59E0B;width:8px;height:8px;border-radius:50%;display:inline-block;"></i>黄码<span class="num">1,683</span></li>
+              <li><i style="background:#EF4444;width:8px;height:8px;border-radius:50%;display:inline-block;"></i>红码<span class="num">220</span></li>
+            </ul>
+            <div style="margin-top:8px;font-size:12px;color:#6B7280;">绿灯率 <span style="color:#10B981;font-weight:600;">73.5%</span></div>
+          </div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon green">🏛️</div>
-        <div class="stat-content">
-          <div class="stat-label">政府单位数</div>
-          <div class="stat-value">35</div>
+
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">危险源三色分布</div>
+          <div class="chart-legend">
+            <span><i class="dot" style="background:#10B981"></i>绿码</span>
+            <span><i class="dot" style="background:#F59E0B"></i>黄码</span>
+            <span><i class="dot" style="background:#EF4444"></i>红码</span>
+          </div>
+        </div>
+        <div class="ring-card">
+          <div id="hazardRing" class="ring-chart"></div>
+          <div class="ring-info">
+            <div class="info-title">危险源总数</div>
+            <div class="info-num">4,210</div>
+            <ul class="legend-list">
+              <li><i style="background:#10B981;width:8px;height:8px;border-radius:50%;display:inline-block;"></i>绿码<span class="num">2,526</span></li>
+              <li><i style="background:#F59E0B;width:8px;height:8px;border-radius:50%;display:inline-block;"></i>黄码<span class="num">1,420</span></li>
+              <li><i style="background:#EF4444;width:8px;height:8px;border-radius:50%;display:inline-block;"></i>红码<span class="num">264</span></li>
+            </ul>
+            <div style="margin-top:8px;font-size:12px;color:#6B7280;">绿灯率 <span style="color:#10B981;font-weight:600;">60.5%</span></div>
+          </div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon orange">👥</div>
-        <div class="stat-content">
-          <div class="stat-label">用户总数</div>
-          <div class="stat-value">1,562</div>
+    </div>
+
+    <!-- ========== 区块 2：人员履职 ========== -->
+    <div class="section-title">
+      人员履职
+      <span class="sub-desc">— 辖区企业/政府岗位人员履职绿灯率</span>
+    </div>
+
+    <div class="chart-row">
+      <div class="duty-table-wrap">
+        <div class="chart-head" style="margin-bottom:10px;">
+          <div class="chart-title">企业侧履职分布</div>
+          <div class="chart-legend">总人数 <b style="color:#111827;margin-left:4px;">1,269</b> · 绿灯率 <b style="color:#10B981;margin-left:4px;">94.3%</b></div>
+        </div>
+        <table class="duty-table">
+          <thead>
+            <tr>
+              <th style="width:30%;">层级</th>
+              <th>应履职人数</th>
+              <th>已履职人数</th>
+              <th>履职完成率</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="level-cell">领导层</td>
+              <td>20</td>
+              <td>14</td>
+              <td><span class="rate-pill yellow">71.4%</span></td>
+            </tr>
+            <tr>
+              <td class="level-cell">管理层</td>
+              <td>35</td>
+              <td>30</td>
+              <td><span class="rate-pill yellow">86.6%</span></td>
+            </tr>
+            <tr>
+              <td class="level-cell">员工层</td>
+              <td>2,355</td>
+              <td>1,225</td>
+              <td><span class="rate-pill red">52.0%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="duty-table-wrap">
+        <div class="chart-head" style="margin-bottom:10px;">
+          <div class="chart-title">政府侧履职分布</div>
+          <div class="chart-legend">总人数 <b style="color:#111827;margin-left:4px;">360</b> · 绿灯率 <b style="color:#10B981;margin-left:4px;">75.2%</b></div>
+        </div>
+        <table class="duty-table">
+          <thead>
+            <tr>
+              <th style="width:30%;">层级</th>
+              <th>应履职人数</th>
+              <th>已履职人数</th>
+              <th>履职完成率</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="level-cell">巡查层</td>
+              <td>360</td>
+              <td>271</td>
+              <td><span class="rate-pill yellow">75.2%</span></td>
+            </tr>
+            <tr>
+              <td class="level-cell">主管层</td>
+              <td>48</td>
+              <td>40</td>
+              <td><span class="rate-pill green">83.3%</span></td>
+            </tr>
+            <tr>
+              <td class="level-cell">决策层</td>
+              <td>12</td>
+              <td>10</td>
+              <td><span class="rate-pill green">83.3%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 区块 3：隐患排查 ========== -->
+    <div class="section-title">
+      隐患排查
+      <span class="sub-desc">— 辖区隐患发现与整改动态</span>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">隐患总数</div>
+        <div class="kpi-value">3,685</div>
+        <div class="kpi-sub">较上周 <span class="strong-red">↑ 5.2%</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">已整改</div>
+        <div class="kpi-value" style="color:#10B981;">1,765</div>
+        <div class="kpi-sub">较上周 <span class="strong-green">↑ 8.1%</span></div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-label">未整改</div>
+        <div class="kpi-value">1,920</div>
+        <div class="kpi-sub">较上周 <span class="strong-red">↑ 2.3%</span></div>
+      </div>
+      <div class="kpi-card warning">
+        <div class="kpi-label">整改率</div>
+        <div class="kpi-value">47.9%</div>
+        <div class="kpi-sub">目标 ≥ <span class="strong-yellow">60%</span></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">企业侧 / 政府侧 检查履职</div>
+          <div class="chart-legend">
+            <span><i class="dot" style="background:#3B82F6"></i>检查次数</span>
+            <span><i class="dot" style="background:#93C5FD"></i>应检次数</span>
+            <span><i class="dot" style="background:#10B981"></i>履职完成率</span>
+          </div>
+        </div>
+        <div id="dutyBar" class="chart-container"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">隐患整改趋势</div>
+          <div class="chart-legend">
+            <span><i class="dot" style="background:#10B981"></i>已整改</span>
+            <span><i class="dot" style="background:#EF4444"></i>未整改</span>
+            <span><i class="dot" style="background:#3B82F6"></i>整改率</span>
+          </div>
+        </div>
+        <div id="fixTrend" class="chart-container"></div>
+      </div>
+    </div>
+
+    <!-- ========== 区块 4：领域管控 ========== -->
+    <div class="section-title">
+      领域管控
+      <span class="sub-desc">— 重点领域管控对象三色分布</span>
+    </div>
+
+    <div class="chart-row four-col">
+      <div class="domain-card">
+        <div class="domain-head">
+          <div class="domain-name"><span class="ic" style="background:#FEF3C7;color:#92400E;">🏗️</span> 在建工地</div>
+          <div class="domain-total"><b>1,286</b>处</div>
+        </div>
+        <div id="domain1" class="domain-chart"></div>
+        <div class="code-legend">
+          <span><i style="background:#10B981"></i>绿 980</span>
+          <span><i style="background:#F59E0B"></i>黄 256</span>
+          <span><i style="background:#EF4444"></i>红 50</span>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon gray">📋</div>
-        <div class="stat-content">
-          <div class="stat-label">项目总数</div>
-          <div class="stat-value">47</div>
+
+      <div class="domain-card">
+        <div class="domain-head">
+          <div class="domain-name"><span class="ic" style="background:#DBEAFE;color:#1E40AF;">⚗️</span> 医药化工</div>
+          <div class="domain-total"><b>642</b>处</div>
+        </div>
+        <div id="domain2" class="domain-chart"></div>
+        <div class="code-legend">
+          <span><i style="background:#10B981"></i>绿 385</span>
+          <span><i style="background:#F59E0B"></i>黄 210</span>
+          <span><i style="background:#EF4444"></i>红 47</span>
         </div>
       </div>
-    </section>
-    
-    <!-- 快捷操作 -->
-    <section class="quick-actions">
-      <h2 class="quick-actions-title">快捷操作</h2>
-      <div class="action-buttons">
-        <button class="btn btn-primary" onclick="goToModule('sa-gov-org')">
-          🏛️ 政府组织架构
-        </button>
-        <button class="btn btn-primary" onclick="goToModule('sa-ent-manage')">
-          🏢 企业注册管理
-        </button>
-        <button class="btn btn-primary" onclick="goToModule('sa-domain-manage')">
-          🏷️ 领域小类管理
-        </button>
+
+      <div class="domain-card">
+        <div class="domain-head">
+          <div class="domain-name"><span class="ic" style="background:#EDE9FE;color:#5B21B6;">🔌</span> 电动车充电场</div>
+          <div class="domain-total"><b>524</b>处</div>
+        </div>
+        <div id="domain4" class="domain-chart"></div>
+        <div class="code-legend">
+          <span><i style="background:#10B981"></i>绿 402</span>
+          <span><i style="background:#F59E0B"></i>黄 96</span>
+          <span><i style="background:#EF4444"></i>红 26</span>
+        </div>
       </div>
-    </section>
+
+      <div class="domain-card">
+        <div class="domain-head">
+          <div class="domain-name"><span class="ic" style="background:#D1FAE5;color:#065F46;">🚧</span> 劝导路口</div>
+          <div class="domain-total"><b>328</b>处</div>
+        </div>
+        <div id="domain3" class="domain-chart"></div>
+        <div class="code-legend">
+          <span><i style="background:#10B981"></i>绿 256</span>
+          <span><i style="background:#F59E0B"></i>黄 60</span>
+          <span><i style="background:#EF4444"></i>红 12</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:24px;"></div>
   </div>
-  
+
   <script>
-    (function() {
+    (function () {
       'use strict';
-      
+
       const CONFIG = {
         moduleId: 'sa-workbench',
-        moduleName: '工作台'
+        moduleName: '安全态势'
       };
-      
+
       let state = {
-        initialized: false
+        initialized: false,
+        charts: []
       };
-      
-      function init() {
-        if (state.initialized) return;
-        
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
-        state.initialized = true;
-      }
-      
-      // Toast 提示
+
+      // ============== Toast ==============
       function showToast(msg) {
         var t = document.getElementById('_toast');
         if (!t) { t = document.createElement('div'); t.id = '_toast'; document.body.appendChild(t); }
-        Object.assign(t.style, {position:'fixed',top:'20px',left:'50%',transform:'translateX(-50%)',padding:'10px 24px',background:'var(--text-primary)',color:'var(--bg-primary)',borderRadius:'var(--radius-md)',fontSize:'var(--font-size-md)',zIndex:99999,opacity:0,transition:'opacity var(--duration-normal)',pointerEvents:'none'});
+        Object.assign(t.style, {
+          position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+          padding: '10px 24px', background: 'var(--text-primary)', color: 'var(--bg-primary)',
+          borderRadius: 'var(--radius-md)', fontSize: 'var(--font-size-md)',
+          zIndex: 99999, opacity: 0, transition: 'opacity var(--duration-normal)', pointerEvents: 'none'
+        });
         t.textContent = msg;
-        setTimeout(function() { t.style.opacity = 1; }, 10);
-        setTimeout(function() { t.style.opacity = 0; }, 2000);
+        setTimeout(function () { t.style.opacity = 1; }, 10);
+        setTimeout(function () { t.style.opacity = 0; }, 2000);
       }
 
-      // 面包屑导航函数
-      window.goToHome = function() {
-        console.log('导航到首页');
+      // ============== ECharts 初始化 ==============
+      function buildPlaceRing() {
+        const el = document.getElementById('placeRing');
+        if (!el) return null;
+        const chart = echarts.init(el);
+        chart.setOption({
+          tooltip: { trigger: 'item' },
+          series: [{
+            type: 'pie',
+            radius: ['58%', '82%'],
+            avoidLabelOverlap: false,
+            label: {
+              show: true, position: 'center',
+              formatter: '{d|73.5%}\n{c|绿灯率}',
+              rich: {
+                d: { fontSize: 20, fontWeight: 'bold', color: '#10B981', lineHeight: 24 },
+                c: { fontSize: 11, color: '#6B7280' }
+              }
+            },
+            labelLine: { show: false },
+            data: [
+              { value: 4952, name: '绿码', itemStyle: { color: '#10B981' } },
+              { value: 1683, name: '黄码', itemStyle: { color: '#F59E0B' } },
+              { value: 220, name: '红码', itemStyle: { color: '#EF4444' } }
+            ]
+          }]
+        });
+        return chart;
+      }
+
+      function buildHazardRing() {
+        const el = document.getElementById('hazardRing');
+        if (!el) return null;
+        const chart = echarts.init(el);
+        chart.setOption({
+          tooltip: { trigger: 'item' },
+          series: [{
+            type: 'pie',
+            radius: ['58%', '82%'],
+            avoidLabelOverlap: false,
+            label: {
+              show: true, position: 'center',
+              formatter: '{d|60.5%}\n{c|绿灯率}',
+              rich: {
+                d: { fontSize: 20, fontWeight: 'bold', color: '#10B981', lineHeight: 24 },
+                c: { fontSize: 11, color: '#6B7280' }
+              }
+            },
+            labelLine: { show: false },
+            data: [
+              { value: 2526, name: '绿码', itemStyle: { color: '#10B981' } },
+              { value: 1420, name: '黄码', itemStyle: { color: '#F59E0B' } },
+              { value: 264, name: '红码', itemStyle: { color: '#EF4444' } }
+            ]
+          }]
+        });
+        return chart;
+      }
+
+      function buildDutyBar() {
+        const el = document.getElementById('dutyBar');
+        if (!el) return null;
+        const chart = echarts.init(el);
+        const dates = ['03-10', '03-11', '03-12', '03-13', '03-14', '03-15', '03-16'];
+        chart.setOption({
+          tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+          legend: { show: false },
+          grid: { left: 40, right: 50, top: 30, bottom: 30 },
+          xAxis: {
+            type: 'category',
+            data: dates,
+            axisLine: { lineStyle: { color: '#E5E7EB' } },
+            axisLabel: { color: '#6B7280', fontSize: 11 }
+          },
+          yAxis: [
+            {
+              type: 'value',
+              axisLine: { show: false },
+              splitLine: { lineStyle: { color: '#F3F4F6' } },
+              axisLabel: { color: '#6B7280', fontSize: 11 }
+            },
+            {
+              type: 'value',
+              max: 100,
+              axisLine: { show: false },
+              splitLine: { show: false },
+              axisLabel: { color: '#6B7280', fontSize: 11, formatter: '{value}%' }
+            }
+          ],
+          series: [
+            {
+              name: '检查次数',
+              type: 'bar',
+              barWidth: 14,
+              data: [320, 332, 301, 334, 390, 330, 320],
+              itemStyle: { color: '#3B82F6', borderRadius: [4, 4, 0, 0] }
+            },
+            {
+              name: '应检次数',
+              type: 'bar',
+              barWidth: 14,
+              data: [350, 360, 340, 360, 420, 360, 350],
+              itemStyle: { color: '#93C5FD', borderRadius: [4, 4, 0, 0] }
+            },
+            {
+              name: '履职完成率',
+              type: 'line',
+              yAxisIndex: 1,
+              smooth: true,
+              symbol: 'circle',
+              symbolSize: 6,
+              data: [91.4, 92.2, 88.5, 92.8, 92.9, 91.7, 91.4],
+              itemStyle: { color: '#10B981' },
+              lineStyle: { color: '#10B981', width: 2 }
+            }
+          ]
+        });
+        return chart;
+      }
+
+      function buildFixTrend() {
+        const el = document.getElementById('fixTrend');
+        if (!el) return null;
+        const chart = echarts.init(el);
+        const dates = ['03-10', '03-11', '03-12', '03-13', '03-14', '03-15', '03-16'];
+        chart.setOption({
+          tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+          legend: { show: false },
+          grid: { left: 40, right: 50, top: 30, bottom: 30 },
+          xAxis: {
+            type: 'category',
+            data: dates,
+            axisLine: { lineStyle: { color: '#E5E7EB' } },
+            axisLabel: { color: '#6B7280', fontSize: 11 }
+          },
+          yAxis: [
+            {
+              type: 'value',
+              axisLine: { show: false },
+              splitLine: { lineStyle: { color: '#F3F4F6' } },
+              axisLabel: { color: '#6B7280', fontSize: 11 }
+            },
+            {
+              type: 'value',
+              max: 100,
+              axisLine: { show: false },
+              splitLine: { show: false },
+              axisLabel: { color: '#6B7280', fontSize: 11, formatter: '{value}%' }
+            }
+          ],
+          series: [
+            {
+              name: '已整改',
+              type: 'bar',
+              stack: 'total',
+              barWidth: 22,
+              data: [220, 232, 201, 234, 290, 230, 258],
+              itemStyle: { color: '#10B981' }
+            },
+            {
+              name: '未整改',
+              type: 'bar',
+              stack: 'total',
+              barWidth: 22,
+              data: [320, 332, 301, 334, 390, 330, 320],
+              itemStyle: { color: '#EF4444' }
+            },
+            {
+              name: '整改率',
+              type: 'line',
+              yAxisIndex: 1,
+              smooth: true,
+              symbol: 'circle',
+              symbolSize: 6,
+              data: [40.7, 41.1, 40.1, 41.2, 42.6, 41.1, 44.6],
+              itemStyle: { color: '#3B82F6' },
+              lineStyle: { color: '#3B82F6', width: 2 }
+            }
+          ]
+        });
+        return chart;
+      }
+
+      function buildDomainPie(domId, data) {
+        const el = document.getElementById(domId);
+        if (!el) return null;
+        const chart = echarts.init(el);
+        chart.setOption({
+          tooltip: { trigger: 'item' },
+          series: [{
+            type: 'pie',
+            radius: ['50%', '78%'],
+            center: ['50%', '50%'],
+            avoidLabelOverlap: false,
+            label: {
+              show: true, position: 'center',
+              formatter: '{d|' + data.pct + '}\n{c|绿灯率}',
+              rich: {
+                d: { fontSize: 16, fontWeight: 'bold', color: '#10B981', lineHeight: 20 },
+                c: { fontSize: 10, color: '#6B7280' }
+              }
+            },
+            labelLine: { show: false },
+            data: [
+              { value: data.green, name: '绿码', itemStyle: { color: '#10B981' } },
+              { value: data.yellow, name: '黄码', itemStyle: { color: '#F59E0B' } },
+              { value: data.red, name: '红码', itemStyle: { color: '#EF4444' } }
+            ]
+          }]
+        });
+        return chart;
+      }
+
+      function initCharts() {
+        // 先清掉旧的
+        state.charts.forEach(c => { try { c && c.dispose && c.dispose(); } catch (e) {} });
+        state.charts = [];
+
+        const ring1 = buildPlaceRing();
+        const ring2 = buildHazardRing();
+        const dutyBar = buildDutyBar();
+        const fixTrend = buildFixTrend();
+        const d1 = buildDomainPie('domain1', { green: 980, yellow: 256, red: 50, pct: '76.2%' });
+        const d2 = buildDomainPie('domain2', { green: 385, yellow: 210, red: 47, pct: '60.0%' });
+        const d3 = buildDomainPie('domain3', { green: 256, yellow: 60, red: 12, pct: '78.0%' });
+        const d4 = buildDomainPie('domain4', { green: 402, yellow: 96, red: 26, pct: '76.7%' });
+
+        state.charts = [ring1, ring2, dutyBar, fixTrend, d1, d2, d3, d4].filter(Boolean);
+
+        // 响应窗口缩放
+        window.addEventListener('resize', handleResize);
+      }
+
+      function handleResize() {
+        state.charts.forEach(c => { try { c && c.resize && c.resize(); } catch (e) {} });
+      }
+
+      // ============== 初始化 ==============
+      function init() {
+        if (state.initialized) return;
+        console.log(`[${CONFIG.moduleId}] 模块初始化`);
+        state.initialized = true;
+
+        // 等 ECharts 加载
+        if (typeof echarts === 'undefined') {
+          console.warn('ECharts 未加载，10ms 后重试');
+          setTimeout(init, 100);
+          return;
+        }
+        initCharts();
+
+        // 日期筛选演示
+        const filterRange = document.getElementById('filterRange');
+        if (filterRange) {
+          filterRange.addEventListener('change', function (e) {
+            showToast('数据周期已切换：' + e.target.options[e.target.selectedIndex].text);
+          });
+        }
+      }
+
+      // ============== 导航 ==============
+      window.goToHome = function () {
         if (window.parent && window.parent.goToModule) {
           window.parent.goToModule('sa-workbench');
         } else {
@@ -129,27 +993,29 @@
         }
       };
 
-      window.goToModule = function(moduleId) {
-        console.log('导航到模块：' + moduleId);
+      window.goToModule = function (moduleId) {
         if (window.parent && window.parent.goToModule) {
           window.parent.goToModule(moduleId);
         } else {
           showToast('导航到：' + moduleId);
         }
       };
-      
+
+      window.destroyModule = function () {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        window.removeEventListener('resize', handleResize);
+        state.charts.forEach(c => { try { c && c.dispose && c.dispose(); } catch (e) {} });
+        state.charts = [];
+        state.initialized = false;
+      };
+
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
       } else {
         init();
       }
-      
-      window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
-        state.initialized = false;
-      };
     })();
   </script>
-<script src="../../js/annotations.js"></script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

@@ -21,38 +21,19 @@
     .page-title { font-size: var(--font-size-lg); font-weight: 600; }
 
     /* ========== 统计卡片 ========== */
-.stat-card {
-      flex: 1;
-      background: linear-gradient(135deg, var(--bg-section) 0%, var(--bg-section-alt) 100%);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: var(--shadow-sm);
-      transition: all var(--duration-normal);
-      cursor: pointer;
-    }
-    .stat-card:hover {
-      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--border-section) 100%);
-      box-shadow: var(--shadow-card);
-    }
-    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
+    .stats-row { grid-template-columns: repeat(5, 1fr); }
 
     /* ========== 筛选栏 ========== */
     .filter-bar {
       display: flex;
       gap: 12px;
-      margin-bottom: var(--spacing-md);
       align-items: center;
       flex-wrap: wrap;
-      background: var(--bg-section);
-      padding: 12px var(--spacing-md);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-light);
     }
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
     .filter-item select, .filter-item input {
       padding: 6px 10px;
       border: 1px solid var(--border);
@@ -157,7 +138,7 @@
     .modal-form .form-row { display: flex; gap: var(--spacing-md); }
     .modal-form .form-row .form-group { flex: 1; }
     .modal-form textarea.form-input { resize: vertical; }
-    .required { color: var(--error); }
+    .required { color: var(--danger); }
 
     /* ========== 任务详情弹窗 ========== */
     .detail-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -190,7 +171,7 @@
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="gov-check-task">
+  <div class="module-page page-container" data-module="government/check-task">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -199,15 +180,15 @@
 
     <!-- ========== 列表视图 ========== -->
     <div id="view-list">
-      <div class="stat-cards">
-        <div class="stat-card" onclick="filterByStatus('all')"><div class="stat-value" style="color: var(--blue);">28</div><div class="stat-label">任务总数</div></div>
-        <div class="stat-card" onclick="filterByStatus('待执行')"><div class="stat-value" style="color: var(--primary);">3</div><div class="stat-label">待执行</div></div>
-        <div class="stat-card" onclick="filterByStatus('执行中')"><div class="stat-value" style="color: var(--warning);">2</div><div class="stat-label">执行中</div></div>
-        <div class="stat-card" onclick="filterByStatus('已完成')"><div class="stat-value" style="color: var(--green);">20</div><div class="stat-label">已完成</div></div>
-        <div class="stat-card" onclick="filterByStatus('已逾期')"><div class="stat-value" style="color: var(--error);">3</div><div class="stat-label">已逾期</div></div>
+      <div class="stats-row">
+        <div class="stat-card" onclick="filterByStatus('all')"><div class="stat-card-body"><div class="stat-label">任务总数</div><div class="stat-value">28</div></div><div class="stat-indicator" style="background: var(--info);"></div></div>
+        <div class="stat-card" onclick="filterByStatus('待执行')"><div class="stat-card-body"><div class="stat-label">待执行</div><div class="stat-value">3</div></div><div class="stat-indicator" style="background: var(--primary);"></div></div>
+        <div class="stat-card" onclick="filterByStatus('执行中')"><div class="stat-card-body"><div class="stat-label">执行中</div><div class="stat-value">2</div></div><div class="stat-indicator" style="background: var(--warning);"></div></div>
+        <div class="stat-card" onclick="filterByStatus('已完成')"><div class="stat-card-body"><div class="stat-label">已完成</div><div class="stat-value">20</div></div><div class="stat-indicator" style="background: var(--success);"></div></div>
+        <div class="stat-card" onclick="filterByStatus('已逾期')"><div class="stat-card-body"><div class="stat-label">已逾期</div><div class="stat-value">3</div></div><div class="stat-indicator" style="background: var(--danger);"></div></div>
       </div>
 
-      <div class="filter-bar">
+      <div class="filter-card"><div class="filter-bar">
         <div class="filter-item"><label>任务类型：</label><select id="filterType"><option value="">全部</option><option>履职任务</option><option>专项任务</option></select></div>
         <div class="filter-item"><label>任务状态：</label><select id="filterStatus"><option value="">全部</option><option>待执行</option><option>执行中</option><option>已完成</option><option>已逾期</option><option>已取消</option></select></div>
         <div class="filter-item"><label>时间：</label><input type="date" id="filterDateStart"> <span style="color:var(--text-secondary)">至</span> <input type="date" id="filterDateEnd"></div>
@@ -216,7 +197,7 @@
         <button class="btn btn-default" onclick="resetFilters()">重置</button>
         <div style="flex: 1;"></div>
         <button class="btn btn-primary" onclick="openModal('modal-add-plan')">+ 新建专项任务</button>
-      </div>
+      </div></div>
 
       <div class="table-wrap">
         <div class="table-scroll">

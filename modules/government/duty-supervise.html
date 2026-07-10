@@ -21,34 +21,18 @@
     .page-title { font-size: var(--font-size-lg); font-weight: 600; }
     
     /* ========== 统计卡片 ========== */
-.stat-card {
-      flex: 1;
-      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: var(--shadow-sm);
-      transition: all var(--duration-normal);
-    }
-    .stat-card:hover {
-      background: linear-gradient(135deg, var(--bg-section) 0%, var(--bg-tertiary) 100%);
-      box-shadow: var(--shadow-md);
-    }
-    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
     
     /* ========== 筛选栏 ========== */
-    .filter-bar { 
-      display: flex; 
-      gap: var(--spacing-sm); 
-      margin-bottom: var(--spacing-md); 
-      align-items: center; 
+    .filter-bar {
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: center;
       flex-wrap: wrap;
-      background: var(--bg-section);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-light);
     }
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
     .filter-item select, .filter-item input { 
       padding: 6px 10px; 
       border: 1px solid var(--border); 
@@ -90,14 +74,14 @@
     .tag-green { background: var(--success-light); color: var(--success); }
     .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
     .tag-orange { background: var(--warning-light); color: var(--warning); }
-    .tag-yellow { background: #fffbe6; color: #faad14; }
-    .tag-red { background: var(--error-light); color: var(--error); }
+    .tag-yellow { background: var(--warning-light); color: var(--warning); }
+    .tag-red { background: var(--danger-light); color: var(--danger); }
     .tag-blue { background: var(--info-light); color: var(--info); }
 
     /* ========== 弹窗 ========== */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: center; }
     .modal-overlay.show { display: flex; }
-    .modal { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: 0 8px 32px rgba(0,0,0,0.18); width: 600px; max-height: 80vh; overflow: auto; }
+    .modal-dialog { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: 0 8px 32px rgba(0,0,0,0.18); width: 600px; max-height: 80vh; overflow: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
     .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
     .modal-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
@@ -105,8 +89,8 @@
     .modal-footer { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
     .form-group { margin-bottom: var(--spacing-md); }
     .form-label { display: block; font-size: var(--font-size-sm); font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
-    .form-control { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
-    .form-control:focus { border-color: var(--primary); outline: none; }
+    .form-input,.form-select { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+    .form-input:focus,.form-select:focus { border-color: var(--primary); outline: none; }
     .required { color: var(--danger); }
     .btn { padding: 6px var(--spacing-md); border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid var(--border-light); background: var(--bg-primary); }
     .btn-primary { background: var(--primary); color: var(--bg-primary); border-color: var(--primary); }
@@ -184,7 +168,7 @@
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="gov-duty-supervise">
+  <div class="module-page page-container" data-module="government/duty-supervise">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -193,11 +177,11 @@
     
     <div class="page-header" style="display: none;"></div>
     
-    <div class="stat-cards">
-      <div class="stat-card"><div class="stat-value" style="color: var(--primary);">15</div><div class="stat-label">监管科室总数</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--success);">12</div><div class="stat-label">履职正常</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--warning);">2</div><div class="stat-label">履职滞后</div></div>
-      <div class="stat-card"><div class="stat-value" style="color: var(--error);">1</div><div class="stat-label">履职异常</div></div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">监管科室总数</div><div class="stat-value">15</div></div><div class="stat-indicator" style="background: var(--primary);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">履职正常</div><div class="stat-value">12</div></div><div class="stat-indicator" style="background: var(--success);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">履职滞后</div><div class="stat-value">2</div></div><div class="stat-indicator" style="background: var(--warning);"></div></div>
+      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">履职异常</div><div class="stat-value">1</div></div><div class="stat-indicator" style="background: var(--danger);"></div></div>
     </div>
 
     <!-- 看板区 -->
@@ -210,8 +194,8 @@
             <div style="width:85%;text-align:left;">
               <div style="margin-bottom:6px;display:flex;align-items:center;gap:8px;"><span style="width:50px;font-size:12px;">充换电</span><div style="flex:1;height:12px;background:var(--success);border-radius:3px;"></div><span style="font-size:11px;">100%</span></div>
               <div style="margin-bottom:6px;display:flex;align-items:center;gap:8px;"><span style="width:50px;font-size:12px;">危化品</span><div style="flex:1;height:12px;background:var(--success);border-radius:3px;width:95%;"></div><span style="font-size:11px;">95%</span></div>
-              <div style="margin-bottom:6px;display:flex;align-items:center;gap:8px;"><span style="width:50px;font-size:12px;">建筑</span><div style="flex:1;height:12px;background:#faad14;border-radius:3px;width:70%;"></div><span style="font-size:11px;">70%</span></div>
-              <div style="display:flex;align-items:center;gap:8px;"><span style="width:50px;font-size:12px;">交通</span><div style="flex:1;height:12px;background:var(--error);border-radius:3px;width:40%;"></div><span style="font-size:11px;">40%</span></div>
+              <div style="margin-bottom:6px;display:flex;align-items:center;gap:8px;"><span style="width:50px;font-size:12px;">建筑</span><div style="flex:1;height:12px;background:var(--warning);border-radius:3px;width:70%;"></div><span style="font-size:11px;">70%</span></div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:50px;font-size:12px;">交通</span><div style="flex:1;height:12px;background:var(--danger);border-radius:3px;width:40%;"></div><span style="font-size:11px;">40%</span></div>
             </div>
           </div>
         </div>
@@ -239,7 +223,7 @@
           <div class="alert-dept-name">综合协调科</div>
           <div class="alert-dept-domain">公共场所、农贸市场</div>
           <div class="alert-dept-progress">
-            <div class="progress-bar"><div class="progress-fill" style="width:70%;background:#faad14;"></div></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--warning);"></div></div>
             <span style="font-size:11px;">70%</span>
             <span class="tag tag-yellow" style="font-size:11px;">滞后</span>
           </div>
@@ -248,7 +232,7 @@
           <div class="alert-dept-name">执法监督科</div>
           <div class="alert-dept-domain">交通运输、其他</div>
           <div class="alert-dept-progress">
-            <div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--error);"></div></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--danger);"></div></div>
             <span style="font-size:11px;">40%</span>
             <span class="tag tag-red" style="font-size:11px;">异常</span>
           </div>
@@ -256,13 +240,13 @@
       </div>
     </div>
 
-    <div class="filter-bar">
+    <div class="filter-card"><div class="filter-bar">
       <div class="filter-item"><label>科室：</label><select id="filterDept"><option>全部</option><option>危化品监管科</option><option>基础安全监管科</option><option>综合协调科</option></select></div>
       <div class="filter-item"><label>履职状态：</label><select id="filterStatus"><option>全部</option><option>正常</option><option>滞后</option><option>异常</option></select></div>
       <div class="filter-item"><label>时间范围：</label><select id="filterTime"><option>本月</option><option>本季度</option><option>本年</option></select></div>
       <button class="btn btn-default" onclick="resetFilter()">重置</button>
       <div style="flex: 1;"></div>
-    </div>
+    </div></div>
 
     <div class="table-wrap">
       <div class="table-scroll">
@@ -309,7 +293,7 @@
               <td>15</td>
               <td>3</td>
               <td>
-                <div class="progress-bar"><div class="progress-fill" style="width: 70%; background: #faad14;"></div></div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 70%; background: var(--warning);"></div></div>
                 <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">70%</div>
               </td>
               <td><span class="tag tag-yellow">滞后</span></td>
@@ -321,11 +305,11 @@
               <td>8</td>
               <td>12</td>
               <td>
-                <div class="progress-bar"><div class="progress-fill" style="width: 40%; background: var(--error);"></div></div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 40%; background: var(--danger);"></div></div>
                 <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">40%</div>
               </td>
               <td><span class="tag tag-red">异常</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewDetail('执法监督科')">查看详情</button></td>
+              <td class="action-col"><button class="btn-link" onclick="viewDetail('执法监督科')">查看详情</button><button class="btn-link" style="color:var(--danger)" onclick="superviseAction('执法监督科')">督办</button></td>
             </tr>
           </tbody>
         </table>
@@ -348,11 +332,40 @@
 
   <!-- 履职详情弹窗 -->
   <div class="modal-overlay" id="modal-duty-detail">
-    <div class="modal" style="width:680px;">
+    <div class="modal-dialog" style="width:680px;">
       <div class="modal-header"><span class="modal-title" id="dutyDetailTitle">履职详情</span><button class="modal-close" onclick="closeModal('modal-duty-detail')">&times;</button></div>
       <div class="modal-body" id="dutyDetailBody">
       </div>
       <div class="modal-footer"><button class="btn" onclick="closeModal('modal-duty-detail')">关闭</button></div>
+    </div>
+  </div>
+
+  <!-- 督办弹窗 -->
+  <div class="modal-overlay" id="modal-supervise">
+    <div class="modal-dialog" style="width:520px;">
+      <div class="modal-header"><span class="modal-title" id="superviseTitle">督办</span><button class="modal-close" onclick="closeModal('modal-supervise')">&times;</button></div>
+      <div class="modal-body">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:36px;margin-bottom:8px;">📋</div>
+          <div style="font-size:var(--font-size-md);color:var(--text-primary);font-weight:600;" id="superviseDeptName"></div>
+          <div style="font-size:var(--font-size-sm);color:var(--text-secondary);margin-top:4px;">履职进度：<span id="superviseProgress" style="color:var(--danger);font-weight:600;"></span></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">督办意见 <span class="required">*</span></label>
+          <textarea id="superviseOpinion" class="form-input" rows="4" placeholder="请输入督办意见，将通知该科室负责人" maxlength="500" style="resize:vertical;"></textarea>
+          <div style="text-align:right;font-size:11px;color:var(--text-tertiary);margin-top:4px;"><span id="superviseOpinionCount">0</span>/500</div>
+        </div>
+        <div style="background:var(--warning-light);border:1px solid var(--warning);border-radius:var(--radius-md);padding:10px 12px;font-size:var(--font-size-xs);color:var(--warning);line-height:1.6;">
+          <strong>督办效果：</strong><br>
+          • 督办通知将发送至该科室负责人<br>
+          • 该科室履职状态标记为"已督办"<br>
+          • 超过7天未改善将自动升级通知分管领导
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-supervise')">取消</button>
+        <button class="btn btn-primary" onclick="submitSupervise()">确认督办</button>
+      </div>
     </div>
   </div>
 
@@ -411,12 +424,12 @@
         var d = dutyData[dept];
         if (!d) return;
         document.getElementById('dutyDetailTitle').textContent = dept + ' - 履职详情';
-        var progressColor = d.progress >= 90 ? 'var(--success)' : d.progress >= 60 ? '#faad14' : 'var(--error)';
+        var progressColor = d.progress >= 90 ? 'var(--success)' : d.progress >= 60 ? 'var(--warning)' : 'var(--danger)';
         var statusClass = d.status === '正常' ? 'tag-green' : d.status === '滞后' ? 'tag-yellow' : 'tag-red';
         document.getElementById('dutyDetailBody').innerHTML =
           '<div style="display:flex;gap: var(--spacing-md);margin-bottom: var(--spacing-md);">' +
             '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><div style="font-size: var(--font-size-xxl);font-weight:600;color:var(--primary);">' + d.checks + '</div><div style="font-size:var(--font-size-xs);color:var(--text-secondary);">本月检查次数</div></div>' +
-            '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><div style="font-size: var(--font-size-xxl);font-weight:600;color:var(--error);">' + d.hazards + '</div><div style="font-size:var(--font-size-xs);color:var(--text-secondary);">隐患发现数</div></div>' +
+            '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><div style="font-size: var(--font-size-xxl);font-weight:600;color:var(--danger);">' + d.hazards + '</div><div style="font-size:var(--font-size-xs);color:var(--text-secondary);">隐患发现数</div></div>' +
             '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><div style="font-size: var(--font-size-xxl);font-weight:600;">' + d.progress + '%</div><div style="font-size:var(--font-size-xs);color:var(--text-secondary);">履职进度</div></div>' +
             '<div style="flex:1;background:var(--bg-section);border-radius: var(--radius-lg);padding:12px;text-align:center;"><span class="tag ' + statusClass + '">' + d.status + '</span><div style="font-size:var(--font-size-xs);color:var(--text-secondary);margin-top: var(--spacing-xs);">履职状态</div></div>' +
           '</div>' +
@@ -437,6 +450,49 @@
       // 催办（一键发送）
       window.urgeAction = function(dept) {
         showToast('已发送催办通知至：' + dept);
+      };
+
+      // 督办：打开督办弹窗
+      window.superviseAction = function(dept) {
+        var d = dutyData[dept];
+        if (!d) return;
+        document.getElementById('superviseTitle').textContent = '督办 - ' + dept;
+        document.getElementById('superviseDeptName').textContent = dept + '（' + d.domain + '）';
+        document.getElementById('superviseProgress').textContent = d.progress + '%';
+        document.getElementById('superviseOpinion').value = '';
+        document.getElementById('superviseOpinionCount').textContent = '0';
+        openModal('modal-supervise');
+      };
+
+      // 督办意见字数统计
+      document.getElementById('superviseOpinion').addEventListener('input', function() {
+        document.getElementById('superviseOpinionCount').textContent = this.value.length;
+      });
+
+      // 提交督办
+      window.submitSupervise = function() {
+        var opinion = document.getElementById('superviseOpinion').value.trim();
+        if (!opinion) {
+          showToast('请填写督办意见');
+          document.getElementById('superviseOpinion').focus();
+          return;
+        }
+        var deptName = document.getElementById('superviseDeptName').textContent.split('（')[0];
+        closeModal('modal-supervise');
+        showToast('已向 ' + deptName + ' 发送督办通知');
+        // 更新该行状态标签
+        var row = document.getElementById('row-' + deptName);
+        if (row) {
+          var statusCell = row.querySelector('td:nth-child(6)');
+          if (statusCell) {
+            statusCell.innerHTML = '<span class="tag tag-red">异常</span> <span class="tag tag-blue" style="font-size:10px;">已督办</span>';
+          }
+          // 更新操作列：督办按钮变为已督办（禁用）
+          var actionCell = row.querySelector('td.action-col');
+          if (actionCell) {
+            actionCell.innerHTML = '<button class="btn-link" onclick="viewDetail(\'' + deptName + '\')">查看详情</button><span style="color:var(--text-tertiary);font-size:var(--font-size-sm);">已督办</span>';
+          }
+        }
       };
 
       // 重置筛选

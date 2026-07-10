@@ -28,31 +28,7 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* ========== 统计卡片 ========== */
-.stat-card {
-      flex: 1;
-      background: linear-gradient(135deg, var(--bg-section-alt) 0%, var(--bg-section) 100%);
-      border: 1px solid var(--border-card);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: var(--shadow-card);
-      transition: transform var(--duration-fast), box-shadow var(--duration-fast);
-      border-left: 4px solid transparent;
-    }
-    .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-card-hover);
-      cursor: pointer;
-    }
-    .stat-card.card-blue { border-left-color: var(--primary); }
-    .stat-card.card-green { border-left-color: var(--success); }
-    .stat-card.card-orange { border-left-color: var(--warning); }
-    .stat-card.card-red { border-left-color: var(--danger); }
-    .stat-value { font-size: var(--font-size-xxxl); font-weight: 600; }
-    .stat-label { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-xs); }
-    .stat-trend { font-size: var(--font-size-xs); margin-top: var(--spacing-xs); }
-    .stat-trend.up { color: var(--success); }
-    .stat-trend.down { color: var(--danger); }
+    /* 统计卡片由 framework.css 提供 stat-card / stat-card-body / stat-indicator 样式 */
 
     /* ========== 筛选条件区 ========== */
     .filter-bar {
@@ -60,12 +36,11 @@
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: var(--spacing-md);
-      background: var(--bg-primary);
-      padding: 12px var(--spacing-md);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);margin-bottom:var(--spacing-md)}
+    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
+    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
     .filter-group {
       display: flex;
       align-items: center;
@@ -235,7 +210,7 @@
   </style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="gov-analytics">
+  <div class="module-page page-container" data-module="government/analytics">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
@@ -259,7 +234,7 @@
     <!-- ==================== Tab1: 监管概览 ==================== -->
     <div id="view-analytics-overview" class="tab-content active">
       <!-- 筛选条件区 -->
-      <div class="filter-bar">
+      <div class="filter-card"><div class="filter-bar">
         <div class="filter-group">
           <span class="filter-label">时间范围：</span>
           <select id="timeRangeSelect" onchange="onFilterChange()">
@@ -292,29 +267,37 @@
           </div>
         </div>
         <button class="btn-query" onclick="onFilterChange()">查询</button>
-      </div>
+      </div></div>
 
       <!-- 统计指标卡 -->
-      <div class="stat-cards">
-        <div class="stat-card card-blue" onclick="drillDown('coverage')" title="点击查看监管覆盖率详情">
-          <div class="stat-value" style="color: var(--primary);">156</div>
-          <div class="stat-label">监管企业数</div>
-          <div class="stat-trend up">↑ 12% 较上月</div>
+      <div class="stats-row">
+        <div class="stat-card" onclick="drillDown('coverage')" title="点击查看监管覆盖率详情">
+          <div class="stat-card-body">
+            <div class="stat-label">监管企业数</div>
+            <div class="stat-value">156</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--primary);"></div>
         </div>
-        <div class="stat-card card-green" onclick="drillDown('coverage')" title="点击查看监管覆盖率详情">
-          <div class="stat-value" style="color: var(--success);">89%</div>
-          <div class="stat-label">监管覆盖率</div>
-          <div class="stat-trend up">↑ 5% 较上月</div>
+        <div class="stat-card" onclick="drillDown('coverage')" title="点击查看监管覆盖率详情">
+          <div class="stat-card-body">
+            <div class="stat-label">监管覆盖率</div>
+            <div class="stat-value">89%</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--success);"></div>
         </div>
-        <div class="stat-card" style="border-left-color: var(--info);" onclick="drillDown('inspection')" title="点击查看检查任务详情">
-          <div class="stat-value" style="color: var(--info);">328</div>
-          <div class="stat-label">检查完成次数</div>
-          <div class="stat-trend up">↑ 15% 较上月</div>
+        <div class="stat-card" onclick="drillDown('inspection')" title="点击查看检查任务详情">
+          <div class="stat-card-body">
+            <div class="stat-label">检查完成次数</div>
+            <div class="stat-value">328</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--info);"></div>
         </div>
-        <div class="stat-card card-orange" onclick="drillDown('hazard')" title="点击查看隐患分析详情">
-          <div class="stat-value" style="color: var(--warning);">23</div>
-          <div class="stat-label">待整改隐患数</div>
-          <div class="stat-trend down">↓ 8% 较上月</div>
+        <div class="stat-card" onclick="drillDown('hazard')" title="点击查看隐患分析详情">
+          <div class="stat-card-body">
+            <div class="stat-label">待整改隐患数</div>
+            <div class="stat-value">23</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--warning);"></div>
         </div>
       </div>
 
@@ -514,7 +497,7 @@
     <!-- ==================== Tab2: 监管覆盖率 ==================== -->
     <div id="view-analytics-coverage" class="tab-content">
       <!-- 筛选条件区 -->
-      <div class="filter-bar">
+      <div class="filter-card"><div class="filter-bar">
         <div class="filter-group">
           <span class="filter-label">时间范围：</span>
           <select onchange="onFilterChange()">
@@ -533,26 +516,37 @@
           <div class="multi-select-trigger" onclick="toggleMultiSelect('deptDropdown')"><span>全部</span></div>
         </div>
         <button class="btn-query" onclick="onFilterChange()">查询</button>
-      </div>
+      </div></div>
 
       <!-- 覆盖率统计卡 -->
-      <div class="stat-cards">
-        <div class="stat-card card-blue">
-          <div class="stat-value" style="color: var(--primary);">156</div>
-          <div class="stat-label">监管企业总数</div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">监管企业总数</div>
+            <div class="stat-value">156</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--primary);"></div>
         </div>
-        <div class="stat-card card-green">
-          <div class="stat-value" style="color: var(--success);">139</div>
-          <div class="stat-label">已配置责任人企业数</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">已配置责任人企业数</div>
+            <div class="stat-value">139</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--success);"></div>
         </div>
-        <div class="stat-card card-orange">
-          <div class="stat-value" style="color: var(--warning);">17</div>
-          <div class="stat-label">未配置责任人企业数</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">未配置责任人企业数</div>
+            <div class="stat-value">17</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--warning);"></div>
         </div>
-        <div class="stat-card card-green">
-          <div class="stat-value" style="color: var(--success);">89%</div>
-          <div class="stat-label">整体覆盖率</div>
-          <div class="stat-trend up">↑ 5% 较上月</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">整体覆盖率</div>
+            <div class="stat-value">89%</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--success);"></div>
         </div>
       </div>
 
@@ -622,7 +616,7 @@
     <!-- ==================== Tab3: 检查任务 ==================== -->
     <div id="view-analytics-inspection" class="tab-content">
       <!-- 筛选条件区 -->
-      <div class="filter-bar">
+      <div class="filter-card"><div class="filter-bar">
         <div class="filter-group">
           <span class="filter-label">时间范围：</span>
           <select onchange="onFilterChange()">
@@ -641,27 +635,37 @@
           <div class="multi-select-trigger" onclick="toggleMultiSelect('deptDropdown')"><span>全部</span></div>
         </div>
         <button class="btn-query" onclick="onFilterChange()">查询</button>
-      </div>
+      </div></div>
 
       <!-- 检查任务统计卡 -->
-      <div class="stat-cards">
-        <div class="stat-card card-blue">
-          <div class="stat-value" style="color: var(--primary);">412</div>
-          <div class="stat-label">任务总数</div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">任务总数</div>
+            <div class="stat-value">412</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--primary);"></div>
         </div>
-        <div class="stat-card card-green">
-          <div class="stat-value" style="color: var(--success);">328</div>
-          <div class="stat-label">已完成</div>
-          <div class="stat-trend up">完成率 79.6%</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">已完成</div>
+            <div class="stat-value">328</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--success);"></div>
         </div>
-        <div class="stat-card card-orange">
-          <div class="stat-value" style="color: var(--warning);">56</div>
-          <div class="stat-label">进行中</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">进行中</div>
+            <div class="stat-value">56</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--warning);"></div>
         </div>
-        <div class="stat-card card-red">
-          <div class="stat-value" style="color: var(--danger);">28</div>
-          <div class="stat-label">逾期任务</div>
-          <div class="stat-trend down">逾期率 6.8%</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">逾期任务</div>
+            <div class="stat-value">28</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--danger);"></div>
         </div>
       </div>
 
@@ -714,7 +718,7 @@
     <!-- ==================== Tab4: 隐患分析 ==================== -->
     <div id="view-analytics-hazard" class="tab-content">
       <!-- 筛选条件区 -->
-      <div class="filter-bar">
+      <div class="filter-card"><div class="filter-bar">
         <div class="filter-group">
           <span class="filter-label">时间范围：</span>
           <select onchange="onFilterChange()">
@@ -733,28 +737,37 @@
           <div class="multi-select-trigger" onclick="toggleMultiSelect('deptDropdown')"><span>全部</span></div>
         </div>
         <button class="btn-query" onclick="onFilterChange()">查询</button>
-      </div>
+      </div></div>
 
       <!-- 隐患统计卡 -->
-      <div class="stat-cards">
-        <div class="stat-card card-blue">
-          <div class="stat-value" style="color: var(--primary);">156</div>
-          <div class="stat-label">隐患发现数</div>
-          <div class="stat-trend up">↑ 10% 较上月</div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">隐患发现数</div>
+            <div class="stat-value">156</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--primary);"></div>
         </div>
-        <div class="stat-card card-green">
-          <div class="stat-value" style="color: var(--success);">92%</div>
-          <div class="stat-label">整改完成率</div>
-          <div class="stat-trend up">↑ 3% 较上月</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">整改完成率</div>
+            <div class="stat-value">92%</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--success);"></div>
         </div>
-        <div class="stat-card card-orange">
-          <div class="stat-value" style="color: var(--warning);">23</div>
-          <div class="stat-label">待整改隐患</div>
-          <div class="stat-trend down">↓ 8% 较上月</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">待整改隐患</div>
+            <div class="stat-value">23</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--warning);"></div>
         </div>
-        <div class="stat-card card-red">
-          <div class="stat-value" style="color: var(--danger);">5</div>
-          <div class="stat-label">重大隐患</div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">重大隐患</div>
+            <div class="stat-value">5</div>
+          </div>
+          <div class="stat-indicator" style="background: var(--danger);"></div>
         </div>
       </div>
 
@@ -811,7 +824,7 @@
     <!-- ==================== Tab5: 趋势分析 ==================== -->
     <div id="view-analytics-trend" class="tab-content">
       <!-- 筛选条件区 -->
-      <div class="filter-bar">
+      <div class="filter-card"><div class="filter-bar">
         <div class="filter-group">
           <span class="filter-label">时间范围：</span>
           <select onchange="onFilterChange()">
@@ -839,7 +852,7 @@
           </div>
         </div>
         <button class="btn-query" onclick="onFilterChange()">查询</button>
-      </div>
+      </div></div>
 
       <!-- 覆盖率趋势折线图 -->
       <div class="chart-grid full-width" style="margin-bottom: var(--spacing-md);">
