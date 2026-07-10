@@ -16,7 +16,7 @@
       overflow: hidden;
     }
 
-    .page-body {
+    .main-layout {
       display: flex;
       gap: var(--spacing-md);
       flex: 1;
@@ -25,7 +25,7 @@
     }
 
     /* ========== 左侧树状列表 ========== */
-    .left-panel {
+    .tree-panel {
       width: 260px;
       flex-shrink: 0;
       background: var(--bg-card);
@@ -261,6 +261,21 @@
       cursor: pointer;
     }
 
+    /* ========== 安全码列样式 ========== */
+    .code-cell {
+      display: inline-flex;
+      align-items: center;
+      cursor: help;
+    }
+    .code-cell .qrcode-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+    .code-cell.green .qrcode-icon { color: var(--success); }
+    .code-cell.yellow .qrcode-icon { color: var(--warning); }
+    .code-cell.red .qrcode-icon { color: var(--danger); }
+
     /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
 
     /* ========== 带角标的按钮 ========== */
@@ -291,7 +306,7 @@
     .audit-footer-pages button:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
 
     /* ========== 弹窗样式（本页专用） ========== */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--overlay-bg); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-overlay.show { display: flex; }
     .modal-dialog { background: var(--bg-card); border-radius: var(--radius-lg); width: 720px; max-width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
     .modal-dialog.modal-sm { width: 480px; }
@@ -430,57 +445,7 @@
     .tree-node-label { flex: 1; font-size: var(--font-size-sm); color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .tree-node-count { font-size: var(--font-size-xs); color: var(--primary); background: var(--primary-light); border-radius: var(--radius-full); padding: 1px 7px; margin-left: var(--spacing-xs); flex-shrink: 0; }
   
-    /* 统计卡片优化样式 */
-    .stat-cards {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-md);
-    }
-    .stat-card {
-      position: relative;
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-lg);
-      display: flex;
-      align-items: stretch;
-      box-shadow: var(--shadow-sm);
-      transition: all var(--duration-fast);
-      overflow: hidden;
-      min-height: 0;
-    }
-    .stat-card:hover {
-      box-shadow: var(--shadow-card-hover);
-      border-color: var(--primary-light);
-    }
-    .stat-card-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: var(--spacing-xs);
-    }
-    .stat-label {
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text-primary);
-      line-height: 1.2;
-      letter-spacing: -0.5px;
-    }
-    .stat-indicator {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-    }
+    /* 统计卡片 - .stats-row, .stat-card, .stat-card-body, .stat-label, .stat-value, .stat-indicator 由 framework.css 提供 */
     .stat-link {
       font-size: var(--font-size-xs);
       color: var(--primary);
@@ -501,9 +466,9 @@
     <div class="page-header" style="display: none;">
     </div>
     
-    <div class="page-body">
+    <div class="main-layout">
       <!-- 左侧树状列表 -->
-      <div class="left-panel">
+      <div class="tree-panel">
         <div class="tree-search">
           <input type="text" placeholder="搜索企业名称..." id="treeSearchInput">
         </div>
@@ -516,7 +481,7 @@
       
       <!-- 右侧内容区 -->
       <div class="right-content">
-        <div class="stat-cards">
+        <div class="stats-row">
           <div class="stat-card stat-total">
             <div class="stat-card-body">
               <div class="stat-label">企业总数</div>
@@ -580,6 +545,7 @@
                   <th>主领域小类</th>
                   <th>经营地址</th>
                   <th>状态</th>
+                  <th>安全码</th>
                   <th>注册时间</th>
                   <th class="operation-col">操作</th>
                 </tr>
@@ -747,6 +713,7 @@
             <div class="info-item"><span class="info-label">法定代表人</span><span class="info-value" id="detailLeader">王建国</span></div>
             <div class="info-item"><span class="info-label">联系电话</span><span class="info-value" id="detailPhone">138****8000</span></div>
             <div class="info-item"><span class="info-label">状态</span><span class="info-value" id="detailStatus"><span class="tag tag-green">启用</span></span></div>
+            <div class="info-item"><span class="info-label">安全码</span><span class="info-value" id="detailCodeColor"><span class="code-cell green">${QR_ICON_SVG}</span><span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">绿码</span></span></div>
             <div class="info-item"><span class="info-label">注册时间</span><span class="info-value" id="detailDate">2026-03-15 09:15</span></div>
           </div>
         </div>
@@ -1384,7 +1351,8 @@
             "industryDept": "南山区工业和信息化局",
             "professionalDept": "南山区应急管理局",
             "localDept": "南头街道办",
-            "domainId": "COMM_002"
+            "domainId": "COMM_002",
+            "codeColor": "yellow"
       },
       {
             "name": "南山街道雅居物业",
@@ -1402,7 +1370,8 @@
             "industryDept": "南山区住房和建设局",
             "professionalDept": "南山区住房和建设局",
             "localDept": "南山街道办",
-            "domainId": "COMM_003"
+            "domainId": "COMM_003",
+            "codeColor": "green"
       },
       {
             "name": "沙河街道旺角商场",
@@ -1420,7 +1389,8 @@
             "industryDept": "南山区应急管理局",
             "professionalDept": "南山区消防救援大队",
             "localDept": "沙河街道办",
-            "domainId": "COMM_006"
+            "domainId": "COMM_006",
+            "codeColor": "red"
       },
       {
             "name": "蛇口街道美食餐饮店",
@@ -1438,7 +1408,8 @@
             "industryDept": "南山区文化广电旅游体育局",
             "professionalDept": "南山区生态环境分局",
             "localDept": "蛇口街道办",
-            "domainId": "COMM_007"
+            "domainId": "COMM_007",
+            "codeColor": "yellow"
       },
       {
             "name": "招商街道美发工作室",
@@ -1456,7 +1427,8 @@
             "industryDept": "南山区卫生健康局",
             "professionalDept": "南山区应急管理局",
             "localDept": "招商街道办",
-            "domainId": "COMM_008"
+            "domainId": "COMM_008",
+            "codeColor": "green"
       },
       {
             "name": "粤海街道咖啡简餐",
@@ -3566,6 +3538,10 @@
       return [];
     }
 
+    // 安全码 QR 图标（stroke-based，颜色由 .code-cell 父级控制）
+    var QR_ICON_SVG="<svg class='qrcode-icon' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7'/><rect x='14' y='3' width='7' height='7'/><rect x='3' y='14' width='7' height='7'/><line x1='14' y1='14' x2='14' y2='14'/><line x1='21' y1='14' x2='21' y2='14'/><line x1='14' y1='21' x2='14' y2='21'/><line x1='21' y1='21' x2='21' y2='21'/><line x1='17' y1='14' x2='17' y2='17'/><line x1='14' y1='17' x2='17' y2='17'/><line x1='17' y1='20' x2='20' y2='20'/><line x1='20' y1='17' x2='20' y2='20'/></svg>";
+    function getCodeLabel(code){return code==='red'?'红码':code==='yellow'?'黄码':'绿码';}
+
     // 渲染企业列表
     function renderTable() {
       filteredData = [...enterpriseData];
@@ -3588,7 +3564,7 @@
       // 渲染表格
       const tbody = document.getElementById('entTableBody');
       if (pageData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-tertiary); padding: 40px;">暂无数据</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--text-tertiary); padding: 40px;">暂无数据</td></tr>`;
         if (pg) pg.setTotal(filteredData.length);
         return;
       }
@@ -3604,6 +3580,8 @@
         var safeDate = escapeHtml(e.date);
         var statusClass = e.status === '启用' ? 'tag-green' : e.status === '停用' ? 'tag-gray' : 'tag-gray';
         var statusAction = e.status === '停用' ? '启用' : '停用';
+        var codeColor = e.codeColor || (e.status === '停用' ? 'yellow' : 'green');
+        var codeLabel = getCodeLabel(codeColor);
         return `
         <tr>
           <td class="col-check"><input type="checkbox" class="ent-check" value="${safeCode}"></td>
@@ -3615,6 +3593,7 @@
           <td title="${safeDomain}"><span class="domain-tag">${safeDomain}</span></td>
           <td title="${safeBizAddr}">${safeBizAddr || '—'}</td>
           <td><span class="tag ${statusClass}">${safeStatus}</span></td>
+          <td><span class="code-cell ${codeColor}" title="${codeLabel}">${QR_ICON_SVG}</span></td>
           <td title="${safeDate}">${safeDate}</td>
           <td class="operation-col">
             <div class="table-action-group">
@@ -3770,6 +3749,13 @@
         setText('detailLocalDept', ent.localDept || '按归属网格自动带出');
         var statusEl = document.getElementById('detailStatus');
         if (statusEl) statusEl.innerHTML = renderStatusTag(ent.status);
+        var codeColorEl = document.getElementById('detailCodeColor');
+        if (codeColorEl) {
+          var cc = ent.codeColor || (ent.status === '停用' ? 'yellow' : 'green');
+          var ccLabel = getCodeLabel(cc);
+          var ccColor = cc === 'red' ? 'var(--danger)' : cc === 'yellow' ? 'var(--warning)' : 'var(--success)';
+          codeColorEl.innerHTML = '<span class="code-cell ' + cc + '">' + QR_ICON_SVG + '</span><span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">' + ccLabel + '</span><span style="margin-left:8px;color:' + ccColor + ';">（' + ccLabel + '）</span>';
+        }
       }
       document.getElementById('detailModal').classList.add('show');
     }

@@ -119,9 +119,9 @@
       border-radius: 50%;
       display: inline-block;
     }
-    .code-dot.red { background: #f5222d; }
-    .code-dot.yellow { background: #faad14; }
-    .code-dot.green { background: #52c41a; }
+    .code-dot.red { background: var(--danger); }
+    .code-dot.yellow { background: var(--warning); }
+    .code-dot.green { background: var(--success); }
 
     /* ========== 下钻列表视图 ========== */
     .drill-view { display: none; }
@@ -375,9 +375,9 @@
       height: 20px;
       color: var(--text-secondary);
     }
-    .code-cell.red .qrcode-icon { color: #f5222d; }
-    .code-cell.yellow .qrcode-icon { color: #faad14; }
-    .code-cell.green .qrcode-icon { color: #52c41a; }
+    .code-cell.red .qrcode-icon { color: var(--danger); }
+    .code-cell.yellow .qrcode-icon { color: var(--warning); }
+    .code-cell.green .qrcode-icon { color: var(--success); }
 
     /* ========== 状态标签 ========== */
     .status-tag {
@@ -386,8 +386,8 @@
       border-radius: var(--radius-md);
       font-size: var(--font-size-xs);
     }
-    .status-tag.enabled { background: #f6ffed; color: #389e0d; }
-    .status-tag.disabled { background: #f5f5f5; color: #999; }
+    .status-tag.enabled { background: var(--success-light); color: var(--success); }
+    .status-tag.disabled { background: var(--bg-secondary); color: var(--text-tertiary); }
 
     /* ========== 空状态 ========== */
     .empty-state {
@@ -992,11 +992,35 @@
           <!-- 右栏：统计 + 查询 + 列表 -->
           <div class="drill-main">
             <!-- 统计卡片 -->
-            <div class="stat-cards">
-              <div class="stat-card"><div class="stat-label">场所总数</div><div class="stat-value" id="statTotal">0</div></div>
-              <div class="stat-card" style="border-left:3px solid #f5222d;"><div class="stat-label">红码</div><div class="stat-value" style="color:#f5222d;" id="statRed">0</div></div>
-              <div class="stat-card" style="border-left:3px solid #faad14;"><div class="stat-label">黄码</div><div class="stat-value" style="color:#d48806;" id="statYellow">0</div></div>
-              <div class="stat-card" style="border-left:3px solid #52c41a;"><div class="stat-label">绿码</div><div class="stat-value" style="color:#389e0d;" id="statGreen">0</div></div>
+            <div class="stats-row">
+              <div class="stat-card">
+                <div class="stat-card-body">
+                  <div class="stat-label">场所总数</div>
+                  <div class="stat-value" id="statTotal">0</div>
+                </div>
+                <div class="stat-indicator" style="background: var(--primary);"></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-body">
+                  <div class="stat-label">红码</div>
+                  <div class="stat-value" id="statRed">0</div>
+                </div>
+                <div class="stat-indicator" style="background: var(--danger);"></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-body">
+                  <div class="stat-label">黄码</div>
+                  <div class="stat-value" id="statYellow">0</div>
+                </div>
+                <div class="stat-indicator" style="background: var(--warning);"></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-body">
+                  <div class="stat-label">绿码</div>
+                  <div class="stat-value" id="statGreen">0</div>
+                </div>
+                <div class="stat-indicator" style="background: var(--success);"></div>
+              </div>
             </div>
 
             <!-- 筛选区 -->
@@ -1035,7 +1059,7 @@
                       <th>场所名称</th>
                       <th class="place-region">所属区划</th>
                       <th>详细地址</th>
-                      <th style="width:100px;">安全码</th>
+                      <th style="width:120px;">安全码</th>
                       <th style="width:90px;">启用状态</th>
                       <th class="operation-col" style="width:160px;">操作</th>
                     </tr>
@@ -1761,7 +1785,7 @@
       onChange: function() { renderPlaceList(); }
     });
 
-    const QR_ICON_SVG = '<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
+    const QR_ICON_SVG = "<svg class='qrcode-icon' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7'/><rect x='14' y='3' width='7' height='7'/><rect x='3' y='14' width='7' height='7'/><line x1='14' y1='14' x2='14' y2='14'/><line x1='21' y1='14' x2='21' y2='14'/><line x1='14' y1='21' x2='14' y2='21'/><line x1='21' y1='21' x2='21' y2='21'/><line x1='17' y1='14' x2='17' y2='17'/><line x1='14' y1='17' x2='17' y2='17'/><line x1='17' y1='20' x2='20' y2='20'/><line x1='20' y1='17' x2='20' y2='20'/></svg>";
 
     function renderPlaceList() {
       const places = getFilteredPlaces();
@@ -1796,6 +1820,7 @@
             <td>
               <span class="code-cell ${p.code_state}" title="${safeCode}">
                 ${QR_ICON_SVG}
+                <span style="margin-left:4px;font-size:12px;color:${p.code_state==='red'?'var(--danger)':p.code_state==='yellow'?'var(--warning)':'var(--success)'};">${p.code_state==='red'?'红码':p.code_state==='yellow'?'黄码':'绿码'}</span>
               </span>
             </td>
             <td><span class="status-tag ${isEnabled ? 'enabled' : 'disabled'}">${isEnabled ? '启用' : '停用'}</span></td>
@@ -2867,7 +2892,7 @@
               <div class="kp-field"><div class="kp-field-label">经纬度</div><div class="kp-coord-pair"><div class="kp-field-readonly">经度：${longitudeTxt}</div><div class="kp-field-readonly">纬度：${latitudeTxt}</div></div></div>
             </div>
             <div class="kp-col">
-              <div class="kp-field"><div class="kp-field-label">安全码</div><div class="kp-field-readonly"><span class="code-cell ${p.code_state}">${QR_ICON_SVG}</span><span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">${safetyCodeTxt}</span><span style="margin-left:8px;color:${p.code_state==='red'?'#f5222d':p.code_state==='yellow'?'#faad14':'#52c41a'};">（${codeLabel}）</span></div></div>
+              <div class="kp-field"><div class="kp-field-label">安全码</div><div class="kp-field-readonly"><span class="code-cell ${p.code_state}">${QR_ICON_SVG}</span><span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">${safetyCodeTxt}</span><span style="margin-left:8px;color:${p.code_state==='red'?'var(--danger)':p.code_state==='yellow'?'var(--warning)':'var(--success)'};">（${codeLabel}）</span></div></div>
               <div class="kp-field"><div class="kp-field-label">状态</div><div class="kp-field-readonly"><span class="status-tag ${p.status === '1' ? 'enabled' : 'disabled'}">${p.status === '1' ? '启用' : '停用'}</span></div></div>
               <div class="kp-field"><div class="kp-field-label">场所图片</div><div class="kp-upload-area">${(p.images||[]).map(()=>`<div class="kp-upload-thumb">📷</div>`).join('') || '<div style="color:var(--text-tertiary);font-size:12px;">无</div>'}</div></div>
             </div>
@@ -2903,7 +2928,7 @@
     // ========== Toast ==========
     function showToast(msg, type) {
       const toast = document.createElement('div');
-      toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:8px 24px;border-radius:6px;font-size:14px;z-index:9999;color:#fff;background:' + (type === 'error' ? '#f5222d' : type === 'success' ? '#52c41a' : '#1890ff');
+      toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:8px 24px;border-radius:6px;font-size:14px;z-index:9999;color:#fff;background:' + (type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : 'var(--primary)');
       toast.textContent = msg;
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 2000);

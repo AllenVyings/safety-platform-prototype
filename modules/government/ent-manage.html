@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>  <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
@@ -16,7 +16,7 @@
       overflow: hidden;
     }
 
-    .page-body {
+    .main-layout {
       display: flex;
       gap: var(--spacing-md);
       flex: 1;
@@ -25,7 +25,7 @@
     }
 
     /* ========== 左侧树状列表 ========== */
-    .left-panel {
+    .tree-panel {
       width: 260px;
       flex-shrink: 0;
       background: var(--bg-card);
@@ -246,7 +246,7 @@
     }
 
     .table-wrap table {
-      min-width: 1400px;
+      min-width: 1200px;
     }
 
     .table-wrap td:not(.operation-col) {
@@ -291,7 +291,7 @@
     .audit-footer-pages button:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
 
     /* ========== 弹窗样式（本页专用） ========== */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--overlay-bg); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-overlay.show { display: flex; }
     .modal-dialog { background: var(--bg-card); border-radius: var(--radius-lg); width: 720px; max-width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
     .modal-dialog.modal-sm { width: 480px; }
@@ -430,57 +430,7 @@
     .tree-node-label { flex: 1; font-size: var(--font-size-sm); color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .tree-node-count { font-size: var(--font-size-xs); color: var(--primary); background: var(--primary-light); border-radius: var(--radius-full); padding: 1px 7px; margin-left: var(--spacing-xs); flex-shrink: 0; }
   
-    /* 统计卡片优化样式 */
-    .stat-cards {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-md);
-    }
-    .stat-card {
-      position: relative;
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-lg);
-      display: flex;
-      align-items: stretch;
-      box-shadow: var(--shadow-sm);
-      transition: all var(--duration-fast);
-      overflow: hidden;
-      min-height: 0;
-    }
-    .stat-card:hover {
-      box-shadow: var(--shadow-card-hover);
-      border-color: var(--primary-light);
-    }
-    .stat-card-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: var(--spacing-xs);
-    }
-    .stat-label {
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text-primary);
-      line-height: 1.2;
-      letter-spacing: -0.5px;
-    }
-    .stat-indicator {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-    }
+    /* 统计卡片 - .stats-row, .stat-card, .stat-card-body, .stat-label, .stat-value, .stat-indicator 由 framework.css 提供 */
     .stat-link {
       font-size: var(--font-size-xs);
       color: var(--primary);
@@ -495,11 +445,21 @@
     .archive-link:hover { border-color: var(--primary); background: var(--primary-light); }
     .archive-link-name { font-size: var(--font-size-sm); color: var(--text-primary); }
     .archive-link-count { font-size: var(--font-size-xs); color: var(--text-secondary); }
-    .risk-tag { font-weight: 600; padding: 3px 10px; border-radius: var(--radius-sm); }
-    .risk-tag.high { background: var(--danger-light); color: var(--danger); }
-    .risk-tag.mid { background: var(--warning-light); color: var(--warning); }
-    .risk-tag.low { background: #fffbe6; color: #faad14; }
-    .risk-tag.safe { background: var(--success-light); color: var(--success); }
+
+    /* 安全码列样式 */
+    .code-cell {
+      display: inline-flex;
+      align-items: center;
+      cursor: help;
+    }
+    .qrcode-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+    .code-cell.green .qrcode-icon { color: var(--success); }
+    .code-cell.yellow .qrcode-icon { color: var(--warning); }
+    .code-cell.red .qrcode-icon { color: var(--danger); }
 </style>
 </head>
 <body>
@@ -516,9 +476,9 @@
     <div class="page-header" style="display: none;">
     </div>
     
-    <div class="page-body">
+    <div class="main-layout">
       <!-- 左侧树状列表 -->
-      <div class="left-panel">
+      <div class="tree-panel">
         <div class="tree-search">
           <input type="text" placeholder="搜索企业名称..." id="treeSearchInput">
         </div>
@@ -531,7 +491,7 @@
       
       <!-- 右侧内容区 -->
       <div class="right-content">
-        <div class="stat-cards" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="stats-row">
           <div class="stat-card stat-total">
             <div class="stat-card-body">
               <div class="stat-label">企业总数</div>
@@ -546,36 +506,26 @@
             </div>
             <div class="stat-indicator" style="background: var(--success);"></div>
           </div>
-          <div class="stat-card stat-key">
+          <div class="stat-card stat-pending">
             <div class="stat-card-body">
-              <div class="stat-label">重点监管</div>
+              <div class="stat-label">待审批单</div>
               <div class="stat-value">0</div>
             </div>
             <div class="stat-indicator" style="background: var(--warning);"></div>
           </div>
-          <div class="stat-card stat-risk">
+          <div class="stat-card stat-disabled">
             <div class="stat-card-body">
-              <div class="stat-label">高风险</div>
+              <div class="stat-label">停用</div>
               <div class="stat-value">0</div>
             </div>
-            <div class="stat-indicator" style="background: var(--danger);"></div>
-          </div>
-          <div class="stat-card stat-new">
-            <div class="stat-card-body">
-              <div class="stat-label">本月新增</div>
-              <div class="stat-value">0</div>
-            </div>
-            <div class="stat-indicator" style="background: #722ed1;"></div>
+            <div class="stat-indicator" style="background: var(--text-tertiary);"></div>
           </div>
         </div>
         
         <div class="filter-card">
           <div class="filter-bar">
-            <div class="filter-item"><label>行业类别：</label><select id="filterIndustry"><option>全部</option><option>公共场所类</option><option>危险化学品类</option><option>建设工程类</option><option>工业制造类</option><option>城市运行类</option><option>交通运输类</option><option>其他类</option></select></div>
-            <div class="filter-item"><label>企业规模：</label><select id="filterScale"><option>全部</option><option>大型</option><option>中型</option><option>小型</option><option>微型</option></select></div>
-            <div class="filter-item"><label>风险等级：</label><select id="filterRisk"><option>全部</option><option>高风险</option><option>中风险</option><option>低风险</option><option>安全</option></select></div>
-            <div class="filter-item"><label>所属街道：</label><select id="filterStreet"><option>全部</option><option>南头街道</option><option>南山街道</option><option>沙河街道</option><option>蛇口街道</option><option>招商街道</option><option>粤海街道</option><option>桃源街道</option><option>西丽街道</option><option>前海合作区</option></select></div>
             <div class="filter-item"><label>状态：</label><select id="filterStatus"><option>全部</option><option>启用</option><option>停用</option></select></div>
+            <div class="filter-item"><label>归属网格：</label><select id="filterGrid"><option>全部</option><option>南山区</option></select></div>
             <div class="filter-item"><label>关键词：</label><input type="text" id="filterKeyword" placeholder="搜索企业名称、统一社会信用代码"></div>
             <button class="btn btn-primary" onclick="doFilter()">查询</button>
             <button class="btn btn-default" onclick="resetFilter()">重置</button>
@@ -600,13 +550,12 @@
                   <th class="col-index">序号</th>
                   <th>企业名称</th>
                   <th>统一社会信用代码</th>
-                  <th>行业类别</th>
-                  <th>所属街道</th>
-                  <th>监管科室</th>
-                  <th>法人代表</th>
-                  <th>风险等级</th>
-                  <th>安全码状态</th>
-                  <th>企业状态</th>
+                  <th>管理员账号</th>
+                  <th>归属网格</th>
+                  <th>主领域小类</th>
+                  <th>经营地址</th>
+                  <th>状态</th>
+                  <th>安全码</th>
                   <th>注册时间</th>
                   <th class="operation-col">操作</th>
                 </tr>
@@ -801,7 +750,7 @@
           <div class="section-title">安全码信息</div>
           <div class="info-grid">
             <div class="info-item"><span class="info-label">安全码状态</span><span class="info-value" id="detailCodeStatus"><span class="tag tag-green">已激活</span></span></div>
-            <div class="info-item"><span class="info-label">当前码色</span><span class="info-value" id="detailCodeColor"><span class="tag tag-green">绿码</span></span></div>
+            <div class="info-item"><span class="info-label">安全码色</span><span class="info-value" id="detailCodeColor"><span class="tag tag-green">绿码</span></span></div>
           </div>
         </div>
         <div class="info-section">
@@ -1152,7 +1101,7 @@
   </div>
 
   <script>
-    // 区划树数据（与重点场所“区划筛选”保持一致：区→街道→社区）
+    // 区划树数据（与重点场所”区划筛选”保持一致：区→街道→社区）
     const regionTree = {
       id: '440305',
       name: '南山区',
@@ -3488,7 +3437,20 @@
             "localDept": "西丽街道办",
             "domainId": "COMM_002"
       }
-];;;
+    ];
+    // 补充码色字段
+    var _codeStates = ['red','yellow','green'];
+    enterpriseData.forEach(function(e, i) {
+      if (!e.codeState) e.codeState = _codeStates[i % _codeStates.length];
+    });
+    function enrichIndustryNames() {
+      enterpriseData.forEach(function(e) {
+        if (!e.domain) {
+          var d = allDomainData.find(function(dd) { return dd.id === e.domainId; });
+          e.domain = d ? d.industryName : '公共场所类';
+        }
+      });
+    }
 
     // 切换页签
     function switchTab(tab) {
@@ -3612,6 +3574,9 @@
         .replace(/'/g, '&#39;');
     }
 
+    var QR_ICON_SVG="<svg class='qrcode-icon' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7'/><rect x='14' y='3' width='7' height='7'/><rect x='3' y='14' width='7' height='7'/><line x1='14' y1='14' x2='14' y2='14'/><line x1='21' y1='14' x2='21' y2='14'/><line x1='14' y1='21' x2='14' y2='21'/><line x1='21' y1='21' x2='21' y2='21'/><line x1='17' y1='14' x2='17' y2='17'/><line x1='14' y1='17' x2='17' y2='17'/><line x1='17' y1='20' x2='20' y2='20'/><line x1='20' y1='17' x2='20' y2='20'/></svg>";
+    function getCodeLabel(cs) { return cs === 'red' ? '红码' : cs === 'yellow' ? '黄码' : '绿码'; }
+
     function findEnterpriseByName(name) {
       return enterpriseData.find(function(item) { return item.name === name; });
     }
@@ -3666,7 +3631,7 @@
       // 渲染表格
       const tbody = document.getElementById('entTableBody');
       if (pageData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-tertiary); padding: 40px;">暂无数据</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--text-tertiary); padding: 40px;">暂无数据</td></tr>`;
         if (pg) pg.setTotal(filteredData.length);
         return;
       }
@@ -3682,6 +3647,8 @@
         var safeDate = escapeHtml(e.date);
         var statusClass = e.status === '启用' ? 'tag-green' : e.status === '停用' ? 'tag-gray' : 'tag-gray';
         var statusAction = e.status === '停用' ? '启用' : '停用';
+        var cs = e.codeState || 'green';
+        var codeLabel = getCodeLabel(cs);
         return `
         <tr>
           <td class="col-check"><input type="checkbox" class="ent-check" value="${safeCode}"></td>
@@ -3689,10 +3656,11 @@
           <td title="${safeName}"><span class="enterprise-name" data-name="${safeName}" onclick="showDetailModal(this.dataset.name)">${safeName}</span></td>
           <td title="${safeCode}">${safeCode}</td>
           <td title="${safeAccount}">${safeAccount}</td>
-          <td title="${safeDomain}"><span class="domain-tag">${safeDomain}</span></td>
           <td title="${safeGrid}">${safeGrid}</td>
+          <td title="${safeDomain}"><span class="domain-tag">${safeDomain}</span></td>
           <td title="${safeBizAddr}">${safeBizAddr || '—'}</td>
           <td><span class="tag ${statusClass}">${safeStatus}</span></td>
+          <td><span class="code-cell ${cs}" title="${codeLabel}">${QR_ICON_SVG}${getCodeLabel(cs)}</span></td>
           <td title="${safeDate}">${safeDate}</td>
           <td class="operation-col">
             <div class="table-action-group">
@@ -3751,6 +3719,7 @@
 
     // 初始化
     loadDomainManageData();
+    enrichIndustryNames();
     renderBasicDomainSelects();
     document.getElementById('tabDistrict').addEventListener('click', () => { currentTab = 'district'; switchTab('district'); renderTree(); expandDistrictToStreets(); });
     document.getElementById('tabIndustry').addEventListener('click', () => { currentTab = 'industry'; switchTab('industry'); renderTree(); });
@@ -3849,6 +3818,11 @@
         setText('detailLocalDept', ent.localDept || '按归属网格自动带出');
         var statusEl = document.getElementById('detailStatus');
         if (statusEl) statusEl.innerHTML = renderStatusTag(ent.status);
+        var codeColorEl = document.getElementById('detailCodeColor');
+        if (codeColorEl) {
+          var cc = ent.codeState || 'green';
+          codeColorEl.innerHTML = '<span class="code-cell ' + cc + '">' + QR_ICON_SVG + getCodeLabel(cc) + '</span>';
+        }
       }
       document.getElementById('detailModal').classList.add('show');
     }
@@ -4245,17 +4219,11 @@ function doFilter() {
 }
 
 function resetFilter() {
-  var fi = document.getElementById('filterIndustry');
-  var fs = document.getElementById('filterScale');
-  var fr = document.getElementById('filterRisk');
-  var fst = document.getElementById('filterStreet');
   var fst2 = document.getElementById('filterStatus');
+  var fg = document.getElementById('filterGrid');
   var fk = document.getElementById('filterKeyword');
-  if (fi) fi.value = '全部';
-  if (fs) fs.value = '全部';
-  if (fr) fr.value = '全部';
-  if (fst) fst.value = '全部';
   if (fst2) fst2.value = '全部';
+  if (fg) fg.value = '全部';
   if (fk) fk.value = '';
   renderTable();
 }
