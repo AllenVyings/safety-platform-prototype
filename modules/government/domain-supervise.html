@@ -109,10 +109,6 @@
     .config-body { flex: 1; overflow-y: auto; padding: 20px; }
     .config-section-title { font-size: var(--font-size-md); font-weight: 600; margin-bottom: 12px; padding-left: 8px; border-left: 3px solid var(--primary); }
     .config-block { background: var(--bg-section); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 20px; }
-    .config-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 900px) { .config-row { grid-template-columns: 1fr; } }
-    .config-step { font-size: var(--font-size-sm); font-weight: 600; margin-bottom: 8px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
-    .config-step .step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 12px; }
     .config-view-footer { position: sticky; bottom: 0; z-index: 10; background: var(--bg-section); border-top: 1px solid var(--border-section); padding: 12px 20px; display: flex; justify-content: flex-end; gap: 8px; }
     .draft-list { margin-top: 12px; }
     .draft-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 6px; font-size: var(--font-size-sm); }
@@ -121,18 +117,8 @@
     .draft-desc { flex: 1; }
     .draft-conflict { color: var(--warning); font-size: var(--font-size-xs); }
     .draft-del { background: none; border: none; color: var(--danger); cursor: pointer; padding: 4px 8px; }
-    .obj-row.disabled { color: var(--text-tertiary); background: var(--bg-tertiary); }
-    .obj-row.disabled td { color: var(--text-tertiary); }
-    .obj-row.disabled input { cursor: not-allowed; }
 
     /* ========== 配置板块 ========== */
-    .config-section { background: var(--bg-section); border-radius: var(--radius-lg); padding: var(--spacing-md); margin-bottom: var(--spacing-md); border: 1px solid var(--border-light); }
-    .config-title { font-size: var(--font-size-md); font-weight: 600; margin-bottom: var(--spacing-sm); display: flex; align-items: center; gap: 8px; }
-    .config-title .step { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: #fff; font-size: var(--font-size-xs); font-weight: 600; }
-    .config-table { width: 100%; border-collapse: collapse; margin-top: var(--spacing-sm); }
-    .config-table th { padding: 8px 12px; text-align: center; font-size: var(--font-size-sm); font-weight: 600; background: var(--bg-primary); border-bottom: 1px solid var(--border-light); }
-    .config-table td { padding: 8px 12px; text-align: center; font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); vertical-align: middle; }
-    .config-table tbody tr:hover td { background: var(--bg-hover); }
 
     /* ========== 弹窗 ========== */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: center; }
@@ -159,11 +145,6 @@
     .btn-link:hover { text-decoration: underline; }
     .btn-link.danger { color: var(--danger); }
     .btn-sm { padding: 4px 10px; font-size: var(--font-size-xs); }
-
-    /* ========== 部门标签 ========== */
-    .dept-tag { display: inline-block; padding: 4px 10px; margin: 4px 6px 4px 0; background: var(--info-light, #e6f0ff); color: var(--info); border-radius: 14px; font-size: var(--font-size-sm); }
-    .dept-tag .remove { margin-left: 6px; cursor: pointer; color: var(--text-secondary); }
-    .dept-tag .remove:hover { color: var(--danger); }
 
     /* ========== 空状态 ========== */
     .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); }
@@ -203,6 +184,10 @@
         <input type="text" class="tree-search" placeholder="搜索领域..." oninput="filterTree(this.value)">
       </div>
       <div class="tree-body" id="treeContainer"></div>
+      <div class="empty-state" id="treeSearchEmpty" style="display:none;padding:24px 16px;">
+        <div class="empty-icon" style="font-size:32px;">🔍</div>
+        <div class="empty-text" style="font-size:var(--font-size-sm);">未找到匹配节点</div>
+      </div>
     </div>
 
     <!-- 右侧面板 -->
@@ -271,7 +256,22 @@
           </div>
           <div class="form-group">
             <label class="form-label"><span class="required">*</span> 检查周期</label>
-            <select class="form-select" id="clCycle"><option value="">请选择</option><option>每日</option><option>每周</option><option>每月</option><option>每季度</option></select>
+            <div style="display:flex;align-items:center;gap:6px;font-size:var(--font-size-sm);">
+              <span>每</span>
+              <input type="number" class="form-input" id="clCycleN" min="1" max="99" value="1" style="width:64px;">
+              <select class="form-select" id="clCycleUnit" style="width:80px;"><option>日</option><option>周</option><option selected>月</option><option>季度</option></select>
+              <span>检查</span>
+              <input type="number" class="form-input" id="clCycleM" min="1" max="99" value="1" style="width:64px;">
+              <span>次</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">节假日开关</label>
+            <label style="font-size:var(--font-size-sm);display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="clSkipHoliday"> 开启后节假日不生成检查任务</label>
+          </div>
+          <div class="form-group">
+            <label class="form-label">检查项</label>
+            <textarea class="form-input" id="clItems" rows="3" placeholder="检查项目内容（可选）" style="resize:vertical;"></textarea>
           </div>
           <div class="form-group">
             <label class="form-label"><span class="required">*</span> 责任科室</label>
@@ -279,6 +279,7 @@
           </div>
           <div class="form-group">
             <label class="form-label"><span class="required">*</span> 责任人（可多选）</label>
+            <button type="button" class="btn btn-sm" style="margin-bottom:6px;" onclick="selectAllDeptPersons()">选择本科室全部人员</button>
             <select class="form-select" id="clPerson" multiple size="3"><option value="张伟">张伟</option><option value="李娜">李娜</option><option value="王强">王强</option><option value="陈敏">陈敏</option><option value="刘洋">刘洋</option></select>
           </div>
         </div>
@@ -565,10 +566,6 @@
       checklists: [
         { name: '消防安全日常检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
         { name: '电气安全检查表', cycle: '每季度', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true }
-      ],
-      hazards: [
-        { type: '消防安全', responder: '企业安全负责人', deadline: 15, reviewer: '政府复核', reviewPerson: '张伟', enabled: true },
-        { type: '电气安全', responder: '企业安全主管', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '企业安全负责人', deadline: 15, reviewer: '政府复核', reviewPerson: '张伟', enabled: true }
     },
@@ -877,16 +874,18 @@
       }
       parent = parent.parentElement;
     }
+    // BR-GOV-DS-14 / AC-GOV-DS-18：将目标节点滚动到可视区域
+    if (nodeEl.scrollIntoView) nodeEl.scrollIntoView({ block: 'nearest' });
   }
 
   function selectNode(id) {
-    // BR-GOV-DS-18：配置页未保存时切换节点需确认
+    // BR-GOV-DS-18：配置页存在未保存草稿时切换节点需确认（点击同一节点退出配置同样需要确认）
     var panel = document.querySelector('.detail-panel');
     var inConfig = panel && panel.classList.contains('config-mode');
     if (inConfig) {
-      if (configDirty && id !== configState.domainId && !window.confirm('当前配置未保存，是否放弃？')) return;
+      if (draftHasChanges() && !window.confirm('当前配置未保存，是否放弃？')) return;
       panel.classList.remove('config-mode');
-      configDirty = false;
+      draftBaseline = null; draftConfig = null;
     }
 
     // 选中单位节点(root)时，仅展开领域大类层，折叠所有领域大类下的领域小类
@@ -1000,8 +999,8 @@
   }
 
   function renderDomainSummary(list, el) {
-    var totalObjects = 0, totalAssigned = 0, totalHazards = 0;
-    list.forEach(function(d) { totalObjects += d.objects; totalAssigned += d.assigned; totalHazards += d.hazards; });
+    var totalObjects = 0, totalHazards = 0;
+    list.forEach(function(d) { totalObjects += d.objects; totalHazards += d.hazards; });
 
     var html = '<div class="stats-row">';
     html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">领域小类数</div><div class="stat-value">' + list.length + '</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>';
@@ -1048,11 +1047,17 @@
 
   function renderObjectDetail(domain, el) {
     var objects = OBJECT_DETAILS[domain.id] || generateObjects(domain);
-    var assigned = objects.filter(function(o) { return o.person; }).length;
 
     if (currentObjectDomainId !== domain.id) {
       currentObjectDomainId = domain.id;
       objectDetailPage = 1;
+    }
+
+    // 边界条件：领域无管控对象 → 空态 + 「前往配置」快捷入口
+    if (!objects.length) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">该领域暂无管控对象</div>' +
+        '<div style="margin-top:16px;"><button class="btn btn-primary" onclick="openDomainConfig(\'' + domain.id + '\')">前往配置</button></div></div>';
+      return;
     }
 
     var greenCount = objects.filter(function(o) { return o.code === 'green'; }).length;
@@ -1152,8 +1157,9 @@
         // 按频次分配检查数据（模拟：月频次占比最高，日频次占少）
         var weight = ci === 0 ? 0.05 : ci === 1 ? 0.1 : ci === 2 ? 0.5 : ci === 3 ? 0.25 : 0.1;
         var planned = Math.max(1, Math.round(d.objects * 2 * weight));
-        var rate = Math.min(100, d.checkRate + (ci % 2 === 0 ? -5 : 8) + Math.round(Math.random() * 10 - 5));
-        rate = Math.max(0, rate);
+        // 确定性抖动（基于名称长度+频次索引），避免每次渲染数字跳动
+        var jitter = ((d.name.length + ci * 3) % 9) - 4;
+        var rate = Math.min(100, Math.max(0, d.checkRate + (ci % 2 === 0 ? -5 : 8) + jitter));
         var done = Math.round(planned * rate / 100);
         totalPlanned += planned;
         totalDone += done;
@@ -1224,7 +1230,27 @@
     var overallRate = totalPlanned > 0 ? Math.round(totalDone / totalPlanned * 100) : 0;
     var rateColor = overallRate >= 100 ? 'green' : overallRate >= 80 ? 'yellow' : 'red';
 
-    var html = '<div class="stats-row">';
+    // 检查进度矩阵（领域小类 × 检查频次，AC-GOV-DS-09：矩阵在领域小类视图可达）
+    var cycles = ['每日', '每周', '每月', '每季度', '每年'];
+    var html = '<div class="table-card" id="progressMatrixCard" style="margin-bottom:16px;"><div style="padding:12px 16px;font-weight:600;font-size:var(--font-size-base);border-bottom:1px solid var(--border-section);">检查进度矩阵</div><div class="table-scroll"><table><thead><tr><th style="min-width:140px;">领域小类</th>';
+    cycles.forEach(function(c) { html += '<th style="min-width:80px;text-align:center;">' + c + '</th>'; });
+    html += '<th style="min-width:80px;text-align:center;">整体</th></tr></thead><tbody><tr><td>' + domain.name + '</td>';
+    var mTotalPlanned = 0, mTotalDone = 0;
+    cycles.forEach(function(c, ci) {
+      var weight = ci === 0 ? 0.05 : ci === 1 ? 0.1 : ci === 2 ? 0.5 : ci === 3 ? 0.25 : 0.1;
+      var mPlanned = Math.max(1, Math.round(objects.length * 2 * weight));
+      var jitter = ((domain.name.length + ci * 3) % 9) - 4;
+      var mRate = Math.min(100, Math.max(0, domain.checkRate + (ci % 2 === 0 ? -5 : 8) + jitter));
+      var mDone = Math.round(mPlanned * mRate / 100);
+      mTotalPlanned += mPlanned; mTotalDone += mDone;
+      var mColor = mRate >= 100 ? 'green' : mRate >= 80 ? 'yellow' : 'red';
+      html += '<td style="text-align:center;cursor:pointer;" title="点击查看' + c + '未完成清单" onclick="viewIncompleteByCycle(\'' + domain.id + '\',\'' + c + '\')"><span class="tag tag-' + mColor + '">' + mRate + '%</span><div style="font-size:var(--font-size-xs);color:var(--text-tertiary);">' + mDone + '/' + mPlanned + '</div></td>';
+    });
+    var mOverall = mTotalPlanned > 0 ? Math.round(mTotalDone / mTotalPlanned * 100) : 0;
+    var mOverallColor = mOverall >= 100 ? 'green' : mOverall >= 80 ? 'yellow' : 'red';
+    html += '<td style="text-align:center;"><span class="tag tag-' + mOverallColor + '" style="font-weight:600;">' + mOverall + '%</span></td></tr></tbody></table></div></div>';
+
+    html += '<div class="stats-row">';
     html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">管控对象数</div><div class="stat-value">' + objects.length + '</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>';
     html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">应检次数</div><div class="stat-value">' + totalPlanned + '</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>';
     html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">已完成次数</div><div class="stat-value">' + totalDone + '</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>';
@@ -1371,8 +1397,11 @@
       nameInput.readOnly = isSystem;
       nameInput.style.background = isSystem ? 'var(--bg-section)' : '';
     }
-    var cycleSel = document.getElementById('clCycle');
-    if (cycleSel) cycleSel.disabled = isSystem;
+    // 系统检查表：名称/内容/周期只读（BR-GOV-DS-16）；节假日开关不在只读清单内
+    ['clCycleN', 'clCycleUnit', 'clCycleM', 'clItems'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.disabled = isSystem; el.style.background = isSystem ? 'var(--bg-section)' : ''; }
+    });
   };
 
   window.toggleClAllObjs = function(checked) {
@@ -1389,18 +1418,30 @@
 
   window.submitChecklist = function() {
     var modal = document.getElementById('modal-checklist');
-    var domainId = modal.dataset.domainId || currentNode;
     var editIdx = modal.dataset.editIdx;
-    var config = CONFIG_DATA[domainId];
-    if (!config) { config = { checklists: [], hazard: null }; CONFIG_DATA[domainId] = config; }
+    // BR-GOV-DS-18：弹窗保存写入草稿，底部「保存配置」统一提交
+    if (!draftConfig) { showToast('请先打开领域配置页'); closeModal('modal-checklist'); return; }
+    var config = draftConfig;
+    if (!config.checklists) config.checklists = [];
     var isSystem = document.querySelector('input[name="clType"][value="system"]').checked;
     var name = document.getElementById('clName').value.trim();
-    var cycle = document.getElementById('clCycle').value;
     var dept = document.getElementById('clDept').value;
     var personSelect = document.getElementById('clPerson');
     var persons = Array.from(personSelect.selectedOptions).map(function(o) { return o.value; });
     var checkedObjs = Array.from(document.querySelectorAll('.cl-obj-check:checked')).map(function(cb) { return cb.value; });
     var totalObjs = document.querySelectorAll('.cl-obj-check').length;
+    var editNum = parseInt(editIdx, 10);
+    var existing = (editIdx !== undefined && editIdx !== '' && config.checklists[editNum]) ? config.checklists[editNum] : null;
+    // 周期：系统检查表编辑保留原值（只读）；其余按「每 N 单位检查 M 次」重建
+    var cycle;
+    if (isSystem && existing) {
+      cycle = existing.cycle;
+    } else {
+      var cn = parseInt(document.getElementById('clCycleN').value, 10);
+      var cm = parseInt(document.getElementById('clCycleM').value, 10);
+      var cu = document.getElementById('clCycleUnit').value;
+      cycle = (cn > 0 && cm > 0) ? ('每' + cn + cu + '检查' + cm + '次') : '';
+    }
     if (!name || !cycle || !dept || persons.length === 0) { showToast('请填写完整信息（名称/周期/责任科室/责任人）'); return; }
     // BR-GOV-DS-16：系统检查表必须将所有管控对象全部分配完毕才能保存
     if (isSystem && checkedObjs.length < totalObjs) {
@@ -1409,8 +1450,6 @@
     }
     // BR-GOV-DS-17：自定义检查表无强制要求，但至少勾选 1 个对象
     if (!isSystem && checkedObjs.length === 0) { showToast('请至少选择一个管控对象'); return; }
-    var editNum = parseInt(editIdx, 10);
-    var existing = (editIdx !== undefined && editIdx !== '' && config.checklists[editNum]) ? config.checklists[editNum] : null;
     var cl = {
       name: name,
       cycle: cycle,
@@ -1418,14 +1457,16 @@
       person: persons,
       dept: dept,
       assignedObjects: checkedObjs,
+      skipHoliday: document.getElementById('clSkipHoliday').checked,
+      items: document.getElementById('clItems').value.trim(),
       scan: { enabled: document.getElementById('clScanEnabled').checked },
       enabled: existing ? (existing.enabled !== false) : true
     };
     if (existing) { config.checklists[editNum] = cl; } else { config.checklists.push(cl); }
     delete modal.dataset.editIdx;
     closeModal('modal-checklist');
-    showToast(isSystem ? '系统检查表分配已保存' : '检查表配置已保存');
-    refreshConfigView(domainId);
+    showToast('已暂存到草稿，点击「保存配置」统一生效');
+    afterDraftChange();
   };
 
 
@@ -1440,24 +1481,6 @@
       updateSelectedCount(domainId);
     }
   });
-
-  window.changeReviewer = function(value, domainId) {
-    var config = CONFIG_DATA[domainId];
-    if (config && config.hazard) {
-      config.hazard.reviewer = value;
-      if (value === '政府复核') {
-        config.hazard.reviewPerson = config.hazard.reviewPerson || '张伟';
-      } else {
-        config.hazard.reviewPerson = config.hazard.reviewPerson || '企业安全主管';
-      }
-      var personSpan = document.getElementById('reviewerPerson-' + domainId);
-      if (personSpan) {
-        personSpan.textContent = '（' + config.hazard.reviewPerson + '）';
-      }
-      showToast('复核方已切换为：' + value);
-      refreshConfigView(domainId);
-    }
-  };
 
   // 矩阵单元格点击下钻：按频次查看未完成清单（AC-GOV-DS-10）
   window.viewIncompleteByCycle = function(domainId, cycle) {
@@ -1512,6 +1535,8 @@
     keyword = keyword.toLowerCase();
     if (!keyword) {
       nodes.forEach(function(el) { el.style.display = ''; });
+      var emptyReset = document.getElementById('treeSearchEmpty');
+      if (emptyReset) emptyReset.style.display = 'none';
       return;
     }
     var matchedIds = {};
@@ -1535,6 +1560,9 @@
     nodes.forEach(function(el) {
       el.style.display = matchedIds[el.getAttribute('data-id')] ? '' : 'none';
     });
+    // 边界条件：无匹配时显示空态
+    var emptyEl = document.getElementById('treeSearchEmpty');
+    if (emptyEl) emptyEl.style.display = Object.keys(matchedIds).length ? 'none' : '';
   };
 
   function showToast(msg) {
@@ -1547,12 +1575,11 @@
 
   // ========== 隐患编辑弹窗 ==========
   window.openHazardEditModal = function(domainId) {
-    var config = CONFIG_DATA[domainId];
-    if (!config) { config = { checklists: [], hazard: null }; CONFIG_DATA[domainId] = config; }
-    if (!config.hazard) {
-      config.hazard = { type: '', responder: '', deadline: 7, reviewer: '政府复核', reviewPerson: '', enabled: true };
+    if (!draftConfig) return;
+    if (!draftConfig.hazard) {
+      draftConfig.hazard = { type: '', responder: '', deadline: 7, reviewer: '政府复核', reviewPerson: '', enabled: true };
     }
-    var h = config.hazard;
+    var h = draftConfig.hazard;
     document.getElementById('hazardType').value = h.type || '';
     document.getElementById('hazardResponder').value = h.responder || '';
     document.getElementById('hazardDeadline').value = h.deadline || '';
@@ -1584,11 +1611,17 @@
     document.getElementById('clModalTitle').textContent = '新增检查表配置';
     var nameInput = document.getElementById('clName');
     if (nameInput) { nameInput.value = ''; nameInput.readOnly = false; nameInput.style.background = ''; }
-    document.getElementById('clCycle').value = '';
-    document.getElementById('clCycle').disabled = false;
-    document.getElementById('clDept').value = configState.targetConfigDept || '';
+    document.getElementById('clCycleN').value = '1';
+    document.getElementById('clCycleUnit').value = '月';
+    document.getElementById('clCycleM').value = '1';
+    ['clCycleN', 'clCycleUnit', 'clCycleM'].forEach(function(id) { var el = document.getElementById(id); if (el) { el.disabled = false; el.style.background = ''; } });
+    document.getElementById('clSkipHoliday').checked = false;
+    var clItemsNew = document.getElementById('clItems');
+    if (clItemsNew) { clItemsNew.value = ''; clItemsNew.disabled = false; clItemsNew.style.background = ''; }
+    var defaultDept = (draftConfig && draftConfig.dept) || configState.targetConfigDept || '';
+    document.getElementById('clDept').value = defaultDept;
     // 责任人候选按责任科室联动，默认不选（BR-GOV-DS-17：自定义无默认责任人）
-    fillClPersons(configState.targetConfigDept || '', [], []);
+    fillClPersons(defaultDept, [], []);
     // 类型固定为自定义：系统检查表仅超管预分配（radio 禁用）
     var customRadio = document.querySelector('input[name="clType"][value="custom"]');
     var systemRadio = document.querySelector('input[name="clType"][value="system"]');
@@ -1616,10 +1649,17 @@
   };
 
   // ========== 检查表编辑 ==========
+  // 解析周期字符串为 {n, unit, m}（兼容 "每月" 与 "每1月检查1次" 两种格式）
+  function parseCycle(cycle) {
+    var m = /^每(\d+)?(日|周|月|季度)检查(\d+)次$/.exec(cycle || '');
+    if (m) return { n: parseInt(m[1] || '1', 10), unit: m[2], m: parseInt(m[3], 10) };
+    var u = /^每(日|周|月|季度)$/.exec(cycle || '');
+    return u ? { n: 1, unit: u[1], m: 1 } : { n: 1, unit: '月', m: 1 };
+  }
+
   window.editChecklist = function(domainId, idx) {
-    var config = CONFIG_DATA[domainId];
-    if (!config || !config.checklists[idx]) return;
-    var cl = config.checklists[idx];
+    if (!draftConfig || !draftConfig.checklists || !draftConfig.checklists[idx]) return;
+    var cl = draftConfig.checklists[idx];
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
     var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
     // 设置弹窗标题
@@ -1637,11 +1677,20 @@
       nameInput.readOnly = (cl.checklistType === 'system');
       nameInput.style.background = (cl.checklistType === 'system') ? 'var(--bg-section)' : '';
     }
-    // 设置周期（系统检查表只读）
-    var cycleSel = document.getElementById('clCycle');
-    if (cycleSel) {
-      cycleSel.value = cl.cycle || '';
-      cycleSel.disabled = (cl.checklistType === 'system');
+    // 设置周期（系统检查表只读；兼容 "每月" / "每1月检查1次" 两种格式回显）
+    var parsed = parseCycle(cl.cycle);
+    document.getElementById('clCycleN').value = parsed.n;
+    document.getElementById('clCycleUnit').value = parsed.unit;
+    document.getElementById('clCycleM').value = parsed.m;
+    var isSystemCl = (cl.checklistType === 'system');
+    ['clCycleN', 'clCycleUnit', 'clCycleM'].forEach(function(id) { var el = document.getElementById(id); if (el) el.disabled = isSystemCl; });
+    // 节假日开关（不在只读清单内，始终可编辑）；检查项（系统检查表内容只读）
+    document.getElementById('clSkipHoliday').checked = !!cl.skipHoliday;
+    var clItemsEdit = document.getElementById('clItems');
+    if (clItemsEdit) {
+      clItemsEdit.value = cl.items || '';
+      clItemsEdit.disabled = isSystemCl;
+      clItemsEdit.style.background = isSystemCl ? 'var(--bg-section)' : '';
     }
     // 设置责任科室
     document.getElementById('clDept').value = cl.dept || '';
@@ -1676,14 +1725,12 @@
   var pendingDelete = null;
   window.deleteConfig = function(type, domainId, idx) {
     pendingDelete = { type: type, domainId: domainId, idx: idx };
-    var label = type === 'checklist' ? '检查表配置' : type === 'scan' ? '扫码责任配置' : '隐患责任配置';
+    var label = type === 'checklist' ? '检查表配置' : '隐患责任配置';
     document.getElementById('deleteConfirmText').textContent = '确定要删除此' + label + '吗？删除后不可恢复。';
-    var config = CONFIG_DATA[domainId];
+    var config = draftConfig;
     var detail = '';
     if (type === 'checklist' && config && config.checklists[idx]) {
       detail = '配置类型：' + label + '（' + config.checklists[idx].name + '）';
-    } else if (type === 'scan' && config && config.scan) {
-      detail = '配置类型：' + label + '（' + config.scan.person + '）';
     } else if (type === 'hazard' && config && config.hazard) {
       detail = '配置类型：' + label + '（' + config.hazard.type + '）';
     }
@@ -1693,23 +1740,18 @@
 
   window.confirmDelete = function() {
     if (!pendingDelete) return;
-    var config = CONFIG_DATA[pendingDelete.domainId];
+    var config = draftConfig;
     if (config) {
       if (pendingDelete.type === 'checklist' && config.checklists[pendingDelete.idx]) {
         config.checklists.splice(pendingDelete.idx, 1);
       } else if (pendingDelete.type === 'hazard') {
-        if (config.hazards && config.hazards[pendingDelete.idx]) {
-          config.hazards.splice(pendingDelete.idx, 1);
-        } else if (config.hazard) {
-          config.hazard = null;
-        }
+        config.hazard = null;
       }
     }
-    var delDomainId = pendingDelete.domainId;
     pendingDelete = null;
     closeModal('modal-delete-confirm');
-    showToast('配置已删除');
-    refreshConfigView(delDomainId);
+    showToast('删除已暂存到草稿，点击「保存配置」统一生效');
+    afterDraftChange();
   };
 
   // ========== 勾选联动 ==========
@@ -1865,7 +1907,7 @@
   window.submitHazardEdit = function() {
     var modal = document.getElementById('modal-hazard-edit');
     var domainId = modal.dataset.domainId;
-    var config = CONFIG_DATA[domainId];
+    var config = draftConfig;
     if (!config || !config.hazard) return;
     config.hazard.type = document.getElementById('hazardType').value;
     config.hazard.responder = document.getElementById('hazardResponder').value;
@@ -1878,30 +1920,21 @@
       config.hazard.reviewPerson = '企业安全主管';
     }
     closeModal('modal-hazard-edit');
-    showToast('隐患责任配置已保存');
-    refreshConfigView(domainId);
+    showToast('隐患责任配置已暂存到草稿');
+    afterDraftChange();
   };
 
-  // ========== 配置启停 ==========
-  // 责任科室配置变更（⓪步骤）
-  window.changeDept = function(domainId, value) {
-    var config = CONFIG_DATA[domainId];
-    if (!config) { config = { checklists: [], hazard: null }; CONFIG_DATA[domainId] = config; }
-    config.dept = value;
-    showToast('责任科室已更新为：' + value);
-  };
-
+  // ========== 配置启停（写入草稿） ==========
   window.toggleConfig = function(type, domainId, idx, enabled) {
-    var config = CONFIG_DATA[domainId];
+    var config = draftConfig;
     if (!config) return;
     if (type === 'checklist' && config.checklists[idx]) {
       config.checklists[idx].enabled = enabled;
-    } else if (type === 'hazard' && config.hazards && config.hazards[idx]) {
-      config.hazards[idx].enabled = enabled;
     } else if (type === 'hazard' && config.hazard) {
       config.hazard.enabled = enabled;
     }
-    showToast((enabled ? '已启用' : '已停用') + '配置');
+    showToast((enabled ? '启用' : '停用') + '已暂存到草稿');
+    afterDraftChange();
   };
 
   // ========== 领域配置页（独立页面） ==========
@@ -1943,6 +1976,16 @@
   }
 
   // 检查表弹窗：切换责任科室 → 责任人候选联动（保留仍在新科室人选中的已勾选项）
+  // 一键选择本科室全部人员（PRD：支持选整个科室或具体人员）
+  window.selectAllDeptPersons = function() {
+    var dept = document.getElementById('clDept').value;
+    var pool = (dept && PERSON_BY_DEPT[dept]) ? PERSON_BY_DEPT[dept] : ALL_PERSONS;
+    var personSelect = document.getElementById('clPerson');
+    if (!personSelect) return;
+    Array.from(personSelect.options).forEach(function(o) { o.selected = pool.indexOf(o.value) >= 0; });
+    showToast(dept ? '已选择「' + dept + '」全部 ' + pool.length + ' 名人员' : '已选择全部人员');
+  };
+
   window.onClDeptChange = function() {
     var dept = document.getElementById('clDept').value;
     var personSelect = document.getElementById('clPerson');
@@ -1968,11 +2011,157 @@
     objects: [],
     targetConfigDept: ''
   };
-  var configDirty = false; // BR-GOV-DS-18：配置页未保存草稿标记
+
+  // ========== BR-GOV-DS-18 草稿态 ==========
+  // 进入配置页深拷贝基线 draftBaseline，所有变更写入 draftConfig；
+  // 「保存配置」统一提交（有冲突则拦截），「取消」/ 切换节点确认后全部丢弃
+  var draftBaseline = null;
+  var draftConfig = null;
+
+  function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  // 深度相等（键序无关）——避免对象键序差异产生假草稿条目
+  function deepEqual(a, b) {
+    if (a === b) return true;
+    if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return a !== a && b !== b;
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    if (Array.isArray(a)) {
+      if (a.length !== b.length) return false;
+      for (var i = 0; i < a.length; i++) { if (!deepEqual(a[i], b[i])) return false; }
+      return true;
+    }
+    var ka = Object.keys(a), kb = Object.keys(b);
+    if (ka.length !== kb.length) return false;
+    for (var j = 0; j < ka.length; j++) {
+      var k = ka[j];
+      if (!Object.prototype.hasOwnProperty.call(b, k) || !deepEqual(a[k], b[k])) return false;
+    }
+    return true;
+  }
+
+  function draftHasChanges() {
+    return !!(draftConfig && draftBaseline) && !deepEqual(draftConfig, draftBaseline);
+  }
+
+  // 草稿变更后重渲染配置页（三板块 + 草稿列表同步刷新）
+  function afterDraftChange() {
+    if (configState.domainId) renderDomainConfig();
+  }
+
+  // ⓪ 责任科室下拉变更（行内 onchange 回调须挂 window）
+  window.onDraftDeptChange = function(value) {
+    if (!draftConfig) return;
+    draftConfig.dept = value;
+    afterDraftChange();
+  };
+
+  function describeChecklistDiff(a, b) {
+    var parts = [];
+    if (a.name !== b.name) parts.push('名称');
+    if (a.cycle !== b.cycle) parts.push('周期');
+    var pa = Array.isArray(a.person) ? a.person.join('、') : (a.person || '');
+    var pb = Array.isArray(b.person) ? b.person.join('、') : (b.person || '');
+    if (pa !== pb) parts.push('责任人');
+    if ((a.assignedObjects || []).length !== (b.assignedObjects || []).length) parts.push('分配对象数');
+    if ((a.enabled !== false) !== (b.enabled !== false)) parts.push('状态');
+    var sa = !(a.scan && a.scan.enabled === false), sb = !(b.scan && b.scan.enabled === false);
+    if (sa !== sb) parts.push('扫码责任');
+    return parts.length ? '（' + parts.join('、') + '变更）' : '';
+  }
+
+  function describeHazardDiff(a, b) {
+    var parts = [];
+    if (a.type !== b.type) parts.push('隐患类型');
+    if (a.responder !== b.responder) parts.push('整改责任人');
+    if (String(a.deadline) !== String(b.deadline)) parts.push('整改期限');
+    if (a.reviewer !== b.reviewer) parts.push('复核方');
+    if (a.reviewPerson !== b.reviewPerson) parts.push('复核人');
+    if ((a.enabled !== false) !== (b.enabled !== false)) parts.push('状态');
+    return '（' + parts.join('、') + '变更）';
+  }
+
+  // 计算草稿条目（与基线 diff）+ 冲突检测（冲突条目黄色警告边框 + 原因）
+  function computeDraftEntries() {
+    var entries = [];
+    if (!draftConfig || !draftBaseline) return entries;
+    var total = configState.objects.length;
+    var b = draftBaseline, c = draftConfig;
+    // ⓪ 责任科室
+    if ((b.dept || '') !== (c.dept || '')) {
+      entries.push({ type: 'dept', desc: '⓪ 责任科室：' + (b.dept || '本单位') + ' → ' + (c.dept || '本单位'), conflict: null, action: 'revert' });
+    }
+    // ① 检查表（按索引 diff）
+    var bl = b.checklists || [], cl = c.checklists || [];
+    var min = Math.min(bl.length, cl.length);
+    var i;
+    for (i = 0; i < min; i++) {
+      if (!deepEqual(bl[i], cl[i])) {
+        entries.push({ type: 'checklist-edit', targetIdx: i, desc: '修改检查表《' + cl[i].name + '》' + describeChecklistDiff(bl[i], cl[i]), conflict: null, action: 'revert' });
+      }
+    }
+    for (i = min; i < cl.length; i++) {
+      entries.push({ type: 'checklist-add', targetIdx: i, desc: '新增检查表《' + cl[i].name + '》（' + (cl[i].assignedObjects || []).length + '/' + total + ' 个对象）', conflict: null, action: 'revert' });
+    }
+    for (i = min; i < bl.length; i++) {
+      entries.push({ type: 'checklist-delete', targetIdx: i, desc: '删除检查表《' + bl[i].name + '》', conflict: null, action: 'revert' });
+    }
+    // ② 隐患责任
+    if (!deepEqual(b.hazard || null, c.hazard || null)) {
+      if (!b.hazard && c.hazard) entries.push({ type: 'hazard', desc: '新增隐患责任（' + (c.hazard.type || '未选类型') + '）', conflict: null, action: 'revert' });
+      else if (b.hazard && !c.hazard) entries.push({ type: 'hazard', desc: '删除隐患责任（' + (b.hazard.type || '') + '）', conflict: null, action: 'revert' });
+      else entries.push({ type: 'hazard', desc: '修改隐患责任' + describeHazardDiff(b.hazard, c.hazard), conflict: null, action: 'revert' });
+    }
+    // 冲突检测：系统检查表须分配全部对象（BR-16）；责任人须属于责任科室人员池
+    var pool = c.dept && PERSON_BY_DEPT[c.dept] ? PERSON_BY_DEPT[c.dept] : null;
+    cl.forEach(function(item, idx) {
+      var reasons = [];
+      if (item.checklistType === 'system' && (item.assignedObjects || []).length < total) {
+        reasons.push('BR-16：系统检查表须分配全部管控对象（已选 ' + (item.assignedObjects || []).length + '/' + total + '）');
+      }
+      if (pool) {
+        var persons = Array.isArray(item.person) ? item.person : (item.person ? [item.person] : []);
+        var outsiders = persons.filter(function(p) { return pool.indexOf(p) < 0; });
+        if (outsiders.length) reasons.push('责任人「' + outsiders.join('、') + '」不属于责任科室「' + c.dept + '」');
+      }
+      if (!reasons.length) return;
+      var reason = reasons.join('；');
+      var host = entries.filter(function(e) { return (e.type === 'checklist-edit' || e.type === 'checklist-add') && e.targetIdx === idx; })[0];
+      if (host) host.conflict = reason;
+      else entries.push({ type: 'checklist-conflict', targetIdx: idx, desc: '检查表《' + item.name + '》存在配置冲突', conflict: reason, action: 'handle' });
+    });
+    // 冲突检测：复核方=政府复核必须指定复核人
+    if (c.hazard && c.hazard.reviewer === '政府复核' && !c.hazard.reviewPerson) {
+      var hEntry = entries.filter(function(e) { return e.type === 'hazard'; })[0];
+      if (hEntry) hEntry.conflict = '复核方为「政府复核」时必须指定复核人';
+    }
+    return entries;
+  }
+
+  // 撤销单条草稿（恢复该变更对应的基线状态）
+  window.revertDraft = function(idx) {
+    if (!draftConfig || !draftBaseline) return;
+    var e = computeDraftEntries()[idx];
+    if (!e) return;
+    var baseCl = draftBaseline.checklists || [];
+    if (e.type === 'dept') draftConfig.dept = draftBaseline.dept;
+    else if (e.type === 'checklist-edit') draftConfig.checklists[e.targetIdx] = deepClone(baseCl[e.targetIdx]);
+    else if (e.type === 'checklist-add') draftConfig.checklists.splice(e.targetIdx, 1);
+    else if (e.type === 'checklist-delete') draftConfig.checklists.splice(e.targetIdx, 0, deepClone(baseCl[e.targetIdx]));
+    else if (e.type === 'hazard') draftConfig.hazard = deepClone(draftBaseline.hazard || null);
+    afterDraftChange();
+  };
 
   window.openDomainConfig = function(domainId) {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
     if (!d) return;
+    // 配置页已打开时的入口守卫（BR-GOV-DS-18）：同领域直接返回；跨领域有未保存草稿先确认
+    var cfgPanel = document.querySelector('.detail-panel');
+    if (cfgPanel && cfgPanel.classList.contains('config-mode')) {
+      if (configState.domainId === domainId) return;
+      if (draftHasChanges() && !window.confirm('当前配置未保存，是否放弃？')) return;
+      cfgPanel.classList.remove('config-mode');
+      draftBaseline = null; draftConfig = null;
+    }
     // 选中并展开树中对应节点
     expandToNode(domainId);
     selectNode(domainId);
@@ -1985,6 +2174,17 @@
     configState.domainId = domainId;
     configState.objects = (OBJECT_DETAILS[domainId] || generateObjects(d)).map(function(o) { return o; });
     configState.targetConfigDept = d.dept || '';
+    // BR-GOV-DS-18：进入配置页建立草稿基线，所有变更先写入 draftConfig，保存配置统一提交 / 取消全部丢弃
+    draftBaseline = deepClone(CONFIG_DATA[domainId] || { checklists: [], hazard: null });
+    if (draftBaseline.dept === undefined) draftBaseline.dept = d.dept || '';
+    // 基线形态归一化（person 统一数组、scan 统一对象），避免无变更编辑产生假草稿条目
+    (draftBaseline.checklists || []).forEach(function(c) {
+      c.person = Array.isArray(c.person) ? c.person : (c.person ? [c.person] : []);
+      c.scan = c.scan || { enabled: true };
+      c.skipHoliday = !!c.skipHoliday;
+      c.items = c.items || '';
+    });
+    draftConfig = deepClone(draftBaseline);
 
     var cat = d.cat || '';
     document.getElementById('configBreadcrumb').innerHTML =
@@ -1995,22 +2195,12 @@
   };
 
   window.closeDomainConfig = function() {
-    // BR-GOV-DS-18：未保存草稿确认
-    if (configDirty && !window.confirm('责任科室配置尚未保存，是否放弃修改？')) return;
+    // BR-GOV-DS-18：未保存草稿确认，取消则全部丢弃
+    if (draftHasChanges() && !window.confirm('当前配置未保存，是否放弃？')) return;
     document.querySelector('.detail-panel').classList.remove('config-mode');
     configState.domainId = null;
-    configDirty = false;
+    draftBaseline = null; draftConfig = null;
   };
-
-  // 配置页内保存/删除/启停后刷新当前视图（配置页打开则刷配置页，否则刷右侧面板）
-  function refreshConfigView(domainId) {
-    var inConfig = document.querySelector('.detail-panel') && document.querySelector('.detail-panel').classList.contains('config-mode');
-    if (inConfig && configState.domainId === domainId) {
-      renderDomainConfig();
-    } else if (currentNode === domainId) {
-      updateDetail();
-    }
-  }
 
   function renderDomainConfig() {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === configState.domainId; });
@@ -2028,10 +2218,10 @@
     html += '<div class="config-block">';
     html += '<div style="display:flex;align-items:center;gap:12px;">';
     html += '<label style="font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap;">责任科室：</label>';
-    html += '<select class="form-select" style="width:220px;" onchange="configDirty=true;configState.targetConfigDept=this.value">';
-    html += '<option value="">本单位（默认）</option>';
+    html += '<select class="form-select" id="cfgDeptSelect" style="width:220px;" onchange="onDraftDeptChange(this.value)">';
+    html += '<option value=""' + (draftConfig && !draftConfig.dept ? ' selected' : '') + '>本单位（默认）</option>';
     DEPT_LIST.forEach(function(dept) {
-      html += '<option value="' + dept + '"' + (configState.targetConfigDept === dept ? ' selected' : '') + '>' + dept + '</option>';
+      html += '<option value="' + dept + '"' + (draftConfig && draftConfig.dept === dept ? ' selected' : '') + '>' + dept + '</option>';
     });
     html += '</select>';
     html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">未配置时默认责任科室为本单位（BR-GOV-DS-12）</span>';
@@ -2043,6 +2233,27 @@
     // ② 隐患责任配置（领域级别）
     html += '<div class="config-section-title">② 隐患责任配置（查出隐患后怎么处理）</div>';
     html += '<div class="config-block" id="configHazardBlock"></div>';
+    // 草稿列表（BR-GOV-DS-18：所有变更先暂存，保存配置统一提交，取消全部丢弃；冲突条目黄色警告边框+原因）
+    var entries = computeDraftEntries();
+    var conflictCount = entries.filter(function(e) { return e.conflict; }).length;
+    html += '<div class="config-section-title">草稿变更（' + entries.length + (conflictCount ? '，<span style="color:var(--danger)">' + conflictCount + ' 条冲突</span>' : '') + '）— 点击底部「保存配置」统一生效</div>';
+    html += '<div class="config-block">';
+    if (entries.length) {
+      html += '<div class="draft-list">';
+      entries.forEach(function(e, i) {
+        html += '<div class="draft-item' + (e.conflict ? ' conflict' : '') + '">';
+        html += '<span class="draft-idx">' + (i + 1) + '</span>';
+        html += '<span class="draft-desc">' + e.desc + '</span>';
+        if (e.conflict) html += '<span class="draft-conflict">⚠ ' + e.conflict + '</span>';
+        if (e.action === 'revert') html += '<button class="draft-del" title="撤销该变更" onclick="revertDraft(' + i + ')">✕ 撤销</button>';
+        else if (e.action === 'handle') html += '<button class="draft-del" style="color:var(--primary);" onclick="editChecklist(\'' + configState.domainId + '\',' + e.targetIdx + ')">去处理</button>';
+        html += '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div style="font-size:var(--font-size-sm);color:var(--text-tertiary);">暂无变更——修改任意配置项后将在此显示草稿条目</div>';
+    }
+    html += '</div>';
 
     document.getElementById('configBody').innerHTML = html;
     renderConfigChecklistBlock(d);
@@ -2050,7 +2261,7 @@
   }
 
   function renderConfigChecklistBlock(d) {
-    var cfg = CONFIG_DATA[d.id];
+    var cfg = draftConfig || CONFIG_DATA[d.id];
     var total = configState.objects.length;
     var html = '<div style="margin-bottom:8px;display:flex;align-items:center;gap:12px;">';
     html += '<button class="btn btn-primary btn-sm" onclick="openNewChecklistModal()">+ 新增检查表</button>';
@@ -2081,7 +2292,7 @@
   }
 
   function renderConfigHazardBlock(d) {
-    var cfg = CONFIG_DATA[d.id];
+    var cfg = draftConfig || CONFIG_DATA[d.id];
     var html = '';
     if (cfg && cfg.hazard) {
       var h = cfg.hazard;
@@ -2117,14 +2328,15 @@
 
   window.saveDomainConfig = function() {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === configState.domainId; });
-    if (!d) return;
-    // 保存责任科室配置（检查表/隐患责任为逐项即时保存，BR-GOV-DS-10）
-    d.dept = configState.targetConfigDept || '';
-    var cfg = CONFIG_DATA[d.id];
-    if (cfg) cfg.dept = configState.targetConfigDept || '';
-    configDirty = false;
-    showToast('配置已保存');
+    if (!d || !draftConfig) return;
+    // BR-GOV-DS-18：草稿存在冲突时拦截保存
+    var conflicts = computeDraftEntries().filter(function(e) { return e.conflict; });
+    if (conflicts.length) { showToast('存在 ' + conflicts.length + ' 条冲突草稿，请处理后再保存'); return; }
+    CONFIG_DATA[d.id] = deepClone(draftConfig);
+    d.dept = draftConfig.dept || '';
+    draftBaseline = null; draftConfig = null;
     document.querySelector('.detail-panel').classList.remove('config-mode');
+    showToast('配置已保存');
     renderOverview();
   };
 
