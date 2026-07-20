@@ -175,7 +175,16 @@ class Router {
     try {
       const moduleUrl = menuItem.path.startsWith('/') ? menuItem.path : './' + menuItem.path;
       console.log(`[Router] 加载模块：${moduleUrl}`);
-      
+
+      // fetch HEAD 预检，防止 404 页面被 iframe 错误标记为加载成功
+      const response = await fetch(moduleUrl, { method: 'HEAD', cache: 'no-cache' });
+      if (!response.ok) {
+        console.error(`[Router] 模块预检失败：${moduleUrl} (HTTP ${response.status})`);
+        this.hideLoading();
+        this.showError(`页面加载失败（HTTP ${response.status}），请稍后重试`);
+        return;
+      }
+
       iframe.onload = () => {
         console.log(`[Router] 模块加载成功：${moduleUrl}`);
         this.hideLoading();
@@ -186,7 +195,7 @@ class Router {
         this.showError('页面加载失败，请稍后重试');
       };
       iframe.src = moduleUrl;
-      
+
     } catch (error) {
       console.error('[Router] 模块加载失败:', error);
       this.hideLoading();

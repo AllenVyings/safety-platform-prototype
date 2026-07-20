@@ -1809,7 +1809,6 @@
         const safeName = escapeHtml(p.place_name || '');
         const safeRegion = escapeHtml(region);
         const safeAddr = escapeHtml(p.detail_address || '');
-        const safeCode = escapeHtml(p.safety_code || '');
         return `
           <tr>
             <td class="col-check"><input type="checkbox" class="row-checkbox" data-id="${safeId}" onchange="syncSelectAllState()"></td>
@@ -1817,11 +1816,8 @@
             <td class="place-name" title="${safeName}"><span class="place-name-cell" onclick="viewDetail(${idArg})">${safeName}</span></td>
             <td class="place-region" title="${safeRegion}">${safeRegion}</td>
             <td class="place-address" title="${safeAddr}">${safeAddr}</td>
-            <td>
-              <span class="code-cell ${p.code_state}" title="${safeCode}">
-                ${QR_ICON_SVG}
-                <span style="margin-left:4px;font-size:12px;color:${p.code_state==='red'?'var(--danger)':p.code_state==='yellow'?'var(--warning)':'var(--success)'};">${p.code_state==='red'?'红码':p.code_state==='yellow'?'黄码':'绿码'}</span>
-              </span>
+            <td style="text-align:center">
+              <span class="code-cell ${p.code_state}" title="${p.code_state==='red'?'红码':p.code_state==='yellow'?'黄码':'绿码'}">${QR_ICON_SVG}</span>
             </td>
             <td><span class="status-tag ${isEnabled ? 'enabled' : 'disabled'}">${isEnabled ? '启用' : '停用'}</span></td>
             <td class="operation-col">

@@ -10,7 +10,7 @@
 
 function Pagination(containerId, options) {
   this.container = document.getElementById(containerId);
-  this.page = 1;
+  this.page = (options && options.current) || 1;
   this.size = (options && options.size) || 10;
   this.total = (options && options.total) || 0;
   this.onChange = (options && options.onChange) || function() {};

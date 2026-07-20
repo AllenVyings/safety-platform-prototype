@@ -74,6 +74,7 @@
     .tag-green { background: var(--success-light, #e6f7e6); color: var(--success); }
     .tag-yellow { background: var(--warning-light, #fff7e6); color: var(--warning); }
     .tag-red { background: var(--danger-light, #ffe6e6); color: var(--danger); }
+    .tag-cyan { background: var(--info-light, #e6f0ff); color: var(--info); }
     .tag-blue { background: var(--info-light, #e6f0ff); color: var(--info); }
     .tag-orange { background: #fff3e0; color: #e65100; }
     .tag-gray { background: var(--bg-tertiary, #f0f0f0); color: var(--text-secondary); }
@@ -100,9 +101,6 @@
     .config-view { display: none; flex: 1; flex-direction: column; min-height: 0; background: var(--bg-primary); }
     .detail-panel.config-mode .config-view { display: flex; }
     .config-view-header { position: sticky; top: 0; z-index: 10; background: var(--bg-section); border-bottom: 1px solid var(--border-section); padding: 12px 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-    .config-back-btn { background: none; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 6px 12px; cursor: pointer; font-size: var(--font-size-sm); display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); transition: all var(--duration-fast); }
-    .config-back-btn:hover { background: var(--bg-hover); color: var(--primary); border-color: var(--primary); }
-    .config-back-btn svg { width: 14px; height: 14px; }
     .config-breadcrumb { font-size: var(--font-size-sm); color: var(--text-secondary); }
     .config-breadcrumb .sep { margin: 0 6px; color: var(--text-tertiary); }
     .config-breadcrumb .current { color: var(--text-primary); font-weight: 600; }
@@ -175,6 +173,12 @@
     /* ========== 提示条 ========== */
     .context-bar { background: var(--info-light, #e6f0ff); color: var(--info); padding: 8px 16px; border-radius: var(--radius-md); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 8px; }
 
+    /* ========== 左树配置入口图标 & Tab栏配置按钮 ========== */
+    .tree-config-icon { display: inline-flex; align-items: center; margin-left: 6px; font-size: 12px; opacity: 0; cursor: pointer; vertical-align: middle; transition: opacity var(--duration-fast), transform var(--duration-fast); }
+    .tree-node:hover .tree-config-icon { opacity: 1; }
+    .tree-config-icon:hover { transform: rotate(45deg); }
+    .detail-panel .tab-nav { display: flex; justify-content: space-between; align-items: center; }
+
     /* ========== 开关 ========== */
     .toggle-switch { position: relative; display: inline-block; width: 36px; height: 20px; vertical-align: middle; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
@@ -187,7 +191,7 @@
 <body>
   <div class="module-page page-container" data-module="government/domain-supervise">
 
-<div style="padding: var(--spacing-lg); height: 100vh; box-sizing: border-box; display: flex; flex-direction: column;">
+<div style="height: 100vh; box-sizing: border-box; display: flex; flex-direction: column;">
   <div class="split-view">
     <!-- 左侧树 -->
     <div class="tree-panel">
@@ -208,9 +212,11 @@
       </div>
       <!-- Tab 导航 -->
       <div class="tab-nav">
-        <button class="tab-btn active" onclick="switchTab('tab-overview',event)">监管总览</button>
-        <button class="tab-btn" onclick="switchTab('tab-config',event)">任务配置</button>
-        <button class="tab-btn" onclick="switchTab('tab-progress',event)">进度监督</button>
+        <div style="display:flex;">
+          <button class="tab-btn active" onclick="switchTab('tab-overview',event)">监管总览</button>
+          <button class="tab-btn" onclick="switchTab('tab-progress',event)">进度监督</button>
+        </div>
+        <button class="btn btn-primary btn-sm" id="tabConfigBtn" style="display:none;" onclick="openTabConfig()">配置</button>
       </div>
       <div class="detail-body" id="detailBody">
         <!-- Tab 1: 监管总览 -->
@@ -218,14 +224,7 @@
           <div class="context-bar" id="overviewContext">当前视图：全部领域汇总</div>
           <div id="overviewContent"></div>
         </div>
-        <!-- Tab 2: 任务配置 -->
-        <div class="tab-content" id="tab-config">
-          <div class="context-bar" id="configContext">请先选择左侧领域小类</div>
-          <div id="configContent">
-            <div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">选择领域小类后查看和配置任务</div></div>
-          </div>
-        </div>
-        <!-- Tab 3: 进度监督 -->
+        <!-- Tab 2: 进度监督 -->
         <div class="tab-content" id="tab-progress">
           <div class="filter-card"><div class="filter-bar">
             <div class="filter-item"><label>统计周期：</label><select id="progressPeriod"><option>本月</option><option>本季度</option><option>本年</option></select></div>
@@ -239,8 +238,7 @@
           <span class="config-breadcrumb" id="configBreadcrumb"></span>
           <span class="config-summary" id="configSummary"></span>
           <div style="flex:1"></div>
-          <button class="config-back-btn" onclick="closeDomainConfig()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>返回</button>
-          <button class="btn btn-primary" onclick="saveDomainConfig()">保存配置</button>
+          <button class="btn btn-default btn-sm" onclick="closeDomainConfig()"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M10 3L5 8l5 5"/></svg>返回</button>
         </div>
         <div class="config-body" id="configBody"></div>
         <div class="config-view-footer">
@@ -252,42 +250,62 @@
   </div>
 </div>
 
-<!-- ========== 配置责任人弹窗 ========== -->
-<div class="modal-overlay" id="modal-assign">
-  <div class="modal-dialog" style="width:600px;">
-    <div class="modal-header"><span class="modal-title">配置责任人</span><button class="modal-close" onclick="closeModal('modal-assign')">&times;</button></div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label">领域小类</label><input class="form-input" id="assignDomain" readonly></div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 选择管控对象</label>
-        <div id="assignObjects" style="max-height:150px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:8px;"></div>
-      </div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 责任人（可多选）</label><select class="form-select" id="assignPerson" multiple size="4"><option value="张伟">张伟</option><option value="李娜">李娜</option><option value="王强">王强</option><option value="陈敏">陈敏</option><option value="刘洋">刘洋</option></select></div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 责任科室</label><select class="form-select" id="assignDept"><option value="">请选择</option><option>基础安全监管科</option><option>危化品监管科</option><option>综合协调科</option><option>执法监督科</option></select></div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 配置模式</label>
-        <div class="radio-group"><label><input type="radio" name="assignMode" value="append" checked> 追加（保留原有）</label><label><input type="radio" name="assignMode" value="override"> 覆盖（重新设置）</label></div>
-      </div>
-    </div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-assign')">取消</button><button class="btn btn-primary" onclick="submitAssign()">确认配置</button></div>
-  </div>
-</div>
-
-<!-- ========== 新增检查表弹窗 ========== -->
+<!-- ========== 检查表配置弹窗（系统/自定义 + 管控对象勾选） ========== -->
 <div class="modal-overlay" id="modal-checklist">
-  <div class="modal-dialog" style="width:680px;">
-    <div class="modal-header"><span class="modal-title">新增检查表配置</span><button class="modal-close" onclick="closeModal('modal-checklist')">&times;</button></div>
+  <div class="modal-dialog" style="width:800px;">
+    <div class="modal-header"><span class="modal-title" id="clModalTitle">新增检查表配置</span><button class="modal-close" onclick="closeModal('modal-checklist')">&times;</button></div>
     <div class="modal-body">
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 检查表模板</label><select class="form-select" id="clTemplate"><option value="">请选择检查表模板</option><option>消防安全日常检查表</option><option>电气安全检查表</option><option>危化品仓储检查表</option><option>建筑施工安全检查表</option></select></div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 检查周期</label><select class="form-select" id="clCycle"><option value="">请选择</option><option>每日</option><option>每周</option><option>每月</option><option>每季度</option></select></div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 适用范围</label>
-        <div class="radio-group"><label><input type="radio" name="clScope" value="all" checked onchange="togglePartialScope()"> 全部管控对象</label><label><input type="radio" name="clScope" value="partial" onchange="togglePartialScope()"> 指定管控对象</label></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <!-- 左栏：责任人/科室/周期 -->
+        <div>
+          <div class="form-group">
+            <label class="form-label">检查表类型</label>
+            <div class="radio-group">
+              <label><input type="radio" name="clType" value="system" checked onchange="toggleClType()"> [系统] 超管预分配</label>
+              <label><input type="radio" name="clType" value="custom" onchange="toggleClType()"> [自定义] 手动新增</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span> 检查表名称</label>
+            <input class="form-input" id="clName" placeholder="请选择或输入检查表名称">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span> 检查周期</label>
+            <select class="form-select" id="clCycle"><option value="">请选择</option><option>每日</option><option>每周</option><option>每月</option><option>每季度</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span> 责任科室</label>
+            <select class="form-select" id="clDept" onchange="onClDeptChange()"><option value="">请选择</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span> 责任人（可多选）</label>
+            <select class="form-select" id="clPerson" multiple size="3"><option value="张伟">张伟</option><option value="李娜">李娜</option><option value="王强">王强</option><option value="陈敏">陈敏</option><option value="刘洋">刘洋</option></select>
+          </div>
+        </div>
+        <!-- 右栏：管控对象勾选 -->
+        <div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span> 分配管控对象</label>
+            <div style="margin-bottom:8px;">
+              <label style="font-size:var(--font-size-sm);cursor:pointer;"><input type="checkbox" id="clSelectAllObjs" onchange="toggleClAllObjs(this.checked)"> 全选</label>
+              <span id="clObjCount" style="font-size:var(--font-size-xs);color:var(--text-secondary);margin-left:8px;"></span>
+            </div>
+            <div id="clObjList" style="max-height:320px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:8px;"></div>
+          </div>
+          <div class="form-group" id="clScanSection">
+            <label class="form-label">扫码责任（BR-GOV-DS-05）</label>
+            <div style="font-size:var(--font-size-xs);color:var(--text-secondary);margin-bottom:6px;">扫码责任人自动同步为检查表责任人——查什么、多久查、谁去查，一次配置完</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label style="font-size:var(--font-size-sm);"><input type="checkbox" id="clScanEnabled" checked> 启用扫码责任</label>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="form-group" id="partialScopeGroup" style="display:none;"><label class="form-label"><span class="required">*</span> 选择管控对象（可为单个对象设置不同频次）</label>
-        <div id="partialScopeList" style="max-height:200px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:8px;"></div>
-      </div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 责任人</label><select class="form-select" id="clPerson"><option value="">请选择</option><option>张伟</option><option>李娜</option><option>王强</option></select></div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 责任科室</label><select class="form-select" id="clDept"><option value="">请选择</option><option>危化品监管科</option><option>基础安全监管科</option><option>综合协调科</option></select></div>
     </div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-checklist')">取消</button><button class="btn btn-primary" onclick="submitChecklist()">保存</button></div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('modal-checklist')">取消</button>
+      <button class="btn btn-primary" onclick="submitChecklist()">保存</button>
+    </div>
   </div>
 </div>
 
@@ -296,7 +314,7 @@
   <div class="modal-dialog" style="width:800px;">
     <div class="modal-header"><span class="modal-title" id="incompleteTitle">未完成检查清单</span><button class="modal-close" onclick="closeModal('modal-incomplete')">&times;</button></div>
     <div class="modal-body" id="incompleteBody"></div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-incomplete')">关闭</button></div>
+    <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modal-incomplete')">关闭</button></div>
   </div>
 </div>
 
@@ -305,20 +323,16 @@
   <div class="modal-dialog" style="width:800px;">
     <div class="modal-header"><span class="modal-title" id="objectsTitle">管控对象列表</span><button class="modal-close" onclick="closeModal('modal-objects')">&times;</button></div>
     <div class="modal-body" id="objectsBody"></div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-objects')">关闭</button></div>
+    <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modal-objects')">关闭</button></div>
   </div>
 </div>
 
-<!-- ========== 扫码责任编辑弹窗 ========== -->
-<div class="modal-overlay" id="modal-scan-edit">
-  <div class="modal-dialog" style="width:560px;">
-    <div class="modal-header"><span class="modal-title">编辑扫码责任配置</span><button class="modal-close" onclick="closeModal('modal-scan-edit')">&times;</button></div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 关联检查表</label><select class="form-select" id="scanLinkedChecklist"><option value="">请选择已配置的检查表</option></select></div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 扫码责任人</label><select class="form-select" id="scanPerson"><option value="">请选择</option><option>张伟</option><option>李娜</option><option>王强</option><option>陈敏</option><option>刘洋</option></select></div>
-      <div class="form-group"><label class="form-label"><span class="required">*</span> 扫码责任科室</label><select class="form-select" id="scanDept"><option value="">请选择</option><option>基础安全监管科</option><option>危化品监管科</option><option>综合协调科</option><option>执法监督科</option></select></div>
-    </div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-scan-edit')">取消</button><button class="btn btn-primary" onclick="submitScanEdit()">保存</button></div>
+<!-- ========== 管控对象详情弹窗（AC-GOV-DS-21） ========== -->
+<div class="modal-overlay" id="modal-object-detail">
+  <div class="modal-dialog" style="width:720px;">
+    <div class="modal-header"><span class="modal-title" id="objectDetailTitle">管控对象详情</span><button class="modal-close" onclick="closeModal('modal-object-detail')">&times;</button></div>
+    <div class="modal-body" id="objectDetailBody"></div>
+    <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modal-object-detail')">关闭</button></div>
   </div>
 </div>
 
@@ -327,7 +341,7 @@
   <div class="modal-dialog" style="width:420px;">
     <div class="modal-header"><span class="modal-title">确认删除</span><button class="modal-close" onclick="closeModal('modal-delete-confirm')">&times;</button></div>
     <div class="modal-body"><p id="deleteConfirmText" style="font-size:var(--font-size-md);">确定要删除此配置吗？删除后不可恢复。</p><p id="deleteConfirmType" style="font-size:var(--font-size-sm);color:var(--text-secondary);"></p></div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-delete-confirm')">取消</button><button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);" onclick="confirmDelete()">确认删除</button></div>
+    <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modal-delete-confirm')">取消</button><button class="btn btn-danger" onclick="confirmDelete()">确认删除</button></div>
   </div>
 </div>
 
@@ -344,7 +358,7 @@
       </div>
       <div class="form-group" id="hazardReviewPersonGroup" style="display:none;"><label class="form-label"><span class="required">*</span> 复核人</label><select class="form-select" id="hazardReviewPerson"><option value="">请选择</option><option>张伟</option><option>李娜</option><option>王强</option><option>陈敏</option><option>刘洋</option></select></div>
     </div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-hazard-edit')">取消</button><button class="btn btn-primary" onclick="submitHazardEdit()">保存</button></div>
+    <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modal-hazard-edit')">取消</button><button class="btn btn-primary" onclick="submitHazardEdit()">保存</button></div>
   </div>
 </div>
 
@@ -397,128 +411,128 @@
 
   // ========== 领域汇总数据 ==========
   var DOMAIN_SUMMARY = [
-    { id: 'domain-charging', name: '电动自行车充电场所', cat: '公共场所类', objects: 15, assigned: 14, total: 15, checkConfig: 1, greenCode: 12, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 87, dept: '基础安全监管科', hazardRate: 92 },
-    { id: 'domain-commercial', name: '商业综合体', cat: '公共场所类', objects: 6, assigned: 5, total: 6, checkConfig: 1, greenCode: 4, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 83, dept: '基础安全监管科', hazardRate: 84 },
-    { id: 'domain-property', name: '物业小区', cat: '公共场所类', objects: 20, assigned: 18, total: 20, checkConfig: 1, greenCode: 16, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 90, dept: '基础安全监管科', hazardRate: 81 },
-    { id: 'domain-highrise', name: '超高层建筑', cat: '公共场所类', objects: 8, assigned: 7, total: 8, checkConfig: 1, greenCode: 6, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 88, dept: '基础安全监管科', hazardRate: 79 },
-    { id: 'domain-civilized', name: '文明施工', cat: '公共场所类', objects: 12, assigned: 10, total: 12, checkConfig: 1, greenCode: 9, yellowCode: 2, redCode: 1, hazards: 2, checkRate: 83, dept: '基础安全监管科', hazardRate: 72 },
-    { id: 'domain-small-shop', name: '"三小"场所（小商店—商场、市场、商店等）', cat: '公共场所类', objects: 30, assigned: 26, total: 30, checkConfig: 1, greenCode: 22, yellowCode: 5, redCode: 3, hazards: 6, checkRate: 80, dept: '基础安全监管科', hazardRate: 91 },
-    { id: 'domain-small-gasfood', name: '"三小"场所（小餐饮（燃气））', cat: '公共场所类', objects: 25, assigned: 22, total: 25, checkConfig: 1, greenCode: 18, yellowCode: 5, redCode: 2, hazards: 5, checkRate: 82, dept: '基础安全监管科', hazardRate: 76 },
-    { id: 'domain-small-beauty', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', cat: '公共场所类', objects: 18, assigned: 16, total: 18, checkConfig: 1, greenCode: 14, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 89, dept: '基础安全监管科', hazardRate: 87 },
-    { id: 'domain-small-elecfood', name: '"三小"场所（小餐饮（仅用电））', cat: '公共场所类', objects: 22, assigned: 20, total: 22, checkConfig: 1, greenCode: 17, yellowCode: 4, redCode: 1, hazards: 2, checkRate: 91, dept: '基础安全监管科', hazardRate: 97 },
-    { id: 'domain-small-cybercafe', name: '"三小"场所（小网吧）', cat: '公共场所类', objects: 10, assigned: 9, total: 10, checkConfig: 1, greenCode: 8, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 90, dept: '基础安全监管科', hazardRate: 79 },
-    { id: 'domain-small-store', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', cat: '公共场所类', objects: 28, assigned: 24, total: 28, checkConfig: 1, greenCode: 20, yellowCode: 5, redCode: 3, hazards: 5, checkRate: 79, dept: '基础安全监管科', hazardRate: 94 },
-    { id: 'domain-small-school', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', cat: '公共场所类', objects: 14, assigned: 13, total: 14, checkConfig: 1, greenCode: 11, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 86, dept: '基础安全监管科', hazardRate: 91 },
-    { id: 'domain-small-multi', name: '"三小"场所（小型多业态场所）', cat: '公共场所类', objects: 8, assigned: 6, total: 8, checkConfig: 1, greenCode: 5, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 75, dept: '基础安全监管科', hazardRate: 83 },
-    { id: 'domain-small-clinic', name: '"三小"场所（小型医疗机构—口腔、中医等）', cat: '公共场所类', objects: 12, assigned: 11, total: 12, checkConfig: 1, greenCode: 10, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 92, dept: '基础安全监管科', hazardRate: 87 },
-    { id: 'domain-small-entertain', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', cat: '公共场所类', objects: 16, assigned: 14, total: 16, checkConfig: 1, greenCode: 11, yellowCode: 3, redCode: 2, hazards: 4, checkRate: 81, dept: '基础安全监管科', hazardRate: 81 },
-    { id: 'domain-small-produce', name: '"三小"场所（小生产加工企业）', cat: '公共场所类', objects: 10, assigned: 8, total: 10, checkConfig: 1, greenCode: 7, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 78, dept: '基础安全监管科', hazardRate: 83 },
-    { id: 'domain-small-hotel', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', cat: '公共场所类', objects: 14, assigned: 12, total: 14, checkConfig: 1, greenCode: 10, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 82, dept: '基础安全监管科', hazardRate: 88 },
-    { id: 'domain-small-playground', name: '"三小"场所（小型游乐场）', cat: '公共场所类', objects: 6, assigned: 5, total: 6, checkConfig: 1, greenCode: 4, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 83, dept: '基础安全监管科', hazardRate: 93 },
-    { id: 'domain-house-build', name: '房屋建设工程', cat: '建设工程类', objects: 22, assigned: 18, total: 22, checkConfig: 2, greenCode: 16, yellowCode: 4, redCode: 2, hazards: 6, checkRate: 73, dept: '危化品监管科', hazardRate: 86 },
+    { id: 'domain-charging', name: '电动自行车充电场所', cat: '公共场所类', objects: 15, assigned: 14, total: 15, checkConfig: 1, greenCode: 12, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 87, dept: '督导检查科', hazardRate: 92 },
+    { id: 'domain-commercial', name: '商业综合体', cat: '公共场所类', objects: 6, assigned: 5, total: 6, checkConfig: 1, greenCode: 4, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 83, dept: '督导检查科', hazardRate: 84 },
+    { id: 'domain-property', name: '物业小区', cat: '公共场所类', objects: 20, assigned: 18, total: 20, checkConfig: 1, greenCode: 16, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 90, dept: '督导检查科', hazardRate: 81 },
+    { id: 'domain-highrise', name: '超高层建筑', cat: '公共场所类', objects: 8, assigned: 7, total: 8, checkConfig: 1, greenCode: 6, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 88, dept: '督导检查科', hazardRate: 79 },
+    { id: 'domain-civilized', name: '文明施工', cat: '公共场所类', objects: 12, assigned: 10, total: 12, checkConfig: 1, greenCode: 9, yellowCode: 2, redCode: 1, hazards: 2, checkRate: 83, dept: '督导检查科', hazardRate: 72 },
+    { id: 'domain-small-shop', name: '"三小"场所（小商店—商场、市场、商店等）', cat: '公共场所类', objects: 30, assigned: 26, total: 30, checkConfig: 1, greenCode: 22, yellowCode: 5, redCode: 3, hazards: 6, checkRate: 80, dept: '督导检查科', hazardRate: 91 },
+    { id: 'domain-small-gasfood', name: '"三小"场所（小餐饮（燃气））', cat: '公共场所类', objects: 25, assigned: 22, total: 25, checkConfig: 1, greenCode: 18, yellowCode: 5, redCode: 2, hazards: 5, checkRate: 82, dept: '督导检查科', hazardRate: 76 },
+    { id: 'domain-small-beauty', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', cat: '公共场所类', objects: 18, assigned: 16, total: 18, checkConfig: 1, greenCode: 14, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 89, dept: '督导检查科', hazardRate: 87 },
+    { id: 'domain-small-elecfood', name: '"三小"场所（小餐饮（仅用电））', cat: '公共场所类', objects: 22, assigned: 20, total: 22, checkConfig: 1, greenCode: 17, yellowCode: 4, redCode: 1, hazards: 2, checkRate: 91, dept: '督导检查科', hazardRate: 97 },
+    { id: 'domain-small-cybercafe', name: '"三小"场所（小网吧）', cat: '公共场所类', objects: 10, assigned: 9, total: 10, checkConfig: 1, greenCode: 8, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 90, dept: '督导检查科', hazardRate: 79 },
+    { id: 'domain-small-store', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', cat: '公共场所类', objects: 28, assigned: 24, total: 28, checkConfig: 1, greenCode: 20, yellowCode: 5, redCode: 3, hazards: 5, checkRate: 79, dept: '督导检查科', hazardRate: 94 },
+    { id: 'domain-small-school', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', cat: '公共场所类', objects: 14, assigned: 13, total: 14, checkConfig: 1, greenCode: 11, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 86, dept: '督导检查科', hazardRate: 91 },
+    { id: 'domain-small-multi', name: '"三小"场所（小型多业态场所）', cat: '公共场所类', objects: 8, assigned: 6, total: 8, checkConfig: 1, greenCode: 5, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 75, dept: '督导检查科', hazardRate: 83 },
+    { id: 'domain-small-clinic', name: '"三小"场所（小型医疗机构—口腔、中医等）', cat: '公共场所类', objects: 12, assigned: 11, total: 12, checkConfig: 1, greenCode: 10, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 92, dept: '督导检查科', hazardRate: 87 },
+    { id: 'domain-small-entertain', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', cat: '公共场所类', objects: 16, assigned: 14, total: 16, checkConfig: 1, greenCode: 11, yellowCode: 3, redCode: 2, hazards: 4, checkRate: 81, dept: '督导检查科', hazardRate: 81 },
+    { id: 'domain-small-produce', name: '"三小"场所（小生产加工企业）', cat: '公共场所类', objects: 10, assigned: 8, total: 10, checkConfig: 1, greenCode: 7, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 78, dept: '督导检查科', hazardRate: 83 },
+    { id: 'domain-small-hotel', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', cat: '公共场所类', objects: 14, assigned: 12, total: 14, checkConfig: 1, greenCode: 10, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 82, dept: '督导检查科', hazardRate: 88 },
+    { id: 'domain-small-playground', name: '"三小"场所（小型游乐场）', cat: '公共场所类', objects: 6, assigned: 5, total: 6, checkConfig: 1, greenCode: 4, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 83, dept: '督导检查科', hazardRate: 93 },
+    { id: 'domain-house-build', name: '房屋建设工程', cat: '建设工程类', objects: 22, assigned: 18, total: 22, checkConfig: 2, greenCode: 16, yellowCode: 4, redCode: 2, hazards: 6, checkRate: 73, dept: '危化品监管和执法科', hazardRate: 86 },
     { id: 'domain-persuade', name: '劝导路口', cat: '交通运输类', objects: 35, assigned: 30, total: 35, checkConfig: 1, greenCode: 26, yellowCode: 6, redCode: 3, hazards: 4, checkRate: 85, dept: '综合协调科', hazardRate: 91 },
-    { id: 'domain-gas-station', name: '加油站', cat: '危险化学品类', objects: 18, assigned: 16, total: 18, checkConfig: 1, greenCode: 15, yellowCode: 2, redCode: 1, hazards: 2, checkRate: 95, dept: '危化品监管科', hazardRate: 71 },
-    { id: 'domain-pharma', name: '医药化工', cat: '危险化学品类', objects: 5, assigned: 3, total: 5, checkConfig: 1, greenCode: 3, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 60, dept: '危化品监管科', hazardRate: 84 },
+    { id: 'domain-gas-station', name: '加油站', cat: '危险化学品类', objects: 18, assigned: 16, total: 18, checkConfig: 1, greenCode: 15, yellowCode: 2, redCode: 1, hazards: 2, checkRate: 95, dept: '危化品监管和执法科', hazardRate: 71 },
+    { id: 'domain-pharma', name: '医药化工', cat: '危险化学品类', objects: 5, assigned: 3, total: 5, checkConfig: 1, greenCode: 3, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 60, dept: '危化品监管和执法科', hazardRate: 84 },
     { id: 'domain-slope', name: '危险边坡', cat: '其他类', objects: 8, assigned: 6, total: 8, checkConfig: 1, greenCode: 5, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 75, dept: '综合协调科', hazardRate: 86 }
   ];
 
   // ========== 管控对象明细数据 ==========
   var OBJECT_DETAILS = {
     'domain-charging': [
-      { name: '南山区充电站A', type: '重点场所', person: '张伟', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '科技园充电站', type: '重点场所', person: '张伟', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '前海充电站B', type: '重点场所', person: '李娜', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 80 },
+      { name: '南山区充电站A', type: '重点场所', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
+      { name: '科技园充电站', type: '重点场所', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
+      { name: '前海充电站B', type: '重点场所', person: '李娜', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 80 },
       { name: '深圳湾充电站', type: '重点场所', person: '', dept: '', code: 'red', hazards: 2, rate: 50 },
-      { name: '后海充电站C', type: '重点场所', person: '王强', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 100 }
+      { name: '后海充电站C', type: '重点场所', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 }
     ],
     'domain-commercial': [
-      { name: '海岸城购物中心', type: '企业', person: '王强', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '万象天地', type: '企业', person: '王强', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 95 },
-      { name: '来福士广场', type: '企业', person: '李娜', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 85 },
+      { name: '海岸城购物中心', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
+      { name: '万象天地', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
+      { name: '来福士广场', type: '企业', person: '李娜', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 85 },
       { name: '壹方城', type: '企业', person: '', dept: '', code: 'red', hazards: 2, rate: 60 }
     ],
     'domain-property': [
-      { name: '蔚蓝海岸花园', type: '企业', person: '张伟', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '半岛城邦', type: '企业', person: '李娜', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 95 },
-      { name: '前海花园', type: '企业', person: '王强', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 82 },
+      { name: '蔚蓝海岸花园', type: '企业', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
+      { name: '半岛城邦', type: '企业', person: '李娜', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
+      { name: '前海花园', type: '企业', person: '王强', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 82 },
       { name: '蛇口花园城', type: '企业', person: '', dept: '', code: 'yellow', hazards: 1, rate: 78 },
-      { name: '深圳湾一号', type: '企业', person: '张伟', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 100 }
+      { name: '深圳湾一号', type: '企业', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 }
     ],
     'domain-highrise': [
-      { name: '平安金融中心', type: '重点场所', person: '陈敏', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '京基100', type: '重点场所', person: '陈敏', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 88 },
+      { name: '平安金融中心', type: '重点场所', person: '陈敏', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
+      { name: '京基100', type: '重点场所', person: '陈敏', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 88 },
       { name: '赛格大厦', type: '重点场所', person: '', dept: '', code: 'red', hazards: 2, rate: 65 }
     ],
     'domain-civilized': [
-      { name: '前海自贸区工地', type: '项目', person: '刘洋', dept: '危化品监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '后海片区工地', type: '项目', person: '刘洋', dept: '危化品监管科', code: 'green', hazards: 0, rate: 90 },
-      { name: '深圳湾工地', type: '项目', person: '王强', dept: '危化品监管科', code: 'yellow', hazards: 1, rate: 80 },
+      { name: '前海自贸区工地', type: '项目', person: '刘洋', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 100 },
+      { name: '后海片区工地', type: '项目', person: '刘洋', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 90 },
+      { name: '深圳湾工地', type: '项目', person: '王强', dept: '危化品监管和执法科', code: 'yellow', hazards: 1, rate: 80 },
       { name: '蛇口旧改工地', type: '项目', person: '', dept: '', code: 'red', hazards: 2, rate: 55 }
     ],
     'domain-small-shop': [
-      { name: '南油市场', type: '企业', person: '张伟', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 95 },
-      { name: '蛇口市场', type: '企业', person: '李娜', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 78 },
+      { name: '南油市场', type: '企业', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
+      { name: '蛇口市场', type: '企业', person: '李娜', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 78 },
       { name: '前海便利店群', type: '企业', person: '', dept: '', code: 'red', hazards: 2, rate: 50 }
     ],
     'domain-small-gasfood': [
-      { name: '后海餐饮街A', type: '企业', person: '王强', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 90 },
-      { name: '南山餐饮街B', type: '企业', person: '张伟', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 82 },
+      { name: '后海餐饮街A', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 90 },
+      { name: '南山餐饮街B', type: '企业', person: '张伟', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 82 },
       { name: '科技园餐饮区', type: '企业', person: '', dept: '', code: 'red', hazards: 2, rate: 60 }
     ],
     'domain-small-beauty': [
-      { name: '海岸城美容店群', type: '企业', person: '李娜', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 95 },
-      { name: '后海理发店群', type: '企业', person: '陈敏', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 85 }
+      { name: '海岸城美容店群', type: '企业', person: '李娜', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
+      { name: '后海理发店群', type: '企业', person: '陈敏', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 85 }
     ],
     'domain-small-elecfood': [
-      { name: '大学城餐饮区', type: '企业', person: '张伟', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 95 },
-      { name: '科技园快餐店群', type: '企业', person: '王强', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 90 },
-      { name: '前海美食街', type: '企业', person: '李娜', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 80 }
+      { name: '大学城餐饮区', type: '企业', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
+      { name: '科技园快餐店群', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 90 },
+      { name: '前海美食街', type: '企业', person: '李娜', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 80 }
     ],
     'domain-small-cybercafe': [
-      { name: '科技园网吧A', type: '企业', person: '刘洋', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 95 },
+      { name: '科技园网吧A', type: '企业', person: '刘洋', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
       { name: '南山网吧B', type: '企业', person: '', dept: '', code: 'yellow', hazards: 1, rate: 78 }
     ],
     'domain-small-store': [
-      { name: '南油汽配店群', type: '企业', person: '王强', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 90 },
-      { name: '蛇口废品站群', type: '企业', person: '张伟', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 80 },
+      { name: '南油汽配店群', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 90 },
+      { name: '蛇口废品站群', type: '企业', person: '张伟', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 80 },
       { name: '前海五金店群', type: '企业', person: '', dept: '', code: 'red', hazards: 2, rate: 55 }
     ],
     'domain-small-school': [
-      { name: '南山区托幼中心', type: '企业', person: '李娜', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 95 },
-      { name: '科技园培训机构', type: '企业', person: '陈敏', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 82 }
+      { name: '南山区托幼中心', type: '企业', person: '李娜', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
+      { name: '科技园培训机构', type: '企业', person: '陈敏', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 82 }
     ],
     'domain-small-multi': [
-      { name: '南油多业态楼A', type: '企业', person: '刘洋', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 78 },
+      { name: '南油多业态楼A', type: '企业', person: '刘洋', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 78 },
       { name: '蛇口多业态楼B', type: '企业', person: '', dept: '', code: 'red', hazards: 2, rate: 55 }
     ],
     'domain-small-clinic': [
-      { name: '南山口腔诊所群', type: '企业', person: '王强', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 95 },
-      { name: '科技园中医馆群', type: '企业', person: '张伟', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 88 }
+      { name: '南山口腔诊所群', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
+      { name: '科技园中医馆群', type: '企业', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 88 }
     ],
     'domain-small-entertain': [
-      { name: '后海KTV群', type: '企业', person: '李娜', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 90 },
-      { name: '南山密室逃脱群', type: '企业', person: '陈敏', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 80 },
+      { name: '后海KTV群', type: '企业', person: '李娜', dept: '督导检查科', code: 'green', hazards: 0, rate: 90 },
+      { name: '南山密室逃脱群', type: '企业', person: '陈敏', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 80 },
       { name: '前海酒吧群', type: '企业', person: '', dept: '', code: 'red', hazards: 2, rate: 58 }
     ],
     'domain-small-produce': [
-      { name: '南山加工坊A', type: '企业', person: '刘洋', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 88 },
+      { name: '南山加工坊A', type: '企业', person: '刘洋', dept: '督导检查科', code: 'green', hazards: 0, rate: 88 },
       { name: '西丽加工坊B', type: '企业', person: '', dept: '', code: 'yellow', hazards: 1, rate: 72 }
     ],
     'domain-small-hotel': [
-      { name: '后海公寓群', type: '企业', person: '王强', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 90 },
-      { name: '蛇口民宿群', type: '企业', person: '张伟', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 80 },
+      { name: '后海公寓群', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 90 },
+      { name: '蛇口民宿群', type: '企业', person: '张伟', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 80 },
       { name: '前海旅店群', type: '企业', person: '', dept: '', code: 'red', hazards: 1, rate: 65 }
     ],
     'domain-small-playground': [
-      { name: '南山儿童乐园', type: '企业', person: '李娜', dept: '基础安全监管科', code: 'green', hazards: 0, rate: 92 },
-      { name: '科技园游乐场', type: '企业', person: '陈敏', dept: '基础安全监管科', code: 'yellow', hazards: 1, rate: 78 }
+      { name: '南山儿童乐园', type: '企业', person: '李娜', dept: '督导检查科', code: 'green', hazards: 0, rate: 92 },
+      { name: '科技园游乐场', type: '企业', person: '陈敏', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 78 }
     ],
     'domain-house-build': [
-      { name: '南山科技园一期项目', type: '项目', person: '陈敏', dept: '危化品监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '前海金融中心项目', type: '项目', person: '陈敏', dept: '危化品监管科', code: 'yellow', hazards: 2, rate: 75 },
+      { name: '南山科技园一期项目', type: '项目', person: '陈敏', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 100 },
+      { name: '前海金融中心项目', type: '项目', person: '陈敏', dept: '危化品监管和执法科', code: 'yellow', hazards: 2, rate: 75 },
       { name: '蛇口旧改项目', type: '项目', person: '', dept: '', code: 'red', hazards: 4, rate: 40 },
-      { name: '深圳湾总部基地项目', type: '项目', person: '刘洋', dept: '危化品监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '西丽高铁站项目', type: '项目', person: '刘洋', dept: '危化品监管科', code: 'yellow', hazards: 1, rate: 85 }
+      { name: '深圳湾总部基地项目', type: '项目', person: '刘洋', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 100 },
+      { name: '西丽高铁站项目', type: '项目', person: '刘洋', dept: '危化品监管和执法科', code: 'yellow', hazards: 1, rate: 85 }
     ],
     'domain-persuade': [
       { name: '南新路路口', type: '其他', person: '刘洋', dept: '综合协调科', code: 'green', hazards: 0, rate: 100 },
@@ -527,13 +541,13 @@
       { name: '深南大道路口', type: '其他', person: '', dept: '', code: 'red', hazards: 2, rate: 60 }
     ],
     'domain-gas-station': [
-      { name: '南山加油站', type: '企业', person: '张伟', dept: '危化品监管科', code: 'green', hazards: 0, rate: 100 },
-      { name: '科技园加油站', type: '企业', person: '张伟', dept: '危化品监管科', code: 'green', hazards: 0, rate: 98 },
-      { name: '前海加油站', type: '企业', person: '李娜', dept: '危化品监管科', code: 'green', hazards: 0, rate: 95 },
-      { name: '蛇口加油站', type: '企业', person: '陈敏', dept: '危化品监管科', code: 'yellow', hazards: 1, rate: 88 }
+      { name: '南山加油站', type: '企业', person: '张伟', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 100 },
+      { name: '科技园加油站', type: '企业', person: '张伟', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 98 },
+      { name: '前海加油站', type: '企业', person: '李娜', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 95 },
+      { name: '蛇口加油站', type: '企业', person: '陈敏', dept: '危化品监管和执法科', code: 'yellow', hazards: 1, rate: 88 }
     ],
     'domain-pharma': [
-      { name: '南山医药化工A', type: '企业', person: '张伟', dept: '危化品监管科', code: 'green', hazards: 0, rate: 90 },
+      { name: '南山医药化工A', type: '企业', person: '张伟', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 90 },
       { name: '前海医药化工B', type: '企业', person: '', dept: '', code: 'yellow', hazards: 1, rate: 70 },
       { name: '科技园化工厂', type: '企业', person: '', dept: '', code: 'red', hazards: 2, rate: 45 }
     ],
@@ -547,12 +561,11 @@
   // ========== 配置数据 ==========
   var CONFIG_DATA = {
     'domain-charging': {
-      dept: '基础安全监管科',
+      dept: '督导检查科',
       checklists: [
-        { name: '消防安全日常检查表', cycle: '每月', scope: '全部', person: '张伟', dept: '基础安全监管科', enabled: true },
-        { name: '电气安全检查表', cycle: '每季度', scope: '全部', person: '李娜', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全日常检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '电气安全检查表', cycle: '每季度', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true }
       ],
-      scan: { person: '张伟', dept: '基础安全监管科', linkedChecklist: '消防安全日常检查表', enabled: true },
       hazards: [
         { type: '消防安全', responder: '企业安全负责人', deadline: 15, reviewer: '政府复核', reviewPerson: '张伟', enabled: true },
         { type: '电气安全', responder: '企业安全主管', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
@@ -561,172 +574,170 @@
     },
     'domain-commercial': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '王强', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '企业安全负责人', deadline: 10, reviewer: '政府复核', reviewPerson: '王强', enabled: true }
     },
     'domain-property': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '张伟', dept: '基础安全监管科', enabled: true },
-        { name: '电梯安全检查表', cycle: '每季度', scope: '全部', person: '李娜', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '电梯安全检查表', cycle: '每季度', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true }
       ],
-      scan: { person: '张伟', dept: '基础安全监管科', linkedChecklist: '消防安全检查表', enabled: true },
       hazard: { type: '消防安全', responder: '物业管理负责人', deadline: 10, reviewer: '政府复核', reviewPerson: '张伟', enabled: true }
     },
     'domain-highrise': {
       checklists: [
-        { name: '高层建筑消防检查表', cycle: '每月', scope: '全部', person: '陈敏', dept: '基础安全监管科', enabled: true },
-        { name: '避难层安全检查表', cycle: '每季度', scope: '指定(3个)', person: '李娜', dept: '基础安全监管科', enabled: false }
+        { name: '高层建筑消防检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '避难层安全检查表', cycle: '每季度', checklistType: 'system', scope: '指定(3个)', person: '李娜', dept: '督导检查科', enabled: false }
       ],
-      scan: { person: '陈敏', dept: '基础安全监管科', linkedChecklist: '高层建筑消防检查表', enabled: true },
       hazard: { type: '消防安全', responder: '物业管理负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '陈敏', enabled: true }
     },
     'domain-civilized': {
       checklists: [
-        { name: '文明施工检查表', cycle: '每周', scope: '全部', person: '刘洋', dept: '危化品监管科', enabled: true },
-        { name: '扬尘治理检查表', cycle: '每月', scope: '全部', person: '王强', dept: '危化品监管科', enabled: true }
+        { name: '文明施工检查表', cycle: '每周', checklistType: 'system', scope: '全部', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
+        { name: '扬尘治理检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '危化品监管和执法科', enabled: true }
       ],
-      scan: { person: '刘洋', dept: '危化品监管科', linkedChecklist: '文明施工检查表', enabled: true },
       hazard: { type: '施工安全', responder: '项目负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '刘洋', enabled: true }
     },
     'domain-small-shop': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '张伟', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-gasfood': {
       checklists: [
-        { name: '燃气安全检查表', cycle: '每月', scope: '全部', person: '王强', dept: '基础安全监管科', enabled: true },
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '张伟', dept: '基础安全监管科', enabled: true }
+        { name: '燃气安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true }
       ],
-      scan: { person: '王强', dept: '基础安全监管科', linkedChecklist: '燃气安全检查表', enabled: true },
       hazard: { type: '燃气安全', responder: '场所负责人', deadline: 5, reviewer: '政府复核', reviewPerson: '王强', enabled: true }
     },
     'domain-small-beauty': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '李娜', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-elecfood': {
       checklists: [
-        { name: '用电安全检查表', cycle: '每月', scope: '全部', person: '张伟', dept: '基础安全监管科', enabled: true }
+        { name: '用电安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '用电安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-cybercafe': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '刘洋', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '刘洋', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-store': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '王强', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-school': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '李娜', dept: '基础安全监管科', enabled: true },
-        { name: '食品安全检查表', cycle: '每季度', scope: '全部', person: '陈敏', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '食品安全检查表', cycle: '每季度', checklistType: 'system', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '李娜', enabled: true }
     },
     'domain-small-multi': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '刘洋', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '刘洋', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-clinic': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '王强', dept: '基础安全监管科', enabled: true },
-        { name: '医疗废物处置检查表', cycle: '每季度', scope: '全部', person: '张伟', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '医疗废物处置检查表', cycle: '每季度', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 7, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-entertain': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '李娜', dept: '基础安全监管科', enabled: true },
-        { name: '应急疏散检查表', cycle: '每季度', scope: '全部', person: '陈敏', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '应急疏散检查表', cycle: '每季度', checklistType: 'system', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '李娜', enabled: true }
     },
     'domain-small-produce': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '刘洋', dept: '基础安全监管科', enabled: true },
-        { name: '生产安全检查表', cycle: '每月', scope: '全部', person: '王强', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '刘洋', dept: '督导检查科', enabled: true },
+        { name: '生产安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '生产安全', responder: '场所负责人', deadline: 7, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-hotel': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '王强', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-playground': {
       checklists: [
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '李娜', dept: '基础安全监管科', enabled: true },
-        { name: '设施安全检查表', cycle: '每季度', scope: '全部', person: '陈敏', dept: '基础安全监管科', enabled: true }
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '设施安全检查表', cycle: '每季度', checklistType: 'system', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '设施安全', responder: '场所负责人', deadline: 7, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-house-build': {
       checklists: [
-        { name: '建筑施工安全检查表', cycle: '每周', scope: '全部', person: '陈敏', dept: '危化品监管科', enabled: true },
-        { name: '高处作业检查表', cycle: '每月', scope: '指定(3个)', person: '刘洋', dept: '危化品监管科', enabled: false },
-        { name: '临时用电检查表', cycle: '每月', scope: '全部', person: '王强', dept: '危化品监管科', enabled: true }
+        { name: '建筑施工安全检查表', cycle: '每周', checklistType: 'system', scope: '全部', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+        { name: '高处作业检查表', cycle: '每月', checklistType: 'system', scope: '指定(3个)', person: '刘洋', dept: '危化品监管和执法科', enabled: false },
+        { name: '临时用电检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '危化品监管和执法科', enabled: true }
       ],
-      scan: { person: '陈敏', dept: '危化品监管科', linkedChecklist: '建筑施工安全检查表', enabled: true },
       hazard: { type: '施工安全', responder: '项目安全负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '陈敏', enabled: true }
     },
     'domain-persuade': {
       checklists: [
-        { name: '交通安全劝导检查表', cycle: '每周', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true }
+        { name: '交通安全劝导检查表', cycle: '每周', checklistType: 'system', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '交通安全', responder: '点位负责人', deadline: 5, reviewer: '政府复核', reviewPerson: '刘洋', enabled: true }
     },
     'domain-gas-station': {
       checklists: [
-        { name: '加油站安全检查表', cycle: '每周', scope: '全部', person: '张伟', dept: '危化品监管科', enabled: true },
-        { name: '消防安全检查表', cycle: '每月', scope: '全部', person: '李娜', dept: '危化品监管科', enabled: true }
+        { name: '加油站安全检查表', cycle: '每周', checklistType: 'system', scope: '全部', person: '张伟', dept: '危化品监管和执法科', enabled: true },
+        { name: '消防安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '李娜', dept: '危化品监管和执法科', enabled: true }
       ],
-      scan: { person: '张伟', dept: '危化品监管科', linkedChecklist: '加油站安全检查表', enabled: true },
       hazard: { type: '危化品安全', responder: '企业安全负责人', deadline: 3, reviewer: '政府复核', reviewPerson: '张伟', enabled: true }
     },
     'domain-pharma': {
       checklists: [
-        { name: '医药化工安全检查表', cycle: '每月', scope: '全部', person: '张伟', dept: '危化品监管科', enabled: true }
+        { name: '医药化工安全检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '张伟', dept: '危化品监管和执法科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '危化品安全', responder: '企业安全负责人', deadline: 5, reviewer: '政府复核', reviewPerson: '张伟', enabled: true }
     },
     'domain-slope': {
       checklists: [
-        { name: '边坡安全巡查表', cycle: '每周', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true },
-        { name: '雨季专项检查表', cycle: '每月', scope: '全部', person: '王强', dept: '综合协调科', enabled: true }
+        { name: '边坡安全巡查表', cycle: '每周', checklistType: 'system', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true },
+        { name: '雨季专项检查表', cycle: '每月', checklistType: 'system', scope: '全部', person: '王强', dept: '综合协调科', enabled: true }
       ],
-      scan: null,
       hazard: { type: '地质灾害', responder: '点位负责人', deadline: 3, reviewer: '政府复核', reviewPerson: '刘洋', enabled: true }
     }
   };
+
+  // scope → assignedObjects 归一化（BR-GOV-DS-04：检查表配置下沉到管控对象级别，无"全部/指定"概念）
+  (function normalizeConfigData() {
+    Object.keys(CONFIG_DATA).forEach(function(domainId) {
+      var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
+      if (!d) return;
+      var objNames = (OBJECT_DETAILS[domainId] || generateObjects(d)).map(function(o) { return o.name; });
+      var cfg = CONFIG_DATA[domainId];
+      (cfg.checklists || []).forEach(function(c) {
+        if (c.assignedObjects) { delete c.scope; return; }
+        var n = objNames.length;
+        if (c.scope && c.scope.indexOf('指定') === 0) {
+          var m = c.scope.match(/\d+/);
+          n = m ? Math.min(parseInt(m[0], 10), objNames.length) : Math.min(3, objNames.length);
+        }
+        c.assignedObjects = objNames.slice(0, n);
+        delete c.scope;
+      });
+    });
+  })();
 
   // ========== 状态 ==========
   var currentNode = null;
@@ -736,8 +747,6 @@
   var objectDetailPage = 1;
   var objectDetailPageSize = 10;
   var currentObjectDomainId = null;
-  var configPage = 1;
-  var configPageSize = 10;
   var progressPage = 1;
   var progressPageSize = 10;
   var progressDetailPage = 1;
@@ -747,52 +756,13 @@
   // ========== 安全码二维码图标 ==========
   var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
 
-  // ========== 通用分页 HTML（匹配 framework.css 的 .pg / .pg-info / .pg-size / .pg-ellipsis / .pg-jump 样式） ==========
-  function paginationHtml(opts) {
-    var page = opts.page, size = opts.size, total = opts.total, prefix = opts.prefix;
-    var sizeOptions = opts.sizeOptions || [10, 20, 50];
-    var totalPages = Math.max(1, Math.ceil(total / size));
-    var goFn = prefix + 'GoPage';
-    var sizeFn = prefix + 'ChangeSize';
-
-    var html = '<div class="pagination">';
-    html += '<span class="pg-info">共 ' + total + ' 条</span>';
-    html += '<select class="pg-size" onchange="' + sizeFn + '(this.value)">';
-    for (var s = 0; s < sizeOptions.length; s++) {
-      html += '<option value="' + sizeOptions[s] + '"' + (sizeOptions[s] === size ? ' selected' : '') + '>' + sizeOptions[s] + ' 条/页</option>';
-    }
-    html += '</select>';
-    html += '<button class="pg" onclick="' + goFn + '(' + (page - 1) + ')"' + (page <= 1 ? ' disabled' : '') + '>上一页</button>';
-
-    var pages = [];
-    if (totalPages <= 7) {
-      for (var i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (page > 3) pages.push('...');
-      var pStart = Math.max(2, page - 1);
-      var pEnd = Math.min(totalPages - 1, page + 1);
-      for (var j = pStart; j <= pEnd; j++) pages.push(j);
-      if (page < totalPages - 2) pages.push('...');
-      pages.push(totalPages);
-    }
-    for (var k = 0; k < pages.length; k++) {
-      if (pages[k] === '...') {
-        html += '<span class="pg-ellipsis">...</span>';
-      } else {
-        html += '<button class="pg' + (pages[k] === page ? ' active' : '') + '" onclick="' + goFn + '(' + pages[k] + ')">' + pages[k] + '</button>';
-      }
-    }
-
-    html += '<button class="pg" onclick="' + goFn + '(' + (page + 1) + ')"' + (page >= totalPages ? ' disabled' : '') + '>下一页</button>';
-    html += '<span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="' + totalPages + '" value="' + page + '" onkeydown="if(event.key===\'Enter\'){' + goFn + '(parseInt(this.value))}"> 页</span>';
-    html += '</div>';
-    return html;
-  }
-
   // ========== 初始化 ==========
   renderTree();
   initTreeTooltip();
+  // 弹窗遮罩点击关闭（统一绑定，点击遮罩本身才关闭）
+  document.querySelectorAll('.modal-overlay').forEach(function(ov) {
+    ov.addEventListener('click', function(e) { if (e.target === ov) ov.classList.remove('show'); });
+  });
 
   // ========== 树节点自定义 Tooltip ==========
   function initTreeTooltip() {
@@ -856,6 +826,10 @@
       html += '<span class="tree-node-icon">' + icon + '</span>';
       var safeTitle = n.name.replace(/"/g, '&quot;');
       html += '<span class="tree-node-label" data-tooltip="' + safeTitle + '">' + n.name + '</span>';
+      if (level === 1 && !hasChildren) {
+        // 配置入口①：领域小类 hover 显示 ⚙️（AC-GOV-DS-20）
+        html += '<span class="tree-config-icon" title="进入配置页" onclick="event.stopPropagation();openDomainConfig(\'' + n.id + '\')">⚙️</span>';
+      }
       html += '</div>';
       if (hasChildren) {
         html += '<div class="tree-children" data-parent="' + n.id + '">';
@@ -906,12 +880,14 @@
   }
 
   function selectNode(id) {
-    // 配置页未保存时弹出确认
-    var inConfig = document.querySelector('.detail-panel') && document.querySelector('.detail-panel').classList.contains('config-mode');
-    if (inConfig && configState && configState.drafts && configState.drafts.length > 0) {
-      if (!confirm('当前配置未保存，是否放弃？')) return;
+    // BR-GOV-DS-18：配置页未保存时切换节点需确认
+    var panel = document.querySelector('.detail-panel');
+    var inConfig = panel && panel.classList.contains('config-mode');
+    if (inConfig) {
+      if (configDirty && id !== configState.domainId && !window.confirm('当前配置未保存，是否放弃？')) return;
+      panel.classList.remove('config-mode');
+      configDirty = false;
     }
-    if (inConfig) document.querySelector('.detail-panel').classList.remove('config-mode');
 
     // 选中单位节点(root)时，仅展开领域大类层，折叠所有领域大类下的领域小类
     if (id === 'root') {
@@ -941,7 +917,6 @@
     domainSummaryPage = 1;
     objectDetailPage = 1;
     currentObjectDomainId = null;
-    configPage = 1;
     progressPage = 1;
     progressDetailPage = 1;
     currentProgressDomainId = null;
@@ -975,8 +950,11 @@
       document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.toggle('active', btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(currentTab) > -1); });
     }
 
+    // 领域小类选中时显示右上角"配置"按钮（配置入口②，AC-GOV-DS-20）
+    var cfgBtn = document.getElementById('tabConfigBtn');
+    if (cfgBtn) cfgBtn.style.display = isDomain ? '' : 'none';
+
     if (currentTab === 'tab-overview') renderOverview();
-    else if (currentTab === 'tab-config') renderConfig();
     else if (currentTab === 'tab-progress') renderProgress();
   }
 
@@ -1061,27 +1039,12 @@
       html += '</tr>';
     });
     html += '</tbody></table></div>';
-    html += paginationHtml({ page: domainSummaryPage, size: domainSummaryPageSize, total: list.length, prefix: 'domainSummary' });
+    html += '<div class="pagination" id="pgDomainSummary"></div>';
     html += '</div>';
 
     el.innerHTML = html;
+    new Pagination('pgDomainSummary', { current: domainSummaryPage, size: domainSummaryPageSize, total: list.length, onChange: function(p, s) { domainSummaryPage = p; domainSummaryPageSize = s; renderOverview(); } });
   }
-
-  window.domainSummaryGoPage = function(p) {
-    var isCat = currentNode && currentNode.startsWith('cat-');
-    var list = isCat
-      ? DOMAIN_SUMMARY.filter(function(x) { return x.cat === findTreeNode(TREE_DATA, currentNode).name; })
-      : DOMAIN_SUMMARY;
-    var totalPages = Math.max(1, Math.ceil(list.length / domainSummaryPageSize));
-    if (p < 1 || p > totalPages) return;
-    domainSummaryPage = p;
-    renderOverview();
-  };
-  window.domainSummaryChangeSize = function(s) {
-    domainSummaryPageSize = parseInt(s) || 10;
-    domainSummaryPage = 1;
-    renderOverview();
-  };
 
   function renderObjectDetail(domain, el) {
     var objects = OBJECT_DETAILS[domain.id] || generateObjects(domain);
@@ -1107,15 +1070,13 @@
     html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">隐患整改率</div><div class="stat-value">' + hazardRateAvg + '%</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>';
     html += '</div>';
 
-    html += '<div style="margin-bottom:12px;display:flex;gap:8px;align-items:center;"><button class="btn btn-primary" onclick="openAssignModal(\'' + domain.id + '\')">批量配置责任人</button><span id="selectedCount-' + domain.id + '" style="font-size:var(--font-size-xs);color:var(--text-secondary);"></span></div>';
-
     var totalPages = Math.max(1, Math.ceil(objects.length / objectDetailPageSize));
     if (objectDetailPage > totalPages) objectDetailPage = totalPages;
     var start = (objectDetailPage - 1) * objectDetailPageSize;
     var pageObjects = objects.slice(start, start + objectDetailPageSize);
 
     html += '<div class="table-card"><div class="table-scroll"><table><thead><tr>';
-    html += '<th style="width:36px;"><input type="checkbox" onchange="toggleAllObjects(this,\'' + domain.id + '\')"></th><th>管控对象名称</th><th>对象类型</th><th>责任人</th><th>责任科室</th><th>安全码色</th><th>未关闭隐患</th><th>隐患整改率</th><th class="action-col">操作</th>';
+    html += '<th style="width:36px;"><input type="checkbox" onchange="toggleAllObjects(this,\'' + domain.id + '\')"></th><th>管控对象名称</th><th>对象类型</th><th>责任人</th><th>责任科室</th><th>安全码</th><th>未关闭隐患</th><th>隐患整改率</th><th class="action-col">操作</th>';
     html += '</tr></thead><tbody id="objectTbody-' + domain.id + '">';
     pageObjects.forEach(function(o, oi) {
       var realIdx = start + oi;
@@ -1123,41 +1084,25 @@
       var hr = (typeof o.hazardRate === 'number') ? o.hazardRate : (typeof o.rate === 'number' ? o.rate : (o.hazards > 0 ? 0 : 100));
       html += '<tr>';
       html += '<td><input type="checkbox" class="obj-check" data-domain="' + domain.id + '" data-idx="' + realIdx + '"></td>';
-      html += '<td>' + o.name + '</td>';
+      html += '<td><a class="btn-link" onclick="viewObjectDetail(\'' + domain.id + '\',' + realIdx + ')">' + o.name + '</a></td>';
       html += '<td><span class="tag ' + typeClass + '">' + o.type + '</span></td>';
       html += '<td>' + (o.person || '<span style="color:var(--danger)">未配置</span>') + '</td>';
       html += '<td>' + (o.dept || '—') + '</td>';
-      var codeText = o.code === 'green' ? '绿码' : o.code === 'yellow' ? '黄码' : '红码';
-      html += '<td><span class="code-cell ' + o.code + '">' + QR_ICON_SVG + '</span> <span style="font-size:var(--font-size-xs);color:' + (o.code === 'green' ? 'var(--success)' : o.code === 'yellow' ? 'var(--warning)' : 'var(--danger)') + '">' + codeText + '</span></td>';
+      html += '<td style="text-align:center"><span class="code-cell ' + o.code + '" title="' + (o.code === 'green' ? '绿码' : o.code === 'yellow' ? '黄码' : '红码') + '">' + QR_ICON_SVG + '</span></td>';
       html += '<td>' + (o.hazards > 0 ? '<span style="color:var(--danger);font-weight:600">' + o.hazards + '</span>' : '0') + '</td>';
       html += '<td>' + hr + '%</td>';
-      html += '<td class="action-col">' + (o.person ? '<button class="btn-link" onclick="viewObjects(\'' + domain.id + '\')">查看</button>' : '<button class="btn-link" onclick="openAssignModal(\'' + domain.id + '\')">配置</button>') + '</td>';
+      html += '<td class="action-col"><button class="btn-link" onclick="viewObjectDetail(\'' + domain.id + '\',' + realIdx + ')">查看</button></td>';
       html += '</tr>';
     });
     html += '</tbody></table></div>';
-    html += paginationHtml({ page: objectDetailPage, size: objectDetailPageSize, total: objects.length, prefix: 'objectDetail' });
+    html += '<div class="pagination" id="pgObjectDetail"></div>';
     html += '</div>';
 
     el.innerHTML = html;
+    new Pagination('pgObjectDetail', { current: objectDetailPage, size: objectDetailPageSize, total: objects.length, onChange: function(p, s) { objectDetailPage = p; objectDetailPageSize = s; renderObjectDetail(domain, document.getElementById('overviewContent')); } });
     // 初始化已选计数
     updateSelectedCount(domain.id);
   }
-
-  window.objectDetailGoPage = function(p) {
-    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
-    if (!d) return;
-    var objects = OBJECT_DETAILS[d.id] || generateObjects(d);
-    var totalPages = Math.max(1, Math.ceil(objects.length / objectDetailPageSize));
-    if (p < 1 || p > totalPages) return;
-    objectDetailPage = p;
-    renderObjectDetail(d, document.getElementById('overviewContent'));
-  };
-  window.objectDetailChangeSize = function(s) {
-    objectDetailPageSize = parseInt(s) || 10;
-    objectDetailPage = 1;
-    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
-    if (d) renderObjectDetail(d, document.getElementById('overviewContent'));
-  };
 
   function generateObjects(domain) {
     var types = ['企业', '项目', '重点场所'];
@@ -1167,209 +1112,12 @@
       var rate = Math.min(100, 80 + i * 5);
       var hazards = i === 3 ? 1 : 0;
       var hazardRate = hazards > 0 ? 50 : 100;
-      result.push({ name: domain.name + names[i], type: types[i % 3], person: i < 3 ? '张伟' : '', dept: i < 3 ? '基础安全监管科' : '', code: i < 3 ? 'green' : 'yellow', hazards: hazards, rate: rate, hazardRate: hazardRate });
+      result.push({ name: domain.name + names[i], type: types[i % 3], person: i < 3 ? '张伟' : '', dept: i < 3 ? '督导检查科' : '', code: i < 3 ? 'green' : 'yellow', hazards: hazards, rate: rate, hazardRate: hazardRate });
     }
     return result;
   }
 
-  // ========== Tab2: 任务配置 ==========
-  function renderConfig() {
-    var isDomain = currentNode && currentNode.startsWith('domain-');
-    var ctxEl = document.getElementById('configContext');
-    var contentEl = document.getElementById('configContent');
 
-    if (!isDomain) {
-      var catName = currentNode && currentNode.startsWith('cat-') ? findTreeNode(TREE_DATA, currentNode).name : '全部';
-      ctxEl.textContent = catName + ' — 配置总览';
-      var filterFn = currentNode && currentNode.startsWith('cat-')
-        ? function(x) { return x.cat === catName; }
-        : function() { return true; };
-      var domains = DOMAIN_SUMMARY.filter(filterFn);
-
-      var totalPages = Math.max(1, Math.ceil(domains.length / configPageSize));
-      if (configPage > totalPages) configPage = totalPages;
-      var start = (configPage - 1) * configPageSize;
-      var pageDomains = domains.slice(start, start + configPageSize);
-
-      var html = '<div class="table-card"><div class="table-scroll"><table><thead><tr><th>领域小类</th><th>责任科室</th><th>检查表配置</th><th>扫码责任</th><th>隐患责任</th><th>复核方</th><th class="action-col">操作</th></tr></thead><tbody>';
-      pageDomains.forEach(function(d) {
-        var cfg = CONFIG_DATA[d.id];
-        html += '<tr><td><a class="btn-link" onclick="openDomainConfig(\'' + d.id + '\')">' + d.name + '</a></td>';
-        html += '<td>' + (cfg && cfg.dept ? cfg.dept : (d.dept || '<span style="color:var(--text-tertiary)">本单位</span>')) + '</td>';
-        html += '<td>' + (cfg ? cfg.checklists.length + ' 套' : '未配置') + '</td>';
-        html += '<td>' + (cfg && cfg.scan ? cfg.scan.person : '未配置') + '</td>';
-        html += '<td>' + (cfg && (cfg.hazard || cfg.hazards) ? (cfg.hazards ? cfg.hazards.map(function(h){return h.type}).join('、') : cfg.hazard.type) : '未配置') + '</td>';
-        // 复核方：多条隐患责任取最近一条，多条且不一致时显示"混合"
-        var reviewText = '—';
-        if (cfg && cfg.hazards && cfg.hazards.length > 0) {
-          var reviewers = cfg.hazards.map(function(h){ return h.reviewer; });
-          var allSame = reviewers.every(function(r){ return r === reviewers[0]; });
-          reviewText = allSame ? reviewers[0] : '混合';
-        } else if (cfg && cfg.hazard) {
-          reviewText = cfg.hazard.reviewer;
-        }
-        html += '<td>' + reviewText + '</td>';
-        html += '<td class="action-col"><button class="btn-link" onclick="openDomainConfig(\'' + d.id + '\')">配置</button></td>';
-        html += '</tr>';
-      });
-      html += '</tbody></table></div>';
-      html += paginationHtml({ page: configPage, size: configPageSize, total: domains.length, prefix: 'config' });
-      html += '</div>';
-
-      contentEl.innerHTML = html;
-      return;
-    }
-
-    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
-    ctxEl.textContent = '当前配置：' + d.name;
-    var config = CONFIG_DATA[currentNode];
-    if (!config) {
-      contentEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">该领域暂无配置数据</div></div><div style="text-align:center;"><button class="btn btn-primary" onclick="openModal(\'modal-checklist\')">新增检查表配置</button></div>';
-      return;
-    }
-
-    var html = '';
-
-    // 递进依赖提示
-    var hasChecklist = config.checklists && config.checklists.some(function(c) { return c.enabled !== false; });
-    html += '<div class="context-bar" style="margin-bottom:12px;">配置递进关系：⓪责任科室配置（谁来管）→ ①检查表配置（查什么）→ ②扫码责任配置（谁去查）→ ③隐患责任配置（查出隐患后怎么处理）</div>';
-
-    // ⓪ 责任科室配置
-    html += '<div class="config-section">';
-    html += '<div class="config-title"><span class="step">0</span> 责任科室配置（谁来管）</div>';
-    html += '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;">';
-    html += '<label class="form-label" style="margin:0;white-space:nowrap;">责任科室：</label>';
-    html += '<select class="form-select" style="max-width:240px;" onchange="changeDept(\'' + currentNode + '\',this.value)">';
-    html += '<option value="本单位"' + (!config.dept || config.dept === '本单位' ? ' selected' : '') + '>本单位</option>';
-    var depts = ['基础安全监管科','危化品监管科','综合协调科','执法监督科'];
-    depts.forEach(function(dp) {
-      html += '<option' + (config.dept === dp ? ' selected' : '') + '>' + dp + '</option>';
-    });
-    html += '</select>';
-    html += '<span style="font-size:var(--font-size-xs);color:var(--text-secondary);">未配置时默认为"本单位"</span>';
-    html += '</div></div>';
-
-    // ① 检查表配置
-    html += '<div class="config-section">';
-    html += '<div class="config-title"><span class="step">1</span> 检查表配置（查什么）<div style="flex:1"></div><button class="btn btn-primary btn-sm" onclick="openModal(\'modal-checklist\')">+ 新增</button></div>';
-    html += '<table class="config-table"><thead><tr><th>检查表名称</th><th>检查周期</th><th>适用范围</th><th>责任人</th><th>责任科室</th><th>状态</th><th>操作</th></tr></thead><tbody>';
-    config.checklists.forEach(function(cl, idx) {
-      var scopeText = cl.scope;
-      if (cl.scope === '指定' && cl.selectedObjects) {
-        scopeText = '指定（' + cl.selectedObjects.length + '个对象）';
-      }
-      html += '<tr><td>' + cl.name + '</td><td>' + cl.cycle + '</td><td>' + scopeText + '</td><td>' + cl.person + '</td><td>' + cl.dept + '</td>';
-      html += '<td><label class="toggle-switch"><input type="checkbox"' + (cl.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'checklist\',\'' + currentNode + '\',' + idx + ',this.checked)"><span class="toggle-slider"></span></label></td>';
-      html += '<td><button class="btn-link" onclick="editChecklist(\'' + currentNode + '\',' + idx + ')">编辑</button><button class="btn-link danger" onclick="deleteConfig(\'checklist\',\'' + currentNode + '\',' + idx + ')">删除</button></td></tr>';
-      // 频次覆盖子行
-      if (cl.scope === '指定' && cl.selectedObjects && cl.selectedObjects.length > 0) {
-        var hasOverride = cl.selectedObjects.some(function(o) { return o.cycle; });
-        if (hasOverride) {
-          html += '<tr style="background:var(--bg-section)"><td colspan="7" style="padding:4px 12px;font-size:var(--font-size-xs);color:var(--text-secondary);">';
-          html += '频次覆盖：';
-          cl.selectedObjects.forEach(function(o) {
-            if (o.cycle) html += '<span class="tag tag-orange" style="margin:2px;">' + o.name + '：' + o.cycle + '</span>';
-          });
-          html += '</td></tr>';
-        }
-      }
-    });
-    html += '</tbody></table></div>';
-
-    // 扫码责任配置 (BR-GOV-DS-06: 依赖检查表)
-    var scanDisabled = !hasChecklist;
-    html += '<div class="config-section' + (scanDisabled ? '" style="opacity:0.6;pointer-events:none' : '') + '">';
-    html += '<div class="config-title"><span class="step">2</span> 扫码责任配置（谁去查）<div style="flex:1"></div>';
-    if (config.scan) {
-      html += '<label class="toggle-switch" style="margin-right:12px;' + (scanDisabled ? 'pointer-events:none' : '') + '"><input type="checkbox"' + (config.scan.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'scan\',\'' + currentNode + '\',0,this.checked)"><span class="toggle-slider"></span></label>';
-    }
-    if (scanDisabled) {
-      html += '<span style="font-size:var(--font-size-xs);color:var(--warning);margin-right:8px;">需先配置检查表</span>';
-    } else if (config.scan) {
-      html += '<button class="btn btn-default btn-sm" onclick="openScanEditModal(\'' + currentNode + '\')">编辑</button>';
-    } else {
-      html += '<button class="btn btn-primary btn-sm" onclick="openScanEditModal(\'' + currentNode + '\')">+ 新增</button>';
-    }
-    html += '</div>';
-    if (config.scan) {
-      html += '<div style="padding:8px 0;"><strong>关联检查表：</strong>' + config.scan.linkedChecklist + '</div>';
-      html += '<div style="padding:8px 0;"><strong>扫码责任人：</strong>' + config.scan.person + '</div>';
-      html += '<div style="padding:8px 0;"><strong>扫码责任科室：</strong>' + config.scan.dept + '</div>';
-    } else if (scanDisabled) {
-      html += '<div style="color:var(--text-secondary);padding:8px 0;">请先配置检查表，再配置扫码责任</div>';
-    } else {
-      html += '<div style="color:var(--text-secondary);padding:8px 0;">有固定频次时配置扫码责任人</div>';
-    }
-    html += '</div>';
-
-    // 隐患责任配置（支持多条）
-    html += '<div class="config-section">';
-    html += '<div class="config-title"><span class="step">3</span> 隐患责任配置（查出隐患后怎么处理）<div style="flex:1"></div>';
-    if (config.hazards && config.hazards.length > 0) {
-      // 多条隐患责任：用表格展示
-    } else if (config.hazard) {
-      html += '<label class="toggle-switch" style="margin-right:12px;"><input type="checkbox"' + (config.hazard.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'hazard\',\'' + currentNode + '\',0,this.checked)"><span class="toggle-slider"></span></label>';
-    }
-    html += '<button class="btn btn-primary btn-sm" onclick="openHazardEditModal(\'' + currentNode + '\')">+ 新增</button></div>';
-    if (config.hazards && config.hazards.length > 0) {
-      // 多条隐患责任表格
-      html += '<table class="config-table"><thead><tr><th>隐患类型</th><th>整改责任人</th><th>整改期限</th><th>复核方</th><th>状态</th><th>操作</th></tr></thead><tbody>';
-      config.hazards.forEach(function(hz, hzIdx) {
-        html += '<tr><td>' + hz.type + '</td><td>' + hz.responder + '</td><td>' + hz.deadline + '天</td><td>' + hz.reviewer + (hz.reviewPerson ? '（' + hz.reviewPerson + '）' : '') + '</td>';
-        html += '<td><label class="toggle-switch"><input type="checkbox"' + (hz.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'hazard\',\'' + currentNode + '\',' + hzIdx + ',this.checked)"><span class="toggle-slider"></span></label></td>';
-        html += '<td><button class="btn-link" onclick="openHazardEditModal(\'' + currentNode + '\')">编辑</button><button class="btn-link danger" onclick="deleteConfig(\'hazard\',\'' + currentNode + '\',' + hzIdx + ')">删除</button></td></tr>';
-      });
-      html += '</tbody></table>';
-    } else if (config.hazard) {
-      html += '<div style="padding:8px 0;"><strong>隐患类型：</strong>' + config.hazard.type + '</div>';
-      html += '<div style="padding:8px 0;"><strong>整改责任人：</strong>' + config.hazard.responder + '</div>';
-      html += '<div style="padding:8px 0;"><strong>默认整改期限：</strong>' + config.hazard.deadline + ' 天</div>';
-      html += '<div style="padding:8px 0;"><strong>复核方：</strong>' + config.hazard.reviewer;
-      if (config.hazard.reviewPerson) html += '（' + config.hazard.reviewPerson + '）';
-      html += '</div>';
-    }
-    html += '</div>';
-
-    // H1: 混合配置列表
-    html += '<div class="config-section" style="margin-top:16px;">';
-    html += '<div class="config-title">全部配置列表</div>';
-    html += '<table class="config-table"><thead><tr><th>类型</th><th>名称/关联</th><th>周期/期限</th><th>责任人</th><th>科室</th><th>状态</th><th>操作</th></tr></thead><tbody>';
-    config.checklists.forEach(function(cl, idx) {
-      html += '<tr><td><span class="tag tag-blue">检查表</span></td><td>' + cl.name + '</td><td>' + cl.cycle + '</td><td>' + cl.person + '</td><td>' + cl.dept + '</td>';
-      html += '<td><label class="toggle-switch"><input type="checkbox"' + (cl.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'checklist\',\'' + currentNode + '\',' + idx + ',this.checked)"><span class="toggle-slider"></span></label></td>';
-      html += '<td><button class="btn-link" onclick="editChecklist(\'' + currentNode + '\',' + idx + ')">编辑</button><button class="btn-link danger" onclick="deleteConfig(\'checklist\',\'' + currentNode + '\',' + idx + ')">删除</button></td></tr>';
-    });
-    if (config.scan) {
-      html += '<tr><td><span class="tag tag-orange">扫码责任</span></td><td>' + config.scan.linkedChecklist + '</td><td>—</td><td>' + config.scan.person + '</td><td>' + config.scan.dept + '</td>';
-      html += '<td><label class="toggle-switch"><input type="checkbox"' + (config.scan.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'scan\',\'' + currentNode + '\',0,this.checked)"><span class="toggle-slider"></span></label></td>';
-      html += '<td><button class="btn-link" onclick="openScanEditModal(\'' + currentNode + '\')">编辑</button></td></tr>';
-    }
-    if (config.hazard) {
-      html += '<tr><td><span class="tag tag-red">隐患责任</span></td><td>' + config.hazard.type + '</td><td>' + config.hazard.deadline + '天</td><td>' + config.hazard.responder + '</td><td>' + config.hazard.reviewer + '</td>';
-      html += '<td><label class="toggle-switch"><input type="checkbox"' + (config.hazard.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'hazard\',\'' + currentNode + '\',0,this.checked)"><span class="toggle-slider"></span></label></td>';
-      html += '<td><button class="btn-link" onclick="openHazardEditModal(\'' + currentNode + '\')">编辑</button></td></tr>';
-    }
-    html += '</tbody></table></div>';
-
-    contentEl.innerHTML = html;
-  }
-
-  window.configGoPage = function(p) {
-    var catName = currentNode && currentNode.startsWith('cat-') ? findTreeNode(TREE_DATA, currentNode).name : '全部';
-    var filterFn = currentNode && currentNode.startsWith('cat-')
-      ? function(x) { return x.cat === catName; }
-      : function() { return true; };
-    var domains = DOMAIN_SUMMARY.filter(filterFn);
-    var totalPages = Math.max(1, Math.ceil(domains.length / configPageSize));
-    if (p < 1 || p > totalPages) return;
-    configPage = p;
-    renderConfig();
-  };
-  window.configChangeSize = function(s) {
-    configPageSize = parseInt(s) || 10;
-    configPage = 1;
-    renderConfig();
-  };
 
   // ========== Tab3: 进度监督 ==========
   function renderProgress() {
@@ -1410,7 +1158,7 @@
         totalPlanned += planned;
         totalDone += done;
         var rateColor = rate >= 100 ? 'green' : rate >= 80 ? 'yellow' : 'red';
-        html += '<td style="text-align:center;"><span class="tag tag-' + rateColor + '">' + rate + '%</span><div style="font-size:var(--font-size-xs);color:var(--text-tertiary);">' + done + '/' + planned + '</div></td>';
+        html += '<td style="text-align:center;cursor:pointer;" title="点击查看' + c + '未完成清单" onclick="viewIncompleteByCycle(\'' + d.id + '\',\'' + c + '\')"><span class="tag tag-' + rateColor + '">' + rate + '%</span><div style="font-size:var(--font-size-xs);color:var(--text-tertiary);">' + done + '/' + planned + '</div></td>';
       });
       var overallRate = totalPlanned > 0 ? Math.round(totalDone / totalPlanned * 100) : 0;
       var overallColor = overallRate >= 100 ? 'green' : overallRate >= 80 ? 'yellow' : 'red';
@@ -1425,7 +1173,7 @@
     var start = (progressPage - 1) * progressPageSize;
     var pageList = list.slice(start, start + progressPageSize);
 
-    var html = '<div class="table-card"><div class="table-scroll"><table><thead><tr>';
+    html += '<div class="table-card"><div class="table-scroll"><table><thead><tr>';
     html += '<th>领域小类</th><th>管控对象数</th><th>计划检查次数</th><th>已完成次数</th><th>整体完成率</th><th>超期次数</th><th class="action-col">操作</th>';
     html += '</tr></thead><tbody>';
     pageList.forEach(function(d) {
@@ -1444,27 +1192,12 @@
       html += '</tr>';
     });
     html += '</tbody></table></div>';
-    html += paginationHtml({ page: progressPage, size: progressPageSize, total: list.length, prefix: 'progress' });
+    html += '<div class="pagination" id="pgProgress"></div>';
     html += '</div>';
 
     el.innerHTML = html;
+    new Pagination('pgProgress', { current: progressPage, size: progressPageSize, total: list.length, onChange: function(p, s) { progressPage = p; progressPageSize = s; renderProgress(); } });
   }
-
-  window.progressGoPage = function(p) {
-    var filterFn = currentNode && currentNode.startsWith('cat-')
-      ? function(x) { return x.cat === findTreeNode(TREE_DATA, currentNode).name; }
-      : function() { return true; };
-    var list = DOMAIN_SUMMARY.filter(filterFn);
-    var totalPages = Math.max(1, Math.ceil(list.length / progressPageSize));
-    if (p < 1 || p > totalPages) return;
-    progressPage = p;
-    renderProgress();
-  };
-  window.progressChangeSize = function(s) {
-    progressPageSize = parseInt(s) || 10;
-    progressPage = 1;
-    renderProgress();
-  };
 
   function renderProgressDetail(domain, el) {
     var objects = OBJECT_DETAILS[domain.id] || generateObjects(domain);
@@ -1518,27 +1251,12 @@
       html += '</tr>';
     });
     html += '</tbody></table></div>';
-    html += paginationHtml({ page: progressDetailPage, size: progressDetailPageSize, total: objects.length, prefix: 'progressDetail' });
+    html += '<div class="pagination" id="pgProgressDetail"></div>';
     html += '</div>';
 
     el.innerHTML = html;
+    new Pagination('pgProgressDetail', { current: progressDetailPage, size: progressDetailPageSize, total: objects.length, onChange: function(p, s) { progressDetailPage = p; progressDetailPageSize = s; renderProgressDetail(domain, document.getElementById('progressContent')); } });
   }
-
-  window.progressDetailGoPage = function(p) {
-    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
-    if (!d) return;
-    var objects = OBJECT_DETAILS[d.id] || generateObjects(d);
-    var totalPages = Math.max(1, Math.ceil(objects.length / progressDetailPageSize));
-    if (p < 1 || p > totalPages) return;
-    progressDetailPage = p;
-    renderProgressDetail(d, document.getElementById('progressContent'));
-  };
-  window.progressDetailChangeSize = function(s) {
-    progressDetailPageSize = parseInt(s) || 10;
-    progressDetailPage = 1;
-    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
-    if (d) renderProgressDetail(d, document.getElementById('progressContent'));
-  };
 
   // ========== 弹窗操作 ==========
   window.openModal = function(id) { document.getElementById(id).classList.add('show'); };
@@ -1555,144 +1273,161 @@
     }
   };
 
-  // 汇总表"配置"操作：跳转Tab2任务配置（BR-GOV-DS-15）
+  // 汇总表"配置"操作：进入独立配置页（BR-GOV-DS-14 操作联动树节点）
   window.gotoDomainConfig = function(id) {
     openDomainConfig(id);
   };
 
-  window.viewObjects = function(domainId) {
-    // 跳转管控档案页（PRD §6.2.6）
-    if (window.parent && window.parent.postMessage) {
-      window.parent.postMessage({ type: 'navigate', module: 'government/control-archive', domainId: domainId }, '*');
-    } else {
-      showToast('跳转管控档案页：' + domainId);
+  // 配置入口②：领域小类选中时右上角"配置"按钮
+  window.openTabConfig = function() {
+    if (currentNode && currentNode.indexOf('domain-') === 0) openDomainConfig(currentNode);
+  };
+
+  // ========== 管控对象详情弹窗（AC-GOV-DS-21：不跳转管控档案） ==========
+  function generateMockInspections(o) {
+    var tpl = ['消防安全日常检查', '电气线路安全检查', '应急疏散通道检查', '防护设施完好性检查'];
+    var seed = o.name.length;
+    var rows = [];
+    for (var i = 0; i < 3; i++) {
+      var day = 3 + ((seed + i * 7) % 24);
+      var done = ((seed + i) % 3) !== 0;
+      rows.push({
+        name: tpl[(seed + i) % tpl.length],
+        date: '2026-06-' + String(day).padStart(2, '0'),
+        person: o.person || '张伟',
+        result: done ? '已完成' : '待检查'
+      });
     }
-  };
+    return rows;
+  }
 
-  window.openAssignModal = function(domainId) {
+  function generateMockHazards(o) {
+    if (!o.hazards) return [];
+    var types = ['消防安全', '电气安全', '施工安全'];
+    var rows = [];
+    for (var i = 0; i < o.hazards; i++) {
+      rows.push({
+        type: types[(o.name.length + i) % types.length],
+        desc: '现场发现安全隐患，需限期整改（模拟数据）',
+        status: i === 0 ? '待整改' : '待复核',
+        deadline: '2026-07-' + String(5 + i * 6).padStart(2, '0')
+      });
+    }
+    return rows;
+  }
+
+  window.viewObjectDetail = function(domainId, objIdx) {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
-    document.getElementById('assignDomain').value = d.name;
-    var objects = OBJECT_DETAILS[domainId] || generateObjects(d);
-    var preChecked = document.querySelectorAll('.obj-check[data-domain="' + domainId + '"]:checked');
-    var preCheckedNames = {};
-    preChecked.forEach(function(c) {
-      var idx = parseInt(c.getAttribute('data-idx'));
-      if (objects[idx]) preCheckedNames[objects[idx].name] = true;
-    });
+    var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
+    var o = objects[objIdx];
+    if (!o) return;
+    var hr = (typeof o.hazardRate === 'number') ? o.hazardRate : (typeof o.rate === 'number' ? o.rate : (o.hazards > 0 ? 0 : 100));
+    var codeLabel = o.code === 'green' ? '绿码' : o.code === 'yellow' ? '黄码' : '红码';
+    document.getElementById('objectDetailTitle').textContent = o.name + ' — 管控对象详情';
+
     var html = '';
-    objects.forEach(function(o, i) {
-      var checked = preCheckedNames[o.name] ? ' checked' : '';
-      html += '<label style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:13px;"><input type="checkbox" value="' + o.name + '"' + checked + '> ' + o.name + '</label>';
+    // 基础信息
+    html += '<div style="font-weight:600;margin-bottom:8px;">基础信息</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:var(--font-size-sm);background:var(--bg-section);padding:12px 16px;border-radius:var(--radius-md);margin-bottom:16px;">';
+    html += '<div>对象名称：<b>' + o.name + '</b></div>';
+    html += '<div>对象类型：' + o.type + '</div>';
+    html += '<div>责任人：' + (o.person || '<span style="color:var(--danger)">未配置</span>') + '</div>';
+    html += '<div>责任科室：' + (o.dept || '本单位') + '</div>';
+    html += '<div>安全码：<span class="code-cell ' + o.code + '" title="' + codeLabel + '">' + QR_ICON_SVG + '</span> ' + codeLabel + '</div>';
+    html += '<div>未关闭隐患：' + (o.hazards > 0 ? '<span style="color:var(--danger);font-weight:600">' + o.hazards + '</span>' : '0') + '</div>';
+    html += '<div>隐患整改率：' + hr + '%</div>';
+    html += '<div>检查完成率：' + o.rate + '%</div>';
+    html += '</div>';
+    // 最近检查记录
+    html += '<div style="font-weight:600;margin-bottom:8px;">最近检查记录</div>';
+    var inspections = generateMockInspections(o);
+    html += '<div class="table-scroll" style="margin-bottom:16px;"><table><thead><tr><th>检查项</th><th>检查日期</th><th>检查人</th><th>结果</th></tr></thead><tbody>';
+    inspections.forEach(function(it) {
+      html += '<tr><td>' + it.name + '</td><td>' + it.date + '</td><td>' + it.person + '</td><td>' + (it.result === '已完成' ? '<span class="tag tag-green">已完成</span>' : '<span class="tag tag-orange">待检查</span>') + '</td></tr>';
     });
-    document.getElementById('assignObjects').innerHTML = html;
-    openModal('modal-assign');
+    html += '</tbody></table></div>';
+    // 最近隐患记录
+    html += '<div style="font-weight:600;margin-bottom:8px;">最近隐患记录</div>';
+    var hazards = generateMockHazards(o);
+    if (hazards.length) {
+      html += '<div class="table-scroll"><table><thead><tr><th>隐患类型</th><th>隐患描述</th><th>状态</th><th>整改期限</th></tr></thead><tbody>';
+      hazards.forEach(function(hz) {
+        html += '<tr><td>' + hz.type + '</td><td>' + hz.desc + '</td><td><span class="tag tag-red">' + hz.status + '</span></td><td>' + hz.deadline + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    } else {
+      html += '<div style="font-size:var(--font-size-sm);color:var(--text-secondary);padding:8px 0;">暂无隐患记录</div>';
+    }
+    document.getElementById('objectDetailBody').innerHTML = html;
+    openModal('modal-object-detail');
   };
 
-  window.submitAssign = function() {
-    var domainId = currentNode;
-    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
-    if (!d) { closeModal('modal-assign'); return; }
-    var objects = OBJECT_DETAILS[domainId] || generateObjects(d);
-    var person = document.getElementById('assignPerson').value;
-    var dept = document.getElementById('assignDept').value;
-    var mode = document.querySelector('input[name="assignMode"]:checked');
-    var isOverride = mode && mode.value === 'override';
-    if (!person) { showToast('请选择责任人'); return; }
-    if (!dept) { showToast('请选择责任科室'); return; }
 
-    // 获取弹窗中勾选的对象
-    var checkedBoxes = document.querySelectorAll('#assignObjects input[type="checkbox"]:checked');
-    var selectedNames = {};
-    checkedBoxes.forEach(function(cb) { selectedNames[cb.value] = true; });
 
-    var affected = 0;
-    objects.forEach(function(o) {
-      if (selectedNames[o.name]) {
-        if (isOverride || !o.person) {
-          o.person = person;
-          o.dept = dept;
-          affected++;
-        }
-      }
-    });
-    OBJECT_DETAILS[domainId] = objects;
-    d.assigned = objects.filter(function(o) { return o.person; }).length;
-
-    closeModal('modal-assign');
-    showToast((isOverride ? '覆盖' : '追加') + '模式：已配置 ' + affected + ' 个对象');
-    updateDetail();
+  window.toggleClType = function() {
+    var isSystem = document.querySelector('input[name="clType"][value="system"]').checked;
+    var nameInput = document.getElementById('clName');
+    if (nameInput) {
+      nameInput.readOnly = isSystem;
+      nameInput.style.background = isSystem ? 'var(--bg-section)' : '';
+    }
+    var cycleSel = document.getElementById('clCycle');
+    if (cycleSel) cycleSel.disabled = isSystem;
   };
+
+  window.toggleClAllObjs = function(checked) {
+    document.querySelectorAll('.cl-obj-check').forEach(function(cb) { cb.checked = checked; });
+    updateClObjCount();
+  };
+
+  function updateClObjCount() {
+    var count = document.querySelectorAll('.cl-obj-check:checked').length;
+    var total = document.querySelectorAll('.cl-obj-check').length;
+    var el = document.getElementById('clObjCount');
+    if (el) el.textContent = '已选 ' + count + ' / ' + total;
+  }
 
   window.submitChecklist = function() {
     var modal = document.getElementById('modal-checklist');
     var domainId = modal.dataset.domainId || currentNode;
     var editIdx = modal.dataset.editIdx;
     var config = CONFIG_DATA[domainId];
-    if (!config) { config = { checklists: [], scan: null, hazard: null }; CONFIG_DATA[domainId] = config; }
+    if (!config) { config = { checklists: [], hazard: null }; CONFIG_DATA[domainId] = config; }
+    var isSystem = document.querySelector('input[name="clType"][value="system"]').checked;
+    var name = document.getElementById('clName').value.trim();
+    var cycle = document.getElementById('clCycle').value;
+    var dept = document.getElementById('clDept').value;
+    var personSelect = document.getElementById('clPerson');
+    var persons = Array.from(personSelect.selectedOptions).map(function(o) { return o.value; });
+    var checkedObjs = Array.from(document.querySelectorAll('.cl-obj-check:checked')).map(function(cb) { return cb.value; });
+    var totalObjs = document.querySelectorAll('.cl-obj-check').length;
+    if (!name || !cycle || !dept || persons.length === 0) { showToast('请填写完整信息（名称/周期/责任科室/责任人）'); return; }
+    // BR-GOV-DS-16：系统检查表必须将所有管控对象全部分配完毕才能保存
+    if (isSystem && checkedObjs.length < totalObjs) {
+      showToast('系统检查表必须将所有管控对象全部分配完毕（已选 ' + checkedObjs.length + '/' + totalObjs + '）');
+      return;
+    }
+    // BR-GOV-DS-17：自定义检查表无强制要求，但至少勾选 1 个对象
+    if (!isSystem && checkedObjs.length === 0) { showToast('请至少选择一个管控对象'); return; }
+    var editNum = parseInt(editIdx, 10);
+    var existing = (editIdx !== undefined && editIdx !== '' && config.checklists[editNum]) ? config.checklists[editNum] : null;
     var cl = {
-      name: document.getElementById('clTemplate').value,
-      cycle: document.getElementById('clCycle').value,
-      scope: document.querySelector('input[name="clScope"][value="partial"]').checked ? '指定' : '全部',
-      person: document.getElementById('clPerson').value,
-      dept: document.getElementById('clDept').value,
-      enabled: true
+      name: name,
+      cycle: cycle,
+      checklistType: isSystem ? 'system' : 'custom',
+      person: persons,
+      dept: dept,
+      assignedObjects: checkedObjs,
+      scan: { enabled: document.getElementById('clScanEnabled').checked },
+      enabled: existing ? (existing.enabled !== false) : true
     };
-    // 读取频次覆盖
-    if (cl.scope === '指定') {
-      var selectedObjs = [];
-      var checks = document.querySelectorAll('.partial-obj-check:checked');
-      checks.forEach(function(cb) {
-        var objName = cb.value;
-        var cycleSel = document.querySelector('.partial-cycle[data-name="' + objName + '"]');
-        var overrideCycle = cycleSel && cycleSel.value ? cycleSel.value : null;
-        selectedObjs.push({ name: objName, cycle: overrideCycle });
-      });
-      cl.selectedObjects = selectedObjs;
-      if (selectedObjs.length === 0) { showToast('请至少选择一个管控对象'); return; }
-    }
-    if (!cl.name || !cl.cycle || !cl.person || !cl.dept) { showToast('请填写完整信息'); return; }
-    if (editIdx !== undefined && editIdx !== '' && config.checklists[parseInt(editIdx)]) {
-      config.checklists[parseInt(editIdx)] = cl;
-    } else {
-      config.checklists.push(cl);
-    }
+    if (existing) { config.checklists[editNum] = cl; } else { config.checklists.push(cl); }
     delete modal.dataset.editIdx;
     closeModal('modal-checklist');
-    showToast('检查表配置已保存');
-    renderConfig();
+    showToast(isSystem ? '系统检查表分配已保存' : '检查表配置已保存');
+    refreshConfigView(domainId);
   };
 
-  window.togglePartialScope = function(selectedObjs) {
-    var isPartial = document.querySelector('input[name="clScope"][value="partial"]').checked;
-    var group = document.getElementById('partialScopeGroup');
-    if (!group) return;
-    group.style.display = isPartial ? '' : 'none';
-    if (isPartial) {
-      var list = document.getElementById('partialScopeList');
-      if (list) {
-        var names = ['创安电子', '星海充电站', '南山农贸市场', '万科建筑工地', '中石化蛇口站'];
-        var defaultCycle = document.getElementById('clCycle').value || '每月';
-        var selMap = {};
-        if (selectedObjs) selectedObjs.forEach(function(o) { selMap[o.name] = o.cycle || ''; });
-        list.innerHTML = names.map(function(n) {
-          var isChecked = selMap.hasOwnProperty(n);
-          var cycleVal = selMap[n] || '';
-          return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;">' +
-            '<label style="display:flex;align-items:center;gap:4px;"><input type="checkbox" class="partial-obj-check" value="' + n + '"' + (isChecked ? ' checked' : '') + ' onchange="toggleCycleOverride(this)"> ' + n + '</label>' +
-            '<select class="form-select partial-cycle" style="width:100px;height:28px;' + (isChecked ? '' : 'display:none;') + '" data-name="' + n + '">' +
-            '<option value="">默认(' + defaultCycle + ')</option><option' + (cycleVal === '每日' ? ' selected' : '') + '>每日</option><option' + (cycleVal === '每周' ? ' selected' : '') + '>每周</option><option' + (cycleVal === '每月' ? ' selected' : '') + '>每月</option><option' + (cycleVal === '每季度' ? ' selected' : '') + '>每季度</option><option' + (cycleVal === '每年' ? ' selected' : '') + '>每年</option></select></div>';
-        }).join('');
-      }
-    }
-  };
-
-  window.toggleCycleOverride = function(cb) {
-    var sel = cb.parentElement.nextElementSibling;
-    if (sel && sel.classList.contains('partial-cycle')) {
-      sel.style.display = cb.checked ? '' : 'none';
-      if (!cb.checked) sel.value = '';
-    }
-  };
 
   // 统计周期切换联动 (合并到全局 change listener)
   document.addEventListener('change', function(e) {
@@ -1720,16 +1455,18 @@
         personSpan.textContent = '（' + config.hazard.reviewPerson + '）';
       }
       showToast('复核方已切换为：' + value);
-      renderConfig();
+      refreshConfigView(domainId);
     }
   };
 
-  window.viewIncomplete = function(domainId) {
+  // 矩阵单元格点击下钻：按频次查看未完成清单（AC-GOV-DS-10）
+  window.viewIncompleteByCycle = function(domainId, cycle) {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
-    document.getElementById('incompleteTitle').textContent = d.name + ' — 未完成检查清单';
+    var cycleText = cycle ? ' — ' + cycle : '';
+    document.getElementById('incompleteTitle').textContent = d.name + cycleText + ' 未完成检查清单';
     var total = d.objects * 2;
     var incomplete = Math.round(total * (1 - d.checkRate / 100));
-    var html = '<div style="background:var(--info-light,#e6f0ff);padding:8px 16px;border-radius:8px;margin-bottom:12px;font-size:13px;">领域：' + d.name + ' | 应检：' + total + ' | 未完成：' + incomplete + '</div>';
+    var html = '<div style="background:var(--info-light,#e6f0ff);padding:8px 16px;border-radius:8px;margin-bottom:12px;font-size:13px;">领域：' + d.name + (cycle ? ' | 频次：' + cycle : '') + ' | 应检：' + total + ' | 未完成：' + incomplete + '</div>';
     html += '<table style="width:100%;border-collapse:collapse;"><thead><tr><th style="padding:8px 12px;text-align:left;font-size:13px;background:var(--bg-section);">检查项名称</th><th style="padding:8px 12px;text-align:left;font-size:13px;background:var(--bg-section);">计划日期</th><th style="padding:8px 12px;text-align:left;font-size:13px;background:var(--bg-section);">责任人</th></tr></thead><tbody>';
     var checkItems = INCOMPLETE_ITEMS[domainId] || generateIncompleteItems(d);
     checkItems.forEach(function(item) {
@@ -1741,6 +1478,7 @@
     document.getElementById('incompleteBody').innerHTML = html;
     openModal('modal-incomplete');
   };
+  window.viewIncomplete = function(domainId) { viewIncompleteByCycle(domainId, null); };
 
   // 展开进度监督明细（汇总表操作列：展开明细）
   window.expandProgressDetail = function(domainId) {
@@ -1810,7 +1548,10 @@
   // ========== 隐患编辑弹窗 ==========
   window.openHazardEditModal = function(domainId) {
     var config = CONFIG_DATA[domainId];
-    if (!config || !config.hazard) return;
+    if (!config) { config = { checklists: [], hazard: null }; CONFIG_DATA[domainId] = config; }
+    if (!config.hazard) {
+      config.hazard = { type: '', responder: '', deadline: 7, reviewer: '政府复核', reviewPerson: '', enabled: true };
+    }
     var h = config.hazard;
     document.getElementById('hazardType').value = h.type || '';
     document.getElementById('hazardResponder').value = h.responder || '';
@@ -1832,39 +1573,46 @@
     document.getElementById('hazardReviewPersonGroup').style.display = govChecked ? '' : 'none';
   };
 
-  // ========== 扫码编辑弹窗 ==========
-  window.openScanEditModal = function(domainId) {
-    var config = CONFIG_DATA[domainId];
-    if (!config) return;
-    var sel = document.getElementById('scanLinkedChecklist');
-    sel.innerHTML = '<option value="">请选择已配置的检查表</option>';
-    config.checklists.forEach(function(cl) {
-      sel.innerHTML += '<option' + (config.scan && config.scan.linkedChecklist === cl.name ? ' selected' : '') + '>' + cl.name + '</option>';
-    });
-    if (config.scan) {
-      document.getElementById('scanPerson').value = config.scan.person || '';
-      document.getElementById('scanDept').value = config.scan.dept || '';
-    } else {
-      document.getElementById('scanPerson').value = '';
-      document.getElementById('scanDept').value = '';
-    }
-    document.getElementById('modal-scan-edit').dataset.domainId = domainId;
-    openModal('modal-scan-edit');
-  };
 
-  window.submitScanEdit = function() {
-    var modal = document.getElementById('modal-scan-edit');
-    var domainId = modal.dataset.domainId;
-    var config = CONFIG_DATA[domainId];
-    if (!config) return;
-    var linked = document.getElementById('scanLinkedChecklist').value;
-    var person = document.getElementById('scanPerson').value;
-    var dept = document.getElementById('scanDept').value;
-    if (!linked || !person || !dept) { showToast('请填写完整信息'); return; }
-    config.scan = { person: person, dept: dept, linkedChecklist: linked, enabled: true };
-    closeModal('modal-scan-edit');
-    showToast('扫码责任配置已保存');
-    renderConfig();
+  // ========== 新增检查表弹窗 ==========
+  window.openNewChecklistModal = function() {
+    var domainId = currentNode;
+    if (!domainId) { showToast('请先选择领域小类'); return; }
+    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
+    var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
+    // Reset modal（BR-GOV-DS-15：新增=政府端自建[自定义]；系统检查表由超管端预分配，不可手动新建）
+    document.getElementById('clModalTitle').textContent = '新增检查表配置';
+    var nameInput = document.getElementById('clName');
+    if (nameInput) { nameInput.value = ''; nameInput.readOnly = false; nameInput.style.background = ''; }
+    document.getElementById('clCycle').value = '';
+    document.getElementById('clCycle').disabled = false;
+    document.getElementById('clDept').value = configState.targetConfigDept || '';
+    // 责任人候选按责任科室联动，默认不选（BR-GOV-DS-17：自定义无默认责任人）
+    fillClPersons(configState.targetConfigDept || '', [], []);
+    // 类型固定为自定义：系统检查表仅超管预分配（radio 禁用）
+    var customRadio = document.querySelector('input[name="clType"][value="custom"]');
+    var systemRadio = document.querySelector('input[name="clType"][value="system"]');
+    if (customRadio) { customRadio.checked = true; customRadio.disabled = true; }
+    if (systemRadio) { systemRadio.disabled = true; systemRadio.title = '系统检查表由超管端预分配，不支持手动新建'; }
+    toggleClType();
+    // Render object list
+    var objList = document.getElementById('clObjList');
+    if (objList) {
+      var html = '';
+      objects.forEach(function(o) {
+        html += '<div style="padding:4px 0;font-size:var(--font-size-sm);"><label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="cl-obj-check" value="' + o.name + '"> ' + o.name + ' <span style="color:var(--text-tertiary);font-size:var(--font-size-xs);">(' + o.type + ')</span></label></div>';
+      });
+      objList.innerHTML = html;
+      updateClObjCount();
+    }
+    // Reset scan
+    var scanCb = document.getElementById('clScanEnabled');
+    if (scanCb) scanCb.checked = true;
+    // Clear edit state
+    var modal = document.getElementById('modal-checklist');
+    delete modal.dataset.editIdx;
+    modal.dataset.domainId = domainId;
+    openModal('modal-checklist');
   };
 
   // ========== 检查表编辑 ==========
@@ -1872,15 +1620,53 @@
     var config = CONFIG_DATA[domainId];
     if (!config || !config.checklists[idx]) return;
     var cl = config.checklists[idx];
-    document.getElementById('clTemplate').value = cl.name;
-    document.getElementById('clCycle').value = cl.cycle;
-    var allRadio = document.querySelector('input[name="clScope"][value="all"]');
-    var partialRadio = document.querySelector('input[name="clScope"][value="partial"]');
-    if (cl.scope === '全部') { allRadio.checked = true; partialRadio.checked = false; }
-    else { allRadio.checked = false; partialRadio.checked = true; }
-    togglePartialScope(cl.selectedObjects);
-    document.getElementById('clPerson').value = cl.person;
-    document.getElementById('clDept').value = cl.dept;
+    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
+    var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
+    // 设置弹窗标题
+    document.getElementById('clModalTitle').textContent = '编辑检查表配置';
+    // 设置类型（类型不可变更，radio 仅作展示）
+    var typeRadio = document.querySelector('input[name="clType"][value="' + (cl.checklistType || 'system') + '"]');
+    var otherRadio = document.querySelector('input[name="clType"][value="' + (cl.checklistType === 'custom' ? 'system' : 'custom') + '"]');
+    if (typeRadio) { typeRadio.checked = true; typeRadio.disabled = true; }
+    if (otherRadio) { otherRadio.disabled = true; }
+    toggleClType();
+    // 设置名称（系统检查表只读）
+    var nameInput = document.getElementById('clName');
+    if (nameInput) {
+      nameInput.value = cl.name || '';
+      nameInput.readOnly = (cl.checklistType === 'system');
+      nameInput.style.background = (cl.checklistType === 'system') ? 'var(--bg-section)' : '';
+    }
+    // 设置周期（系统检查表只读）
+    var cycleSel = document.getElementById('clCycle');
+    if (cycleSel) {
+      cycleSel.value = cl.cycle || '';
+      cycleSel.disabled = (cl.checklistType === 'system');
+    }
+    // 设置责任科室
+    document.getElementById('clDept').value = cl.dept || '';
+    // 设置责任人（多选）；系统检查表无责任人时默认责任科室下所有人（BR-GOV-DS-16）
+    var personArray = Array.isArray(cl.person) ? cl.person : (cl.person ? [cl.person] : []);
+    if (personArray.length === 0 && cl.checklistType === 'system' && PERSON_BY_DEPT[cl.dept]) {
+      personArray = PERSON_BY_DEPT[cl.dept].slice();
+    }
+    fillClPersons(cl.dept, personArray, personArray);
+    // 渲染管控对象勾选列表
+    var objList = document.getElementById('clObjList');
+    if (objList) {
+      var assignedSet = {};
+      if (cl.assignedObjects) cl.assignedObjects.forEach(function(n) { assignedSet[n] = true; });
+      var html = '';
+      objects.forEach(function(o) {
+        var checked = assignedSet[o.name] ? ' checked' : '';
+        html += '<div style="padding:4px 0;font-size:var(--font-size-sm);"><label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="cl-obj-check" value="' + o.name + '"' + checked + '> ' + o.name + ' <span style="color:var(--text-tertiary);font-size:var(--font-size-xs);">(' + o.type + ')</span></label></div>';
+      });
+      objList.innerHTML = html;
+      updateClObjCount();
+    }
+    // 设置扫码责任
+    var scanCb = document.getElementById('clScanEnabled');
+    if (scanCb) scanCb.checked = (cl.scan && cl.scan.enabled !== false);
     document.getElementById('modal-checklist').dataset.domainId = domainId;
     document.getElementById('modal-checklist').dataset.editIdx = idx;
     openModal('modal-checklist');
@@ -1911,16 +1697,19 @@
     if (config) {
       if (pendingDelete.type === 'checklist' && config.checklists[pendingDelete.idx]) {
         config.checklists.splice(pendingDelete.idx, 1);
-      } else if (pendingDelete.type === 'scan') {
-        config.scan = null;
       } else if (pendingDelete.type === 'hazard') {
-        config.hazard = null;
+        if (config.hazards && config.hazards[pendingDelete.idx]) {
+          config.hazards.splice(pendingDelete.idx, 1);
+        } else if (config.hazard) {
+          config.hazard = null;
+        }
       }
     }
+    var delDomainId = pendingDelete.domainId;
     pendingDelete = null;
     closeModal('modal-delete-confirm');
     showToast('配置已删除');
-    renderConfig();
+    refreshConfigView(delDomainId);
   };
 
   // ========== 勾选联动 ==========
@@ -2041,23 +1830,23 @@
   function generateIncompleteItems(domain) {
     var count = Math.max(1, Math.round(domain.objects * 2 * (1 - domain.checkRate / 100)));
     var templates = [
-      { name: '消防安全日常检查', dept: '基础安全监管科' },
-      { name: '电气线路安全检查', dept: '基础安全监管科' },
-      { name: '灭火器有效期检查', dept: '危化品监管科' },
-      { name: '应急疏散通道检查', dept: '基础安全监管科' },
-      { name: '防护设施完好性检查', dept: '执法监督科' },
-      { name: '危化品存储合规检查', dept: '危化品监管科' },
+      { name: '消防安全日常检查', dept: '督导检查科' },
+      { name: '电气线路安全检查', dept: '督导检查科' },
+      { name: '灭火器有效期检查', dept: '危化品监管和执法科' },
+      { name: '应急疏散通道检查', dept: '督导检查科' },
+      { name: '防护设施完好性检查', dept: '安全监管和执法科' },
+      { name: '危化品存储合规检查', dept: '危化品监管和执法科' },
       { name: '安全标识标牌检查', dept: '综合协调科' },
-      { name: '特种设备运行检查', dept: '执法监督科' },
+      { name: '特种设备运行检查', dept: '安全监管和执法科' },
       { name: '应急预案演练检查', dept: '综合协调科' },
-      { name: '通风排烟系统检查', dept: '危化品监管科' }
+      { name: '通风排烟系统检查', dept: '危化品监管和执法科' }
     ];
     var persons = [
-      { name: '张伟', dept: '基础安全监管科' },
-      { name: '李娜', dept: '危化品监管科' },
-      { name: '王强', dept: '执法监督科' },
+      { name: '张伟', dept: '督导检查科' },
+      { name: '李娜', dept: '危化品监管和执法科' },
+      { name: '王强', dept: '安全监管和执法科' },
       { name: '陈敏', dept: '综合协调科' },
-      { name: '刘洋', dept: '基础安全监管科' }
+      { name: '刘洋', dept: '督导检查科' }
     ];
     var today = new Date();
     var result = [];
@@ -2090,14 +1879,14 @@
     }
     closeModal('modal-hazard-edit');
     showToast('隐患责任配置已保存');
-    renderConfig();
+    refreshConfigView(domainId);
   };
 
   // ========== 配置启停 ==========
   // 责任科室配置变更（⓪步骤）
   window.changeDept = function(domainId, value) {
     var config = CONFIG_DATA[domainId];
-    if (!config) { config = { checklists: [], scan: null, hazard: null }; CONFIG_DATA[domainId] = config; }
+    if (!config) { config = { checklists: [], hazard: null }; CONFIG_DATA[domainId] = config; }
     config.dept = value;
     showToast('责任科室已更新为：' + value);
   };
@@ -2107,8 +1896,8 @@
     if (!config) return;
     if (type === 'checklist' && config.checklists[idx]) {
       config.checklists[idx].enabled = enabled;
-    } else if (type === 'scan' && config.scan) {
-      config.scan.enabled = enabled;
+    } else if (type === 'hazard' && config.hazards && config.hazards[idx]) {
+      config.hazards[idx].enabled = enabled;
     } else if (type === 'hazard' && config.hazard) {
       config.hazard.enabled = enabled;
     }
@@ -2116,26 +1905,70 @@
   };
 
   // ========== 领域配置页（独立页面） ==========
-  var DEPT_LIST = ['基础安全监管科', '危化品监管科', '综合协调科', '执法监督科'];
-  var PERSON_BY_DEPT = {
-    '基础安全监管科': ['张伟', '李娜'],
-    '危化品监管科': ['王强'],
-    '综合协调科': ['陈敏'],
-    '执法监督科': ['刘洋']
+  // 组织架构副本：与 gov-user.html 的 GOV_ORG.depts 保持一致（若后者科室变动需同步此处）
+  var GOV_ORG = {
+    id: 'gov_org',
+    name: '区应急管理局',
+    depts: [
+      { id: 'dept-amb-01', name: '督导检查科' },
+      { id: 'dept-amb-02', name: '综合协调科' },
+      { id: 'dept-amb-03', name: '区三防办' },
+      { id: 'dept-amb-04', name: '安全监管和执法科' },
+      { id: 'dept-amb-05', name: '防灾减灾科' },
+      { id: 'dept-amb-06', name: '危化品监管和执法科' }
+    ]
   };
+  var DEPT_LIST = GOV_ORG.depts.map(function(d) { return d.name; });
+  // 责任科室人员池（责任人从责任科室下所有人中选择）
+  var PERSON_BY_DEPT = {
+    '督导检查科': ['张伟', '李娜'],
+    '综合协调科': ['陈敏'],
+    '区三防办': ['王强'],
+    '安全监管和执法科': ['刘洋'],
+    '防灾减灾科': ['张伟'],
+    '危化品监管和执法科': ['王强', '刘洋']
+  };
+  var ALL_PERSONS = ['张伟', '李娜', '王强', '陈敏', '刘洋'];
+
+  // 按责任科室填充责任人下拉；extraNames 保留已配置人员防止编辑回显丢失
+  function fillClPersons(dept, extraNames, selectedNames) {
+    var personSelect = document.getElementById('clPerson');
+    if (!personSelect) return;
+    var pool = (dept && PERSON_BY_DEPT[dept]) ? PERSON_BY_DEPT[dept].slice() : ALL_PERSONS.slice();
+    (extraNames || []).forEach(function(n) { if (n && pool.indexOf(n) < 0) pool.push(n); });
+    var sel = selectedNames || [];
+    personSelect.innerHTML = pool.map(function(p) {
+      return '<option value="' + p + '"' + (sel.indexOf(p) >= 0 ? ' selected' : '') + '>' + p + '</option>';
+    }).join('');
+  }
+
+  // 检查表弹窗：切换责任科室 → 责任人候选联动（保留仍在新科室人选中的已勾选项）
+  window.onClDeptChange = function() {
+    var dept = document.getElementById('clDept').value;
+    var personSelect = document.getElementById('clPerson');
+    var current = personSelect ? Array.from(personSelect.selectedOptions).map(function(o) { return o.value; }) : [];
+    var pool = (dept && PERSON_BY_DEPT[dept]) ? PERSON_BY_DEPT[dept] : ALL_PERSONS;
+    fillClPersons(dept, [], current.filter(function(p) { return pool.indexOf(p) >= 0; }));
+  };
+
+  // 检查表弹窗责任科室下拉动态填充（IIFE 执行至此时 DOM 已就绪）
+  (function fillClDept() {
+    var sel = document.getElementById('clDept');
+    if (!sel) return;
+    DEPT_LIST.forEach(function(name) {
+      var opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    });
+  })();
 
   var configState = {
     domainId: null,
     objects: [],
-    filterType: '',
-    filterDept: '',
-    filterKeyword: '',
-    selectedIdx: [],
-    targetDept: '',
-    targetPerson: '',
-    targetConfigDept: '',
-    drafts: []
+    targetConfigDept: ''
   };
+  var configDirty = false; // BR-GOV-DS-18：配置页未保存草稿标记
 
   window.openDomainConfig = function(domainId) {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
@@ -2151,14 +1984,7 @@
     }
     configState.domainId = domainId;
     configState.objects = (OBJECT_DETAILS[domainId] || generateObjects(d)).map(function(o) { return o; });
-    configState.filterType = '';
-    configState.filterDept = '';
-    configState.filterKeyword = '';
-    configState.selectedIdx = [];
-    configState.targetDept = '';
-    configState.targetPerson = '';
     configState.targetConfigDept = d.dept || '';
-    configState.drafts = [];
 
     var cat = d.cat || '';
     document.getElementById('configBreadcrumb').innerHTML =
@@ -2169,12 +1995,22 @@
   };
 
   window.closeDomainConfig = function() {
-    if (configState.drafts.length > 0) {
-      if (!confirm('当前配置未保存，是否放弃？')) return;
-    }
+    // BR-GOV-DS-18：未保存草稿确认
+    if (configDirty && !window.confirm('责任科室配置尚未保存，是否放弃修改？')) return;
     document.querySelector('.detail-panel').classList.remove('config-mode');
     configState.domainId = null;
+    configDirty = false;
   };
+
+  // 配置页内保存/删除/启停后刷新当前视图（配置页打开则刷配置页，否则刷右侧面板）
+  function refreshConfigView(domainId) {
+    var inConfig = document.querySelector('.detail-panel') && document.querySelector('.detail-panel').classList.contains('config-mode');
+    if (inConfig && configState.domainId === domainId) {
+      renderDomainConfig();
+    } else if (currentNode === domainId) {
+      updateDetail();
+    }
+  }
 
   function renderDomainConfig() {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === configState.domainId; });
@@ -2185,276 +2021,109 @@
       '<b>' + objs.length + '</b> 个对象 · 已配置 <b>' + assigned + '</b> · 未配置 <b style="color:var(--danger)">' + (objs.length - assigned) + '</b>';
 
     var html = '';
-    // 板块 0：责任科室配置
-    html += '<div class="config-section-title">责任科室配置</div>';
+    // 递进关系提示（PRD §6.2.2.3）
+    html += '<div class="context-bar" style="margin-bottom:16px;">配置递进关系：⓪ 责任科室配置（谁来管） → ① 检查表 &amp; 扫码责任配置（查什么、多久查、谁去查） → ② 隐患责任配置（查出隐患后怎么处理）</div>';
+    // ⓪ 责任科室配置（领域级别）
+    html += '<div class="config-section-title">⓪ 责任科室配置（谁来管）</div>';
     html += '<div class="config-block">';
     html += '<div style="display:flex;align-items:center;gap:12px;">';
     html += '<label style="font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap;">责任科室：</label>';
-    html += '<select class="form-select" style="width:200px;" onchange="configState.targetConfigDept=this.value">';
+    html += '<select class="form-select" style="width:220px;" onchange="configDirty=true;configState.targetConfigDept=this.value">';
     html += '<option value="">本单位（默认）</option>';
     DEPT_LIST.forEach(function(dept) {
       html += '<option value="' + dept + '"' + (configState.targetConfigDept === dept ? ' selected' : '') + '>' + dept + '</option>';
     });
     html += '</select>';
-    html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">未配置时默认责任科室为本单位</span>';
+    html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">未配置时默认责任科室为本单位（BR-GOV-DS-12）</span>';
     html += '</div>';
     html += '</div>';
-    // 板块 1：任务配置
-    html += '<div class="config-section-title">任务配置</div>';
-    html += '<div class="config-block" id="configTaskBlock"></div>';
-    // 板块 2：对象批量指派
-    html += '<div class="config-section-title">对象批量指派</div>';
-    html += '<div class="config-block">';
-    html += renderAssignStep1(d);
-    html += renderAssignStep2();
-    html += renderDraftList();
-    html += '</div>';
+    // ① 检查表 & 扫码责任配置（管控对象级别）
+    html += '<div class="config-section-title">① 检查表 &amp; 扫码责任配置（查什么、多久查、谁去查，一次配完）</div>';
+    html += '<div class="config-block" id="configChecklistBlock"></div>';
+    // ② 隐患责任配置（领域级别）
+    html += '<div class="config-section-title">② 隐患责任配置（查出隐患后怎么处理）</div>';
+    html += '<div class="config-block" id="configHazardBlock"></div>';
 
     document.getElementById('configBody').innerHTML = html;
-    renderConfigTaskBlock(d);
+    renderConfigChecklistBlock(d);
+    renderConfigHazardBlock(d);
   }
 
-  function renderConfigTaskBlock(d) {
+  function renderConfigChecklistBlock(d) {
+    var cfg = CONFIG_DATA[d.id];
+    var total = configState.objects.length;
+    var html = '<div style="margin-bottom:8px;display:flex;align-items:center;gap:12px;">';
+    html += '<button class="btn btn-primary btn-sm" onclick="openNewChecklistModal()">+ 新增检查表</button>';
+    html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">带 [系统] 标签的检查表由超管端预分配自动带入（BR-GOV-DS-15），名称/周期只读、须分配全部对象</span>';
+    html += '</div>';
+    if (cfg && cfg.checklists && cfg.checklists.length) {
+      html += '<div class="table-scroll"><table><thead><tr>';
+      html += '<th>检查表名称</th><th>检查周期</th><th>已分配对象数</th><th>责任人</th><th>扫码责任</th><th>状态</th><th class="action-col">操作</th>';
+      html += '</tr></thead><tbody>';
+      cfg.checklists.forEach(function(c, idx) {
+        var typeTag = c.checklistType === 'custom' ? '<span class="tag tag-orange">[自定义]</span>' : '<span class="tag tag-blue">[系统]</span>';
+        var assignedCount = c.assignedObjects ? c.assignedObjects.length : 0;
+        var personText = c.person ? (Array.isArray(c.person) ? c.person.join('、') : c.person) : '—';
+        var scanTag = (c.scan && c.scan.enabled === false) ? '<span class="tag tag-gray">未启用</span>' : '<span class="tag tag-green">同步责任人</span>';
+        html += '<tr><td>' + typeTag + ' ' + c.name + '</td>';
+        html += '<td>' + c.cycle + '</td>';
+        html += '<td><a class="btn-link" onclick="viewAssignedObjects(\'' + d.id + '\',' + idx + ')">' + assignedCount + '/' + total + '</a></td>';
+        html += '<td>' + personText + '</td>';
+        html += '<td>' + scanTag + '</td>';
+        html += '<td><label class="toggle-switch"><input type="checkbox"' + (c.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'checklist\',\'' + d.id + '\',' + idx + ',this.checked)"><span class="toggle-slider"></span></label></td>';
+        html += '<td class="action-col"><button class="btn-link" onclick="editChecklist(\'' + d.id + '\',' + idx + ')">编辑</button><button class="btn-link danger" onclick="deleteConfig(\'checklist\',\'' + d.id + '\',' + idx + ')">删除</button></td></tr>';
+      });
+      html += '</tbody></table></div>';
+    } else {
+      html += '<div class="empty-state" style="padding:20px;"><div class="empty-text">暂无检查表配置，请点击"+ 新增检查表"手动创建</div></div>';
+    }
+    document.getElementById('configChecklistBlock').innerHTML = html;
+  }
+
+  function renderConfigHazardBlock(d) {
     var cfg = CONFIG_DATA[d.id];
     var html = '';
-    // 检查表（独占整行）
-    html += '<div style="margin-bottom:16px;">';
-    html += '<div class="config-step"><span class="step-num">1</span> 检查表</div>';
-    if (cfg && cfg.checklists && cfg.checklists.length) {
-      html += '<div class="table-card"><div class="table-scroll"><table><thead><tr>';
-      html += '<th>检查表名称</th><th>对象类型</th><th>题目数</th><th>启用频率</th><th>状态</th>';
-      html += '</tr></thead><tbody>';
-      cfg.checklists.forEach(function(c) {
-        html += '<tr><td>' + c.name + '</td><td>' + (c.type || '—') + '</td><td>' + (c.qCount || c.questions || 0) + '</td><td>' + (c.freq || '—') + '</td><td>' + (c.enabled !== false ? '<span class="tag tag-green">启用</span>' : '<span class="tag tag-gray">停用</span>') + '</td></tr>';
-      });
-      html += '</tbody></table></div></div>';
-    } else {
-      html += '<div class="empty-state" style="padding:20px;"><div class="empty-text">暂无检查表配置</div></div>';
-    }
-    html += '<div style="margin-top:8px;"><button class="btn btn-default" onclick="openModal(\'modal-checklist\')">+ 新增检查表</button></div>';
-    html += '</div>';
-
-    // 第 2 行：扫码责任 + 隐患责任（左右两列）
-    html += '<div class="config-row">';
-    // 扫码责任
-    html += '<div>';
-    html += '<div class="config-step"><span class="step-num">2</span> 扫码责任</div>';
-    if (cfg && cfg.scan) {
-      html += '<div style="background:var(--bg-primary);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:12px;font-size:var(--font-size-sm);">';
-      html += '<div style="margin-bottom:6px;">责任人：<b>' + cfg.scan.person + '</b></div>';
-      html += '<div style="margin-bottom:6px;">责任科室：' + (cfg.scan.dept || '—') + '</div>';
-      html += '<div>处理时限：' + (cfg.scan.deadline || '—') + '</div>';
-      html += '</div>';
-    } else {
-      html += '<div class="empty-state" style="padding:20px;"><div class="empty-text">未配置</div></div>';
-    }
-    html += '</div>';
-    // 隐患责任
-    html += '<div>';
-    html += '<div class="config-step"><span class="step-num">3</span> 隐患责任</div>';
     if (cfg && cfg.hazard) {
-      html += '<div style="background:var(--bg-primary);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:12px;font-size:var(--font-size-sm);">';
-      html += '<div style="margin-bottom:6px;">隐患类型：<b>' + cfg.hazard.type + '</b></div>';
-      html += '<div style="margin-bottom:6px;">复核人：' + (cfg.hazard.reviewer || '—') + '</div>';
-      html += '<div>整改时限：' + (cfg.hazard.deadline || '—') + '</div>';
-      html += '</div>';
+      var h = cfg.hazard;
+      html += '<div class="table-scroll"><table><thead><tr><th>隐患类型</th><th>整改责任人</th><th>整改期限</th><th>复核方</th><th>状态</th><th class="action-col">操作</th></tr></thead><tbody>';
+      html += '<tr><td>' + h.type + '</td><td>' + (h.responder || '—') + '</td><td>' + (h.deadline || '—') + '天</td>';
+      html += '<td>' + (h.reviewer || '—') + (h.reviewPerson ? '（' + h.reviewPerson + '）' : '') + '</td>';
+      html += '<td><label class="toggle-switch"><input type="checkbox"' + (h.enabled !== false ? ' checked' : '') + ' onchange="toggleConfig(\'hazard\',\'' + d.id + '\',0,this.checked)"><span class="toggle-slider"></span></label></td>';
+      html += '<td class="action-col"><button class="btn-link" onclick="openHazardEditModal(\'' + d.id + '\')">编辑</button><button class="btn-link danger" onclick="deleteConfig(\'hazard\',\'' + d.id + '\',0)">删除</button></td></tr>';
+      html += '</tbody></table></div>';
     } else {
-      html += '<div class="empty-state" style="padding:20px;"><div class="empty-text">未配置</div></div>';
+      html += '<div class="empty-state" style="padding:20px;"><div class="empty-text">未配置隐患责任</div></div>';
+      html += '<div style="margin-top:8px;"><button class="btn btn-primary btn-sm" onclick="openHazardEditModal(\'' + d.id + '\')">+ 新增隐患责任</button></div>';
     }
-    html += '</div>';
-    html += '</div>';
-
-    document.getElementById('configTaskBlock').innerHTML = html;
+    document.getElementById('configHazardBlock').innerHTML = html;
   }
 
-  function renderAssignStep1(d) {
-    var html = '<div class="config-step"><span class="step-num">1</span> 选择范围</div>';
-    // 筛选栏
-    html += '<div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">';
-    html += '<select class="form-select" style="width:160px;" onchange="configFilterChange(\'type\',this.value)"><option value="">全部对象类型</option><option value="企业"' + (configState.filterType === '企业' ? ' selected' : '') + '>企业</option><option value="项目"' + (configState.filterType === '项目' ? ' selected' : '') + '>项目</option><option value="场所"' + (configState.filterType === '场所' ? ' selected' : '') + '>场所</option></select>';
-    var deptOpts = '<option value="">全部当前科室</option>';
-    DEPT_LIST.forEach(function(dp) { deptOpts += '<option value="' + dp + '"' + (configState.filterDept === dp ? ' selected' : '') + '>' + dp + '</option>'; });
-    html += '<select class="form-select" style="width:180px;" onchange="configFilterChange(\'dept\',this.value)">' + deptOpts + '</select>';
-    html += '<input class="form-input" style="width:200px;" placeholder="搜索对象名称" value="' + configState.filterKeyword + '" oninput="configFilterChange(\'keyword\',this.value)">';
-    html += '</div>';
-
-    // 列表
-    var filtered = filterObjects();
-    var assignableCount = filtered.filter(function(x) { return !x.obj.person; }).length;
-
-    html += '<div class="table-card"><div class="table-scroll" style="max-height:280px;overflow-y:auto;"><table><thead><tr>';
-    html += '<th style="width:36px;"><input type="checkbox" id="assignSelectAll" onchange="configToggleAll(this.checked)"' + (assignableCount === 0 ? ' disabled' : '') + '></th>';
-    html += '<th>对象名称</th><th>类型</th><th>当前责任人</th><th>当前科室</th>';
-    html += '</tr></thead><tbody>';
-    if (filtered.length === 0) {
-      html += '<tr><td colspan="5" style="padding:20px;color:var(--text-tertiary)">无匹配对象</td></tr>';
-    } else {
-      filtered.forEach(function(item) {
-        var isAssigned = !!item.obj.person;
-        var checked = configState.selectedIdx.indexOf(item.idx) >= 0;
-        html += '<tr class="obj-row' + (isAssigned ? ' disabled' : '') + '"' + (isAssigned ? ' title="已配置：' + item.obj.person + '（' + (item.obj.dept || '—') + '），不可重复指派"' : '') + '>';
-        html += '<td><input type="checkbox"' + (isAssigned ? ' disabled' : '') + (checked ? ' checked' : '') + ' onchange="configToggleObj(' + item.idx + ',this.checked)"></td>';
-        html += '<td>' + item.obj.name + '</td>';
-        html += '<td>' + item.obj.type + '</td>';
-        html += '<td>' + (item.obj.person || '<span style="color:var(--danger)">未配置</span>') + '</td>';
-        html += '<td>' + (item.obj.dept || '—') + '</td>';
-        html += '</tr>';
-      });
-    }
-    html += '</tbody></table></div>';
-    html += '<div style="padding:8px 12px;font-size:var(--font-size-xs);color:var(--text-secondary);background:var(--bg-section);border-top:1px solid var(--border-light);">共 ' + filtered.length + ' 条 · 可勾选 <b>' + assignableCount + '</b> · 已勾选 <b>' + configState.selectedIdx.length + '</b></div>';
-    html += '</div>';
-
-    return html;
-  }
-
-  function renderAssignStep2() {
-    var html = '<div class="config-step" style="margin-top:16px;"><span class="step-num">2</span> 指派目标</div>';
-    html += '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">';
-    var deptOpts = '<option value="">请选择责任科室</option>';
-    DEPT_LIST.forEach(function(dp) { deptOpts += '<option value="' + dp + '"' + (configState.targetDept === dp ? ' selected' : '') + '>' + dp + '</option>'; });
-    html += '<label style="font-size:var(--font-size-sm);">责任科室 <select class="form-select" style="width:180px;" onchange="configTargetChange(\'dept\',this.value)">' + deptOpts + '</select></label>';
-
-    var personOpts = '<option value="">请选择责任人</option>';
-    var personPool = configState.targetDept ? (PERSON_BY_DEPT[configState.targetDept] || []) : [].concat.apply([], Object.values(PERSON_BY_DEPT));
-    personPool.forEach(function(p) { personOpts += '<option value="' + p + '"' + (configState.targetPerson === p ? ' selected' : '') + '>' + p + '</option>'; });
-    html += '<label style="font-size:var(--font-size-sm);">责任人 <select class="form-select" style="width:140px;" onchange="configTargetChange(\'person\',this.value)">' + personOpts + '</select></label>';
-
-    html += '<button class="btn btn-primary" onclick="configAddDraft()">+ 添加到草稿</button>';
-    html += '</div>';
-    return html;
-  }
-
-  function renderDraftList() {
-    if (configState.drafts.length === 0) return '';
-    var html = '<div class="config-step" style="margin-top:16px;"><span class="step-num">3</span> 草稿规则（' + configState.drafts.length + ' 条 · 影响 ' + countDraftAffected() + ' 个对象）</div>';
-    html += '<div class="draft-list">';
-    var seen = {};
-    configState.drafts.forEach(function(rule, ri) {
-      var conflictIds = [];
-      rule.rangeIds.forEach(function(idx) {
-        if (seen[idx] !== undefined) conflictIds.push(idx);
-      });
-      rule.rangeIds.forEach(function(idx) { seen[idx] = ri; });
-
-      var hasConflict = conflictIds.length > 0;
-      html += '<div class="draft-item' + (hasConflict ? ' conflict' : '') + '">';
-      html += '<span class="draft-idx">' + (ri + 1) + '</span>';
-      html += '<span class="draft-desc">' + rule.rangeIds.length + ' 个对象 → <b>' + (rule.dept || '—') + '</b>' + (rule.person ? ' · <b>' + rule.person + '</b>' : '') + '</span>';
-      if (hasConflict) {
-        html += '<span class="draft-conflict">⚠ ' + conflictIds.length + ' 个对象与前序规则重叠</span>';
-      }
-      html += '<button class="draft-del" onclick="configRemoveDraft(' + ri + ')">删除</button>';
-      html += '</div>';
+  // 已分配对象数点击 → 弹窗查看该检查表已分配的管控对象列表
+  window.viewAssignedObjects = function(domainId, idx) {
+    var cfg = CONFIG_DATA[domainId];
+    var c = cfg && cfg.checklists && cfg.checklists[idx];
+    if (!c) return;
+    document.getElementById('objectsTitle').textContent = c.name + ' — 已分配管控对象';
+    var html = '';
+    (c.assignedObjects || []).forEach(function(n, i) {
+      html += '<div style="padding:6px 0;font-size:var(--font-size-sm);border-bottom:1px solid var(--border-light);">' + (i + 1) + '. ' + n + '</div>';
     });
-    html += '</div>';
-    return html;
-  }
-
-  function filterObjects() {
-    var result = [];
-    configState.objects.forEach(function(o, idx) {
-      if (configState.filterType && o.type !== configState.filterType) return;
-      if (configState.filterDept && o.dept !== configState.filterDept) return;
-      if (configState.filterKeyword && o.name.indexOf(configState.filterKeyword) < 0) return;
-      result.push({ idx: idx, obj: o });
-    });
-    return result;
-  }
-
-  function countDraftAffected() {
-    var set = {};
-    configState.drafts.forEach(function(r) { r.rangeIds.forEach(function(i) { set[i] = 1; }); });
-    return Object.keys(set).length;
-  }
-
-  window.configFilterChange = function(field, val) {
-    if (field === 'type') configState.filterType = val;
-    else if (field === 'dept') configState.filterDept = val;
-    else if (field === 'keyword') configState.filterKeyword = val;
-    configState.selectedIdx = [];
-    renderDomainConfig();
-    if (field === 'keyword') {
-      // 保持输入焦点
-      var inp = document.querySelector('#configBody input.form-input[placeholder="搜索对象名称"]');
-      if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); }
-    }
+    if (!html) html = '<div style="padding:16px;text-align:center;color:var(--text-secondary);">暂未分配管控对象</div>';
+    document.getElementById('objectsBody').innerHTML = html;
+    openModal('modal-objects');
   };
 
-  window.configToggleAll = function(checked) {
-    var filtered = filterObjects();
-    if (checked) {
-      filtered.forEach(function(item) {
-        if (!item.obj.person && configState.selectedIdx.indexOf(item.idx) < 0) configState.selectedIdx.push(item.idx);
-      });
-    } else {
-      var filteredIdx = filtered.map(function(x) { return x.idx; });
-      configState.selectedIdx = configState.selectedIdx.filter(function(i) { return filteredIdx.indexOf(i) < 0; });
-    }
-    renderDomainConfig();
-  };
 
-  window.configToggleObj = function(idx, checked) {
-    var pos = configState.selectedIdx.indexOf(idx);
-    if (checked && pos < 0) configState.selectedIdx.push(idx);
-    else if (!checked && pos >= 0) configState.selectedIdx.splice(pos, 1);
-    renderDomainConfig();
-  };
-
-  window.configTargetChange = function(field, val) {
-    if (field === 'dept') {
-      configState.targetDept = val;
-      var pool = val ? (PERSON_BY_DEPT[val] || []) : [];
-      if (val && pool.indexOf(configState.targetPerson) < 0) configState.targetPerson = '';
-    } else if (field === 'person') {
-      configState.targetPerson = val;
-    }
-    renderDomainConfig();
-  };
-
-  window.configAddDraft = function() {
-    if (configState.selectedIdx.length === 0) { showToast('请勾选至少一个对象'); return; }
-    if (!configState.targetDept && !configState.targetPerson) { showToast('请选择责任科室或责任人'); return; }
-    configState.drafts.push({
-      rangeIds: configState.selectedIdx.slice(),
-      dept: configState.targetDept,
-      person: configState.targetPerson
-    });
-    configState.selectedIdx = [];
-    configState.targetDept = '';
-    configState.targetPerson = '';
-    renderDomainConfig();
-    showToast('已添加 1 条指派规则');
-  };
-
-  window.configRemoveDraft = function(idx) {
-    configState.drafts.splice(idx, 1);
-    renderDomainConfig();
-  };
 
   window.saveDomainConfig = function() {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === configState.domainId; });
     if (!d) return;
-    // 保存责任科室配置
+    // 保存责任科室配置（检查表/隐患责任为逐项即时保存，BR-GOV-DS-10）
     d.dept = configState.targetConfigDept || '';
-    // 应用草稿到 OBJECT_DETAILS（按顺序，后写覆盖）
-    var objs = OBJECT_DETAILS[d.id] || generateObjects(d);
-    var affected = 0;
-    configState.drafts.forEach(function(rule) {
-      rule.rangeIds.forEach(function(idx) {
-        if (objs[idx] && !objs[idx].person) {
-          if (rule.person) objs[idx].person = rule.person;
-          if (rule.dept) objs[idx].dept = rule.dept;
-          affected++;
-        }
-      });
-    });
-    OBJECT_DETAILS[d.id] = objs;
-    var assignedNow = objs.filter(function(o) { return o.person; }).length;
-    d.assigned = assignedNow;
-
-    showToast('已保存：应用 ' + configState.drafts.length + ' 条规则，影响 ' + affected + ' 个对象');
-    configState.drafts = [];
+    var cfg = CONFIG_DATA[d.id];
+    if (cfg) cfg.dept = configState.targetConfigDept || '';
+    configDirty = false;
+    showToast('配置已保存');
     document.querySelector('.detail-panel').classList.remove('config-mode');
     renderOverview();
   };

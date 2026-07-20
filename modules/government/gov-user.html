@@ -189,8 +189,6 @@
           <div class="form-group"><label class="form-label"><span class="required">*</span>所属单位</label>
             <select class="form-select" id="fOrg" onchange="onOrgChange()">
               <option value="gov_org">区应急管理局</option>
-              <option value="sub-lh">龙华街道办事处</option>
-              <option value="sub-mz">民治街道办事处</option>
             </select>
           </div>
           <div class="form-group"><label class="form-label">所属科室</label>
@@ -352,51 +350,25 @@ var GOV_ORG = {
     {id:'dept-amb-04',name:'安全监管和执法科'},
     {id:'dept-amb-05',name:'防灾减灾科'},
     {id:'dept-amb-06',name:'危化品监管和执法科'}
-  ],
-  subUnits: [
-    {
-      id:'sub-lh',
-      name:'龙华街道办事处',
-      depts:[
-        {id:'dept-lh-01',name:'安监办'},
-        {id:'dept-lh-02',name:'综治办'},
-        {id:'dept-lh-03',name:'城建办'}
-      ]
-    },
-    {
-      id:'sub-mz',
-      name:'民治街道办事处',
-      depts:[
-        {id:'dept-mz-01',name:'应急办'},
-        {id:'dept-mz-02',name:'安监办'},
-        {id:'dept-mz-03',name:'综合执法队'}
-      ]
-    }
   ]
 };
 
-// 工具函数：按 id 取组织（本单位或下级单位）；缺省返回本单位
+// 工具函数：按 id 取组织（政府端仅区应急管理局一个单位）
 function getOrgById(id){
-  if(!id || id === GOV_ORG.id) return GOV_ORG;
-  return GOV_ORG.subUnits.find(function(o){return o.id === id;}) || GOV_ORG;
+  return GOV_ORG;
 }
-// 工具函数：取全部组织（含下级单位）扁平数组，便于级联与渲染
+// 工具函数：取全部组织扁平数组，便于级联与渲染
 function getAllOrgs(){
-  return [GOV_ORG].concat(GOV_ORG.subUnits);
+  return [GOV_ORG];
 }
-// 工具函数：按 id 取科室（跨本单位 + 下级单位）
+// 工具函数：按 id 取科室
 function getDeptById(deptId){
   if(!deptId) return null;
-  var all = GOV_ORG.depts.concat([]);
-  GOV_ORG.subUnits.forEach(function(o){ all = all.concat(o.depts); });
-  return all.find(function(d){return d.id === deptId;}) || null;
+  return GOV_ORG.depts.find(function(d){return d.id === deptId;}) || null;
 }
 // 工具函数：按 deptId 反查所属组织
 function getOrgByDeptId(deptId){
-  if(!deptId) return GOV_ORG;
-  if(GOV_ORG.depts.some(function(d){return d.id === deptId;})) return GOV_ORG;
-  var hit = GOV_ORG.subUnits.find(function(o){return o.depts.some(function(d){return d.id === deptId;});});
-  return hit || GOV_ORG;
+  return GOV_ORG;
 }
 
 var _uid = 100;
@@ -416,12 +388,7 @@ var allUsers = [
   {id:_uidGen(),name:'黄伟',account:'13800138011',org:'区应急管理局',deptId:'dept-amb-06',deptName:'危化品监管和执法科',mobile:'13800138011',title:'科长',userType:'领导层',status:'启用',lastLogin:'2026-06-01 10:30',manageDeptIds:['dept-amb-06'],email:'huangwei@gov.cn',leaderId:'',remark:''},
   {id:_uidGen(),name:'林芳',account:'13800138012',org:'区应急管理局',deptId:'dept-amb-06',deptName:'危化品监管和执法科',mobile:'13800138012',title:'副科长',userType:'巡查层',status:'启用',lastLogin:'2026-05-30 14:20',manageDeptIds:['dept-amb-06'],email:'linfang@gov.cn',leaderId:'',remark:''},
   {id:_uidGen(),name:'徐明',account:'13800138013',org:'区应急管理局',deptId:'dept-amb-01',deptName:'督导检查科',mobile:'13800138013',title:'科员',userType:'巡查层',status:'停用',lastLogin:'2026-05-15 16:45',manageDeptIds:[],email:'xuming@gov.cn',leaderId:'',remark:''},
-  {id:_uidGen(),name:'高洁',account:'13800138014',org:'区应急管理局',deptId:'dept-amb-02',deptName:'综合协调科',mobile:'13800138014',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-05-28 11:30',manageDeptIds:[],email:'gaojie@gov.cn',leaderId:'',remark:''},
-  // —— 下级单位（街道办事处）演示用户，验证所属单位级联与数据范围 BR-GOV-USER-03 ——
-  {id:_uidGen(),name:'郑文斌',account:'13800138015',org:'龙华街道办事处',deptId:'dept-lh-01',deptName:'安监办',mobile:'13800138015',title:'主任',userType:'监管层',status:'启用',lastLogin:'2026-06-11 10:00',manageDeptIds:['dept-lh-01','dept-lh-02'],email:'zhengwenbin@gov.cn',leaderId:'',remark:'龙华街道安监负责人'},
-  {id:_uidGen(),name:'谢丽',account:'13800138016',org:'龙华街道办事处',deptId:'dept-lh-02',deptName:'综治办',mobile:'13800138016',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-06-10 15:20',manageDeptIds:[],email:'xieli@gov.cn',leaderId:'',remark:''},
-  {id:_uidGen(),name:'罗志远',account:'13800138017',org:'民治街道办事处',deptId:'dept-mz-01',deptName:'应急办',mobile:'13800138017',title:'主任',userType:'监管层',status:'启用',lastLogin:'2026-06-09 09:40',manageDeptIds:['dept-mz-01','dept-mz-02','dept-mz-03'],email:'luozhiyuan@gov.cn',leaderId:'',remark:'民治街道应急办主任'},
-  {id:_uidGen(),name:'冯雪',account:'13800138018',org:'民治街道办事处',deptId:'dept-mz-02',deptName:'安监办',mobile:'13800138018',title:'科员',userType:'巡查层',status:'停用',lastLogin:'2026-05-22 13:10',manageDeptIds:[],email:'fengxue@gov.cn',leaderId:'',remark:''}
+  {id:_uidGen(),name:'高洁',account:'13800138014',org:'区应急管理局',deptId:'dept-amb-02',deptName:'综合协调科',mobile:'13800138014',title:'科员',userType:'巡查层',status:'启用',lastLogin:'2026-05-28 11:30',manageDeptIds:[],email:'gaojie@gov.cn',leaderId:'',remark:''}
 ];
 
 // ==================== Toast ====================
@@ -440,14 +407,7 @@ function _updateStats(deptId){
   if(!deptId || deptId === GOV_ORG.id){
     filtered = allUsers;
   }else{
-    // 判断是否为下级单位 id；下级单位 = 该单位下所有科室聚合
-    var sub = GOV_ORG.subUnits.find(function(o){return o.id === deptId;});
-    if(sub){
-      var subDeptIds = sub.depts.map(function(d){return d.id;});
-      filtered = allUsers.filter(function(u){return subDeptIds.indexOf(u.deptId) > -1;});
-    }else{
-      filtered = allUsers.filter(function(u){return u.deptId === deptId;});
-    }
+    filtered = allUsers.filter(function(u){return u.deptId === deptId;});
   }
   document.getElementById('statTotal').textContent = filtered.length;
   document.getElementById('statNormal').textContent = filtered.filter(function(u){return u.status==='启用';}).length;
@@ -474,16 +434,6 @@ function renderOrgTree(){
   html += GOV_ORG.depts.map(function(d){
     return '<div class="tree-node' + (window._activeDept === d.id ? ' active' : '') + '" onclick="selectDept(\'' + d.id + '\',this)" data-id="' + d.id + '"><span class="toggle"></span><span>' + d.name + '</span></div>';
   }).join('');
-  // 下级单位（街道办事处）— 可展开显示其科室
-  GOV_ORG.subUnits.forEach(function(sub){
-    html += '<div class="tree-node" onclick="selectDept(\'' + sub.id + '\',this)" data-id="' + sub.id + '">' +
-      '<span class="toggle open" onclick="event.stopPropagation();toggleSubUnit(\'' + sub.id + '\')">&#9654;</span><span>' + sub.name + '</span></div>';
-    html += '<div class="tree-children show" id="subChildren-' + sub.id + '" style="padding-left:20px">';
-    html += sub.depts.map(function(d){
-      return '<div class="tree-node' + (window._activeDept === d.id ? ' active' : '') + '" onclick="selectDept(\'' + d.id + '\',this)" data-id="' + d.id + '"><span class="toggle"></span><span>' + d.name + '</span></div>';
-    }).join('');
-    html += '</div>';
-  });
   html += '</div>';
   tree.innerHTML = html;
   window._activeDept = GOV_ORG.id;
@@ -493,12 +443,6 @@ function renderOrgTree(){
   deptSel.innerHTML = '<option value="">请选择所属科室</option>' + GOV_ORG.depts.map(function(d){
     return '<option value="' + d.id + '">' + d.name + '</option>';
   }).join('');
-}
-
-function toggleSubUnit(subId){
-  var ch = document.getElementById('subChildren-' + subId);
-  if(!ch) return;
-  ch.classList.toggle('show');
 }
 
 function toggleDept(){
@@ -527,18 +471,8 @@ function renderTable(){
   var statusVal = document.getElementById('filterStatus').value;
   var activeId = window._activeDept;
   filteredRows = allUsers.filter(function(u){
-    if(activeId){
-      if(activeId === GOV_ORG.id){
-        // 本单位节点 = 全部（含下级单位）
-      }else{
-        var sub = GOV_ORG.subUnits.find(function(o){return o.id === activeId;});
-        if(sub){
-          var subDeptIds = sub.depts.map(function(d){return d.id;});
-          if(subDeptIds.indexOf(u.deptId) === -1) return false;
-        }else if(u.deptId !== activeId){
-          return false;
-        }
-      }
+    if(activeId && activeId !== GOV_ORG.id){
+      if(u.deptId !== activeId) return false;
     }
     if(nameVal && !u.name.toLowerCase().includes(nameVal)) return false;
     if(phoneVal && u.mobile !== phoneVal) return false;

@@ -1061,6 +1061,39 @@
       alert('已退出登录（演示）');
     }
   }
+
+  // 监听子 iframe 通过 postMessage 发送的导航请求
+  window.addEventListener('message', function(event) {
+    if (!event.data || event.data.type !== 'navigate') return;
+    var targetModule = event.data.module;
+    if (!targetModule) return;
+
+    // 遍历所有 portal 的菜单配置，找到 module 匹配的菜单项
+    var portals = ['super-admin', 'government', 'enterprise-basic', 'enterprise-project'];
+    var found = null;
+    for (var p = 0; p < portals.length; p++) {
+      var menu = getMenuConfig(portals[p]);
+      for (var i = 0; i < menu.length; i++) {
+        if (menu[i].module === targetModule) { found = { item: menu[i], portal: portals[p] }; break; }
+        if (menu[i].children) {
+          for (var j = 0; j < menu[i].children.length; j++) {
+            if (menu[i].children[j].module === targetModule) { found = { item: menu[i].children[j], portal: portals[p] }; break; }
+          }
+        }
+        if (found) break;
+      }
+      if (found) break;
+    }
+
+    if (found) {
+      if (router.currentPortal !== found.portal) {
+        router.switchPortal(found.portal);
+      }
+      router.navigate(found.item.id);
+    } else {
+      console.warn('[Message] 未找到模块对应的菜单项: ' + targetModule);
+    }
+  });
   </script>
 </body>
 </html>

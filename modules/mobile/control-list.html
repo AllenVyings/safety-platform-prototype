@@ -268,12 +268,19 @@
       el.classList.add('active');
     }
     // 叶节点点击跳转：场所名→place-code，危险源名→hazard-code
-    var leafTargets = {'A栋生产车间':'place-code','危化品存储区':'hazard-code','B栋仓库':'place-code','配电房':'hazard-code','C栋办公区':'place-code','C栋办公区（重点部位）':'place-code','D栋实验室':'place-code','食堂':'place-code'};
+    // 仅对无子节点的叶子节点绑定跳转，避免覆盖中间层节点的展开/收起功能
+    var leafTargets = {'A栋生产车间':'place-code','危化品存储区':'hazard-code','B栋仓库':'place-code','配电房':'hazard-code','C栋办公区（重点部位）':'place-code','D栋实验室':'place-code','食堂':'place-code'};
     document.querySelectorAll('.tree-node').forEach(function(node){
       var nameEl = node.querySelector('.tree-name');
       if (!nameEl) return;
       var target = leafTargets[nameEl.textContent.trim()];
-      if (target) node.onclick = function(){ parent.navigateTo(target); };
+      if (!target) return;
+      // 判断是否为叶子节点：下一个兄弟元素不是 tree-children，或是空的 tree-children
+      var next = node.nextElementSibling;
+      var hasChildren = next && next.classList.contains('tree-children') && !next.classList.contains('collapsed') && next.children.length > 0;
+      if (!hasChildren) {
+        node.onclick = function(){ parent.navigateTo(target); };
+      }
     });
   </script>
 <script src="../../js/annotations.js"></script>

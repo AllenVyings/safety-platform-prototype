@@ -6,6 +6,13 @@
   <title>任务管理</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
+    :root {
+      --code-red: #ff4d4f;
+      --code-red-light: #fff1f0;
+      --code-red-dark: #cf1322;
+      --code-yellow: #faad14;
+      --code-green: #52c41a;
+    }
     .tl-gradient { display: none; }
     .m-page {
       position: relative; overflow: hidden; background-color: var(--wc-page-bg);
@@ -189,6 +196,45 @@
     .tl-drawer-btn-primary:active { background: #0d5bd9; }
     .tl-drawer-btn-danger { background: var(--code-red); color: var(--wc-card-bg); }
     .tl-drawer-btn-danger:active { background: #d9363e; }
+
+    /* ========== 优化：已逾期卡片强化 ========== */
+    .tl-card.overdue { background: var(--code-red-light); }
+    .tl-card.overdue:active { background: #ffe0e0; }
+    .tl-deadline.overdue {
+      background: var(--code-red); color: #fff; padding: 2px 8px; border-radius: 10px;
+      font-weight: 500; display: inline-flex; align-items: center; gap: 2px;
+    }
+
+    /* ========== 优化：统计卡选中/已逾期高亮 ========== */
+    .tl-stat.active { background: rgba(255,255,255,0.42); }
+    .tl-stat.is-overdue { background: rgba(220,38,38,0.88); }
+    .tl-stat.is-overdue .tl-stat-label { color: rgba(255,255,255,0.95); }
+
+    /* ========== 优化：卡片 meta 分行 ========== */
+    .tl-meta-row { display: flex; align-items: center; gap: var(--wc-gap-sm); line-height: 1.5; }
+    .tl-meta-row + .tl-meta-row { margin-top: 2px; }
+    .tl-meta-row .tl-meta-label { color: var(--wc-text-placeholder); flex-shrink: 0; min-width: 32px; }
+    .tl-meta-row .tl-meta-val { color: var(--wc-text-secondary); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tl-meta-val.tl-meta-object { color: var(--wc-text-tertiary); }
+
+    /* ========== 优化：截止时间相对态 ========== */
+    .tl-deadline.today { color: var(--code-red); font-weight: 500; }
+    .tl-deadline.soon { color: var(--brand-blue); }
+
+    /* ========== 优化：筛选回显条 ========== */
+    .tl-filter-active {
+      display: none; align-items: center; justify-content: space-between;
+      background: var(--brand-blue); color: #fff; border-radius: 10px;
+      padding: 8px var(--wc-gap-xl); margin-bottom: var(--wc-gap-lg); font-size: var(--wc-font-small);
+    }
+    .tl-filter-active.show { display: flex; }
+    .tl-filter-active b { font-size: 14px; }
+    .tl-filter-clear { cursor: pointer; opacity: 0.9; padding: 2px 8px; border-radius: 6px; }
+    .tl-filter-clear:active { opacity: 1; background: rgba(255,255,255,0.2); }
+
+    /* ========== 优化：空状态操作 + 列表底部 ========== */
+    .m-empty-action { margin-top: var(--wc-gap-lg); }
+    .tl-list-footer { text-align: center; color: var(--wc-text-placeholder); font-size: var(--wc-font-small); padding: var(--wc-gap-lg) 0; }
   </style>
 </head>
 <body>
@@ -198,34 +244,39 @@
     <div class="tl-header">
       <div class="tl-title">任务管理</div>
       <div class="tl-stat-row">
-        <div class="tl-stat" onclick="filterByStatus('all')">
+        <div class="tl-stat" data-status="all" onclick="filterByStatus('all')">
           <div class="tl-stat-num" id="statTotal">8</div>
           <div class="tl-stat-label">任务总数</div>
         </div>
-        <div class="tl-stat" onclick="filterByStatus('pending')">
+        <div class="tl-stat" data-status="pending" onclick="filterByStatus('pending')">
           <div class="tl-stat-num" id="statPending">3</div>
           <div class="tl-stat-label">待执行</div>
         </div>
-        <div class="tl-stat" onclick="filterByStatus('progress')">
+        <div class="tl-stat" data-status="progress" onclick="filterByStatus('progress')">
           <div class="tl-stat-num" id="statProgress">3</div>
           <div class="tl-stat-label">执行中</div>
         </div>
-        <div class="tl-stat" onclick="filterByStatus('done')">
+        <div class="tl-stat" data-status="done" onclick="filterByStatus('done')">
           <div class="tl-stat-num" id="statDone">1</div>
           <div class="tl-stat-label">已完成</div>
         </div>
-        <div class="tl-stat" onclick="filterByStatus('overdue')">
+        <div class="tl-stat is-overdue" data-status="overdue" onclick="filterByStatus('overdue')">
           <div class="tl-stat-num" id="statOverdue">1</div>
           <div class="tl-stat-label">已逾期</div>
         </div>
       </div>
       <div class="tl-search-wrap">
-        <input class="tl-search" placeholder="搜索任务名称" id="searchInput" oninput="applyFilters()">
+        <input class="tl-search" placeholder="搜索任务/来源/对象" id="searchInput" oninput="applyFilters()">
       </div>
     </div>
 
     <!-- 内容区 -->
     <div class="tl-body">
+      <!-- 筛选回显 -->
+      <div class="tl-filter-active" id="filterActive">
+        <span>已筛选 <b id="filterActiveCount">0</b> 项任务</span>
+        <span class="tl-filter-clear" onclick="clearAllFilters()">✕ 清除</span>
+      </div>
       <!-- 筛选区 -->
       <div class="tl-filter-card" style="position:relative;">
         <!-- 第一行：状态筛选 -->
@@ -276,9 +327,12 @@
       <div class="m-empty" id="emptyState" style="display:none;">
         <div class="m-empty-icon">📋</div>
         <div class="m-empty-text">暂无匹配的任务</div>
+        <div class="m-empty-action" id="emptyAction" style="display:none;">
+          <button class="tl-btn tl-btn-primary" onclick="clearAllFilters()">清除筛选</button>
+        </div>
       </div>
 
-      <div style="height:32px;"></div>
+      <div class="tl-list-footer">- 已加载全部任务 -</div>
     </div>
 
     <!-- 底部抽屉 -->
@@ -303,7 +357,7 @@
         urgency: 'red', urgencyLabel: '紧急',
         source: '消防专项任务', sourceUnit: '消防专项',
         object: 'A栋配电房', person: '王操作',
-        deadline: '2025-01-18', status: 'overdue', overdueDays: 2,
+        deadline: '2026-07-15', status: 'overdue', overdueDays: 2,
         desc: '配电房灭火器已过期，需立即更换为5kg干粉灭火器，共3处。',
         target: 'hazard-detail'
       },
@@ -312,7 +366,7 @@
         urgency: 'red', urgencyLabel: '紧急',
         source: '履职检查配置', sourceUnit: '企业自查',
         object: 'A栋生产车间', person: '李安全',
-        deadline: '今天 18:00', status: 'pending',
+        deadline: '2026-07-17', status: 'pending',
         desc: '按日常巡查检查表执行，重点关注消防通道、电气线路、危化品存放。',
         target: 'check-list'
       },
@@ -321,7 +375,7 @@
         urgency: 'yellow', urgencyLabel: '一般',
         source: '日常巡查', sourceUnit: '企业自查',
         object: 'B栋仓库', person: '赵管理',
-        deadline: '01-20', status: 'progress',
+        deadline: '2026-07-20', status: 'progress',
         desc: 'B栋仓库东侧安全出口标识缺失2处，需补充荧光标识牌。',
         target: 'hazard-detail'
       },
@@ -330,7 +384,7 @@
         urgency: 'yellow', urgencyLabel: '一般',
         source: '龙华区应急管理局', sourceUnit: '龙华区应急管理局',
         object: '全企业', person: '李安全',
-        deadline: '01-25', status: 'pending',
+        deadline: '2026-07-25', status: 'pending',
         desc: '龙华区应急管理局下发春节前安全专项检查通知，需在01-25前完成并上报。',
         target: 'check-list'
       },
@@ -339,7 +393,7 @@
         urgency: 'green', urgencyLabel: '低',
         source: '履职检查配置', sourceUnit: '企业自查',
         object: 'B栋仓库', person: '赵管理',
-        deadline: '01-31', status: 'progress',
+        deadline: '2026-07-31', status: 'progress',
         desc: '月度消防设施检查，包含灭火器、喷淋、烟感、消防栓等。',
         target: 'check-list'
       },
@@ -348,7 +402,7 @@
         urgency: 'gray', urgencyLabel: '',
         source: '履职检查配置', sourceUnit: '企业自查',
         object: 'D栋实验室', person: '陈研发',
-        deadline: '01-08', status: 'done',
+        deadline: '2026-07-08', status: 'done',
         desc: '已完成，化学品存放符合规范。',
         target: 'check-list'
       },
@@ -357,7 +411,7 @@
         urgency: 'green', urgencyLabel: '低',
         source: '履职检查配置', sourceUnit: '企业自查',
         object: 'C栋办公区', person: '刘主任',
-        deadline: '02-05', status: 'pending',
+        deadline: '2026-08-05', status: 'pending',
         desc: '月度灭火器有效期及压力检查。',
         target: 'check-list'
       },
@@ -366,7 +420,7 @@
         urgency: 'red', urgencyLabel: '紧急',
         source: '电气安全季度检查', sourceUnit: '企业自查',
         object: 'A栋配电房', person: '孙电工',
-        deadline: '01-22', status: 'progress',
+        deadline: '2026-07-22', status: 'progress',
         desc: '配电房部分线路老化，需更换BV-4铜芯线约50米，并重新套管。',
         target: 'hazard-detail'
       }
@@ -380,6 +434,7 @@
     function renderTasks() {
       var list = document.getElementById('taskList');
       var empty = document.getElementById('emptyState');
+      var emptyAction = document.getElementById('emptyAction');
       var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
       var filtered = tasks.filter(function(t) {
@@ -403,50 +458,47 @@
         return (statusOrder[a.status] || 9) - (statusOrder[b.status] || 9);
       });
 
+      // 筛选回显
+      updateFilterActive(filtered.length);
+
       if (filtered.length === 0) {
         list.innerHTML = '';
         empty.style.display = '';
+        if (emptyAction) emptyAction.style.display = hasActiveFilter() ? '' : 'none';
         return;
       }
       empty.style.display = 'none';
 
       var html = '';
       filtered.forEach(function(t) {
-        var deadlineHtml = '';
+        var dl = formatDeadline(t);
         var btnHtml = '';
         if (t.status === 'overdue') {
-          deadlineHtml = '<span class="tl-deadline overdue">⚠ 超期' + t.overdueDays + '天</span>';
           btnHtml = '<button class="tl-btn tl-btn-danger" onclick="event.stopPropagation();goTask(\'' + t.target + '\')">立即整改</button>';
         } else if (t.status === 'pending') {
-          deadlineHtml = '<span class="tl-deadline">截止：' + t.deadline + '</span>';
           var btnLabel = t.type === 'rectify' ? '去整改' : '去检查';
           btnHtml = '<button class="tl-btn tl-btn-primary" onclick="event.stopPropagation();goTask(\'' + t.target + '\')">' + btnLabel + '</button>';
         } else if (t.status === 'progress') {
-          deadlineHtml = '<span class="tl-deadline">截止：' + t.deadline + '</span>';
           var btnLabel2 = t.type === 'rectify' ? '继续整改' : '继续检查';
           btnHtml = '<button class="tl-btn tl-btn-primary" onclick="event.stopPropagation();goTask(\'' + t.target + '\')">' + btnLabel2 + '</button>';
         } else {
-          deadlineHtml = '<span class="tl-deadline done">已完成 ' + t.deadline + '</span>';
           btnHtml = '<button class="tl-btn tl-btn-done">已完成</button>';
         }
 
-        var urgencyDot = '';
-        if (t.urgency !== 'gray') {
-          var dotColor = t.urgency === 'red' ? 'var(--code-red)' : (t.urgency === 'yellow' ? 'var(--code-yellow)' : 'var(--code-green)');
-          urgencyDot = '<span class="tl-urgency-dot" style="background:' + dotColor + '"></span>';
-        }
+        var overdueCls = t.status === 'overdue' ? ' overdue' : '';
 
-        html += '<div class="tl-card" onclick="openDrawer(' + t.id + ')">' +
+        html += '<div class="tl-card' + overdueCls + '" onclick="openDrawer(' + t.id + ')">' +
           '<div class="tl-header-row">' +
             '<div class="tl-urgency ' + t.urgency + '"></div>' +
             '<div class="tl-card-title">' + t.title + '</div>' +
             '<span class="tl-type ' + t.type + '">' + t.typeLabel + '</span>' +
           '</div>' +
           '<div class="tl-meta">' +
-            '<div class="tl-meta-source">' + urgencyDot + '来源：' + t.source + ' · ' + t.object + '</div>' +
+            '<div class="tl-meta-row"><span class="tl-meta-label">来源</span><span class="tl-meta-val">' + t.source + '</span></div>' +
+            '<div class="tl-meta-row"><span class="tl-meta-label">对象</span><span class="tl-meta-val tl-meta-object">' + t.object + '</span></div>' +
           '</div>' +
           '<div class="tl-footer">' +
-            deadlineHtml + btnHtml +
+            '<span class="tl-deadline ' + dl.cls + '">' + dl.text + '</span>' + btnHtml +
           '</div>' +
         '</div>';
       });
@@ -473,10 +525,66 @@
       document.querySelectorAll('.tl-chip[data-filter="status"]').forEach(function(c) {
         c.classList.toggle('active', c.getAttribute('data-value') === status);
       });
+      // 同步统计卡选中态
+      document.querySelectorAll('.tl-stat').forEach(function(s) {
+        s.classList.toggle('active', s.getAttribute('data-status') === status);
+      });
       applyFilters();
     }
 
     function applyFilters() { renderTasks(); }
+
+    // ===== 截止时间相对格式 =====
+    var TODAY = '2026-07-17';
+    function formatDeadline(t) {
+      if (t.status === 'done') return { text: '已完成 · ' + t.deadline.slice(5), cls: 'done' };
+      if (t.status === 'overdue') return { text: '超期 ' + t.overdueDays + ' 天', cls: 'overdue' };
+      var today = new Date(TODAY + 'T00:00:00');
+      var d = new Date(t.deadline + 'T00:00:00');
+      var diff = Math.round((d - today) / 86400000);
+      if (diff === 0) return { text: '今天截止', cls: 'today' };
+      if (diff === 1) return { text: '明天截止', cls: 'soon' };
+      if (diff === 2) return { text: '后天截止', cls: 'soon' };
+      if (diff > 2 && diff <= 7) return { text: diff + '天后截止', cls: 'soon' };
+      return { text: t.deadline.slice(5) + ' 截止', cls: '' };
+    }
+
+    // ===== 筛选回显/清除 =====
+    function hasActiveFilter() {
+      var keyword = document.getElementById('searchInput').value.trim();
+      return filters.status !== 'all' || filters.type !== 'all' || filters.urgency !== 'all' || filters.source !== 'all' || !!keyword;
+    }
+    function updateFilterActive(count) {
+      var bar = document.getElementById('filterActive');
+      var countEl = document.getElementById('filterActiveCount');
+      if (!bar) return;
+      if (hasActiveFilter()) {
+        bar.classList.add('show');
+        if (countEl) countEl.textContent = count;
+      } else {
+        bar.classList.remove('show');
+      }
+    }
+    function clearAllFilters() {
+      filters = { status: 'all', type: 'all', urgency: 'all', source: 'all' };
+      currentSort = 'deadline';
+      document.getElementById('searchInput').value = '';
+      document.querySelectorAll('.tl-chip').forEach(function(c) {
+        var f = c.getAttribute('data-filter');
+        if (!f) return;
+        c.classList.toggle('active', c.getAttribute('data-value') === 'all');
+      });
+      document.querySelectorAll('.tl-stat').forEach(function(s) {
+        s.classList.toggle('active', s.getAttribute('data-status') === 'all');
+      });
+      document.querySelectorAll('.tl-sort-option[data-sort]').forEach(function(o) {
+        o.classList.toggle('active', o.getAttribute('data-sort') === 'deadline');
+      });
+      var btn = document.getElementById('sourceBtn');
+      btn.innerHTML = '来源 <span class="arrow">▼</span>';
+      btn.classList.remove('active');
+      applyFilters();
+    }
 
     // ===== 排序 =====
     function toggleSortPopup() {
@@ -586,6 +694,7 @@
     });
 
     // ===== 初始渲染 =====
+    document.querySelector('.tl-stat[data-status="all"]').classList.add('active');
     renderTasks();
   </script>
 <script src="../../js/annotations.js"></script>

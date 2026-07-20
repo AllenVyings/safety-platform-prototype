@@ -986,13 +986,13 @@ var ANNOTATIONS_CONFIG = {
   'mobile/task-list': [
     {
       id: 'm-tl-001',
-      selector: '.tl-stats',
+      selector: '.tl-stat-row',
       position: 'top-right',
       title: '任务统计',
       category: '交互说明',
       categoryColor: 'info',
-      description: '统计当前用户任务：任务总数、待处理、进行中、已完成、已超期。数字与实际任务列表一致（如8=3+3+1+1）。',
-      prdRef: '6.3.10 任务统计'
+      description: '统计卡展示任务总数、待执行、执行中、已完成、已逾期；点击可快速筛选对应状态任务，已逾期统计卡红色高亮。',
+      prdRef: '§6.2.4.9 移动端任务列表（执行端）'
     },
     {
       id: 'm-tl-002',
@@ -1001,15 +1001,15 @@ var ANNOTATIONS_CONFIG = {
       title: '任务卡片',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '卡片显示任务名称、类型标签（日常/专项/整改）。日常=蓝色、专项=橙色、整改=红色。点击进入任务详情。',
-      prdRef: '6.3.10 BR-TASK-01 类型配色'
+      description: '卡片显示任务标题、类型标签（履职任务/隐患整改/专项任务）、来源、管控对象、相对截止时间（今天/N天后/超期N天）、操作按钮；已逾期卡片红底背景强调。',
+      prdRef: '§6.2.4.9 移动端任务列表（执行端）'
     }
   ],
 
   'mobile/enterprise-code': [
     {
       id: 'm-ec-001',
-      selector: '.ec-card',
+      selector: '.ec-code-card',
       position: 'top-right',
       title: '企业码详情',
       category: '交互说明',
@@ -1019,12 +1019,12 @@ var ANNOTATIONS_CONFIG = {
     },
     {
       id: 'm-ec-002',
-      selector: '.ec-sub',
+      selector: '#panel0',
       position: 'top-right',
-      title: '下级场所码/危险源码',
+      title: '安全管控统计',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '企业码下挂载场所码和危险源码。点击下级码可进入对应详情页。码色按上下级关联计算（异常占比>20%码色变黄）。',
+      description: '企业码下挂载场所码和危险源码。管控对象按码色统计（绿色/黄色/红色），码色按上下级关联计算（异常占比>20%码色变黄）。',
       prdRef: '6.3.11 BR-CODE-01 上下关联'
     }
   ],
