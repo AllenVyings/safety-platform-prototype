@@ -110,13 +110,31 @@
     .config-section-title { font-size: var(--font-size-md); font-weight: 600; margin-bottom: 12px; padding-left: 8px; border-left: 3px solid var(--primary); }
     .config-block { background: var(--bg-section); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 20px; }
     .config-view-footer { position: sticky; bottom: 0; z-index: 10; background: var(--bg-section); border-top: 1px solid var(--border-section); padding: 12px 20px; display: flex; justify-content: flex-end; gap: 8px; }
-    .draft-list { margin-top: 12px; }
-    .draft-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 6px; font-size: var(--font-size-sm); }
-    .draft-item.conflict { border-color: var(--warning); background: #fffbe6; }
-    .draft-idx { font-weight: 600; color: var(--primary); width: 24px; }
-    .draft-desc { flex: 1; }
-    .draft-conflict { color: var(--warning); font-size: var(--font-size-xs); }
-    .draft-del { background: none; border: none; color: var(--danger); cursor: pointer; padding: 4px 8px; }
+
+    /* ========== 检查内容列表 ========== */
+    .checkitem-list { border: 1px solid var(--border-section); border-radius: var(--radius-lg); overflow-y: auto; max-height: 300px; }
+    .checkitem-group { border-bottom: 1px solid var(--border-light); }
+    .checkitem-group:last-child { border-bottom: none; }
+    .checkitem-header { display: flex; align-items: center; padding: 12px var(--spacing-md); background: var(--bg-section); gap: 12px; }
+    .checkitem-header.editing { background: var(--primary-light); padding: 12px; border-radius: var(--radius-md); }
+    .checkitem-number { width: 24px; height: 24px; background: var(--primary); color: var(--text-inverse); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-xs); font-weight: 600; }
+    .checkitem-name { flex: 1; font-weight: 500; color: var(--text-primary); }
+    .checkitem-type { font-size: var(--font-size-xs); padding: 2px var(--spacing-sm); background: var(--primary-light); color: var(--primary); border-radius: var(--radius-sm); }
+    .checkitem-actions { display: flex; gap: var(--spacing-sm); }
+    .checkitem-contents { padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 52px; background: var(--bg-primary); }
+    .checkitem-content { display: flex; align-items: center; padding: var(--spacing-sm) 0; gap: var(--spacing-sm); border-bottom: 1px dashed var(--border-light); }
+    .checkitem-content:last-child { border-bottom: none; }
+    .content-bullet { color: var(--text-tertiary); font-size: var(--font-size-xs); }
+    .content-actions { display: flex; gap: var(--spacing-xs); opacity: 0; transition: opacity var(--duration-fast); padding: var(--spacing-xs); }
+    .checkitem-content:hover .content-actions, .checkitem-content:focus-within .content-actions { opacity: 1; }
+    .inline-edit-name { flex: 1; margin: 0 var(--spacing-sm); padding: 6px 10px; font-size: var(--font-size-md); }
+    .inline-edit-content-name { flex: 2; padding: var(--spacing-xs) var(--spacing-sm); font-size: var(--font-size-sm); }
+    .inline-edit-content-standard { flex: 1; padding: var(--spacing-xs) var(--spacing-sm); font-size: var(--font-size-sm); }
+    .help-icon { width: 18px; height: 18px; border-radius: 50%; background: var(--border); color: var(--text-inverse); font-size: 11px; display: flex; align-items: center; justify-content: center; cursor: help; position: relative; }
+    .help-icon:hover { background: var(--primary); }
+    .help-icon:hover .help-tooltip { display: block; }
+    .help-tooltip { display: none; position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--text-inverse); padding: 10px 14px; border-radius: var(--radius-md); font-size: var(--font-size-xs); white-space: normal; line-height: 1.5; z-index: 100; min-width: 200px; max-width: 300px; box-shadow: var(--shadow-md); }
+    .help-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--text-primary); }
 
     /* ========== 配置板块 ========== */
 
@@ -136,6 +154,65 @@
     .radio-group { display: flex; gap: var(--spacing-md); align-items: center; }
     .radio-group label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: var(--font-size-sm); }
 
+    /* ========== 检查表弹窗 —— 优化排版 ========== */
+    #modal-checklist .modal-body { padding: 16px 20px; }
+    #modal-checklist .modal-title { margin: 0; padding-left: 12px; position: relative; }
+    #modal-checklist .modal-title::before { content: ''; position: absolute; left: 0; top: 2px; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+    #modal-checklist .modal-footer { background: var(--bg-section); gap: var(--spacing-md); padding: 12px 20px; }
+    #modal-checklist .form-section { margin-bottom: 14px; background: var(--bg-section); border-radius: var(--radius-md); padding: 14px 16px; }
+    #modal-checklist .form-section:last-child { margin-bottom: 0; }
+    #modal-checklist .section-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; padding-left: 10px; position: relative; }
+    #modal-checklist .section-title::before { content: ''; position: absolute; left: 0; top: 3px; width: 3px; height: 14px; background: var(--primary); border-radius: 2px; }
+    #modal-checklist .section-title .required { margin-left: 4px; }
+    #modal-checklist .form-row { display: flex; gap: var(--spacing-lg); margin-bottom: 10px; }
+    #modal-checklist .form-row:last-child { margin-bottom: 0; }
+    #modal-checklist .form-item { flex: 1; min-width: 0; }
+    #modal-checklist .form-item.full-width { flex: 0 0 100%; }
+    #modal-checklist .form-label { width: 80px; text-align: right; padding-right: 8px; flex-shrink: 0; line-height: 32px; }
+    #modal-checklist .form-label .required { margin-left: 2px; }
+    #modal-checklist .form-hint { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--spacing-xs); }
+    #modal-checklist .switch-wrapper { display: flex; align-items: center; gap: var(--spacing-sm); }
+    #modal-checklist .switch { position: relative; flex-shrink: 0; width: 44px; height: 22px; background: var(--border-dark); border-radius: 11px; cursor: pointer; transition: background-color var(--duration-normal); }
+    #modal-checklist .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--bg-primary); border-radius: 50%; transition: transform var(--duration-normal); box-shadow: var(--shadow-sm); }
+    #modal-checklist .switch.active { background: var(--primary); }
+    #modal-checklist .switch.active::after { transform: translateX(22px); }
+    #modal-checklist .switch-label { font-size: var(--font-size-sm); color: var(--text-secondary); }
+    #modal-checklist .cl-obj-list { max-height: 320px; overflow-y: auto; border: 1px solid var(--border-section); border-radius: var(--radius-lg); padding: var(--spacing-sm) var(--spacing-md); }
+
+    /* ========== 两阶段向导 ========== */
+    .wizard-steps { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+    .wizard-step { font-size: var(--font-size-sm); color: var(--text-secondary); cursor: pointer; padding: 4px 10px; border-radius: var(--radius-sm); transition: all var(--duration-fast); }
+    .wizard-step.active { background: var(--primary); color: var(--text-inverse); cursor: default; }
+    .wizard-step:not(.active):hover { background: var(--bg-section); color: var(--text-primary); }
+    .wizard-count { margin-left: auto; font-size: var(--font-size-xs); color: var(--text-secondary); }
+
+    /* ========== 穿梭框 ========== */
+    .shuttle-box { display: flex; gap: var(--spacing-sm); align-items: flex-start; }
+    .shuttle-panel { flex: 1; min-width: 0; }
+    .shuttle-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--bg-section); border-radius: var(--radius-md) var(--radius-md) 0 0; border: 1px solid var(--border-section); border-bottom: none; }
+    .shuttle-list { height: 260px; overflow-y: auto; border: 1px solid var(--border-section); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--bg-primary); }
+    .shuttle-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); cursor: pointer; }
+    .shuttle-item:last-child { border-bottom: none; }
+    .shuttle-item:hover { background: var(--bg-section); }
+    .shuttle-item input[type="checkbox"] { flex-shrink: 0; }
+    .shuttle-item-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .shuttle-item-tag { font-size: var(--font-size-xs); color: var(--text-tertiary); background: var(--bg-section); padding: 1px 6px; border-radius: var(--radius-sm); flex-shrink: 0; }
+    .shuttle-actions { display: flex; flex-direction: column; gap: var(--spacing-sm); padding: 20px 4px; flex-shrink: 0; }
+    .shuttle-actions .btn { min-width: 70px; }
+    .shuttle-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-tertiary); font-size: var(--font-size-xs); padding: 20px; }
+    .shuttle-empty-icon { font-size: 24px; margin-bottom: 4px; }
+
+    /* ========== 责任分配表 ========== */
+    .assign-table-wrapper { border: 1px solid var(--border-section); border-radius: var(--radius-lg); overflow: auto; max-height: 300px; }
+    .assign-table { width: 100%; border-collapse: collapse; }
+    .assign-table thead { position: sticky; top: 0; z-index: 1; background: var(--bg-section); }
+    .assign-table th { padding: 10px 12px; font-size: var(--font-size-sm); font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-section); }
+    .assign-table td { padding: 8px 12px; font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); text-align: center; }
+    .assign-table .action-col { text-align: right; padding-right: 16px; }
+    .assign-table .action-col .btn-link { padding: 2px 12px; }
+    .assign-table tbody tr:hover { background: var(--bg-section); }
+    .assign-table .person-select { width: 100%; }
+
     /* ========== 按钮 ========== */
     .btn { padding: 6px 14px; border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid var(--border-light); background: var(--bg-primary); }
     .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
@@ -147,9 +224,10 @@
     .btn-sm { padding: 4px 10px; font-size: var(--font-size-xs); }
 
     /* ========== 空状态 ========== */
-    .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); }
-    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-    .empty-state .empty-text { font-size: var(--font-size-md); }
+    .empty-state { text-align: center; padding: 12px 16px; color: var(--text-secondary); }
+    .empty-state .empty-icon { font-size: 20px; margin-bottom: 4px; }
+    .empty-state .empty-text { font-size: var(--font-size-sm); }
+    .empty-state .empty-hint { font-size: var(--font-size-xs); margin-top: 2px; }
 
     /* ========== 提示条 ========== */
     .context-bar { background: var(--info-light, #e6f0ff); color: var(--info); padding: 8px 16px; border-radius: var(--radius-md); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 8px; }
@@ -237,75 +315,65 @@
 
 <!-- ========== 检查表配置弹窗（系统/自定义 + 管控对象勾选） ========== -->
 <div class="modal-overlay" id="modal-checklist">
-  <div class="modal-dialog" style="width:800px;">
-    <div class="modal-header"><span class="modal-title" id="clModalTitle">新增检查表配置</span><button class="modal-close" onclick="closeModal('modal-checklist')">&times;</button></div>
-    <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <!-- 左栏：责任人/科室/周期 -->
-        <div>
-          <div class="form-group">
-            <label class="form-label">检查表类型</label>
-            <div class="radio-group">
-              <label><input type="radio" name="clType" value="system" checked onchange="toggleClType()"> [系统] 超管预分配</label>
-              <label><input type="radio" name="clType" value="custom" onchange="toggleClType()"> [自定义] 手动新增</label>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span> 检查表名称</label>
-            <input class="form-input" id="clName" placeholder="请选择或输入检查表名称">
-          </div>
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span> 检查周期</label>
-            <div style="display:flex;align-items:center;gap:6px;font-size:var(--font-size-sm);">
+  <div class="modal-dialog" style="width: 1100px; max-width: 95vw; max-height: 90vh;">
+    <div class="modal-header"><h3 class="modal-title" id="clModalTitle">新增检查表配置</h3><button class="modal-close" onclick="closeModal('modal-checklist')">&times;</button></div>
+    <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 160px);">
+      <!-- 基础信息 -->
+      <div class="form-section">
+        <div class="section-title">基础信息</div>
+        <div class="form-item" style="display:flex;align-items:center;margin-bottom:10px;">
+          <label class="form-label">检查表名称 <span class="required">*</span></label>
+          <input class="form-input" id="clName" placeholder="请输入检查表名称" style="flex:1;min-width:0;">
+        </div>
+        <div class="form-row">
+          <div class="form-item" style="display:flex;align-items:center;">
+            <label class="form-label">检查频次 <span class="required">*</span></label>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: var(--font-size-sm);">
               <span>每</span>
-              <input type="number" class="form-input" id="clCycleN" min="1" max="99" value="1" style="width:64px;">
-              <select class="form-select" id="clCycleUnit" style="width:80px;"><option>日</option><option>周</option><option selected>月</option><option>季度</option></select>
+              <input type="number" class="form-input" id="clCycleN" min="1" max="99" value="1" style="width:56px;text-align:center;height:32px;">
+              <select class="form-select" id="clCycleUnit" style="width:90px;height:32px;"><option>日</option><option>周</option><option selected>月</option><option>季度</option></select>
               <span>检查</span>
-              <input type="number" class="form-input" id="clCycleM" min="1" max="99" value="1" style="width:64px;">
+              <input type="number" class="form-input" id="clCycleM" min="1" max="99" value="1" style="width:56px;text-align:center;height:32px;">
               <span>次</span>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">节假日开关</label>
-            <label style="font-size:var(--font-size-sm);display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="clSkipHoliday"> 开启后节假日不生成检查任务</label>
-          </div>
-          <div class="form-group">
-            <label class="form-label">检查项</label>
-            <textarea class="form-input" id="clItems" rows="3" placeholder="检查项目内容（可选）" style="resize:vertical;"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span> 责任科室</label>
-            <select class="form-select" id="clDept" onchange="onClDeptChange()"><option value="">请选择</option></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span> 责任人（可多选）</label>
-            <button type="button" class="btn btn-sm" style="margin-bottom:6px;" onclick="selectAllDeptPersons()">选择本科室全部人员</button>
-            <select class="form-select" id="clPerson" multiple size="3"><option value="张伟">张伟</option><option value="李娜">李娜</option><option value="王强">王强</option><option value="陈敏">陈敏</option><option value="刘洋">刘洋</option></select>
+          <div class="form-item" style="display:flex;align-items:center;">
+            <label class="form-label">过滤节假日</label>
+            <div class="switch-wrapper">
+              <div class="switch" id="clSkipHoliday" onclick="this.classList.toggle('active')"></div>
+              <span class="switch-label">开启后节假日不生成检查任务</span>
+            </div>
           </div>
         </div>
-        <!-- 右栏：管控对象勾选 -->
-        <div>
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span> 分配管控对象</label>
-            <div style="margin-bottom:8px;">
-              <label style="font-size:var(--font-size-sm);cursor:pointer;"><input type="checkbox" id="clSelectAllObjs" onchange="toggleClAllObjs(this.checked)"> 全选</label>
-              <span id="clObjCount" style="font-size:var(--font-size-xs);color:var(--text-secondary);margin-left:8px;"></span>
-            </div>
-            <div id="clObjList" style="max-height:320px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:8px;"></div>
-          </div>
-          <div class="form-group" id="clScanSection">
-            <label class="form-label">扫码责任（BR-GOV-DS-05）</label>
-            <div style="font-size:var(--font-size-xs);color:var(--text-secondary);margin-bottom:6px;">扫码责任人自动同步为检查表责任人——查什么、多久查、谁去查，一次配置完</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <label style="font-size:var(--font-size-sm);"><input type="checkbox" id="clScanEnabled" checked> 启用扫码责任</label>
-            </div>
-          </div>
+      </div>
+      <!-- 责任配置（弹窗配置 + 列表回显） -->
+      <div class="form-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div class="section-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">责任配置 <span class="required">*</span></div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="openAssignModal()">📋 配置责任分配</button>
+        </div>
+        <!-- 已配置回显列表 -->
+        <div id="clAssignResult">
+          <div style="font-size:var(--font-size-sm);color:var(--text-tertiary);padding:12px 0;">尚未配置——点击"配置责任分配"开始设置</div>
+        </div>
+      </div>
+      <!-- 检查内容 -->
+      <div class="form-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div class="section-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">检查内容</div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); addInlineCheckItem()">+ 新增检查项</button>
+        </div>
+        <div class="checkitem-list" id="checkitemList"></div>
+        <div class="empty-state" id="checkitemEmpty" style="display: flex;">
+          <div class="empty-icon">📋</div>
+          <div class="empty-text">暂无检查内容</div>
+          <div class="empty-hint">点击"新增检查项"添加</div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('modal-checklist')">取消</button>
-      <button class="btn btn-primary" onclick="submitChecklist()">保存</button>
+      <button class="btn btn-primary" onclick="submitChecklist()">确定</button>
     </div>
   </div>
 </div>
@@ -325,6 +393,77 @@
     <div class="modal-header"><span class="modal-title" id="objectsTitle">管控对象列表</span><button class="modal-close" onclick="closeModal('modal-objects')">&times;</button></div>
     <div class="modal-body" id="objectsBody"></div>
     <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modal-objects')">关闭</button></div>
+  </div>
+</div>
+
+<!-- ========== 责任分配弹窗（独立弹窗 + 两阶段向导） ========== -->
+<div class="modal-overlay" id="modal-assign-responsibility">
+  <div class="modal-dialog" style="width: 1000px; max-width: 95vw; max-height: 90vh;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="assignModalTitle">配置责任分配</h3>
+      <button class="modal-close" onclick="closeModal('modal-assign-responsibility')">&times;</button>
+    </div>
+    <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 160px);">
+      <!-- 责任科室（全局，默认从配置页带入） -->
+      <div style="display:flex;align-items:center;gap:var(--spacing-md);margin-bottom:var(--spacing-md);padding-bottom:var(--spacing-md);border-bottom:1px solid var(--border-light);">
+        <label style="font-size:var(--font-size-sm);white-space:nowrap;">责任科室 <span class="required">*</span>：</label>
+        <select class="form-select" id="assignDept" style="width:200px;" onchange="onAssignDeptChange()"><option value="">请选择</option></select>
+        <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">默认从配置页责任科室带入</span>
+      </div>
+      <!-- 步骤指示器 -->
+      <div class="wizard-steps" style="display:flex;align-items:center;gap:var(--spacing-md);margin-bottom:var(--spacing-md);padding:8px 12px;background:var(--bg-section);border-radius:var(--radius-md);">
+        <span class="wizard-step active" data-step="1" onclick="goToAssignStep(1)">① 选择对象</span>
+        <span style="color:var(--text-tertiary);">→</span>
+        <span class="wizard-step" data-step="2" onclick="goToAssignStep(2)">② 配置责任人</span>
+        <span class="wizard-count" id="assignWizardCount" style="margin-left:auto;font-size:var(--font-size-xs);color:var(--text-secondary);">已选 0/0</span>
+      </div>
+      <!-- 步骤 1：穿梭框 -->
+      <div class="wizard-panel" id="assignStep1">
+        <div class="shuttle-box">
+          <div class="shuttle-panel">
+            <div class="shuttle-header">
+              <label style="font-size:var(--font-size-sm);font-weight:500;">全部管控对象</label>
+              <label style="font-size:var(--font-size-xs);cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="assignSelectAllLeft" onchange="toggleAssignShuttleAll(this.checked, 'left')"> 全选</label>
+            </div>
+            <div class="shuttle-list" id="assignShuttleLeft"></div>
+          </div>
+          <div class="shuttle-actions">
+            <button type="button" class="btn btn-default btn-sm" onclick="assignShuttleMove('leftToRight')">添加 &gt;</button>
+            <button type="button" class="btn btn-default btn-sm" onclick="assignShuttleMove('rightToLeft')">&lt; 移除</button>
+          </div>
+          <div class="shuttle-panel">
+            <div class="shuttle-header">
+              <label style="font-size:var(--font-size-sm);font-weight:500;">已分配对象</label>
+              <label style="font-size:var(--font-size-xs);cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="assignSelectAllRight" onchange="toggleAssignShuttleAll(this.checked, 'right')"> 全选</label>
+            </div>
+            <div class="shuttle-list" id="assignShuttleRight"></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:var(--spacing-sm);margin-top:var(--spacing-md);">
+          <button type="button" class="btn btn-primary" onclick="goToAssignStep(2)">下一步：配置责任人 →</button>
+        </div>
+      </div>
+      <!-- 步骤 2：责任人表格 -->
+      <div class="wizard-panel" id="assignStep2" style="display:none;">
+        <div style="display:flex;align-items:center;gap:var(--spacing-sm);margin-bottom:var(--spacing-sm);">
+          <button type="button" class="btn btn-default btn-sm" onclick="assignSetAllPersons()">批量设为本科室全员</button>
+          <button type="button" class="btn btn-default btn-sm" onclick="assignClearAllPersons()">清空全部责任人</button>
+          <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-left:auto;">每行独立配置，支持不同对象不同责任人</span>
+        </div>
+        <div class="assign-table-wrapper">
+          <table class="assign-table">
+            <thead>
+              <tr><th style="width:40px;">☑</th><th>管控对象</th><th style="width:240px;">责任人 <span class="required">*</span></th></tr>
+            </thead>
+            <tbody id="assignAssignBody"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:var(--spacing-sm);margin-top:var(--spacing-md);">
+          <button type="button" class="btn btn-default" onclick="goToAssignStep(1)">← 返回修改</button>
+          <button type="button" class="btn btn-primary" onclick="confirmAssign()">确认配置</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1390,15 +1529,15 @@
 
 
 
-  window.toggleClType = function() {
-    var isSystem = document.querySelector('input[name="clType"][value="system"]').checked;
+  // 根据检查表类型设置字段只读态（系统检查表名称/周期/内容只读，自定义可编辑）
+  window.applyClTypeReadOnly = function(isSystem) {
     var nameInput = document.getElementById('clName');
     if (nameInput) {
       nameInput.readOnly = isSystem;
       nameInput.style.background = isSystem ? 'var(--bg-section)' : '';
     }
     // 系统检查表：名称/内容/周期只读（BR-GOV-DS-16）；节假日开关不在只读清单内
-    ['clCycleN', 'clCycleUnit', 'clCycleM', 'clItems'].forEach(function(id) {
+    ['clCycleN', 'clCycleUnit', 'clCycleM'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) { el.disabled = isSystem; el.style.background = isSystem ? 'var(--bg-section)' : ''; }
     });
@@ -1416,56 +1555,456 @@
     if (el) el.textContent = '已选 ' + count + ' / ' + total;
   }
 
+  // ========== 检查内容行内编辑 ==========
+  // HTML转义
+  function eH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // 检查项计数器
+  var clCheckItemCounter = 0;
+
+  // 获取/设置弹窗内的检查项数据
+  function getModalCheckItems() {
+    var modal = document.getElementById('modal-checklist');
+    if (!modal._checkItems) modal._checkItems = [];
+    return modal._checkItems;
+  }
+  function setModalCheckItems(items) {
+    var modal = document.getElementById('modal-checklist');
+    modal._checkItems = items;
+  }
+
+  function renderCheckitemList(items) {
+    var list = document.getElementById('checkitemList');
+    var empty = document.getElementById('checkitemEmpty');
+    if (!list || !empty) return;
+    if (!items || items.length === 0) {
+      list.innerHTML = '';
+      empty.style.display = 'flex';
+      return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = items.map(function(item) {
+      var headerHtml = '<div class="checkitem-header editing">' +
+        '<span class="checkitem-number">' + item.num + '</span>' +
+        '<input type="text" class="form-input inline-edit-name" value="' + eH(item.name) + '" placeholder="检查项名称"' +
+        ' onkeydown="if(event.key===\'Enter\'){saveInlineItemName(\'' + item.id + '\',this.value)}"' +
+        ' onblur="saveInlineItemName(\'' + item.id + '\',this.value)">' +
+        '<button type="button" class="btn btn-default btn-sm" onclick="event.stopPropagation(); addInlineContent(\'' + item.id + '\')">+ 添加检查内容</button>' +
+        '<button type="button" class="btn-link btn-sm danger" onclick="event.stopPropagation(); deleteCheckItem(\'' + item.id + '\')">删除</button>' +
+        '</div>';
+      var contentsList = (item.contents || []).map(function(c) {
+        return '<div class="checkitem-content" data-id="' + c.id + '">' +
+          '<input type="text" class="form-input inline-edit-content-name" value="' + eH(c.name || '') + '" placeholder="检查内容名称"' +
+          ' onblur="saveInlineContentName(\'' + item.id + '\',\'' + c.id + '\',this.value)">' +
+          '<input type="text" class="form-input inline-edit-content-standard" value="' + eH(c.standard || '') + '" placeholder="检查标准（选填）"' +
+          ' onblur="saveInlineContentStd(\'' + item.id + '\',\'' + c.id + '\',this.value)">' +
+          (c.standard ? '<span class="help-icon" title="' + eH(c.standard) + '">?</span>' : '') +
+          '<button type="button" class="btn-link btn-sm danger" onclick="event.stopPropagation(); deleteInlineContent(\'' + item.id + '\',\'' + c.id + '\')">删除</button>' +
+          '</div>';
+      }).join('');
+      var contentsHtml = '<div class="checkitem-contents">' + contentsList + '</div>';
+      return '<div class="checkitem-group" data-id="' + eH(item.id) + '">' + headerHtml + contentsHtml + '</div>';
+    }).join('');
+  }
+
+  window.addInlineCheckItem = function() {
+    var items = getModalCheckItems();
+    var id = 'item_' + (++clCheckItemCounter);
+    var num = items.length + 1;
+    items.push({ id: id, num: num, name: '', contents: [] });
+    renderCheckitemList(items);
+  };
+
+  window.saveInlineItemName = function(itemId, name) {
+    var items = getModalCheckItems();
+    var item = items.find(function(i) { return i.id === itemId; });
+    if (item) item.name = name.trim();
+  };
+
+  window.addInlineContent = function(itemId) {
+    var items = getModalCheckItems();
+    var item = items.find(function(i) { return i.id === itemId; });
+    if (item) {
+      item.contents.push({ id: 'c_' + Date.now(), name: '', standard: '' });
+      renderCheckitemList(items);
+      setTimeout(function() {
+        var lastContent = document.querySelector('.checkitem-group[data-id="' + itemId + '"] .checkitem-content:last-child input');
+        if (lastContent) lastContent.focus();
+      }, 50);
+    }
+  };
+
+  window.saveInlineContentName = function(itemId, contentId, name) {
+    var items = getModalCheckItems();
+    var item = items.find(function(i) { return i.id === itemId; });
+    if (item && item.contents) {
+      var content = item.contents.find(function(c) { return c.id === contentId; });
+      if (content) content.name = name.trim();
+    }
+  };
+
+  window.saveInlineContentStd = function(itemId, contentId, std) {
+    var items = getModalCheckItems();
+    var item = items.find(function(i) { return i.id === itemId; });
+    if (item && item.contents) {
+      var content = item.contents.find(function(c) { return c.id === contentId; });
+      if (content) content.standard = std.trim();
+    }
+  };
+
+  window.deleteCheckItem = function(id) {
+    if (!confirm('确定删除该检查项？')) return;
+    var items = getModalCheckItems();
+    var filtered = items.filter(function(i) { return i.id !== id; });
+    filtered.forEach(function(item, i) { item.num = i + 1; });
+    setModalCheckItems(filtered);
+    renderCheckitemList(filtered);
+  };
+
+  window.deleteInlineContent = function(itemId, contentId) {
+    var items = getModalCheckItems();
+    var item = items.find(function(i) { return i.id === itemId; });
+    if (item && item.contents) {
+      item.contents = item.contents.filter(function(c) { return c.id !== contentId; });
+      renderCheckitemList(items);
+    }
+  };
+
+  // 将检查项数组序列化为保存格式
+  function serializeCheckItems(items) {
+    return items.map(function(item) {
+      return item.name + (item.contents && item.contents.length ? '\n' + item.contents.map(function(c) {
+        return '  - ' + c.name + (c.standard ? ' [' + c.standard + ']' : '');
+      }).join('\n') : '');
+    }).join('\n\n');
+  }
+
+  // ========== 责任分配 — 独立弹窗 + 两阶段向导 ==========
+  var assignState = { step: 1, selectedObjs: [], persons: {}, dept: '' };
+
+  // 打开责任分配弹窗
+  window.openAssignModal = function() {
+    var defaultDept = configState.targetConfigDept || '';
+    if (!defaultDept) {
+      var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
+      defaultDept = (d && d.dept) || '';
+    }
+    document.getElementById('assignDept').value = defaultDept;
+    assignState.dept = defaultDept;
+    // 兜底：确保 _clAllObjects 有数据（防止从非标准入口打开时穿梭框为空）
+    if (!(window._clAllObjects && window._clAllObjects.length)) {
+      window._clAllObjects = (configState.objects || []).map(function(o) { return { name: o.name, type: o.type }; });
+    }
+    // 复制已有配置（如果是编辑模式）
+    if (clAssignData && clAssignData.objects) {
+      assignState.selectedObjs = clAssignData.objects.slice();
+      assignState.persons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
+    } else {
+      assignState.selectedObjs = [];
+      assignState.persons = {};
+    }
+    // 填充责任科室下拉
+    var sel = document.getElementById('assignDept');
+    sel.innerHTML = '<option value="">请选择</option>';
+    DEPT_LIST.forEach(function(name) {
+      var opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      sel.appendChild(opt);
+    });
+    sel.value = defaultDept;
+    goToAssignStep(1);
+    renderAssignShuttleBox();
+    updateAssignWizardCount();
+    openModal('modal-assign-responsibility');
+  };
+
+  window.goToAssignStep = function(step) {
+    if (step === 2 && assignState.selectedObjs.length === 0) {
+      showToast('请至少选择一个管控对象'); return;
+    }
+    assignState.step = step;
+    document.getElementById('assignStep1').style.display = step === 1 ? '' : 'none';
+    document.getElementById('assignStep2').style.display = step === 2 ? '' : 'none';
+    document.querySelectorAll('#modal-assign-responsibility .wizard-step').forEach(function(el) {
+      var s = parseInt(el.dataset.step, 10);
+      el.classList.toggle('active', s <= step);
+    });
+    if (step === 2) renderAssignPersonTable();
+    updateAssignWizardCount();
+  };
+
+  function updateAssignWizardCount() {
+    var total = (window._clAllObjects || []).length;
+    var selected = assignState.selectedObjs.length;
+    var el = document.getElementById('assignWizardCount');
+    if (el) el.textContent = '已选 ' + selected + '/' + total;
+  }
+
+  function renderAssignShuttleBox() {
+    var all = window._clAllObjects || [];
+    var selected = assignState.selectedObjs;
+    var right = all.filter(function(o) { return selected.indexOf(o.name) >= 0; });
+
+    // 左侧始终显示全部对象，已选中的复选框为 checked 可取消
+    document.getElementById('assignShuttleLeft').innerHTML = all.length ? all.map(function(o) {
+      var checked = selected.indexOf(o.name) >= 0 ? ' checked' : '';
+      return '<div class="shuttle-item"><label><input type="checkbox" class="assign-shuttle-left-cb" value="' + o.name + '"' + checked + ' onchange="onAssignLeftCheckboxChange(\'' + o.name + '\', this.checked)"> <span class="shuttle-item-label">' + o.name + '</span> <span class="shuttle-item-tag">' + o.type + '</span></label></div>';
+    }).join('') : '<div class="shuttle-empty"><div class="shuttle-empty-icon">📦</div><div>暂无管控对象</div></div>';
+
+    document.getElementById('assignShuttleRight').innerHTML = right.length ? right.map(function(o) {
+      return '<div class="shuttle-item"><label><input type="checkbox" class="assign-shuttle-right-cb" value="' + o.name + '"> <span class="shuttle-item-label">' + o.name + '</span> <span class="shuttle-item-tag">' + o.type + '</span></label></div>';
+    }).join('') : '<div class="shuttle-empty"><div class="shuttle-empty-icon">📦</div><div>尚未选择对象</div></div>';
+
+    document.getElementById('assignSelectAllLeft').checked = selected.length === all.length;
+    document.getElementById('assignSelectAllRight').checked = false;
+  }
+
+  window.assignShuttleMove = function(dir) {
+    if (dir === 'leftToRight') {
+      document.querySelectorAll('.assign-shuttle-left-cb:checked').forEach(function(cb) {
+        var name = cb.value;
+        if (assignState.selectedObjs.indexOf(name) < 0) assignState.selectedObjs.push(name);
+      });
+    } else {
+      var toRemove = [];
+      document.querySelectorAll('.assign-shuttle-right-cb:checked').forEach(function(cb) { toRemove.push(cb.value); });
+      assignState.selectedObjs = assignState.selectedObjs.filter(function(n) { return toRemove.indexOf(n) < 0; });
+    }
+    renderAssignShuttleBox();
+    updateAssignWizardCount();
+  };
+
+  // 左侧复选框直接取消时，同步从右侧移除
+  window.onAssignLeftCheckboxChange = function(name, checked) {
+    if (!checked) {
+      assignState.selectedObjs = assignState.selectedObjs.filter(function(n) { return n !== name; });
+    } else {
+      if (assignState.selectedObjs.indexOf(name) < 0) assignState.selectedObjs.push(name);
+    }
+    renderAssignShuttleBox();
+    updateAssignWizardCount();
+  };
+
+  window.toggleAssignShuttleAll = function(checked, side) {
+    var all = window._clAllObjects || [];
+    if (side === 'left' && checked) {
+      // 左侧全选：把全部对象加入已选
+      assignState.selectedObjs = all.map(function(o) { return o.name; });
+      renderAssignShuttleBox();
+      updateAssignWizardCount();
+    } else if (side === 'left' && !checked) {
+      // 左侧全不选：清空已选
+      assignState.selectedObjs = [];
+      renderAssignShuttleBox();
+      updateAssignWizardCount();
+    } else {
+      var cls = '.assign-shuttle-right-cb';
+      document.querySelectorAll(cls).forEach(function(cb) { cb.checked = checked; });
+    }
+  };
+
+  function renderAssignPersonTable() {
+    var dept = document.getElementById('assignDept').value;
+    assignState.dept = dept;
+    var pool = dept && PERSON_BY_DEPT[dept] ? PERSON_BY_DEPT[dept] : [];
+    var all = window._clAllObjects || [];
+    var selectedObjs = all.filter(function(o) { return assignState.selectedObjs.indexOf(o.name) >= 0; });
+
+    var html = selectedObjs.map(function(o) {
+      var objPersons = assignState.persons[o.name] || [];
+      var options = pool.map(function(p) {
+        return '<option value="' + p + '"' + (objPersons.indexOf(p) >= 0 ? ' selected' : '') + '>' + p + '</option>';
+      }).join('');
+      return '<tr data-obj="' + o.name + '">' +
+        '<td><input type="checkbox" class="assign-row-cb" value="' + o.name + '"></td>' +
+        '<td>' + o.name + '</td>' +
+        '<td><select class="form-select person-select" multiple size="2" data-obj="' + o.name + '" onchange="onAssignPersonRowChange(\'' + o.name + '\', this)">' +
+        options + '</select></td></tr>';
+    }).join('');
+    document.getElementById('assignAssignBody').innerHTML = html;
+  }
+
+  window.onAssignPersonRowChange = function(objName, select) {
+    var vals = Array.from(select.selectedOptions).map(function(o) { return o.value; });
+    assignState.persons[objName] = vals;
+  };
+
+  window.onAssignDeptChange = function() {
+    if (assignState.step === 2) renderAssignPersonTable();
+  };
+
+  window.assignSetAllPersons = function() {
+    var dept = document.getElementById('assignDept').value;
+    if (!dept) { showToast('请先选择责任科室'); return; }
+    var pool = PERSON_BY_DEPT[dept] || [];
+    if (!pool.length) { showToast('该责任科室下无可用人员'); return; }
+    assignState.selectedObjs.forEach(function(n) { assignState.persons[n] = pool.slice(); });
+    renderAssignPersonTable();
+    showToast('已将全部对象责任人设为「' + dept + '」全员');
+  };
+
+  window.assignClearAllPersons = function() {
+    assignState.selectedObjs.forEach(function(n) { assignState.persons[n] = []; });
+    renderAssignPersonTable();
+    showToast('已清空全部责任人');
+  };
+
+  // 确认配置 → 回显到检查表弹窗
+  window.confirmAssign = function() {
+    var dept = document.getElementById('assignDept').value;
+    if (!dept) { showToast('请选择责任科室'); return; }
+    if (assignState.selectedObjs.length === 0) { showToast('请至少选择一个管控对象'); return; }
+    var hasAnyPerson = assignState.selectedObjs.some(function(n) { return (assignState.persons[n] || []).length > 0; });
+    if (!hasAnyPerson) { showToast('请为至少一个管控对象配置责任人'); return; }
+    assignState.dept = dept;
+    // 保存数据
+    clAssignData = {
+      dept: dept,
+      objects: assignState.selectedObjs.slice(),
+      persons: JSON.parse(JSON.stringify(assignState.persons))
+    };
+    closeModal('modal-assign-responsibility');
+    renderAssignResult();
+    showToast('责任分配已配置');
+  };
+
+  // 回显列表数据
+  var clAssignData = null; // { dept, objects: [names], persons: { name: [persons] } }
+
+  function renderAssignResult() {
+    var container = document.getElementById('clAssignResult');
+    if (!clAssignData || !clAssignData.objects || clAssignData.objects.length === 0) {
+      container.innerHTML = '<div style="font-size:var(--font-size-sm);color:var(--text-tertiary);padding:12px 0;">尚未配置——点击"配置责任分配"开始设置</div>';
+      return;
+    }
+    // 按责任人聚合：{ dept, person, count }
+    var dept = clAssignData.dept || '未设置';
+    var grouped = {}; // key: person or '__no_person__'
+    clAssignData.objects.forEach(function(name) {
+      var persons = clAssignData.persons[name] || [];
+      if (persons.length > 0) {
+        persons.forEach(function(p) {
+          if (!grouped[p]) grouped[p] = { dept: dept, person: p, count: 0 };
+          grouped[p].count++;
+        });
+      } else {
+        if (!grouped['__no_person__']) grouped['__no_person__'] = { dept: dept, person: null, count: 0 };
+        grouped['__no_person__'].count++;
+      }
+    });
+    var rows = Object.keys(grouped).map(function(key, i) {
+      var g = grouped[key];
+      var personText = g.person || '—';
+      return '<tr><td>' + g.dept + '</td><td>' + personText + '</td><td style="text-align:center;">' + g.count + '</td><td class="action-col"><button type="button" class="btn-link" onclick="viewAssignDetail()">编辑</button></td></tr>';
+    }).join('');
+    container.innerHTML =
+      '<div class="assign-table-wrapper">' +
+      '<table class="assign-table"><thead><tr><th>责任科室</th><th>责任人</th><th style="width:100px;">管控对象数</th><th class="action-col">操作</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div>' +
+      '';
+  }
+
+  // 查看明细（复用同一弹窗，以查看态打开）
+  window.viewAssignDetail = function() {
+    if (!clAssignData || !clAssignData.objects || clAssignData.objects.length === 0) {
+      showToast('尚未配置责任分配'); return;
+    }
+    // 确保 _clAllObjects 有数据
+    if (!(window._clAllObjects && window._clAllObjects.length)) {
+      window._clAllObjects = (configState.objects || []).map(function(o) { return { name: o.name, type: o.type }; });
+    }
+    // 复制已有配置
+    assignState.dept = clAssignData.dept || '';
+    assignState.selectedObjs = clAssignData.objects.slice();
+    assignState.persons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
+
+    // 填充责任科室下拉
+    var sel = document.getElementById('assignDept');
+    sel.innerHTML = '<option value="">请选择</option>';
+    DEPT_LIST.forEach(function(name) {
+      var opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      sel.appendChild(opt);
+    });
+    sel.value = assignState.dept;
+
+    goToAssignStep(1);
+    renderAssignShuttleBox();
+    updateAssignWizardCount();
+    openModal('modal-assign-responsibility');
+  };
+
+  // 收集分配数据（供 submitChecklist 使用）
+  function collectAssignData() {
+    if (!clAssignData || !clAssignData.objects) return { dept: '', assignedObjects: [], person: [], objectPersons: {} };
+    var allPersons = [];
+    clAssignData.objects.forEach(function(n) {
+      (clAssignData.persons[n] || []).forEach(function(p) { if (allPersons.indexOf(p) < 0) allPersons.push(p); });
+    });
+    return {
+      dept: clAssignData.dept,
+      assignedObjects: clAssignData.objects.slice(),
+      person: allPersons,
+      objectPersons: clAssignData.persons || {}
+    };
+  }
+
+  function validateAssign() {
+    if (!clAssignData || !clAssignData.objects || clAssignData.objects.length === 0) {
+      showToast('请先配置责任分配'); return false;
+    }
+    var hasAnyPerson = clAssignData.objects.some(function(n) { return (clAssignData.persons[n] || []).length > 0; });
+    if (!hasAnyPerson) { showToast('请为至少一个管控对象配置责任人'); return false; }
+    if (!clAssignData.dept) { showToast('请先配置责任科室'); return false; }
+    return true;
+  }
+
   window.submitChecklist = function() {
     var modal = document.getElementById('modal-checklist');
     var editIdx = modal.dataset.editIdx;
-    // BR-GOV-DS-18：弹窗保存写入草稿，底部「保存配置」统一提交
+    // BR-GOV-DS-18：弹窗保存写入草稿
     if (!draftConfig) { showToast('请先打开领域配置页'); closeModal('modal-checklist'); return; }
+    if (!validateAssign()) return;
     var config = draftConfig;
     if (!config.checklists) config.checklists = [];
-    var isSystem = document.querySelector('input[name="clType"][value="system"]').checked;
     var name = document.getElementById('clName').value.trim();
-    var dept = document.getElementById('clDept').value;
-    var personSelect = document.getElementById('clPerson');
-    var persons = Array.from(personSelect.selectedOptions).map(function(o) { return o.value; });
-    var checkedObjs = Array.from(document.querySelectorAll('.cl-obj-check:checked')).map(function(cb) { return cb.value; });
-    var totalObjs = document.querySelectorAll('.cl-obj-check').length;
+    var assignData = collectAssignData();
     var editNum = parseInt(editIdx, 10);
     var existing = (editIdx !== undefined && editIdx !== '' && config.checklists[editNum]) ? config.checklists[editNum] : null;
-    // 周期：系统检查表编辑保留原值（只读）；其余按「每 N 单位检查 M 次」重建
-    var cycle;
-    if (isSystem && existing) {
-      cycle = existing.cycle;
-    } else {
-      var cn = parseInt(document.getElementById('clCycleN').value, 10);
-      var cm = parseInt(document.getElementById('clCycleM').value, 10);
-      var cu = document.getElementById('clCycleUnit').value;
-      cycle = (cn > 0 && cm > 0) ? ('每' + cn + cu + '检查' + cm + '次') : '';
-    }
-    if (!name || !cycle || !dept || persons.length === 0) { showToast('请填写完整信息（名称/周期/责任科室/责任人）'); return; }
-    // BR-GOV-DS-16：系统检查表必须将所有管控对象全部分配完毕才能保存
-    if (isSystem && checkedObjs.length < totalObjs) {
-      showToast('系统检查表必须将所有管控对象全部分配完毕（已选 ' + checkedObjs.length + '/' + totalObjs + '）');
+    // checklistType：编辑时沿用原值，新增默认为 custom
+    var isSystem = existing && existing.checklistType === 'system';
+    var clType = existing ? (existing.checklistType || 'custom') : 'custom';
+    // 周期
+    var cn = parseInt(document.getElementById('clCycleN').value, 10);
+    var cm = parseInt(document.getElementById('clCycleM').value, 10);
+    var cu = document.getElementById('clCycleUnit').value;
+    var cycle = (cn > 0 && cm > 0) ? ('每' + cn + cu + '检查' + cm + '次') : '';
+    if (!name || !cycle || !assignData.dept || assignData.person.length === 0) { showToast('请填写完整信息（名称/周期/责任科室/责任人）'); return; }
+    // BR-GOV-DS-16：系统检查表必须将所有管控对象全部分配完毕
+    var totalObjs = (window._clAllObjects || []).length;
+    if (isSystem && assignData.assignedObjects.length < totalObjs) {
+      showToast('系统检查表必须将所有管控对象全部分配完毕（已选 ' + assignData.assignedObjects.length + '/' + totalObjs + '）');
       return;
     }
-    // BR-GOV-DS-17：自定义检查表无强制要求，但至少勾选 1 个对象
-    if (!isSystem && checkedObjs.length === 0) { showToast('请至少选择一个管控对象'); return; }
+    // BR-GOV-DS-17：自定义至少选 1 个
+    if (!isSystem && assignData.assignedObjects.length === 0) { showToast('请至少选择一个管控对象'); return; }
     var cl = {
       name: name,
       cycle: cycle,
-      checklistType: isSystem ? 'system' : 'custom',
-      person: persons,
-      dept: dept,
-      assignedObjects: checkedObjs,
-      skipHoliday: document.getElementById('clSkipHoliday').checked,
-      items: document.getElementById('clItems').value.trim(),
-      scan: { enabled: document.getElementById('clScanEnabled').checked },
+      checklistType: clType,
+      person: assignData.person,
+      dept: assignData.dept,
+      assignedObjects: assignData.assignedObjects,
+      objectPersons: assignData.objectPersons,
+      skipHoliday: document.getElementById('clSkipHoliday').classList.contains('active'),
+      items: getModalCheckItems(),
+      scan: { enabled: true },
       enabled: existing ? (existing.enabled !== false) : true
     };
     if (existing) { config.checklists[editNum] = cl; } else { config.checklists.push(cl); }
     delete modal.dataset.editIdx;
     closeModal('modal-checklist');
-    showToast('已暂存到草稿，点击「保存配置」统一生效');
+    showToast('检查表已保存');
     afterDraftChange();
   };
 
@@ -1607,7 +2146,7 @@
     if (!domainId) { showToast('请先选择领域小类'); return; }
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
     var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
-    // Reset modal（BR-GOV-DS-15：新增=政府端自建[自定义]；系统检查表由超管端预分配，不可手动新建）
+    // Reset modal
     document.getElementById('clModalTitle').textContent = '新增检查表配置';
     var nameInput = document.getElementById('clName');
     if (nameInput) { nameInput.value = ''; nameInput.readOnly = false; nameInput.style.background = ''; }
@@ -1615,32 +2154,17 @@
     document.getElementById('clCycleUnit').value = '月';
     document.getElementById('clCycleM').value = '1';
     ['clCycleN', 'clCycleUnit', 'clCycleM'].forEach(function(id) { var el = document.getElementById(id); if (el) { el.disabled = false; el.style.background = ''; } });
-    document.getElementById('clSkipHoliday').checked = false;
-    var clItemsNew = document.getElementById('clItems');
-    if (clItemsNew) { clItemsNew.value = ''; clItemsNew.disabled = false; clItemsNew.style.background = ''; }
-    var defaultDept = (draftConfig && draftConfig.dept) || configState.targetConfigDept || '';
-    document.getElementById('clDept').value = defaultDept;
-    // 责任人候选按责任科室联动，默认不选（BR-GOV-DS-17：自定义无默认责任人）
-    fillClPersons(defaultDept, [], []);
-    // 类型固定为自定义：系统检查表仅超管预分配（radio 禁用）
-    var customRadio = document.querySelector('input[name="clType"][value="custom"]');
-    var systemRadio = document.querySelector('input[name="clType"][value="system"]');
-    if (customRadio) { customRadio.checked = true; customRadio.disabled = true; }
-    if (systemRadio) { systemRadio.disabled = true; systemRadio.title = '系统检查表由超管端预分配，不支持手动新建'; }
-    toggleClType();
-    // Render object list
-    var objList = document.getElementById('clObjList');
-    if (objList) {
-      var html = '';
-      objects.forEach(function(o) {
-        html += '<div style="padding:4px 0;font-size:var(--font-size-sm);"><label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="cl-obj-check" value="' + o.name + '"> ' + o.name + ' <span style="color:var(--text-tertiary);font-size:var(--font-size-xs);">(' + o.type + ')</span></label></div>';
-      });
-      objList.innerHTML = html;
-      updateClObjCount();
-    }
-    // Reset scan
-    var scanCb = document.getElementById('clScanEnabled');
-    if (scanCb) scanCb.checked = true;
+    document.getElementById('clSkipHoliday').classList.remove('active');
+    // 清空检查项数据
+    setModalCheckItems([]);
+    clCheckItemCounter = 0;
+    renderCheckitemList([]);
+    applyClTypeReadOnly(false);
+    // 清空责任分配数据
+    clAssignData = null;
+    renderAssignResult();
+    // 存储全部管控对象供穿梭框使用
+    window._clAllObjects = objects.map(function(o) { return { name: o.name, type: o.type }; });
     // Clear edit state
     var modal = document.getElementById('modal-checklist');
     delete modal.dataset.editIdx;
@@ -1664,58 +2188,50 @@
     var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
     // 设置弹窗标题
     document.getElementById('clModalTitle').textContent = '编辑检查表配置';
-    // 设置类型（类型不可变更，radio 仅作展示）
-    var typeRadio = document.querySelector('input[name="clType"][value="' + (cl.checklistType || 'system') + '"]');
-    var otherRadio = document.querySelector('input[name="clType"][value="' + (cl.checklistType === 'custom' ? 'system' : 'custom') + '"]');
-    if (typeRadio) { typeRadio.checked = true; typeRadio.disabled = true; }
-    if (otherRadio) { otherRadio.disabled = true; }
-    toggleClType();
-    // 设置名称（系统检查表只读）
+    var isSystemCl = (cl.checklistType === 'system');
+    // 设置字段只读态（系统检查表名称/周期/内容只读）
+    applyClTypeReadOnly(isSystemCl);
+    // 设置名称
     var nameInput = document.getElementById('clName');
     if (nameInput) {
       nameInput.value = cl.name || '';
-      nameInput.readOnly = (cl.checklistType === 'system');
-      nameInput.style.background = (cl.checklistType === 'system') ? 'var(--bg-section)' : '';
     }
     // 设置周期（系统检查表只读；兼容 "每月" / "每1月检查1次" 两种格式回显）
     var parsed = parseCycle(cl.cycle);
     document.getElementById('clCycleN').value = parsed.n;
     document.getElementById('clCycleUnit').value = parsed.unit;
     document.getElementById('clCycleM').value = parsed.m;
-    var isSystemCl = (cl.checklistType === 'system');
-    ['clCycleN', 'clCycleUnit', 'clCycleM'].forEach(function(id) { var el = document.getElementById(id); if (el) el.disabled = isSystemCl; });
-    // 节假日开关（不在只读清单内，始终可编辑）；检查项（系统检查表内容只读）
-    document.getElementById('clSkipHoliday').checked = !!cl.skipHoliday;
-    var clItemsEdit = document.getElementById('clItems');
-    if (clItemsEdit) {
-      clItemsEdit.value = cl.items || '';
-      clItemsEdit.disabled = isSystemCl;
-      clItemsEdit.style.background = isSystemCl ? 'var(--bg-section)' : '';
-    }
-    // 设置责任科室
-    document.getElementById('clDept').value = cl.dept || '';
-    // 设置责任人（多选）；系统检查表无责任人时默认责任科室下所有人（BR-GOV-DS-16）
-    var personArray = Array.isArray(cl.person) ? cl.person : (cl.person ? [cl.person] : []);
-    if (personArray.length === 0 && cl.checklistType === 'system' && PERSON_BY_DEPT[cl.dept]) {
-      personArray = PERSON_BY_DEPT[cl.dept].slice();
-    }
-    fillClPersons(cl.dept, personArray, personArray);
-    // 渲染管控对象勾选列表
-    var objList = document.getElementById('clObjList');
-    if (objList) {
-      var assignedSet = {};
-      if (cl.assignedObjects) cl.assignedObjects.forEach(function(n) { assignedSet[n] = true; });
-      var html = '';
-      objects.forEach(function(o) {
-        var checked = assignedSet[o.name] ? ' checked' : '';
-        html += '<div style="padding:4px 0;font-size:var(--font-size-sm);"><label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="cl-obj-check" value="' + o.name + '"' + checked + '> ' + o.name + ' <span style="color:var(--text-tertiary);font-size:var(--font-size-xs);">(' + o.type + ')</span></label></div>';
+    // 节假日开关（不在只读清单内，始终可编辑）；检查项（系统检查表内容只读，已由 applyClTypeReadOnly 处理）
+    document.getElementById('clSkipHoliday').classList.toggle('active', !!cl.skipHoliday);
+    // 加载检查项数据（兼容数组和旧字符串格式）
+    var checkItems = [];
+    if (Array.isArray(cl.items)) {
+      checkItems = cl.items.map(function(it, i) { return { id: it.id || ('item_' + i), num: i + 1, name: it.name || '', contents: it.contents || [] }; });
+      clCheckItemCounter = checkItems.length;
+    } else if (typeof cl.items === 'string' && cl.items) {
+      // 旧文本格式：按行解析
+      cl.items.split('\n').forEach(function(line) {
+        if (line.trim()) checkItems.push({ id: 'item_' + (checkItems.length + 1), num: checkItems.length + 1, name: line.trim().replace(/^-\s*/, ''), contents: [] });
       });
-      objList.innerHTML = html;
-      updateClObjCount();
+      clCheckItemCounter = checkItems.length;
     }
-    // 设置扫码责任
-    var scanCb = document.getElementById('clScanEnabled');
-    if (scanCb) scanCb.checked = (cl.scan && cl.scan.enabled !== false);
+    setModalCheckItems(checkItems);
+    renderCheckitemList(checkItems);
+    // 存储全部管控对象供穿梭框使用
+    window._clAllObjects = objects.map(function(o) { return { name: o.name, type: o.type }; });
+    // 加载责任分配数据（编辑模式回显）
+    var assignedObjs = cl.assignedObjects || [];
+    var objectPersons = cl.objectPersons || {};
+    if (!cl.objectPersons) {
+      var defaultPersons = Array.isArray(cl.person) ? cl.person : (cl.person ? [cl.person] : []);
+      assignedObjs.forEach(function(n) { objectPersons[n] = defaultPersons.slice(); });
+    }
+    clAssignData = {
+      dept: cl.dept || '',
+      objects: assignedObjs.slice(),
+      persons: objectPersons
+    };
+    renderAssignResult();
     document.getElementById('modal-checklist').dataset.domainId = domainId;
     document.getElementById('modal-checklist').dataset.editIdx = idx;
     openModal('modal-checklist');
@@ -1750,7 +2266,7 @@
     }
     pendingDelete = null;
     closeModal('modal-delete-confirm');
-    showToast('删除已暂存到草稿，点击「保存配置」统一生效');
+    showToast('检查表已删除');
     afterDraftChange();
   };
 
@@ -1920,7 +2436,7 @@
       config.hazard.reviewPerson = '企业安全主管';
     }
     closeModal('modal-hazard-edit');
-    showToast('隐患责任配置已暂存到草稿');
+    showToast('隐患责任配置已保存');
     afterDraftChange();
   };
 
@@ -1933,7 +2449,7 @@
     } else if (type === 'hazard' && config.hazard) {
       config.hazard.enabled = enabled;
     }
-    showToast((enabled ? '启用' : '停用') + '已暂存到草稿');
+    showToast((enabled ? '启用' : '停用') + '成功');
     afterDraftChange();
   };
 
@@ -1962,49 +2478,6 @@
     '危化品监管和执法科': ['王强', '刘洋']
   };
   var ALL_PERSONS = ['张伟', '李娜', '王强', '陈敏', '刘洋'];
-
-  // 按责任科室填充责任人下拉；extraNames 保留已配置人员防止编辑回显丢失
-  function fillClPersons(dept, extraNames, selectedNames) {
-    var personSelect = document.getElementById('clPerson');
-    if (!personSelect) return;
-    var pool = (dept && PERSON_BY_DEPT[dept]) ? PERSON_BY_DEPT[dept].slice() : ALL_PERSONS.slice();
-    (extraNames || []).forEach(function(n) { if (n && pool.indexOf(n) < 0) pool.push(n); });
-    var sel = selectedNames || [];
-    personSelect.innerHTML = pool.map(function(p) {
-      return '<option value="' + p + '"' + (sel.indexOf(p) >= 0 ? ' selected' : '') + '>' + p + '</option>';
-    }).join('');
-  }
-
-  // 检查表弹窗：切换责任科室 → 责任人候选联动（保留仍在新科室人选中的已勾选项）
-  // 一键选择本科室全部人员（PRD：支持选整个科室或具体人员）
-  window.selectAllDeptPersons = function() {
-    var dept = document.getElementById('clDept').value;
-    var pool = (dept && PERSON_BY_DEPT[dept]) ? PERSON_BY_DEPT[dept] : ALL_PERSONS;
-    var personSelect = document.getElementById('clPerson');
-    if (!personSelect) return;
-    Array.from(personSelect.options).forEach(function(o) { o.selected = pool.indexOf(o.value) >= 0; });
-    showToast(dept ? '已选择「' + dept + '」全部 ' + pool.length + ' 名人员' : '已选择全部人员');
-  };
-
-  window.onClDeptChange = function() {
-    var dept = document.getElementById('clDept').value;
-    var personSelect = document.getElementById('clPerson');
-    var current = personSelect ? Array.from(personSelect.selectedOptions).map(function(o) { return o.value; }) : [];
-    var pool = (dept && PERSON_BY_DEPT[dept]) ? PERSON_BY_DEPT[dept] : ALL_PERSONS;
-    fillClPersons(dept, [], current.filter(function(p) { return pool.indexOf(p) >= 0; }));
-  };
-
-  // 检查表弹窗责任科室下拉动态填充（IIFE 执行至此时 DOM 已就绪）
-  (function fillClDept() {
-    var sel = document.getElementById('clDept');
-    if (!sel) return;
-    DEPT_LIST.forEach(function(name) {
-      var opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = name;
-      sel.appendChild(opt);
-    });
-  })();
 
   var configState = {
     domainId: null,
@@ -2178,11 +2651,20 @@
     draftBaseline = deepClone(CONFIG_DATA[domainId] || { checklists: [], hazard: null });
     if (draftBaseline.dept === undefined) draftBaseline.dept = d.dept || '';
     // 基线形态归一化（person 统一数组、scan 统一对象），避免无变更编辑产生假草稿条目
+    var allObjNames = configState.objects.map(function(o) { return o.name; });
     (draftBaseline.checklists || []).forEach(function(c) {
       c.person = Array.isArray(c.person) ? c.person : (c.person ? [c.person] : []);
       c.scan = c.scan || { enabled: true };
       c.skipHoliday = !!c.skipHoliday;
-      c.items = c.items || '';
+      c.items = Array.isArray(c.items) ? c.items : [];
+      // scope → assignedObjects 归一化（BR-GOV-DS-04：检查表配置下沉到管控对象级别，无"全部/指定"概念）
+      if (!c.assignedObjects || c.assignedObjects.length === 0) {
+        if (c.scope === '全部') {
+          c.assignedObjects = allObjNames.slice();
+        }
+        // scope 为"指定(N个)"时保留旧值，无 assignedObjects 时保持空数组待手动配置
+      }
+      delete c.scope; // 旧字段不再使用
     });
     draftConfig = deepClone(draftBaseline);
 
@@ -2212,9 +2694,9 @@
 
     var html = '';
     // 递进关系提示（PRD §6.2.2.3）
-    html += '<div class="context-bar" style="margin-bottom:16px;">配置递进关系：⓪ 责任科室配置（谁来管） → ① 检查表 &amp; 扫码责任配置（查什么、多久查、谁去查） → ② 隐患责任配置（查出隐患后怎么处理）</div>';
+    html += '<div class="context-bar" style="margin-bottom:16px;">配置递进关系：⓪ 责任科室配置 → ① 扫码责任配置 → ② 隐患责任配置</div>';
     // ⓪ 责任科室配置（领域级别）
-    html += '<div class="config-section-title">⓪ 责任科室配置（谁来管）</div>';
+    html += '<div class="config-section-title">⓪ 责任科室配置</div>';
     html += '<div class="config-block">';
     html += '<div style="display:flex;align-items:center;gap:12px;">';
     html += '<label style="font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap;">责任科室：</label>';
@@ -2227,33 +2709,12 @@
     html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">未配置时默认责任科室为本单位（BR-GOV-DS-12）</span>';
     html += '</div>';
     html += '</div>';
-    // ① 检查表 & 扫码责任配置（管控对象级别）
-    html += '<div class="config-section-title">① 检查表 &amp; 扫码责任配置（查什么、多久查、谁去查，一次配完）</div>';
+    // ① 扫码责任配置
+    html += '<div class="config-section-title">① 扫码责任配置</div>';
     html += '<div class="config-block" id="configChecklistBlock"></div>';
     // ② 隐患责任配置（领域级别）
-    html += '<div class="config-section-title">② 隐患责任配置（查出隐患后怎么处理）</div>';
+    html += '<div class="config-section-title">② 隐患责任配置</div>';
     html += '<div class="config-block" id="configHazardBlock"></div>';
-    // 草稿列表（BR-GOV-DS-18：所有变更先暂存，保存配置统一提交，取消全部丢弃；冲突条目黄色警告边框+原因）
-    var entries = computeDraftEntries();
-    var conflictCount = entries.filter(function(e) { return e.conflict; }).length;
-    html += '<div class="config-section-title">草稿变更（' + entries.length + (conflictCount ? '，<span style="color:var(--danger)">' + conflictCount + ' 条冲突</span>' : '') + '）— 点击底部「保存配置」统一生效</div>';
-    html += '<div class="config-block">';
-    if (entries.length) {
-      html += '<div class="draft-list">';
-      entries.forEach(function(e, i) {
-        html += '<div class="draft-item' + (e.conflict ? ' conflict' : '') + '">';
-        html += '<span class="draft-idx">' + (i + 1) + '</span>';
-        html += '<span class="draft-desc">' + e.desc + '</span>';
-        if (e.conflict) html += '<span class="draft-conflict">⚠ ' + e.conflict + '</span>';
-        if (e.action === 'revert') html += '<button class="draft-del" title="撤销该变更" onclick="revertDraft(' + i + ')">✕ 撤销</button>';
-        else if (e.action === 'handle') html += '<button class="draft-del" style="color:var(--primary);" onclick="editChecklist(\'' + configState.domainId + '\',' + e.targetIdx + ')">去处理</button>';
-        html += '</div>';
-      });
-      html += '</div>';
-    } else {
-      html += '<div style="font-size:var(--font-size-sm);color:var(--text-tertiary);">暂无变更——修改任意配置项后将在此显示草稿条目</div>';
-    }
-    html += '</div>';
 
     document.getElementById('configBody').innerHTML = html;
     renderConfigChecklistBlock(d);
@@ -2269,14 +2730,15 @@
     html += '</div>';
     if (cfg && cfg.checklists && cfg.checklists.length) {
       html += '<div class="table-scroll"><table><thead><tr>';
-      html += '<th>检查表名称</th><th>检查周期</th><th>已分配对象数</th><th>责任人</th><th>扫码责任</th><th>状态</th><th class="action-col">操作</th>';
+      html += '<th>检查表名称</th><th>检查表来源</th><th>检查周期</th><th>已分配对象数</th><th>责任人</th><th>扫码责任</th><th>状态</th><th class="action-col">操作</th>';
       html += '</tr></thead><tbody>';
       cfg.checklists.forEach(function(c, idx) {
         var typeTag = c.checklistType === 'custom' ? '<span class="tag tag-orange">[自定义]</span>' : '<span class="tag tag-blue">[系统]</span>';
         var assignedCount = c.assignedObjects ? c.assignedObjects.length : 0;
         var personText = c.person ? (Array.isArray(c.person) ? c.person.join('、') : c.person) : '—';
         var scanTag = (c.scan && c.scan.enabled === false) ? '<span class="tag tag-gray">未启用</span>' : '<span class="tag tag-green">同步责任人</span>';
-        html += '<tr><td>' + typeTag + ' ' + c.name + '</td>';
+        html += '<tr><td>' + c.name + '</td>';
+        html += '<td>' + typeTag + '</td>';
         html += '<td>' + c.cycle + '</td>';
         html += '<td><a class="btn-link" onclick="viewAssignedObjects(\'' + d.id + '\',' + idx + ')">' + assignedCount + '/' + total + '</a></td>';
         html += '<td>' + personText + '</td>';
@@ -2331,7 +2793,7 @@
     if (!d || !draftConfig) return;
     // BR-GOV-DS-18：草稿存在冲突时拦截保存
     var conflicts = computeDraftEntries().filter(function(e) { return e.conflict; });
-    if (conflicts.length) { showToast('存在 ' + conflicts.length + ' 条冲突草稿，请处理后再保存'); return; }
+    if (conflicts.length) { showToast('存在 ' + conflicts.length + ' 条冲突，请处理后再保存'); return; }
     CONFIG_DATA[d.id] = deepClone(draftConfig);
     d.dept = draftConfig.dept || '';
     draftBaseline = null; draftConfig = null;
