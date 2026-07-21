@@ -179,6 +179,36 @@
     #modal-checklist .switch-label { font-size: var(--font-size-sm); color: var(--text-secondary); }
     #modal-checklist .cl-obj-list { max-height: 320px; overflow-y: auto; border: 1px solid var(--border-section); border-radius: var(--radius-lg); padding: var(--spacing-sm) var(--spacing-md); }
 
+    /* ========== 检查库引用弹窗 ========== */
+    #modal-ref-lib .modal-body { padding: 16px 20px; }
+    .ref-filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--spacing-md); padding: 10px 12px; background: var(--bg-section); border-radius: var(--radius-md); }
+    .ref-filter-item { display: flex; align-items: center; gap: 6px; }
+    .ref-filter-item label { font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap; }
+    .ref-filter-item select, .ref-filter-item input[type="text"] { width: 240px; height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); box-sizing: border-box; }
+    .ref-tree { border: 1px solid var(--border-section); border-radius: var(--radius-md); padding: var(--spacing-sm) 0; max-height: 400px; overflow-y: auto; background: var(--bg-primary); }
+    .ref-tree-node { display: flex; align-items: center; padding: 6px 12px; cursor: pointer; transition: background 0.15s; user-select: none; }
+    .ref-tree-node:hover { background: var(--bg-hover); }
+    .ref-tree-toggle { width: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-secondary); cursor: pointer; flex-shrink: 0; transition: transform 0.2s; }
+    .ref-tree-toggle.expanded { transform: rotate(90deg); }
+    .ref-tree-toggle.leaf { visibility: hidden; }
+    .ref-tree-children { display: none; }
+    .ref-tree-children.show { display: block; }
+    .ref-tree-checkbox { margin-right: 8px; flex-shrink: 0; width: 16px; height: 16px; cursor: pointer; }
+    .ref-tree-label { flex: 1; min-width: 0; font-size: var(--font-size-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ref-tree-label.ref-category { font-weight: 600; color: var(--text-primary); }
+    .ref-tree-label.ref-domain { font-weight: 500; color: var(--text-primary); }
+    .ref-tree-label.ref-table { color: var(--text-primary); }
+    .ref-tree-label.ref-item { color: var(--text-secondary); }
+    .ref-tree-label.ref-uncat { font-weight: 500; color: var(--warning); }
+    .ref-tree-count { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-left: 8px; flex-shrink: 0; }
+    .ref-tree-type { font-size: var(--font-size-xs); padding: 1px 6px; border-radius: var(--radius-sm); margin-left: 8px; flex-shrink: 0; }
+    .ref-tree-type.常规 { background: var(--info-light); color: var(--info); }
+    .ref-tree-type.重点 { background: var(--warning-light); color: #e65100; }
+    .ref-stats { padding: 10px 12px; background: var(--bg-section); border-radius: var(--radius-md); margin-top: var(--spacing-md); font-size: var(--font-size-sm); color: var(--text-secondary); }
+    .ref-stats strong { color: var(--primary); }
+    /* 半选checkbox视觉 */
+    .ref-tree-checkbox[data-indeterminate] { accent-color: var(--primary); }
+
     /* ========== 两阶段向导 ========== */
     .wizard-steps { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
     .wizard-step { font-size: var(--font-size-sm); color: var(--text-secondary); cursor: pointer; padding: 4px 10px; border-radius: var(--radius-sm); transition: all var(--duration-fast); }
@@ -394,19 +424,50 @@
       <div class="form-section">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <div class="section-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">检查内容</div>
-          <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); addInlineCheckItem()">+ 新增检查项</button>
+          <div style="display: flex; gap: var(--spacing-sm);">
+            <button type="button" class="btn btn-default btn-sm" id="btnRefLib" onclick="showRefModal()">检查库引用</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation(); addInlineCheckItem()">+ 新增检查项</button>
+          </div>
         </div>
         <div class="checkitem-list" id="checkitemList"></div>
         <div class="empty-state" id="checkitemEmpty" style="display: flex;">
           <div class="empty-icon">📋</div>
           <div class="empty-text">暂无检查内容</div>
-          <div class="empty-hint">点击"新增检查项"添加</div>
+          <div class="empty-hint">点击"检查库引用"或"+ 新增检查项"添加</div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('modal-checklist')">取消</button>
       <button class="btn btn-primary" onclick="submitChecklist()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 检查库引用弹窗 ========== -->
+<div class="modal-overlay" id="modal-ref-lib">
+  <div class="modal-dialog" style="width: 800px; max-height: 90vh;">
+    <div class="modal-header"><h3 class="modal-title">从检查库引用</h3><button class="modal-close" onclick="closeModal('modal-ref-lib')">&times;</button></div>
+    <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 140px);">
+      <!-- 筛选栏 -->
+      <div class="ref-filter-bar">
+        <div class="ref-filter-item">
+          <label>检查类型：</label>
+          <select id="refTypeFilter"><option value="">全部</option><option value="常规">常规</option><option value="重点">重点</option></select>
+        </div>
+        <div class="ref-filter-item">
+          <label>关键词：</label>
+          <input type="text" id="refKeyword" placeholder="搜索检查表名称或检查项内容">
+        </div>
+      </div>
+      <!-- 树形列表 -->
+      <div class="ref-tree" id="refTree"></div>
+      <!-- 底部统计 -->
+      <div class="ref-stats" id="refStats">已选择：<strong id="refSelCount">0</strong> 项</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('modal-ref-lib')">取消</button>
+      <button class="btn btn-primary" onclick="confirmRefImport()">确定引用</button>
     </div>
   </div>
 </div>
@@ -2371,6 +2432,9 @@
     clCheckItemCounter = 0;
     renderCheckitemList([]);
     applyClTypeReadOnly(false);
+    // 新增模式显示检查库引用按钮
+    var btnRef = document.getElementById('btnRefLib');
+    if (btnRef) btnRef.style.display = '';
     // 清空责任分配数据
     clAssignData = null;
     renderAssignResult();
@@ -2382,6 +2446,465 @@
     modal.dataset.domainId = domainId;
     openModal('modal-checklist');
   };
+
+  // ========== 检查库引用弹窗 ==========
+  // 模拟检查库数据（超管端全量数据）
+  var CHECKLIST_LIB_DATA = [
+    {
+      category: '公共场所类',
+      domains: [
+        {
+          name: '电动自行车充电场所',
+          tables: [
+            {
+              name: '消防安全日常检查表',
+              type: '常规',
+              items: [
+                { id: 'lib_ci_1', content: '灭火器是否在有效期内', standard: '压力表指针在绿区；检验标签日期在有效期内' },
+                { id: 'lib_ci_2', content: '消防通道是否畅通', standard: '通道宽度≥1.2米；无障碍物；应急照明正常' },
+                { id: 'lib_ci_3', content: '安全出口标识是否清晰', standard: '标识完好、无遮挡、夜间可见' },
+                { id: 'lib_ci_4', content: '应急照明是否正常', standard: '断电后持续照明≥30分钟' }
+              ]
+            },
+            {
+              name: '充电设备安全检查表',
+              type: '重点',
+              items: [
+                { id: 'lib_ci_5', content: '充电设备接地是否可靠', standard: '接地电阻≤4Ω' },
+                { id: 'lib_ci_6', content: '漏电保护器是否正常', standard: '漏电动作电流≤30mA，动作时间≤0.1s' },
+                { id: 'lib_ci_7', content: '线缆是否老化破损', standard: '绝缘层无裂纹、无裸露' }
+              ]
+            }
+          ],
+          // 独立检查项（check_table_id 为空）
+          uncatItems: [
+            { id: 'lib_ci_8', content: '充电区域禁烟标识是否张贴', standard: '' }
+          ]
+        },
+        {
+          name: '商业综合体',
+          tables: [
+            {
+              name: '消防安全综合检查表',
+              type: '重点',
+              items: [
+                { id: 'lib_ci_9', content: '喷淋系统是否正常', standard: '末端水压≥0.1MPa' },
+                { id: 'lib_ci_10', content: '防火门是否常闭', standard: '闭门器完好、密封条完好' },
+                { id: 'lib_ci_11', content: '疏散指示标识是否完好', standard: 'LED指示灯常亮、无破损' },
+                { id: 'lib_ci_12', content: '消防控制室值班记录', standard: '24小时双人值班、记录完整' }
+              ]
+            },
+            {
+              name: '电梯安全检查表',
+              type: '常规',
+              items: [
+                { id: 'lib_ci_13', content: '电梯年检标志是否在有效期内', standard: '' },
+                { id: 'lib_ci_14', content: '电梯五方通话是否正常', standard: '轿厢、机房、轿顶、底坑、控制室通话畅通' }
+              ]
+            }
+          ],
+          uncatItems: []
+        }
+      ]
+    },
+    {
+      category: '危险化学品类',
+      domains: [
+        {
+          name: '危化品储存',
+          tables: [
+            {
+              name: '危化品仓库日常检查表',
+              type: '重点',
+              items: [
+                { id: 'lib_ci_15', content: '通风设备是否正常运行', standard: '换气次数≥12次/小时' },
+                { id: 'lib_ci_16', content: '温湿度是否在安全范围', standard: '温度≤30℃，湿度≤80%' },
+                { id: 'lib_ci_17', content: '防泄漏设施是否完好', standard: '围堰无裂缝、收集容器空置' }
+              ]
+            }
+          ],
+          uncatItems: []
+        },
+        {
+          name: '危化品运输',
+          tables: [
+            {
+              name: '运输车辆安全检查表',
+              type: '常规',
+              items: [
+                { id: 'lib_ci_18', content: '车辆标志是否齐全', standard: '危险品标志灯、牌完好' },
+                { id: 'lib_ci_19', content: '押运人员资质是否有效', standard: '押运员证在有效期内' }
+              ]
+            }
+          ],
+          uncatItems: [
+            { id: 'lib_ci_20', content: '运输路线是否避开人口密集区', standard: '' }
+          ]
+        }
+      ]
+    }
+  ];
+
+  // 独立检查项（不属于任何分类/领域）——归入"未分类"
+  var CHECKLIB_UNCAT_ITEMS = [
+    { id: 'lib_ci_21', content: '安全警示标识是否规范张贴', standard: '字体、颜色、尺寸符合国标' },
+    { id: 'lib_ci_22', content: '安全生产责任制是否上墙公示', standard: '' }
+  ];
+
+  // 引用弹窗选中状态 { [itemId]: true }
+  var refSelected = {};
+
+  window.showRefModal = function() {
+    refSelected = {};
+    document.getElementById('refTypeFilter').value = '';
+    document.getElementById('refKeyword').value = '';
+    renderRefTree();
+    updateRefStats();
+    openModal('modal-ref-lib');
+  };
+
+  function filterRefData() {
+    var typeFilter = document.getElementById('refTypeFilter').value;
+    var keyword = (document.getElementById('refKeyword').value || '').toLowerCase();
+    var result = [];
+    CHECKLIST_LIB_DATA.forEach(function(cat) {
+      var domains = [];
+      cat.domains.forEach(function(domain) {
+        var tables = [];
+        domain.tables.forEach(function(table) {
+          if (typeFilter && table.type !== typeFilter) return;
+          var items = table.items;
+          if (keyword) {
+            items = items.filter(function(it) {
+              return (it.content || '').toLowerCase().indexOf(keyword) !== -1 ||
+                     (table.name || '').toLowerCase().indexOf(keyword) !== -1;
+            });
+            if (items.length === 0) return;
+          }
+          tables.push({ name: table.name, type: table.type, items: items });
+        });
+        var uncatItems = domain.uncatItems || [];
+        if (keyword) {
+          uncatItems = uncatItems.filter(function(it) {
+            return (it.content || '').toLowerCase().indexOf(keyword) !== -1;
+          });
+        }
+        if (tables.length > 0 || uncatItems.length > 0) {
+          domains.push({ name: domain.name, tables: tables, uncatItems: uncatItems });
+        }
+      });
+      if (domains.length > 0) {
+        result.push({ category: cat.category, domains: domains });
+      }
+    });
+    // 未分类项也参与筛选
+    var uncats = CHECKLIB_UNCAT_ITEMS;
+    if (keyword) {
+      uncats = uncats.filter(function(it) {
+        return (it.content || '').toLowerCase().indexOf(keyword) !== -1;
+      });
+    }
+    return { categories: result, uncats: uncats };
+  }
+
+  function countRefItems(filtered) {
+    var total = 0;
+    filtered.categories.forEach(function(cat) {
+      cat.domains.forEach(function(domain) {
+        domain.tables.forEach(function(table) {
+          total += table.items.length;
+        });
+        total += (domain.uncatItems || []).length;
+      });
+    });
+    total += (filtered.uncats || []).length;
+    return total;
+  }
+
+  var refNodeIdCounter = 0;
+  function refId() { return 'rtn_' + (++refNodeIdCounter); }
+
+  function renderRefTree() {
+    refNodeIdCounter = 0;
+    var filtered = filterRefData();
+    var total = countRefItems(filtered);
+    var html = '';
+
+    // 未分类独立项（放在最前面）
+    if (filtered.uncats && filtered.uncats.length > 0) {
+      var uncNodeId = refId();
+      var uncChecked = filtered.uncats.every(function(it) { return refSelected[it.id]; });
+      var uncIndeterminate = filtered.uncats.some(function(it) { return refSelected[it.id]; }) && !uncChecked;
+      html += '<div class="ref-tree-node" style="padding-left:12px;">';
+      html += '<span class="ref-tree-toggle leaf">▶</span>';
+      html += '<input type="checkbox" class="ref-tree-checkbox" data-node="' + uncNodeId + '" data-count="' + filtered.uncats.length + '"' +
+        (uncChecked ? ' checked' : '') + (uncIndeterminate ? ' data-indeterminate="1"' : '') +
+        ' onchange="onRefNodeToggle(this)">';
+      html += '<span class="ref-tree-label ref-uncat">未分类</span>';
+      html += '<span class="ref-tree-count">（' + filtered.uncats.length + '项）</span>';
+      html += '</div>';
+      html += '<div class="ref-tree-children" id="refc_' + uncNodeId + '" style="padding-left:24px;">';
+      filtered.uncats.forEach(function(it) {
+        html += refItemHtml(it);
+      });
+      html += '</div>';
+    }
+
+    filtered.categories.forEach(function(cat) {
+      var catNodeId = refId();
+      var catTotal = countRefItems({ categories: [{ category: cat.category, domains: cat.domains }], uncats: [] });
+      var catCheckedItems = 0, catTotalItems = catTotal;
+      cat.domains.forEach(function(d) { d.tables.forEach(function(t) { t.items.forEach(function(it) { if (refSelected[it.id]) catCheckedItems++; }); }); (d.uncatItems||[]).forEach(function(it){ if(refSelected[it.id]) catCheckedItems++; }); });
+      var catChecked = catCheckedItems > 0 && catCheckedItems === catTotalItems;
+      var catIndet = catCheckedItems > 0 && catCheckedItems < catTotalItems;
+      html += '<div class="ref-tree-node" style="padding-left:12px;cursor:pointer;" onclick="onRefToggleClick(\'' + catNodeId + '\')">';
+      html += '<span class="ref-tree-toggle expanded" id="reft_' + catNodeId + '">▶</span>';
+      html += '<input type="checkbox" class="ref-tree-checkbox" data-node="' + catNodeId + '" data-count="' + catTotalItems + '"' +
+        (catChecked ? ' checked' : '') + (catIndet ? ' data-indeterminate="1"' : '') +
+        ' onchange="onRefNodeToggle(this)" onclick="event.stopPropagation()">';
+      html += '<span class="ref-tree-label ref-category">' + eH(cat.category) + '</span>';
+      html += '<span class="ref-tree-count">（' + catTotal + '项）</span>';
+      html += '</div>';
+      html += '<div class="ref-tree-children show" id="refc_' + catNodeId + '">';
+      cat.domains.forEach(function(domain) {
+        var domNodeId = refId();
+        var domTotal = 0;
+        var domChecked = 0;
+        domain.tables.forEach(function(t) { domTotal += t.items.length; t.items.forEach(function(it){if(refSelected[it.id])domChecked++;}); });
+        (domain.uncatItems||[]).forEach(function(it){domTotal++; if(refSelected[it.id])domChecked++;});
+        var dChecked = domChecked > 0 && domChecked === domTotal;
+        var dIndet = domChecked > 0 && domChecked < domTotal;
+        html += '<div class="ref-tree-node" style="padding-left:24px;cursor:pointer;" onclick="onRefToggleClick(\'' + domNodeId + '\')">';
+        html += '<span class="ref-tree-toggle expanded" id="reft_' + domNodeId + '">▶</span>';
+        html += '<input type="checkbox" class="ref-tree-checkbox" data-node="' + domNodeId + '" data-count="' + domTotal + '"' +
+          (dChecked ? ' checked' : '') + (dIndet ? ' data-indeterminate="1"' : '') +
+          ' onchange="onRefNodeToggle(this)" onclick="event.stopPropagation()">';
+        html += '<span class="ref-tree-label ref-domain">' + eH(domain.name) + '</span>';
+        html += '<span class="ref-tree-count">（' + domTotal + '项）</span>';
+        html += '</div>';
+        html += '<div class="ref-tree-children show" id="refc_' + domNodeId + '">';
+        domain.tables.forEach(function(table) {
+          var tblNodeId = refId();
+          var tChecked = table.items.every(function(it) { return refSelected[it.id]; });
+          var tIndet = table.items.some(function(it) { return refSelected[it.id]; }) && !tChecked;
+          html += '<div class="ref-tree-node" style="padding-left:36px;cursor:pointer;" onclick="onRefToggleClick(\'' + tblNodeId + '\')">';
+          html += '<span class="ref-tree-toggle expanded" id="reft_' + tblNodeId + '">▶</span>';
+          html += '<input type="checkbox" class="ref-tree-checkbox" data-node="' + tblNodeId + '" data-count="' + table.items.length + '"' +
+            (tChecked ? ' checked' : '') + (tIndet ? ' data-indeterminate="1"' : '') +
+            ' onchange="onRefNodeToggle(this)" onclick="event.stopPropagation()">';
+          html += '<span class="ref-tree-label ref-table">' + eH(table.name) + '</span>';
+          html += '<span class="ref-tree-type ' + eH(table.type) + '">' + eH(table.type) + '</span>';
+          html += '<span class="ref-tree-count">（' + table.items.length + '项）</span>';
+          html += '</div>';
+          html += '<div class="ref-tree-children show" id="refc_' + tblNodeId + '">';
+          table.items.forEach(function(it) {
+            html += '<div class="ref-tree-node" style="padding-left:48px;">';
+            html += '<input type="checkbox" class="ref-tree-checkbox" data-item="' + it.id + '"' +
+              (refSelected[it.id] ? ' checked' : '') +
+              ' onchange="onRefItemToggle(this)">';
+            html += '<span class="ref-tree-label ref-item">' + eH(it.content) + '</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+        });
+        // 领域下的独立项
+        if (domain.uncatItems && domain.uncatItems.length > 0) {
+          var uncNodeId2 = refId();
+          var uChecked = domain.uncatItems.every(function(it) { return refSelected[it.id]; });
+          var uIndet = domain.uncatItems.some(function(it) { return refSelected[it.id]; }) && !uChecked;
+          html += '<div class="ref-tree-node" style="padding-left:36px;">';
+          html += '<span class="ref-tree-toggle leaf">▶</span>';
+          html += '<input type="checkbox" class="ref-tree-checkbox" data-node="' + uncNodeId2 + '" data-count="' + domain.uncatItems.length + '"' +
+            (uChecked ? ' checked' : '') + (uIndet ? ' data-indeterminate="1"' : '') +
+            ' onchange="onRefNodeToggle(this)">';
+          html += '<span class="ref-tree-label ref-uncat">未分类</span>';
+          html += '<span class="ref-tree-count">（' + domain.uncatItems.length + '项）</span>';
+          html += '</div>';
+          html += '<div class="ref-tree-children" id="refc_' + uncNodeId2 + '" style="padding-left:48px;">';
+          domain.uncatItems.forEach(function(it) {
+            html += refItemHtml(it);
+          });
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+
+    if (html === '') {
+      html = '<div style="text-align:center;padding:40px;color:var(--text-tertiary);font-size:var(--font-size-sm);">暂无匹配的检查库数据</div>';
+    }
+    document.getElementById('refTree').innerHTML = html;
+  }
+
+  function refItemHtml(it) {
+    return '<div class="ref-tree-node" style="padding-left:48px;">' +
+      '<input type="checkbox" class="ref-tree-checkbox" data-item="' + it.id + '"' +
+      (refSelected[it.id] ? ' checked' : '') +
+      ' onchange="onRefItemToggle(this)">' +
+      '<span class="ref-tree-label ref-item">' + eH(it.content) + '</span>' +
+      '</div>';
+  }
+
+  // 展开/收起树节点
+  window.onRefToggleClick = function(nodeId) {
+    var children = document.getElementById('refc_' + nodeId);
+    var toggle = document.getElementById('reft_' + nodeId);
+    if (children && toggle) {
+      var isExpanded = children.classList.contains('show');
+      children.classList.toggle('show');
+      toggle.classList.toggle('expanded');
+    }
+  };
+
+  // 节点checkbox切换（联动子项）
+  window.onRefNodeToggle = function(cb) {
+    var nodeId = cb.getAttribute('data-node');
+    var children = document.getElementById('refc_' + nodeId);
+    if (!children) return;
+    var childItems = children.querySelectorAll('.ref-tree-checkbox[data-item]');
+    var isChecked = cb.checked;
+    childItems.forEach(function(childCb) {
+      var itemId = childCb.getAttribute('data-item');
+      if (isChecked) {
+        refSelected[itemId] = true;
+      } else {
+        delete refSelected[itemId];
+      }
+      childCb.checked = isChecked;
+      childCb.removeAttribute('data-indeterminate');
+    });
+    // 递归处理子节点
+    var childNodes = children.querySelectorAll('.ref-tree-checkbox[data-node]');
+    childNodes.forEach(function(childCb) {
+      childCb.checked = isChecked;
+      childCb.removeAttribute('data-indeterminate');
+      onRefNodeToggle(childCb);
+    });
+    // 更新父节点的半选状态
+    updateRefAncestors(cb);
+    updateRefStats();
+  };
+
+  // 单项切换
+  window.onRefItemToggle = function(cb) {
+    var itemId = cb.getAttribute('data-item');
+    if (cb.checked) {
+      refSelected[itemId] = true;
+    } else {
+      delete refSelected[itemId];
+    }
+    updateRefAncestors(cb);
+    updateRefStats();
+  };
+
+  // 更新父节点状态
+  function updateRefAncestors(cb) {
+    var node = cb.closest('.ref-tree-children');
+    while (node) {
+      var parentCb = node.parentElement.querySelector(':scope > .ref-tree-node > .ref-tree-checkbox, :scope > .ref-tree-node .ref-tree-checkbox');
+      if (!parentCb) {
+        // 尝试找兄弟节点的checkbox
+        var siblings = node.previousElementSibling;
+        if (siblings && siblings.querySelector) {
+          parentCb = siblings.querySelector('.ref-tree-checkbox[data-node]');
+        }
+      }
+      if (!parentCb || !parentCb.getAttribute('data-node')) break;
+      var parentId = parentCb.getAttribute('data-node');
+      var parentChildren = document.getElementById('refc_' + parentId);
+      if (!parentChildren) break;
+      var allItems = parentChildren.querySelectorAll('.ref-tree-checkbox[data-item]');
+      var checkedCount = 0;
+      allItems.forEach(function(c) { if (c.checked) checkedCount++; });
+      if (checkedCount === 0) {
+        parentCb.checked = false;
+        parentCb.removeAttribute('data-indeterminate');
+      } else if (checkedCount === allItems.length) {
+        parentCb.checked = true;
+        parentCb.removeAttribute('data-indeterminate');
+      } else {
+        parentCb.checked = false;
+        parentCb.setAttribute('data-indeterminate', '1');
+      }
+      node = parentChildren.parentElement ? parentChildren.parentElement.closest('.ref-tree-children') : null;
+    }
+  }
+
+  function updateRefStats() {
+    var count = Object.keys(refSelected).length;
+    var el = document.getElementById('refSelCount');
+    if (el) el.textContent = count;
+  }
+
+  // 获取选中项对应的完整数据
+  function getSelectedLibItems() {
+    var selectedIds = Object.keys(refSelected);
+    var results = [];
+    // 搜索所有数据
+    function findItem(id) {
+      CHECKLIST_LIB_DATA.forEach(function(cat) {
+        cat.domains.forEach(function(domain) {
+          domain.tables.forEach(function(table) {
+            table.items.forEach(function(it) {
+              if (selectedIds.indexOf(it.id) !== -1) {
+                results.push({ content: it.content, standard: it.standard, table: table.name, domain: domain.name, category: cat.category });
+              }
+            });
+          });
+          (domain.uncatItems || []).forEach(function(it) {
+            if (selectedIds.indexOf(it.id) !== -1) {
+              results.push({ content: it.content, standard: it.standard, table: null, domain: domain.name, category: cat.category });
+            }
+          });
+        });
+      });
+      CHECKLIB_UNCAT_ITEMS.forEach(function(it) {
+        if (selectedIds.indexOf(it.id) !== -1) {
+          results.push({ content: it.content, standard: it.standard, table: null, domain: null, category: '未分类' });
+        }
+      });
+    }
+    findItem();
+    return results;
+  }
+
+  // 确认引用：方案B映射到检查内容
+  window.confirmRefImport = function() {
+    var items = getSelectedLibItems();
+    if (items.length === 0) {
+      showToast('请至少选择一项检查内容', 'warning');
+      return;
+    }
+    var modalItems = getModalCheckItems();
+    items.forEach(function(libItem) {
+      var itemId = 'item_' + (++clCheckItemCounter);
+      var num = modalItems.length + 1;
+      var itemName = '引用项：' + (libItem.content.length > 20 ? libItem.content.substring(0, 20) + '…' : libItem.content);
+      modalItems.push({
+        id: itemId,
+        num: num,
+        name: itemName,
+        contents: [{
+          id: 'content_' + clCheckItemCounter + '_1',
+          name: libItem.content,
+          standard: libItem.standard || ''
+        }]
+      });
+    });
+    renderCheckitemList(modalItems);
+    setModalCheckItems(modalItems);
+    closeModal('modal-ref-lib');
+    showToast('已引用 ' + items.length + ' 项检查内容', 'success');
+  };
+
+  // 筛选栏事件
+  (function() {
+    var typeEl = document.getElementById('refTypeFilter');
+    var kwEl = document.getElementById('refKeyword');
+    if (typeEl) typeEl.addEventListener('change', renderRefTree);
+    if (kwEl) kwEl.addEventListener('input', renderRefTree);
+  })();
 
   // ========== 检查表编辑 ==========
   // 解析周期字符串为 {n, unit, m}（兼容 "每月" 与 "每1月检查1次" 两种格式）
@@ -2402,6 +2925,9 @@
     var isSystemCl = (cl.checklistType === 'system');
     // 设置字段只读态（系统检查表名称/周期/内容只读）
     applyClTypeReadOnly(isSystemCl);
+    // 编辑模式下隐藏检查库引用按钮（系统表和自定义表均不允许引用）
+    var btnRef = document.getElementById('btnRefLib');
+    if (btnRef) btnRef.style.display = 'none';
     // 设置名称
     var nameInput = document.getElementById('clName');
     if (nameInput) {
