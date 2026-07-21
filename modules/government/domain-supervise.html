@@ -202,6 +202,39 @@
     .shuttle-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-tertiary); font-size: var(--font-size-xs); padding: 20px; }
     .shuttle-empty-icon { font-size: 24px; margin-bottom: 4px; }
 
+    /* ========== 组织架构穿梭框（人员分配） ========== */
+    .org-tree { padding: 4px 0; }
+    .org-dept { border-bottom: 1px solid var(--border-light); }
+    .org-dept:last-child { border-bottom: none; }
+    .org-dept-header { display: flex; align-items: center; gap: 6px; padding: 8px 12px; cursor: pointer; font-size: var(--font-size-sm); font-weight: 500; }
+    .org-dept-header:hover { background: var(--bg-section); }
+    .org-toggle { width: 16px; text-align: center; font-size: var(--font-size-xs); color: var(--text-tertiary); flex-shrink: 0; transition: transform 0.15s; }
+    .org-toggle.collapsed { transform: rotate(-90deg); }
+    .org-dept-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .org-dept-check { flex-shrink: 0; }
+    .org-children { padding-left: 24px; }
+    .org-subdept { border-bottom: 1px solid var(--border-light); }
+    .org-subdept:last-child { border-bottom: none; }
+    .org-subdept-header { display: flex; align-items: center; gap: 6px; padding: 6px 12px; cursor: pointer; font-size: var(--font-size-sm); }
+    .org-subdept-header:hover { background: var(--bg-section); }
+    .org-person { display: flex; align-items: center; gap: 6px; padding: 6px 12px 6px 36px; font-size: var(--font-size-sm); cursor: pointer; }
+    .org-person:hover { background: var(--bg-section); }
+    .org-person input[type="checkbox"] { flex-shrink: 0; }
+    .org-person-name { flex: 1; min-width: 0; }
+    .shuttle-item-person-tag { font-size: var(--font-size-xs); color: var(--text-tertiary); background: var(--bg-section); padding: 1px 6px; border-radius: var(--radius-sm); }
+    /* 科室本级节点（可选中） */
+    .org-dept-level { border-bottom: 1px solid var(--border-light); }
+    .org-dept-level .org-dept-header { font-weight: 600; background: var(--bg-section); }
+    .org-dept-level .org-dept-header:hover { background: var(--bg-hover); }
+    /* 右侧已选责任人 — 科室级标签（hover显示下有哪些人） */
+    .dept-level-item { position: relative; cursor: default; }
+    .dept-level-item .dept-level-tag { background: var(--info-light, #e6f0ff); color: var(--info); padding: 1px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); white-space: nowrap; }
+    .dept-level-tooltip { display: none; position: absolute; left: 0; top: 100%; z-index: 100; background: var(--bg-primary); border: 1px solid var(--border-section); border-radius: var(--radius-md); padding: 8px 12px; min-width: 160px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: var(--font-size-xs); }
+    .dept-level-item:hover .dept-level-tooltip { display: block; }
+    .dept-level-tooltip::before { content: ''; position: absolute; top: -5px; left: 16px; width: 8px; height: 8px; background: var(--bg-primary); border-left: 1px solid var(--border-section); border-top: 1px solid var(--border-section); transform: rotate(45deg); }
+    .dept-level-tooltip .tooltip-title { font-weight: 600; margin-bottom: 4px; color: var(--text-primary); }
+    .dept-level-tooltip .tooltip-persons { color: var(--text-secondary); line-height: 1.6; }
+
     /* ========== 责任分配表 ========== */
     .assign-table-wrapper { border: 1px solid var(--border-section); border-radius: var(--radius-lg); overflow: auto; max-height: 300px; }
     .assign-table { width: 100%; border-collapse: collapse; }
@@ -404,11 +437,11 @@
       <button class="modal-close" onclick="closeModal('modal-assign-responsibility')">&times;</button>
     </div>
     <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 160px);">
-      <!-- 责任科室（全局，默认从配置页带入） -->
+      <!-- 责任科室（只读，从配置页带入） -->
       <div style="display:flex;align-items:center;gap:var(--spacing-md);margin-bottom:var(--spacing-md);padding-bottom:var(--spacing-md);border-bottom:1px solid var(--border-light);">
-        <label style="font-size:var(--font-size-sm);white-space:nowrap;">责任科室 <span class="required">*</span>：</label>
-        <select class="form-select" id="assignDept" style="width:200px;" onchange="onAssignDeptChange()"><option value="">请选择</option></select>
-        <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">默认从配置页责任科室带入</span>
+        <label style="font-size:var(--font-size-sm);white-space:nowrap;">责任科室：</label>
+        <span id="assignDeptDisplay" style="font-size:var(--font-size-sm);font-weight:500;color:var(--text-primary);"></span>
+        <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">从配置页责任科室带入，不可修改</span>
       </div>
       <!-- 步骤指示器 -->
       <div class="wizard-steps" style="display:flex;align-items:center;gap:var(--spacing-md);margin-bottom:var(--spacing-md);padding:8px 12px;background:var(--bg-section);border-radius:var(--radius-md);">
@@ -443,20 +476,30 @@
           <button type="button" class="btn btn-primary" onclick="goToAssignStep(2)">下一步：配置责任人 →</button>
         </div>
       </div>
-      <!-- 步骤 2：责任人表格 -->
+      <!-- 步骤 2：责任人穿梭框 -->
       <div class="wizard-panel" id="assignStep2" style="display:none;">
         <div style="display:flex;align-items:center;gap:var(--spacing-sm);margin-bottom:var(--spacing-sm);">
-          <button type="button" class="btn btn-default btn-sm" onclick="assignSetAllPersons()">批量设为本科室全员</button>
-          <button type="button" class="btn btn-default btn-sm" onclick="assignClearAllPersons()">清空全部责任人</button>
-          <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-left:auto;">每行独立配置，支持不同对象不同责任人</span>
+          <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">选中的人员将应用到所有已选管控对象</span>
         </div>
-        <div class="assign-table-wrapper">
-          <table class="assign-table">
-            <thead>
-              <tr><th style="width:40px;">☑</th><th>管控对象</th><th style="width:240px;">责任人 <span class="required">*</span></th></tr>
-            </thead>
-            <tbody id="assignAssignBody"></tbody>
-          </table>
+        <div class="shuttle-box">
+          <div class="shuttle-panel">
+            <div class="shuttle-header">
+              <label style="font-size:var(--font-size-sm);font-weight:500;">责任科室组织架构</label>
+              <label style="font-size:var(--font-size-xs);cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="assignPersonSelectAllLeft" onchange="togglePersonShuttleAll(this.checked, 'left')"> 全选</label>
+            </div>
+            <div class="shuttle-list" id="assignShuttlePersonLeft" style="height:320px;"></div>
+          </div>
+          <div class="shuttle-actions">
+            <button type="button" class="btn btn-default btn-sm" onclick="personShuttleMove('leftToRight')">添加 &gt;</button>
+            <button type="button" class="btn btn-default btn-sm" onclick="personShuttleMove('rightToLeft')">&lt; 移除</button>
+          </div>
+          <div class="shuttle-panel">
+            <div class="shuttle-header">
+              <label style="font-size:var(--font-size-sm);font-weight:500;">已选责任人</label>
+              <label style="font-size:var(--font-size-xs);cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="assignPersonSelectAllRight" onchange="togglePersonShuttleAll(this.checked, 'right')"> 全选</label>
+            </div>
+            <div class="shuttle-list" id="assignShuttlePersonRight" style="height:320px;"></div>
+          </div>
         </div>
         <div style="display:flex;justify-content:space-between;gap:var(--spacing-sm);margin-top:var(--spacing-md);">
           <button type="button" class="btn btn-default" onclick="goToAssignStep(1)">← 返回修改</button>
@@ -1680,7 +1723,7 @@
   }
 
   // ========== 责任分配 — 独立弹窗 + 两阶段向导 ==========
-  var assignState = { step: 1, selectedObjs: [], persons: {}, dept: '' };
+  var assignState = { step: 1, selectedObjs: [], selectedPersons: [], selectedDepts: [], dept: '' };
 
   // 打开责任分配弹窗
   window.openAssignModal = function() {
@@ -1689,8 +1732,11 @@
       var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
       defaultDept = (d && d.dept) || '';
     }
-    document.getElementById('assignDept').value = defaultDept;
     assignState.dept = defaultDept;
+    assignState.selectedPersons = [];
+    assignState.selectedDepts = [];
+    // 显示责任科室（只读）
+    document.getElementById('assignDeptDisplay').textContent = defaultDept || '未设置';
     // 兜底：确保 _clAllObjects 有数据（防止从非标准入口打开时穿梭框为空）
     if (!(window._clAllObjects && window._clAllObjects.length)) {
       window._clAllObjects = (configState.objects || []).map(function(o) { return { name: o.name, type: o.type }; });
@@ -1698,20 +1744,13 @@
     // 复制已有配置（如果是编辑模式）
     if (clAssignData && clAssignData.objects) {
       assignState.selectedObjs = clAssignData.objects.slice();
-      assignState.persons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
+      assignState.selectedDepts = clAssignData.selectedDepts ? clAssignData.selectedDepts.slice() : [];
+      assignState.selectedPersons = clAssignData.persons ? Object.values(clAssignData.persons).flat().filter(function(v, i, a) { return a.indexOf(v) === i; }) : [];
     } else {
       assignState.selectedObjs = [];
-      assignState.persons = {};
+      assignState.selectedPersons = [];
+      assignState.selectedDepts = [];
     }
-    // 填充责任科室下拉
-    var sel = document.getElementById('assignDept');
-    sel.innerHTML = '<option value="">请选择</option>';
-    DEPT_LIST.forEach(function(name) {
-      var opt = document.createElement('option');
-      opt.value = name; opt.textContent = name;
-      sel.appendChild(opt);
-    });
-    sel.value = defaultDept;
     goToAssignStep(1);
     renderAssignShuttleBox();
     updateAssignWizardCount();
@@ -1729,7 +1768,7 @@
       var s = parseInt(el.dataset.step, 10);
       el.classList.toggle('active', s <= step);
     });
-    if (step === 2) renderAssignPersonTable();
+    if (step === 2) renderPersonShuttleBox();
     updateAssignWizardCount();
   };
 
@@ -1803,65 +1842,240 @@
     }
   };
 
-  function renderAssignPersonTable() {
-    var dept = document.getElementById('assignDept').value;
-    assignState.dept = dept;
-    var pool = dept && PERSON_BY_DEPT[dept] ? PERSON_BY_DEPT[dept] : [];
-    var all = window._clAllObjects || [];
-    var selectedObjs = all.filter(function(o) { return assignState.selectedObjs.indexOf(o.name) >= 0; });
+  // ========== 步骤② 人员穿梭框 ==========
 
-    var html = selectedObjs.map(function(o) {
-      var objPersons = assignState.persons[o.name] || [];
-      var options = pool.map(function(p) {
-        return '<option value="' + p + '"' + (objPersons.indexOf(p) >= 0 ? ' selected' : '') + '>' + p + '</option>';
+  function renderPersonShuttleBox() {
+    var dept = assignState.dept;
+    var tree = dept ? ORG_TREE[dept] : null;
+    var persons = assignState.selectedPersons || [];
+    var depts = assignState.selectedDepts || [];
+    var leftHtml = '';
+
+    if (!tree) {
+      // 无组织架构：直接展示人员列表
+      var flatPersons = dept ? (PERSON_BY_DEPT[dept] || []) : [];
+      leftHtml = flatPersons.map(function(p) {
+        var checked = persons.indexOf(p) >= 0 ? ' checked' : '';
+        return '<div class="org-person"><input type="checkbox" class="person-cb-left" value="' + p + '"' + checked + ' onchange="onPersonCheckboxChange(\'' + p + '\', this.checked)"> <span class="org-person-name">' + p + '</span></div>';
       }).join('');
-      return '<tr data-obj="' + o.name + '">' +
-        '<td><input type="checkbox" class="assign-row-cb" value="' + o.name + '"></td>' +
-        '<td>' + o.name + '</td>' +
-        '<td><select class="form-select person-select" multiple size="2" data-obj="' + o.name + '" onchange="onAssignPersonRowChange(\'' + o.name + '\', this)">' +
-        options + '</select></td></tr>';
-    }).join('');
-    document.getElementById('assignAssignBody').innerHTML = html;
+      if (!leftHtml) leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">👤</div><div>该科室暂无人员</div></div>';
+    } else {
+      // 有组织架构：科室本级 → 子科室
+      var deptPersons = tree.persons || [];
+      var deptChecked = depts.indexOf('__dept_level__') >= 0 ? ' checked' : '';
+      var hasSubDepts = tree.subDepts && tree.subDepts.length > 0;
+
+      // 科室本级节点（可选中）
+      leftHtml += '<div class="org-dept-level">';
+      leftHtml += '<div class="org-dept-header" onclick="toggleOrgNode(this)">';
+      leftHtml += '<span class="org-toggle">' + (hasSubDepts || deptPersons.length > 0 ? '▾' : '') + '</span>';
+      leftHtml += '<input type="checkbox" class="org-dept-check" data-dept="__dept_level__"' + deptChecked + ' onclick="event.stopPropagation();toggleDeptLevel(this.checked)">';
+      leftHtml += '<span class="org-dept-name">' + dept + '（科室级）</span>';
+      leftHtml += '<span class="shuttle-item-person-tag">' + deptPersons.length + '人</span>';
+      leftHtml += '</div>';
+      // 科室本级人员
+      if (deptPersons.length > 0) {
+        leftHtml += '<div class="org-children">';
+        deptPersons.forEach(function(p) {
+          var pc = persons.indexOf(p) >= 0 ? ' checked' : '';
+          leftHtml += '<div class="org-person"><input type="checkbox" class="person-cb-left" value="' + p + '" data-level="dept"' + pc + ' onchange="onPersonCheckboxChange(\'' + p + '\', this.checked)"> <span class="org-person-name">' + p + '</span></div>';
+        });
+        leftHtml += '</div>';
+      }
+      // 子科室节点
+      if (hasSubDepts) {
+        tree.subDepts.forEach(function(sd) {
+          var sdPersons = sd.persons || [];
+          var sdSelected = sdPersons.filter(function(p) { return persons.indexOf(p) >= 0; });
+          var allChecked = sdPersons.length > 0 && sdSelected.length === sdPersons.length;
+          var someChecked = sdSelected.length > 0 && sdSelected.length < sdPersons.length;
+          leftHtml += '<div class="org-subdept">' +
+            '<div class="org-subdept-header" onclick="toggleOrgNode(this)">' +
+            '<span class="org-toggle">▾</span>' +
+            '<input type="checkbox" class="org-dept-check" data-dept="' + sd.name + '" ' + (allChecked ? 'checked' : '') + ' ' + (someChecked ? 'data-partial="true"' : '') + ' onclick="event.stopPropagation();toggleDeptPersons(\'' + sd.name + '\', this.checked)">' +
+            '<span class="org-dept-name">' + sd.name + '</span>' +
+            '<span class="shuttle-item-person-tag">' + sdSelected.length + '/' + sdPersons.length + '</span>' +
+            '</div>' +
+            '<div class="org-children">' +
+            sdPersons.map(function(p) {
+              var pc = persons.indexOf(p) >= 0 ? ' checked' : '';
+              return '<div class="org-person"><input type="checkbox" class="person-cb-left" value="' + p + '" data-subdept="' + sd.name + '"' + pc + ' onchange="onPersonCheckboxChange(\'' + p + '\', this.checked)"> <span class="org-person-name">' + p + '</span></div>';
+            }).join('') +
+            '</div></div>';
+        });
+      }
+    }
+
+    // 右侧：已选责任人（人员 + 科室级标签）
+    var rightHtml = '';
+    // 科室级标签
+    if (depts.indexOf('__dept_level__') >= 0) {
+      var allDeptPersons = tree && tree.persons ? tree.persons : (dept ? (PERSON_BY_DEPT[dept] || []) : []);
+      rightHtml += '<div class="shuttle-item dept-level-item">' +
+        '<label><input type="checkbox" class="dept-cb-right" data-dept="__dept_level__" onchange="toggleDeptRight(this.checked)"> ' +
+        '<span class="dept-level-tag">' + dept + '（科室级）</span></label>' +
+        '<div class="dept-level-tooltip"><div class="tooltip-title">' + dept + '（科室级）</div>' +
+        '<div class="tooltip-persons">' + (allDeptPersons.length > 0 ? allDeptPersons.join('、') : '暂无人员') + '</div></div>' +
+        '</div>';
+    }
+    // 已选人员
+    persons.forEach(function(p) {
+      rightHtml += '<div class="shuttle-item"><label><input type="checkbox" class="person-cb-right" value="' + p + '" onchange="togglePersonRight(\'' + p + '\', this.checked)"> <span class="shuttle-item-label">' + p + '</span></label></div>';
+    });
+    if (!rightHtml) rightHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">👤</div><div>尚未选择责任人</div></div>';
+
+    document.getElementById('assignShuttlePersonLeft').innerHTML = leftHtml;
+    document.getElementById('assignShuttlePersonRight').innerHTML = rightHtml;
+
+    // 全选状态
+    var allPersons = getAllPersonsForDept(dept);
+    var totalChecked = persons.length + (depts.indexOf('__dept_level__') >= 0 ? 1 : 0);
+    var totalAvailable = allPersons.length + 1; // +1 for dept-level checkbox
+    document.getElementById('assignPersonSelectAllLeft').checked = totalChecked > 0 && persons.length === allPersons.length && depts.indexOf('__dept_level__') >= 0;
+    document.getElementById('assignPersonSelectAllRight').checked = false;
   }
 
-  window.onAssignPersonRowChange = function(objName, select) {
-    var vals = Array.from(select.selectedOptions).map(function(o) { return o.value; });
-    assignState.persons[objName] = vals;
+  // 获取责任科室下所有人员（含科室本级 + 子科室）
+  function getAllPersonsForDept(dept) {
+    var tree = dept ? ORG_TREE[dept] : null;
+    if (!tree) return dept ? (PERSON_BY_DEPT[dept] || []) : [];
+    var all = (tree.persons || []).slice();
+    (tree.subDepts || []).forEach(function(sd) {
+      (sd.persons || []).forEach(function(p) { if (all.indexOf(p) < 0) all.push(p); });
+    });
+    return all;
+  }
+
+  // 展开/收起组织节点
+  window.toggleOrgNode = function(header) {
+    var children = header.parentElement.querySelector('.org-children');
+    if (!children) return;
+    var toggle = header.querySelector('.org-toggle');
+    if (children.style.display === 'none') {
+      children.style.display = '';
+      if (toggle) toggle.classList.remove('collapsed');
+    } else {
+      children.style.display = 'none';
+      if (toggle) toggle.classList.add('collapsed');
+    }
   };
 
-  window.onAssignDeptChange = function() {
-    if (assignState.step === 2) renderAssignPersonTable();
+  // 子科室全选/全不选
+  window.toggleDeptPersons = function(subDeptName, checked) {
+    var cbs = document.querySelectorAll('.person-cb-left[data-subdept="' + subDeptName + '"]');
+    cbs.forEach(function(cb) {
+      var person = cb.value;
+      if (checked) {
+        if (assignState.selectedPersons.indexOf(person) < 0) assignState.selectedPersons.push(person);
+      } else {
+        assignState.selectedPersons = assignState.selectedPersons.filter(function(p) { return p !== person; });
+      }
+    });
+    renderPersonShuttleBox();
   };
 
-  window.assignSetAllPersons = function() {
-    var dept = document.getElementById('assignDept').value;
-    if (!dept) { showToast('请先选择责任科室'); return; }
-    var pool = PERSON_BY_DEPT[dept] || [];
-    if (!pool.length) { showToast('该责任科室下无可用人员'); return; }
-    assignState.selectedObjs.forEach(function(n) { assignState.persons[n] = pool.slice(); });
-    renderAssignPersonTable();
-    showToast('已将全部对象责任人设为「' + dept + '」全员');
+  // 科室本级 选中/取消
+  window.toggleDeptLevel = function(checked) {
+    var idx = assignState.selectedDepts.indexOf('__dept_level__');
+    if (checked) {
+      if (idx < 0) assignState.selectedDepts.push('__dept_level__');
+    } else {
+      if (idx >= 0) assignState.selectedDepts.splice(idx, 1);
+    }
+    renderPersonShuttleBox();
   };
 
-  window.assignClearAllPersons = function() {
-    assignState.selectedObjs.forEach(function(n) { assignState.persons[n] = []; });
-    renderAssignPersonTable();
-    showToast('已清空全部责任人');
+  // 右侧科室级取消勾选
+  window.toggleDeptRight = function(checked) {
+    if (!checked) {
+      var idx = assignState.selectedDepts.indexOf('__dept_level__');
+      if (idx >= 0) assignState.selectedDepts.splice(idx, 1);
+      renderPersonShuttleBox();
+    }
+  };
+
+  // 单个人员勾选/取消
+  window.onPersonCheckboxChange = function(person, checked) {
+    if (checked) {
+      if (assignState.selectedPersons.indexOf(person) < 0) assignState.selectedPersons.push(person);
+    } else {
+      assignState.selectedPersons = assignState.selectedPersons.filter(function(p) { return p !== person; });
+    }
+    renderPersonShuttleBox();
+  };
+
+  // 右侧人员取消勾选
+  window.togglePersonRight = function(person, checked) {
+    if (!checked) {
+      assignState.selectedPersons = assignState.selectedPersons.filter(function(p) { return p !== person; });
+      renderPersonShuttleBox();
+    }
+  };
+
+  // 人员穿梭框移动
+  window.personShuttleMove = function(dir) {
+    if (dir === 'leftToRight') {
+      document.querySelectorAll('.person-cb-left:checked').forEach(function(cb) {
+        var name = cb.value;
+        if (assignState.selectedPersons.indexOf(name) < 0) assignState.selectedPersons.push(name);
+      });
+      // 科室本级勾选
+      var deptLevelCb = document.querySelector('.org-dept-check[data-dept="__dept_level__"]:checked');
+      if (deptLevelCb) {
+        var idx = assignState.selectedDepts.indexOf('__dept_level__');
+        if (idx < 0) assignState.selectedDepts.push('__dept_level__');
+      }
+    } else {
+      var toRemove = [];
+      document.querySelectorAll('.person-cb-right:checked').forEach(function(cb) { toRemove.push(cb.value); });
+      assignState.selectedPersons = assignState.selectedPersons.filter(function(p) { return toRemove.indexOf(p) < 0; });
+      // 科室级取消
+      var deptRightCb = document.querySelector('.dept-cb-right:checked');
+      if (deptRightCb) {
+        var idx = assignState.selectedDepts.indexOf('__dept_level__');
+        if (idx >= 0) assignState.selectedDepts.splice(idx, 1);
+      }
+    }
+    renderPersonShuttleBox();
+  };
+
+  // 人员穿梭框全选/全不选
+  window.togglePersonShuttleAll = function(checked, side) {
+    var dept = assignState.dept;
+    var allPersons = getAllPersonsForDept(dept);
+    if (side === 'left') {
+      if (checked) {
+        assignState.selectedPersons = allPersons.slice();
+        var idx = assignState.selectedDepts.indexOf('__dept_level__');
+        if (idx < 0) assignState.selectedDepts.push('__dept_level__');
+      } else {
+        assignState.selectedPersons = [];
+        var idx = assignState.selectedDepts.indexOf('__dept_level__');
+        if (idx >= 0) assignState.selectedDepts.splice(idx, 1);
+      }
+      renderPersonShuttleBox();
+    } else {
+      // 右侧全选：勾选所有人员 + 科室级
+      document.querySelectorAll('.person-cb-right').forEach(function(cb) { cb.checked = checked; });
+      document.querySelectorAll('.dept-cb-right').forEach(function(cb) { cb.checked = checked; });
+    }
   };
 
   // 确认配置 → 回显到检查表弹窗
   window.confirmAssign = function() {
-    var dept = document.getElementById('assignDept').value;
-    if (!dept) { showToast('请选择责任科室'); return; }
+    var dept = assignState.dept;
+    if (!dept) { showToast('责任科室未设置'); return; }
     if (assignState.selectedObjs.length === 0) { showToast('请至少选择一个管控对象'); return; }
-    var hasAnyPerson = assignState.selectedObjs.some(function(n) { return (assignState.persons[n] || []).length > 0; });
-    if (!hasAnyPerson) { showToast('请为至少一个管控对象配置责任人'); return; }
     assignState.dept = dept;
+    // 将选中的人员应用到所有已选对象（人员可选，未选时列表显示"-"）
+    var persons = {};
+    assignState.selectedObjs.forEach(function(n) { persons[n] = assignState.selectedPersons.slice(); });
     // 保存数据
     clAssignData = {
       dept: dept,
       objects: assignState.selectedObjs.slice(),
-      persons: JSON.parse(JSON.stringify(assignState.persons))
+      persons: persons,
+      selectedDepts: assignState.selectedDepts.slice()
     };
     closeModal('modal-assign-responsibility');
     renderAssignResult();
@@ -1877,26 +2091,28 @@
       container.innerHTML = '<div style="font-size:var(--font-size-sm);color:var(--text-tertiary);padding:12px 0;">尚未配置——点击"配置责任分配"开始设置</div>';
       return;
     }
-    // 按责任人聚合：{ dept, person, count }
     var dept = clAssignData.dept || '未设置';
-    var grouped = {}; // key: person or '__no_person__'
+    var rows = '';
+    // 科室级行
+    if (clAssignData.selectedDepts && clAssignData.selectedDepts.indexOf('__dept_level__') >= 0) {
+      rows += '<tr><td>' + dept + '</td><td><span class="dept-level-tag">' + dept + '（科室级）</span></td><td style="text-align:center;">' + clAssignData.objects.length + '</td><td class="action-col"><button type="button" class="btn-link" onclick="viewAssignDetail()">编辑</button></td></tr>';
+    }
+    // 按责任人聚合
+    var grouped = {};
     clAssignData.objects.forEach(function(name) {
       var persons = clAssignData.persons[name] || [];
-      if (persons.length > 0) {
-        persons.forEach(function(p) {
-          if (!grouped[p]) grouped[p] = { dept: dept, person: p, count: 0 };
-          grouped[p].count++;
-        });
-      } else {
-        if (!grouped['__no_person__']) grouped['__no_person__'] = { dept: dept, person: null, count: 0 };
-        grouped['__no_person__'].count++;
-      }
+      persons.forEach(function(p) {
+        if (!grouped[p]) grouped[p] = { dept: dept, person: p, count: 0 };
+        grouped[p].count++;
+      });
     });
-    var rows = Object.keys(grouped).map(function(key, i) {
+    Object.keys(grouped).forEach(function(key) {
       var g = grouped[key];
-      var personText = g.person || '—';
-      return '<tr><td>' + g.dept + '</td><td>' + personText + '</td><td style="text-align:center;">' + g.count + '</td><td class="action-col"><button type="button" class="btn-link" onclick="viewAssignDetail()">编辑</button></td></tr>';
-    }).join('');
+      rows += '<tr><td>' + g.dept + '</td><td>' + g.person + '</td><td style="text-align:center;">' + g.count + '</td><td class="action-col"><button type="button" class="btn-link" onclick="viewAssignDetail()">编辑</button></td></tr>';
+    });
+    if (!rows) {
+      rows = '<tr><td>' + dept + '</td><td>—</td><td style="text-align:center;">' + clAssignData.objects.length + '</td><td class="action-col"><button type="button" class="btn-link" onclick="viewAssignDetail()">编辑</button></td></tr>';
+    }
     container.innerHTML =
       '<div class="assign-table-wrapper">' +
       '<table class="assign-table"><thead><tr><th>责任科室</th><th>责任人</th><th style="width:100px;">管控对象数</th><th class="action-col">操作</th></tr></thead>' +
@@ -1916,17 +2132,11 @@
     // 复制已有配置
     assignState.dept = clAssignData.dept || '';
     assignState.selectedObjs = clAssignData.objects.slice();
-    assignState.persons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
+    assignState.selectedDepts = clAssignData.selectedDepts ? clAssignData.selectedDepts.slice() : [];
+    assignState.selectedPersons = clAssignData.persons ? Object.values(clAssignData.persons).flat().filter(function(v, i, a) { return a.indexOf(v) === i; }) : [];
 
-    // 填充责任科室下拉
-    var sel = document.getElementById('assignDept');
-    sel.innerHTML = '<option value="">请选择</option>';
-    DEPT_LIST.forEach(function(name) {
-      var opt = document.createElement('option');
-      opt.value = name; opt.textContent = name;
-      sel.appendChild(opt);
-    });
-    sel.value = assignState.dept;
+    // 显示责任科室（只读）
+    document.getElementById('assignDeptDisplay').textContent = assignState.dept || '未设置';
 
     goToAssignStep(1);
     renderAssignShuttleBox();
@@ -1936,7 +2146,7 @@
 
   // 收集分配数据（供 submitChecklist 使用）
   function collectAssignData() {
-    if (!clAssignData || !clAssignData.objects) return { dept: '', assignedObjects: [], person: [], objectPersons: {} };
+    if (!clAssignData || !clAssignData.objects) return { dept: '', assignedObjects: [], person: [], objectPersons: {}, selectedDepts: [] };
     var allPersons = [];
     clAssignData.objects.forEach(function(n) {
       (clAssignData.persons[n] || []).forEach(function(p) { if (allPersons.indexOf(p) < 0) allPersons.push(p); });
@@ -1945,7 +2155,8 @@
       dept: clAssignData.dept,
       assignedObjects: clAssignData.objects.slice(),
       person: allPersons,
-      objectPersons: clAssignData.persons || {}
+      objectPersons: clAssignData.persons || {},
+      selectedDepts: clAssignData.selectedDepts ? clAssignData.selectedDepts.slice() : []
     };
   }
 
@@ -1953,9 +2164,8 @@
     if (!clAssignData || !clAssignData.objects || clAssignData.objects.length === 0) {
       showToast('请先配置责任分配'); return false;
     }
-    var hasAnyPerson = clAssignData.objects.some(function(n) { return (clAssignData.persons[n] || []).length > 0; });
-    if (!hasAnyPerson) { showToast('请为至少一个管控对象配置责任人'); return false; }
     if (!clAssignData.dept) { showToast('请先配置责任科室'); return false; }
+    // 责任人为可选：未选人员时扫码责任显示"-"
     return true;
   }
 
@@ -1979,7 +2189,7 @@
     var cm = parseInt(document.getElementById('clCycleM').value, 10);
     var cu = document.getElementById('clCycleUnit').value;
     var cycle = (cn > 0 && cm > 0) ? ('每' + cn + cu + '检查' + cm + '次') : '';
-    if (!name || !cycle || !assignData.dept || assignData.person.length === 0) { showToast('请填写完整信息（名称/周期/责任科室/责任人）'); return; }
+    if (!name || !cycle || !assignData.dept) { showToast('请填写完整信息（名称/周期/责任科室）'); return; }
     // BR-GOV-DS-16：系统检查表必须将所有管控对象全部分配完毕
     var totalObjs = (window._clAllObjects || []).length;
     if (isSystem && assignData.assignedObjects.length < totalObjs) {
@@ -1996,6 +2206,7 @@
       dept: assignData.dept,
       assignedObjects: assignData.assignedObjects,
       objectPersons: assignData.objectPersons,
+      selectedDepts: assignData.selectedDepts,
       skipHoliday: document.getElementById('clSkipHoliday').classList.contains('active'),
       items: getModalCheckItems(),
       scan: { enabled: true },
@@ -2220,16 +2431,16 @@
     // 存储全部管控对象供穿梭框使用
     window._clAllObjects = objects.map(function(o) { return { name: o.name, type: o.type }; });
     // 加载责任分配数据（编辑模式回显）
+    // objectPersons 存在=用户实际配置过；不存在=未配置，回显时显示"-"
     var assignedObjs = cl.assignedObjects || [];
     var objectPersons = cl.objectPersons || {};
-    if (!cl.objectPersons) {
-      var defaultPersons = Array.isArray(cl.person) ? cl.person : (cl.person ? [cl.person] : []);
-      assignedObjs.forEach(function(n) { objectPersons[n] = defaultPersons.slice(); });
-    }
+    var selDepts = cl.selectedDepts || [];
+    // 不再回退使用 cl.person（预填默认值），未配置时人员为空
     clAssignData = {
       dept: cl.dept || '',
       objects: assignedObjs.slice(),
-      persons: objectPersons
+      persons: objectPersons,
+      selectedDepts: selDepts.slice()
     };
     renderAssignResult();
     document.getElementById('modal-checklist').dataset.domainId = domainId;
@@ -2478,6 +2689,44 @@
     '危化品监管和执法科': ['王强', '刘洋']
   };
   var ALL_PERSONS = ['张伟', '李娜', '王强', '陈敏', '刘洋'];
+
+  // 组织架构树：科室→科室本级人员 + 子科室（可选）→人员
+  var ORG_TREE = {
+    '督导检查科': {
+      persons: ['赵明', '孙丽'], // 科室本级人员（科长、副科长等）
+      subDepts: [
+        { name: '督查一组', persons: ['张伟'] },
+        { name: '督查二组', persons: ['李娜'] }
+      ]
+    },
+    '综合协调科': {
+      persons: ['周华'],
+      subDepts: [
+        { name: '综合组', persons: ['陈敏'] }
+      ]
+    },
+    '区三防办': {
+      persons: ['钱伟'],
+      subDepts: []
+    },
+    '安全监管和执法科': {
+      persons: ['吴芳'],
+      subDepts: [
+        { name: '执法一队', persons: ['刘洋'] },
+        { name: '执法二队', persons: ['张伟'] }
+      ]
+    },
+    '防灾减灾科': {
+      persons: ['郑涛'],
+      subDepts: []
+    },
+    '危化品监管和执法科': {
+      persons: ['马强'],
+      subDepts: [
+        { name: '危化品组', persons: ['王强', '刘洋'] }
+      ]
+    }
+  };
 
   var configState = {
     domainId: null,
@@ -2746,13 +2995,27 @@
       cfg.checklists.forEach(function(c, idx) {
         var typeTag = c.checklistType === 'custom' ? '<span class="tag tag-orange">[自定义]</span>' : '<span class="tag tag-blue">[系统]</span>';
         var assignedCount = c.assignedObjects ? c.assignedObjects.length : 0;
-        // 扫码责任列（合并责任人+扫码责任）：系统=责任科室或科室+人员，自定义=责任人
+        // 扫码责任列：科室级=XX科室（科室级），有人员=科室+人员，无人员=科室名
         var scanRespText = '';
         if (c.checklistType === 'system') {
-          var extraPersons = c.assignedPersons && c.assignedPersons.length ? '、' + c.assignedPersons.join('、') : '';
-          scanRespText = c.dept + extraPersons;
+          var hasPersons = c.assignedPersons && c.assignedPersons.length > 0;
+          var isDeptLevel = c.selectedDepts && c.selectedDepts.indexOf('__dept_level__') >= 0;
+          if (isDeptLevel) {
+            scanRespText = c.dept + '（科室级）';
+          } else if (hasPersons) {
+            scanRespText = c.dept + '、' + c.assignedPersons.join('、');
+          } else {
+            scanRespText = c.dept;
+          }
         } else {
-          scanRespText = c.person ? (Array.isArray(c.person) ? c.person.join('、') : c.person) : '—';
+          var isDeptLevel = c.selectedDepts && c.selectedDepts.indexOf('__dept_level__') >= 0;
+          if (isDeptLevel) {
+            scanRespText = c.dept + '（科室级）';
+          } else if (c.person && c.person.length > 0) {
+            scanRespText = Array.isArray(c.person) ? c.person.join('、') : c.person;
+          } else {
+            scanRespText = c.dept;
+          }
         }
         var scanTag = '<span class="tag tag-green">' + scanRespText + '</span>';
         html += '<tr><td>' + c.name + '</td>';
