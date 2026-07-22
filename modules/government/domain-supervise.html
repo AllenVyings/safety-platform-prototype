@@ -105,21 +105,9 @@
     .code-cell.yellow .qrcode-icon { color: var(--warning); }
     .code-cell.green .qrcode-icon { color: var(--success); }
 
-    /* ========== 领域配置页（覆盖右侧内容区） ========== */
-    .detail-panel.config-mode .tab-nav,
-    .detail-panel.config-mode .detail-body { display: none; }
-    .config-view { display: none; flex: 1; flex-direction: column; min-height: 0; background: var(--bg-primary); }
-    .detail-panel.config-mode .config-view { display: flex; }
-    .config-view-header { position: sticky; top: 0; z-index: 10; background: var(--bg-section); border-bottom: 1px solid var(--border-section); padding: 12px 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-    .config-breadcrumb { font-size: var(--font-size-sm); color: var(--text-secondary); }
-    .config-breadcrumb .sep { margin: 0 6px; color: var(--text-tertiary); }
-    .config-breadcrumb .current { color: var(--text-primary); font-weight: 600; }
-    .config-summary { font-size: var(--font-size-xs); color: var(--text-secondary); margin-left: auto; }
-    .config-summary b { color: var(--text-primary); }
-    .config-body { flex: 1; overflow-y: auto; padding: 20px; }
+    /* ========== 任务配置Tab ========== */
     .config-section-title { font-size: var(--font-size-md); font-weight: 600; margin-bottom: 12px; padding-left: 8px; border-left: 3px solid var(--primary); }
     .config-block { background: var(--bg-section); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 20px; }
-    .config-view-footer { position: sticky; bottom: 0; z-index: 10; background: var(--bg-section); border-top: 1px solid var(--border-section); padding: 12px 20px; display: flex; justify-content: flex-end; gap: 8px; }
 
     /* ========== 检查内容列表 ========== */
     .checkitem-list { border: 1px solid var(--border-section); border-radius: var(--radius-lg); overflow-y: auto; max-height: 300px; }
@@ -305,10 +293,6 @@
     /* ========== 提示条 ========== */
     .context-bar { background: var(--info-light, #e6f0ff); color: var(--info); padding: 8px 16px; border-radius: var(--radius-md); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 8px; }
 
-    /* ========== 左树配置入口图标 & Tab栏配置按钮 ========== */
-    .tree-config-icon { display: inline-flex; align-items: center; margin-left: 6px; font-size: 12px; opacity: 0; cursor: pointer; vertical-align: middle; transition: opacity var(--duration-fast), transform var(--duration-fast); }
-    .tree-node:hover .tree-config-icon { opacity: 1; }
-    .tree-config-icon:hover { transform: rotate(45deg); }
     .detail-panel .tab-nav { display: flex; justify-content: space-between; align-items: center; }
 
     /* ========== 开关 ========== */
@@ -347,36 +331,25 @@
         <span class="detail-title" id="detailTitle">南山区应急管理局 — 领域监管</span>
       </div>
       <!-- Tab 导航 -->
-      <div class="tab-nav">
+      <div class="tab-nav" id="tabNav">
         <div style="display:flex;">
-          <button class="tab-btn active" onclick="switchTab('tab-overview',event)">监管总览</button>
+          <button class="tab-btn active" onclick="switchTab('tab-config',event)">任务配置</button>
           <button class="tab-btn" onclick="switchTab('tab-progress',event)">进度监督</button>
         </div>
-        <button class="btn btn-primary btn-sm" id="tabConfigBtn" style="display:none;" onclick="openTabConfig()">配置</button>
       </div>
       <div class="detail-body" id="detailBody">
-        <!-- Tab 1: 监管总览 -->
-        <div class="tab-content active" id="tab-overview">
-          <div class="context-bar" id="overviewContext">当前视图：全部领域汇总</div>
-          <div id="overviewContent"></div>
+        <!-- Tab 1: 任务配置 -->
+        <div class="tab-content active" id="tab-config">
+          <div id="configContent"></div>
         </div>
         <!-- Tab 2: 进度监督 -->
         <div class="tab-content" id="tab-progress">
           <div id="progressContent"></div>
         </div>
-      </div>
-      <!-- 领域配置页（覆盖在 detail-body 之上） -->
-      <div class="config-view" id="domainConfigView">
-        <div class="config-view-header">
-          <span class="config-breadcrumb" id="configBreadcrumb"></span>
-          <span class="config-summary" id="configSummary"></span>
-          <div style="flex:1"></div>
-          <button class="btn btn-default btn-sm" onclick="closeDomainConfig()"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M10 3L5 8l5 5"/></svg>返回</button>
-        </div>
-        <div class="config-body" id="configBody"></div>
-        <div class="config-view-footer">
-          <button class="btn btn-default" onclick="closeDomainConfig()">取消</button>
-          <button class="btn btn-primary" onclick="saveDomainConfig()">保存配置</button>
+        <!-- 监管总览（单位/行业大类节点直接展示，无Tab） -->
+        <div class="tab-content" id="tab-overview" style="display:none;">
+          <div class="context-bar" id="overviewContext">当前视图：全部领域汇总</div>
+          <div id="overviewContent"></div>
         </div>
       </div>
     </div>
@@ -496,6 +469,7 @@
     <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modal-objects')">关闭</button></div>
   </div>
 </div>
+
 
 <!-- ========== 责任分配弹窗（独立弹窗 + 两阶段向导） ========== -->
 <div class="modal-overlay" id="modal-assign-responsibility">
@@ -1073,10 +1047,6 @@
       html += '<span class="tree-node-icon">' + icon + '</span>';
       var safeTitle = n.name.replace(/"/g, '&quot;');
       html += '<span class="tree-node-label" data-tooltip="' + safeTitle + '">' + n.name + '</span>';
-      if (level === 1 && !hasChildren) {
-        // 配置入口①：领域小类 hover 显示 ⚙️（AC-GOV-DS-20）
-        html += '<span class="tree-config-icon" title="进入配置页" onclick="event.stopPropagation();openDomainConfig(\'' + n.id + '\')">⚙️</span>';
-      }
       html += '</div>';
       if (hasChildren) {
         html += '<div class="tree-children" data-parent="' + n.id + '">';
@@ -1129,13 +1099,11 @@
   }
 
   function selectNode(id) {
-    // BR-GOV-DS-18：配置页存在未保存草稿时切换节点需确认（点击同一节点退出配置同样需要确认）
-    var panel = document.querySelector('.detail-panel');
-    var inConfig = panel && panel.classList.contains('config-mode');
-    if (inConfig) {
+    // BR-GOV-DS-18：配置页存在未保存草稿时切换节点需确认
+    if (typeof configState !== 'undefined' && configState.domainId) {
       if (draftHasChanges() && !window.confirm('当前配置未保存，是否放弃？')) return;
-      panel.classList.remove('config-mode');
       draftBaseline = null; draftConfig = null;
+      configState.domainId = null;
     }
 
     // 选中单位节点(root)时，仅展开领域大类层，折叠所有领域大类下的领域小类
@@ -1187,23 +1155,29 @@
     }
     document.getElementById('detailTitle').textContent = title;
 
-    // 单位/行业大类节点：隐藏Tab导航，只显示监管总览
-    var tabNav = document.querySelector('.tab-nav');
+    // 单位/行业大类节点：隐藏Tab导航，直接展示监管总览
+    var tabNav = document.getElementById('tabNav');
     if (!isDomain) {
       if (tabNav) tabNav.style.display = 'none';
       currentTab = 'tab-overview';
       document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
       document.getElementById('tab-overview').classList.add('active');
+      document.getElementById('tab-overview').style.display = 'block';
     } else {
+      // 领域小类节点：显示2个Tab（任务配置/进度监督）
       if (tabNav) tabNav.style.display = '';
-      document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.toggle('active', btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(currentTab) > -1); });
+      // 如果是从非领域节点切换过来（currentTab 为 tab-overview），默认任务配置；否则保持当前Tab
+      if (currentTab === 'tab-overview') currentTab = 'tab-config';
+      document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(currentTab) > -1);
+      });
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+      document.getElementById(currentTab).classList.add('active');
+      document.getElementById('tab-overview').style.display = 'none';
     }
 
-    // 领域小类选中时显示右上角"配置"按钮（配置入口②，AC-GOV-DS-20）
-    var cfgBtn = document.getElementById('tabConfigBtn');
-    if (cfgBtn) cfgBtn.style.display = isDomain ? '' : 'none';
-
     if (currentTab === 'tab-overview') renderOverview();
+    else if (currentTab === 'tab-config') renderConfig();
     else if (currentTab === 'tab-progress') renderProgress();
   }
 
@@ -1228,62 +1202,42 @@
     updateDetail();
   };
 
-  // ========== Tab1: 监管总览 ==========
+  // ========== 监管总览（单位/行业大类节点直接展示，无Tab） ==========
   function renderOverview() {
     var isDomain = currentNode && currentNode.startsWith('domain-');
     var ctxEl = document.getElementById('overviewContext');
     var contentEl = document.getElementById('overviewContent');
 
-    if (isDomain) {
-      var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
-      ctxEl.textContent = '当前视图：' + d.name + ' 管控对象明细';
-      renderObjectDetail(d, contentEl);
-    } else {
-      var filterFn = currentNode && currentNode.startsWith('cat-')
-        ? function(x) { return x.cat === findTreeNode(TREE_DATA, currentNode).name; }
-        : function() { return true; };
-      var filtered = DOMAIN_SUMMARY.filter(filterFn);
-      ctxEl.textContent = '当前视图：' + (currentNode === 'root' || !currentNode ? '全部领域汇总' : findTreeNode(TREE_DATA, currentNode).name + ' 下领域汇总');
-      renderDomainSummary(filtered, contentEl);
-    }
+    // 领域小类节点不在此渲染（监管总览Tab已移除，详情通过弹窗查看）
+    if (isDomain) return;
+
+    var filterFn = currentNode && currentNode.startsWith('cat-')
+      ? function(x) { return x.cat === findTreeNode(TREE_DATA, currentNode).name; }
+      : function() { return true; };
+    var filtered = DOMAIN_SUMMARY.filter(filterFn);
+    ctxEl.textContent = '当前视图：' + (currentNode === 'root' || !currentNode ? '全部领域汇总' : findTreeNode(TREE_DATA, currentNode).name + ' 下领域汇总');
+    renderDomainSummary(filtered, contentEl);
   }
 
   function renderDomainSummary(list, el) {
-    var totalObjects = 0, totalHazards = 0;
-    list.forEach(function(d) { totalObjects += d.objects; totalHazards += d.hazards; });
-
-    var html = '<div class="stats-row">';
-    html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">领域小类数</div><div class="stat-value">' + list.length + '</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>';
-    html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">管控对象总数</div><div class="stat-value">' + totalObjects + '</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>';
-    html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">未关闭隐患数</div><div class="stat-value">' + totalHazards + '</div></div><div class="stat-indicator" style="background:var(--danger)"></div></div>';
-    var avgHazardRate = list.length ? Math.round(list.reduce(function(s,d){return s+d.hazardRate},0)/list.length) : 0;
-    html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">平均隐患整改率</div><div class="stat-value">' + avgHazardRate + '%</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>';
-    html += '</div>';
-
+    var html = '';
     var totalPages = Math.max(1, Math.ceil(list.length / domainSummaryPageSize));
     if (domainSummaryPage > totalPages) domainSummaryPage = totalPages;
     var start = (domainSummaryPage - 1) * domainSummaryPageSize;
     var pageList = list.slice(start, start + domainSummaryPageSize);
 
     html += '<div class="table-card"><div class="table-scroll"><table><thead><tr>';
-    html += '<th style="width:60px;min-width:60px">序号</th><th>领域小类名称</th><th>责任科室</th><th>管控对象数</th><th>绿码数</th><th>黄码数</th><th>红码数</th><th>隐患整改率</th><th class="action-col">操作</th>';
+    html += '<th style="width:60px;min-width:60px">序号</th><th>领域小类名称</th><th>责任科室</th><th class="action-col">操作</th>';
     html += '</tr></thead><tbody>';
     pageList.forEach(function(d, idx) {
-      var hazardColor = d.hazardRate >= 100 ? 'green' : d.hazardRate >= 80 ? 'yellow' : 'red';
       var rowNo = start + idx + 1;
-      // 从管控对象列表统计码色
-      var objs = OBJECT_DETAILS[d.id] || generateObjects(d);
-      var gc = 0, yc = 0, rc = 0;
-      objs.forEach(function(o) { if (o.code === 'green') gc++; else if (o.code === 'yellow') yc++; else rc++; });
       html += '<tr>';
+      var cfgDept = (CONFIG_DATA[d.id] && CONFIG_DATA[d.id].dept) || '';
+      var unitName = findTreeNode(TREE_DATA, 'root').name;
+      var dept = d.dept || cfgDept || unitName;
       html += '<td style="text-align:center">' + rowNo + '</td>';
       html += '<td>' + d.name + '</td>';
-      html += '<td>' + (d.dept || '本单位') + '</td>';
-      html += '<td>' + objs.length + '</td>';
-      html += '<td style="color:var(--success);font-weight:600">' + gc + '</td>';
-      html += '<td style="color:var(--warning);font-weight:600">' + yc + '</td>';
-      html += '<td style="color:var(--danger);font-weight:600">' + rc + '</td>';
-      html += '<td><span class="tag tag-' + hazardColor + '">' + d.hazardRate + '%</span></td>';
+      html += '<td>' + dept + '</td>';
       html += '<td class="action-col"><button class="btn-link" onclick="gotoDomainConfig(\'' + d.id + '\')">配置</button> <button class="btn-link" onclick="viewDomainDetail(\'' + d.id + '\')">查看详情</button></td>';
       html += '</tr>';
     });
@@ -1333,16 +1287,20 @@
     html += '<div class="table-card"><div class="table-scroll"><table><thead><tr>';
     html += '<th style="width:36px;"><input type="checkbox" onchange="toggleAllObjects(this,\'' + domain.id + '\')"></th><th>管控对象名称</th><th>对象类型</th><th>责任人</th><th>责任科室</th><th>安全码</th><th>未关闭隐患</th><th>隐患整改率</th><th class="action-col">操作</th>';
     html += '</tr></thead><tbody id="objectTbody-' + domain.id + '">';
+    // 领域配置的责任科室（所有管控对象共用）
+    var cfgDept = (CONFIG_DATA[domain.id] && CONFIG_DATA[domain.id].dept) || '';
+    var unitName = findTreeNode(TREE_DATA, 'root').name;
     pageObjects.forEach(function(o, oi) {
       var realIdx = start + oi;
       var typeClass = o.type === '企业' ? 'tag-blue' : o.type === '项目' ? 'tag-orange' : (o.type === '重点场所' ? 'tag-green' : 'tag-cyan');
+      var objDept = o.dept || cfgDept || unitName;
       var hr = (typeof o.hazardRate === 'number') ? o.hazardRate : (typeof o.rate === 'number' ? o.rate : (o.hazards > 0 ? 0 : 100));
       html += '<tr>';
       html += '<td><input type="checkbox" class="obj-check" data-domain="' + domain.id + '" data-idx="' + realIdx + '"></td>';
       html += '<td><a class="btn-link" onclick="viewObjectDetail(\'' + domain.id + '\',' + realIdx + ')">' + o.name + '</a></td>';
       html += '<td><span class="tag ' + typeClass + '">' + o.type + '</span></td>';
-      html += '<td>' + (o.person || '<span style="color:var(--danger)">未配置</span>') + '</td>';
-      html += '<td>' + (o.dept || '—') + '</td>';
+      html += '<td>' + (o.person || '-') + '</td>';
+      html += '<td>' + objDept + '</td>';
       html += '<td style="text-align:center"><span class="code-cell ' + o.code + '" title="' + (o.code === 'green' ? '绿码' : o.code === 'yellow' ? '黄码' : '红码') + '">' + QR_ICON_SVG + '</span></td>';
       html += '<td>' + (o.hazards > 0 ? '<span style="color:var(--danger);font-weight:600">' + o.hazards + '</span>' : '0') + '</td>';
       html += '<td>' + hr + '%</td>';
@@ -1500,17 +1458,6 @@
     var start = (progressDetailPage - 1) * progressDetailPageSize;
     var pageObjects = objects.slice(start, start + progressDetailPageSize);
 
-    // 统计卡片：汇总该领域小类的检查进度
-    var totalPlanned = 0, totalDone = 0;
-    objects.forEach(function(o) {
-      var planned = 2;
-      var done = Math.round(planned * o.rate / 100);
-      totalPlanned += planned;
-      totalDone += done;
-    });
-    var overallRate = totalPlanned > 0 ? Math.round(totalDone / totalPlanned * 100) : 0;
-    var rateColor = overallRate >= 100 ? 'success' : overallRate >= 80 ? 'warning' : 'danger';
-
     // ① 检查进度矩阵
     var cycles = ['每日', '每周', '每月', '每季度', '每年'];
     var html = '<div class="table-card" style="margin-bottom:16px;"><div style="padding:12px 16px;font-weight:600;font-size:var(--font-size-base);border-bottom:1px solid var(--border-section);">检查进度矩阵</div><div class="table-scroll"><table><thead><tr><th style="min-width:140px;">领域小类</th>';
@@ -1529,14 +1476,6 @@
     });
     var mOverall = mTotalPlanned > 0 ? Math.round(mTotalDone / mTotalPlanned * 100) : 0;
     html += '<td style="text-align:center;font-weight:600;">' + mTotalDone + '/' + mTotalPlanned + ' ' + mOverall + '%</td></tr></tbody></table></div></div>';
-
-    // ② 统计卡片
-    html += '<div class="stats-row">';
-    html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">管控对象数</div><div class="stat-value">' + objects.length + '</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>';
-    html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">应检次数</div><div class="stat-value">' + totalPlanned + '</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>';
-    html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">已完成次数</div><div class="stat-value">' + totalDone + '</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>';
-    html += '<div class="stat-card"><div class="stat-card-body"><div class="stat-label">整体完成率</div><div class="stat-value">' + overallRate + '%</div></div><div class="stat-indicator" style="background:var(--' + rateColor + ')"></div></div>';
-    html += '</div>';
 
     // ③ 管控对象明细表
     html += '<div class="table-card"><div class="table-scroll"><table><thead><tr>';
@@ -1568,15 +1507,9 @@
   window.openModal = function(id) { document.getElementById(id).classList.add('show'); };
   window.closeModal = function(id) { document.getElementById(id).classList.remove('show'); };
 
+  // 汇总表"查看详情"操作：选中树节点 + 切换到任务配置Tab（BR-GOV-DS-14）
   window.viewDomainDetail = function(id) {
-    expandToNode(id);
-    selectNode(id);
-    var toggle = document.querySelector('.tree-node[data-id="' + id + '"] .tree-toggle');
-    if (toggle && !toggle.classList.contains('leaf')) {
-      toggle.classList.add('expanded');
-      var next = document.querySelector('.tree-node[data-id="' + id + '"]').nextElementSibling;
-      if (next) next.classList.add('show');
-    }
+    openDomainConfig(id);
   };
 
   // 汇总表"配置"操作：进入独立配置页（BR-GOV-DS-14 操作联动树节点）
@@ -1584,9 +1517,13 @@
     openDomainConfig(id);
   };
 
-  // 配置入口②：领域小类选中时右上角"配置"按钮
   window.openTabConfig = function() {
-    if (currentNode && currentNode.indexOf('domain-') === 0) openDomainConfig(currentNode);
+    // 保留兼容调用：直接切换到任务配置tab
+    switchTab('tab-config', null);
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.textContent === '任务配置');
+    });
+    renderConfig();
   };
 
   // ========== 管控对象详情弹窗（AC-GOV-DS-21：不跳转管控档案） ==========
@@ -1637,8 +1574,11 @@
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:var(--font-size-sm);background:var(--bg-section);padding:12px 16px;border-radius:var(--radius-md);margin-bottom:16px;">';
     html += '<div>对象名称：<b>' + o.name + '</b></div>';
     html += '<div>对象类型：' + o.type + '</div>';
-    html += '<div>责任人：' + (o.person || '<span style="color:var(--danger)">未配置</span>') + '</div>';
-    html += '<div>责任科室：' + (o.dept || '本单位') + '</div>';
+    var cfgDept = (CONFIG_DATA[domainId] && CONFIG_DATA[domainId].dept) || '';
+    var unitName = findTreeNode(TREE_DATA, 'root').name;
+    var objDept = o.dept || cfgDept || unitName;
+    html += '<div>责任人：' + (o.person || '-') + '</div>';
+    html += '<div>责任科室：' + objDept + '</div>';
     html += '<div>安全码：<span class="code-cell ' + o.code + '" title="' + codeLabel + '">' + QR_ICON_SVG + '</span> ' + codeLabel + '</div>';
     html += '<div>未关闭隐患：' + (o.hazards > 0 ? '<span style="color:var(--danger);font-weight:600">' + o.hazards + '</span>' : '0') + '</div>';
     html += '<div>隐患整改率：' + hr + '%</div>';
@@ -3461,13 +3401,9 @@
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
     if (!d) return;
     // 配置页已打开时的入口守卫（BR-GOV-DS-18）：同领域直接返回；跨领域有未保存草稿先确认
-    var cfgPanel = document.querySelector('.detail-panel');
-    if (cfgPanel && cfgPanel.classList.contains('config-mode')) {
-      if (configState.domainId === domainId) return;
-      if (draftHasChanges() && !window.confirm('当前配置未保存，是否放弃？')) return;
-      cfgPanel.classList.remove('config-mode');
-      draftBaseline = null; draftConfig = null;
-    }
+    if (configState.domainId === domainId) return;
+    if (configState.domainId && draftHasChanges() && !window.confirm('当前配置未保存，是否放弃？')) return;
+    if (configState.domainId) { draftBaseline = null; draftConfig = null; }
     // 选中并展开树中对应节点
     expandToNode(domainId);
     selectNode(domainId);
@@ -3502,45 +3438,99 @@
     });
     draftConfig = deepClone(draftBaseline);
 
-    var cat = d.cat || '';
-    document.getElementById('configBreadcrumb').innerHTML =
-      '<span>监管总览</span><span class="sep">/</span><span>' + cat + '</span><span class="sep">/</span><span class="current">' + d.name + '</span>';
-
-    document.querySelector('.detail-panel').classList.add('config-mode');
-    renderDomainConfig();
+    // 切换到任务配置tab
+    currentTab = 'tab-config';
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.textContent === '任务配置');
+    });
+    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.getElementById('tab-config').classList.add('active');
+    renderConfig();
   };
 
   window.closeDomainConfig = function() {
     // BR-GOV-DS-18：未保存草稿确认，取消则全部丢弃
     if (draftHasChanges() && !window.confirm('当前配置未保存，是否放弃？')) return;
-    document.querySelector('.detail-panel').classList.remove('config-mode');
     configState.domainId = null;
     draftBaseline = null; draftConfig = null;
+    // 保持在当前领域节点，显示任务配置tab空状态
+    currentTab = 'tab-config';
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.textContent === '任务配置');
+    });
+    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.getElementById('tab-config').classList.add('active');
+    renderConfig();
   };
+
+  // 渲染任务配置Tab
+  function renderConfig() {
+    var el = document.getElementById('configContent');
+    if (!el) return;
+    // 未初始化但有领域选中时，自动初始化配置状态
+    if (!configState.domainId) {
+      if (currentNode && currentNode.startsWith('domain-')) {
+        autoInitConfigState(currentNode);
+      } else {
+        el.innerHTML = '<div class="empty-state"><div class="empty-icon">⚙️</div><div class="empty-text">请先在左侧树中选中一个领域小类</div><div class="empty-hint">选中后将显示该领域的任务配置</div></div>';
+        return;
+      }
+    }
+    renderDomainConfig();
+  }
+
+  function autoInitConfigState(domainId) {
+    var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
+    if (!d) return;
+    var objs = OBJECT_DETAILS[domainId] || generateObjects(d);
+    configState.domainId = domainId;
+    configState.objects = objs.map(function(o) { return o; });
+    configState.targetConfigDept = d.dept || '';
+    draftBaseline = deepClone(CONFIG_DATA[domainId] || { checklists: [], hazard: null });
+    if (draftBaseline.dept === undefined) draftBaseline.dept = d.dept || '';
+    var allObjNames = configState.objects.map(function(o) { return o.name; });
+    (draftBaseline.checklists || []).forEach(function(c) {
+      c.person = Array.isArray(c.person) ? c.person : (c.person ? [c.person] : []);
+      c.scan = c.scan || { enabled: true };
+      c.assignedPersons = c.assignedPersons || [];
+      c.skipHoliday = !!c.skipHoliday;
+      c.items = Array.isArray(c.items) ? c.items : [];
+      if (!c.assignedObjects || c.assignedObjects.length === 0) {
+        if (c.scope === '全部') { c.assignedObjects = allObjNames.slice(); }
+      }
+      delete c.scope;
+    });
+    draftConfig = deepClone(draftBaseline);
+  }
 
   function renderDomainConfig() {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === configState.domainId; });
     if (!d) return;
     var objs = configState.objects;
     var assigned = objs.filter(function(o) { return o.person; }).length;
-    document.getElementById('configSummary').innerHTML =
-      '<b>' + objs.length + '</b> 个对象 · 已配置 <b>' + assigned + '</b> · 未配置 <b style="color:var(--danger)">' + (objs.length - assigned) + '</b>';
 
     var html = '';
-    // 递进关系提示（PRD §6.2.2.3）
-    html += '<div class="context-bar" style="margin-bottom:16px;">配置递进关系：⓪ 责任科室配置 → ① 扫码责任配置 → ② 隐患责任配置</div>';
+    // 领域标题
+    html += '<div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">';
+    html += '<h3 style="margin:0;font-size:var(--font-size-lg);font-weight:600;">' + d.name + ' — 任务配置</h3>';
+    html += '<span style="font-size:var(--font-size-sm);color:var(--text-secondary);">' +
+      '<b>' + objs.length + '</b> 个对象 · 已配置 <b>' + assigned + '</b> · 未配置 <b style="color:var(--danger)">' + (objs.length - assigned) + '</b></span>';
+    html += '</div>';
+    // 上下文提示条（PRD §6.2.2.3）
+    html += '<div class="context-bar" style="margin-bottom:16px;">当前配置：' + d.name + '</div>';
     // ⓪ 责任科室配置（领域级别）
     html += '<div class="config-section-title">⓪ 责任科室配置</div>';
     html += '<div class="config-block">';
+    var unitName2 = findTreeNode(TREE_DATA, 'root').name;
     html += '<div style="display:flex;align-items:center;gap:12px;">';
     html += '<label style="font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap;">责任科室：</label>';
     html += '<select class="form-select" id="cfgDeptSelect" style="width:220px;" onchange="onDraftDeptChange(this.value)">';
-    html += '<option value=""' + (draftConfig && !draftConfig.dept ? ' selected' : '') + '>本单位（默认）</option>';
+    html += '<option value=""' + (draftConfig && !draftConfig.dept ? ' selected' : '') + '>' + unitName2 + '（默认）</option>';
     DEPT_LIST.forEach(function(dept) {
       html += '<option value="' + dept + '"' + (draftConfig && draftConfig.dept === dept ? ' selected' : '') + '>' + dept + '</option>';
     });
     html += '</select>';
-    html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">未配置时默认责任科室为本单位（BR-GOV-DS-12）</span>';
+    html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">未配置时默认显示当前用户所属监管单位名称（BR-GOV-DS-12）</span>';
     html += '</div>';
     html += '</div>';
     // ① 扫码责任配置
@@ -3550,7 +3540,13 @@
     html += '<div class="config-section-title">② 隐患责任配置</div>';
     html += '<div class="config-block" id="configHazardBlock"></div>';
 
-    document.getElementById('configBody').innerHTML = html;
+    // 底部操作按钮
+    html += '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border-light);">';
+    html += '<button class="btn btn-default" onclick="closeDomainConfig()">取消</button>';
+    html += '<button class="btn btn-primary" onclick="saveDomainConfig()">保存配置</button>';
+    html += '</div>';
+
+    document.getElementById('configContent').innerHTML = html;
     renderConfigChecklistBlock(d);
     renderConfigHazardBlock(d);
   }
@@ -3654,7 +3650,6 @@
     CONFIG_DATA[d.id] = deepClone(draftConfig);
     d.dept = draftConfig.dept || '';
     draftBaseline = null; draftConfig = null;
-    document.querySelector('.detail-panel').classList.remove('config-mode');
     showToast('配置已保存');
     renderOverview();
   };
