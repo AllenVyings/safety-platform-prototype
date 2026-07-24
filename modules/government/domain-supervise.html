@@ -374,7 +374,7 @@
             <div style="display: flex; align-items: center; gap: 6px; font-size: var(--font-size-sm);">
               <span>每</span>
               <input type="number" class="form-input" id="clCycleN" min="1" max="99" value="1" style="width:56px;text-align:center;height:32px;">
-              <select class="form-select" id="clCycleUnit" style="width:90px;height:32px;"><option>日</option><option>周</option><option selected>月</option><option>季度</option></select>
+              <select class="form-select" id="clCycleUnit" style="width:90px;height:32px;"><option>日</option><option>周</option><option selected>月</option><option>季度</option><option>年</option></select>
               <span>检查</span>
               <input type="number" class="form-input" id="clCycleM" min="1" max="99" value="1" style="width:56px;text-align:center;height:32px;">
               <span>次</span>
@@ -518,30 +518,20 @@
           <button type="button" class="btn btn-primary" onclick="goToAssignStep(2)">下一步：配置责任人 →</button>
         </div>
       </div>
-      <!-- 步骤 2：责任人穿梭框 -->
+      <!-- 步骤 2：配置责任人 -->
       <div class="wizard-panel" id="assignStep2" style="display:none;">
-        <div style="display:flex;align-items:center;gap:var(--spacing-sm);margin-bottom:var(--spacing-sm);">
-          <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">选中的人员将应用到所有已选管控对象</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-sm);">
+          <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">为每个管控对象独立配置责任人（可多选）</span>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="btn btn-default btn-sm" onclick="batchAssignAllPersons()">批量设为本科室全员</button>
+            <button type="button" class="btn btn-default btn-sm" onclick="clearAllPersons()">清空全部责任人</button>
+          </div>
         </div>
-        <div class="shuttle-box">
-          <div class="shuttle-panel">
-            <div class="shuttle-header">
-              <label style="font-size:var(--font-size-sm);font-weight:500;">责任科室组织架构</label>
-              <label style="font-size:var(--font-size-xs);cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="assignPersonSelectAllLeft" onchange="togglePersonShuttleAll(this.checked, 'left')"> 全选</label>
-            </div>
-            <div class="shuttle-list" id="assignShuttlePersonLeft" style="height:320px;"></div>
-          </div>
-          <div class="shuttle-actions">
-            <button type="button" class="btn btn-default btn-sm" onclick="personShuttleMove('leftToRight')">添加 &gt;</button>
-            <button type="button" class="btn btn-default btn-sm" onclick="personShuttleMove('rightToLeft')">&lt; 移除</button>
-          </div>
-          <div class="shuttle-panel">
-            <div class="shuttle-header">
-              <label style="font-size:var(--font-size-sm);font-weight:500;">已选责任人</label>
-              <label style="font-size:var(--font-size-xs);cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="assignPersonSelectAllRight" onchange="togglePersonShuttleAll(this.checked, 'right')"> 全选</label>
-            </div>
-            <div class="shuttle-list" id="assignShuttlePersonRight" style="height:320px;"></div>
-          </div>
+        <div class="assign-table-wrapper">
+          <table class="assign-table" id="assignPersonTable">
+            <thead><tr><th>管控对象</th><th>类型</th><th style="width:280px;">责任人</th></tr></thead>
+            <tbody id="assignPersonTableBody"></tbody>
+          </table>
         </div>
         <div style="display:flex;justify-content:space-between;gap:var(--spacing-sm);margin-top:var(--spacing-md);">
           <button type="button" class="btn btn-default" onclick="goToAssignStep(1)">← 返回修改</button>
@@ -636,29 +626,29 @@
 
   // ========== 领域汇总数据 ==========
   var DOMAIN_SUMMARY = [
-    { id: 'domain-charging', name: '电动自行车充电场所', cat: '公共场所类', objects: 5, assigned: 4, total: 5, checkConfig: 1, greenCode: 3, yellowCode: 1, redCode: 1, hazards: 3, checkRate: 87, dept: '督导检查科', hazardRate: 92 },
-    { id: 'domain-commercial', name: '商业综合体', cat: '公共场所类', objects: 6, assigned: 5, total: 6, checkConfig: 1, greenCode: 4, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 83, dept: '督导检查科', hazardRate: 84 },
-    { id: 'domain-property', name: '物业小区', cat: '公共场所类', objects: 20, assigned: 18, total: 20, checkConfig: 1, greenCode: 16, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 90, dept: '督导检查科', hazardRate: 81 },
-    { id: 'domain-highrise', name: '超高层建筑', cat: '公共场所类', objects: 8, assigned: 7, total: 8, checkConfig: 1, greenCode: 6, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 88, dept: '督导检查科', hazardRate: 79 },
-    { id: 'domain-civilized', name: '文明施工', cat: '公共场所类', objects: 12, assigned: 10, total: 12, checkConfig: 1, greenCode: 9, yellowCode: 2, redCode: 1, hazards: 2, checkRate: 83, dept: '督导检查科', hazardRate: 72 },
-    { id: 'domain-small-shop', name: '"三小"场所（小商店—商场、市场、商店等）', cat: '公共场所类', objects: 30, assigned: 26, total: 30, checkConfig: 1, greenCode: 22, yellowCode: 5, redCode: 3, hazards: 6, checkRate: 80, dept: '督导检查科', hazardRate: 91 },
-    { id: 'domain-small-gasfood', name: '"三小"场所（小餐饮（燃气））', cat: '公共场所类', objects: 25, assigned: 22, total: 25, checkConfig: 1, greenCode: 18, yellowCode: 5, redCode: 2, hazards: 5, checkRate: 82, dept: '督导检查科', hazardRate: 76 },
-    { id: 'domain-small-beauty', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', cat: '公共场所类', objects: 18, assigned: 16, total: 18, checkConfig: 1, greenCode: 14, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 89, dept: '督导检查科', hazardRate: 87 },
-    { id: 'domain-small-elecfood', name: '"三小"场所（小餐饮（仅用电））', cat: '公共场所类', objects: 22, assigned: 20, total: 22, checkConfig: 1, greenCode: 17, yellowCode: 4, redCode: 1, hazards: 2, checkRate: 91, dept: '督导检查科', hazardRate: 97 },
-    { id: 'domain-small-cybercafe', name: '"三小"场所（小网吧）', cat: '公共场所类', objects: 10, assigned: 9, total: 10, checkConfig: 1, greenCode: 8, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 90, dept: '督导检查科', hazardRate: 79 },
-    { id: 'domain-small-store', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', cat: '公共场所类', objects: 28, assigned: 24, total: 28, checkConfig: 1, greenCode: 20, yellowCode: 5, redCode: 3, hazards: 5, checkRate: 79, dept: '督导检查科', hazardRate: 94 },
-    { id: 'domain-small-school', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', cat: '公共场所类', objects: 14, assigned: 13, total: 14, checkConfig: 1, greenCode: 11, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 86, dept: '督导检查科', hazardRate: 91 },
-    { id: 'domain-small-multi', name: '"三小"场所（小型多业态场所）', cat: '公共场所类', objects: 8, assigned: 6, total: 8, checkConfig: 1, greenCode: 5, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 75, dept: '督导检查科', hazardRate: 83 },
-    { id: 'domain-small-clinic', name: '"三小"场所（小型医疗机构—口腔、中医等）', cat: '公共场所类', objects: 12, assigned: 11, total: 12, checkConfig: 1, greenCode: 10, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 92, dept: '督导检查科', hazardRate: 87 },
-    { id: 'domain-small-entertain', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', cat: '公共场所类', objects: 16, assigned: 14, total: 16, checkConfig: 1, greenCode: 11, yellowCode: 3, redCode: 2, hazards: 4, checkRate: 81, dept: '督导检查科', hazardRate: 81 },
-    { id: 'domain-small-produce', name: '"三小"场所（小生产加工企业）', cat: '公共场所类', objects: 10, assigned: 8, total: 10, checkConfig: 1, greenCode: 7, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 78, dept: '督导检查科', hazardRate: 83 },
-    { id: 'domain-small-hotel', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', cat: '公共场所类', objects: 14, assigned: 12, total: 14, checkConfig: 1, greenCode: 10, yellowCode: 3, redCode: 1, hazards: 3, checkRate: 82, dept: '督导检查科', hazardRate: 88 },
-    { id: 'domain-small-playground', name: '"三小"场所（小型游乐场）', cat: '公共场所类', objects: 6, assigned: 5, total: 6, checkConfig: 1, greenCode: 4, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 83, dept: '督导检查科', hazardRate: 93 },
-    { id: 'domain-house-build', name: '房屋建设工程', cat: '建设工程类', objects: 22, assigned: 18, total: 22, checkConfig: 2, greenCode: 16, yellowCode: 4, redCode: 2, hazards: 6, checkRate: 73, dept: '危化品监管和执法科', hazardRate: 86 },
-    { id: 'domain-persuade', name: '劝导路口', cat: '交通运输类', objects: 35, assigned: 30, total: 35, checkConfig: 1, greenCode: 26, yellowCode: 6, redCode: 3, hazards: 4, checkRate: 85, dept: '综合协调科', hazardRate: 91 },
-    { id: 'domain-gas-station', name: '加油站', cat: '危险化学品类', objects: 18, assigned: 16, total: 18, checkConfig: 1, greenCode: 15, yellowCode: 2, redCode: 1, hazards: 2, checkRate: 95, dept: '危化品监管和执法科', hazardRate: 71 },
-    { id: 'domain-pharma', name: '医药化工', cat: '危险化学品类', objects: 5, assigned: 3, total: 5, checkConfig: 1, greenCode: 3, yellowCode: 1, redCode: 1, hazards: 2, checkRate: 60, dept: '危化品监管和执法科', hazardRate: 84 },
-    { id: 'domain-slope', name: '危险边坡', cat: '其他类', objects: 8, assigned: 6, total: 8, checkConfig: 1, greenCode: 5, yellowCode: 2, redCode: 1, hazards: 3, checkRate: 75, dept: '综合协调科', hazardRate: 86 }
+    { id: 'domain-charging', name: '电动自行车充电场所', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-commercial', name: '商业综合体', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-property', name: '物业小区', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-highrise', name: '超高层建筑', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-civilized', name: '文明施工', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-shop', name: '"三小"场所（小商店—商场、市场、商店等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-gasfood', name: '"三小"场所（小餐饮（燃气））', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-beauty', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-elecfood', name: '"三小"场所（小餐饮（仅用电））', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-cybercafe', name: '"三小"场所（小网吧）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-store', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-school', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-multi', name: '"三小"场所（小型多业态场所）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-clinic', name: '"三小"场所（小型医疗机构—口腔、中医等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-entertain', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-produce', name: '"三小"场所（小生产加工企业）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-hotel', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-small-playground', name: '"三小"场所（小型游乐场）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
+    { id: 'domain-house-build', name: '房屋建设工程', cat: '建设工程类', checkConfig: 2, dept: '危化品监管和执法科' },
+    { id: 'domain-persuade', name: '劝导路口', cat: '交通运输类', checkConfig: 1, dept: '综合协调科' },
+    { id: 'domain-gas-station', name: '加油站', cat: '危险化学品类', checkConfig: 1, dept: '危化品监管和执法科' },
+    { id: 'domain-pharma', name: '医药化工', cat: '危险化学品类', checkConfig: 1, dept: '危化品监管和执法科' },
+    { id: 'domain-slope', name: '危险边坡', cat: '其他类', checkConfig: 1, dept: '综合协调科' }
   ];
 
   // ========== 管控对象明细数据 ==========
@@ -788,233 +778,233 @@
     'domain-charging': {
       dept: '督导检查科',
       checklists: [
-        { name: '消防安全日常检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '电气安全检查表', frequency: '每季度检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '充电设施每日巡检表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true },
-        { name: '充电站周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '充电场所年度综合评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '综合协调科', enabled: true }
+        { name: '消防安全日常检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '安全监管和执法科', enabled: true },
+        { name: '电气安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '充电设施每日巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+        { name: '充电站周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '充电场所年度综合评估表', frequency: '每年检查1次', checklistType: 'custom', person: '陈敏', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '企业安全负责人', deadline: 15, reviewer: '政府复核', reviewPerson: '张伟', enabled: true }
     },
     'domain-commercial': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '商户每日安全巡检表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '商业综合体周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '电梯及特种设备季度检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '商业综合体年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '安全监管和执法科', enabled: true },
+        { name: '商户每日安全巡检表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '商业综合体周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+        { name: '电梯及特种设备季度检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '商业综合体年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '企业安全负责人', deadline: 10, reviewer: '政府复核', reviewPerson: '王强', enabled: true }
     },
     'domain-property': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '电梯安全检查表', frequency: '每季度检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '物业每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true },
-        { name: '小区周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '物业年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '安全监管和执法科', enabled: true },
+        { name: '电梯安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '物业每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+        { name: '小区周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '物业年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '物业管理负责人', deadline: 10, reviewer: '政府复核', reviewPerson: '张伟', enabled: true }
     },
     'domain-highrise': {
       checklists: [
-        { name: '高层建筑消防检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '避难层安全检查表', frequency: '每季度检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '高层建筑每日巡检表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true },
-        { name: '高层建筑周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '超高层建筑年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '综合协调科', enabled: true }
+        { name: '高层建筑消防检查表', frequency: '每月检查1次', checklistType: 'system', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '避难层安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '李娜', dept: '防灾减灾科', enabled: true },
+        { name: '高层建筑每日巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+        { name: '高层建筑周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '超高层建筑年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '陈敏', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '物业管理负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '陈敏', enabled: true }
     },
     'domain-civilized': {
       checklists: [
-        { name: '文明施工检查表', frequency: '每周检查1次', checklistType: 'system', scope: '全部', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
-        { name: '扬尘治理检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '王强', dept: '危化品监管和执法科', enabled: true },
-        { name: '工地每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
-        { name: '文明施工季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
-        { name: '文明施工年度综合评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '危化品监管和执法科', enabled: true }
+        { name: '文明施工检查表', frequency: '每周检查1次', checklistType: 'system', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
+        { name: '扬尘治理检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '危化品监管和执法科', enabled: true },
+        { name: '工地每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+        { name: '文明施工季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
+        { name: '文明施工年度综合评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '危化品监管和执法科', enabled: true }
       ],
       hazard: { type: '施工安全', responder: '项目负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '刘洋', enabled: true }
     },
     'domain-small-shop': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '经营场所每日巡查表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '商场周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true },
-        { name: '商户季度合规检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '商场年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '安全监管和执法科', enabled: true },
+        { name: '经营场所每日巡查表', frequency: '每日检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '商场周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+        { name: '商户季度合规检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '商场年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-gasfood': {
       checklists: [
-        { name: '燃气安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '燃气设施每日巡检表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '餐饮场所周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '刘洋', dept: '督导检查科', enabled: true },
-        { name: '燃气安全年度检测表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '综合协调科', enabled: true }
+        { name: '燃气安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '安全监管和执法科', enabled: true },
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '燃气设施每日巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+        { name: '餐饮场所周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '刘洋', dept: '督导检查科', enabled: true },
+        { name: '燃气安全年度检测表', frequency: '每年检查1次', checklistType: 'custom', person: '陈敏', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '燃气安全', responder: '场所负责人', deadline: 5, reviewer: '政府复核', reviewPerson: '王强', enabled: true }
     },
     'domain-small-beauty': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '场所每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '美容场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true },
-        { name: '卫生及设施季度检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '小美容休闲年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '安全监管和执法科', enabled: true },
+        { name: '场所每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '美容场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+        { name: '卫生及设施季度检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '小美容休闲年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-elecfood': {
       checklists: [
-        { name: '用电安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '餐饮场所每日用电巡检表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '餐饮用电周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true },
-        { name: '电气线路季度检测表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '餐饮用电年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true }
+        { name: '用电安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '安全监管和执法科', enabled: true },
+        { name: '餐饮场所每日用电巡检表', frequency: '每日检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '餐饮用电周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+        { name: '电气线路季度检测表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '餐饮用电年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '用电安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-cybercafe': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '刘洋', dept: '督导检查科', enabled: true },
-        { name: '网吧每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '网吧周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '网络安全季度检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '网吧年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '刘洋', dept: '安全监管和执法科', enabled: true },
+        { name: '网吧每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '网吧周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+        { name: '网络安全季度检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '网吧年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-store': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '门店每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '门店周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '门店季度合规检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '小门店年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '安全监管和执法科', enabled: true },
+        { name: '门店每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '门店周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+        { name: '门店季度合规检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '小门店年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-school': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '食品安全检查表', frequency: '每季度检查1次', checklistType: 'system', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '校园每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true },
-        { name: '学校周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '学校年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '安全监管和执法科', enabled: true },
+        { name: '食品安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '校园每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+        { name: '学校周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '学校年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '李娜', enabled: true }
     },
     'domain-small-multi': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '刘洋', dept: '督导检查科', enabled: true },
-        { name: '多业态场所每日巡查表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '多业态场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '多业态季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '多业态场所年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '刘洋', dept: '督导检查科', enabled: true },
+        { name: '多业态场所每日巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '多业态场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+        { name: '多业态季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '多业态场所年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-clinic': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '医疗废物处置检查表', frequency: '每季度检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '医疗机构每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '医疗场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '医疗机构年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '医疗废物处置检查表', frequency: '每季度检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '医疗机构每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+        { name: '医疗场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '医疗机构年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 7, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-entertain': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '应急疏散检查表', frequency: '每季度检查1次', checklistType: 'system', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '娱乐场所每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true },
-        { name: '娱乐场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '娱乐场所年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '应急疏散检查表', frequency: '每季度检查1次', checklistType: 'system', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '娱乐场所每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+        { name: '娱乐场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '娱乐场所年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '李娜', enabled: true }
     },
     'domain-small-produce': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '刘洋', dept: '督导检查科', enabled: true },
-        { name: '生产安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '生产加工场所每日巡查表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true },
-        { name: '生产加工周安全检查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '生产安全季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '综合协调科', enabled: true },
-        { name: '生产加工企业年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '刘洋', dept: '区三防办', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '刘洋', dept: '督导检查科', enabled: true },
+        { name: '生产安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '生产加工场所每日巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+        { name: '生产加工周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '生产安全季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '综合协调科', enabled: true },
+        { name: '生产加工企业年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '区三防办', enabled: true }
       ],
       hazard: { type: '生产安全', responder: '场所负责人', deadline: 7, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-hotel': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '旅店每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '督导检查科', enabled: true },
-        { name: '旅店周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '旅店季度卫生及消防检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '旅店年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '旅店每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+        { name: '旅店周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+        { name: '旅店季度卫生及消防检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+        { name: '旅店年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '消防安全', responder: '场所负责人', deadline: 10, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-small-playground': {
       checklists: [
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '督导检查科', enabled: true },
-        { name: '设施安全检查表', frequency: '每季度检查1次', checklistType: 'system', scope: '全部', person: '陈敏', dept: '督导检查科', enabled: true },
-        { name: '游乐设施每日安全检查表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true },
-        { name: '游乐场周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '督导检查科', enabled: true },
-        { name: '游乐场年度安全检测表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true }
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+        { name: '设施安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '陈敏', dept: '防灾减灾科', enabled: true },
+        { name: '游乐设施每日安全检查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+        { name: '游乐场周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+        { name: '游乐场年度安全检测表', frequency: '每年检查1次', checklistType: 'custom', person: '李娜', dept: '防灾减灾科', enabled: true }
       ],
       hazard: { type: '设施安全', responder: '场所负责人', deadline: 7, reviewer: '企业复核', reviewPerson: '企业安全主管', enabled: true }
     },
     'domain-house-build': {
       checklists: [
-        { name: '建筑施工安全检查表', frequency: '每周检查1次', checklistType: 'system', scope: '全部', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
-        { name: '高处作业检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
-        { name: '临时用电检查表', frequency: '每月检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '危化品监管和执法科', enabled: true },
-        { name: '施工现场每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '危化品监管和执法科', enabled: true },
-        { name: '建筑施工季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
-        { name: '建筑工程年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '刘洋', dept: '危化品监管和执法科', enabled: true }
+        { name: '建筑施工安全检查表', frequency: '每周检查1次', checklistType: 'system', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+        { name: '高处作业检查表', frequency: '每月检查1次', checklistType: 'system', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
+        { name: '临时用电检查表', frequency: '每月检查1次', checklistType: 'custom', person: '王强', dept: '危化品监管和执法科', enabled: true },
+        { name: '施工现场每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '危化品监管和执法科', enabled: true },
+        { name: '建筑施工季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+        { name: '建筑工程年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '危化品监管和执法科', enabled: true }
       ],
       hazard: { type: '施工安全', responder: '项目安全负责人', deadline: 7, reviewer: '政府复核', reviewPerson: '陈敏', enabled: true }
     },
     'domain-persuade': {
       checklists: [
-        { name: '交通安全劝导检查表', frequency: '每周检查1次', checklistType: 'system', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true },
-        { name: '劝导点位每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true },
-        { name: '劝导路口月度安全检查表', frequency: '每月检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '综合协调科', enabled: true },
-        { name: '劝导路口季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '交通安全劝导年度评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true }
+        { name: '交通安全劝导检查表', frequency: '每周检查1次', checklistType: 'system', person: '刘洋', dept: '综合协调科', enabled: true },
+        { name: '劝导点位每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '综合协调科', enabled: true },
+        { name: '劝导路口月度安全检查表', frequency: '每月检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+        { name: '劝导路口季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+        { name: '交通安全劝导年度评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '综合协调科', enabled: true }
       ],
       hazard: { type: '交通安全', responder: '点位负责人', deadline: 5, reviewer: '政府复核', reviewPerson: '刘洋', enabled: true }
     },
     'domain-gas-station': {
       checklists: [
-        { name: '加油站安全检查表', frequency: '每周检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '危化品监管和执法科', enabled: true },
-        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '危化品监管和执法科', enabled: true },
-        { name: '加油站每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '危化品监管和执法科', enabled: true },
-        { name: '加油站季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
-        { name: '加油站年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '危化品监管和执法科', enabled: true }
+        { name: '加油站安全检查表', frequency: '每周检查1次', checklistType: 'system', person: '张伟', dept: '危化品监管和执法科', enabled: true },
+        { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '危化品监管和执法科', enabled: true },
+        { name: '加油站每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '王强', dept: '危化品监管和执法科', enabled: true },
+        { name: '加油站季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+        { name: '加油站年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '危化品监管和执法科', enabled: true }
       ],
       hazard: { type: '危化品安全', responder: '企业安全负责人', deadline: 3, reviewer: '政府复核', reviewPerson: '张伟', enabled: true }
     },
     'domain-pharma': {
       checklists: [
-        { name: '医药化工安全检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '张伟', dept: '危化品监管和执法科', enabled: true },
-        { name: '医药化工每日安全巡检表', frequency: '每日检查1次', checklistType: 'system', scope: '全部', person: '李娜', dept: '危化品监管和执法科', enabled: true },
-        { name: '医药化工周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', scope: '全部', person: '王强', dept: '危化品监管和执法科', enabled: true },
-        { name: '医药化工季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
-        { name: '医药化工年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '危化品监管和执法科', enabled: true }
+        { name: '医药化工安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '危化品监管和执法科', enabled: true },
+        { name: '医药化工每日安全巡检表', frequency: '每日检查1次', checklistType: 'system', person: '李娜', dept: '危化品监管和执法科', enabled: true },
+        { name: '医药化工周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '危化品监管和执法科', enabled: true },
+        { name: '医药化工季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+        { name: '医药化工年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '危化品监管和执法科', enabled: true }
       ],
       hazard: { type: '危化品安全', responder: '企业安全负责人', deadline: 5, reviewer: '政府复核', reviewPerson: '张伟', enabled: true }
     },
     'domain-slope': {
       checklists: [
-        { name: '边坡安全巡查表', frequency: '每周检查1次', checklistType: 'system', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true },
-        { name: '雨季专项检查表', frequency: '每月检查1次', checklistType: 'system', scope: '全部', person: '王强', dept: '综合协调科', enabled: true },
-        { name: '边坡每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', scope: '全部', person: '张伟', dept: '综合协调科', enabled: true },
-        { name: '边坡季度地质灾害检查表', frequency: '每季度检查1次', checklistType: 'custom', scope: '全部', person: '李娜', dept: '综合协调科', enabled: true },
-        { name: '边坡年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', scope: '全部', person: '刘洋', dept: '综合协调科', enabled: true }
+        { name: '边坡安全巡查表', frequency: '每周检查1次', checklistType: 'system', person: '刘洋', dept: '综合协调科', enabled: true },
+        { name: '雨季专项检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '防灾减灾科', enabled: true },
+        { name: '边坡每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '区三防办', enabled: true },
+        { name: '边坡季度地质灾害检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '李娜', dept: '防灾减灾科', enabled: true },
+        { name: '边坡年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '区三防办', enabled: true }
       ],
       hazard: { type: '地质灾害', responder: '点位负责人', deadline: 3, reviewer: '政府复核', reviewPerson: '刘洋', enabled: true }
     }
@@ -1040,6 +1030,37 @@
     });
   })();
 
+  // 领域小类业态模式映射（BR-GOV-DS-21）
+  var DOMAIN_MODE_MAP = {
+    'domain-charging': { label: '重点场所', tagClass: 'tag-green' },
+    'domain-commercial': { label: '重点场所', tagClass: 'tag-green' },
+    'domain-property': { label: '重点场所', tagClass: 'tag-green' },
+    'domain-highrise': { label: '重点场所', tagClass: 'tag-green' },
+    'domain-civilized': { label: '项目模式', tagClass: 'tag-orange' },
+    'domain-small-shop': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-gasfood': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-beauty': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-elecfood': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-cybercafe': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-store': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-school': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-multi': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-clinic': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-entertain': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-produce': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-hotel': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-small-playground': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-house-build': { label: '项目模式', tagClass: 'tag-orange' },
+    'domain-persuade': { label: '其他模式', tagClass: 'tag-gray' },
+    'domain-gas-station': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-pharma': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-slope': { label: '其他模式', tagClass: 'tag-gray' }
+  };
+  function getDomainModeLabel(domainId) {
+    var m = DOMAIN_MODE_MAP[domainId];
+    return m ? '<span class="tag ' + m.tagClass + '" style="margin-left:6px;font-size:11px;">' + m.label + '</span>' : '';
+  }
+
   // ========== 状态 ==========
   var currentNode = null;
   var currentTab = 'tab-overview';
@@ -1054,6 +1075,7 @@
   var progressDetailPageSize = 10;
   var currentProgressDomainId = null;
   var progressFilterDept = '';
+  var DONE_CACHE = {};
 
   // ========== 安全码二维码图标 ==========
   var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
@@ -1129,6 +1151,9 @@
       html += '<span class="tree-node-icon">' + icon + '</span>';
       var safeTitle = n.name.replace(/"/g, '&quot;');
       html += '<span class="tree-node-label" data-tooltip="' + safeTitle + '">' + n.name + '</span>';
+      if (level === 1 && DOMAIN_MODE_MAP[n.id]) {
+        html += getDomainModeLabel(n.id);
+      }
       html += '</div>';
       if (hasChildren) {
         html += '<div class="tree-children" data-parent="' + n.id + '">';
@@ -1402,12 +1427,26 @@
   function generateObjects(domain) {
     var types = ['企业', '项目', '重点场所'];
     var names = ['A区站点', 'B区仓储', 'C区营业点', 'D区分部', 'E区中心'];
+    var persons = ['张伟', '李娜', '王强', '陈敏', '刘洋'];
+    var depts = ['督导检查科', '综合协调科', '区三防办', '安全监管和执法科', '防灾减灾科', '危化品监管和执法科'];
+    var codes = ['green', 'green', 'yellow', 'yellow', 'red'];
+    var rates = [100, 95, 88, 72, 60];
     var result = [];
-    for (var i = 0; i < Math.min(domain.objects, 5); i++) {
-      var rate = Math.min(100, 80 + i * 5);
-      var hazards = i === 3 ? 1 : 0;
+    var count = 4;
+    for (var i = 0; i < count; i++) {
+      var rate = rates[i];
+      var hazards = i === 2 ? 1 : 0;
       var hazardRate = hazards > 0 ? 50 : 100;
-      result.push({ name: domain.name + names[i], type: types[i % 3], person: i < 3 ? '张伟' : '', dept: i < 3 ? '督导检查科' : '', code: i < 3 ? 'green' : 'yellow', hazards: hazards, rate: rate, hazardRate: hazardRate });
+      result.push({
+        name: domain.name + names[i],
+        type: types[i % 3],
+        person: persons[i % persons.length],
+        dept: depts[i % depts.length],
+        code: codes[i],
+        hazards: hazards,
+        rate: rate,
+        hazardRate: hazardRate
+      });
     }
     return result;
   }
@@ -1428,7 +1467,7 @@
       var checklistCount = getTotalPlannedChecklists(d.id);
       objects.forEach(function(o) {
         var objPlanned = checklistCount;
-        var objDone = checklistCount > 0 ? Math.round(checklistCount * o.rate / 100) : 0;
+        var objDone = getObjectDoneInfo(d.id, o, '').count;
         totalPlanned += objPlanned;
         totalDone += objDone;
       });
@@ -1451,36 +1490,74 @@
     }).length;
   }
 
+  // 统一计算某对象已完成的检查表索引集合（矩阵/明细表/任务清单三处同源）
+  function getObjectDoneInfo(domainId, o, deptFilter) {
+    var cacheKey = domainId + '|' + o.name + '|' + (deptFilter || '');
+    if (DONE_CACHE[cacheKey]) return DONE_CACHE[cacheKey];
+    var cfg = CONFIG_DATA[domainId];
+    if (!cfg || !cfg.checklists) {
+      DONE_CACHE[cacheKey] = { set: {}, count: 0 };
+      return DONE_CACHE[cacheKey];
+    }
+    var allIndices = [];
+    cfg.checklists.forEach(function(cl, idx) {
+      if (!cl.enabled) return;
+      if (deptFilter && cl.dept !== deptFilter) return;
+      allIndices.push(idx);
+    });
+    var totalDone = allIndices.length > 0 ? Math.floor(allIndices.length * o.rate / 100) : 0;
+    var indices = allIndices.slice();
+    indices.sort(function(a, b) {
+      var seed = 0;
+      for (var k = 0; k < o.name.length; k++) seed += o.name.charCodeAt(k);
+      var ra = Math.sin(seed + a * 997) * 10000;
+      var rb = Math.sin(seed + b * 997) * 10000;
+      return ra - rb;
+    });
+    var doneSet = {};
+    for (var i = 0; i < totalDone; i++) doneSet[indices[i]] = true;
+    var result = { set: doneSet, count: totalDone };
+    DONE_CACHE[cacheKey] = result;
+    return result;
+  }
+
+  // 判断某检查表（按原始索引）是否属于指定频次
+  function isChecklistMatchFreq(cfg, idx, freqLabel) {
+    if (!cfg || !cfg.checklists || !cfg.checklists[idx]) return false;
+    var f = cfg.checklists[idx].frequency || '';
+    if (freqLabel === '每日' && /日/.test(f) && !/周/.test(f) && !/月/.test(f) && !/季度/.test(f) && !/年/.test(f)) return true;
+    if (freqLabel === '每周' && /周/.test(f)) return true;
+    if (freqLabel === '每月' && /月/.test(f) && !/季度/.test(f)) return true;
+    if (freqLabel === '每季度' && /季度/.test(f)) return true;
+    if (freqLabel === '每年' && /年/.test(f) && !/季度/.test(f)) return true;
+    return false;
+  }
+
   // 根据 CONFIG_DATA 中配置的检查表频次，计算某领域在某频次下的计划检查表数量
   function getPlannedByFreq(domainId, freqLabel, deptFilter) {
     var cfg = CONFIG_DATA[domainId];
     if (!cfg || !cfg.checklists) return 0;
     var count = 0;
-    cfg.checklists.forEach(function(cl) {
+    cfg.checklists.forEach(function(cl, idx) {
       if (!cl.enabled) return;
       if (deptFilter && cl.dept !== deptFilter) return;
-      var f = cl.frequency || '';
-      var matched = false;
-      if (freqLabel === '每日' && /日/.test(f) && !/周/.test(f) && !/月/.test(f) && !/季度/.test(f) && !/年/.test(f)) matched = true;
-      else if (freqLabel === '每周' && /周/.test(f)) matched = true;
-      else if (freqLabel === '每月' && /月/.test(f) && !/季度/.test(f)) matched = true;
-      else if (freqLabel === '每季度' && /季度/.test(f)) matched = true;
-      else if (freqLabel === '每年' && /年/.test(f) && !/季度/.test(f)) matched = true;
-      if (matched) count++;
+      if (isChecklistMatchFreq(cfg, idx, freqLabel)) count++;
     });
     return count;
   }
 
-  // 从对象明细累加某领域某频次的计划/完成数（矩阵数据来源 = 管控对象明细表）
+  // 从对象明细累加某领域某频次的计划/完成数（与明细表/任务清单同源）
   function getDomainFreqStats(domainId, freqLabel, deptFilter) {
     var objects = OBJECT_DETAILS[domainId] || [];
     var plannedCount = getPlannedByFreq(domainId, freqLabel, deptFilter);
-    var planned = 0, done = 0;
+    var planned = plannedCount * objects.length;
+    var done = 0;
+    var cfg = CONFIG_DATA[domainId];
     objects.forEach(function(o) {
-      var objPlanned = plannedCount;
-      var objDone = plannedCount > 0 ? Math.round(plannedCount * o.rate / 100) : 0;
-      planned += objPlanned;
-      done += objDone;
+      var info = getObjectDoneInfo(domainId, o, deptFilter);
+      for (var idx in info.set) {
+        if (isChecklistMatchFreq(cfg, parseInt(idx, 10), freqLabel)) done++;
+      }
     });
     return { planned: planned, done: done, plannedCount: plannedCount, objects: objects.length };
   }
@@ -1490,12 +1567,13 @@
     return DEPT_LIST.slice().sort();
   }
 
-  function changeProgressFilterDept(val) {
+  window.changeProgressFilterDept = function(val) {
     progressFilterDept = val;
     progressPage = 1;
     progressDetailPage = 1;
+    DONE_CACHE = {}; // 科室切换后已完成集合变化，清空缓存
     renderProgress();
-  }
+  };
 
   function renderProgressFilterHtml() {
     var depts = getAllDepts();
@@ -1575,8 +1653,15 @@
           : '<span style="color:var(--text-tertiary);">—</span>';
         html += '<td style="text-align:center;cursor:pointer;" title="点击查看任务清单" onclick="viewTaskList(\'' + d.id + '\',\'' + c + '\')">' + cellContent + '</td>';
       });
-      var overallRate = totalPlanned > 0 ? Math.round(totalDone / totalPlanned * 100) : 0;
-      html += '<td style="text-align:center;font-weight:600;">' + totalDone + '/' + totalPlanned + ' ' + overallRate + '%</td>';
+      // 整体列用 getObjectDoneInfo 统一计算，确保与明细表/任务清单完全一致
+      var objects = OBJECT_DETAILS[d.id] || [];
+      var totalChecklists = getTotalPlannedChecklists(d.id, progressFilterDept);
+      var overallPlanned = totalChecklists * objects.length;
+      var overallDone = objects.reduce(function(sum, o) {
+        return sum + getObjectDoneInfo(d.id, o, progressFilterDept).count;
+      }, 0);
+      var overallRate = overallPlanned > 0 ? Math.round(overallDone / overallPlanned * 100) : 0;
+      html += '<td style="text-align:center;font-weight:600;">' + overallDone + '/' + overallPlanned + ' ' + overallRate + '%</td>';
       html += '</tr>';
     });
     html += '</tbody></table></div></div>';
@@ -1591,12 +1676,13 @@
     html += '<th>领域小类</th><th>管控对象数</th><th>计划检查次数</th><th>已完成次数</th><th>整体完成率</th><th class="action-col">操作</th>';
     html += '</tr></thead><tbody>';
     pageList.forEach(function(d) {
-      var planned = 0, done = 0;
-      cycles.forEach(function(c) {
-        var st = getDomainFreqStats(d.id, c, progressFilterDept);
-        planned += st.planned;
-        done += st.done;
-      });
+      // 用 getObjectDoneInfo 统一计算整体，确保与明细表/任务清单完全一致
+      var objects = OBJECT_DETAILS[d.id] || [];
+      var totalChecklists = getTotalPlannedChecklists(d.id, progressFilterDept);
+      var planned = totalChecklists * objects.length;
+      var done = objects.reduce(function(sum, o) {
+        return sum + getObjectDoneInfo(d.id, o, progressFilterDept).count;
+      }, 0);
       var displayRate = planned > 0 ? Math.round(done / planned * 100) : 0;
       var rateColor = displayRate >= 100 ? 'green' : displayRate >= 80 ? 'yellow' : 'red';
       html += '<tr>';
@@ -1695,8 +1781,14 @@
         : '<span style="color:var(--text-tertiary);">—</span>';
       html += '<td style="text-align:center;cursor:pointer;" title="点击查看任务清单" onclick="viewTaskList(\'' + domain.id + '\',\'' + c + '\')">' + cellContent + '</td>';
     });
-    var mOverall = mTotalPlanned > 0 ? Math.round(mTotalDone / mTotalPlanned * 100) : 0;
-    html += '<td style="text-align:center;font-weight:600;">' + mTotalDone + '/' + mTotalPlanned + ' ' + mOverall + '%</td></tr></tbody></table></div></div>';
+    // 整体列用 getObjectDoneInfo 统一计算，确保与明细表/任务清单完全一致
+    var totalChecklists = getTotalPlannedChecklists(domain.id, progressFilterDept);
+    var overallPlanned = totalChecklists * objects.length;
+    var overallDone = objects.reduce(function(sum, o) {
+      return sum + getObjectDoneInfo(domain.id, o, progressFilterDept).count;
+    }, 0);
+    var mOverall = overallPlanned > 0 ? Math.round(overallDone / overallPlanned * 100) : 0;
+    html += '<td style="text-align:center;font-weight:600;">' + overallDone + '/' + overallPlanned + ' ' + mOverall + '%</td></tr></tbody></table></div></div>';
 
     // ③ 管控对象明细表
     html += '<div class="table-card"><div style="padding:12px 16px;font-weight:600;font-size:var(--font-size-base);border-bottom:1px solid var(--border-section);">管控对象明细表</div><div class="table-scroll"><table><thead><tr>';
@@ -1705,17 +1797,27 @@
     var totalChecklists = getTotalPlannedChecklists(domain.id, progressFilterDept);
     var colorRank = { red: 3, yellow: 2, green: 1, gray: 0 };
     pageObjects.forEach(function(o) {
+      var info = getObjectDoneInfo(domain.id, o, progressFilterDept);
       var planned = totalChecklists;
-      var done = planned > 0 ? Math.round(planned * o.rate / 100) : 0;
+      var done = info.count;
       var displayRate = planned > 0 ? Math.round(done / planned * 100) : 0;
       // AC-GOV-DS-23：行颜色取各频次中最差（木桶效应）
       var worstColor = 'gray';
+      var cfg = CONFIG_DATA[domain.id];
       cycles.forEach(function(c) {
         var plannedCount = getPlannedByFreq(domain.id, c, progressFilterDept);
-        var p = plannedCount > 0 ? plannedCount : 0;
-        var d = p > 0 ? Math.round(p * o.rate / 100) : 0;
-        var dr = p > 0 ? Math.round(d / p * 100) : 0;
-        var freqColor = p > 0 ? getProgressColor(c, dr, now) : 'gray';
+        if (plannedCount <= 0) return;
+        var freqDone = 0;
+        if (cfg && cfg.checklists) {
+          cfg.checklists.forEach(function(cl, idx) {
+            if (!cl.enabled) return;
+            if (progressFilterDept && cl.dept !== progressFilterDept) return;
+            if (!info.set[idx]) return;
+            if (isChecklistMatchFreq(cfg, idx, c)) freqDone++;
+          });
+        }
+        var dr = Math.round(freqDone / plannedCount * 100);
+        var freqColor = getProgressColor(c, dr, now);
         if (colorRank[freqColor] > colorRank[worstColor]) worstColor = freqColor;
       });
       var rateColor = planned > 0 ? worstColor : 'gray';
@@ -1999,7 +2101,7 @@
   }
 
   // ========== 责任分配 — 独立弹窗 + 两阶段向导 ==========
-  var assignState = { step: 1, selectedObjs: [], selectedPersons: [], selectedDepts: [], dept: '' };
+  var assignState = { step: 1, selectedObjs: [], selectedPersons: [], selectedDepts: [], dept: '', objectPersons: {} };
 
   // 打开责任分配弹窗
   window.openAssignModal = function() {
@@ -2022,10 +2124,12 @@
       assignState.selectedObjs = clAssignData.objects.slice();
       assignState.selectedDepts = clAssignData.selectedDepts ? clAssignData.selectedDepts.slice() : [];
       assignState.selectedPersons = clAssignData.persons ? Object.values(clAssignData.persons).flat().filter(function(v, i, a) { return a.indexOf(v) === i; }) : [];
+      assignState.objectPersons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
     } else {
       assignState.selectedObjs = [];
       assignState.selectedPersons = [];
       assignState.selectedDepts = [];
+      assignState.objectPersons = {};
     }
     goToAssignStep(1);
     renderAssignShuttleBox();
@@ -2044,7 +2148,7 @@
       var s = parseInt(el.dataset.step, 10);
       el.classList.toggle('active', s <= step);
     });
-    if (step === 2) renderPersonShuttleBox();
+    if (step === 2) renderPersonTable();
     updateAssignWizardCount();
   };
 
@@ -2118,98 +2222,57 @@
     }
   };
 
-  // ========== 步骤② 人员穿梭框 ==========
+  // ========== 步骤② 配置责任人（表格形式） ==========
 
-  function renderPersonShuttleBox() {
+  function renderPersonTable() {
     var dept = assignState.dept;
-    var tree = dept ? ORG_TREE[dept] : null;
-    var persons = assignState.selectedPersons || [];
-    var depts = assignState.selectedDepts || [];
-    var leftHtml = '';
-
-    if (!tree) {
-      // 无组织架构：直接展示人员列表
-      var flatPersons = dept ? (PERSON_BY_DEPT[dept] || []) : [];
-      leftHtml = flatPersons.map(function(p) {
-        var checked = persons.indexOf(p) >= 0 ? ' checked' : '';
-        return '<div class="org-person"><input type="checkbox" class="person-cb-left" value="' + p + '"' + checked + ' onchange="onPersonCheckboxChange(\'' + p + '\', this.checked)"> <span class="org-person-name">' + p + '</span></div>';
-      }).join('');
-      if (!leftHtml) leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">👤</div><div>该科室暂无人员</div></div>';
-    } else {
-      // 有组织架构：科室本级 → 子科室
-      var deptPersons = tree.persons || [];
-      var deptChecked = depts.indexOf('__dept_level__') >= 0 ? ' checked' : '';
-      var hasSubDepts = tree.subDepts && tree.subDepts.length > 0;
-
-      // 科室本级节点（可选中）
-      leftHtml += '<div class="org-dept-level">';
-      leftHtml += '<div class="org-dept-header" onclick="toggleOrgNode(this)">';
-      leftHtml += '<span class="org-toggle">' + (hasSubDepts || deptPersons.length > 0 ? '▾' : '') + '</span>';
-      leftHtml += '<input type="checkbox" class="org-dept-check" data-dept="__dept_level__"' + deptChecked + ' onclick="event.stopPropagation();toggleDeptLevel(this.checked)">';
-      leftHtml += '<span class="org-dept-name">' + dept + '（科室级）</span>';
-      leftHtml += '<span class="shuttle-item-person-tag">' + deptPersons.length + '人</span>';
-      leftHtml += '</div>';
-      // 科室本级人员
-      if (deptPersons.length > 0) {
-        leftHtml += '<div class="org-children">';
-        deptPersons.forEach(function(p) {
-          var pc = persons.indexOf(p) >= 0 ? ' checked' : '';
-          leftHtml += '<div class="org-person"><input type="checkbox" class="person-cb-left" value="' + p + '" data-level="dept"' + pc + ' onchange="onPersonCheckboxChange(\'' + p + '\', this.checked)"> <span class="org-person-name">' + p + '</span></div>';
-        });
-        leftHtml += '</div>';
-      }
-      // 子科室节点
-      if (hasSubDepts) {
-        tree.subDepts.forEach(function(sd) {
-          var sdPersons = sd.persons || [];
-          var sdSelected = sdPersons.filter(function(p) { return persons.indexOf(p) >= 0; });
-          var allChecked = sdPersons.length > 0 && sdSelected.length === sdPersons.length;
-          var someChecked = sdSelected.length > 0 && sdSelected.length < sdPersons.length;
-          leftHtml += '<div class="org-subdept">' +
-            '<div class="org-subdept-header" onclick="toggleOrgNode(this)">' +
-            '<span class="org-toggle">▾</span>' +
-            '<input type="checkbox" class="org-dept-check" data-dept="' + sd.name + '" ' + (allChecked ? 'checked' : '') + ' ' + (someChecked ? 'data-partial="true"' : '') + ' onclick="event.stopPropagation();toggleDeptPersons(\'' + sd.name + '\', this.checked)">' +
-            '<span class="org-dept-name">' + sd.name + '</span>' +
-            '<span class="shuttle-item-person-tag">' + sdSelected.length + '/' + sdPersons.length + '</span>' +
-            '</div>' +
-            '<div class="org-children">' +
-            sdPersons.map(function(p) {
-              var pc = persons.indexOf(p) >= 0 ? ' checked' : '';
-              return '<div class="org-person"><input type="checkbox" class="person-cb-left" value="' + p + '" data-subdept="' + sd.name + '"' + pc + ' onchange="onPersonCheckboxChange(\'' + p + '\', this.checked)"> <span class="org-person-name">' + p + '</span></div>';
-            }).join('') +
-            '</div></div>';
-        });
-      }
-    }
-
-    // 右侧：已选责任人（人员 + 科室级标签）
-    var rightHtml = '';
-    // 科室级标签
-    if (depts.indexOf('__dept_level__') >= 0) {
-      var allDeptPersons = tree && tree.persons ? tree.persons : (dept ? (PERSON_BY_DEPT[dept] || []) : []);
-      rightHtml += '<div class="shuttle-item dept-level-item">' +
-        '<label><input type="checkbox" class="dept-cb-right" data-dept="__dept_level__" onchange="toggleDeptRight(this.checked)"> ' +
-        '<span class="dept-level-tag">' + dept + '（科室级）</span></label>' +
-        '<div class="dept-level-tooltip"><div class="tooltip-title">' + dept + '（科室级）</div>' +
-        '<div class="tooltip-persons">' + (allDeptPersons.length > 0 ? allDeptPersons.join('、') : '暂无人员') + '</div></div>' +
-        '</div>';
-    }
-    // 已选人员
-    persons.forEach(function(p) {
-      rightHtml += '<div class="shuttle-item"><label><input type="checkbox" class="person-cb-right" value="' + p + '" onchange="togglePersonRight(\'' + p + '\', this.checked)"> <span class="shuttle-item-label">' + p + '</span></label></div>';
-    });
-    if (!rightHtml) rightHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">👤</div><div>尚未选择责任人</div></div>';
-
-    document.getElementById('assignShuttlePersonLeft').innerHTML = leftHtml;
-    document.getElementById('assignShuttlePersonRight').innerHTML = rightHtml;
-
-    // 全选状态
     var allPersons = getAllPersonsForDept(dept);
-    var totalChecked = persons.length + (depts.indexOf('__dept_level__') >= 0 ? 1 : 0);
-    var totalAvailable = allPersons.length + 1; // +1 for dept-level checkbox
-    document.getElementById('assignPersonSelectAllLeft').checked = totalChecked > 0 && persons.length === allPersons.length && depts.indexOf('__dept_level__') >= 0;
-    document.getElementById('assignPersonSelectAllRight').checked = false;
+    var tbody = document.getElementById('assignPersonTableBody');
+    if (!tbody) return;
+    var objects = window._clAllObjects || [];
+    var html = '';
+    assignState.selectedObjs.forEach(function(objName) {
+      var obj = objects.find(function(o) { return o.name === objName; }) || { name: objName, type: '' };
+      var selectedPersons = assignState.objectPersons[objName] || [];
+      var selectHtml = '<select multiple class="form-select" style="width:100%;min-height:64px;" onchange="updateObjectPersons(\'' + objName + '\', this)">';
+      allPersons.forEach(function(p) {
+        var selected = selectedPersons.indexOf(p) >= 0 ? ' selected' : '';
+        selectHtml += '<option value="' + p + '"' + selected + '>' + p + '</option>';
+      });
+      selectHtml += '</select>';
+      if (allPersons.length === 0) {
+        selectHtml = '<span style="color:var(--text-tertiary);font-size:var(--font-size-sm);">该科室暂无人员</span>';
+      }
+      html += '<tr><td>' + obj.name + '</td><td><span class="tag tag-cyan">' + obj.type + '</span></td><td>' + selectHtml + '</td></tr>';
+    });
+    if (!html) {
+      html = '<tr><td colspan="3" style="text-align:center;color:var(--text-tertiary);">请先在步骤①选择管控对象</td></tr>';
+    }
+    tbody.innerHTML = html;
   }
+
+  window.updateObjectPersons = function(objName, selectEl) {
+    var selected = Array.from(selectEl.selectedOptions).map(function(o) { return o.value; });
+    assignState.objectPersons[objName] = selected;
+  };
+
+  window.batchAssignAllPersons = function() {
+    var dept = assignState.dept;
+    var allPersons = getAllPersonsForDept(dept);
+    assignState.selectedObjs.forEach(function(objName) {
+      assignState.objectPersons[objName] = allPersons.slice();
+    });
+    renderPersonTable();
+    showToast('已批量设为本科室全员');
+  };
+
+  window.clearAllPersons = function() {
+    assignState.selectedObjs.forEach(function(objName) {
+      assignState.objectPersons[objName] = [];
+    });
+    renderPersonTable();
+    showToast('已清空全部责任人');
+  };
 
   // 获取责任科室下所有人员（含科室本级 + 子科室）
   function getAllPersonsForDept(dept) {
@@ -2236,106 +2299,7 @@
     }
   };
 
-  // 子科室全选/全不选
-  window.toggleDeptPersons = function(subDeptName, checked) {
-    var cbs = document.querySelectorAll('.person-cb-left[data-subdept="' + subDeptName + '"]');
-    cbs.forEach(function(cb) {
-      var person = cb.value;
-      if (checked) {
-        if (assignState.selectedPersons.indexOf(person) < 0) assignState.selectedPersons.push(person);
-      } else {
-        assignState.selectedPersons = assignState.selectedPersons.filter(function(p) { return p !== person; });
-      }
-    });
-    renderPersonShuttleBox();
-  };
-
-  // 科室本级 选中/取消
-  window.toggleDeptLevel = function(checked) {
-    var idx = assignState.selectedDepts.indexOf('__dept_level__');
-    if (checked) {
-      if (idx < 0) assignState.selectedDepts.push('__dept_level__');
-    } else {
-      if (idx >= 0) assignState.selectedDepts.splice(idx, 1);
-    }
-    renderPersonShuttleBox();
-  };
-
-  // 右侧科室级取消勾选
-  window.toggleDeptRight = function(checked) {
-    if (!checked) {
-      var idx = assignState.selectedDepts.indexOf('__dept_level__');
-      if (idx >= 0) assignState.selectedDepts.splice(idx, 1);
-      renderPersonShuttleBox();
-    }
-  };
-
-  // 单个人员勾选/取消
-  window.onPersonCheckboxChange = function(person, checked) {
-    if (checked) {
-      if (assignState.selectedPersons.indexOf(person) < 0) assignState.selectedPersons.push(person);
-    } else {
-      assignState.selectedPersons = assignState.selectedPersons.filter(function(p) { return p !== person; });
-    }
-    renderPersonShuttleBox();
-  };
-
-  // 右侧人员取消勾选
-  window.togglePersonRight = function(person, checked) {
-    if (!checked) {
-      assignState.selectedPersons = assignState.selectedPersons.filter(function(p) { return p !== person; });
-      renderPersonShuttleBox();
-    }
-  };
-
-  // 人员穿梭框移动
-  window.personShuttleMove = function(dir) {
-    if (dir === 'leftToRight') {
-      document.querySelectorAll('.person-cb-left:checked').forEach(function(cb) {
-        var name = cb.value;
-        if (assignState.selectedPersons.indexOf(name) < 0) assignState.selectedPersons.push(name);
-      });
-      // 科室本级勾选
-      var deptLevelCb = document.querySelector('.org-dept-check[data-dept="__dept_level__"]:checked');
-      if (deptLevelCb) {
-        var idx = assignState.selectedDepts.indexOf('__dept_level__');
-        if (idx < 0) assignState.selectedDepts.push('__dept_level__');
-      }
-    } else {
-      var toRemove = [];
-      document.querySelectorAll('.person-cb-right:checked').forEach(function(cb) { toRemove.push(cb.value); });
-      assignState.selectedPersons = assignState.selectedPersons.filter(function(p) { return toRemove.indexOf(p) < 0; });
-      // 科室级取消
-      var deptRightCb = document.querySelector('.dept-cb-right:checked');
-      if (deptRightCb) {
-        var idx = assignState.selectedDepts.indexOf('__dept_level__');
-        if (idx >= 0) assignState.selectedDepts.splice(idx, 1);
-      }
-    }
-    renderPersonShuttleBox();
-  };
-
-  // 人员穿梭框全选/全不选
-  window.togglePersonShuttleAll = function(checked, side) {
-    var dept = assignState.dept;
-    var allPersons = getAllPersonsForDept(dept);
-    if (side === 'left') {
-      if (checked) {
-        assignState.selectedPersons = allPersons.slice();
-        var idx = assignState.selectedDepts.indexOf('__dept_level__');
-        if (idx < 0) assignState.selectedDepts.push('__dept_level__');
-      } else {
-        assignState.selectedPersons = [];
-        var idx = assignState.selectedDepts.indexOf('__dept_level__');
-        if (idx >= 0) assignState.selectedDepts.splice(idx, 1);
-      }
-      renderPersonShuttleBox();
-    } else {
-      // 右侧全选：勾选所有人员 + 科室级
-      document.querySelectorAll('.person-cb-right').forEach(function(cb) { cb.checked = checked; });
-      document.querySelectorAll('.dept-cb-right').forEach(function(cb) { cb.checked = checked; });
-    }
-  };
+  // （旧穿梭框事件处理函数已移除——步骤2改为表格形式）
 
   // 确认配置 → 回显到检查表弹窗
   window.confirmAssign = function() {
@@ -2343,9 +2307,11 @@
     if (!dept) { showToast('责任科室未设置'); return; }
     if (assignState.selectedObjs.length === 0) { showToast('请至少选择一个管控对象'); return; }
     assignState.dept = dept;
-    // 将选中的人员应用到所有已选对象（人员可选，未选时列表显示"-"）
+    // 从表格收集每个对象的独立责任人配置（人员可选，未选时列表显示"-"）
     var persons = {};
-    assignState.selectedObjs.forEach(function(n) { persons[n] = assignState.selectedPersons.slice(); });
+    assignState.selectedObjs.forEach(function(n) {
+      persons[n] = (assignState.objectPersons[n] || []).slice();
+    });
     // 保存数据
     clAssignData = {
       dept: dept,
@@ -2371,7 +2337,7 @@
     var rows = '';
     // 科室级行
     if (clAssignData.selectedDepts && clAssignData.selectedDepts.indexOf('__dept_level__') >= 0) {
-      rows += '<tr><td>' + dept + '</td><td><span class="dept-level-tag">' + dept + '（科室级）</span></td><td style="text-align:center;">' + clAssignData.objects.length + '</td><td class="action-col"><button type="button" class="btn-link" onclick="viewAssignDetail()">编辑</button></td></tr>';
+      rows += '<tr><td>' + dept + '</td><td><span class="dept-level-tag">' + dept + '</span></td><td style="text-align:center;">' + clAssignData.objects.length + '</td><td class="action-col"><button type="button" class="btn-link" onclick="viewAssignDetail()">编辑</button></td></tr>';
     }
     // 按责任人聚合
     var grouped = {};
@@ -2410,6 +2376,7 @@
     assignState.selectedObjs = clAssignData.objects.slice();
     assignState.selectedDepts = clAssignData.selectedDepts ? clAssignData.selectedDepts.slice() : [];
     assignState.selectedPersons = clAssignData.persons ? Object.values(clAssignData.persons).flat().filter(function(v, i, a) { return a.indexOf(v) === i; }) : [];
+    assignState.objectPersons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
 
     // 显示责任科室（只读）
     document.getElementById('assignDeptDisplay').textContent = assignState.dept || '未设置';
@@ -2504,6 +2471,32 @@
     }
   });
 
+  // 按频次自然窗口计算计划完成日期（BR-GOV-DS-XX）
+  function getDeadlineByFreq(freqStr) {
+    var now = new Date();
+    var y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+    if (/年/.test(freqStr) && !/季度/.test(freqStr)) {
+      return y + '-12-31';
+    }
+    if (/季度/.test(freqStr)) {
+      var qEndMonth = Math.floor(m / 3) * 3 + 3;
+      var qEndDate = new Date(y, qEndMonth, 0);
+      return qEndDate.getFullYear() + '-' + String(qEndDate.getMonth() + 1).padStart(2, '0') + '-' + String(qEndDate.getDate()).padStart(2, '0');
+    }
+    if (/月/.test(freqStr) && !/季度/.test(freqStr)) {
+      var mEndDate = new Date(y, m + 1, 0);
+      return mEndDate.getFullYear() + '-' + String(mEndDate.getMonth() + 1).padStart(2, '0') + '-' + String(mEndDate.getDate()).padStart(2, '0');
+    }
+    if (/周/.test(freqStr)) {
+      var day = now.getDay();
+      var daysToSunday = day === 0 ? 0 : 7 - day;
+      var sunday = new Date(y, m, d + daysToSunday);
+      return sunday.getFullYear() + '-' + String(sunday.getMonth() + 1).padStart(2, '0') + '-' + String(sunday.getDate()).padStart(2, '0');
+    }
+    // 每日默认今天
+    return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  }
+
   // 矩阵单元格点击下钻 / 明细表操作列：查看任务清单（AC-GOV-DS-10/11）
   window.viewTaskList = function(domainId, frequency, objectName) {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
@@ -2517,7 +2510,7 @@
     var cfg = CONFIG_DATA[domainId];
     var checklists = [];
     if (cfg && cfg.checklists) {
-      cfg.checklists.forEach(function(cl) {
+      cfg.checklists.forEach(function(cl, idx) {
         if (!cl.enabled) return;
         if (progressFilterDept && cl.dept !== progressFilterDept) return;
         var f = cl.frequency || '';
@@ -2529,19 +2522,18 @@
         else if (/年/.test(f) && !/季度/.test(f)) matchedFreq = '每年';
 
         if (frequency && matchedFreq !== frequency) return;
-        checklists.push({ name: cl.name, frequency: f, dept: cl.dept, person: cl.person || '' });
+        checklists.push({ name: cl.name, frequency: f, dept: cl.dept, person: cl.person || '', _idx: idx });
       });
     }
 
-    // 生成任务：每个管控对象 × 每个检查表 = 一条任务，状态由该对象 rate 按比例分配
+    // 生成任务：每个管控对象 × 每个检查表 = 一条任务，状态由 getObjectDoneInfo 统一判定
     var tasks = [];
     objects.forEach(function(o) {
       if (objectName && o.name !== objectName) return;
-      var objDoneCount = checklists.length > 0 ? Math.round(checklists.length * o.rate / 100) : 0;
-      checklists.forEach(function(cl, idx) {
-        var status = idx < objDoneCount ? '已完成' : '未完成';
-        var today = new Date();
-        var dateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+      var info = getObjectDoneInfo(domainId, o, progressFilterDept);
+      checklists.forEach(function(cl) {
+        var status = info.set[cl._idx] ? '已完成' : '未完成';
+        var dateStr = getDeadlineByFreq(cl.frequency);
         tasks.push({
           objectName: o.name,
           checklistName: cl.name,
@@ -2899,6 +2891,7 @@
       cat.domains.forEach(function(domain) {
         var tables = [];
         domain.tables.forEach(function(table) {
+          if (table.enabled === false || table.status === '停用') return;
           if (typeFilter && table.type !== typeFilter) return;
           var items = table.items;
           if (keyword) {
@@ -3159,9 +3152,38 @@
   }
 
   function updateRefStats() {
-    var count = Object.keys(refSelected).length;
-    var el = document.getElementById('refSelCount');
-    if (el) el.textContent = count;
+    var selectedIds = Object.keys(refSelected);
+    var tableSet = {};
+    var tableItemCount = 0;
+    var uncatCount = 0;
+    CHECKLIST_LIB_DATA.forEach(function(cat) {
+      cat.domains.forEach(function(domain) {
+        domain.tables.forEach(function(table) {
+          if (table.enabled === false || table.status === '停用') return;
+          var hasSelected = false;
+          var tableTotalItems = table.items.length;
+          table.items.forEach(function(it) {
+            if (refSelected[it.id]) hasSelected = true;
+          });
+          if (hasSelected) {
+            tableSet[table.name] = true;
+            tableItemCount += tableTotalItems;
+          }
+        });
+        (domain.uncatItems || []).forEach(function(it) {
+          if (refSelected[it.id]) uncatCount++;
+        });
+      });
+    });
+    (CHECKLIB_UNCAT_ITEMS || []).forEach(function(it) {
+      if (refSelected[it.id]) uncatCount++;
+    });
+    var tableCount = Object.keys(tableSet).length;
+    var total = tableItemCount + uncatCount;
+    var el = document.getElementById('refStats');
+    if (el) {
+      el.innerHTML = '已选择：<strong>' + tableCount + '</strong> 个检查表（共 ' + tableItemCount + ' 项）+ ' + uncatCount + ' 条独立检查项 = 合计 <strong>' + total + '</strong> 项';
+    }
   }
 
   // 获取选中项对应的完整数据
@@ -3714,7 +3736,7 @@
     var html = '';
     // 领域标题
     html += '<div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">';
-    html += '<h3 style="margin:0;font-size:var(--font-size-lg);font-weight:600;">' + d.name + ' — 任务配置</h3>';
+    html += '<h3 style="margin:0;font-size:var(--font-size-lg);font-weight:600;display:flex;align-items:center;gap:8px;">' + d.name + ' — 任务配置' + getDomainModeLabel(configState.domainId) + '</h3>';
     html += '<span style="font-size:var(--font-size-sm);color:var(--text-secondary);">' +
       '<b>' + objs.length + '</b> 个对象 · 已配置 <b>' + assigned + '</b> · 未配置 <b style="color:var(--danger)">' + (objs.length - assigned) + '</b></span>';
     html += '</div>';
