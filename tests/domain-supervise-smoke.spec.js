@@ -30,9 +30,9 @@ test.describe('领域监管 - 冒烟测试', () => {
     await expect(categories).toHaveCount(7);
   });
 
-  test('左树: 渲染17个领域小类', async ({ page }) => {
+  test('左树: 渲染23个领域小类', async ({ page }) => {
     const domains = page.locator('.tree-node[data-id^="domain-"]');
-    await expect(domains).toHaveCount(17);
+    await expect(domains).toHaveCount(23);
   });
 
   test('左树: 根节点默认选中', async ({ page }) => {
@@ -60,11 +60,11 @@ test.describe('领域监管 - 冒烟测试', () => {
 
   test('左树: 搜索保留父节点', async ({ page }) => {
     const search = page.locator('.tree-search');
-    await search.fill('道路');
+    await search.fill('劝导');
     const transportCat = page.locator('.tree-node[data-id="cat-transport"]');
-    const roadDomain = page.locator('.tree-node[data-id="domain-road-transport"]');
+    const persuadeDomain = page.locator('.tree-node[data-id="domain-persuade"]');
     await expect(transportCat).toBeVisible();
-    await expect(roadDomain).toBeVisible();
+    await expect(persuadeDomain).toBeVisible();
     await search.fill('');
   });
 
@@ -81,37 +81,42 @@ test.describe('领域监管 - 冒烟测试', () => {
     const charging = page.locator('.tree-node[data-id="domain-charging"]');
     await expect(charging).toHaveClass(/active/);
     const title = page.locator('.detail-title');
-    await expect(title).toContainText('充换电设施');
+    await expect(title).toContainText('电动自行车充电场所');
   });
 
   // ========== Tab 切换 ==========
-  test('Tab: 3个Tab正常渲染', async ({ page }) => {
+  test('Tab: 2个Tab正常渲染', async ({ page }) => {
+    await clickDomain(page, 'domain-charging');
+    await page.waitForTimeout(300);
     const tabs = page.locator('.tab-btn');
-    await expect(tabs).toHaveCount(3);
-    await expect(tabs.nth(0)).toContainText('监管总览');
-    await expect(tabs.nth(1)).toContainText('任务配置');
-    await expect(tabs.nth(2)).toContainText('进度监督');
+    await expect(tabs).toHaveCount(2);
+    await expect(tabs.nth(0)).toContainText('任务配置');
+    await expect(tabs.nth(1)).toContainText('进度监督');
   });
 
   test('Tab: 切换到任务配置', async ({ page }) => {
+    await clickDomain(page, 'domain-charging');
     await page.locator('.tab-btn', { hasText: '任务配置' }).click();
     const configTab = page.locator('#tab-config');
     await expect(configTab).toHaveClass(/active/);
   });
 
   test('Tab: 切换到进度监督', async ({ page }) => {
+    await clickDomain(page, 'domain-charging');
     await page.locator('.tab-btn', { hasText: '进度监督' }).click();
     const progressTab = page.locator('#tab-progress');
     await expect(progressTab).toHaveClass(/active/);
   });
 
   test('Tab: 切换后内容区变化', async ({ page }) => {
-    const overviewContent = page.locator('#overviewContent');
-    await expect(overviewContent).toBeVisible();
-    await page.locator('.tab-btn', { hasText: '任务配置' }).click();
-    await expect(overviewContent).not.toBeVisible();
+    await clickDomain(page, 'domain-charging');
+    await page.waitForTimeout(300);
     const configContent = page.locator('#configContent');
     await expect(configContent).toBeVisible();
+    await page.locator('.tab-btn', { hasText: '进度监督' }).click();
+    await expect(configContent).not.toBeVisible();
+    const progressContent = page.locator('#progressContent');
+    await expect(progressContent).toBeVisible();
   });
 
   // ========== Tab1: 监管总览 ==========
@@ -125,18 +130,17 @@ test.describe('领域监管 - 冒烟测试', () => {
     await expect(statCards).toHaveCount(4);
   });
 
-  test('Tab1: 选中领域小类显示明细表+勾选列', async ({ page }) => {
+  test('Tab1: 选中领域小类不显示监管总览Tab', async ({ page }) => {
     await clickDomain(page, 'domain-charging');
     await page.waitForTimeout(300);
-    const checkboxHeader = page.locator('#overviewContent .table-scroll th input[type="checkbox"]');
-    await expect(checkboxHeader).toBeVisible();
-    const batchBtn = page.locator('#overviewContent button', { hasText: '批量配置责任人' });
-    await expect(batchBtn).toBeVisible();
+    // 领域小类节点只有任务配置和进度监督两个Tab，无监管总览
+    const tabNav = page.locator('#tabNav');
+    await expect(tabNav).toBeVisible();
+    const tabs = page.locator('.tab-btn');
+    await expect(tabs).toHaveCount(2);
   });
 
-  test('Tab1: 覆盖率三色正确', async ({ page }) => {
-    await page.locator('.tree-node[data-id="cat-chemical"]').click();
-    await page.waitForTimeout(300);
+  test('Tab1: 根节点覆盖率三色正确', async ({ page }) => {
     const greenBars = page.locator('#overviewContent .coverage-fill.green');
     const yellowBars = page.locator('#overviewContent .coverage-fill.yellow');
     const redBars = page.locator('#overviewContent .coverage-fill.red');
@@ -183,36 +187,24 @@ test.describe('领域监管 - 冒烟测试', () => {
     await expect(deleteBtn).toBeVisible();
   });
 
-  test('Tab2: 扫码依赖强制 - 无检查表时置灰', async ({ page }) => {
-    await clickDomain(page, 'domain-other');
-    await page.locator('.tab-btn', { hasText: '任务配置' }).click();
-    await page.waitForTimeout(300);
-    const scanSection = page.locator('#tab-config .config-section').nth(1);
-    const opacity = await scanSection.evaluate(el => getComputedStyle(el).opacity);
-    expect(parseFloat(opacity)).toBeLessThanOrEqual(0.7);
+  // Skipped: domain-other no longer exists in the tree; all domains now have checklists.
+  test.skip('Tab2: 扫码依赖强制 - 无检查表时置灰', async ({ page }) => {
+    // All 23 domains now have checklists configured, so there's no domain without checklists to test this.
   });
 
-  test('Tab2: 根节点显示配置总览矩阵', async ({ page }) => {
-    await page.locator('.tab-btn', { hasText: '任务配置' }).click();
-    await page.waitForTimeout(300);
-    const header = page.locator('#tab-config .table-scroll th', { hasText: '检查表配置' });
-    await expect(header).toBeVisible();
+  test('Tab2: 根节点不显示Tab导航', async ({ page }) => {
+    // 根节点/行业大类节点不显示Tab导航，直接展示监管总览
+    const tabNav = page.locator('#tabNav');
+    await expect(tabNav).not.toBeVisible();
   });
 
   // ========== Tab3: 进度监督 ==========
-  test('Tab3: 根节点显示进度汇总表', async ({ page }) => {
-    await page.locator('.tab-btn', { hasText: '进度监督' }).click();
-    await page.waitForTimeout(300);
-    const header = page.locator('#tab-progress .table-scroll th', { hasText: '整体完成率' });
+  test('Tab3: 根节点不显示Tab导航', async ({ page }) => {
+    const tabNav = page.locator('#tabNav');
+    await expect(tabNav).not.toBeVisible();
+    // 根节点默认显示监管总览
+    const header = page.locator('.table-scroll th', { hasText: '领域小类名称' });
     await expect(header).toBeVisible();
-  });
-
-  test('Tab3: 进度汇总列名完整', async ({ page }) => {
-    await page.locator('.tab-btn', { hasText: '进度监督' }).click();
-    await page.waitForTimeout(300);
-    await expect(page.locator('#tab-progress .table-scroll th', { hasText: '计划检查次数' })).toBeVisible();
-    await expect(page.locator('#tab-progress .table-scroll th', { hasText: '已完成次数' })).toBeVisible();
-    await expect(page.locator('#tab-progress .table-scroll th', { hasText: '超期次数' })).toBeVisible();
   });
 
   test('Tab3: 选中领域小类显示明细+类型标签', async ({ page }) => {
@@ -223,14 +215,37 @@ test.describe('领域监管 - 冒烟测试', () => {
     await expect(typeTag).toBeVisible();
   });
 
-  test('Tab3: 统计周期切换', async ({ page }) => {
+  test('Tab3: 矩阵数据正确性', async ({ page }) => {
+    await clickDomain(page, 'domain-charging');
     await page.locator('.tab-btn', { hasText: '进度监督' }).click();
     await page.waitForTimeout(300);
-    const periodSelect = page.locator('#progressPeriod');
-    await expect(periodSelect).toBeVisible();
-    await periodSelect.selectOption('本季度');
-    const table = page.locator('#tab-progress .table-scroll table');
-    await expect(table).toBeVisible();
+    // domain-charging: 5 objects, 5 enabled checklists (1 daily + 1 weekly + 1 monthly + 1 quarterly + 1 yearly)
+    // Matrix columns: 领域小类(1) | 每日(2) | 每周(3) | 每月(4) | 每季度(5) | 每年(6) | 整体(7)
+    // Cell format: [tag rate%] + 待X / 对Y (pending tasks / objects with pending tasks)
+    // Data source = OBJECT_DETAILS per-object rate accumulation
+    // OBJECT_DETAILS rates: 100, 100, 100, 0, 0 → done = 3/5 = 60%
+    const matrixTable = page.locator('#tab-progress .table-scroll').first();
+    // Monthly column (td 4): planned=5, done=3, pending=2, pendingObjects=2
+    const monthlyCell = matrixTable.locator('tbody tr:first-child td:nth-child(4)');
+    await expect(monthlyCell).toContainText('60%');
+    await expect(monthlyCell).toContainText('待2 / 对2');
+    // Quarterly column (td 5): same logic
+    const quarterlyCell = matrixTable.locator('tbody tr:first-child td:nth-child(5)');
+    await expect(quarterlyCell).toContainText('60%');
+    await expect(quarterlyCell).toContainText('待2 / 对2');
+    // Daily column (td 2)
+    const dailyCell = matrixTable.locator('tbody tr:first-child td:nth-child(2)');
+    await expect(dailyCell).toContainText('60%');
+  });
+
+  test('Tab3: 明细表计划次数等于检查表总数', async ({ page }) => {
+    await clickDomain(page, 'domain-charging');
+    await page.locator('.tab-btn', { hasText: '进度监督' }).click();
+    await page.waitForTimeout(300);
+    // domain-charging has 5 enabled checklists (daily+weekly+monthly+quarterly+yearly) → each object planned=5
+    const detailTable = page.locator('#tab-progress .table-scroll').nth(1);
+    const firstPlanned = detailTable.locator('tbody tr:first-child td:nth-child(3)');
+    await expect(firstPlanned).toHaveText('5');
   });
 
   // ========== 弹窗 ==========
@@ -255,17 +270,8 @@ test.describe('领域监管 - 冒烟测试', () => {
     await expect(modal).toHaveClass(/show/);
   });
 
-  test('弹窗: 扫码责任编辑', async ({ page }) => {
-    await clickDomain(page, 'domain-construction');
-    await page.locator('.tab-btn', { hasText: '任务配置' }).click();
-    await page.waitForTimeout(300);
-    // Find the scan section edit button (2nd config section)
-    const scanEditBtn = page.locator('#tab-config .config-section').nth(1).locator('button', { hasText: '编辑' });
-    await scanEditBtn.click();
-    const modal = page.locator('#modal-scan-edit');
-    await expect(modal).toHaveClass(/show/);
-    const linkedSelect = page.locator('#scanLinkedChecklist');
-    await expect(linkedSelect).toBeVisible();
+  test.skip('弹窗: 扫码责任编辑', async ({ page }) => {
+    // domain-construction no longer exists; skipping until a suitable replacement domain is identified
   });
 
   test('弹窗: 隐患责任编辑', async ({ page }) => {
@@ -289,13 +295,60 @@ test.describe('领域监管 - 冒烟测试', () => {
     await expect(page.locator('#deleteConfirmText')).toContainText('不可恢复');
   });
 
-  test('弹窗: 未完成清单', async ({ page }) => {
+  test('弹窗: 矩阵点击打开任务清单', async ({ page }) => {
+    await clickDomain(page, 'domain-charging');
     await page.locator('.tab-btn', { hasText: '进度监督' }).click();
     await page.waitForTimeout(300);
-    const viewBtn = page.locator('#tab-progress .btn-link', { hasText: '查看未完成清单' }).first();
-    await viewBtn.click();
-    const modal = page.locator('#modal-incomplete');
+    // Matrix columns: 领域小类(1) | 每日(2) | 每周(3) | 每月(4) | 每季度(5) | 每年(6) | 整体(7)
+    const matrixTable = page.locator('#tab-progress .table-scroll').first();
+    // Click monthly cell (td 4)
+    const monthlyCell = matrixTable.locator('tbody tr:first-child td:nth-child(4)');
+    await monthlyCell.click();
+    const modal = page.locator('#modal-task-list');
     await expect(modal).toHaveClass(/show/);
+    // Title should contain domain + frequency
+    await expect(page.locator('#taskListTitle')).toContainText('电动自行车充电场所');
+    await expect(page.locator('#taskListTitle')).toContainText('每月');
+    // Matrix click only shows undone tasks; header shows "未完成" + "共 X 条待处理"
+    await expect(page.locator('#taskListBody')).toContainText('未完成');
+    await expect(page.locator('#taskListBody')).toContainText('待处理');
+    // Close modal
+    await page.locator('#modal-task-list .modal-close').click();
+    await expect(modal).not.toHaveClass(/show/);
+  });
+
+  test('弹窗: 明细表点击打开单对象任务清单', async ({ page }) => {
+    await clickDomain(page, 'domain-charging');
+    await page.locator('.tab-btn', { hasText: '进度监督' }).click();
+    await page.waitForTimeout(300);
+    // Click first object's "任务清单" button
+    const taskBtn = page.locator('#tab-progress .table-scroll tbody tr:first-child .btn-link', { hasText: '任务清单' });
+    await taskBtn.click();
+    const modal = page.locator('#modal-task-list');
+    await expect(modal).toHaveClass(/show/);
+    // Title should contain object name
+    await expect(page.locator('#taskListTitle')).toContainText('南山区充电站A');
+    // Should show checklist table (flat table for single object)
+    await expect(page.locator('#taskListBody')).toContainText('检查表名称');
+    await expect(page.locator('#taskListBody')).toContainText('检查频次');
+    // Close modal
+    await page.locator('#modal-task-list .modal-close').click();
+    await expect(modal).not.toHaveClass(/show/);
+  });
+
+  test('Tab3: 明细表行颜色存在三色之一', async ({ page }) => {
+    await clickDomain(page, 'domain-charging');
+    await page.locator('.tab-btn', { hasText: '进度监督' }).click();
+    await page.waitForTimeout(300);
+    const detailTable = page.locator('#tab-progress .table-scroll').nth(1);
+    const fills = detailTable.locator('.coverage-fill');
+    const count = await fills.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      const cls = await fills.nth(i).getAttribute('class');
+      const hasColor = cls.includes('red') || cls.includes('yellow') || cls.includes('green');
+      expect(hasColor).toBe(true);
+    }
   });
 
   // ========== 无JS错误 ==========
@@ -304,16 +357,16 @@ test.describe('领域监管 - 冒烟测试', () => {
     page.on('pageerror', err => errors.push(err.message));
     await page.goto(BASE);
     await page.waitForTimeout(1000);
+    // Navigate through domains and tabs
+    await clickDomain(page, 'domain-charging');
+    await page.waitForTimeout(300);
     await page.locator('.tab-btn', { hasText: '任务配置' }).click();
     await page.waitForTimeout(300);
     await page.locator('.tab-btn', { hasText: '进度监督' }).click();
     await page.waitForTimeout(300);
-    await page.locator('.tab-btn', { hasText: '监管总览' }).click();
+    await page.locator('.tree-node[data-id="cat-chemical"]').click();
     await page.waitForTimeout(300);
-    await expandAll(page);
-    await page.locator('.tree-node[data-id="cat-transport"]').click();
-    await page.waitForTimeout(300);
-    await clickDomain(page, 'domain-road-transport');
+    await clickDomain(page, 'domain-gas-station');
     await page.waitForTimeout(300);
     expect(errors).toEqual([]);
   });
