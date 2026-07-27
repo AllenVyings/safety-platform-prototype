@@ -864,7 +864,7 @@
     }
     .df-config-body {
       display: grid;
-      grid-template-columns: 220px 1fr 360px;
+      grid-template-columns: 220px 1fr 300px;
       gap: 12px;
       min-height: 360px;
     }
@@ -1276,24 +1276,24 @@
       padding: 0;
     }
     .df-preview-section-body .form-row {
-      display: flex;
-      gap: var(--spacing-md);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
       margin-bottom: var(--spacing-md);
     }
     .df-preview-section-body .form-row:last-child {
       margin-bottom: 0;
     }
     .df-preview-section-body .form-item {
-      flex: 1;
       min-width: 0;
     }
     .df-preview-section-body .form-item.full-width {
-      flex: 0 0 100%;
+      grid-column: 1 / -1;
     }
     .df-preview-section-body .form-label {
       display: block;
       font-size: var(--font-size-sm);
-      color: var(--text-primary);
+      color: var(--text-secondary);
       margin-bottom: 6px;
     }
     .df-preview-section-body .form-label .required {
@@ -1310,7 +1310,8 @@
     .df-preview-section-body .form-select,
     .df-preview-section-body .form-textarea {
       width: 100%;
-      padding: var(--spacing-sm) 12px;
+      height: 32px;
+      padding: 0 10px;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       font-size: var(--font-size-sm);
@@ -1330,6 +1331,7 @@
       border-color: var(--danger);
     }
     .df-preview-section-body .form-textarea {
+      height: auto;
       resize: vertical;
       min-height: 80px;
     }
@@ -1560,6 +1562,7 @@
       padding: 0;
       background: transparent;
       transition: all 0.2s;
+      overflow-x: auto;
     }
     .df-preset-body.collapsed {
       display: none;
@@ -1573,24 +1576,24 @@
     }
     /* 预设板块内表单行——复用 .form-row 布局规则 */
     .df-preset-body .form-row {
-      display: flex;
-      gap: var(--spacing-md);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
       margin-bottom: var(--spacing-md);
     }
     .df-preset-body .form-row:last-child {
       margin-bottom: 0;
     }
     .df-preset-body .form-item {
-      flex: 1;
       min-width: 0;
     }
     .df-preset-body .form-item.full-width {
-      flex: 0 0 100%;
+      grid-column: 1 / -1;
     }
     .df-preset-body .form-label {
       display: block;
       font-size: var(--font-size-sm);
-      color: var(--text-primary);
+      color: var(--text-secondary);
       margin-bottom: 6px;
     }
     .df-preset-body .form-label .required {
@@ -1601,7 +1604,8 @@
     .df-preset-body .form-select,
     .df-preset-body .form-textarea {
       width: 100%;
-      padding: var(--spacing-sm) 12px;
+      height: 32px;
+      padding: 0 10px;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       font-size: var(--font-size-sm);
@@ -1621,8 +1625,145 @@
       color: var(--text-tertiary);
     }
     .df-preset-body .form-textarea {
+      height: auto;
       resize: none;
       min-height: 60px;
+    }
+    /* 区划级联选择器（对齐重点场所） */
+    .df-region-trigger {
+      width: 100%;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      text-align: left;
+      box-sizing: border-box;
+      line-height: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .df-region-trigger.placeholder { color: var(--text-tertiary); }
+    .df-region-trigger:hover { border-color: var(--primary); }
+    .df-region-trigger:disabled { background: var(--bg-section-alt, #fafafa); cursor: default; color: var(--text-tertiary); }
+    .df-region-trigger .arrow { color: var(--text-tertiary); font-size: 11px; }
+    .df-region-popover {
+      position: absolute;
+      z-index: 100;
+      background: var(--bg-card);
+      border: 1px solid var(--border-section);
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      padding: 12px;
+      width: 680px;
+      max-height: 400px;
+      display: none;
+      flex-direction: column;
+    }
+    .df-region-popover.open { display: flex; }
+    .df-region-search {
+      width: 100%;
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .df-region-cols { display: flex; gap: 6px; min-height: 240px; flex: 1; }
+    .df-region-col {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      overflow-y: auto;
+      max-height: 260px;
+    }
+    .df-region-item {
+      padding: 6px 10px;
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .df-region-item:hover { background: var(--bg-section); }
+    .df-region-item.active { background: var(--primary-light, #e6f7ff); color: var(--primary); font-weight: 500; }
+    .df-region-item.matched { background: #fffbe6; }
+    /* 地图选点行 */
+    .df-locate-row { display: flex; gap: 8px; align-items: center; }
+    .df-locate-row .form-input { flex: 1; }
+    .df-btn-locate {
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--primary);
+      background: var(--bg-card);
+      color: var(--primary);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .df-btn-locate:hover { background: var(--primary); color: #fff; }
+    .df-btn-locate:disabled { border-color: var(--border); color: var(--text-tertiary); background: var(--bg-section-alt, #fafafa); cursor: default; }
+    /* 模拟地图 */
+    .df-map-container {
+      width: 100%;
+      height: 360px;
+      background: linear-gradient(135deg,#e0f1ff 0%,#f0f9ff 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      position: relative;
+      overflow: hidden;
+    }
+    .df-map-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(24,144,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24,144,255,0.08) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    .df-map-pin {
+      position: absolute;
+      width: 24px;
+      height: 30px;
+      transform: translate(-50%, -100%);
+      cursor: grab;
+      font-size: 28px;
+      line-height: 1;
+      text-align: center;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+      user-select: none;
+    }
+    .df-map-pin.dragging { cursor: grabbing; }
+    .df-map-info {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(255,255,255,0.95);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .df-map-tip {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: var(--radius-md);
     }
     .df-preset-body .cascade-selects {
       display: flex;
@@ -1716,6 +1857,125 @@
       border-bottom: 1px solid var(--border-section);
       margin-bottom: var(--spacing-xs);
     }
+    /* 扫码配置预设板块表格（对齐重点场所 kp-inline-table） */
+    .df-scan-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--font-size-sm);
+    }
+    .df-scan-table th,
+    .df-scan-table td {
+      border: 1px solid var(--border-section);
+      padding: 6px 8px;
+      vertical-align: middle;
+      text-align: left;
+    }
+    .df-scan-table th {
+      background: var(--bg-section);
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .df-scan-table tbody tr:hover {
+      background: var(--bg-hover);
+    }
+    /* 预览扫码配置板块头部 */
+    .df-preview-scan-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+    }
+    .df-preview-scan-header .section-title-text {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    /* 关联企业预设板块表格（对齐重点场所 kp-inline-table） */
+    .df-enterprise-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--font-size-sm);
+    }
+    .df-enterprise-table th,
+    .df-enterprise-table td {
+      border: 1px solid var(--border-section);
+      padding: 6px 8px;
+      vertical-align: middle;
+      text-align: left;
+    }
+    .df-enterprise-table th {
+      background: var(--bg-section);
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .df-enterprise-table td.check-cell {
+      text-align: center;
+      width: 70px;
+    }
+    .df-enterprise-table td input[type="text"],
+    .df-enterprise-table td select {
+      width: 100%;
+      height: 28px;
+      padding: 0 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm, 4px);
+      font-size: var(--font-size-sm);
+      box-sizing: border-box;
+      background: var(--bg-primary);
+    }
+    .df-add-row-btn {
+      margin-top: 8px;
+      height: 30px;
+      padding: 0 14px;
+      border: 1px dashed var(--primary);
+      background: transparent;
+      color: var(--primary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+    }
+    .df-add-row-btn:hover { background: var(--primary-light, #e6f7ff); }
+    .df-row-del {
+      color: #ff4d4f;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: var(--font-size-sm);
+      padding: 0 4px;
+    }
+    .df-row-del:hover { text-decoration: underline; }
+    /* 隐患处置配置预设板块（对齐重点场所 kp-hazard-row） */
+    .df-hazard-config-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+    }
+    .df-hazard-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .df-hazard-field-label {
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .df-hazard-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 6px;
+    }
+    .df-hazard-row select {
+      height: 32px;
+      padding: 0 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm, 4px);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
   </style>
 </head>
 <body>
@@ -1736,14 +1996,14 @@
       <div class="stat-card" onclick="filterByStatus('')">
         <div class="stat-card-body">
           <div class="stat-label">领域总数</div>
-          <div class="stat-value" id="totalCount">23</div>
+          <div class="stat-value" id="totalCount">24</div>
         </div>
         <div class="stat-indicator" style="background: var(--primary);"></div>
       </div>
       <div class="stat-card" onclick="filterByStatus('1')">
         <div class="stat-card-body">
           <div class="stat-label">启用中</div>
-          <div class="stat-value" id="enabledCount">22</div>
+          <div class="stat-value" id="enabledCount">23</div>
         </div>
         <div class="stat-indicator" style="background: var(--success);"></div>
       </div>
@@ -1982,7 +2242,7 @@
 
   <!-- 动态表单配置二级弹窗 -->
   <div class="modal-overlay" id="dfConfigModal">
-    <div class="modal modal-lg" style="max-width:1200px">
+    <div class="modal-dialog modal-lg" style="max-width:1400px">
       <div class="modal-header">
         <h3 class="modal-title">动态表单配置</h3>
         <button class="modal-close" onclick="dfCancelConfigModal()">&times;</button>
@@ -2018,7 +2278,7 @@
 
   <!-- 动态表单预览弹窗 -->
   <div class="modal-overlay" id="dfPreviewModal">
-    <div class="modal modal-lg" style="max-width:900px">
+    <div class="modal-dialog modal-lg" style="max-width:900px">
       <div class="modal-header">
         <h3 class="modal-title">动态表单预览</h3>
         <button class="modal-close" onclick="dfClosePreviewModal()">&times;</button>
@@ -2035,9 +2295,89 @@
     </div>
   </div>
 
+  <!-- 预览扫码配置弹窗 -->
+  <div class="modal-overlay" id="dfPreviewScanModal" style="z-index:1300;display:none;">
+    <div class="modal-dialog" style="width:700px;max-width:95vw;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="dfPreviewScanModalTitle">添加扫码配置</h3>
+        <button class="modal-close" onclick="dfPreviewCloseScanModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-item">
+            <label class="form-label">责任类型</label>
+            <select class="form-select" id="dfPreviewScanRespType">
+              <option value="政府">政府</option>
+              <option value="企业">企业</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label class="form-label">责任主体</label>
+            <input type="text" class="form-input" id="dfPreviewScanRespName" placeholder="如：应急管理局">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-item">
+            <label class="form-label">扫码责任人</label>
+            <input type="text" class="form-input" id="dfPreviewScanScanner" placeholder="如：张三 或 全员">
+          </div>
+          <div class="form-item">
+            <label class="form-label">检查表</label>
+            <input type="text" class="form-input" id="dfPreviewScanClName" placeholder="如：消防设施巡查表">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-item">
+            <label class="form-label">检查项数量</label>
+            <input type="number" class="form-input" id="dfPreviewScanItemCnt" value="1" min="1">
+          </div>
+          <div class="form-item">
+            <label class="form-label">检查频次</label>
+            <input type="text" class="form-input" id="dfPreviewScanFreq" placeholder="如：每1周检查1次">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-item">
+            <label class="form-label">节假日规则</label>
+            <select class="form-select" id="dfPreviewScanSkip">
+              <option value="不过滤节假日">不过滤节假日</option>
+              <option value="过滤节假日">过滤节假日</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="dfPreviewCloseScanModal()">取消</button>
+        <button class="btn btn-primary" onclick="dfPreviewSaveScanConfig()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 地图选点弹窗（动态表单预览） -->
+  <div class="modal-overlay" id="dfMapModal" style="display:none;">
+    <div class="modal-dialog" style="width:600px;">
+      <div class="modal-header">
+        <span class="modal-title">地图选点（模拟）</span>
+        <button class="modal-close" onclick="dfCloseMapModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="df-map-container" id="dfMapContainer">
+          <div class="df-map-grid"></div>
+          <div class="df-map-info" id="dfMapInfo">点击或拖拽 📍 选取地理位置</div>
+          <div class="df-map-pin" id="dfMapPin" style="left:50%; top:55%;">📍</div>
+          <div class="df-map-tip">提示：拖拽图钉实时回显坐标 / 地址</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="dfCloseMapModal()">取消</button>
+        <button class="btn btn-primary" onclick="dfConfirmMapPick()">确定</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 监管单位选择弹窗 -->
   <div class="modal-overlay" id="supervisorModal">
-    <div class="modal modal-lg">
+    <div class="modal-dialog modal-lg">
       <div class="modal-header">
         <h3 class="modal-title">选择监管单位</h3>
         <button class="modal-close" onclick="closeSupervisorModal()">&times;</button>
@@ -2712,7 +3052,10 @@ function showToast(msg, type) {
         nanshan: { type: 'local', id: 'local_NS-NANSHAN-STREET', name: '南山街道', checklists: [] },
         xili: { type: 'local', id: 'local_NS-XILI', name: '西丽街道', checklists: [] },
         shahe: { type: 'local', id: 'local_NS-SHAHE', name: '沙河街道', checklists: [] },
-        shekou: { type: 'local', id: 'local_NS-SHEKOU', name: '蛇口街道', checklists: [] }
+        shekou: { type: 'local', id: 'local_NS-SHEKOU', name: '蛇口街道', checklists: [] },
+        zhaoshang: { type: 'local', id: 'local_NS-ZHAOSHANG', name: '招商街道', checklists: [] },
+        yuehai: { type: 'local', id: 'local_NS-YUEHAI', name: '粤海街道', checklists: [] },
+        taoyuan: { type: 'local', id: 'local_NS-TAOYUAN', name: '桃源街道', checklists: [] }
       }
     };
     const supUnit = (category, key) => ({ ...SUPERVISOR_TEST_UNITS[category][key], checklists: [] });
@@ -2744,9 +3087,19 @@ function showToast(msg, type) {
       // ===== 危险化学品类 (CHEM) 2项 =====
       { id: 'CHEM_001', name: '加油站', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '加油站安全管理', supervisors: [supUnit('industry', 'emergency'), supUnit('professional', 'market')], checklists: [] },
       { id: 'CHEM_002', name: '医药化工', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '0', desc: '医药化工企业安全管理', supervisors: [supUnit('industry', 'emergency'), supUnit('professional', 'iit')], checklists: [] },
-      // ===== 其他类 (OTH) 1项 =====
-      { id: 'OTH_001', name: '危险边坡', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡安全管理', supervisors: [supUnit('professional', 'resources'), supUnit('local', 'nanshan')], checklists: [] }
+      // ===== 其他类 (OTH) 2项 =====
+      { id: 'OTH_001', name: '危险边坡', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡安全管理', supervisors: [supUnit('professional', 'resources'), supUnit('local', 'nanshan')], checklists: [], dynamicFormEnabled: true },
+      { id: 'OTH_002', name: '危险边坡（重点边坡）', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡（重点边坡）安全管理', supervisors: [supUnit('professional', 'resources'), supUnit('local', 'nanshan')], checklists: [], dynamicFormEnabled: true }
     ];
+
+    // 属地监管默认包含全部8个街道（替换原有的单个街道）
+    const allLocalStreets = Object.values(SUPERVISOR_TEST_UNITS.local).map(u => ({ ...u, checklists: [] }));
+    domainTableData.forEach(d => {
+      const hasLocal = d.supervisors.some(s => s.type === 'local');
+      if (hasLocal) {
+        d.supervisors = d.supervisors.filter(s => s.type !== 'local').concat(allLocalStreets);
+      }
+    });
 
     // 检查库模拟数据
     const libraryLibData = [
@@ -2774,7 +3127,10 @@ function showToast(msg, type) {
         { id: 'org9', name: '粤海街道', type: 'local' },
         { id: 'org10', name: '西丽街道', type: 'local' },
         { id: 'org11', name: '南头街道', type: 'local' },
-        { id: 'org12', name: '沙河街道', type: 'local' }
+        { id: 'org12', name: '沙河街道', type: 'local' },
+        { id: 'org13', name: '蛇口街道', type: 'local' },
+        { id: 'org14', name: '招商街道', type: 'local' },
+        { id: 'org15', name: '桃源街道', type: 'local' }
       ]
     };
     let govOrgData = fallbackGovOrgData;
@@ -3917,6 +4273,229 @@ function showToast(msg, type) {
       { type: 'person', label: '人员选择', icon: '👤' }
     ];
     const DF_TYPE_LABEL_MAP = Object.fromEntries(DF_FIELD_TYPES.map(t => [t.type, t.label]));
+
+    // ========== 区划数据（南山区，含网格） ==========
+    const REGION_TREE_RAW = {
+      code: '440305',
+      name: '南山区',
+      streets: [
+        { code: '440305001', name: '南头街道', communities: ['南头城社区','马家龙社区','北头社区','向南社区','田厦社区','同乐社区','大汪山社区','大新社区','九街社区','南光社区','龙珠社区','桂庙社区'] },
+        { code: '440305002', name: '南山街道', communities: ['南光社区','南山社区','南园社区','北头社区','向南社区','荔湾社区','荔林社区','月亮湾社区','前海社区','南水社区','向南瑞峰社区','大新社区','登良社区','龙瑞社区'] },
+        { code: '440305003', name: '沙河街道', communities: ['白石洲社区','沙河社区','侨城北社区','侨城东社区','侨城西社区','侨香社区','光华社区','沙河西社区','新塘社区','燕晗山社区','汉京九榕台社区','沙河天健社区','沙河翰邦社区','光侨社区'] },
+        { code: '440305004', name: '蛇口街道', communities: ['南水社区','龟山社区','蛇口社区','后海社区','海昌社区','海湾社区','工业七路社区','花果山社区','湾厦社区','育才社区','渔二社区','龟山一社区','龟山二社区'] },
+        { code: '440305005', name: '招商街道', communities: ['鲸山社区','水湾社区','文竹园社区','花园城社区','蛇口社区','南水社区','南光社区','沿山社区','望海社区','招商东角头社区','蛇口工业区社区'] },
+        { code: '440305006', name: '粤海街道', communities: ['麻岭社区','大冲社区','科技园社区','科技园东社区','高新区社区','深圳湾社区','后海社区','后海福海社区','后海大新社区','滨海之窗社区','蔚蓝海岸社区','海珠社区','海德社区','海风社区','海月社区','华联社区'] },
+        { code: '440305007', name: '桃源街道', communities: ['平山社区','龙珠社区','龙辉社区','光前社区','光华社区','茶光社区','长源社区','金桃园社区','金桂园社区','留仙社区','桃源村社区','大磡社区'] },
+        { code: '440305008', name: '西丽街道', communities: ['西丽社区','麻磡社区','大磡社区','白芒社区','大学城社区','九祥岭社区','茶光社区','长岭社区','松坪社区','松坪山社区','西丽湖社区','官龙村社区','新围社区','丽湖社区','南科大社区','长源社区','沙河社区'] },
+        { code: '440305009', name: '前海合作区', communities: ['前海合作区社区'] }
+      ]
+    };
+    const REGION_TREE = (function() {
+      const tree = JSON.parse(JSON.stringify(REGION_TREE_RAW));
+      tree.streets.forEach(s => {
+        s.communities = s.communities.map(c => ({
+          name: c,
+          grids: [c.replace(/社区$/,'') + '-01网格', c.replace(/社区$/,'') + '-02网格']
+        }));
+      });
+      return tree;
+    })();
+
+    // 区划选择器状态
+    const dfRegionStates = {};
+    function dfGetRegionState(fieldKey) {
+      if (!dfRegionStates[fieldKey]) {
+        dfRegionStates[fieldKey] = { district: '南山区', street: '', street_code: '', community: '', grid: '' };
+      }
+      return dfRegionStates[fieldKey];
+    }
+    function dfToggleRegionPopover(ev, fieldKey) {
+      ev.stopPropagation();
+      const pop = document.getElementById('dfRegionPopover_' + fieldKey);
+      if (!pop) return;
+      if (pop.classList.contains('open')) {
+        pop.classList.remove('open');
+      } else {
+        document.querySelectorAll('.df-region-popover.open').forEach(p => p.classList.remove('open'));
+        pop.classList.add('open');
+        dfRenderRegionPanel(fieldKey);
+      }
+    }
+    function dfSetRegionLabel(fieldKey) {
+      const st = dfGetRegionState(fieldKey);
+      const label = document.getElementById('dfRegionLabel_' + fieldKey);
+      const trigger = document.getElementById('dfRegionTrigger_' + fieldKey);
+      if (!label || !trigger) return;
+      if (!st.street) {
+        label.textContent = '请选择所属区划';
+        trigger.classList.add('placeholder');
+      } else {
+        label.textContent = [st.district, st.street, st.community, st.grid].filter(Boolean).join(' / ');
+        trigger.classList.remove('placeholder');
+      }
+    }
+    function dfOnRegionSearch(fieldKey) {
+      dfRenderRegionPanel(fieldKey);
+    }
+    function dfRenderRegionPanel(fieldKey) {
+      const st = dfGetRegionState(fieldKey);
+      const kw = (document.getElementById('dfRegionSearch_' + fieldKey)?.value || '').trim().toLowerCase();
+      const colD = document.getElementById('dfRegionColDistrict_' + fieldKey);
+      const colS = document.getElementById('dfRegionColStreet_' + fieldKey);
+      const colC = document.getElementById('dfRegionColCommunity_' + fieldKey);
+      const colG = document.getElementById('dfRegionColGrid_' + fieldKey);
+      if (!colD || !colS || !colC || !colG) return;
+      // 区
+      const selDistrict = st.district === '南山区';
+      colD.innerHTML = `<div class="df-region-item ${selDistrict?'active':''}" onclick="dfOnRegionPickDistrict('${fieldKey}')">南山区</div>`;
+      // 街道
+      const streets = REGION_TREE.streets.filter(s => {
+        if (!kw) return true;
+        return s.name.toLowerCase().includes(kw) || s.communities.some(c => c.name.toLowerCase().includes(kw) || c.grids.some(g => g.toLowerCase().includes(kw)));
+      });
+      colS.innerHTML = streets.map(s => {
+        const matched = kw && s.name.toLowerCase().includes(kw);
+        const isSel = st.street === s.name;
+        return `<div class="df-region-item ${isSel?'active':''} ${matched&&!isSel?'matched':''}" onclick="dfOnRegionPickStreet('${fieldKey}','${s.code}','${s.name.replace(/'/g,"\\'")}')">${s.name}</div>`;
+      }).join('') || '<div class="df-region-item" style="color:var(--text-tertiary);cursor:default;">无匹配</div>';
+      // 社区
+      const currentStreet = REGION_TREE.streets.find(s => s.name === st.street);
+      if (currentStreet) {
+        const comms = currentStreet.communities.filter(c => !kw || c.name.toLowerCase().includes(kw) || c.grids.some(g => g.toLowerCase().includes(kw)) || currentStreet.name.toLowerCase().includes(kw));
+        colC.innerHTML = comms.map(c => {
+          const matched = kw && c.name.toLowerCase().includes(kw);
+          const isSel = st.community === c.name;
+          return `<div class="df-region-item ${isSel?'active':''} ${matched&&!isSel?'matched':''}" onclick="dfOnRegionPickCommunity('${fieldKey}','${c.name.replace(/'/g,"\\'")}')">${c.name}</div>`;
+        }).join('') || '<div class="df-region-item" style="color:var(--text-tertiary);cursor:default;">无匹配</div>';
+      } else {
+        colC.innerHTML = '<div class="df-region-item" style="color:var(--text-tertiary);cursor:default;">请先选择街道</div>';
+      }
+      // 网格
+      const currentComm = currentStreet?.communities.find(c => c.name === st.community);
+      if (currentComm) {
+        const grids = currentComm.grids.filter(g => !kw || g.toLowerCase().includes(kw) || currentComm.name.toLowerCase().includes(kw) || currentStreet.name.toLowerCase().includes(kw));
+        colG.innerHTML = grids.map(g => {
+          const matched = kw && g.toLowerCase().includes(kw);
+          const isSel = st.grid === g;
+          return `<div class="df-region-item ${isSel?'active':''} ${matched&&!isSel?'matched':''}" onclick="dfOnRegionPickGrid('${fieldKey}','${g.replace(/'/g,"\\'")}')">${g}</div>`;
+        }).join('') || '<div class="df-region-item" style="color:var(--text-tertiary);cursor:default;">无匹配</div>';
+      } else {
+        colG.innerHTML = '<div class="df-region-item" style="color:var(--text-tertiary);cursor:default;">请先选择社区</div>';
+      }
+    }
+    function dfOnRegionPickDistrict(fieldKey) {
+      const st = dfGetRegionState(fieldKey);
+      st.district = '南山区';
+      dfRenderRegionPanel(fieldKey);
+    }
+    function dfOnRegionPickStreet(fieldKey, code, name) {
+      const st = dfGetRegionState(fieldKey);
+      st.street = name;
+      st.street_code = code;
+      st.community = '';
+      st.grid = '';
+      dfRenderRegionPanel(fieldKey);
+    }
+    function dfOnRegionPickCommunity(fieldKey, name) {
+      const st = dfGetRegionState(fieldKey);
+      st.community = name;
+      st.grid = '';
+      dfRenderRegionPanel(fieldKey);
+    }
+    function dfOnRegionPickGrid(fieldKey, name) {
+      const st = dfGetRegionState(fieldKey);
+      st.grid = name;
+      dfSetRegionLabel(fieldKey);
+      const pop = document.getElementById('dfRegionPopover_' + fieldKey);
+      if (pop) pop.classList.remove('open');
+    }
+
+    // ========== 模拟地图（动态表单预览） ==========
+    let dfMapState = { lng: '', lat: '', address: '' };
+    let dfMapTargetFieldKey = '';
+    function dfOpenMapModal(fieldKey) {
+      dfMapTargetFieldKey = fieldKey || '';
+      const input = document.querySelector(`[data-field-key="${fieldKey}"]`);
+      const existingAddress = input ? input.value : '';
+      dfMapState = { lng: '113.9300000', lat: '22.5300000', address: existingAddress || '南山区中心' };
+      document.getElementById('dfMapModal').style.display = 'flex';
+      const pin = document.getElementById('dfMapPin');
+      if (pin) { pin.style.left = '50%'; pin.style.top = '55%'; }
+      dfUpdateMapInfo();
+      dfBindMapPinDrag();
+    }
+    function dfCloseMapModal() {
+      document.getElementById('dfMapModal').style.display = 'none';
+      dfMapTargetFieldKey = '';
+    }
+    function dfUpdateMapInfo() {
+      const el = document.getElementById('dfMapInfo');
+      if (el) {
+        el.innerHTML = `经度：${escapeHtml(dfMapState.lng)}<br>纬度：${escapeHtml(dfMapState.lat)}<br>地址：${escapeHtml(dfMapState.address)}`;
+      }
+    }
+    function dfBindMapPinDrag() {
+      const pin = document.getElementById('dfMapPin');
+      const map = document.getElementById('dfMapContainer');
+      if (!pin || !map) return;
+      let dragging = false;
+      function onMove(e) {
+        if (!dragging) return;
+        const rect = map.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let x = clientX - rect.left;
+        let y = clientY - rect.top;
+        x = Math.max(0, Math.min(rect.width, x));
+        y = Math.max(0, Math.min(rect.height, y));
+        pin.style.left = (x / rect.width * 100) + '%';
+        pin.style.top = (y / rect.height * 100) + '%';
+        const lng = 113.90 + (x / rect.width) * 0.12;
+        const lat = 22.58 - (y / rect.height) * 0.08;
+        dfMapState.lng = lng.toFixed(7);
+        dfMapState.lat = lat.toFixed(7);
+        const streetIdx = Math.floor((x / rect.width) * REGION_TREE.streets.length);
+        const streetName = (REGION_TREE.streets[streetIdx] || REGION_TREE.streets[0]).name;
+        dfMapState.address = '南山区 ' + streetName + ' 中心广场（模拟）';
+        dfUpdateMapInfo();
+      }
+      function onUp() {
+        dragging = false;
+        pin.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+      }
+      pin.onmousedown = pin.ontouchstart = function(e) {
+        e.preventDefault();
+        dragging = true;
+        pin.classList.add('dragging');
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.addEventListener('touchmove', onMove);
+        document.addEventListener('touchend', onUp);
+      };
+    }
+    function dfConfirmMapPick() {
+      if (dfMapTargetFieldKey) {
+        const input = document.querySelector(`[data-field-key="${dfMapTargetFieldKey}"]`);
+        if (input) input.value = dfMapState.address;
+      }
+      dfCloseMapModal();
+      showToast('位置已回填', 'success');
+    }
+    document.addEventListener('click', function(e) {
+      document.querySelectorAll('.df-region-popover.open').forEach(pop => {
+        const wrap = pop.closest('.df-region-wrap');
+        if (!wrap) return;
+        const trigger = wrap.querySelector('.df-region-trigger');
+        if (!pop.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) {
+          pop.classList.remove('open');
+        }
+      });
+    });
+
     // 模式与预设板块对照（含默认预填字段建议，C 优化）
     // 预设板块配置：从实际业务弹窗（超管端企业/项目/政府端重点场所）读取字段
     const DF_PRESET_SECTIONS = {
@@ -4034,6 +4613,9 @@ function showToast(msg, type) {
     };
     // 动态表单状态：{ sections: [{id,name,type,fields:[fieldObj],collapsed}], selectedFieldId }
     let dfState = { sections: [], selectedFieldId: null };
+    // 预览扫码配置状态（模拟企业端交互）
+    let dfPreviewScanConfigs = [];
+    let dfPreviewScanEditIdx = -1;
 
     // 自定义确认弹窗（替代 confirm）
     function dfConfirmDialog(message, onConfirm) {
@@ -4135,7 +4717,16 @@ function showToast(msg, type) {
 
         if (isPreset) {
           // 预设板块：只读预览组件，对齐业务弹窗表单样式
-          const previewFieldsHtml = dfPresetFieldsToRows(sec.fields);
+          let previewFieldsHtml;
+          if (sec.name === '扫码配置') {
+            previewFieldsHtml = dfScanConfigTableHtml();
+          } else if (sec.name === '关联企业') {
+            previewFieldsHtml = dfPresetEnterpriseTableHtml();
+          } else if (sec.name === '隐患处置配置') {
+            previewFieldsHtml = dfPresetHazardConfigHtml();
+          } else {
+            previewFieldsHtml = dfPresetFieldsToRows(sec.fields);
+          }
           return `
             <div class="df-preset-card ${collapsed ? 'collapsed' : ''}" data-section-id="${sec.id}" data-section-type="preset">
               <div class="df-preset-header" onclick="dfToggleCollapse('${sec.id}')">
@@ -4363,6 +4954,9 @@ function showToast(msg, type) {
     function dfPresetControlHtml(f) {
       const options = f.options ? JSON.parse(f.options) : [];
       const ph = f.placeholder || '';
+      if (f.fieldKey === 'detail_address') {
+        return `<div class="df-locate-row"><input type="text" class="form-input" placeholder="${ph || '请输入详细地址'}" readonly><button type="button" class="df-btn-locate" disabled>📍 选点</button></div>`;
+      }
       switch (f.fieldType) {
         case 'textarea':
           return `<textarea class="form-textarea" placeholder="${ph}" readonly></textarea>`;
@@ -4389,7 +4983,7 @@ function showToast(msg, type) {
         case 'image':
           return `<div class="upload-placeholder">🖼️ 点击上传图片</div>`;
         case 'region':
-          return `<div class="cascade-selects"><select class="form-select" disabled><option>省</option><option>广东省</option></select><select class="form-select" disabled><option>市</option><option>深圳市</option></select><select class="form-select" disabled><option>区</option><option>南山区</option></select></div>`;
+          return `<div class="df-region-wrap"><button type="button" class="df-region-trigger placeholder" disabled><span>请选择所属区划</span><span class="arrow">▼</span></button></div>`;
         case 'department':
           return `<select class="form-select" disabled><option value="">请选择部门</option><option>安全管理部</option></select>`;
         case 'person':
@@ -4406,6 +5000,70 @@ function showToast(msg, type) {
         <div class="form-item${isFull ? ' full-width' : ''}">
           <label class="form-label">${f.fieldLabel || '未命名'}${requiredMark}</label>
           ${dfPresetControlHtml(f)}
+        </div>
+      `;
+    }
+    // 扫码配置预设板块表格 HTML（只读展示，仅表头）
+    function dfScanConfigTableHtml() {
+      return `
+        <table class="df-scan-table">
+          <thead>
+            <tr>
+              <th style="width:52px;">序号</th>
+              <th style="width:80px;">责任类型</th>
+              <th>责任主体</th>
+              <th>扫码责任人</th>
+              <th>检查表</th>
+              <th style="width:70px;">检查项</th>
+              <th style="width:130px;">检查频次</th>
+              <th style="width:110px;">节假日规则</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="8" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无数据</td></tr>
+          </tbody>
+        </table>
+      `;
+    }
+    // 关联企业预设板块表格 HTML（只读展示，仅表头）
+    function dfPresetEnterpriseTableHtml() {
+      return `
+        <table class="df-enterprise-table">
+          <thead>
+            <tr>
+              <th style="width:110px;">企业类型</th>
+              <th>企业名称</th>
+              <th class="check-cell">扫码责任人</th>
+              <th class="check-cell">隐患责任人</th>
+              <th class="check-cell">隐患复核人</th>
+              <th style="width:60px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无数据</td></tr>
+          </tbody>
+        </table>
+        <button type="button" class="df-add-row-btn" disabled>+ 添加关联企业</button>
+      `;
+    }
+    // 隐患处置配置预设板块 HTML（只读展示，对齐重点场所隐患处置配置）
+    function dfPresetHazardConfigHtml() {
+      return `
+        <div class="df-hazard-config-grid">
+          <div class="df-hazard-field">
+            <label class="df-hazard-field-label">隐患整改人</label>
+            <div class="df-hazard-row">
+              <select disabled><option>企业人员</option></select>
+              <select disabled><option>张三</option></select>
+            </div>
+          </div>
+          <div class="df-hazard-field">
+            <label class="df-hazard-field-label">隐患复核人</label>
+            <div class="df-hazard-row">
+              <select disabled><option>政府人员</option></select>
+              <select disabled><option>李四</option></select>
+            </div>
+          </div>
         </div>
       `;
     }
@@ -4799,6 +5457,93 @@ function showToast(msg, type) {
       dfDraftState = null;
       dfRenderSummary();
     }
+    // 预览扫码配置板块 HTML（含新增按钮与表格）
+    function dfPreviewScanSectionHtml() {
+      const rows = dfPreviewScanConfigs.length ? dfPreviewScanConfigs.map((r, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(r.respType)}</td>
+          <td>${escapeHtml(r.respName)}</td>
+          <td>${escapeHtml(r.scanner)}</td>
+          <td>${escapeHtml(r.clName)}</td>
+          <td>${r.itemCnt} 项</td>
+          <td>${escapeHtml(r.freq)}</td>
+          <td>${escapeHtml(r.skip)}</td>
+          <td style="white-space:nowrap;">
+            <button type="button" class="btn btn-default btn-sm" onclick="dfPreviewOpenScanModal(${idx})">编辑</button>
+            <button type="button" class="btn btn-default btn-sm" style="color:var(--danger);" onclick="dfPreviewDeleteScanConfig(${idx})">删除</button>
+          </td>
+        </tr>
+      `).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无扫码配置，点击「+ 添加扫码配置」新增</td></tr>';
+      return `
+        <div class="df-preview-scan-header">
+          <span class="section-title-text">扫码配置列表</span>
+          <button type="button" class="btn btn-primary btn-sm" onclick="dfPreviewOpenScanModal()">+ 添加扫码配置</button>
+        </div>
+        <table class="df-scan-table">
+          <thead>
+            <tr>
+              <th style="width:52px;">序号</th>
+              <th style="width:80px;">责任类型</th>
+              <th>责任主体</th>
+              <th>扫码责任人</th>
+              <th>检查表</th>
+              <th style="width:70px;">检查项</th>
+              <th style="width:130px;">检查频次</th>
+              <th style="width:110px;">节假日规则</th>
+              <th style="width:120px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+    function dfPreviewOpenScanModal(editIdx) {
+      if (typeof editIdx !== 'number') editIdx = -1;
+      dfPreviewScanEditIdx = editIdx;
+      const title = document.getElementById('dfPreviewScanModalTitle');
+      if (title) title.textContent = editIdx >= 0 ? '编辑扫码配置' : '添加扫码配置';
+      const row = editIdx >= 0 ? dfPreviewScanConfigs[editIdx] : null;
+      document.getElementById('dfPreviewScanRespType').value = row ? row.respType : '政府';
+      document.getElementById('dfPreviewScanRespName').value = row ? row.respName : '';
+      document.getElementById('dfPreviewScanScanner').value = row ? row.scanner : '';
+      document.getElementById('dfPreviewScanClName').value = row ? row.clName : '';
+      document.getElementById('dfPreviewScanItemCnt').value = row ? row.itemCnt : 1;
+      document.getElementById('dfPreviewScanFreq').value = row ? row.freq : '';
+      document.getElementById('dfPreviewScanSkip').value = row ? row.skip : '不过滤节假日';
+      document.getElementById('dfPreviewScanModal').style.display = 'flex';
+    }
+    function dfPreviewCloseScanModal() {
+      document.getElementById('dfPreviewScanModal').style.display = 'none';
+      dfPreviewScanEditIdx = -1;
+    }
+    function dfPreviewSaveScanConfig() {
+      const respType = document.getElementById('dfPreviewScanRespType').value.trim();
+      const respName = document.getElementById('dfPreviewScanRespName').value.trim();
+      const scanner = document.getElementById('dfPreviewScanScanner').value.trim();
+      const clName = document.getElementById('dfPreviewScanClName').value.trim();
+      const itemCnt = parseInt(document.getElementById('dfPreviewScanItemCnt').value, 10) || 1;
+      const freq = document.getElementById('dfPreviewScanFreq').value.trim();
+      const skip = document.getElementById('dfPreviewScanSkip').value;
+      if (!respName) { showToast('请填写责任主体', 'warning'); return; }
+      if (!clName) { showToast('请填写检查表', 'warning'); return; }
+      const newRow = { respType, respName, scanner, clName, itemCnt, freq, skip };
+      if (dfPreviewScanEditIdx >= 0) {
+        dfPreviewScanConfigs[dfPreviewScanEditIdx] = newRow;
+        showToast('扫码配置已更新', 'success');
+      } else {
+        dfPreviewScanConfigs.push(newRow);
+        showToast('扫码配置已添加', 'success');
+      }
+      dfPreviewCloseScanModal();
+      dfRenderPreview();
+    }
+    function dfPreviewDeleteScanConfig(idx) {
+      if (!confirm('确定删除该条扫码配置？')) return;
+      dfPreviewScanConfigs.splice(idx, 1);
+      dfRenderPreview();
+      showToast('已删除', 'success');
+    }
     // 打开预览弹窗
     function dfOpenPreviewModal() {
       document.getElementById('dfPreviewModal').classList.add('active');
@@ -4820,9 +5565,18 @@ function showToast(msg, type) {
         const fieldCount = sec.fields.length;
         const requiredCount = sec.fields.filter(f => f.required).length;
         const badge = fieldCount > 0 ? `<span class="df-section-count">${fieldCount} 字段${requiredCount > 0 ? ` · ${requiredCount} 必填` : ''}</span>` : '<span class="df-section-count">暂无字段</span>';
-        const fieldsHtml = sec.fields.length > 0
-          ? dfPreviewFieldsToRows(sec.fields, sec.type === 'preset')
-          : '<div class="df-empty-hint">该板块暂无字段</div>';
+        let fieldsHtml;
+        if (sec.name === '扫码配置') {
+          fieldsHtml = dfPreviewScanSectionHtml();
+        } else if (sec.name === '关联企业') {
+          fieldsHtml = dfPresetEnterpriseTableHtml();
+        } else if (sec.name === '隐患处置配置') {
+          fieldsHtml = dfPresetHazardConfigHtml();
+        } else if (sec.fields.length > 0) {
+          fieldsHtml = dfPreviewFieldsToRows(sec.fields, sec.type === 'preset');
+        } else {
+          fieldsHtml = '<div class="df-empty-hint">该板块暂无字段</div>';
+        }
         return `
           <div class="df-preview-section">
             <div class="df-preview-section-header">
@@ -4849,6 +5603,9 @@ function showToast(msg, type) {
       const dataAttrs = `data-field-key="${f.fieldKey}" data-required="${f.required ? '1' : '0'}" data-unique="${f.uniqueCheck ? '1' : '0'}" data-maxlength="${(f.validationRules && /^\d+$/.test(f.validationRules)) ? f.validationRules : ''}"`;
       const ph = f.placeholder || '';
       const options = f.options ? JSON.parse(f.options) : [];
+      if (f.fieldKey === 'detail_address') {
+        return `<div class="df-locate-row"><input type="text" class="form-input" ${dataAttrs} placeholder="${ph || '请输入详细地址'}" maxlength="200"><button type="button" class="df-btn-locate" onclick="dfOpenMapModal('${f.fieldKey}')">📍 选点</button></div>`;
+      }
       switch (f.fieldType) {
         case 'textarea':
           return `<textarea class="form-textarea" ${dataAttrs} placeholder="${ph}"></textarea>`;
@@ -4875,7 +5632,22 @@ function showToast(msg, type) {
         case 'image':
           return `<div class="upload-placeholder">🖼️ 点击上传图片</div>`;
         case 'region':
-          return `<div class="cascade-selects"><select class="form-select" ${dataAttrs}><option value="">省</option><option>广东省</option></select><select class="form-select"><option value="">市</option><option>深圳市</option></select><select class="form-select"><option value="">区</option><option>南山区</option></select></div>`;
+          return `
+            <div class="df-region-wrap" style="position:relative;">
+              <button type="button" class="df-region-trigger placeholder" id="dfRegionTrigger_${f.fieldKey}" onclick="dfToggleRegionPopover(event,'${f.fieldKey}')">
+                <span id="dfRegionLabel_${f.fieldKey}">请选择所属区划</span>
+                <span class="arrow">▼</span>
+              </button>
+              <div class="df-region-popover" id="dfRegionPopover_${f.fieldKey}" onclick="event.stopPropagation()">
+                <input type="text" class="df-region-search" id="dfRegionSearch_${f.fieldKey}" placeholder="搜索区/街道/社区/网格..." oninput="dfOnRegionSearch('${f.fieldKey}')">
+                <div class="df-region-cols">
+                  <div class="df-region-col" id="dfRegionColDistrict_${f.fieldKey}"></div>
+                  <div class="df-region-col" id="dfRegionColStreet_${f.fieldKey}"></div>
+                  <div class="df-region-col" id="dfRegionColCommunity_${f.fieldKey}"></div>
+                  <div class="df-region-col" id="dfRegionColGrid_${f.fieldKey}"></div>
+                </div>
+              </div>
+            </div>`;
         case 'department':
           return `<select class="form-select" ${dataAttrs}><option value="">请选择部门</option><option>安全管理部</option></select>`;
         case 'person':
