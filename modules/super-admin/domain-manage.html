@@ -318,6 +318,15 @@
       color: var(--text-secondary);
       line-height: 1.4;
     }
+    .mode-options.disabled .mode-option {
+      cursor: default;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .mode-options.disabled .mode-option.selected {
+      opacity: 1;
+      cursor: default;
+    }
     .status-options,
     .dynamic-form-options {
       display: flex;
@@ -1976,6 +1985,142 @@
       background: var(--bg-primary);
       color: var(--text-primary);
     }
+
+    /* ========== V7.1.0 双列弹窗（预览扫码配置对齐重点场所） ========== */
+    .kp-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+    }
+    .kp-col { min-width: 0; }
+    .kp-field { margin-bottom: var(--spacing-md); }
+    .kp-field-full { grid-column: 1 / -1; }
+    .kp-field-label {
+      display: block;
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .kp-field-label .required { color: #ff4d4f; margin-right: 2px; }
+    .kp-field-input,
+    .kp-field-select {
+      width: 100%;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      box-sizing: border-box;
+    }
+    .kp-field-select { padding-right: 24px; }
+    .kp-field-readonly {
+      width: 100%;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: var(--bg-section);
+      color: var(--text-tertiary);
+      line-height: 30px;
+      box-sizing: border-box;
+    }
+    .kp-row-del {
+      color: #ff4d4f;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: var(--font-size-sm);
+      padding: 0 4px;
+    }
+    .kp-row-del:hover { text-decoration: underline; }
+
+    /* 弹窗内嵌检查表 */
+    .cl-inline-item {
+      border: 1px solid var(--border-section);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+      background: var(--bg-primary);
+    }
+    .cl-inline-item-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg-section);
+      border-bottom: 1px solid var(--border-section);
+    }
+    .cl-inline-item-header input { flex: 1; }
+    .cl-inline-contents { padding: 8px 10px; }
+    .cl-inline-content-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 36px;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .cl-inline-content-row:last-child { margin-bottom: 0; }
+
+    /* ========== 推荐检查表弹窗 ========== */
+    .recommend-cl-group {
+      border: 1px solid var(--border-section, #e8e8e8);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .recommend-cl-group.selected { border-color: var(--primary); }
+    .recommend-cl-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      cursor: default;
+      transition: background 0.15s;
+    }
+    .recommend-cl-header:hover { background: var(--bg-secondary, #fafafa); }
+    .recommend-cl-master {
+      width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;
+    }
+    .recommend-cl-name {
+      flex: 1; font-size: 13px; color: var(--text-primary); min-width: 0; cursor: pointer;
+    }
+    .recommend-cl-name:hover { color: var(--primary); }
+    .recommend-cl-cnt {
+      font-size: 12px; color: var(--text-tertiary); white-space: nowrap;
+    }
+    .recommend-cl-expand {
+      width: 20px; height: 20px; cursor: pointer; flex-shrink: 0;
+      position: relative;
+    }
+    .recommend-cl-expand::after {
+      content: ''; position: absolute; top: 6px; left: 4px;
+      border: 5px solid transparent; border-top: 6px solid var(--text-tertiary);
+      transition: transform 0.15s;
+    }
+    .recommend-cl-expand.expanded::after { transform: rotate(180deg); }
+    .recommend-cl-items {
+      padding: 0 14px 10px 38px;
+      border-top: 1px dashed var(--border-section, #e8e8e8);
+      background: var(--bg-secondary, #fafafa);
+    }
+    .recommend-cl-item-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .recommend-cl-item-row + .recommend-cl-item-row { border-top: 1px solid var(--border-section, #f0f0f0); }
+    .recommend-cl-item-row input[type="checkbox"] {
+      width: 14px; height: 14px; margin-top: 2px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;
+    }
+    .recommend-cl-item-desc {
+      font-size: 13px; color: var(--text-primary); min-width: 0;
+    }
+    .recommend-cl-item-contents {
+      font-size: 12px; color: var(--text-tertiary); margin-left: auto; white-space: nowrap; flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -2067,6 +2212,7 @@
               <th class="domain-name">领域名称</th>
               <th>行业大类</th>
               <th>模式</th>
+              <th>排序</th>
               <th>监管单位数</th>
               <th>状态</th>
               <th class="operation-col">操作</th>
@@ -2142,6 +2288,10 @@
             </div>
           </div>
           <div class="form-row">
+            <div class="form-item">
+              <label class="form-label">排序 <span class="required">*</span></label>
+              <input type="number" class="form-input" id="domainSortOrder" min="1" placeholder="数字越小越靠前">
+            </div>
             <div class="form-item">
               <label class="form-label">状态 <span class="required">*</span></label>
               <div class="status-options" id="domainStatus">
@@ -2295,60 +2445,102 @@
     </div>
   </div>
 
-  <!-- 预览扫码配置弹窗 -->
+  <!-- 预览扫码配置弹窗（对齐重点场所 scanConfigModal） -->
   <div class="modal-overlay" id="dfPreviewScanModal" style="z-index:1300;display:none;">
-    <div class="modal-dialog" style="width:700px;max-width:95vw;">
+    <div class="modal-dialog" style="width:900px; max-width:95vw; max-height:90vh; overflow-y:auto;">
       <div class="modal-header">
-        <h3 class="modal-title" id="dfPreviewScanModalTitle">添加扫码配置</h3>
-        <button class="modal-close" onclick="dfPreviewCloseScanModal()">×</button>
+        <span class="modal-title" id="dfPreviewScanModalTitle">添加扫码配置</span>
+        <button class="modal-close" onclick="dfPreviewCloseScanModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="form-row">
-          <div class="form-item">
-            <label class="form-label">责任类型</label>
-            <select class="form-select" id="dfPreviewScanRespType">
-              <option value="政府">政府</option>
-              <option value="企业">企业</option>
-            </select>
-          </div>
-          <div class="form-item">
-            <label class="form-label">责任主体</label>
-            <input type="text" class="form-input" id="dfPreviewScanRespName" placeholder="如：应急管理局">
+        <!-- ===== 基本信息 ===== -->
+        <div class="info-section" style="margin-bottom:var(--spacing-md);">
+          <div class="section-title">基本信息</div>
+          <div class="kp-form-grid">
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>责任类型</label>
+              <select class="kp-field-select" id="dfPreviewScfRespType" onchange="dfPreviewOnScfRespTypeChange()">
+                <option value="enterprise">企业</option>
+                <option value="gov">政府</option>
+              </select>
+            </div>
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>责任主体</label>
+              <select class="kp-field-select" id="dfPreviewScfRespId" onchange="dfPreviewOnScfRespIdChange()">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="kp-field">
+              <label class="kp-field-label">扫码责任人</label>
+              <select class="kp-field-select" id="dfPreviewScfScanner">
+                <option value="">全员（责任主体下所有人均可履职）</option>
+              </select>
+            </div>
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>检查频次</label>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <span style="font-size:12px;color:var(--text-secondary);">每</span>
+                <input type="number" class="kp-field-input" id="dfPreviewScfInterval" value="1" min="1" style="width:70px;">
+                <select class="kp-field-select" id="dfPreviewScfUnit" style="width:100px;">
+                  <option value="day">日</option>
+                  <option value="week" selected>周</option>
+                  <option value="month">月</option>
+                  <option value="quarter">季</option>
+                  <option value="year">年</option>
+                </select>
+                <span style="font-size:12px;color:var(--text-secondary);">检查</span>
+                <input type="number" class="kp-field-input" id="dfPreviewScfTimes" value="1" min="1" style="width:70px;">
+                <span style="font-size:12px;color:var(--text-secondary);">次</span>
+              </div>
+            </div>
+            <div class="kp-field">
+              <label class="kp-field-label">跳过节假日</label>
+              <div style="display:flex;gap:16px;align-items:center;">
+                <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;"><input type="radio" name="dfPreviewScfSkipHoliday" value="false" checked> 否</label>
+                <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;"><input type="radio" name="dfPreviewScfSkipHoliday" value="true"> 是</label>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-item">
-            <label class="form-label">扫码责任人</label>
-            <input type="text" class="form-input" id="dfPreviewScanScanner" placeholder="如：张三 或 全员">
+
+        <!-- ===== 检查内容配置 ===== -->
+        <div class="info-section">
+          <div class="section-title">
+            <span class="section-title-text">检查内容配置</span>
           </div>
-          <div class="form-item">
-            <label class="form-label">检查表</label>
-            <input type="text" class="form-input" id="dfPreviewScanClName" placeholder="如：消防设施巡查表">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="dfPreviewOpenRecommendClModal()">推荐检查表</button>
+            <button type="button" class="btn btn-default btn-sm" onclick="dfPreviewAddScfCheckItem()">+ 新增检查项</button>
           </div>
-        </div>
-        <div class="form-row">
-          <div class="form-item">
-            <label class="form-label">检查项数量</label>
-            <input type="number" class="form-input" id="dfPreviewScanItemCnt" value="1" min="1">
-          </div>
-          <div class="form-item">
-            <label class="form-label">检查频次</label>
-            <input type="text" class="form-input" id="dfPreviewScanFreq" placeholder="如：每1周检查1次">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-item">
-            <label class="form-label">节假日规则</label>
-            <select class="form-select" id="dfPreviewScanSkip">
-              <option value="不过滤节假日">不过滤节假日</option>
-              <option value="过滤节假日">过滤节假日</option>
-            </select>
+          <div class="kp-field">
+            <div id="dfPreviewScfCheckItems"></div>
+            <div class="empty-state" id="dfPreviewScfCheckEmpty" style="display:none;padding:24px 0;">
+              <div class="empty-state-text">暂无检查内容，请选择推荐检查表或手动新增</div>
+            </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-default" onclick="dfPreviewCloseScanModal()">取消</button>
         <button class="btn btn-primary" onclick="dfPreviewSaveScanConfig()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 预览推荐检查表弹窗 ========== -->
+  <div class="modal-overlay" id="dfPreviewRecommendClModal" style="z-index:1400;display:none;">
+    <div class="modal-dialog" style="width:640px;max-height:80vh;overflow-y:auto;">
+      <div class="modal-header">
+        <span class="modal-title">推荐检查表</span>
+        <button class="modal-close" onclick="dfPreviewCloseRecommendClModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">勾选需要引用的检查表，确认后检查内容将合并到检查内容配置中</div>
+        <div id="dfPreviewRecommendClList"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="dfPreviewCloseRecommendClModal()">取消</button>
+        <button class="btn btn-primary" onclick="dfPreviewConfirmRecommendCl()">确认</button>
       </div>
     </div>
   </div>
@@ -2576,6 +2768,8 @@ function showToast(msg, type) {
       resetForm();
       // 编辑时：行业大类禁用不可修改
       document.getElementById('industryCategory').disabled = true;
+      const modeOptions = document.querySelector('.mode-options');
+      if (modeOptions) modeOptions.classList.add('disabled');
       const domainData = domainTableData.find(d => d.id === id);
       if (domainData) {
         loadDomainToForm(domainData);
@@ -2594,6 +2788,7 @@ function showToast(msg, type) {
       document.getElementById('industryCategory').value = data.industry || ''; // 用行业代码（IND/CITY等）匹配 select option value
       document.getElementById('domainName').value = data.name || '';
       document.getElementById('domainDesc').value = data.desc || '';
+      document.getElementById('domainSortOrder').value = data.sortOrder || '';
       const statusInput = document.querySelector(`input[name="domainStatus"][value="${data.status || '1'}"]`);
       if (statusInput) statusInput.checked = true;
       const dynamicFormInput = document.querySelector(`input[name="dynamicFormEnabled"][value="${data.dynamicFormEnabled ? '1' : '0'}"]`);
@@ -2635,26 +2830,18 @@ function showToast(msg, type) {
         });
       }
       checkSupervisorEmpty();
-      // 属地监管单独收集后批量传入
-      const localItems = [];
+      // 回填监管单位表格（行业/专业/属地统一逐条）
       if (data.supervisors && data.supervisors.length > 0) {
         data.supervisors.forEach(s => {
           const resolved = resolveSupervisor(s.type, s.name);
-          if (resolved.resolvedType === 'local') {
-            localItems.push({ id: resolved.id, name: resolved.name });
-          } else {
-            addSupervisorsToTable(resolved.resolvedType, [{ id: resolved.id, name: resolved.name }]);
-          }
+          addSupervisorsToTable(resolved.resolvedType, [{ id: resolved.id, name: resolved.name }]);
         });
-      }
-      if (localItems.length > 0) {
-        addSupervisorsToTable('local', localItems);
       }
       // 回填 _supClData（监管单位级检查表）
       if (data.supervisors && data.supervisors.length > 0) {
         data.supervisors.forEach(s => {
           const resolved = resolveSupervisor(s.type, s.name);
-          const key = (resolved.resolvedType === 'local') ? 'local_' + localItems.map(i => i.id).join(',') : resolved.id;
+          const key = resolved.id;
           if (s.checklists && s.checklists.length > 0) {
             window._supClData[key] = [...s.checklists];
             // 回填后立即更新监管单位表格的检查表列
@@ -2700,9 +2887,7 @@ function showToast(msg, type) {
       const domainData = domainTableData.find(d => d.id === id);
       if (domainData && domainData.supervisors) {
         domainData.supervisors.forEach(sup => {
-          const key = (sup.type === 'local')
-            ? 'local_' + (domainData.supervisors.filter(s => s.type === 'local').map(s => s.id).join(','))
-            : (sup.id || '');
+          const key = sup.id || '';
           if (key && window._supClData && window._supClData[key]) {
             sup.checklists = [...(sup.checklists || []),
               ...window._supClData[key].filter(c =>
@@ -3031,69 +3216,163 @@ function showToast(msg, type) {
     const industryMap = { IND: '工业制造类', CITY: '城市运行类', CONS: '建设工程类', CHEM: '危险化学品类', TRANS: '交通运输类', COMM: '公共场所类', OTH: '其他类' };
     const industryNameMap = { '工业制造类': 'IND', '城市运行类': 'CITY', '建设工程类': 'CONS', '危险化学品类': 'CHEM', '交通运输类': 'TRANS', '公共场所类': 'COMM', '其他类': 'OTH' };
 
-    const SUPERVISOR_TEST_UNITS = {
+    // ===== 备用数据：与组织架构管理 gov-org.html 同步 =====
+    const fallbackNonStreetUnits = [
+      { id: 'NS-TRAFFIC-POLICE', name: '深圳市公安局交通管理支队南山大队' },
+      { id: 'NS-AMB', name: '区应急管理局' },
+      { id: 'NS-EEB', name: '市生态环境局南山管理局' },
+      { id: 'NS-EDU', name: '南山区教育局' },
+      { id: 'NS-IIT', name: '南山区工业和信息化局' },
+      { id: 'NS-FIRE', name: '南山区消防救援局' },
+      { id: 'NS-HOUSING', name: '南山区住房和建设局' },
+      { id: 'NS-WATER', name: '南山区水务局' },
+      { id: 'NS-COMMERCE', name: '南山区商务局' },
+      { id: 'NS-CULTURE', name: '南山区文化广电旅游体育局' },
+      { id: 'NS-HEALTH', name: '南山区卫生健康局' },
+      { id: 'NS-URBAN', name: '南山区城市管理和综合执法局' },
+      { id: 'NS-MARKET', name: '市场监督管理局南山监管局' },
+      { id: 'NS-CONSTRUCTION', name: '南山区建筑工务署' }
+    ];
+    const fallbackGovOrgData = {
+      industry: fallbackNonStreetUnits.map(item => ({ ...item, id: 'industry_' + item.id, type: 'industry' })),
+      professional: fallbackNonStreetUnits.map(item => ({ ...item, id: 'professional_' + item.id, type: 'professional' })),
+      local: [
+        { id: 'NS-NANSHAN-STREET', name: '南山区南山街道办事处', type: 'local' },
+        { id: 'NS-YUEHAI', name: '南山区粤海街道办事处', type: 'local' },
+        { id: 'NS-XILI', name: '南山区西丽街道办事处', type: 'local' },
+        { id: 'NS-NANTOU', name: '南山区南头街道办事处', type: 'local' },
+        { id: 'NS-SHAHE', name: '南山区沙河街道办事处', type: 'local' },
+        { id: 'NS-SHEKOU', name: '南山区蛇口街道办事处', type: 'local' },
+        { id: 'NS-ZHAOSHANG', name: '南山区招商街道办事处', type: 'local' },
+        { id: 'NS-TAOYUAN', name: '南山区桃源街道办事处', type: 'local' }
+      ]
+    };
+
+    // 监管单位 key → gov-org orgId 映射（与组织架构管理 gov-org.html 的单位 ID 对齐）
+    const SUPERVISOR_KEY_MAP = {
       industry: {
-        iit: { type: 'industry', id: 'industry_NS-IIT', name: '工业和信息化局', checklists: [] },
-        market: { type: 'industry', id: 'industry_NS-MARKET', name: '市场监督管理局', checklists: [] },
-        commerce: { type: 'industry', id: 'industry_NS-COMMERCE', name: '商务局', checklists: [] },
-        emergency: { type: 'industry', id: 'industry_NS-AMB', name: '应急管理局', checklists: [] },
-        housing: { type: 'industry', id: 'industry_NS-HOUSING', name: '住房和建设局', checklists: [] },
-        transport: { type: 'industry', id: 'industry_NS-TRAFFIC-POLICE', name: '深圳市公安局交通管理支队南山大队', checklists: [] }
+        iit: 'NS-IIT', market: 'NS-MARKET', commerce: 'NS-COMMERCE',
+        emergency: 'NS-AMB', housing: 'NS-HOUSING', transport: 'NS-TRAFFIC-POLICE'
       },
       professional: {
-        iit: { type: 'professional', id: 'professional_NS-IIT', name: '工业和信息化局', checklists: [] },
-        market: { type: 'professional', id: 'professional_NS-MARKET', name: '市场监督管理局', checklists: [] },
-        emergency: { type: 'professional', id: 'professional_NS-AMB', name: '应急管理局', checklists: [] },
-        housing: { type: 'professional', id: 'professional_NS-HOUSING', name: '住房和建设局', checklists: [] },
-        resources: { type: 'professional', id: 'professional_NS-URBAN', name: '城市管理和综合执法局', checklists: [] }
-      },
-      local: {
-        nantou: { type: 'local', id: 'local_NS-NANTOU', name: '南头街道', checklists: [] },
-        nanshan: { type: 'local', id: 'local_NS-NANSHAN-STREET', name: '南山街道', checklists: [] },
-        xili: { type: 'local', id: 'local_NS-XILI', name: '西丽街道', checklists: [] },
-        shahe: { type: 'local', id: 'local_NS-SHAHE', name: '沙河街道', checklists: [] },
-        shekou: { type: 'local', id: 'local_NS-SHEKOU', name: '蛇口街道', checklists: [] },
-        zhaoshang: { type: 'local', id: 'local_NS-ZHAOSHANG', name: '招商街道', checklists: [] },
-        yuehai: { type: 'local', id: 'local_NS-YUEHAI', name: '粤海街道', checklists: [] },
-        taoyuan: { type: 'local', id: 'local_NS-TAOYUAN', name: '桃源街道', checklists: [] }
+        iit: 'NS-IIT', market: 'NS-MARKET', emergency: 'NS-AMB',
+        housing: 'NS-HOUSING', resources: 'NS-URBAN'
       }
     };
-    const supUnit = (category, key) => ({ ...SUPERVISOR_TEST_UNITS[category][key], checklists: [] });
+
+    // 从 fallbackGovOrgData 按 {type, orgId} 构建 supervisor 对象
+    const supRef = function(type, orgId) {
+      // 先从 fallbackNonStreetUnits 查找名称（它使用原始 gov-org ID）
+      var rawUnit = fallbackNonStreetUnits.find(function(u) { return u.id === orgId; });
+      if (rawUnit) return { type: type, id: type + '_' + orgId, orgId: orgId, name: rawUnit.name, checklists: [] };
+      // 兜底：从 local 查找
+      var localUnit = (fallbackGovOrgData.local || []).find(function(u) { return u.id === orgId; });
+      if (localUnit) return { type: type, id: type + '_' + orgId, orgId: orgId, name: localUnit.name, checklists: [] };
+      return { type: type, id: type + '_' + orgId, orgId: orgId, name: orgId, checklists: [] };
+    };
 
     const domainTableData = [
       // ===== 公共场所类 (COMM) 18项 =====
-      { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', supervisors: [supUnit('professional', 'emergency'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_002', name: '商业综合体', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '大型商业综合体安全管理', supervisors: [supUnit('industry', 'commerce'), supUnit('professional', 'emergency')], checklists: [] },
-      { id: 'COMM_003', name: '物业小区', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '住宅物业小区安全管理', supervisors: [supUnit('professional', 'housing'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_004', name: '超高层建筑', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '超高层建筑安全管理', supervisors: [supUnit('professional', 'housing'), supUnit('local', 'shekou')], checklists: [] },
-      { id: 'COMM_005', name: '文明施工', industry: 'COMM', industryName: '公共场所类', mode: 'project', status: '1', desc: '文明施工安全管理', supervisors: [supUnit('industry', 'housing'), supUnit('professional', 'emergency')], checklists: [] },
-      { id: 'COMM_006', name: '"三小"场所（小商店—商场、市场、商店等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '商场、市场、商店等小商店场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_007', name: '"三小"场所（小餐饮（燃气））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '使用燃气的小餐饮场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('professional', 'housing'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_008', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等小美容休闲场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_009', name: '"三小"场所（小餐饮（仅用电））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '仅使用电力的小餐饮场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_010', name: '"三小"场所（小网吧）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小网吧场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_011', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '汽配、废品、五金、打印等小门店场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_012', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '托幼、晚托班、午休班、培训机构等小型学校幼儿园场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_013', name: '"三小"场所（小型多业态场所）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型多业态混合场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_014', name: '"三小"场所（小型医疗机构—口腔、中医等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '口腔、中医等小型医疗机构安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_015', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小KTV、酒吧、密室逃脱、剧本杀等小歌舞娱乐场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_016', name: '"三小"场所（小生产加工企业）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小生产加工企业场所安全管理', supervisors: [supUnit('industry', 'iit'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_017', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '群租房、公寓、民宿等小旅店场所安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
-      { id: 'COMM_018', name: '"三小"场所（小型游乐场）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型游乐场安全管理', supervisors: [supUnit('industry', 'market'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', supervisors: [supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 4 },
+      { id: 'COMM_002', name: '商业综合体', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '大型商业综合体安全管理', supervisors: [supRef('industry', 'NS-COMMERCE'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 9 },
+      { id: 'COMM_003', name: '物业小区', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '住宅物业小区安全管理', supervisors: [supRef('professional', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 10 },
+      { id: 'COMM_004', name: '超高层建筑', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '超高层建筑安全管理', supervisors: [supRef('professional', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-SHEKOU')], checklists: [], sortOrder: 5 },
+      { id: 'COMM_005', name: '文明施工', industry: 'COMM', industryName: '公共场所类', mode: 'project', status: '1', desc: '文明施工安全管理', supervisors: [supRef('industry', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 11 },
+      { id: 'COMM_006', name: '"三小"场所（小商店—商场、市场、商店等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '商场、市场、商店等小商店场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 12 },
+      { id: 'COMM_007', name: '"三小"场所（小餐饮（燃气））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '使用燃气的小餐饮场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 13 },
+      { id: 'COMM_008', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等小美容休闲场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 14 },
+      { id: 'COMM_009', name: '"三小"场所（小餐饮（仅用电））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '仅使用电力的小餐饮场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 15 },
+      { id: 'COMM_010', name: '"三小"场所（小网吧）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小网吧场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 16 },
+      { id: 'COMM_011', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '汽配、废品、五金、打印等小门店场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 17 },
+      { id: 'COMM_012', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '托幼、晚托班、午休班、培训机构等小型学校幼儿园场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 18 },
+      { id: 'COMM_013', name: '"三小"场所（小型多业态场所）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型多业态混合场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 19 },
+      { id: 'COMM_014', name: '"三小"场所（小型医疗机构—口腔、中医等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '口腔、中医等小型医疗机构安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 20 },
+      { id: 'COMM_015', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小KTV、酒吧、密室逃脱、剧本杀等小歌舞娱乐场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 21 },
+      { id: 'COMM_016', name: '"三小"场所（小生产加工企业）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小生产加工企业场所安全管理', supervisors: [supRef('industry', 'NS-IIT'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 22 },
+      { id: 'COMM_017', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '群租房、公寓、民宿等小旅店场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 23 },
+      { id: 'COMM_018', name: '"三小"场所（小型游乐场）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型游乐场安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 24 },
       // ===== 建设工程类 (CONS) 1项 =====
-      { id: 'CONS_001', name: '房屋建设工程', industry: 'CONS', industryName: '建设工程类', mode: 'project', status: '1', desc: '房屋建设工程施工安全管理', supervisors: [supUnit('industry', 'housing'), supUnit('professional', 'emergency')], checklists: [] },
+      { id: 'CONS_001', name: '房屋建设工程', industry: 'CONS', industryName: '建设工程类', mode: 'project', status: '1', desc: '房屋建设工程施工安全管理', supervisors: [supRef('industry', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 3 },
       // ===== 交通运输类 (TRANS) 1项 =====
-      { id: 'TRANS_001', name: '劝导路口', industry: 'TRANS', industryName: '交通运输类', mode: 'other', status: '1', desc: '交通安全劝导路口管理', supervisors: [supUnit('industry', 'transport'), supUnit('local', 'nanshan')], checklists: [] },
+      { id: 'TRANS_001', name: '劝导路口', industry: 'TRANS', industryName: '交通运输类', mode: 'other', status: '1', desc: '交通安全劝导路口管理', supervisors: [supRef('industry', 'NS-TRAFFIC-POLICE'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 6 },
       // ===== 危险化学品类 (CHEM) 2项 =====
-      { id: 'CHEM_001', name: '加油站', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '加油站安全管理', supervisors: [supUnit('industry', 'emergency'), supUnit('professional', 'market')], checklists: [] },
-      { id: 'CHEM_002', name: '医药化工', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '0', desc: '医药化工企业安全管理', supervisors: [supUnit('industry', 'emergency'), supUnit('professional', 'iit')], checklists: [] },
+      { id: 'CHEM_001', name: '加油站', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '加油站安全管理', supervisors: [supRef('industry', 'NS-AMB'), supRef('professional', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 2 },
+      { id: 'CHEM_002', name: '医药化工', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '医药化工企业安全管理', supervisors: [supRef('industry', 'NS-AMB'), supRef('professional', 'NS-IIT'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 1 },
       // ===== 其他类 (OTH) 2项 =====
-      { id: 'OTH_001', name: '危险边坡', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡安全管理', supervisors: [supUnit('professional', 'resources'), supUnit('local', 'nanshan')], checklists: [], dynamicFormEnabled: true },
-      { id: 'OTH_002', name: '危险边坡（重点边坡）', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡（重点边坡）安全管理', supervisors: [supUnit('professional', 'resources'), supUnit('local', 'nanshan')], checklists: [], dynamicFormEnabled: true }
+      {
+        id: 'OTH_001', name: '危险边坡', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡安全管理',
+        // 行业监管：5个指定单位（城管和综合执法局、教育局、住建局、文体旅局、建筑工务署）
+        supervisors: [
+          supRef('industry', 'NS-URBAN'), supRef('industry', 'NS-EDU'), supRef('industry', 'NS-HOUSING'),
+          supRef('industry', 'NS-CULTURE'), supRef('industry', 'NS-CONSTRUCTION'),
+          supRef('professional', 'NS-AMB'),
+          supRef('local', 'NS-NANSHAN-STREET')
+        ],
+        checklists: [], dynamicFormEnabled: true,
+        sortOrder: 7,
+        formSections: [
+          { id: 'sec_oth001_special', name: '专项信息', type: 'custom', sortOrder: 1 }
+        ],
+        formFields: [
+          { id: 'f_oth001_01', sectionId: 'sec_oth001_special', fieldKey: 'rock_type', fieldLabel: '岩性特征', fieldType: 'text', required: false, placeholder: '如：砂岩、泥岩', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 1 },
+          { id: 'f_oth001_02', sectionId: 'sec_oth001_special', fieldKey: 'slope_length', fieldLabel: '坡长（m）', fieldType: 'number', required: false, placeholder: '单位：米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 2 },
+          { id: 'f_oth001_03', sectionId: 'sec_oth001_special', fieldKey: 'slope_height', fieldLabel: '坡高（m）', fieldType: 'number', required: false, placeholder: '单位：米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 3 },
+          { id: 'f_oth001_04', sectionId: 'sec_oth001_special', fieldKey: 'slope_angle', fieldLabel: '坡度（°）', fieldType: 'number', required: false, placeholder: '单位：度', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 4 },
+          { id: 'f_oth001_05', sectionId: 'sec_oth001_special', fieldKey: 'treatment_status', fieldLabel: '治理现状', fieldType: 'select-single', required: false, placeholder: '', defaultValue: '', validationRules: '', options: '[{"value":"untreated","label":"未治理"},{"value":"partial","label":"部分治理"},{"value":"treated","label":"已治理"}]', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 5 },
+          { id: 'f_oth001_06', sectionId: 'sec_oth001_special', fieldKey: 'threat_target', fieldLabel: '威胁对象', fieldType: 'text', required: false, placeholder: '如：居民点、道路', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 6 },
+          { id: 'f_oth001_07', sectionId: 'sec_oth001_special', fieldKey: 'risk_area', fieldLabel: '涉险面积（m²）', fieldType: 'number', required: false, placeholder: '单位：平方米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 7 },
+          { id: 'f_oth001_08', sectionId: 'sec_oth001_special', fieldKey: 'disaster_type', fieldLabel: '灾害类型', fieldType: 'select-single', required: false, placeholder: '', defaultValue: '', validationRules: '', options: '[{"value":"landslide","label":"滑坡"},{"value":"collapse","label":"崩塌"},{"value":"debris_flow","label":"泥石流"},{"value":"subsidence","label":"地面塌陷"},{"value":"ground_fissure","label":"地裂缝"}]', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 8 },
+          { id: 'f_oth001_09', sectionId: 'sec_oth001_special', fieldKey: 'point_code', fieldLabel: '点位编号', fieldType: 'text', required: false, placeholder: '如：NS-SLOPE-001', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 9 },
+          { id: 'f_oth001_10', sectionId: 'sec_oth001_special', fieldKey: 'threat_people', fieldLabel: '威胁人数（人）', fieldType: 'number', required: false, placeholder: '单位：人', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 10 },
+          { id: 'f_oth001_11', sectionId: 'sec_oth001_special', fieldKey: 'economic_loss', fieldLabel: '潜在经济损失（万元）', fieldType: 'number', required: false, placeholder: '单位：万元', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 11 },
+          { id: 'f_oth001_12', sectionId: 'sec_oth001_special', fieldKey: 'prevention', fieldLabel: '防治措施', fieldType: 'textarea', required: false, placeholder: '描述已采取或计划的防治措施', defaultValue: '', validationRules: '', options: '', fieldWidth: 'full', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 12 },
+          { id: 'f_oth001_13', sectionId: 'sec_oth001_special', fieldKey: 'admin_unit', fieldLabel: '行政责任单位', fieldType: 'text', required: false, placeholder: '如：南山区应急管理局', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 13 },
+          { id: 'f_oth001_14', sectionId: 'sec_oth001_special', fieldKey: 'duty_phone', fieldLabel: '值班电话', fieldType: 'text', required: false, placeholder: '如：0755-xxxxxxxx', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 14 },
+          { id: 'f_oth001_15', sectionId: 'sec_oth001_special', fieldKey: 'admin_contact', fieldLabel: '行政负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 15 },
+          { id: 'f_oth001_16', sectionId: 'sec_oth001_special', fieldKey: 'tech_contact', fieldLabel: '技术负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 16 },
+          { id: 'f_oth001_17', sectionId: 'sec_oth001_special', fieldKey: 'patrol_contact', fieldLabel: '巡查负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 17 }
+        ]
+      },
+      {
+        id: 'OTH_002', name: '危险边坡（重点边坡）', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡（重点边坡）安全管理',
+        // 行业监管：5个指定单位（城管和综合执法局、教育局、住建局、文体旅局、建筑工务署）
+        supervisors: [
+          supRef('industry', 'NS-URBAN'), supRef('industry', 'NS-EDU'), supRef('industry', 'NS-HOUSING'),
+          supRef('industry', 'NS-CULTURE'), supRef('industry', 'NS-CONSTRUCTION'),
+          supRef('professional', 'NS-AMB'),
+          supRef('local', 'NS-NANSHAN-STREET')
+        ],
+        checklists: [], dynamicFormEnabled: true,
+        sortOrder: 8,
+        formSections: [
+          { id: 'sec_oth002_special', name: '专项信息', type: 'custom', sortOrder: 1 }
+        ],
+        formFields: [
+          { id: 'f_oth002_01', sectionId: 'sec_oth002_special', fieldKey: 'rock_type', fieldLabel: '岩性特征', fieldType: 'text', required: false, placeholder: '如：砂岩、泥岩', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 1 },
+          { id: 'f_oth002_02', sectionId: 'sec_oth002_special', fieldKey: 'slope_length', fieldLabel: '坡长（m）', fieldType: 'number', required: false, placeholder: '单位：米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 2 },
+          { id: 'f_oth002_03', sectionId: 'sec_oth002_special', fieldKey: 'slope_height', fieldLabel: '坡高（m）', fieldType: 'number', required: false, placeholder: '单位：米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 3 },
+          { id: 'f_oth002_04', sectionId: 'sec_oth002_special', fieldKey: 'slope_angle', fieldLabel: '坡度（°）', fieldType: 'number', required: false, placeholder: '单位：度', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 4 },
+          { id: 'f_oth002_05', sectionId: 'sec_oth002_special', fieldKey: 'treatment_status', fieldLabel: '治理现状', fieldType: 'select-single', required: false, placeholder: '', defaultValue: '', validationRules: '', options: '[{"value":"untreated","label":"未治理"},{"value":"partial","label":"部分治理"},{"value":"treated","label":"已治理"}]', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 5 },
+          { id: 'f_oth002_06', sectionId: 'sec_oth002_special', fieldKey: 'threat_target', fieldLabel: '威胁对象', fieldType: 'text', required: false, placeholder: '如：居民点、道路', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 6 },
+          { id: 'f_oth002_07', sectionId: 'sec_oth002_special', fieldKey: 'risk_area', fieldLabel: '涉险面积（m²）', fieldType: 'number', required: false, placeholder: '单位：平方米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 7 },
+          { id: 'f_oth002_08', sectionId: 'sec_oth002_special', fieldKey: 'disaster_type', fieldLabel: '灾害类型', fieldType: 'select-single', required: false, placeholder: '', defaultValue: '', validationRules: '', options: '[{"value":"landslide","label":"滑坡"},{"value":"collapse","label":"崩塌"},{"value":"debris_flow","label":"泥石流"},{"value":"subsidence","label":"地面塌陷"},{"value":"ground_fissure","label":"地裂缝"}]', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 8 },
+          { id: 'f_oth002_09', sectionId: 'sec_oth002_special', fieldKey: 'point_code', fieldLabel: '点位编号', fieldType: 'text', required: false, placeholder: '如：NS-SLOPE-001', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 9 },
+          { id: 'f_oth002_10', sectionId: 'sec_oth002_special', fieldKey: 'threat_people', fieldLabel: '威胁人数（人）', fieldType: 'number', required: false, placeholder: '单位：人', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 10 },
+          { id: 'f_oth002_11', sectionId: 'sec_oth002_special', fieldKey: 'economic_loss', fieldLabel: '潜在经济损失（万元）', fieldType: 'number', required: false, placeholder: '单位：万元', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 11 },
+          { id: 'f_oth002_12', sectionId: 'sec_oth002_special', fieldKey: 'prevention', fieldLabel: '防治措施', fieldType: 'textarea', required: false, placeholder: '描述已采取或计划的防治措施', defaultValue: '', validationRules: '', options: '', fieldWidth: 'full', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 12 },
+          { id: 'f_oth002_13', sectionId: 'sec_oth002_special', fieldKey: 'admin_unit', fieldLabel: '行政责任单位', fieldType: 'text', required: false, placeholder: '如：南山区应急管理局', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 13 },
+          { id: 'f_oth002_14', sectionId: 'sec_oth002_special', fieldKey: 'duty_phone', fieldLabel: '值班电话', fieldType: 'text', required: false, placeholder: '如：0755-xxxxxxxx', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 14 },
+          { id: 'f_oth002_15', sectionId: 'sec_oth002_special', fieldKey: 'admin_contact', fieldLabel: '行政负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 15 },
+          { id: 'f_oth002_16', sectionId: 'sec_oth002_special', fieldKey: 'tech_contact', fieldLabel: '技术负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 16 },
+          { id: 'f_oth002_17', sectionId: 'sec_oth002_special', fieldKey: 'patrol_contact', fieldLabel: '巡查负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 17 }
+        ]
+      }
     ];
 
     // 属地监管默认包含全部8个街道（替换原有的单个街道）
-    const allLocalStreets = Object.values(SUPERVISOR_TEST_UNITS.local).map(u => ({ ...u, checklists: [] }));
+    const allLocalStreets = (fallbackGovOrgData.local || []).map(function(u) {
+      return { type: 'local', id: 'local_' + u.id, orgId: u.id, name: u.name, checklists: [] };
+    });
     domainTableData.forEach(d => {
       const hasLocal = d.supervisors.some(s => s.type === 'local');
       if (hasLocal) {
@@ -3110,29 +3389,6 @@ function showToast(msg, type) {
       { id: 'lib5', name: '特种设备定期检验', category: 'industry', categoryName: '工业制造', itemType: '重点项', contents: [{ name: '特种设备证书有效' }, { name: '安全附件完好' }] },
     ];
 
-    const fallbackNonStreetUnits = [
-      { id: 'org1', name: '工业和信息化局' },
-      { id: 'org2', name: '市场监督管理局' },
-      { id: 'org3', name: '商务局' },
-      { id: 'org4', name: '应急管理局' },
-      { id: 'org5', name: '住房和建设局' },
-      { id: 'org6', name: '深圳市公安局交通管理支队南山大队' },
-      { id: 'org7', name: '城市管理和综合执法局' }
-    ];
-    const fallbackGovOrgData = {
-      industry: fallbackNonStreetUnits.map(item => ({ ...item, id: `industry_${item.id}`, type: 'industry' })),
-      professional: fallbackNonStreetUnits.map(item => ({ ...item, id: `professional_${item.id}`, type: 'professional' })),
-      local: [
-        { id: 'org8', name: '南山街道', type: 'local' },
-        { id: 'org9', name: '粤海街道', type: 'local' },
-        { id: 'org10', name: '西丽街道', type: 'local' },
-        { id: 'org11', name: '南头街道', type: 'local' },
-        { id: 'org12', name: '沙河街道', type: 'local' },
-        { id: 'org13', name: '蛇口街道', type: 'local' },
-        { id: 'org14', name: '招商街道', type: 'local' },
-        { id: 'org15', name: '桃源街道', type: 'local' }
-      ]
-    };
     let govOrgData = fallbackGovOrgData;
     let govOrgDataLoaded = false;
 
@@ -3154,18 +3410,13 @@ function showToast(msg, type) {
     }
 
     function normalizeGovUnitName(name) {
-      return name
-        .replace(/^区/, '')
-        .replace(/南山监管局$/, '')
-        .replace(/办事处$/, '')
+      return String(name || '')
         .replace(/粵/g, '粤')
         .trim();
     }
 
     function normalizeSupervisorName(name) {
-      return normalizeGovUnitName(String(name || ''))
-        .replace(/和综合执法局$/, '局')
-        .replace(/深圳市公安局交通管理支队南山大队$/, '交通管理大队');
+      return normalizeGovUnitName(name);
     }
 
     function findSupervisorByName(type, name) {
@@ -3531,60 +3782,7 @@ function showToast(msg, type) {
       };
       const typeInfo = typeMap[type] || typeMap['industry'];
 
-      // 属地监管：合并到一行
-      if (type === 'local') {
-        const existingRow = tbody.querySelector('tr[data-type="local"]');
-        if (existingRow) {
-          // 追加到现有行
-          const ids = (existingRow.getAttribute('data-ids') || '').split(',').filter(Boolean);
-          const names = existingRow.querySelectorAll('.local-name-item');
-          const nameList = Array.from(names).map(n => n.textContent.trim());
-          const newNames = items.map(i => i.name).filter(n => !nameList.includes(n));
-          if (newNames.length > 0) {
-            const nameCell = existingRow.querySelector('td:nth-child(3)');
-            newNames.forEach(n => {
-              const span = document.createElement('span');
-              span.className = 'local-name-item';
-              span.textContent = n;
-              nameCell.appendChild(document.createTextNode('、'));
-              nameCell.appendChild(span);
-            });
-            // 追加 ID
-            items.forEach(i => { if (i.id) ids.push(i.id); });
-            existingRow.setAttribute('data-ids', ids.join(','));
-            nameCell.title = Array.from(nameCell.querySelectorAll('.local-name-item')).map(item => item.textContent.trim()).join('、');
-          }
-        } else {
-          // 新增一行，合并所有街道名
-          const existingRows = tbody.querySelectorAll('tr');
-          const maxNum = existingRows.length + 1;
-          const nameList = items.map(i => `<span class="local-name-item">${escapeHtml(i.name)}</span>`).join('、');
-          const idList = items.map(i => i.id || '').filter(Boolean).map(escapeHtml).join(',');
-          // 属地监管权限列：逐个显示星号
-          const localMarkCells = items.map(i => {
-            const marked = isSupervisorMarked('local', i.id);
-            return `<span class="star-cell ${marked ? 'active' : 'inactive'}" title="${marked ? '可管理' : '仅查看'}">${marked ? '★' : '☆'}</span>`;
-          }).join(' ');
-          const newRow = document.createElement('tr');
-          newRow.setAttribute('data-type', 'local');
-          newRow.setAttribute('data-ids', idList);
-          newRow.innerHTML = `
-            <td>${maxNum}</td>
-            <td class="type-cell"><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
-            <td class="local-name-cell" title="${items.map(i => escapeHtml(i.name)).join('、')}">${nameList}</td>
-            <td>${localMarkCells}</td>
-            <td><span class="text-gray">未配置</span></td>
-            <td class="action-col">
-              <button class="btn-link" onclick="configChecklist('local')">配置检查表</button>
-            </td>
-          `;
-          tbody.appendChild(newRow);
-        }
-        updateRowNumbers();
-        return;
-      }
-
-      // 行业/专业监管：逐条加行
+      // 行业/专业/属地监管：逐条加行（属地监管无删除按钮）
       const existingNames = Array.from(tbody.querySelectorAll('tr')).map(row => {
         const nameCell = row.querySelector('td:nth-child(3)');
         return nameCell ? nameCell.textContent.trim() : '';
@@ -3601,6 +3799,8 @@ function showToast(msg, type) {
         const newRow = document.createElement('tr');
         newRow.setAttribute('data-id', item.id);
         newRow.setAttribute('data-type', type);
+        // 属地监管无删除按钮
+        const deleteBtn = type === 'local' ? '' : `<button class="btn-link danger" onclick="deleteSupervisorRow(this, '${type}', '${safeId}')">删除</button>`;
         newRow.innerHTML = `
           <td>${maxNum}</td>
           <td class="type-cell"><span class="tag ${typeInfo.tagClass}">${typeInfo.typeName}</span></td>
@@ -3609,7 +3809,7 @@ function showToast(msg, type) {
           <td><span class="text-gray">未配置</span></td>
           <td class="action-col">
             <button class="btn-link" onclick="configChecklist('${safeId}')">配置检查表</button>
-            <button class="btn-link danger" onclick="deleteSupervisorRow(this, '${type}', '${safeId}')">删除</button>
+            ${deleteBtn}
           </td>
         `;
         tbody.appendChild(newRow);
@@ -3622,33 +3822,7 @@ function showToast(msg, type) {
       if (!confirm('确定删除该监管单位？')) return;
       selectedSupervisors[type] = (selectedSupervisors[type] || []).filter(itemId => itemId !== id);
       const row = btn.closest('tr');
-
-      // 属地监管：从合并行中移除单个街道
-      if (type === 'local') {
-        const ids = (row.getAttribute('data-ids') || '').split(',').filter(Boolean);
-        if (!id) {
-          selectedSupervisors.local = [];
-          row.remove();
-          updateRowNumbers();
-          return;
-        }
-        const remainingIds = ids.filter(i => i !== id);
-        if (remainingIds.length === 0) {
-          row.remove(); // 最后一项，整行消失
-        } else {
-          row.setAttribute('data-ids', remainingIds.join(','));
-          const nameItems = row.querySelectorAll('.local-name-item');
-          nameItems.forEach(span => {
-            const govOrg = (govOrgData.local || []).find(g => g.id === id);
-            if (govOrg && span.textContent.trim() === govOrg.name) span.remove();
-          });
-          // 清理多余的顿号
-          const nameCell = row.querySelector('td:nth-child(3)');
-          nameCell.innerHTML = nameCell.innerHTML.replace(/、+/g, '、').replace(/^、|、$/g, '');
-        }
-      } else {
-        row.remove();
-      }
+      row.remove();
       updateRowNumbers();
     }
 
@@ -3752,13 +3926,7 @@ function showToast(msg, type) {
       }
 
       // 确定监管单位行 key
-      let rowKey;
-      if (id === 'local') {
-        const localRow = document.querySelector('#supervisorTableBody tr[data-type="local"]');
-        rowKey = 'local_' + (localRow ? localRow.getAttribute('data-ids') || '' : '');
-      } else {
-        rowKey = id;
-      }
+      const rowKey = id;
       window._currentSupClKey = rowKey;
       window._clModalMode = 'supervisor';
 
@@ -3808,30 +3976,15 @@ function showToast(msg, type) {
     function updateSupClCell(key) {
       const list = window._supClData[key] || [];
 
-      // 属地监管：所有街道合并显示，key = 'local_id1,id2,...'
-      let cellContent;
-      if (key.startsWith('local_')) {
-        const localIds = key.replace('local_', '').split(',').filter(Boolean);
-        // 从 domainTableData 找到当前 domain 的属地监管列表（用于生成 name→key 映射）
-        const curDomain = domainTableData.find(d => d.id === (window._currentDetailId || window._currentEditId));
-        const localSups = (curDomain?.supervisors || []).filter(s => s.type === 'local');
-        // 属地监管合并：所有街道的检查表汇总到一起（key 对应整行）
-        cellContent = list.length === 0
-          ? '<span class="text-gray">未配置</span>'
-          : list.map(c => `<span class="cl-tag" data-checklist-id="${c.id}"><span class="cl-tag-name" onclick="editSupCl('${key}','${c.id}')">${c.name}</span><span class="cl-tag-del" onclick="event.stopPropagation(); confirmDeleteSupCl('${key}','${c.id}')">×</span></span>`).join(' ');
-      } else {
-        cellContent = list.length === 0
-          ? '<span class="text-gray">未配置</span>'
-          : list.map(c => `<span class="cl-tag" data-checklist-id="${c.id}"><span class="cl-tag-name" onclick="editSupCl('${key}','${c.id}')">${c.name}</span><span class="cl-tag-del" onclick="event.stopPropagation(); confirmDeleteSupCl('${key}','${c.id}')">×</span></span>`).join(' ');
-      }
+      const cellContent = list.length === 0
+        ? '<span class="text-gray">未配置</span>'
+        : list.map(c => `<span class="cl-tag" data-checklist-id="${c.id}"><span class="cl-tag-name" onclick="editSupCl('${key}','${c.id}')">${c.name}</span><span class="cl-tag-del" onclick="event.stopPropagation(); confirmDeleteSupCl('${key}','${c.id}')">×</span></span>`).join(' ');
 
       // 同时更新两张表：新增/编辑弹窗 + 详情弹窗
       ['#supervisorTableBody', '#detailSupervisorTableBody'].forEach(bodyId => {
-        const targetRow = key.startsWith('local_')
-          ? document.querySelector(`${bodyId} tr[data-type="local"]`)
-          : document.querySelector(`${bodyId} tr[data-id="${key}"]`);
+        const targetRow = document.querySelector(`${bodyId} tr[data-id="${key}"]`);
         if (!targetRow) return;
-        const clCell = targetRow.querySelector('td:nth-child(4)');
+        const clCell = targetRow.querySelector('td:nth-child(5)');
         if (clCell) clCell.innerHTML = cellContent;
       });
     }
@@ -4279,14 +4432,14 @@ function showToast(msg, type) {
       code: '440305',
       name: '南山区',
       streets: [
-        { code: '440305001', name: '南头街道', communities: ['南头城社区','马家龙社区','北头社区','向南社区','田厦社区','同乐社区','大汪山社区','大新社区','九街社区','南光社区','龙珠社区','桂庙社区'] },
-        { code: '440305002', name: '南山街道', communities: ['南光社区','南山社区','南园社区','北头社区','向南社区','荔湾社区','荔林社区','月亮湾社区','前海社区','南水社区','向南瑞峰社区','大新社区','登良社区','龙瑞社区'] },
-        { code: '440305003', name: '沙河街道', communities: ['白石洲社区','沙河社区','侨城北社区','侨城东社区','侨城西社区','侨香社区','光华社区','沙河西社区','新塘社区','燕晗山社区','汉京九榕台社区','沙河天健社区','沙河翰邦社区','光侨社区'] },
-        { code: '440305004', name: '蛇口街道', communities: ['南水社区','龟山社区','蛇口社区','后海社区','海昌社区','海湾社区','工业七路社区','花果山社区','湾厦社区','育才社区','渔二社区','龟山一社区','龟山二社区'] },
-        { code: '440305005', name: '招商街道', communities: ['鲸山社区','水湾社区','文竹园社区','花园城社区','蛇口社区','南水社区','南光社区','沿山社区','望海社区','招商东角头社区','蛇口工业区社区'] },
-        { code: '440305006', name: '粤海街道', communities: ['麻岭社区','大冲社区','科技园社区','科技园东社区','高新区社区','深圳湾社区','后海社区','后海福海社区','后海大新社区','滨海之窗社区','蔚蓝海岸社区','海珠社区','海德社区','海风社区','海月社区','华联社区'] },
-        { code: '440305007', name: '桃源街道', communities: ['平山社区','龙珠社区','龙辉社区','光前社区','光华社区','茶光社区','长源社区','金桃园社区','金桂园社区','留仙社区','桃源村社区','大磡社区'] },
-        { code: '440305008', name: '西丽街道', communities: ['西丽社区','麻磡社区','大磡社区','白芒社区','大学城社区','九祥岭社区','茶光社区','长岭社区','松坪社区','松坪山社区','西丽湖社区','官龙村社区','新围社区','丽湖社区','南科大社区','长源社区','沙河社区'] },
+        { code: '440305001', name: '南山区南头街道办事处', communities: ['南头城社区','马家龙社区','北头社区','向南社区','田厦社区','同乐社区','大汪山社区','大新社区','九街社区','南光社区','龙珠社区','桂庙社区'] },
+        { code: '440305002', name: '南山区南山街道办事处', communities: ['南光社区','南山社区','南园社区','北头社区','向南社区','荔湾社区','荔林社区','月亮湾社区','前海社区','南水社区','向南瑞峰社区','大新社区','登良社区','龙瑞社区'] },
+        { code: '440305003', name: '南山区沙河街道办事处', communities: ['白石洲社区','沙河社区','侨城北社区','侨城东社区','侨城西社区','侨香社区','光华社区','沙河西社区','新塘社区','燕晗山社区','汉京九榕台社区','沙河天健社区','沙河翰邦社区','光侨社区'] },
+        { code: '440305004', name: '南山区蛇口街道办事处', communities: ['南水社区','龟山社区','蛇口社区','后海社区','海昌社区','海湾社区','工业七路社区','花果山社区','湾厦社区','育才社区','渔二社区','龟山一社区','龟山二社区'] },
+        { code: '440305005', name: '南山区招商街道办事处', communities: ['鲸山社区','水湾社区','文竹园社区','花园城社区','蛇口社区','南水社区','南光社区','沿山社区','望海社区','招商东角头社区','蛇口工业区社区'] },
+        { code: '440305006', name: '南山区粤海街道办事处', communities: ['麻岭社区','大冲社区','科技园社区','科技园东社区','高新区社区','深圳湾社区','后海社区','后海福海社区','后海大新社区','滨海之窗社区','蔚蓝海岸社区','海珠社区','海德社区','海风社区','海月社区','华联社区'] },
+        { code: '440305007', name: '南山区桃源街道办事处', communities: ['平山社区','龙珠社区','龙辉社区','光前社区','光华社区','茶光社区','长源社区','金桃园社区','金桂园社区','留仙社区','桃源村社区','大磡社区'] },
+        { code: '440305008', name: '南山区西丽街道办事处', communities: ['西丽社区','麻磡社区','大磡社区','白芒社区','大学城社区','九祥岭社区','茶光社区','长岭社区','松坪社区','松坪山社区','西丽湖社区','官龙村社区','新围社区','丽湖社区','南科大社区','长源社区','沙河社区'] },
         { code: '440305009', name: '前海合作区', communities: ['前海合作区社区'] }
       ]
     };
@@ -4616,6 +4769,46 @@ function showToast(msg, type) {
     // 预览扫码配置状态（模拟企业端交互）
     let dfPreviewScanConfigs = [];
     let dfPreviewScanEditIdx = -1;
+    let dfPreviewScfState = { editIdx: -1, referencedCls: [], checkItems: [] };
+    let dfPreviewRecommendClSelection = [];
+    let dfPreviewRecommendClExpanded = {};
+
+    // 预览扫码配置 mock 数据池
+    const DF_PREVIEW_ENTERPRISE_POOL = [
+      { id: 'ent_1', name: '深圳创安电子科技有限公司', persons: [{id:'ep_1_1',name:'张伟'},{id:'ep_1_2',name:'李娜'},{id:'ep_1_3',name:'王强'}] },
+      { id: 'ent_2', name: '深圳市安全科技集团', persons: [{id:'ep_2_1',name:'刘洋'},{id:'ep_2_2',name:'陈雪'}] },
+      { id: 'ent_3', name: '万科物业管理有限公司', persons: [{id:'ep_3_1',name:'赵磊'},{id:'ep_3_2',name:'孙婷'},{id:'ep_3_3',name:'周明'}] },
+      { id: 'ent_4', name: '华润置地有限公司', persons: [{id:'ep_4_1',name:'吴芳'},{id:'ep_4_2',name:'郑浩'}] },
+      { id: 'ent_5', name: '腾讯科技（深圳）有限公司', persons: [{id:'ep_5_1',name:'冯涛'},{id:'ep_5_2',name:'褚琳'}] },
+      { id: 'ent_6', name: '招商蛇口产业园开发有限公司', persons: [{id:'ep_6_1',name:'卫军'},{id:'ep_6_2',name:'蒋玲'}] },
+      { id: 'ent_7', name: '前海控股有限公司', persons: [{id:'ep_7_1',name:'沈艳'},{id:'ep_7_2',name:'韩斌'}] },
+      { id: 'ent_8', name: '深圳市西丽建设投资有限公司', persons: [{id:'ep_8_1',name:'杨柳'},{id:'ep_8_2',name:'朱锋'}] }
+    ];
+    const DF_PREVIEW_GOV_DEPT_POOL = [
+      { id: 'gov_1', name: '南山区应急管理局', persons: [{id:'gp_1_1',name:'廖卫国'},{id:'gp_1_2',name:'蒋晓燕'}] },
+      { id: 'gov_2', name: '南山区消防救援大队', persons: [{id:'gp_2_1',name:'范立军'},{id:'gp_2_2',name:'方俊'}] },
+      { id: 'gov_3', name: '南山区市场监督管理局', persons: [{id:'gp_3_1',name:'石磊'},{id:'gp_3_2',name:'熊倩'}] }
+    ];
+    const DF_PREVIEW_CHECKLIST_LIB = [
+      { id: 'cl_lib_1', name: '充电桩日常安全检查表', items: [
+        { id: 'i1_1', desc: '充电桩本体', contents: [{ name: '外观完好无破损', standard: '无裂纹、无变形' }, { name: '充电接口无松动', standard: '插拔力≤50N' }] },
+        { id: 'i1_2', desc: '电气安全', contents: [{ name: '漏电保护器有效', standard: '动作电流≤30mA' }, { name: '接地电阻合格', standard: '≤4Ω' }] }
+      ]},
+      { id: 'cl_lib_2', name: '消防设施巡查表', items: [
+        { id: 'i2_1', desc: '灭火器', contents: [{ name: '压力表在绿区', standard: '1.0~1.4MPa' }, { name: '有效期未过', standard: '5年内' }] },
+        { id: 'i2_2', desc: '消防通道', contents: [{ name: '通道畅通无堵塞', standard: '宽度≥1.2m' }] }
+      ]},
+      { id: 'cl_lib_3', name: '高层建筑外立面检查表', items: [
+        { id: 'i3_1', desc: '外墙饰面', contents: [{ name: '无脱落风险', standard: '空鼓率<5%' }, { name: '幕墙胶缝完好', standard: '无开裂' }] }
+      ]},
+      { id: 'cl_lib_4', name: '边坡稳定性巡查表', items: [
+        { id: 'i4_1', desc: '坡体表面', contents: [{ name: '无新增裂缝', standard: '裂缝宽度<2mm' }, { name: '排水沟畅通', standard: '无淤积' }] }
+      ]},
+      { id: 'cl_lib_5', name: '电气线路检查表', items: [
+        { id: 'i5_1', desc: '配电箱', contents: [{ name: '箱体完好上锁', standard: '锁具有效' }, { name: '标识清晰', standard: '回路标识完整' }] },
+        { id: 'i5_2', desc: '线缆', contents: [{ name: '无老化破损', standard: '绝缘电阻≥0.5MΩ' }] }
+      ]}
+    ];
 
     // 自定义确认弹窗（替代 confirm）
     function dfConfirmDialog(message, onConfirm) {
@@ -5459,22 +5652,32 @@ function showToast(msg, type) {
     }
     // 预览扫码配置板块 HTML（含新增按钮与表格）
     function dfPreviewScanSectionHtml() {
-      const rows = dfPreviewScanConfigs.length ? dfPreviewScanConfigs.map((r, idx) => `
-        <tr>
-          <td>${idx + 1}</td>
-          <td>${escapeHtml(r.respType)}</td>
-          <td>${escapeHtml(r.respName)}</td>
-          <td>${escapeHtml(r.scanner)}</td>
-          <td>${escapeHtml(r.clName)}</td>
-          <td>${r.itemCnt} 项</td>
-          <td>${escapeHtml(r.freq)}</td>
-          <td>${escapeHtml(r.skip)}</td>
-          <td style="white-space:nowrap;">
-            <button type="button" class="btn btn-default btn-sm" onclick="dfPreviewOpenScanModal(${idx})">编辑</button>
-            <button type="button" class="btn btn-default btn-sm" style="color:var(--danger);" onclick="dfPreviewDeleteScanConfig(${idx})">删除</button>
-          </td>
-        </tr>
-      `).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无扫码配置，点击「+ 添加扫码配置」新增</td></tr>';
+      const arr = dfPreviewScanConfigs || [];
+      const rows = arr.length ? arr.map((row, idx) => {
+        const respTypeTxt = row.resp_type === 'gov' ? '政府' : '企业';
+        const respName = row.resp_name ? escapeHtml(row.resp_name) : '<span style="color:var(--danger);">未指定主体</span>';
+        const scannerTxt = escapeHtml(row.scanner_id ? row.scanner_name : '全员');
+        const clTxt = row.cl_name ? escapeHtml(row.cl_name) : '<span style="color:var(--danger);">未配置</span>';
+        const itemCnt = (row.check_items || []).length;
+        const freq = escapeHtml(row.freq || '未配置频次');
+        const skip = row.skip_holiday ? '过滤节假日' : '不过滤节假日';
+        return `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${respTypeTxt}</td>
+            <td>${respName}</td>
+            <td>${scannerTxt}</td>
+            <td>${clTxt}</td>
+            <td>${itemCnt} 项</td>
+            <td>${freq}</td>
+            <td>${skip}</td>
+            <td style="white-space:nowrap;">
+              <button type="button" class="btn btn-default btn-sm" onclick="dfPreviewOpenScanModal(${idx})">编辑</button>
+              <button type="button" class="btn btn-default btn-sm" style="color:var(--danger);" onclick="dfPreviewDeleteScanConfig(${idx})">删除</button>
+            </td>
+          </tr>
+        `;
+      }).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无扫码配置，点击「+ 添加扫码配置」新增</td></tr>';
       return `
         <div class="df-preview-scan-header">
           <span class="section-title-text">扫码配置列表</span>
@@ -5498,36 +5701,140 @@ function showToast(msg, type) {
         </table>
       `;
     }
+
+    function dfPreviewParseScfInterval(freq) {
+      const m = (freq || '').match(/^每(\d+)(日|周|月|季|年)检查(\d+)次/);
+      if (!m) return { interval: '1', unit: 'week', times: '1' };
+      const unitMap = { '日': 'day', '周': 'week', '月': 'month', '季': 'quarter', '年': 'year' };
+      return { interval: m[1], unit: unitMap[m[2]] || 'week', times: m[3] };
+    }
+
+    function dfPreviewPopulateScfRespIdSelect(respType, selectedId) {
+      const sel = document.getElementById('dfPreviewScfRespId');
+      let opts = '<option value="">请选择</option>';
+      if (respType === 'enterprise') {
+        opts += DF_PREVIEW_ENTERPRISE_POOL.map(e => `<option value="${e.id}" ${selectedId===e.id?'selected':''}>${escapeHtml(e.name)}</option>`).join('');
+      } else {
+        opts += DF_PREVIEW_GOV_DEPT_POOL.map(d => `<option value="${d.id}" ${selectedId===d.id?'selected':''}>${escapeHtml(d.name)}</option>`).join('');
+      }
+      sel.innerHTML = opts;
+    }
+
+    function dfPreviewPopulateScfScannerSelect(respType, respId, selectedScannerId) {
+      const sel = document.getElementById('dfPreviewScfScanner');
+      let opts = '<option value="">全员（责任主体下所有人均可履职）</option>';
+      if (respType === 'enterprise' && respId) {
+        const ent = DF_PREVIEW_ENTERPRISE_POOL.find(x => x.id === respId);
+        if (ent) opts += ent.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+      } else if (respType === 'gov' && respId) {
+        const dept = DF_PREVIEW_GOV_DEPT_POOL.find(x => x.id === respId);
+        if (dept) opts += dept.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+      }
+      sel.innerHTML = opts;
+    }
+
+    function dfPreviewOnScfRespTypeChange() {
+      const respType = document.getElementById('dfPreviewScfRespType').value;
+      dfPreviewPopulateScfRespIdSelect(respType, '');
+      dfPreviewPopulateScfScannerSelect(respType, '', '');
+    }
+
+    function dfPreviewOnScfRespIdChange() {
+      const respType = document.getElementById('dfPreviewScfRespType').value;
+      const respId = document.getElementById('dfPreviewScfRespId').value;
+      dfPreviewPopulateScfScannerSelect(respType, respId, '');
+    }
+
     function dfPreviewOpenScanModal(editIdx) {
       if (typeof editIdx !== 'number') editIdx = -1;
       dfPreviewScanEditIdx = editIdx;
-      const title = document.getElementById('dfPreviewScanModalTitle');
-      if (title) title.textContent = editIdx >= 0 ? '编辑扫码配置' : '添加扫码配置';
+      dfPreviewScfState = { editIdx: editIdx, referencedCls: [], checkItems: [] };
+      document.getElementById('dfPreviewScanModalTitle').textContent = editIdx >= 0 ? '编辑扫码配置' : '添加扫码配置';
+
       const row = editIdx >= 0 ? dfPreviewScanConfigs[editIdx] : null;
-      document.getElementById('dfPreviewScanRespType').value = row ? row.respType : '政府';
-      document.getElementById('dfPreviewScanRespName').value = row ? row.respName : '';
-      document.getElementById('dfPreviewScanScanner').value = row ? row.scanner : '';
-      document.getElementById('dfPreviewScanClName').value = row ? row.clName : '';
-      document.getElementById('dfPreviewScanItemCnt').value = row ? row.itemCnt : 1;
-      document.getElementById('dfPreviewScanFreq').value = row ? row.freq : '';
-      document.getElementById('dfPreviewScanSkip').value = row ? row.skip : '不过滤节假日';
+      const respType = row ? (row.resp_type || 'enterprise') : 'enterprise';
+      document.getElementById('dfPreviewScfRespType').value = respType;
+      document.getElementById('dfPreviewScfInterval').value = row ? dfPreviewParseScfInterval(row.freq).interval : '1';
+      document.getElementById('dfPreviewScfUnit').value = row ? dfPreviewParseScfInterval(row.freq).unit : 'week';
+      document.getElementById('dfPreviewScfTimes').value = row ? dfPreviewParseScfInterval(row.freq).times : '1';
+      const skipVal = row && row.skip_holiday ? 'true' : 'false';
+      document.querySelectorAll('input[name="dfPreviewScfSkipHoliday"]').forEach(r => { r.checked = r.value === skipVal; });
+
+      dfPreviewPopulateScfRespIdSelect(respType, row ? row.resp_id : '');
+      dfPreviewPopulateScfScannerSelect(respType, row ? row.resp_id : '', row ? row.scanner_id : '');
+
+      if (row) {
+        if (row.referenced_cls && row.referenced_cls.length) {
+          dfPreviewScfState.referencedCls = row.referenced_cls.slice();
+        }
+        if (row.check_items && row.check_items.length) {
+          dfPreviewScfState.checkItems = row.check_items.map(it => ({
+            id: it.id || 'scf_' + Date.now(),
+            sourceClId: it.sourceClId || '',
+            sourceItemId: it.sourceItemId || '',
+            desc: it.desc || '',
+            contents: (it.contents || []).map(c => ({ name: c.name || '', standard: c.standard || '' }))
+          }));
+        }
+      }
+      dfPreviewRenderScfCheckItems();
       document.getElementById('dfPreviewScanModal').style.display = 'flex';
     }
+
     function dfPreviewCloseScanModal() {
       document.getElementById('dfPreviewScanModal').style.display = 'none';
       dfPreviewScanEditIdx = -1;
+      dfPreviewScfState = { editIdx: -1, referencedCls: [], checkItems: [] };
     }
+
     function dfPreviewSaveScanConfig() {
-      const respType = document.getElementById('dfPreviewScanRespType').value.trim();
-      const respName = document.getElementById('dfPreviewScanRespName').value.trim();
-      const scanner = document.getElementById('dfPreviewScanScanner').value.trim();
-      const clName = document.getElementById('dfPreviewScanClName').value.trim();
-      const itemCnt = parseInt(document.getElementById('dfPreviewScanItemCnt').value, 10) || 1;
-      const freq = document.getElementById('dfPreviewScanFreq').value.trim();
-      const skip = document.getElementById('dfPreviewScanSkip').value;
-      if (!respName) { showToast('请填写责任主体', 'warning'); return; }
-      if (!clName) { showToast('请填写检查表', 'warning'); return; }
-      const newRow = { respType, respName, scanner, clName, itemCnt, freq, skip };
+      const respType = document.getElementById('dfPreviewScfRespType').value;
+      const respId = document.getElementById('dfPreviewScfRespId').value;
+      if (!respId) { showToast('请选择责任主体', 'error'); return; }
+      if (!dfPreviewScfState.checkItems.length) { showToast('请至少添加一个检查项', 'error'); return; }
+      const interval = document.getElementById('dfPreviewScfInterval').value || '1';
+      const unit = document.getElementById('dfPreviewScfUnit').value || 'week';
+      const times = document.getElementById('dfPreviewScfTimes').value || '1';
+      const skipHoliday = document.querySelector('input[name="dfPreviewScfSkipHoliday"]:checked').value === 'true';
+      const scannerId = document.getElementById('dfPreviewScfScanner').value;
+
+      let respName = '';
+      if (respType === 'enterprise') {
+        const ent = DF_PREVIEW_ENTERPRISE_POOL.find(x => x.id === respId);
+        respName = ent ? ent.name : '';
+      } else {
+        const d = DF_PREVIEW_GOV_DEPT_POOL.find(x => x.id === respId);
+        respName = d ? d.name : '';
+      }
+      let scannerName = '全员';
+      if (scannerId) {
+        if (respType === 'enterprise') {
+          const ent = DF_PREVIEW_ENTERPRISE_POOL.find(x => x.id === respId);
+          const p = ent && ent.persons.find(x => x.id === scannerId);
+          scannerName = p ? p.name : '';
+        } else {
+          const d = DF_PREVIEW_GOV_DEPT_POOL.find(x => x.id === respId);
+          const p = d && d.persons.find(x => x.id === scannerId);
+          scannerName = p ? p.name : '';
+        }
+      }
+      const unitTxt = unit === 'day' ? '日' : unit === 'week' ? '周' : unit === 'month' ? '月' : unit === 'quarter' ? '季' : '年';
+      const freq = '每' + interval + unitTxt + '检查' + times + '次';
+
+      const clNames = dfPreviewScfState.referencedCls.map(c => c.name);
+      const clName = clNames.length ? clNames.join(' + ') : '自定义检查表';
+
+      const newRow = {
+        resp_type: respType, resp_id: respId, resp_name: respName,
+        scanner_id: scannerId, scanner_name: scannerName,
+        freq: freq, cl_name: clName,
+        skip_holiday: skipHoliday,
+        referenced_cls: dfPreviewScfState.referencedCls.slice(),
+        check_items: dfPreviewScfState.checkItems.map(it => ({
+          id: it.id, sourceClId: it.sourceClId || '', sourceItemId: it.sourceItemId || '', desc: it.desc,
+          contents: it.contents.map(c => ({ name: c.name, standard: c.standard }))
+        }))
+      };
       if (dfPreviewScanEditIdx >= 0) {
         dfPreviewScanConfigs[dfPreviewScanEditIdx] = newRow;
         showToast('扫码配置已更新', 'success');
@@ -5538,11 +5845,199 @@ function showToast(msg, type) {
       dfPreviewCloseScanModal();
       dfRenderPreview();
     }
+
     function dfPreviewDeleteScanConfig(idx) {
       if (!confirm('确定删除该条扫码配置？')) return;
       dfPreviewScanConfigs.splice(idx, 1);
       dfRenderPreview();
       showToast('已删除', 'success');
+    }
+
+    // 检查项操作
+    function dfPreviewAddScfCheckItem() {
+      dfPreviewScfState.checkItems.push({ id: 'scf_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), desc: '', contents: [] });
+      dfPreviewRenderScfCheckItems();
+    }
+    function dfPreviewDelScfCheckItem(idx) {
+      const it = dfPreviewScfState.checkItems[idx];
+      if (it.contents.length && !confirm('该检查项下有 ' + it.contents.length + ' 条检查内容，是否一并删除？')) return;
+      dfPreviewScfState.checkItems.splice(idx, 1);
+      dfPreviewRenderScfCheckItems();
+    }
+    function dfPreviewAddScfCheckContent(itemIdx) {
+      dfPreviewScfState.checkItems[itemIdx].contents.push({ name: '', standard: '' });
+      dfPreviewRenderScfCheckItems();
+    }
+    function dfPreviewDelScfCheckContent(itemIdx, ci) {
+      dfPreviewScfState.checkItems[itemIdx].contents.splice(ci, 1);
+      dfPreviewRenderScfCheckItems();
+    }
+    function dfPreviewOnScfItemDescChange(idx, v) { dfPreviewScfState.checkItems[idx].desc = v; }
+    function dfPreviewOnScfContentChange(itemIdx, ci, field, v) { dfPreviewScfState.checkItems[itemIdx].contents[ci][field] = v; }
+
+    function dfPreviewRenderScfCheckItems() {
+      const container = document.getElementById('dfPreviewScfCheckItems');
+      const empty = document.getElementById('dfPreviewScfCheckEmpty');
+      if (!dfPreviewScfState.checkItems.length) { container.innerHTML = ''; empty.style.display = 'flex'; return; }
+      empty.style.display = 'none';
+      container.innerHTML = dfPreviewScfState.checkItems.map((it, idx) => {
+        const contents = it.contents.map((c, ci) => `
+          <div class="cl-inline-content-row">
+            <input type="text" class="kp-field-input" placeholder="检查内容名称" value="${escapeHtml(c.name || '')}" oninput="dfPreviewOnScfContentChange(${idx},${ci},'name',this.value)">
+            <input type="text" class="kp-field-input" placeholder="检查标准（选填）" value="${escapeHtml(c.standard || '')}" oninput="dfPreviewOnScfContentChange(${idx},${ci},'standard',this.value)">
+            <button type="button" class="kp-row-del" onclick="dfPreviewDelScfCheckContent(${idx},${ci})">删</button>
+          </div>
+        `).join('');
+        return `
+          <div class="cl-inline-item">
+            <div class="cl-inline-item-header">
+              <span style="font-size:12px;color:var(--text-secondary);">检查项 ${idx+1}</span>
+              <input type="text" class="kp-field-input" placeholder="检查项描述（选填）" value="${escapeHtml(it.desc || '')}" oninput="dfPreviewOnScfItemDescChange(${idx},this.value)">
+              <button type="button" class="btn btn-default btn-sm" onclick="dfPreviewAddScfCheckContent(${idx})">+ 添加内容</button>
+              <button type="button" class="kp-row-del" onclick="dfPreviewDelScfCheckItem(${idx})">删除项</button>
+            </div>
+            <div class="cl-inline-contents">${contents || '<div style="color:var(--text-tertiary);font-size:12px;padding:6px 0;">尚无检查内容，点击右上「+ 添加内容」</div>'}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 推荐检查表
+    function dfPreviewOpenRecommendClModal() {
+      const allCl = [...DF_PREVIEW_CHECKLIST_LIB];
+      dfPreviewRecommendClSelection = [];
+      dfPreviewRecommendClExpanded = {};
+      const grouped = {};
+      dfPreviewScfState.checkItems.forEach(it => {
+        if (it.sourceClId) {
+          if (!grouped[it.sourceClId]) grouped[it.sourceClId] = [];
+          grouped[it.sourceClId].push(it.sourceItemId);
+        }
+      });
+      allCl.forEach(cl => {
+        const selItemIds = grouped[cl.id] || [];
+        if (selItemIds.length || dfPreviewScfState.referencedCls.some(c => c.id === cl.id)) {
+          dfPreviewRecommendClSelection.push({ clId: cl.id, selectedItemIds: selItemIds.length ? selItemIds.slice() : (cl.items || []).map(it => it.id) });
+        }
+        dfPreviewRecommendClExpanded[cl.id] = false;
+      });
+      dfPreviewRenderRecommendClList();
+      document.getElementById('dfPreviewRecommendClModal').style.display = 'flex';
+    }
+
+    function dfPreviewCloseRecommendClModal() {
+      document.getElementById('dfPreviewRecommendClModal').style.display = 'none';
+    }
+
+    function dfPreviewRenderRecommendClList() {
+      const allCl = [...DF_PREVIEW_CHECKLIST_LIB];
+      const listEl = document.getElementById('dfPreviewRecommendClList');
+      if (!allCl.length) {
+        listEl.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);padding:24px;">暂无可选检查表</div>';
+        return;
+      }
+      listEl.innerHTML = allCl.map(cl => {
+        const sel = dfPreviewRecommendClSelection.find(s => s.clId === cl.id);
+        const hasSelection = !!sel;
+        const allItemIds = (cl.items || []).map(it => it.id);
+        const allChecked = hasSelection && sel.selectedItemIds.length === allItemIds.length && allItemIds.length > 0;
+        const someChecked = hasSelection && sel.selectedItemIds.length > 0 && !allChecked;
+        const source = DF_PREVIEW_CHECKLIST_LIB.some(l => l.id === cl.id) ? '库' : '专属';
+        const expanded = dfPreviewRecommendClExpanded[cl.id];
+        const itemCnt = allItemIds.length;
+
+        let itemsHtml = '';
+        if (expanded && cl.items && cl.items.length) {
+          itemsHtml = '<div class="recommend-cl-items">' +
+            cl.items.map(it => {
+              const itemChecked = hasSelection && sel.selectedItemIds.includes(it.id);
+              const contentStr = (it.contents || []).map(c => c.name).join('、');
+              return `
+                <label class="recommend-cl-item-row" data-item-id="${escapeHtml(it.id)}">
+                  <input type="checkbox" ${itemChecked ? 'checked' : ''} onchange="dfPreviewToggleRecommendClItem('${escapeHtml(cl.id)}','${escapeHtml(it.id)}',this.checked)">
+                  <span class="recommend-cl-item-desc">${escapeHtml(it.desc || '未命名检查项')}</span>
+                  ${contentStr ? '<span class="recommend-cl-item-contents">' + escapeHtml(contentStr) + '</span>' : ''}
+                </label>
+              `;
+            }).join('') +
+          '</div>';
+        }
+
+        return `
+          <div class="recommend-cl-group${hasSelection && sel.selectedItemIds.length > 0 ? ' selected' : ''}" data-cl-id="${escapeHtml(cl.id)}">
+            <div class="recommend-cl-header">
+              <input type="checkbox" class="recommend-cl-master" ${allChecked ? 'checked' : ''} ${someChecked ? 'style="opacity:0.5"' : ''} onchange="dfPreviewToggleRecommendClAll('${escapeHtml(cl.id)}',this.checked)">
+              <span class="recommend-cl-name" onclick="dfPreviewToggleRecommendClExpand('${escapeHtml(cl.id)}')">[${source}] ${escapeHtml(cl.name)}</span>
+              <span class="recommend-cl-cnt">${hasSelection ? sel.selectedItemIds.length + '/' : ''}${itemCnt} 项</span>
+              <span class="recommend-cl-expand${expanded ? ' expanded' : ''}" onclick="dfPreviewToggleRecommendClExpand('${escapeHtml(cl.id)}')"></span>
+            </div>
+            ${itemsHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function dfPreviewToggleRecommendClExpand(clId) {
+      dfPreviewRecommendClExpanded[clId] = !dfPreviewRecommendClExpanded[clId];
+      dfPreviewRenderRecommendClList();
+    }
+
+    function dfPreviewToggleRecommendClAll(clId, checked) {
+      const allCl = [...DF_PREVIEW_CHECKLIST_LIB];
+      const cl = allCl.find(c => c.id === clId);
+      if (!cl) return;
+      if (checked) {
+        const allItemIds = (cl.items || []).map(it => it.id);
+        const existing = dfPreviewRecommendClSelection.find(s => s.clId === clId);
+        if (existing) { existing.selectedItemIds = allItemIds.slice(); }
+        else { dfPreviewRecommendClSelection.push({ clId, selectedItemIds: allItemIds.slice() }); }
+      } else {
+        dfPreviewRecommendClSelection = dfPreviewRecommendClSelection.filter(s => s.clId !== clId);
+      }
+      dfPreviewRenderRecommendClList();
+    }
+
+    function dfPreviewToggleRecommendClItem(clId, itemId, checked) {
+      let sel = dfPreviewRecommendClSelection.find(s => s.clId === clId);
+      if (checked) {
+        if (!sel) { sel = { clId, selectedItemIds: [] }; dfPreviewRecommendClSelection.push(sel); }
+        if (!sel.selectedItemIds.includes(itemId)) sel.selectedItemIds.push(itemId);
+      } else {
+        if (sel) {
+          sel.selectedItemIds = sel.selectedItemIds.filter(id => id !== itemId);
+          if (!sel.selectedItemIds.length) dfPreviewRecommendClSelection = dfPreviewRecommendClSelection.filter(s => s.clId !== clId);
+        }
+      }
+      dfPreviewRenderRecommendClList();
+    }
+
+    function dfPreviewConfirmRecommendCl() {
+      const allCl = [...DF_PREVIEW_CHECKLIST_LIB];
+      dfPreviewScfState.checkItems = dfPreviewScfState.checkItems.filter(it => !it.sourceClId);
+      dfPreviewScfState.referencedCls = [];
+
+      let addedCount = 0;
+      dfPreviewRecommendClSelection.forEach(sel => {
+        if (!sel.selectedItemIds.length) return;
+        const cl = allCl.find(c => c.id === sel.clId);
+        if (!cl) return;
+        dfPreviewScfState.referencedCls.push({ id: cl.id, name: cl.name });
+        (cl.items || []).forEach(it => {
+          if (!sel.selectedItemIds.includes(it.id)) return;
+          dfPreviewScfState.checkItems.push({
+            id: 'scf_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+            sourceClId: cl.id,
+            sourceItemId: it.id,
+            desc: it.desc || '',
+            contents: (it.contents || []).map(c => ({ name: c.name || '', standard: c.standard || '' }))
+          });
+          addedCount++;
+        });
+      });
+
+      dfPreviewRenderScfCheckItems();
+      dfPreviewCloseRecommendClModal();
+      if (addedCount) showToast(`已引用 ${addedCount} 个检查项`, 'success');
     }
     // 打开预览弹窗
     function dfOpenPreviewModal() {
@@ -5769,32 +6264,33 @@ function showToast(msg, type) {
       const presets = DF_PRESET_SECTIONS[mode] || [];
       // 重置预设板块（仅保留自定义板块）
       const customSecs = dfState.sections.filter(s => s.type === 'custom');
-      dfState.sections = [
-        ...presets.map(p => ({
-          id: dfGenId('sec'),
-          name: p.name,
-          type: 'preset',
-          icon: p.icon,
-          emptyHint: p.emptyHint,
-          collapsed: true,
-          fields: (p.presetFields || []).map(f => ({
-            id: dfGenId('fld'),
-            fieldKey: f.fieldKey,
-            fieldLabel: f.fieldLabel,
-            fieldType: f.fieldType,
-            required: !!f.required,
-            placeholder: f.placeholder || '',
-            defaultValue: f.defaultValue || '',
-            validationRules: f.validationRules || '',
-            options: f.options || '',
-            fieldWidth: f.fieldWidth || 'half',
-            uniqueCheck: !!f.uniqueCheck,
-            helpText: f.helpText || '',
-            isLocked: false
-          }))
-        })),
-        ...customSecs
-      ];
+      const presetSecs = presets.map(p => ({
+        id: dfGenId('sec'),
+        name: p.name,
+        type: 'preset',
+        icon: p.icon,
+        emptyHint: p.emptyHint,
+        collapsed: true,
+        fields: (p.presetFields || []).map(f => ({
+          id: dfGenId('fld'),
+          fieldKey: f.fieldKey,
+          fieldLabel: f.fieldLabel,
+          fieldType: f.fieldType,
+          required: !!f.required,
+          placeholder: f.placeholder || '',
+          defaultValue: f.defaultValue || '',
+          validationRules: f.validationRules || '',
+          options: f.options || '',
+          fieldWidth: f.fieldWidth || 'half',
+          uniqueCheck: !!f.uniqueCheck,
+          helpText: f.helpText || '',
+          isLocked: false
+        }))
+      }));
+      // 自定义板块插入到「基础信息」之后
+      dfState.sections = presetSecs.length > 0
+        ? [presetSecs[0], ...customSecs, ...presetSecs.slice(1)]
+        : [...customSecs];
       dfRenderCanvas();
     }
     // 折叠/展开板块
@@ -5855,7 +6351,10 @@ function showToast(msg, type) {
               }))
             };
           });
-          dfState.sections = [...dfBuildPresetSections(mode), ...customSections];
+          const presetSecs = dfBuildPresetSections(mode);
+          dfState.sections = presetSecs.length > 0
+            ? [presetSecs[0], ...customSections, ...presetSecs.slice(1)]
+            : [...customSections];
         } else {
           const presetMap = Object.fromEntries((DF_PRESET_SECTIONS[mode] || []).map(p => [p.name, p]));
           dfState.sections = data.formSections.map(s => {
@@ -5977,6 +6476,8 @@ function showToast(msg, type) {
       const desc = document.getElementById('domainDesc').value.trim();
       const mode = document.getElementById('domainMode').value;
       const status = document.querySelector('input[name="domainStatus"]:checked')?.value || '1';
+      const sortOrderInput = document.getElementById('domainSortOrder').value;
+      const sortOrder = sortOrderInput ? parseInt(sortOrderInput) : null;
 
       if (!industry) {
         showToast('请选择行业大类', 'warning');
@@ -5984,6 +6485,10 @@ function showToast(msg, type) {
       }
       if (!name) {
         showToast('请输入领域小类名称', 'warning');
+        return;
+      }
+      if (!sortOrder || sortOrder < 1) {
+        showToast('请输入有效的排序号（≥1）', 'warning');
         return;
       }
       if (name.length > 100) {
@@ -6000,6 +6505,20 @@ function showToast(msg, type) {
         return;
       }
 
+      // 处理排序号重复：如有重复，将冲突项顺延
+      const editId = window._currentEditId;
+      const conflictIds = [];
+      domainTableData.forEach(d => {
+        if (d.id !== editId && d.sortOrder === sortOrder) conflictIds.push(d.id);
+      });
+      if (conflictIds.length > 0) {
+        // 冲突项从当前排序号开始依次+1
+        let nextSO = sortOrder;
+        conflictIds.forEach(cid => {
+          domainTableData.find(d => d.id === cid).sortOrder = ++nextSO;
+        });
+      }
+
       // 收集监管单位（同时注入监管单位级检查表）
       const supervisors = [];
       const supRows = document.querySelectorAll('#supervisorTableBody tr');
@@ -6012,27 +6531,14 @@ function showToast(msg, type) {
         const typeMap = { '行业监管': 'industry', '专业监管': 'professional', '属地监管': 'local' };
         const type = typeMap[typeText];
         if (!type) return;
-        if (type === 'local') {
-          // 属地监管：从 data-ids 构建 key
-          const localIds = (row.getAttribute('data-ids') || '').split(',').filter(Boolean);
-          const localNames = Array.from(nameCell.querySelectorAll('.local-name-item')).map(s => s.textContent.trim());
-          // 取第一条属地监管作为代表 key（local_xxx,yyy...），关联所有街道的检查表
-          const localKey = 'local_' + localIds.join(',');
-          const localClData = (window._supClData && window._supClData[localKey]) || [];
-          localNames.forEach((name, idx) => {
-            const supId = localIds[idx] || '';
-            supervisors.push({ type, id: supId, name, marked: isSupervisorMarked('local', supId), checklists: localClData });
-          });
-        } else {
-          // 行业/专业监管：data-id 为监管单位 ID
-          const supId = row.getAttribute('data-id') || '';
-          const name = nameCell.textContent.trim();
-          const clKey = supId;
-          supervisors.push({
-            type, id: supId, name, marked: isSupervisorMarked(type, supId),
-            checklists: (window._supClData && window._supClData[clKey]) || []
-          });
-        }
+        // 行业/专业/属地监管统一读取
+        const supId = row.getAttribute('data-id') || '';
+        const name = nameCell.textContent.trim();
+        const clKey = supId;
+        supervisors.push({
+          type, id: supId, name, marked: isSupervisorMarked(type, supId),
+          checklists: (window._supClData && window._supClData[clKey]) || []
+        });
       });
 
       // 收集检查表
@@ -6058,18 +6564,30 @@ function showToast(msg, type) {
           domainTableData[idx] = {
             ...domainTableData[idx],
             name, industry, industryName: industryMap[industry] || '',
-            mode, status, dynamicFormEnabled, desc, supervisors, checklists,
+            mode, status, dynamicFormEnabled, desc, sortOrder, supervisors, checklists,
             formSections: dynamicFormEnabled ? formSections : [],
             formFields: dynamicFormEnabled ? formFields : []
           };
         }
         window._currentEditId = null;
       } else {
-        // 新增模式
+        // 新增模式：未填排序号则放最后
+        const finalSortOrder = sortOrder || (Math.max(...domainTableData.map(d => d.sortOrder || 0), 0) + 1);
+        // 处理排序号重复
+        const newConflictIds = [];
+        domainTableData.forEach(d => {
+          if (d.sortOrder === finalSortOrder) newConflictIds.push(d.id);
+        });
+        if (newConflictIds.length > 0) {
+          let nextSO = finalSortOrder;
+          newConflictIds.forEach(cid => {
+            domainTableData.find(d => d.id === cid).sortOrder = ++nextSO;
+          });
+        }
         const newId = generateDomainCode(industry);
-        domainTableData.unshift({
+        domainTableData.push({
           id: newId, name, industry, industryName: industryMap[industry] || '',
-          mode, status, dynamicFormEnabled, desc, supervisors, checklists,
+          mode, status, dynamicFormEnabled, desc, sortOrder: finalSortOrder, supervisors, checklists,
           formSections: dynamicFormEnabled ? formSections : [],
           formFields: dynamicFormEnabled ? formFields : []
         });
@@ -6087,7 +6605,9 @@ function showToast(msg, type) {
     function resetForm() {
       // 恢复行业大类可编辑（防编辑态残留）
       document.getElementById('industryCategory').disabled = false;
-      const els = ['industryCategory', 'domainName', 'domainDesc'];
+      const modeOptions = document.querySelector('.mode-options');
+      if (modeOptions) modeOptions.classList.remove('disabled');
+      const els = ['industryCategory', 'domainName', 'domainDesc', 'domainSortOrder'];
       els.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -6187,14 +6707,14 @@ function showToast(msg, type) {
         if (status && d.status !== status) return false;
         if (keyword && !d.name.toLowerCase().includes(keyword) && !d.id.toLowerCase().includes(keyword)) return false;
         return true;
-      });
-      
+      }).sort(function(a, b) { return (a.sortOrder || 999) - (b.sortOrder || 999); });
+
       // 分页处理
       const start = (pg.page - 1) * pg.size;
       const pageData = filtered.slice(start, start + pg.size);
-      
+
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-tertiary);padding: var(--spacing-xl);">暂无数据</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--text-tertiary);padding: var(--spacing-xl);">暂无数据</td></tr>`;
         pg.setTotal(0);
         return;
       }
@@ -6207,9 +6727,7 @@ function showToast(msg, type) {
         const local = sups.filter(s => s.type === 'local');
         if (industry.length) parts.push(industry.map(s => s.name).join('、'));
         if (professional.length) parts.push(professional.map(s => s.name).join('、'));
-        if (local.length) {
-          parts.push('属地监管（' + local.map(s => s.name).join('、') + '）');
-        }
+        if (local.length) parts.push(local.map(s => s.name).join('、'));
         return parts.join('、');
       }
       tbody.innerHTML = pageData.map((d, idx) => {
@@ -6227,6 +6745,7 @@ function showToast(msg, type) {
           <td class="domain-name" title="${safeName}"><span class="domain-name-cell" onclick="viewDetail('${safeId}')">${safeName}</span></td>
           <td title="${safeIndustryName}">${safeIndustryName}</td>
           <td><span class="tag ${modeColorMap[mode]}">${modeMap[mode]}</span></td>
+          <td>${d.sortOrder || '-'}</td>
           <td>${supCount}</td>
           <td><span class="tag ${statusMap[st].cls}">${statusMap[st].text}</span></td>
           <td class="operation-col">

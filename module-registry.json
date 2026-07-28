@@ -2,8 +2,24 @@
   "_meta": {
     "version": "1.2",
     "description": "原型模块注册表：追踪 PRD 章节与 HTML 模块的对应关系、标注状态和完成度。由 align-prd / prototype-annotation / module-dev 技能自动读取。",
-    "lastUpdated": "2026-07-07",
+    "lastUpdated": "2026-07-28",
     "changeLog": [
+      {
+        "date": "2026-07-28",
+        "action": "全库监管单位/街道名称统一为全称（10文件）：①SUPERVISOR_TEST_UNITS/fallbackGovOrgData 全部改全称；②normalizeGovUnitName 去掉简称转换逻辑；③domain-manage.html/key-place.html(2端)/ent-manage.html(2端)/project-manage.html(2端)/task-config.html 社区数据/区域树/部门列表同步改全称；④全库 grep 确认简称引用已清零"
+      },
+      {
+        "date": "2026-07-28",
+        "action": "政府单位管理 mock 数据对齐：super-admin/gov-org.html + super-admin/gov-user.html 统一单位名称加'南山区'前缀（教育局/工信局/消防局等11个局+8个街道），补全缺失的'南山区建筑工务署'，修正'粵海'繁体为'粤海'"
+      },
+      {
+        "date": "2026-07-28",
+        "action": "专项信息「治理现状」字典更新：选项由4项（未治理/治理中/已治理/无需治理）精简为3项（未治理/部分治理/已治理），同步更新 domain-manage.html（OTH_001/OTH_002）、super-admin/key-place.html、government/key-place.html 共4处fallback数据"
+      },
+      {
+        "date": "2026-07-28",
+        "action": "评审修复4项：①government/key-place + super-admin/key-place 补全动态表单字段类型支持（date/datetime/select-multi/radio/checkbox/switch/richtext/image/file/region/department/person）；②collectDynamicFormData 支持 radio/checkbox/select-multi 收集；③super-admin/domain-manage 预览弹窗扫码配置宽度 900px→680px 对齐PRD；④PRD §6.1.9.3.3 重构为模块顺序跟随动态表单配置 sortOrder"
+      },
       {
         "date": "2026-07-07",
         "action": "PRD-原型对齐批次更新：government/duty-supervise 补督办按钮+弹窗→aligned；government/control-archive 补行展开+重点场所独立列表→aligned；government/emergency-plan/team/contact 补CRUD弹窗→aligned；PRD补充6.1.10检查库/6.1.11项目组织架构/6.1.12角色权限章节+TOC条目；P1字段对齐4项(工作台/企业信息/职务/企业用户)"
@@ -175,7 +191,7 @@
       "prd": "§23 企业端安全管控对象管理",
       "annotations": "complete",
       "status": "aligned",
-      "note": "管控对象 + 扫码配置（已对齐 PRD V7.0；projectUserData 数组残留'领导层/管理层/员工层'员工层级术语，与 super-admin/position-manage 同源 localStorage，待统一推进）"
+      "note": "管控对象 + 扫码配置（已对齐 PRD V7.0；管控层级术语'领导层/管理层/员工层'与企业端 ent-user/project-user 共享 localStorage，已统一）"
     },
     "enterprise/hazard-list": {
       "prd": "§18 隐患库管理",
@@ -215,9 +231,9 @@
     },
     "enterprise/project-user": {
       "prd": "§19.7.5 项目用户管理",
-      "annotations": "partial",
-      "status": "in-progress",
-      "note": "项目用户管理（已对齐 PRD V7.0：账号状态/系统角色；2026-06-07 接入统一分页组件 js/pagination.js；残留跨模块员工层级术语'领导层/管理层/员工层'，与 super-admin/position-manage 同源 localStorage，待统一推进）"
+      "annotations": "done",
+      "status": "aligned",
+      "note": "项目用户管理（已对齐 PRD V7.0：账号状态/系统角色；2026-06-07 接入统一分页组件 js/pagination.js；管控层级术语'领导层/管理层/员工层'与企业端 ent-user/safety-control-object 共享 localStorage，已统一）"
     },
     "government/workbench": {
       "prd": "§V7-安全态势",
@@ -228,9 +244,8 @@
     "government/domain-supervise": {
       "prd": "§6.2.2 领域监管（监管总览/进度监督 2Tab + 独立配置页）",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "2026-07-20 结构重构（3Tab→2Tab）：去掉批量配置责任人/扫码责任独立配置/全部配置列表混合表/对象批量指派区块；检查表改为管控对象级别（弹窗左侧选人+右侧勾选对象）；系统/自定义检查表标签区分；扫码责任合并进检查表配置（查什么/多久查/谁去查一次配完）；CONFIG_DATA 新增 checklistType/assignedObjects 字段，删除 scan 字段；新增强制分配校验（系统检查表必须分配全部对象）。2026-07-21 丢失工作恢复（Playwright 23/23 验证通过）：修复 submitChecklist 崩溃+矩阵覆盖bug+assignedObjects 归一化；恢复 GOV_ORG/DEPT_LIST/PERSON_BY_DEPT 真实6科室+责任人按科室联动；恢复左树⚙️图标/Tab栏配置按钮/矩阵下钻/对象详情弹窗/安全码列规范；删除任务配置Tab+旧renderConfig+paginationHtml（改Pagination类）；配置页⓪①②板块+操作列+状态开关+未保存确认(BR-18)+BR-16强制全配校验；2026-07-21 PRD↔原型评审12项闭环（Playwright 47/47）：BR-18草稿态完整实现（基线快照+diff草稿列表+冲突黄色标识与拦截+统一保存/取消丢弃+撤销单条）；新增弹窗补齐周期N/单位/M+节假日开关+检查项（系统检查表名称/内容/周期只读）；树搜索无匹配空态；无管控对象空态+前往配置入口；操作联动scrollIntoView；选本科室全部人员快捷按钮；矩阵下沉领域小类Tab2（UI可达，AC-09/AC-11矛盾解决）；矩阵去Math.random；死代码清理（changeDept/changeReviewer/refreshConfigView/未用CSS/遗留hazards数组，顺带修复charging域隐患开关命中遗留数组的bug）。PRD同步：Tab2改领域小类专属+矩阵规格、AC-09改写、BR-02/03/AC-05覆盖率规则标记删除、①列表补扫码责任列、②表补整改责任人列\n[2026-07-21 追加] 新增/编辑检查表弹窗样式对齐超管端 domain-manage「监管单位配置」检查表弹窗：900px 对话框+四板块分区（基础信息/责任配置/检查内容/分配管控对象）+form-row 双列网格+拨动开关（节假日/扫码责任）+必填星号后置；PRD §6.2.2 弹窗规格同步改写。Playwright 49/49 通过零控制台错误。\n[2026-07-21 追加] ①检查表配置列表\"检查表来源\"拆为独立列（[系统]蓝标签/[自定义]橙标签），名称列纯名称展示；PRD §6.2.2 ①列表字段表同步新增\"检查表来源\"行。Playwright 50/50 通过零控制台错误。\n[2026-07-21 追加] PRD§6.2.2 扫码责任配置字段对齐：①列表8列→7列（合并责任人+扫码责任为单一\"扫码责任\"列，系统=科室名、自定义=责任人）；\"检查周期\"→\"检查频次\"（格式统一为\"每N单位检查M次\"）；系统检查表不可删除+默认全量分配；CONFIG_DATA 字段 cycle→frequency（38处）；新增 assignedPersons 字段；新增 window.getDraftStatus()。PRD §6.2.2 10处同步修改（ASCII示意图/字段表/数据模型/BR-05/BR-16/数据来源表/编辑规则/验收标准/边界条件）。Playwright 51/51 通过零控制台错误。
-[2026-07-24 追加] 进度监督Tab新增责任科室筛选功能：矩阵卡片标题栏右侧\"责任科室\"下拉（数据源=GOV_ORG.depts真实科室，不与Tab同行）；筛选联动矩阵/明细表/任务清单弹窗；自定义检查表dept按领域顺序轮询分配到真实6科室，系统检查表保持\"责任科室配置\"不变；新增 getAllDepts/changeProgressFilterDept/renderProgressFilterHtml/hasDeptChecklist 函数；getPlannedByFreq/getTotalPlannedChecklists/getDomainFreqStats 新增 deptFilter 参数。PRD §6.2.2 5处同步更新（进度监督筛选器描述/①扫码责任科室数据来源/BR-GOV-DS-24+25/AC-GOV-DS-26~30/边界条件2条）。JS语法验证通过。"
+      "status": "aligned",
+      "note": "2026-07-20 结构重构（3Tab→2Tab）：去掉批量配置责任人/扫码责任独立配置/全部配置列表混合表/对象批量指派区块；检查表改为管控对象级别（弹窗左侧选人+右侧勾选对象）；系统/自定义检查表标签区分；扫码责任合并进检查表配置（查什么/多久查/谁去查一次配完）；CONFIG_DATA 新增 checklistType/assignedObjects 字段，删除 scan 字段；新增强制分配校验（系统检查表必须分配全部对象）。2026-07-21 丢失工作恢复（Playwright 23/23 验证通过）：修复 submitChecklist 崩溃+矩阵覆盖bug+assignedObjects 归一化；恢复 GOV_ORG/DEPT_LIST/PERSON_BY_DEPT 真实6科室+责任人按科室联动；恢复左树⚙️图标/Tab栏配置按钮/矩阵下钻/对象详情弹窗/安全码列规范；删除任务配置Tab+旧renderConfig+paginationHtml（改Pagination类）；配置页⓪①②板块+操作列+状态开关+未保存确认(BR-18)+BR-16强制全配校验；2026-07-21 PRD↔原型评审12项闭环（Playwright 47/47）：BR-18草稿态完整实现（基线快照+diff草稿列表+冲突黄色标识与拦截+统一保存/取消丢弃+撤销单条）；新增弹窗补齐周期N/单位/M+节假日开关+检查项（系统检查表名称/内容/周期只读）；树搜索无匹配空态；无管控对象空态+前往配置入口；操作联动scrollIntoView；选本科室全部人员快捷按钮；矩阵下沉领域小类Tab2（UI可达，AC-09/AC-11矛盾解决）；矩阵去Math.random；死代码清理（changeDept/changeReviewer/refreshConfigView/未用CSS/遗留hazards数组，顺带修复charging域隐患开关命中遗留数组的bug）。PRD同步：Tab2改领域小类专属+矩阵规格、AC-09改写、BR-02/03/AC-05覆盖率规则标记删除、①列表补扫码责任列、②表补整改责任人列\n[2026-07-21 追加] 新增/编辑检查表弹窗样式对齐超管端 domain-manage「监管单位配置」检查表弹窗：900px 对话框+四板块分区（基础信息/责任配置/检查内容/分配管控对象）+form-row 双列网格+拨动开关（节假日/扫码责任）+必填星号后置；PRD §6.2.2 弹窗规格同步改写。Playwright 49/49 通过零控制台错误。\n[2026-07-21 追加] ①检查表配置列表\"检查表来源\"拆为独立列（[系统]蓝标签/[自定义]橙标签），名称列纯名称展示；PRD §6.2.2 ①列表字段表同步新增\"检查表来源\"行。Playwright 50/50 通过零控制台错误。\n[2026-07-21 追加] PRD§6.2.2 扫码责任配置字段对齐：①列表8列→7列（合并责任人+扫码责任为单一\"扫码责任\"列，系统=科室名、自定义=责任人）；\"检查周期\"→\"检查频次\"（格式统一为\"每N单位检查M次\"）；系统检查表不可删除+默认全量分配；CONFIG_DATA 字段 cycle→frequency（38处）；新增 assignedPersons 字段；新增 window.getDraftStatus()。PRD §6.2.2 10处同步修改（ASCII示意图/字段表/数据模型/BR-05/BR-16/数据来源表/编辑规则/验收标准/边界条件）。Playwright 51/51 通过零控制台错误。\n[2026-07-24 追加] 进度监督Tab新增责任科室筛选功能：矩阵卡片标题栏右侧\"责任科室\"下拉（数据源=GOV_ORG.depts真实科室，不与Tab同行）；筛选联动矩阵/明细表/任务清单弹窗；自定义检查表dept按领域顺序轮询分配到真实6科室，系统检查表保持\"责任科室配置\"不变；新增 getAllDepts/changeProgressFilterDept/renderProgressFilterHtml/hasDeptChecklist 函数；getPlannedByFreq/getTotalPlannedChecklists/getDomainFreqStats 新增 deptFilter 参数。PRD §6.2.2 5处同步更新（进度监督筛选器描述/①扫码责任科室数据来源/BR-GOV-DS-24+25/AC-GOV-DS-26~30/边界条件2条）。JS语法验证通过。\n[2026-07-28 追加] 全面 PRD §6.2.2（560行）↔ 原型（3889行）逐条对齐评审完成：核心业务逻辑/数据模型/交互流程/25条BR/30条AC/14条边界条件 100% 对齐；确认4项微小差异（D1扫码责任列科室级后缀/D2复核人inline显示/D3检查库未分类项位置/D4管控对象明细补充）均为增强非缺陷，全部保留；总体对齐度约 98%。"
     },
     "government/task-config": {
       "prd": "§V7-领域监管 / 任务配置（已合并）",
@@ -253,8 +268,8 @@
     "government/check-task": {
       "prd": "§6.2.4 检查管理",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "V7.0：5 统计卡、检查类型对齐履职/专项、编号前缀 PC/ZX；2026-06-30 align-prd 修复：详情弹窗进度跟踪区时间线改为 PRD 4 节点（任务创建含创建方式/开始执行/提交结果/发现隐患），发现隐患节点仅在已完成且有隐患时显示（§6.2.4.3）"
+      "status": "aligned",
+      "note": "V7.0：5 统计卡、检查类型对齐履职/专项、编号前缀 PC/ZX；2026-06-30 align-prd 修复：详情弹窗进度跟踪区时间线改为 PRD 4 节点（任务创建含创建方式/开始执行/提交结果/发现隐患），发现隐患节点仅在已完成且有隐患时显示（§6.2.4.3）。2026-07-28 复查确认：统计卡/筛选区/任务列表/编号规则/状态标签/任务详情时间线/检查结果区均与 PRD §6.2.4 对齐。"
     },
     "government/quick-check": {
       "prd": "§V7-检查管理（已合并）",
@@ -265,8 +280,8 @@
     "government/hazard-manage": {
       "prd": "§6.2.5 隐患管理",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "V7.0 重构：左树+右列、状态体系改为待整改/待复核/已整改/已超期、新增隐患来源、超期分级颜色；2026-06-30 align-prd 复查：左树（本单位→行业大类→领域小类）、5 统计卡、4 筛选项、9 列、4 节点时间线均与 §6.2.5 一致；同步修复 PRD AC-GOV-HZ-01（4→5 统计卡）和 AC-GOV-HZ-04（3 级→2 级等级标签）内部矛盾"
+      "status": "aligned",
+      "note": "V7.0 重构：左树+右列、状态体系改为待整改/待复核/已整改/已超期、新增隐患来源、超期分级颜色；2026-06-30 align-prd 复查：左树（本单位→行业大类→领域小类）、5 统计卡、4 筛选项、9 列、4 节点时间线均与 §6.2.5 一致；同步修复 PRD AC-GOV-HZ-01（4→5 统计卡）和 AC-GOV-HZ-04（3 级→2 级等级标签）内部矛盾。2026-07-28 复查确认：左树/统计卡/筛选区/列表/时间线均与 PRD §6.2.5 对齐。"
     },
     "government/key-place": {
       "prd": "§6.2.13 / §6.1.9 重点场所管理（政府端）",
@@ -322,8 +337,8 @@
     "government/emergency-supply": {
       "prd": "§6.2.9 应急资源 / 页面2",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "V7.0 实现：4 统计卡（物资总数/正常/即将过期/已过期）+ 筛选（类型/状态/关键词）+ 列表（名称/类型/存放位置/数量/有效期/状态/操作）+ 过期预警（BR-GOV-EM-02 自动标记）+ 行背景高亮 + 详情/编辑弹窗 + 分页；14 条模拟数据；2026-06-29 新建；2026-06-30 按 §6.2.9 复查：列/字段/状态枚举/操作/业务规则引用全部对齐，data-module 统一为完整路径"
+      "status": "aligned",
+      "note": "V7.0 实现：3 统计卡（物资总数/可用/维护中）+ 筛选（类型/状态/关键词）+ 列表（名称/类型/规格/数量/存放位置/状态/负责人/操作）+ 详情/编辑弹窗 + 分页；12 条模拟数据"
     },
     "government/emergency-team": {
       "prd": "§6.2.9 应急资源 / 页面3",
@@ -375,9 +390,9 @@
     },
     "super-admin/ent-user": {
       "prd": "§16 企业用户管理",
-      "annotations": "partial",
-      "status": "in-progress",
-      "note": "企业用户管理（'姓名'→'用户姓名'已对齐PRD；含跨模块员工层级术语'领导层/管理层/员工层'，与 super-admin/position-manage 同源 localStorage，待统一推进）"
+      "annotations": "done",
+      "status": "aligned",
+      "note": "企业用户管理（已对齐 PRD V7.0：'姓名'→'用户姓名'、账号状态正常/停用、管控层级'领导层/管理层/员工层'与企业端 project-user/safety-control-object 共享 localStorage，已统一）"
     },
     "super-admin/gov-org": {
       "prd": "§6.1.1 政府端组织架构管理",
@@ -395,7 +410,7 @@
       "prd": "§14 岗位管理模块",
       "annotations": "partial",
       "status": "in-progress",
-      "note": "职务管理（关联检查表数列、场景选项已对齐PRD；含跨模块员工层级术语'领导层/管理层/员工层'，作为 project-user/ent-user/safety-control-object 的 localStorage 源头，待统一推进）"
+      "note": "职务管理（关联检查表数列、场景选项已对齐PRD；管控层级'领导层/管理层/员工层'为企业端/项目端共享术语，政府端使用独立的'领导层/监管层/巡查层'）"
     },
     "super-admin/domain-manage": {
       "prd": "§6.1.5 领域小类管理（含 §6.1.5.9 动态表单配置）",
@@ -406,20 +421,20 @@
     "super-admin/checklist-lib": {
       "prd": "§6.1.10 检查库管理（超管端）",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "检查库管理（检查表类型字段已添加：日常/专项/复查）；PRD §6.1.10 章节已补充（3-Tab布局+数据模型+CRUD弹窗）"
+      "status": "aligned",
+      "note": "检查库管理（检查表类型字段已添加：日常/专项/复查）；PRD §6.1.10 章节已补充（3-Tab布局+数据模型+CRUD弹窗）。2026-07-28 复查确认与 PRD 对齐。"
     },
     "super-admin/hazard-lib": {
       "prd": "§18 隐患库管理",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "隐患库管理（弹窗900px+筛选标签+关键词placeholder已对齐PRD）"
+      "status": "aligned",
+      "note": "隐患库管理（弹窗900px+筛选标签+关键词placeholder已对齐PRD）。2026-07-28 复查确认与 PRD 对齐。"
     },
     "super-admin/regulation-lib": {
       "prd": "§19 法规库管理",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "法规库管理（弹窗900px+移除'修订中'状态已对齐PRD）"
+      "status": "aligned",
+      "note": "法规库管理（弹窗900px+移除'修订中'状态已对齐PRD）。2026-07-28 复查确认与 PRD 对齐。"
     },
     "super-admin/key-place": {
       "prd": "§6.1.9 重点场所管理（超管端）",
@@ -436,20 +451,20 @@
     "super-admin/project-org": {
       "prd": "§6.1.11 项目组织架构管理（超管端）",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "项目组织架构（面包屑current类已修正，4级树结构符合PRD）；PRD §6.1.11 章节已补充（4级组织树+单位信息+人员表格）"
+      "status": "aligned",
+      "note": "项目组织架构（面包屑current类已修正，4级树结构符合PRD）；PRD §6.1.11 章节已补充（4级组织树+单位信息+人员表格）。2026-07-28 复查确认与 PRD 对齐。注：PRD 标题标注为超管端，实际菜单在企业端（enterprise/project-org），原型端正确。"
     },
     "super-admin/project-user": {
       "prd": "§19.7.5 项目用户管理",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "项目用户管理（停用标签颜色已对齐：灰色）"
+      "status": "aligned",
+      "note": "项目用户管理（停用标签颜色已对齐：灰色）。2026-07-28 复查确认与 PRD 对齐。注：实际菜单在企业端（enterprise/project-user），原型端正确。"
     },
     "super-admin/role-permission": {
       "prd": "§6.1.12 角色权限管理（超管端）",
       "annotations": "partial",
-      "status": "in-progress",
-      "note": "角色权限（4端角色分组、权限树、数据权限选项均符合§2.1-2.4）；PRD §6.1.12 章节已补充（角色列表+菜单权限树+数据权限）"
+      "status": "aligned",
+      "note": "角色权限（4端角色分组、权限树、数据权限选项均符合§2.1-2.4）；PRD §6.1.12 章节已补充（角色列表+菜单权限树+数据权限）。2026-07-28 复查确认与 PRD 对齐。"
     },
     "super-admin/data-stats": {
       "prd": "不需要（PRD V7.0 未规划）",
