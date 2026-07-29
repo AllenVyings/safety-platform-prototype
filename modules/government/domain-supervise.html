@@ -577,79 +577,71 @@
   </div>
 </div>
 
+<script src="../../js/domain-data.js"></script>
 <script src="../../js/pagination.js"></script>
 <script>
 (function() {
   'use strict';
 
-  // ========== 树数据 ==========
-  var TREE_DATA = {
-    name: '南山区应急管理局', id: 'root',
-    children: [
-      { name: '公共场所类', id: 'cat-public', children: [
-        { name: '电动自行车充电场所', id: 'domain-charging' },
-        { name: '商业综合体', id: 'domain-commercial' },
-        { name: '物业小区', id: 'domain-property' },
-        { name: '超高层建筑', id: 'domain-highrise' },
-        { name: '文明施工', id: 'domain-civilized' },
-        { name: '"三小"场所（小商店—商场、市场、商店等）', id: 'domain-small-shop' },
-        { name: '"三小"场所（小餐饮（燃气））', id: 'domain-small-gasfood' },
-        { name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', id: 'domain-small-beauty' },
-        { name: '"三小"场所（小餐饮（仅用电））', id: 'domain-small-elecfood' },
-        { name: '"三小"场所（小网吧）', id: 'domain-small-cybercafe' },
-        { name: '"三小"场所（小门店—汽配、废品、五金、打印等）', id: 'domain-small-store' },
-        { name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', id: 'domain-small-school' },
-        { name: '"三小"场所（小型多业态场所）', id: 'domain-small-multi' },
-        { name: '"三小"场所（小型医疗机构—口腔、中医等）', id: 'domain-small-clinic' },
-        { name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', id: 'domain-small-entertain' },
-        { name: '"三小"场所（小生产加工企业）', id: 'domain-small-produce' },
-        { name: '"三小"场所（小旅店—群租房、公寓、民宿等）', id: 'domain-small-hotel' },
-        { name: '"三小"场所（小型游乐场）', id: 'domain-small-playground' }
-      ]},
-      { name: '建设工程类', id: 'cat-construction', children: [
-        { name: '房屋建设工程', id: 'domain-house-build' }
-      ]},
-      { name: '交通运输类', id: 'cat-transport', children: [
-        { name: '劝导路口', id: 'domain-persuade' }
-      ]},
-      { name: '危险化学品类', id: 'cat-chemical', children: [
-        { name: '加油站', id: 'domain-gas-station' },
-        { name: '医药化工', id: 'domain-pharma' }
-      ]},
-      { name: '工业制造类', id: 'cat-industrial', children: [] },
-      { name: '城市运行类', id: 'cat-urban', children: [] },
-      { name: '其他类', id: 'cat-other', children: [
-        { name: '危险边坡', id: 'domain-slope' }
-      ]}
-    ]
+  // ========== 数据来源：共享文件 js/domain-data.js ==========
+  // 当前政府单位（南山区应急管理局）
+  var CURRENT_GOV_UNIT_ID = 'NS-AMB';
+
+  // ID 映射：共享数据 ID（COMM_001 等）→ 政府端内部 ID（domain-charging 等）
+  var DOMAIN_ID_MAP = {
+    'COMM_001': 'domain-charging', 'COMM_002': 'domain-commercial', 'COMM_003': 'domain-property',
+    'COMM_004': 'domain-highrise', 'COMM_005': 'domain-civilized',
+    'COMM_006': 'domain-small-shop', 'COMM_007': 'domain-small-gasfood', 'COMM_008': 'domain-small-beauty',
+    'COMM_009': 'domain-small-elecfood', 'COMM_010': 'domain-small-cybercafe', 'COMM_011': 'domain-small-store',
+    'COMM_012': 'domain-small-school', 'COMM_013': 'domain-small-multi', 'COMM_014': 'domain-small-clinic',
+    'COMM_015': 'domain-small-entertain', 'COMM_016': 'domain-small-produce', 'COMM_017': 'domain-small-hotel',
+    'COMM_018': 'domain-small-playground', 'CONS_001': 'domain-house-build',
+    'TRANS_001': 'domain-persuade', 'CHEM_001': 'domain-gas-station', 'CHEM_002': 'domain-pharma',
+    'OTH_001': 'domain-slope', 'OTH_002': 'domain-slope-key'
   };
 
-  // ========== 领域汇总数据 ==========
-  var DOMAIN_SUMMARY = [
-    { id: 'domain-charging', name: '电动自行车充电场所', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-commercial', name: '商业综合体', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-property', name: '物业小区', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-highrise', name: '超高层建筑', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-civilized', name: '文明施工', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-shop', name: '"三小"场所（小商店—商场、市场、商店等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-gasfood', name: '"三小"场所（小餐饮（燃气））', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-beauty', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-elecfood', name: '"三小"场所（小餐饮（仅用电））', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-cybercafe', name: '"三小"场所（小网吧）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-store', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-school', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-multi', name: '"三小"场所（小型多业态场所）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-clinic', name: '"三小"场所（小型医疗机构—口腔、中医等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-entertain', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-produce', name: '"三小"场所（小生产加工企业）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-hotel', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-small-playground', name: '"三小"场所（小型游乐场）', cat: '公共场所类', checkConfig: 1, dept: '督导检查科' },
-    { id: 'domain-house-build', name: '房屋建设工程', cat: '建设工程类', checkConfig: 2, dept: '危化品监管和执法科' },
-    { id: 'domain-persuade', name: '劝导路口', cat: '交通运输类', checkConfig: 1, dept: '综合协调科' },
-    { id: 'domain-gas-station', name: '加油站', cat: '危险化学品类', checkConfig: 1, dept: '危化品监管和执法科' },
-    { id: 'domain-pharma', name: '医药化工', cat: '危险化学品类', checkConfig: 1, dept: '危化品监管和执法科' },
-    { id: 'domain-slope', name: '危险边坡', cat: '其他类', checkConfig: 1, dept: '综合协调科' }
-  ];
+  // 从共享数据中筛选本单位职责范围内的领域小类（监管单位配置中包含本单位）
+  var _myDomains = DOMAIN_TABLE_DATA.filter(function(d) {
+    return d.supervisors.some(function(s) { return s.orgId === CURRENT_GOV_UNIT_ID; });
+  });
+
+  // 行业大类排序
+  var _categoryOrder = ['公共场所类', '建设工程类', '交通运输类', '危险化学品类', '工业制造类', '城市运行类', '其他类'];
+
+  // ========== 树数据（从共享数据动态构建）==========
+  // 显示全量行业大类，没有领域小类的大类也显示（点击后右侧为空）
+  var TREE_DATA = { name: '南山区应急管理局', id: 'root', children: [] };
+  (function buildTree() {
+    var catMap = {};
+    // 先创建全部7个行业大类节点
+    _categoryOrder.forEach(function(catName, idx) {
+      var catId = Object.keys(DOMAIN_INDUSTRY_MAP).find(function(k) { return DOMAIN_INDUSTRY_MAP[k] === catName; }) || ('CAT_' + idx);
+      catMap[catName] = { name: catName, id: 'cat-' + catId, children: [] };
+      TREE_DATA.children.push(catMap[catName]);
+    });
+    // 再把本单位有权限的领域小类填入对应大类（按 sortOrder 排序）
+    _myDomains.slice().sort(function(a, b) { return (a.sortOrder || 999) - (b.sortOrder || 999); }).forEach(function(d) {
+      var catName = d.industryName;
+      if (catMap[catName]) {
+        catMap[catName].children.push({ name: d.name, id: DOMAIN_ID_MAP[d.id] || d.id });
+      }
+    });
+  })();
+
+  // ========== 领域汇总数据（从共享数据动态构建，按 sortOrder 排序与超管端一致）==========
+  var DOMAIN_SUMMARY = _myDomains.slice().sort(function(a, b) {
+    return (a.sortOrder || 999) - (b.sortOrder || 999);
+  }).map(function(d) {
+    return {
+      id: DOMAIN_ID_MAP[d.id] || d.id,
+      name: d.name,
+      cat: d.industryName,
+      checkConfig: (d.id === 'CONS_001') ? 2 : 1,
+      dept: d.id.indexOf('CHEM') === 0 ? '危化品监管和执法科' :
+            d.id.indexOf('OTH') === 0 ? '综合协调科' :
+            d.id.indexOf('TRANS') === 0 ? '综合协调科' : '督导检查科'
+    };
+  });
 
   // ========== 管控对象明细数据 ==========
   var OBJECT_DETAILS = {

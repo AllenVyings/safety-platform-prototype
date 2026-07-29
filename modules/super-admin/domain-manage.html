@@ -2124,6 +2124,7 @@
   </style>
 </head>
 <body>
+  <script src="../../js/domain-data.js"></script>
   <script src="../../js/pagination.js"></script>
   <div class="page-container" data-module="super-admin/domain-manage">
     <!-- 面包屑导航 -->
@@ -3016,6 +3017,7 @@ function showToast(msg, type) {
       if (checklist.skipHoliday) holidaySwitch.classList.add('active');
       else holidaySwitch.classList.remove('active');
       window._checkItems = checklist.items || [];
+      renumberCheckItems();
       renderCheckitemList(window._checkItems);
       // 切换确定按钮：详情模式走 saveDetailCl
       window._detailClEditMode = true;
@@ -3213,40 +3215,22 @@ function showToast(msg, type) {
     }
 
     // ========== 领域小类表格数据（供详情/编辑使用） ==========
-    const industryMap = { IND: '工业制造类', CITY: '城市运行类', CONS: '建设工程类', CHEM: '危险化学品类', TRANS: '交通运输类', COMM: '公共场所类', OTH: '其他类' };
+    // 数据来自共享文件 js/domain-data.js，以下构建别名供本页面代码引用
+    const industryMap = DOMAIN_INDUSTRY_MAP;
     const industryNameMap = { '工业制造类': 'IND', '城市运行类': 'CITY', '建设工程类': 'CONS', '危险化学品类': 'CHEM', '交通运输类': 'TRANS', '公共场所类': 'COMM', '其他类': 'OTH' };
 
-    // ===== 备用数据：与组织架构管理 gov-org.html 同步 =====
-    const fallbackNonStreetUnits = [
-      { id: 'NS-TRAFFIC-POLICE', name: '深圳市公安局交通管理支队南山大队' },
-      { id: 'NS-AMB', name: '区应急管理局' },
-      { id: 'NS-EEB', name: '市生态环境局南山管理局' },
-      { id: 'NS-EDU', name: '南山区教育局' },
-      { id: 'NS-IIT', name: '南山区工业和信息化局' },
-      { id: 'NS-FIRE', name: '南山区消防救援局' },
-      { id: 'NS-HOUSING', name: '南山区住房和建设局' },
-      { id: 'NS-WATER', name: '南山区水务局' },
-      { id: 'NS-COMMERCE', name: '南山区商务局' },
-      { id: 'NS-CULTURE', name: '南山区文化广电旅游体育局' },
-      { id: 'NS-HEALTH', name: '南山区卫生健康局' },
-      { id: 'NS-URBAN', name: '南山区城市管理和综合执法局' },
-      { id: 'NS-MARKET', name: '市场监督管理局南山监管局' },
-      { id: 'NS-CONSTRUCTION', name: '南山区建筑工务署' }
-    ];
+    const fallbackNonStreetUnits = DOMAIN_NON_STREET_UNITS;
     const fallbackGovOrgData = {
-      industry: fallbackNonStreetUnits.map(item => ({ ...item, id: 'industry_' + item.id, type: 'industry' })),
-      professional: fallbackNonStreetUnits.map(item => ({ ...item, id: 'professional_' + item.id, type: 'professional' })),
-      local: [
-        { id: 'NS-NANSHAN-STREET', name: '南山区南山街道办事处', type: 'local' },
-        { id: 'NS-YUEHAI', name: '南山区粤海街道办事处', type: 'local' },
-        { id: 'NS-XILI', name: '南山区西丽街道办事处', type: 'local' },
-        { id: 'NS-NANTOU', name: '南山区南头街道办事处', type: 'local' },
-        { id: 'NS-SHAHE', name: '南山区沙河街道办事处', type: 'local' },
-        { id: 'NS-SHEKOU', name: '南山区蛇口街道办事处', type: 'local' },
-        { id: 'NS-ZHAOSHANG', name: '南山区招商街道办事处', type: 'local' },
-        { id: 'NS-TAOYUAN', name: '南山区桃源街道办事处', type: 'local' }
-      ]
+      industry: DOMAIN_NON_STREET_UNITS.map(function(item) { return Object.assign({}, item, { id: 'industry_' + item.id, type: 'industry' }); }),
+      professional: DOMAIN_NON_STREET_UNITS.map(function(item) { return Object.assign({}, item, { id: 'professional_' + item.id, type: 'professional' }); }),
+      local: DOMAIN_LOCAL_STREETS.map(function(item) { return Object.assign({}, item, { id: 'local_' + item.id, type: 'local' }); })
     };
+    const supRef = domainSupRef;
+    const supRefWithChecklists = domainSupRefWithChecklists;
+    const SLOPE_CHECK_ITEMS = DOMAIN_SLOPE_CHECK_ITEMS;
+    const SLOPE_CHECKLISTS_NORMAL = DOMAIN_SLOPE_CHECKLISTS_NORMAL;
+    const SLOPE_CHECKLISTS_KEY = DOMAIN_SLOPE_CHECKLISTS_KEY;
+    const domainTableData = DOMAIN_TABLE_DATA;
 
     // 监管单位 key → gov-org orgId 映射（与组织架构管理 gov-org.html 的单位 ID 对齐）
     const SUPERVISOR_KEY_MAP = {
@@ -3259,126 +3243,6 @@ function showToast(msg, type) {
         housing: 'NS-HOUSING', resources: 'NS-URBAN'
       }
     };
-
-    // 从 fallbackGovOrgData 按 {type, orgId} 构建 supervisor 对象
-    const supRef = function(type, orgId) {
-      // 先从 fallbackNonStreetUnits 查找名称（它使用原始 gov-org ID）
-      var rawUnit = fallbackNonStreetUnits.find(function(u) { return u.id === orgId; });
-      if (rawUnit) return { type: type, id: type + '_' + orgId, orgId: orgId, name: rawUnit.name, checklists: [] };
-      // 兜底：从 local 查找
-      var localUnit = (fallbackGovOrgData.local || []).find(function(u) { return u.id === orgId; });
-      if (localUnit) return { type: type, id: type + '_' + orgId, orgId: orgId, name: localUnit.name, checklists: [] };
-      return { type: type, id: type + '_' + orgId, orgId: orgId, name: orgId, checklists: [] };
-    };
-
-    const domainTableData = [
-      // ===== 公共场所类 (COMM) 18项 =====
-      { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', supervisors: [supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 4 },
-      { id: 'COMM_002', name: '商业综合体', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '大型商业综合体安全管理', supervisors: [supRef('industry', 'NS-COMMERCE'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 9 },
-      { id: 'COMM_003', name: '物业小区', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '住宅物业小区安全管理', supervisors: [supRef('professional', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 10 },
-      { id: 'COMM_004', name: '超高层建筑', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '超高层建筑安全管理', supervisors: [supRef('professional', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-SHEKOU')], checklists: [], sortOrder: 5 },
-      { id: 'COMM_005', name: '文明施工', industry: 'COMM', industryName: '公共场所类', mode: 'project', status: '1', desc: '文明施工安全管理', supervisors: [supRef('industry', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 11 },
-      { id: 'COMM_006', name: '"三小"场所（小商店—商场、市场、商店等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '商场、市场、商店等小商店场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 12 },
-      { id: 'COMM_007', name: '"三小"场所（小餐饮（燃气））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '使用燃气的小餐饮场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 13 },
-      { id: 'COMM_008', name: '"三小"场所（小美容休闲—理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '理发、美容、纹身、采耳、理疗、针灸、足浴、按摩等小美容休闲场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 14 },
-      { id: 'COMM_009', name: '"三小"场所（小餐饮（仅用电））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '仅使用电力的小餐饮场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 15 },
-      { id: 'COMM_010', name: '"三小"场所（小网吧）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小网吧场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 16 },
-      { id: 'COMM_011', name: '"三小"场所（小门店—汽配、废品、五金、打印等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '汽配、废品、五金、打印等小门店场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 17 },
-      { id: 'COMM_012', name: '"三小"场所（小型学校幼儿园—托幼、晚托班、午休班、培训机构等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '托幼、晚托班、午休班、培训机构等小型学校幼儿园场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 18 },
-      { id: 'COMM_013', name: '"三小"场所（小型多业态场所）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型多业态混合场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 19 },
-      { id: 'COMM_014', name: '"三小"场所（小型医疗机构—口腔、中医等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '口腔、中医等小型医疗机构安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 20 },
-      { id: 'COMM_015', name: '"三小"场所（小歌舞娱乐—小ktv、酒吧、密室逃脱、剧本杀等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小KTV、酒吧、密室逃脱、剧本杀等小歌舞娱乐场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 21 },
-      { id: 'COMM_016', name: '"三小"场所（小生产加工企业）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小生产加工企业场所安全管理', supervisors: [supRef('industry', 'NS-IIT'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 22 },
-      { id: 'COMM_017', name: '"三小"场所（小旅店—群租房、公寓、民宿等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '群租房、公寓、民宿等小旅店场所安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 23 },
-      { id: 'COMM_018', name: '"三小"场所（小型游乐场）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '小型游乐场安全管理', supervisors: [supRef('industry', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 24 },
-      // ===== 建设工程类 (CONS) 1项 =====
-      { id: 'CONS_001', name: '房屋建设工程', industry: 'CONS', industryName: '建设工程类', mode: 'project', status: '1', desc: '房屋建设工程施工安全管理', supervisors: [supRef('industry', 'NS-HOUSING'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 3 },
-      // ===== 交通运输类 (TRANS) 1项 =====
-      { id: 'TRANS_001', name: '劝导路口', industry: 'TRANS', industryName: '交通运输类', mode: 'other', status: '1', desc: '交通安全劝导路口管理', supervisors: [supRef('industry', 'NS-TRAFFIC-POLICE'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 6 },
-      // ===== 危险化学品类 (CHEM) 2项 =====
-      { id: 'CHEM_001', name: '加油站', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '加油站安全管理', supervisors: [supRef('industry', 'NS-AMB'), supRef('professional', 'NS-MARKET'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 2 },
-      { id: 'CHEM_002', name: '医药化工', industry: 'CHEM', industryName: '危险化学品类', mode: 'basic', status: '1', desc: '医药化工企业安全管理', supervisors: [supRef('industry', 'NS-AMB'), supRef('professional', 'NS-IIT'), supRef('professional', 'NS-AMB'), supRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 1 },
-      // ===== 其他类 (OTH) 2项 =====
-      {
-        id: 'OTH_001', name: '危险边坡', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡安全管理',
-        // 行业监管：5个指定单位（城管和综合执法局、教育局、住建局、文体旅局、建筑工务署）
-        supervisors: [
-          supRef('industry', 'NS-URBAN'), supRef('industry', 'NS-EDU'), supRef('industry', 'NS-HOUSING'),
-          supRef('industry', 'NS-CULTURE'), supRef('industry', 'NS-CONSTRUCTION'),
-          supRef('professional', 'NS-AMB'),
-          supRef('local', 'NS-NANSHAN-STREET')
-        ],
-        checklists: [], dynamicFormEnabled: true,
-        sortOrder: 7,
-        formSections: [
-          { id: 'sec_oth001_special', name: '专项信息', type: 'custom', sortOrder: 1 }
-        ],
-        formFields: [
-          { id: 'f_oth001_01', sectionId: 'sec_oth001_special', fieldKey: 'rock_type', fieldLabel: '岩性特征', fieldType: 'text', required: false, placeholder: '如：砂岩、泥岩', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 1 },
-          { id: 'f_oth001_02', sectionId: 'sec_oth001_special', fieldKey: 'slope_length', fieldLabel: '坡长（m）', fieldType: 'number', required: false, placeholder: '单位：米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 2 },
-          { id: 'f_oth001_03', sectionId: 'sec_oth001_special', fieldKey: 'slope_height', fieldLabel: '坡高（m）', fieldType: 'number', required: false, placeholder: '单位：米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 3 },
-          { id: 'f_oth001_04', sectionId: 'sec_oth001_special', fieldKey: 'slope_angle', fieldLabel: '坡度（°）', fieldType: 'number', required: false, placeholder: '单位：度', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 4 },
-          { id: 'f_oth001_05', sectionId: 'sec_oth001_special', fieldKey: 'treatment_status', fieldLabel: '治理现状', fieldType: 'select-single', required: false, placeholder: '', defaultValue: '', validationRules: '', options: '[{"value":"untreated","label":"未治理"},{"value":"partial","label":"部分治理"},{"value":"treated","label":"已治理"}]', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 5 },
-          { id: 'f_oth001_06', sectionId: 'sec_oth001_special', fieldKey: 'threat_target', fieldLabel: '威胁对象', fieldType: 'text', required: false, placeholder: '如：居民点、道路', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 6 },
-          { id: 'f_oth001_07', sectionId: 'sec_oth001_special', fieldKey: 'risk_area', fieldLabel: '涉险面积（m²）', fieldType: 'number', required: false, placeholder: '单位：平方米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 7 },
-          { id: 'f_oth001_08', sectionId: 'sec_oth001_special', fieldKey: 'disaster_type', fieldLabel: '灾害类型', fieldType: 'select-single', required: false, placeholder: '', defaultValue: '', validationRules: '', options: '[{"value":"landslide","label":"滑坡"},{"value":"collapse","label":"崩塌"},{"value":"debris_flow","label":"泥石流"},{"value":"subsidence","label":"地面塌陷"},{"value":"ground_fissure","label":"地裂缝"}]', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 8 },
-          { id: 'f_oth001_09', sectionId: 'sec_oth001_special', fieldKey: 'point_code', fieldLabel: '点位编号', fieldType: 'text', required: false, placeholder: '如：NS-SLOPE-001', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 9 },
-          { id: 'f_oth001_10', sectionId: 'sec_oth001_special', fieldKey: 'threat_people', fieldLabel: '威胁人数（人）', fieldType: 'number', required: false, placeholder: '单位：人', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 10 },
-          { id: 'f_oth001_11', sectionId: 'sec_oth001_special', fieldKey: 'economic_loss', fieldLabel: '潜在经济损失（万元）', fieldType: 'number', required: false, placeholder: '单位：万元', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 11 },
-          { id: 'f_oth001_12', sectionId: 'sec_oth001_special', fieldKey: 'prevention', fieldLabel: '防治措施', fieldType: 'textarea', required: false, placeholder: '描述已采取或计划的防治措施', defaultValue: '', validationRules: '', options: '', fieldWidth: 'full', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 12 },
-          { id: 'f_oth001_13', sectionId: 'sec_oth001_special', fieldKey: 'admin_unit', fieldLabel: '行政责任单位', fieldType: 'text', required: false, placeholder: '如：南山区应急管理局', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 13 },
-          { id: 'f_oth001_14', sectionId: 'sec_oth001_special', fieldKey: 'duty_phone', fieldLabel: '值班电话', fieldType: 'text', required: false, placeholder: '如：0755-xxxxxxxx', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 14 },
-          { id: 'f_oth001_15', sectionId: 'sec_oth001_special', fieldKey: 'admin_contact', fieldLabel: '行政负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 15 },
-          { id: 'f_oth001_16', sectionId: 'sec_oth001_special', fieldKey: 'tech_contact', fieldLabel: '技术负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 16 },
-          { id: 'f_oth001_17', sectionId: 'sec_oth001_special', fieldKey: 'patrol_contact', fieldLabel: '巡查负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 17 }
-        ]
-      },
-      {
-        id: 'OTH_002', name: '危险边坡（重点边坡）', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡（重点边坡）安全管理',
-        // 行业监管：5个指定单位（城管和综合执法局、教育局、住建局、文体旅局、建筑工务署）
-        supervisors: [
-          supRef('industry', 'NS-URBAN'), supRef('industry', 'NS-EDU'), supRef('industry', 'NS-HOUSING'),
-          supRef('industry', 'NS-CULTURE'), supRef('industry', 'NS-CONSTRUCTION'),
-          supRef('professional', 'NS-AMB'),
-          supRef('local', 'NS-NANSHAN-STREET')
-        ],
-        checklists: [], dynamicFormEnabled: true,
-        sortOrder: 8,
-        formSections: [
-          { id: 'sec_oth002_special', name: '专项信息', type: 'custom', sortOrder: 1 }
-        ],
-        formFields: [
-          { id: 'f_oth002_01', sectionId: 'sec_oth002_special', fieldKey: 'rock_type', fieldLabel: '岩性特征', fieldType: 'text', required: false, placeholder: '如：砂岩、泥岩', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 1 },
-          { id: 'f_oth002_02', sectionId: 'sec_oth002_special', fieldKey: 'slope_length', fieldLabel: '坡长（m）', fieldType: 'number', required: false, placeholder: '单位：米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 2 },
-          { id: 'f_oth002_03', sectionId: 'sec_oth002_special', fieldKey: 'slope_height', fieldLabel: '坡高（m）', fieldType: 'number', required: false, placeholder: '单位：米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 3 },
-          { id: 'f_oth002_04', sectionId: 'sec_oth002_special', fieldKey: 'slope_angle', fieldLabel: '坡度（°）', fieldType: 'number', required: false, placeholder: '单位：度', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 4 },
-          { id: 'f_oth002_05', sectionId: 'sec_oth002_special', fieldKey: 'treatment_status', fieldLabel: '治理现状', fieldType: 'select-single', required: false, placeholder: '', defaultValue: '', validationRules: '', options: '[{"value":"untreated","label":"未治理"},{"value":"partial","label":"部分治理"},{"value":"treated","label":"已治理"}]', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 5 },
-          { id: 'f_oth002_06', sectionId: 'sec_oth002_special', fieldKey: 'threat_target', fieldLabel: '威胁对象', fieldType: 'text', required: false, placeholder: '如：居民点、道路', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 6 },
-          { id: 'f_oth002_07', sectionId: 'sec_oth002_special', fieldKey: 'risk_area', fieldLabel: '涉险面积（m²）', fieldType: 'number', required: false, placeholder: '单位：平方米', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 7 },
-          { id: 'f_oth002_08', sectionId: 'sec_oth002_special', fieldKey: 'disaster_type', fieldLabel: '灾害类型', fieldType: 'select-single', required: false, placeholder: '', defaultValue: '', validationRules: '', options: '[{"value":"landslide","label":"滑坡"},{"value":"collapse","label":"崩塌"},{"value":"debris_flow","label":"泥石流"},{"value":"subsidence","label":"地面塌陷"},{"value":"ground_fissure","label":"地裂缝"}]', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 8 },
-          { id: 'f_oth002_09', sectionId: 'sec_oth002_special', fieldKey: 'point_code', fieldLabel: '点位编号', fieldType: 'text', required: false, placeholder: '如：NS-SLOPE-001', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 9 },
-          { id: 'f_oth002_10', sectionId: 'sec_oth002_special', fieldKey: 'threat_people', fieldLabel: '威胁人数（人）', fieldType: 'number', required: false, placeholder: '单位：人', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 10 },
-          { id: 'f_oth002_11', sectionId: 'sec_oth002_special', fieldKey: 'economic_loss', fieldLabel: '潜在经济损失（万元）', fieldType: 'number', required: false, placeholder: '单位：万元', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 11 },
-          { id: 'f_oth002_12', sectionId: 'sec_oth002_special', fieldKey: 'prevention', fieldLabel: '防治措施', fieldType: 'textarea', required: false, placeholder: '描述已采取或计划的防治措施', defaultValue: '', validationRules: '', options: '', fieldWidth: 'full', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 12 },
-          { id: 'f_oth002_13', sectionId: 'sec_oth002_special', fieldKey: 'admin_unit', fieldLabel: '行政责任单位', fieldType: 'text', required: false, placeholder: '如：南山区应急管理局', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 13 },
-          { id: 'f_oth002_14', sectionId: 'sec_oth002_special', fieldKey: 'duty_phone', fieldLabel: '值班电话', fieldType: 'text', required: false, placeholder: '如：0755-xxxxxxxx', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 14 },
-          { id: 'f_oth002_15', sectionId: 'sec_oth002_special', fieldKey: 'admin_contact', fieldLabel: '行政负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 15 },
-          { id: 'f_oth002_16', sectionId: 'sec_oth002_special', fieldKey: 'tech_contact', fieldLabel: '技术负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 16 },
-          { id: 'f_oth002_17', sectionId: 'sec_oth002_special', fieldKey: 'patrol_contact', fieldLabel: '巡查负责人/联系电话', fieldType: 'text', required: false, placeholder: '格式：姓名 / 电话', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 17 }
-        ]
-      }
-    ];
-
-    // 属地监管默认包含全部8个街道（替换原有的单个街道）
-    const allLocalStreets = (fallbackGovOrgData.local || []).map(function(u) {
-      return { type: 'local', id: 'local_' + u.id, orgId: u.id, name: u.name, checklists: [] };
-    });
-    domainTableData.forEach(d => {
-      const hasLocal = d.supervisors.some(s => s.type === 'local');
-      if (hasLocal) {
-        d.supervisors = d.supervisors.filter(s => s.type !== 'local').concat(allLocalStreets);
-      }
-    });
 
     // 检查库模拟数据
     const libraryLibData = [
@@ -4305,6 +4169,7 @@ function showToast(msg, type) {
       if (checklist.skipHoliday) holidaySwitch.classList.add('active');
       else holidaySwitch.classList.remove('active');
       window._checkItems = checklist.items || [];
+      renumberCheckItems();
       renderCheckitemList(window._checkItems);
       // 切换确定按钮：详情模式走 saveSupCl
       const confirmBtn = document.querySelector('#checklistModal .btn-primary[onclick="saveSupCl()"]');
@@ -4365,6 +4230,7 @@ function showToast(msg, type) {
       if (checklist.skipHoliday) holidaySwitch.classList.add('active');
       else holidaySwitch.classList.remove('active');
       window._checkItems = checklist.items || [];
+      renumberCheckItems();
       renderCheckitemList(window._checkItems);
     }
 
@@ -4432,14 +4298,14 @@ function showToast(msg, type) {
       code: '440305',
       name: '南山区',
       streets: [
-        { code: '440305001', name: '南山区南头街道办事处', communities: ['南头城社区','马家龙社区','北头社区','向南社区','田厦社区','同乐社区','大汪山社区','大新社区','九街社区','南光社区','龙珠社区','桂庙社区'] },
-        { code: '440305002', name: '南山区南山街道办事处', communities: ['南光社区','南山社区','南园社区','北头社区','向南社区','荔湾社区','荔林社区','月亮湾社区','前海社区','南水社区','向南瑞峰社区','大新社区','登良社区','龙瑞社区'] },
-        { code: '440305003', name: '南山区沙河街道办事处', communities: ['白石洲社区','沙河社区','侨城北社区','侨城东社区','侨城西社区','侨香社区','光华社区','沙河西社区','新塘社区','燕晗山社区','汉京九榕台社区','沙河天健社区','沙河翰邦社区','光侨社区'] },
-        { code: '440305004', name: '南山区蛇口街道办事处', communities: ['南水社区','龟山社区','蛇口社区','后海社区','海昌社区','海湾社区','工业七路社区','花果山社区','湾厦社区','育才社区','渔二社区','龟山一社区','龟山二社区'] },
-        { code: '440305005', name: '南山区招商街道办事处', communities: ['鲸山社区','水湾社区','文竹园社区','花园城社区','蛇口社区','南水社区','南光社区','沿山社区','望海社区','招商东角头社区','蛇口工业区社区'] },
-        { code: '440305006', name: '南山区粤海街道办事处', communities: ['麻岭社区','大冲社区','科技园社区','科技园东社区','高新区社区','深圳湾社区','后海社区','后海福海社区','后海大新社区','滨海之窗社区','蔚蓝海岸社区','海珠社区','海德社区','海风社区','海月社区','华联社区'] },
-        { code: '440305007', name: '南山区桃源街道办事处', communities: ['平山社区','龙珠社区','龙辉社区','光前社区','光华社区','茶光社区','长源社区','金桃园社区','金桂园社区','留仙社区','桃源村社区','大磡社区'] },
-        { code: '440305008', name: '南山区西丽街道办事处', communities: ['西丽社区','麻磡社区','大磡社区','白芒社区','大学城社区','九祥岭社区','茶光社区','长岭社区','松坪社区','松坪山社区','西丽湖社区','官龙村社区','新围社区','丽湖社区','南科大社区','长源社区','沙河社区'] },
+        { code: '440305001', name: '南头街道', communities: ['南头城社区','马家龙社区','北头社区','向南社区','田厦社区','同乐社区','大汪山社区','大新社区','九街社区','南光社区','龙珠社区','桂庙社区'] },
+        { code: '440305002', name: '南山街道', communities: ['南光社区','南山社区','南园社区','北头社区','向南社区','荔湾社区','荔林社区','月亮湾社区','前海社区','南水社区','向南瑞峰社区','大新社区','登良社区','龙瑞社区'] },
+        { code: '440305003', name: '沙河街道', communities: ['白石洲社区','沙河社区','侨城北社区','侨城东社区','侨城西社区','侨香社区','光华社区','沙河西社区','新塘社区','燕晗山社区','汉京九榕台社区','沙河天健社区','沙河翰邦社区','光侨社区'] },
+        { code: '440305004', name: '蛇口街道', communities: ['南水社区','龟山社区','蛇口社区','后海社区','海昌社区','海湾社区','工业七路社区','花果山社区','湾厦社区','育才社区','渔二社区','龟山一社区','龟山二社区'] },
+        { code: '440305005', name: '招商街道', communities: ['鲸山社区','水湾社区','文竹园社区','花园城社区','蛇口社区','南水社区','南光社区','沿山社区','望海社区','招商东角头社区','蛇口工业区社区'] },
+        { code: '440305006', name: '粤海街道', communities: ['麻岭社区','大冲社区','科技园社区','科技园东社区','高新区社区','深圳湾社区','后海社区','后海福海社区','后海大新社区','滨海之窗社区','蔚蓝海岸社区','海珠社区','海德社区','海风社区','海月社区','华联社区'] },
+        { code: '440305007', name: '桃源街道', communities: ['平山社区','龙珠社区','龙辉社区','光前社区','光华社区','茶光社区','长源社区','金桃园社区','金桂园社区','留仙社区','桃源村社区','大磡社区'] },
+        { code: '440305008', name: '西丽街道', communities: ['西丽社区','麻磡社区','大磡社区','白芒社区','大学城社区','九祥岭社区','茶光社区','长岭社区','松坪社区','松坪山社区','西丽湖社区','官龙村社区','新围社区','丽湖社区','南科大社区','长源社区','沙河社区'] },
         { code: '440305009', name: '前海合作区', communities: ['前海合作区社区'] }
       ]
     };
@@ -7112,6 +6978,10 @@ function addInlineCheckItem() {
   renderCheckitemList(window._checkItems);
 }
 
+function saveInlineItemName(itemId, name) {
+  const item = (window._checkItems || []).find(i => i.id === itemId);
+  if (item) item.name = name.trim();
+}
 function saveInlineContentName(itemId, contentId, name) {
   const item = (window._checkItems || []).find(i => i.id === itemId);
   if (item && item.contents) {
@@ -7129,6 +6999,7 @@ function saveInlineContentStd(itemId, contentId, std) {
 function addInlineContent(itemId) {
   const item = (window._checkItems || []).find(i => i.id === itemId);
   if (item) {
+    if (!item.contents) item.contents = [];
     const id = 'c_' + Date.now();
     item.contents.push({ id, name: '', standard: '' });
     renderCheckitemList(window._checkItems);
@@ -7218,6 +7089,23 @@ function renderCheckitemList(items) {
   background: var(--primary-light);
   padding: 12px;
   border-radius: var(--radius-md);
+}
+/* 分类标签 */
+.category-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.category-tag.tag-blue {
+  background: var(--primary-light, #e6f4ff);
+  color: var(--primary-color, #1890ff);
+}
+.category-tag.tag-green {
+  background: #f6ffed;
+  color: #52c41a;
 }
 .inline-edit-name {
   flex: 1;
