@@ -274,8 +274,8 @@
     .assign-table thead { position: sticky; top: 0; z-index: 1; background: var(--bg-section); }
     .assign-table th { padding: 10px 12px; font-size: var(--font-size-sm); font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-section); }
     .assign-table td { padding: 8px 12px; font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); text-align: center; }
-    .assign-table .action-col { text-align: right; padding-right: 16px; }
-    .assign-table .action-col .btn-link { padding: 2px 12px; }
+    .assign-table .action-col { width: 200px; text-align: center; padding: 8px 4px; }
+    .assign-table .action-col .btn-link { padding: 2px 8px; }
     .assign-table tbody tr:hover { background: var(--bg-section); }
     .assign-table .person-select { width: 100%; }
 
@@ -587,6 +587,7 @@
 </div>
 
 <script src="../../js/gov-user-data.js"></script>
+<script src="../../js/key-place-data.js"></script>
 <script src="../../js/domain-data.js"></script>
 <script src="../../js/pagination.js"></script>
 <script>
@@ -778,13 +779,6 @@
 
   // ========== 管控对象明细数据 ==========
   var OBJECT_DETAILS = {
-    'domain-charging': [
-      { name: '南山区充电站A', type: '重点场所', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
-      { name: '科技园充电站', type: '重点场所', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
-      { name: '前海充电站B', type: '重点场所', person: '李娜', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
-      { name: '深圳湾充电站', type: '重点场所', person: '', dept: '', code: 'red', hazards: 2, rate: 0 },
-      { name: '后海充电站C', type: '重点场所', person: '王强', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 0 }
-    ],
     'domain-commercial': [
       { name: '海岸城购物中心', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
       { name: '万象天地', type: '企业', person: '王强', dept: '督导检查科', code: 'green', hazards: 0, rate: 95 },
@@ -797,11 +791,6 @@
       { name: '前海花园', type: '企业', person: '王强', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 82 },
       { name: '蛇口花园城', type: '企业', person: '', dept: '', code: 'yellow', hazards: 1, rate: 78 },
       { name: '深圳湾一号', type: '企业', person: '张伟', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 }
-    ],
-    'domain-highrise': [
-      { name: '平安金融中心', type: '重点场所', person: '陈敏', dept: '督导检查科', code: 'green', hazards: 0, rate: 100 },
-      { name: '京基100', type: '重点场所', person: '陈敏', dept: '督导检查科', code: 'yellow', hazards: 1, rate: 88 },
-      { name: '赛格大厦', type: '重点场所', person: '', dept: '', code: 'red', hazards: 2, rate: 65 }
     ],
     'domain-civilized': [
       { name: '前海自贸区工地', type: '项目', person: '刘洋', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 100 },
@@ -890,13 +879,19 @@
       { name: '南山医药化工A', type: '企业', person: '张伟', dept: '危化品监管和执法科', code: 'green', hazards: 0, rate: 90 },
       { name: '前海医药化工B', type: '企业', person: '', dept: '', code: 'yellow', hazards: 1, rate: 70 },
       { name: '科技园化工厂', type: '企业', person: '', dept: '', code: 'red', hazards: 2, rate: 45 }
-    ],
-    'domain-slope': [
-      { name: '南山危险边坡A', type: '重点场所', person: '刘洋', dept: '综合协调科', code: 'green', hazards: 0, rate: 90 },
-      { name: '西丽危险边坡B', type: '重点场所', person: '王强', dept: '综合协调科', code: 'yellow', hazards: 1, rate: 75 },
-      { name: '蛇口危险边坡C', type: '重点场所', person: '', dept: '', code: 'red', hazards: 2, rate: 55 }
     ]
   };
+
+  // ========== 从重点场所管理共享数据源合并 special 模式领域管控对象 ==========
+  (function mergeKeyPlaceData() {
+    if (typeof initKeyPlaceData !== 'function') return;
+    var specialDomains = DOMAIN_TABLE_DATA.filter(function(d) { return d.mode === 'special'; });
+    var placeDataMap = initKeyPlaceData(specialDomains);
+    var adapted = adaptPlaceDataToObjectDetails(placeDataMap, DOMAIN_ID_MAP);
+    Object.keys(adapted).forEach(function(internalId) {
+      OBJECT_DETAILS[internalId] = adapted[internalId];
+    });
+  })();
 
   // ========== 配置数据 ==========
   var CONFIG_DATA = {
@@ -1654,19 +1649,20 @@
   }
 
   // 计算某领域所有已启用检查表的总数（不区分频次）
-  function getTotalPlannedChecklists(domainId, deptFilter) {
+  function getTotalPlannedChecklists(domainId, filter) {
     var cfg = CONFIG_DATA[domainId];
     if (!cfg || !cfg.checklists) return 0;
+    var isAwb = isAwbUnit(currentPerspectiveId);
     return cfg.checklists.filter(function(cl) {
       if (!cl.enabled) return false;
-      if (deptFilter && cl.dept !== deptFilter) return false;
+      if (filter && !isChecklistMatchFilter(cl, filter, isAwb)) return false;
       return true;
     }).length;
   }
 
   // 统一计算某对象已完成的检查表索引集合（矩阵/明细表/任务清单三处同源）
-  function getObjectDoneInfo(domainId, o, deptFilter) {
-    var cacheKey = domainId + '|' + o.name + '|' + (deptFilter || '');
+  function getObjectDoneInfo(domainId, o, filter) {
+    var cacheKey = domainId + '|' + o.name + '|' + (filter || '');
     if (DONE_CACHE[cacheKey]) return DONE_CACHE[cacheKey];
     var cfg = CONFIG_DATA[domainId];
     if (!cfg || !cfg.checklists) {
@@ -1674,9 +1670,10 @@
       return DONE_CACHE[cacheKey];
     }
     var allIndices = [];
+    var isAwb = isAwbUnit(currentPerspectiveId);
     cfg.checklists.forEach(function(cl, idx) {
       if (!cl.enabled) return;
-      if (deptFilter && cl.dept !== deptFilter) return;
+      if (filter && !isChecklistMatchFilter(cl, filter, isAwb)) return;
       allIndices.push(idx);
     });
     var totalDone = allIndices.length > 0 ? Math.floor(allIndices.length * o.rate / 100) : 0;
@@ -1708,13 +1705,14 @@
   }
 
   // 根据 CONFIG_DATA 中配置的检查表频次，计算某领域在某频次下的计划检查表数量
-  function getPlannedByFreq(domainId, freqLabel, deptFilter) {
+  function getPlannedByFreq(domainId, freqLabel, filter) {
     var cfg = CONFIG_DATA[domainId];
     if (!cfg || !cfg.checklists) return 0;
+    var isAwb = isAwbUnit(currentPerspectiveId);
     var count = 0;
     cfg.checklists.forEach(function(cl, idx) {
       if (!cl.enabled) return;
-      if (deptFilter && cl.dept !== deptFilter) return;
+      if (filter && !isChecklistMatchFilter(cl, filter, isAwb)) return;
       if (isChecklistMatchFreq(cfg, idx, freqLabel)) count++;
     });
     return count;
@@ -1736,9 +1734,40 @@
     return { planned: planned, done: done, plannedCount: plannedCount, objects: objects.length };
   }
 
-  // 收集所有责任科室（用于进度监督筛选）
-  function getAllDepts() {
-    return DEPT_LIST.slice().sort();
+  // 收集筛选选项（用于进度监督筛选）
+  // 安委办视角：返回有系统检查表的监管单位列表；普通视角：返回责任科室列表
+  function getFilterOptions() {
+    var isAwb = isAwbUnit(currentPerspectiveId);
+    if (isAwb) {
+      // 安委办视角：收集所有有系统检查表的监管单位（去重）
+      var unitSet = {};
+      Object.keys(CONFIG_DATA).forEach(function(domainId) {
+        var cfg = CONFIG_DATA[domainId];
+        if (cfg && cfg.checklists) {
+          cfg.checklists.forEach(function(cl) {
+            if (cl.checklistType === 'system' && cl.org && cl.enabled !== false) {
+              unitSet[cl.org] = true;
+            }
+          });
+        }
+      });
+      return Object.keys(unitSet).sort();
+    } else {
+      // 普通视角：返回责任科室列表
+      return DEPT_LIST.slice().sort();
+    }
+  }
+
+  // 判断检查表是否匹配筛选条件（统一处理安委办/普通视角）
+  function isChecklistMatchFilter(cl, filter, isAwb) {
+    if (!filter) return true;
+    if (isAwb) {
+      // 安委办视角：按监管单位（org）筛选
+      return cl.org === filter;
+    } else {
+      // 普通视角：按责任科室（dept）筛选
+      return cl.dept === filter;
+    }
   }
 
   window.changeProgressFilterDept = function(val) {
@@ -1750,14 +1779,17 @@
   };
 
   function renderProgressFilterHtml() {
-    var depts = getAllDepts();
+    var options = getFilterOptions();
+    var isAwb = isAwbUnit(currentPerspectiveId);
+    var filterLabel = isAwb ? '责任单位：' : '责任科室：';
+    var selectId = isAwb ? 'progressFilterUnit' : 'progressFilterDept';
     var html = '<div style="padding:12px 16px;font-weight:600;font-size:var(--font-size-base);border-bottom:1px solid var(--border-section);display:flex;justify-content:space-between;align-items:center;">';
     html += '<span>检查进度矩阵</span>';
     html += '<div class="filter-item" style="margin:0;">';
-    html += '<label style="font-weight:400;font-size:var(--font-size-sm);color:var(--text-secondary);">责任科室：</label>';
-    html += '<select id="progressFilterDept" onchange="changeProgressFilterDept(this.value)" style="width:160px;height:28px;font-size:var(--font-size-sm);">';
+    html += '<label style="font-weight:400;font-size:var(--font-size-sm);color:var(--text-secondary);">' + filterLabel + '</label>';
+    html += '<select id="' + selectId + '" onchange="changeProgressFilterDept(this.value)" style="width:160px;height:28px;font-size:var(--font-size-sm);">';
     html += '<option value="">全部</option>';
-    depts.forEach(function(d) {
+    options.forEach(function(d) {
       html += '<option value="' + d + '"' + (progressFilterDept === d ? ' selected' : '') + '>' + d + '</option>';
     });
     html += '</select>';
@@ -1766,12 +1798,13 @@
     return html;
   }
 
-  // 判断某领域小类在科室筛选下是否仍有任务（即存在匹配的启用检查表）
-  function hasDeptChecklist(domainId, deptFilter) {
-    if (!deptFilter) return true;
+  // 判断某领域小类在筛选下是否仍有任务（即存在匹配的启用检查表）
+  function hasDeptChecklist(domainId, filter) {
+    if (!filter) return true;
     var cfg = CONFIG_DATA[domainId];
     if (!cfg || !cfg.checklists) return false;
-    return cfg.checklists.some(function(cl) { return cl.enabled && cl.dept === deptFilter; });
+    var isAwb = isAwbUnit(currentPerspectiveId);
+    return cfg.checklists.some(function(cl) { return cl.enabled && isChecklistMatchFilter(cl, filter, isAwb); });
   }
 
   // ========== Tab3: 进度监督 ==========
@@ -2046,9 +2079,10 @@
         if (plannedCount <= 0) return;
         var freqDone = 0;
         if (cfg && cfg.checklists) {
+          var isAwb = isAwbUnit(currentPerspectiveId);
           cfg.checklists.forEach(function(cl, idx) {
             if (!cl.enabled) return;
-            if (progressFilterDept && cl.dept !== progressFilterDept) return;
+            if (progressFilterDept && !isChecklistMatchFilter(cl, progressFilterDept, isAwb)) return;
             if (!info.set[idx]) return;
             if (isChecklistMatchFreq(cfg, idx, c)) freqDone++;
           });
@@ -2240,7 +2274,7 @@
     modal._checkItems = items;
   }
 
-  function renderCheckitemList(items) {
+  function renderCheckitemList(items, readOnly) {
     var list = document.getElementById('checkitemList');
     var empty = document.getElementById('checkitemEmpty');
     if (!list || !empty) return;
@@ -2251,22 +2285,29 @@
     }
     empty.style.display = 'none';
     list.innerHTML = items.map(function(item) {
+      // 系统检查表只读时：隐藏"+ 添加检查内容"和"删除"按钮
+      var actionBtns = readOnly ? '' :
+        '<button type="button" class="btn btn-default btn-sm" onclick="event.stopPropagation(); addInlineContent(\'' + item.id + '\')">+ 添加检查内容</button>' +
+        '<button type="button" class="btn-link btn-sm danger" onclick="event.stopPropagation(); deleteCheckItem(\'' + item.id + '\')">删除</button>';
       var headerHtml = '<div class="checkitem-header editing">' +
         '<span class="checkitem-number">' + item.num + '</span>' +
         '<input type="text" class="form-input inline-edit-name" value="' + eH(item.name) + '" placeholder="检查项名称"' +
+        (readOnly ? ' readonly style="background:var(--bg-section)"' : '') +
         ' onkeydown="if(event.key===\'Enter\'){saveInlineItemName(\'' + item.id + '\',this.value)}"' +
         ' onblur="saveInlineItemName(\'' + item.id + '\',this.value)">' +
-        '<button type="button" class="btn btn-default btn-sm" onclick="event.stopPropagation(); addInlineContent(\'' + item.id + '\')">+ 添加检查内容</button>' +
-        '<button type="button" class="btn-link btn-sm danger" onclick="event.stopPropagation(); deleteCheckItem(\'' + item.id + '\')">删除</button>' +
+        actionBtns +
         '</div>';
       var contentsList = (item.contents || []).map(function(c) {
+        var deleteBtn = readOnly ? '' : '<button type="button" class="btn-link btn-sm danger" onclick="event.stopPropagation(); deleteInlineContent(\'' + item.id + '\',\'' + c.id + '\')">删除</button>';
         return '<div class="checkitem-content" data-id="' + c.id + '">' +
           '<input type="text" class="form-input inline-edit-content-name" value="' + eH(c.name || '') + '" placeholder="检查内容名称"' +
+          (readOnly ? ' readonly style="background:var(--bg-section)"' : '') +
           ' onblur="saveInlineContentName(\'' + item.id + '\',\'' + c.id + '\',this.value)">' +
           '<input type="text" class="form-input inline-edit-content-standard" value="' + eH(c.standard || '') + '" placeholder="检查标准（选填）"' +
+          (readOnly ? ' readonly style="background:var(--bg-section)"' : '') +
           ' onblur="saveInlineContentStd(\'' + item.id + '\',\'' + c.id + '\',this.value)">' +
-          (c.standard ? '<span class="help-icon" title="' + eH(c.standard) + '">?</span>' : '') +
-          '<button type="button" class="btn-link btn-sm danger" onclick="event.stopPropagation(); deleteInlineContent(\'' + item.id + '\',\'' + c.id + '\')">删除</button>' +
+          (c.standard && !readOnly ? '<span class="help-icon" title="' + eH(c.standard) + '">?</span>' : '') +
+          deleteBtn +
           '</div>';
       }).join('');
       var contentsHtml = '<div class="checkitem-contents">' + contentsList + '</div>';
@@ -2795,9 +2836,10 @@
     var cfg = CONFIG_DATA[domainId];
     var checklists = [];
     if (cfg && cfg.checklists) {
+      var isAwb = isAwbUnit(currentPerspectiveId);
       cfg.checklists.forEach(function(cl, idx) {
         if (!cl.enabled) return;
-        if (progressFilterDept && cl.dept !== progressFilterDept) return;
+        if (progressFilterDept && !isChecklistMatchFilter(cl, progressFilterDept, isAwb)) return;
         var f = cl.frequency || '';
         var matchedFreq = '';
         if (/日/.test(f) && !/周/.test(f) && !/月/.test(f) && !/季度/.test(f) && !/年/.test(f)) matchedFreq = '每日';
@@ -3562,6 +3604,11 @@
     // 编辑模式下隐藏检查库引用按钮（系统表和自定义表均不允许引用）
     var btnRef = document.getElementById('btnRefLib');
     if (btnRef) btnRef.style.display = 'none';
+    // 系统检查表：隐藏"配置责任分配"按钮和"+ 新增检查项"按钮
+    var btnAssign = document.querySelector('#modal-checklist .btn-primary[onclick="openAssignModal()"]');
+    if (btnAssign) btnAssign.style.display = isSystemCl ? 'none' : '';
+    var btnAddItem = document.querySelector('#modal-checklist .btn-primary[onclick*="addInlineCheckItem"]');
+    if (btnAddItem) btnAddItem.style.display = isSystemCl ? 'none' : '';
     // 设置名称
     var nameInput = document.getElementById('clName');
     if (nameInput) {
@@ -3587,7 +3634,8 @@
       clCheckItemCounter = checkItems.length;
     }
     setModalCheckItems(checkItems);
-    renderCheckitemList(checkItems);
+    // 系统检查表：检查内容只读（隐藏添加内容/删除按钮）
+    renderCheckitemList(checkItems, isSystemCl);
     // 存储全部管控对象供穿梭框使用
     window._clAllObjects = objects.map(function(o) { return { name: o.name, type: o.type }; });
     // 加载责任分配数据（编辑模式回显）
@@ -4040,18 +4088,31 @@
     html += '<div class="context-bar" style="margin-bottom:16px;">当前配置：' + d.name + '</div>';
     // ⓪ 责任科室配置（领域级别）—— 安委办视角下隐藏（责任科室是各单位内部事务）
     if (!isAwbUnit(currentPerspectiveId)) {
+      // 检查是否有启用的系统检查表（BR-GOV-DS-12：有启用系统检查表时禁止切换责任科室）
+      var cfg = draftConfig || CONFIG_DATA[d.id];
+      var hasEnabledSystemChecklist = false;
+      if (cfg && cfg.checklists) {
+        hasEnabledSystemChecklist = cfg.checklists.some(function(cl) {
+          return cl.checklistType === 'system' && cl.enabled !== false;
+        });
+      }
+
       html += '<div class="config-section-title">⓪ 责任科室配置</div>';
       html += '<div class="config-block">';
       var unitName2 = findTreeNode(TREE_DATA, 'root').name;
       html += '<div style="display:flex;align-items:center;gap:12px;">';
       html += '<label style="font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap;">责任科室：</label>';
-      html += '<select class="form-select" id="cfgDeptSelect" style="width:220px;" onchange="onDraftDeptChange(this.value)">';
+      html += '<select class="form-select" id="cfgDeptSelect" style="width:220px;"' + (hasEnabledSystemChecklist ? ' disabled' : '') + ' onchange="onDraftDeptChange(this.value)">';
       html += '<option value=""' + (draftConfig && !draftConfig.dept ? ' selected' : '') + '>' + unitName2 + '（默认）</option>';
       DEPT_LIST.forEach(function(dept) {
         html += '<option value="' + dept + '"' + (draftConfig && draftConfig.dept === dept ? ' selected' : '') + '>' + dept + '</option>';
       });
       html += '</select>';
-      html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">未配置时默认显示当前用户所属监管单位名称（BR-GOV-DS-12）</span>';
+      if (hasEnabledSystemChecklist) {
+        html += '<span style="font-size:var(--font-size-xs);color:var(--danger);">请先停用所有系统检查表后再切换责任科室</span>';
+      } else {
+        html += '<span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">未配置时默认显示当前用户所属监管单位名称（BR-GOV-DS-12）</span>';
+      }
       html += '</div>';
       html += '</div>';
     }
@@ -4090,11 +4151,11 @@
         // 扫码责任列：安委办视角=监管单位名称；普通视角=责任科室配置值
         var scanRespText = '';
         if (c.checklistType === 'system') {
-          if (c.org) {
+          if (isAwbUnit(currentPerspectiveId) && c.org) {
             // 安委办视角：扫码责任 = 配置该表的监管单位名称
             scanRespText = c.org;
           } else {
-            // 普通视角：扫码责任跟随"责任科室"配置（⓪），未配置时回退到 c.dept
+            // 普通视角（非安委办）：扫码责任跟随"责任科室"配置（⓪），未配置时回退到 c.dept
             var effectiveDept = (draftConfig && draftConfig.dept) || c.dept || '';
             var isDeptLevel = c.selectedDepts && c.selectedDepts.indexOf('__dept_level__') >= 0;
             if (isDeptLevel) {

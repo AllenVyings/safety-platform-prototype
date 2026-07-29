@@ -798,7 +798,7 @@
       gap: 6px;
       margin-bottom: 6px;
     }
-    	.cl-inline-content-row:last-child { margin-bottom: 0; }
+    .cl-inline-content-row:last-child { margin-bottom: 0; }
     /* ========== 推荐检查表弹窗 ========== */
     .recommend-cl-group {
       border: 1px solid var(--border-section, #e8e8e8);
@@ -1351,24 +1351,8 @@
 
 
   <script src="../../js/pagination.js"></script>
+  <script src="../../js/key-place-data.js"></script>
   <script>
-    // ========== 南山区行政区划数据（区→街道→社区） ==========
-    const REGION_TREE = {
-      code: '440305',
-      name: '南山区',
-      streets: [
-        { code: '440305001', name: '南头街道', communities: ['南头城社区','马家龙社区','北头社区','向南社区','田厦社区','同乐社区','大汪山社区','大新社区','九街社区','南光社区','龙珠社区','桂庙社区'] },
-        { code: '440305002', name: '南山街道', communities: ['南光社区','南山社区','南园社区','北头社区','向南社区','荔湾社区','荔林社区','月亮湾社区','前海社区','南水社区','向南瑞峰社区','大新社区','登良社区','龙瑞社区'] },
-        { code: '440305003', name: '沙河街道', communities: ['白石洲社区','沙河社区','侨城北社区','侨城东社区','侨城西社区','侨香社区','光华社区','沙河西社区','新塘社区','燕晗山社区','汉京九榕台社区','沙河天健社区','沙河翰邦社区','光侨社区'] },
-        { code: '440305004', name: '蛇口街道', communities: ['南水社区','龟山社区','蛇口社区','后海社区','海昌社区','海湾社区','工业七路社区','花果山社区','湾厦社区','育才社区','渔二社区','龟山一社区','龟山二社区'] },
-        { code: '440305005', name: '招商街道', communities: ['鲸山社区','水湾社区','文竹园社区','花园城社区','蛇口社区','南水社区','南光社区','沿山社区','望海社区','招商东角头社区','蛇口工业区社区'] },
-        { code: '440305006', name: '粤海街道', communities: ['麻岭社区','大冲社区','科技园社区','科技园东社区','高新区社区','深圳湾社区','后海社区','后海福海社区','后海大新社区','滨海之窗社区','蔚蓝海岸社区','海珠社区','海德社区','海风社区','海月社区','华联社区'] },
-        { code: '440305007', name: '桃源街道', communities: ['平山社区','龙珠社区','龙辉社区','光前社区','光华社区','茶光社区','长源社区','金桃园社区','金桂园社区','留仙社区','桃源村社区','大磡社区'] },
-        { code: '440305008', name: '西丽街道', communities: ['西丽社区','麻磡社区','大磡社区','白芒社区','大学城社区','九祥岭社区','茶光社区','长岭社区','松坪社区','松坪山社区','西丽湖社区','官龙村社区','新围社区','丽湖社区','南科大社区','长源社区','沙河社区'] },
-        { code: '440305009', name: '前海合作区', communities: ['前海合作区社区'] }
-      ]
-    };
-
     // ========== 从领域小类管理读取数据 ==========
     let domainData = [];
     function loadDomainData() {
@@ -1460,208 +1444,8 @@
       }
     }
 
-    // ========== 关联企业/政府人员 mock 池 ==========
-    const ENTERPRISE_POOL = [
-      { id: 'ent_1', name: '深圳创安电子科技有限公司', persons: [{id:'ep_1_1',name:'张伟'},{id:'ep_1_2',name:'李娜'},{id:'ep_1_3',name:'王强'}] },
-      { id: 'ent_2', name: '深圳市安全科技集团', persons: [{id:'ep_2_1',name:'刘洋'},{id:'ep_2_2',name:'陈雪'}] },
-      { id: 'ent_3', name: '万科物业管理有限公司', persons: [{id:'ep_3_1',name:'赵磊'},{id:'ep_3_2',name:'孙婷'},{id:'ep_3_3',name:'周明'}] },
-      { id: 'ent_4', name: '华润置地有限公司', persons: [{id:'ep_4_1',name:'吴芳'},{id:'ep_4_2',name:'郑浩'}] },
-      { id: 'ent_5', name: '腾讯科技（深圳）有限公司', persons: [{id:'ep_5_1',name:'冯涛'},{id:'ep_5_2',name:'褚琳'}] },
-      { id: 'ent_6', name: '招商蛇口产业园开发有限公司', persons: [{id:'ep_6_1',name:'卫军'},{id:'ep_6_2',name:'蒋玲'}] },
-      { id: 'ent_7', name: '前海控股有限公司', persons: [{id:'ep_7_1',name:'沈艳'},{id:'ep_7_2',name:'韩斌'}] },
-      { id: 'ent_8', name: '深圳市西丽建设投资有限公司', persons: [{id:'ep_8_1',name:'杨柳'},{id:'ep_8_2',name:'朱锋'}] }
-    ];
-    const GOV_DEPT_POOL = [
-      { id: 'gov_1', name: '南山区应急管理局', persons: [{id:'gp_1_1',name:'廖卫国'},{id:'gp_1_2',name:'蒋晓燕'}] },
-      { id: 'gov_2', name: '南山区消防救援大队', persons: [{id:'gp_2_1',name:'范立军'},{id:'gp_2_2',name:'方俊'}] },
-      { id: 'gov_3', name: '南山区市场监督管理局', persons: [{id:'gp_3_1',name:'石磊'},{id:'gp_3_2',name:'熊倩'}] }
-    ];
-    const CHECKLIST_LIB = [
-      { id: 'cl_lib_1', name: '充电桩日常安全检查表', items: [
-        { id: 'i1_1', desc: '充电桩本体', contents: [{ name: '外观完好无破损', standard: '无裂纹、无变形' }, { name: '充电接口无松动', standard: '插拔力≤50N' }] },
-        { id: 'i1_2', desc: '电气安全', contents: [{ name: '漏电保护器有效', standard: '动作电流≤30mA' }, { name: '接地电阻合格', standard: '≤4Ω' }] }
-      ]},
-      { id: 'cl_lib_2', name: '消防设施巡查表', items: [
-        { id: 'i2_1', desc: '灭火器', contents: [{ name: '压力表在绿区', standard: '1.0~1.4MPa' }, { name: '有效期未过', standard: '5年内' }] },
-        { id: 'i2_2', desc: '消防通道', contents: [{ name: '通道畅通无堵塞', standard: '宽度≥1.2m' }] }
-      ]},
-      { id: 'cl_lib_3', name: '高层建筑外立面检查表', items: [
-        { id: 'i3_1', desc: '外墙饰面', contents: [{ name: '无脱落风险', standard: '空鼓率<5%' }, { name: '幕墙胶缝完好', standard: '无开裂' }] }
-      ]},
-      { id: 'cl_lib_4', name: '边坡稳定性巡查表', items: [
-        { id: 'i4_1', desc: '坡体表面', contents: [{ name: '无新增裂缝', standard: '裂缝宽度<2mm' }, { name: '排水沟畅通', standard: '无淤积' }] }
-      ]},
-      { id: 'cl_lib_5', name: '电气线路检查表', items: [
-        { id: 'i5_1', desc: '配电箱', contents: [{ name: '箱体完好上锁', standard: '锁具有效' }, { name: '标识清晰', standard: '回路标识完整' }] },
-        { id: 'i5_2', desc: '线缆', contents: [{ name: '无老化破损', standard: '绝缘电阻≥0.5MΩ' }] }
-      ]}
-    ];
-
-    // ========== 重点场所模拟数据（按领域小类分组） ==========
+    // ========== 重点场所模拟数据（由共享 JS key-place-data.js 提供） ==========
     let placeData = {};
-
-    function genSafetyCode(districtCode, seq) {
-      const code = districtCode || '440305';
-      const now = new Date();
-      const ym = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0');
-      return 'KP' + code + ym + String(seq).padStart(4, '0');
-    }
-
-    // ========== 动态表单 mock 数据生成 ==========
-    const MOCK_ROCK_TYPES = ['砂岩', '泥岩', '花岗岩', '页岩', '石灰岩'];
-    const MOCK_TREATMENT_STATUSES = ['untreated', 'partial', 'treated'];
-    const MOCK_THREAT_TARGETS = ['南头城社区老居民点', '南海大道人行路段', '西丽小学周边', '桃源村住宅区', '科技园公交站', '大新社区市场', '沙河街道商铺', '蛇口渔港路'];
-    const MOCK_DISASTER_TYPES = ['retaining_wall', 'dangerous_slope'];
-    const MOCK_ADMIN_UNITS = ['南山区城市管理和综合执法局', '南山区住房和建设局', '南山区建筑工务署', '南山区应急管理局', '南山区教育局'];
-    const MOCK_PERSONS = [
-      { name: '廖卫国', phone: '13812340001' }, { name: '蒋晓燕', phone: '13812340002' },
-      { name: '范立军', phone: '13812340003' }, { name: '方俊', phone: '13812340004' },
-      { name: '石磊', phone: '13812340005' }, { name: '熊倩', phone: '13812340006' },
-      { name: '张伟', phone: '13912340001' }, { name: '李娜', phone: '13912340002' },
-      { name: '赵磊', phone: '13912340003' }, { name: '孙婷', phone: '13912340004' }
-    ];
-    const MOCK_PREVENTIONS = [
-      '已完成格构梁加固+截排水沟改造，定期巡查中',
-      '设置挡土墙+防护网，雨季加密巡查频次',
-      '已实施锚杆支护+坡面绿化，安装位移监测点',
-      '在建治理工程，预计下月完工，临时设置警戒线',
-      '未治理，已列入年度治理计划，汛期每日巡查'
-    ];
-
-    function genMockExtValues(domain, seq) {
-      if (!domain.dynamicFormEnabled) return {};
-      const fields = domain.formFields || [];
-      const result = {};
-      const personPool = MOCK_PERSONS;
-      const adminUnit = MOCK_ADMIN_UNITS[seq % MOCK_ADMIN_UNITS.length];
-      const adminPerson = personPool[(seq * 2) % personPool.length];
-      const techPerson = personPool[(seq * 2 + 1) % personPool.length];
-      const patrolPerson = personPool[(seq * 2 + 3) % personPool.length];
-      const rockType = MOCK_ROCK_TYPES[seq % MOCK_ROCK_TYPES.length];
-      const slopeLen = (25 + (seq % 7) * 8 + (seq % 3) * 2).toFixed(1);
-      const slopeHt = (8 + (seq % 5) * 3 + (seq % 2) * 1.5).toFixed(1);
-      const slopeAng = (35 + (seq % 6) * 5 + (seq % 4)).toString();
-      const treatStatus = MOCK_TREATMENT_STATUSES[seq % MOCK_TREATMENT_STATUSES.length];
-      const threatTarget = MOCK_THREAT_TARGETS[seq % MOCK_THREAT_TARGETS.length];
-      const riskArea = (50 + (seq % 8) * 30 + (seq % 5) * 10).toString();
-      const disasterType = MOCK_DISASTER_TYPES[seq % MOCK_DISASTER_TYPES.length];
-      const pointCode = 'NS-SLOPE-' + String(seq + 1).padStart(3, '0');
-      const threatPeople = (5 + (seq % 6) * 8 + (seq % 3) * 2).toString();
-      const econLoss = (20 + (seq % 7) * 15 + (seq % 4) * 5).toString();
-      const prevention = MOCK_PREVENTIONS[seq % MOCK_PREVENTIONS.length];
-      const dutyPhone = '0755-' + String(26000000 + seq * 137 % 9000000).padStart(8, '0');
-
-      fields.forEach(f => {
-        switch (f.fieldKey) {
-          case 'rock_type': result[f.fieldKey] = rockType; break;
-          case 'slope_length': result[f.fieldKey] = slopeLen; break;
-          case 'slope_height': result[f.fieldKey] = slopeHt; break;
-          case 'slope_angle': result[f.fieldKey] = slopeAng; break;
-          case 'treatment_status': result[f.fieldKey] = treatStatus; break;
-          case 'threat_target': result[f.fieldKey] = threatTarget; break;
-          case 'risk_area': result[f.fieldKey] = riskArea; break;
-          case 'disaster_type': result[f.fieldKey] = disasterType; break;
-          case 'point_code': result[f.fieldKey] = pointCode; break;
-          case 'threat_people': result[f.fieldKey] = threatPeople; break;
-          case 'economic_loss': result[f.fieldKey] = econLoss; break;
-          case 'prevention': result[f.fieldKey] = prevention; break;
-          case 'admin_unit': result[f.fieldKey] = adminUnit; break;
-          case 'duty_phone': result[f.fieldKey] = dutyPhone; break;
-          case 'admin_person': result[f.fieldKey] = adminPerson.name; break;
-          case 'admin_phone': result[f.fieldKey] = adminPerson.phone; break;
-          case 'tech_person': result[f.fieldKey] = techPerson.name; break;
-          case 'tech_phone': result[f.fieldKey] = techPerson.phone; break;
-          case 'patrol_person': result[f.fieldKey] = patrolPerson.name; break;
-          case 'patrol_phone': result[f.fieldKey] = patrolPerson.phone; break;
-        }
-      });
-      return result;
-    }
-
-    function initPlaceData() {
-      const keySiteDomains = domainData.filter(d => d.mode === 'special');
-      const codeStates = ['red', 'yellow', 'green'];
-      const streetWeights = {
-        '南山区南头街道办事处': 12, '南山区南山街道办事处': 14, '南山区沙河街道办事处': 14, '南山区蛇口街道办事处': 13,
-        '南山区招商街道办事处': 11, '南山区粤海街道办事处': 16, '南山区桃源街道办事处': 12, '南山区西丽街道办事处': 17, '前海合作区': 1
-      };
-
-      keySiteDomains.forEach((domain, domainIdx) => {
-        const places = [];
-        let seq = 1;
-        REGION_TREE.streets.forEach((street, streetIdx) => {
-          const weight = streetWeights[street.name] || 1;
-          const count = Math.max(1, Math.floor(weight * (0.4 + (domainIdx * 0.18 % 0.5))));
-          for (let i = 0; i < count; i++) {
-            const community = street.communities[(i + streetIdx) % street.communities.length];
-            const codeState = codeStates[(i + streetIdx + domainIdx) % 3];
-            const finalCodeState = i % 4 === 0 && codeState === 'red' ? 'green' : codeState;
-
-            // 关联企业（每场所 2 家）—— 边坡类（OTH_001/OTH_002）不生成
-            const eTypes = domain.enterprise_types || [{code:'DEFAULT',name:'默认'}];
-            const ent1 = ENTERPRISE_POOL[(seq * 3) % ENTERPRISE_POOL.length];
-            const ent2 = ENTERPRISE_POOL[(seq * 3 + 2) % ENTERPRISE_POOL.length];
-            const isSlopeDomain = (domain.id === 'OTH_001' || domain.id === 'OTH_002');
-            const enterprises = isSlopeDomain ? [] : [
-              { type_code: eTypes[0].code, type_name: eTypes[0].name, ent_id: ent1.id, ent_name: ent1.name, is_scanner: true, is_hazard_handler: true, is_hazard_reviewer: false },
-              { type_code: (eTypes[1] || eTypes[0]).code, type_name: (eTypes[1] || eTypes[0]).name, ent_id: ent2.id, ent_name: ent2.name, is_scanner: true, is_hazard_handler: false, is_hazard_reviewer: true }
-            ];
-
-            // 隐患整改/复核人（边坡类无企业，强制走政府人员）
-            const handler_type = isSlopeDomain ? 'gov' : ((seq % 2 === 0) ? 'enterprise' : 'gov');
-            const handler = handler_type === 'enterprise' ? ent1.persons[0] : GOV_DEPT_POOL[0].persons[0];
-            const reviewer_type = isSlopeDomain ? 'gov' : ((seq % 3 === 0) ? 'gov' : 'enterprise');
-            const reviewer = reviewer_type === 'enterprise' ? ent2.persons[0] : GOV_DEPT_POOL[1].persons[0];
-
-            // 扫码配置 1~2 行
-            const scanConfigs = [
-              { resp_type: 'enterprise', resp_id: ent1.id, resp_name: ent1.name, scanner_id: '', scanner_name: '全员', freq: '每1周检查1次', cl_id: 'cl_lib_1', cl_name: CHECKLIST_LIB[seq % CHECKLIST_LIB.length].name, skip_holiday: true }
-            ];
-            if (seq % 2 === 0) {
-              scanConfigs.push({ resp_type: 'gov', resp_id: GOV_DEPT_POOL[0].id, resp_name: GOV_DEPT_POOL[0].name, scanner_id: GOV_DEPT_POOL[0].persons[0].id, scanner_name: GOV_DEPT_POOL[0].persons[0].name, freq: '每1月检查1次', cl_id: 'cl_lib_2', cl_name: '消防设施巡查表', skip_holiday: false });
-            }
-
-            // 经纬度（南山区范围 mock）
-            const lng = (113.9 + (Math.random() * 0.12)).toFixed(7);
-            const lat = (22.50 + (Math.random() * 0.08)).toFixed(7);
-
-            places.push({
-              id: domain.id + '_KP_' + String(seq).padStart(3, '0'),
-              domain_id: domain.id,
-              place_name: domain.name + '·' + street.name.replace('街道','').replace('合作区','合作区') + (i + 1) + '号',
-              province: '广东省',
-              province_code: '440000',
-              city: '深圳市',
-              city_code: '440300',
-              district: '南山区',
-              district_code: '440305',
-              street: street.name,
-              street_code: street.code,
-              community: community,
-              detail_address: street.name + community.replace('社区','') + '路' + (10 + i * 2) + '号',
-              longitude: lng,
-              latitude: lat,
-              enterprises: enterprises,
-              hazard_handler_type: handler_type,
-              hazard_handler_id: handler.id,
-              hazard_handler_name: handler.name,
-              hazard_reviewer_type: reviewer_type,
-              hazard_reviewer_id: reviewer.id,
-              hazard_reviewer_name: reviewer.name,
-              scan_configs: scanConfigs,
-              status: seq % 11 === 0 ? '0' : '1',
-              safety_code: genSafetyCode('440305', seq),
-              code_state: finalCodeState,
-              images: ['mock_img_1.jpg', 'mock_img_2.jpg'],
-              ext_values: genMockExtValues(domain, seq),
-              create_time: '2026-0' + (1 + (seq % 5)) + '-' + String(10 + (seq % 15)).padStart(2, '0')
-            });
-            seq++;
-          }
-        });
-        placeData[domain.id] = places;
-      });
-    }
 
     // ========== 渲染领域卡片网格 ==========
     function renderDomainCards() {
@@ -1783,7 +1567,7 @@
     function renderTree() {
       const list = document.getElementById('treeList');
       if (!list) return;
-      const root = REGION_TREE;
+      const root = KEY_PLACE_REGION_TREE;
       const rootCount = countPlacesAtNode('district', root.code, root.name);
       const isRootSelected = selectedRegion.type === 'district' && selectedRegion.code === root.code;
       const isRootExpanded = expandedNodes.has(root.code);
@@ -1864,7 +1648,7 @@
       treeSearchKeyword = document.getElementById('treeSearch').value.trim();
       if (treeSearchKeyword) {
         // 命中时自动展开所有街道（祖先）
-        REGION_TREE.streets.forEach(s => {
+        KEY_PLACE_REGION_TREE.streets.forEach(s => {
           if (nodeMatchesSearch(s.name) || s.communities.some(nodeMatchesSearch)) {
             expandedNodes.add(s.code);
           }
@@ -2317,7 +2101,7 @@
           checklists_custom: cloneCustomChecklists(currentFormState.checklistsCustom),
           status: status,
           ext_values: extValues,
-          safety_code: genSafetyCode('440305', places.length + 1),
+          safety_code: keyPlaceGenSafetyCode('440305', places.length + 1),
           code_state: 'green',
           images: [],
           create_time: new Date().toISOString().slice(0, 10)
@@ -2355,7 +2139,7 @@
         row.type_code = value;
         row.type_name = t ? t.name : '';
       } else if (field === 'ent_id') {
-        const e = ENTERPRISE_POOL.find(x => x.id === value);
+        const e = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === value);
         row.ent_id = value;
         row.ent_name = e ? e.name : '';
       } else if (field === 'is_hazard_handler' || field === 'is_hazard_reviewer') {
@@ -2373,7 +2157,7 @@
       }
       tbody.innerHTML = currentFormState.enterprises.map((row, idx) => {
         const typeOpts = types.map(t => `<option value="${escapeHtml(t.code)}" ${row.type_code===t.code?'selected':''}>${escapeHtml(t.name)}</option>`).join('');
-        const entOpts = ENTERPRISE_POOL.map(e => `<option value="${escapeHtml(e.id)}" ${row.ent_id===e.id?'selected':''}>${escapeHtml(e.name)}</option>`).join('');
+        const entOpts = KEY_PLACE_ENTERPRISE_POOL.map(e => `<option value="${escapeHtml(e.id)}" ${row.ent_id===e.id?'selected':''}>${escapeHtml(e.name)}</option>`).join('');
         return `
           <tr>
             <td>
@@ -2418,7 +2202,7 @@
         const flagField = role === 'handler' ? 'is_hazard_handler' : 'is_hazard_reviewer';
         const eligibleEnts = currentFormState.enterprises.filter(e => e[flagField] && e.ent_id);
         eligibleEnts.forEach(e => {
-          const ent = ENTERPRISE_POOL.find(x => x.id === e.ent_id);
+          const ent = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === e.ent_id);
           if (ent) {
             options += `<optgroup label="${ent.name}">`;
             ent.persons.forEach(p => {
@@ -2431,7 +2215,7 @@
           options = '<option value="">请先勾选关联企业的"' + (role === 'handler' ? '隐患责任人' : '隐患复核人') + '"</option>';
         }
       } else if (type === 'gov') {
-        GOV_DEPT_POOL.forEach(d => {
+        KEY_PLACE_GOV_DEPT_POOL.forEach(d => {
           options += `<optgroup label="${d.name}">`;
           d.persons.forEach(p => {
             options += `<option value="${p.id}">${p.name}</option>`;
@@ -2445,12 +2229,12 @@
     function findPersonName(type, id) {
       if (!id) return '';
       if (type === 'enterprise') {
-        for (const e of ENTERPRISE_POOL) {
+        for (const e of KEY_PLACE_ENTERPRISE_POOL) {
           const p = e.persons.find(x => x.id === id);
           if (p) return p.name + '（' + e.name + '）';
         }
       } else {
-        for (const d of GOV_DEPT_POOL) {
+        for (const d of KEY_PLACE_GOV_DEPT_POOL) {
           const p = d.persons.find(x => x.id === id);
           if (p) return p.name + '（' + d.name + '）';
         }
@@ -2467,7 +2251,7 @@
     let recommendClExpanded = {}; // clId → true/false
 
     function openRecommendClModal() {
-      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
+      const allCl = [...KEY_PLACE_CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
       // 初始选中 = 当前已引用的检查项（按 sourceClId 分组）
       recommendClSelection = [];
       recommendClExpanded = {};
@@ -2494,7 +2278,7 @@
     }
 
     function renderRecommendClList() {
-      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
+      const allCl = [...KEY_PLACE_CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
       const listEl = document.getElementById('recommendClList');
       if (!allCl.length) {
         listEl.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);padding:24px;">暂无可选检查表</div>';
@@ -2506,7 +2290,7 @@
         const allItemIds = (cl.items || []).map(it => it.id);
         const allChecked = hasSelection && sel.selectedItemIds.length === allItemIds.length && allItemIds.length > 0;
         const someChecked = hasSelection && sel.selectedItemIds.length > 0 && !allChecked;
-        const source = CHECKLIST_LIB.some(l => l.id === cl.id) ? '库' : '专属';
+        const source = KEY_PLACE_CHECKLIST_LIB.some(l => l.id === cl.id) ? '库' : '专属';
         const expanded = recommendClExpanded[cl.id];
         const itemCnt = allItemIds.length;
 
@@ -2547,7 +2331,7 @@
     }
 
     function toggleRecommendClAll(clId, checked) {
-      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
+      const allCl = [...KEY_PLACE_CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
       const cl = allCl.find(c => c.id === clId);
       if (!cl) return;
       if (checked) {
@@ -2576,7 +2360,7 @@
     }
 
     function confirmRecommendCl() {
-      const allCl = [...CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
+      const allCl = [...KEY_PLACE_CHECKLIST_LIB, ...(currentFormState.checklistsCustom || [])];
       // 清除所有来自推荐检查表的检查项
       scfState.checkItems = scfState.checkItems.filter(it => !it.sourceClId);
       scfState.referencedCls = [];
@@ -2771,7 +2555,7 @@
         }
         opts += linkedEnts.map(e => `<option value="${e.ent_id}" ${selectedId===e.ent_id?'selected':''}>${e.ent_name}</option>`).join('');
       } else {
-        opts += GOV_DEPT_POOL.map(d => `<option value="${d.id}" ${selectedId===d.id?'selected':''}>${d.name}</option>`).join('');
+        opts += KEY_PLACE_GOV_DEPT_POOL.map(d => `<option value="${d.id}" ${selectedId===d.id?'selected':''}>${d.name}</option>`).join('');
       }
       sel.innerHTML = opts;
     }
@@ -2780,10 +2564,10 @@
       const sel = document.getElementById('scfScanner');
       let opts = '<option value="">全员（责任主体下所有人均可履职）</option>';
       if (respType === 'enterprise' && respId) {
-        const ent = ENTERPRISE_POOL.find(x => x.id === respId);
+        const ent = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === respId);
         if (ent) opts += ent.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${p.name}</option>`).join('');
       } else if (respType === 'gov' && respId) {
-        const dept = GOV_DEPT_POOL.find(x => x.id === respId);
+        const dept = KEY_PLACE_GOV_DEPT_POOL.find(x => x.id === respId);
         if (dept) opts += dept.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${p.name}</option>`).join('');
       }
       sel.innerHTML = opts;
@@ -2816,20 +2600,20 @@
       // 解析名称
       let respName = '';
       if (respType === 'enterprise') {
-        const ent = ENTERPRISE_POOL.find(x => x.id === respId);
+        const ent = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === respId);
         respName = ent ? ent.name : '';
       } else {
-        const d = GOV_DEPT_POOL.find(x => x.id === respId);
+        const d = KEY_PLACE_GOV_DEPT_POOL.find(x => x.id === respId);
         respName = d ? d.name : '';
       }
       let scannerName = '全员';
       if (scannerId) {
         if (respType === 'enterprise') {
-          const ent = ENTERPRISE_POOL.find(x => x.id === respId);
+          const ent = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === respId);
           const p = ent && ent.persons.find(x => x.id === scannerId);
           scannerName = p ? p.name : '';
         } else {
-          const d = GOV_DEPT_POOL.find(x => x.id === respId);
+          const d = KEY_PLACE_GOV_DEPT_POOL.find(x => x.id === respId);
           const p = d && d.persons.find(x => x.id === scannerId);
           scannerName = p ? p.name : '';
         }
@@ -2950,7 +2734,7 @@
       colD.innerHTML = `<div class="kp-region-item ${selDistrict?'active':''}" onclick="onRegionPickDistrict()">南山区</div>`;
 
       // 街道列
-      const streets = REGION_TREE.streets.filter(s => {
+      const streets = KEY_PLACE_REGION_TREE.streets.filter(s => {
         if (!kw) return true;
         return s.name.toLowerCase().includes(kw) ||
                s.communities.some(c => c.toLowerCase().includes(kw));
@@ -2962,7 +2746,7 @@
       }).join('') || '<div class="kp-region-item" style="color:var(--text-tertiary);cursor:default;">无匹配</div>';
 
       // 社区列
-      const currentStreet = REGION_TREE.streets.find(s => s.name === regionPanelState.street);
+      const currentStreet = KEY_PLACE_REGION_TREE.streets.find(s => s.name === regionPanelState.street);
       if (currentStreet) {
         const comms = currentStreet.communities.filter(c => !kw || c.toLowerCase().includes(kw) || currentStreet.name.toLowerCase().includes(kw));
         colC.innerHTML = comms.map(c => {
@@ -3039,8 +2823,8 @@
         mapState.lng = lng.toFixed(7);
         mapState.lat = lat.toFixed(7);
         // mock 反查地址
-        const streetIdx = Math.floor((x / rect.width) * REGION_TREE.streets.length);
-        const streetName = (REGION_TREE.streets[streetIdx] || REGION_TREE.streets[0]).name;
+        const streetIdx = Math.floor((x / rect.width) * KEY_PLACE_REGION_TREE.streets.length);
+        const streetName = (KEY_PLACE_REGION_TREE.streets[streetIdx] || KEY_PLACE_REGION_TREE.streets[0]).name;
         mapState.address = '南山区 ' + streetName + ' 中心广场（模拟）';
         updateMapInfo();
       }
@@ -3256,7 +3040,7 @@
 
     // ========== 初始化 ==========
     loadDomainData();
-    initPlaceData();
+    placeData = initKeyPlaceData(domainData);
     renderDomainCards();
   </script>
   <script src="../../config/annotations.js?v=20260625-kp-bg"></script>
