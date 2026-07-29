@@ -8,6 +8,7 @@
 
 /* ========== 非街道类监管单位名称字典 ========== */
 var DOMAIN_NON_STREET_UNITS = [
+  { id: 'NS-AWB', name: '区安全生产委员会办公室', isAwb: true },
   { id: 'NS-TRAFFIC-POLICE', name: '深圳市公安局交通管理支队南山大队' },
   { id: 'NS-AMB', name: '区应急管理局' },
   { id: 'NS-EEB', name: '市生态环境局南山管理局' },
@@ -223,4 +224,60 @@ var DOMAIN_MODE_MAP = {
 var DOMAIN_INDUSTRY_MAP = {
   IND: '工业制造类', CITY: '城市运行类', CONS: '建设工程类',
   CHEM: '危险化学品类', TRANS: '交通运输类', COMM: '公共场所类', OTH: '其他类'
+};
+
+/* ========== 辅助函数 ========== */
+
+/**
+ * 根据单位 ID 获取单位名称
+ */
+var getUnitNameById = function(orgId) {
+  var nonStreet = DOMAIN_NON_STREET_UNITS.find(function(u) { return u.id === orgId; });
+  if (nonStreet) return nonStreet.name;
+  var street = DOMAIN_LOCAL_STREETS.find(function(u) { return u.id === orgId; });
+  if (street) return street.name;
+  return orgId;
+};
+
+/**
+ * 判断单位 ID 是否为安委办
+ */
+var isAwbUnit = function(orgId) {
+  var unit = DOMAIN_NON_STREET_UNITS.find(function(u) { return u.id === orgId; });
+  return unit && unit.isAwb === true;
+};
+
+/**
+ * 获取所有监管单位列表（含安委办、非街道委办局、街道办）
+ * 用于安委办视角下的"责任单位"下拉选择器
+ */
+var getAllSupervisorUnits = function() {
+  var units = [];
+  DOMAIN_NON_STREET_UNITS.forEach(function(u) {
+    units.push({ id: u.id, name: u.name, isAwb: !!u.isAwb, type: u.isAwb ? 'awb' : 'commission' });
+  });
+  DOMAIN_LOCAL_STREETS.forEach(function(u) {
+    units.push({ id: u.id, name: u.name, isAwb: false, type: 'street' });
+  });
+  return units;
+};
+
+/**
+ * 获取全区所有监管单位的人员列表（扁平数组，每人带所属单位信息）
+ * 数据来源：gov-user-data.js 中的人员账号管理共享数据
+ * 用于安委办视角下的"扫码责任人"选择器
+ */
+var getAllSupervisorPersonnel = function() {
+  if (typeof GOV_USER_DATA_ALL === 'undefined') return [];
+  return GOV_USER_DATA_ALL.slice();
+};
+
+/**
+ * 获取指定单位的人员列表
+ * 数据来源：gov-user-data.js 中的人员账号管理共享数据
+ * @param {string} orgId 单位 ID
+ */
+var getUnitPersonnel = function(orgId) {
+  if (typeof GOV_USER_DATA_ALL === 'undefined') return [];
+  return GOV_USER_DATA_ALL.filter(function(u) { return u.orgId === orgId; });
 };
