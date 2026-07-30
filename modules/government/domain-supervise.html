@@ -1698,9 +1698,8 @@
       d.redCode = objects.filter(function(o) { return o.code === 'red'; }).length;
       d.hazards = objects.reduce(function(sum, o) { return sum + (o.hazards || 0); }, 0);
       var totalPlanned = 0, totalDone = 0;
-      var checklistCount = getTotalPlannedChecklists(d.id);
       objects.forEach(function(o) {
-        var objPlanned = checklistCount;
+        var objPlanned = getAssignedChecklistCount(d.id, o, '');
         var objDone = getObjectDoneInfo(d.id, o, '').count;
         totalPlanned += objPlanned;
         totalDone += objDone;
@@ -1802,17 +1801,42 @@
   // 从对象明细累加某领域某频次的计划/完成数（与明细表/任务清单同源）
   function getDomainFreqStats(domainId, freqLabel, deptFilter) {
     var objects = getVisibleObjects(domainId) || [];
-    var plannedCount = getPlannedByFreq(domainId, freqLabel, deptFilter);
-    var planned = plannedCount * objects.length;
-    var done = 0;
     var cfg = CONFIG_DATA[domainId];
-    objects.forEach(function(o) {
-      var info = getObjectDoneInfo(domainId, o, deptFilter);
-      for (var idx in info.set) {
-        if (isChecklistMatchFreq(cfg, parseInt(idx, 10), freqLabel)) done++;
-      }
+    var isAwb = isAwbUnit(currentPerspectiveId);
+    var planned = 0;
+    var done = 0;
+    var plannedCount = 0;
+    var pendingObjects = 0;  // 有待检任务的管控对象数
+
+    // 计算该频次下有多少检查表（用于待检对象数计算）
+    cfg.checklists.forEach(function(cl, idx) {
+      if (!cl.enabled) return;
+      if (deptFilter && !isChecklistMatchFilter(cl, deptFilter, isAwb)) return;
+      if (isChecklistMatchFreq(cfg, idx, freqLabel)) plannedCount++;
     });
-    return { planned: planned, done: done, plannedCount: plannedCount, objects: objects.length };
+
+    // 逐对象累加：计划数 = 被分配的检查表数，完成数 = 已完成的检查表数
+    objects.forEach(function(o) {
+      // 计算该对象被分配的检查表中，属于该频次的数量
+      var assignedCount = 0;
+      var objDone = 0;
+      cfg.checklists.forEach(function(cl, idx) {
+        if (!cl.enabled) return;
+        if (deptFilter && !isChecklistMatchFilter(cl, deptFilter, isAwb)) return;
+        if (!cl.assignedObjects || !cl.assignedObjects.includes(o.name)) return;
+        if (isChecklistMatchFreq(cfg, idx, freqLabel)) {
+          assignedCount++;
+          var info = getObjectDoneInfo(domainId, o, deptFilter);
+          if (info.set[idx]) objDone++;
+        }
+      });
+      planned += assignedCount;
+      done += objDone;
+      // 有待检任务的对象（分配数 > 完成数）
+      if (assignedCount > objDone) pendingObjects++;
+    });
+
+    return { planned: planned, done: done, plannedCount: plannedCount, objects: objects.length, pendingObjects: pendingObjects };
   }
 
   // 收集筛选选项（用于进度监督筛选）
@@ -1963,19 +1987,23 @@
         totalDone += done;
         var rateColor = displayRate >= 100 ? 'green' : displayRate >= 80 ? 'yellow' : 'red';
         var pending = planned - done;
-        var pendingObjects = plannedCount > 0 ? Math.max(0, st.objects - Math.floor(done / plannedCount)) : 0;
+        var pendingObjects = st.pendingObjects || 0;
         var cellContent = planned > 0
           ? '<span class="tag tag-' + rateColor + '">' + displayRate + '%</span><div style="font-size:var(--font-size-xs);color:var(--text-tertiary);">待' + pending + ' / 对' + pendingObjects + '</div>'
           : '<span style="color:var(--text-tertiary);">—</span>';
         html += '<td style="text-align:center;cursor:pointer;" title="点击查看任务清单" onclick="viewTaskList(\'' + d.id + '\',\'' + c + '\')">' + cellContent + '</td>';
       });
-      // 整体列用 getObjectDoneInfo 统一计算，确保与明细表/任务清单完全一致
+      // 整体列：基于每个对象被分配的检查表数累加，确保与明细表/任务清单完全一致
       var objects = getVisibleObjects(d.id) || [];
-      var totalChecklists = getTotalPlannedChecklists(d.id, progressFilterDept);
-      var overallPlanned = totalChecklists * objects.length;
-      var overallDone = objects.reduce(function(sum, o) {
-        return sum + getObjectDoneInfo(d.id, o, progressFilterDept).count;
-      }, 0);
+      var cfg = CONFIG_DATA[d.id];
+      var overallPlanned = 0;
+      var overallDone = 0;
+      objects.forEach(function(o) {
+        var assignedCount = getAssignedChecklistCount(d.id, o, progressFilterDept);
+        overallPlanned += assignedCount;
+        var info = getObjectDoneInfo(d.id, o, progressFilterDept);
+        overallDone += info.count;
+      });
       var overallRate = overallPlanned > 0 ? Math.round(overallDone / overallPlanned * 100) : 0;
       html += '<td style="text-align:center;font-weight:600;">' + overallDone + '/' + overallPlanned + ' ' + overallRate + '%</td>';
       html += '</tr>';
@@ -2019,11 +2047,13 @@
       var objects = isAwb && row.unitId
         ? getObjectsByResponsibleUnit(d.id, row.unitId)
         : (getVisibleObjects(d.id) || []);
-      var totalChecklists = getTotalPlannedChecklists(d.id, progressFilterDept);
-      var planned = totalChecklists * objects.length;
-      var done = objects.reduce(function(sum, o) {
-        return sum + getObjectDoneInfo(d.id, o, progressFilterDept).count;
-      }, 0);
+      // 基于每个对象被分配的检查表数累加
+      var planned = 0;
+      var done = 0;
+      objects.forEach(function(o) {
+        planned += getAssignedChecklistCount(d.id, o, progressFilterDept);
+        done += getObjectDoneInfo(d.id, o, progressFilterDept).count;
+      });
       var displayRate = planned > 0 ? Math.round(done / planned * 100) : 0;
       var rateColor = displayRate >= 100 ? 'green' : displayRate >= 80 ? 'yellow' : 'red';
       html += '<tr>';
@@ -2119,18 +2149,19 @@
       mTotalPlanned += mPlanned; mTotalDone += mDone;
       var mColor = mPlanned > 0 ? getProgressColor(c, mDisplayRate, now) : 'gray';
       var mPending = mPlanned - mDone;
-      var mPendingObjects = plannedCount > 0 ? Math.max(0, st.objects - Math.floor(mDone / plannedCount)) : 0;
+      var mPendingObjects = st.pendingObjects || 0;
       var cellContent = mPlanned > 0
         ? '<span class="tag tag-' + mColor + '">' + mDisplayRate + '%</span><div style="font-size:var(--font-size-xs);color:var(--text-tertiary);">待' + mPending + ' / 对' + mPendingObjects + '</div>'
         : '<span style="color:var(--text-tertiary);">—</span>';
       html += '<td style="text-align:center;cursor:pointer;" title="点击查看任务清单" onclick="viewTaskList(\'' + domain.id + '\',\'' + c + '\')">' + cellContent + '</td>';
     });
-    // 整体列用 getObjectDoneInfo 统一计算，确保与明细表/任务清单完全一致
-    var totalChecklists = getTotalPlannedChecklists(domain.id, progressFilterDept);
-    var overallPlanned = totalChecklists * objects.length;
-    var overallDone = objects.reduce(function(sum, o) {
-      return sum + getObjectDoneInfo(domain.id, o, progressFilterDept).count;
-    }, 0);
+    // 整体列：基于每个对象被分配的检查表数累加，确保与明细表/任务清单完全一致
+    var overallPlanned = 0;
+    var overallDone = 0;
+    objects.forEach(function(o) {
+      overallPlanned += getAssignedChecklistCount(domain.id, o, progressFilterDept);
+      overallDone += getObjectDoneInfo(domain.id, o, progressFilterDept).count;
+    });
     var mOverall = overallPlanned > 0 ? Math.round(overallDone / overallPlanned * 100) : 0;
     html += '<td style="text-align:center;font-weight:600;">' + overallDone + '/' + overallPlanned + ' ' + mOverall + '%</td></tr></tbody></table></div></div>';
 
@@ -2155,19 +2186,22 @@
       var worstColor = 'gray';
       var cfg = CONFIG_DATA[domain.id];
       cycles.forEach(function(c) {
-        var plannedCount = getPlannedByFreq(domain.id, c, progressFilterDept);
-        if (plannedCount <= 0) return;
+        // 计算该对象被分配的该频次检查表数量
+        var assignedFreqCount = 0;
         var freqDone = 0;
         if (cfg && cfg.checklists) {
           var isAwb = isAwbUnit(currentPerspectiveId);
           cfg.checklists.forEach(function(cl, idx) {
             if (!cl.enabled) return;
             if (progressFilterDept && !isChecklistMatchFilter(cl, progressFilterDept, isAwb)) return;
-            if (!info.set[idx]) return;
-            if (isChecklistMatchFreq(cfg, idx, c)) freqDone++;
+            if (!cl.assignedObjects || !cl.assignedObjects.includes(o.name)) return;
+            if (!isChecklistMatchFreq(cfg, idx, c)) return;
+            assignedFreqCount++;
+            if (info.set[idx]) freqDone++;
           });
         }
-        var dr = Math.round(freqDone / plannedCount * 100);
+        if (assignedFreqCount <= 0) return;
+        var dr = Math.round(freqDone / assignedFreqCount * 100);
         var freqColor = getProgressColor(c, dr, now);
         if (colorRank[freqColor] > colorRank[worstColor]) worstColor = freqColor;
       });
