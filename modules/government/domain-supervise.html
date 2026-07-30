@@ -1227,24 +1227,25 @@
     'domain-property': { label: '重点场所', tagClass: 'tag-green' },
     'domain-highrise': { label: '重点场所', tagClass: 'tag-green' },
     'domain-civilized': { label: '项目模式', tagClass: 'tag-orange' },
-    'domain-small-shop': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-gasfood': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-beauty': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-elecfood': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-cybercafe': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-store': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-school': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-multi': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-clinic': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-entertain': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-produce': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-hotel': { label: '其他模式', tagClass: 'tag-gray' },
-    'domain-small-playground': { label: '其他模式', tagClass: 'tag-gray' },
     'domain-house-build': { label: '项目模式', tagClass: 'tag-orange' },
     'domain-persuade': { label: '其他模式', tagClass: 'tag-gray' },
     'domain-gas-station': { label: '基础模式', tagClass: 'tag-blue' },
     'domain-pharma': { label: '基础模式', tagClass: 'tag-blue' },
-    'domain-slope': { label: '其他模式', tagClass: 'tag-gray' }
+    'domain-slope': { label: '重点场所', tagClass: 'tag-green' },
+    'domain-slope-key': { label: '重点场所', tagClass: 'tag-green' },
+    'domain-small-shop': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-gasfood': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-beauty': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-elecfood': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-cybercafe': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-store': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-school': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-multi': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-clinic': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-entertain': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-produce': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-hotel': { label: '基础模式', tagClass: 'tag-blue' },
+    'domain-small-playground': { label: '基础模式', tagClass: 'tag-blue' }
   };
   function getDomainModeLabel(domainId) {
     var m = DOMAIN_MODE_MAP[domainId];
@@ -1724,6 +1725,20 @@
     }).length;
   }
 
+  // 计算某对象被分配的检查表数量（BR-GOV-DS-XX：计划检查数 = 被分配的检查表数）
+  function getAssignedChecklistCount(domainId, o, filter) {
+    var cfg = CONFIG_DATA[domainId];
+    if (!cfg || !cfg.checklists) return 0;
+    var isAwb = isAwbUnit(currentPerspectiveId);
+    return cfg.checklists.filter(function(cl) {
+      if (!cl.enabled) return false;
+      if (filter && !isChecklistMatchFilter(cl, filter, isAwb)) return false;
+      // 只计算已分配该对象的检查表
+      if (!cl.assignedObjects || !cl.assignedObjects.includes(o.name)) return false;
+      return true;
+    }).length;
+  }
+
   // 统一计算某对象已完成的检查表索引集合（矩阵/明细表/任务清单三处同源）
   function getObjectDoneInfo(domainId, o, filter) {
     var cacheKey = domainId + '|' + o.name + '|' + (filter || '');
@@ -1738,6 +1753,8 @@
     cfg.checklists.forEach(function(cl, idx) {
       if (!cl.enabled) return;
       if (filter && !isChecklistMatchFilter(cl, filter, isAwb)) return;
+      // 只计算已分配该对象的检查表
+      if (!cl.assignedObjects || !cl.assignedObjects.includes(o.name)) return;
       allIndices.push(idx);
     });
     var totalDone = allIndices.length > 0 ? Math.floor(allIndices.length * o.rate / 100) : 0;
@@ -2128,11 +2145,10 @@
       html += '<th>管控对象名称</th><th>对象类型</th><th>计划检查次数</th><th>已完成次数</th><th>完成率</th><th class="action-col">操作</th>';
     }
     html += '</tr></thead><tbody>';
-    var totalChecklists = getTotalPlannedChecklists(domain.id, progressFilterDept);
     var colorRank = { red: 3, yellow: 2, green: 1, gray: 0 };
     pageObjects.forEach(function(o, idx) {
       var info = getObjectDoneInfo(domain.id, o, progressFilterDept);
-      var planned = totalChecklists;
+      var planned = getAssignedChecklistCount(domain.id, o, progressFilterDept);
       var done = info.count;
       var displayRate = planned > 0 ? Math.round(done / planned * 100) : 0;
       // AC-GOV-DS-23：行颜色取各频次中最差（木桶效应）
@@ -3093,6 +3109,8 @@
       cfg.checklists.forEach(function(cl, idx) {
         if (!cl.enabled) return;
         if (progressFilterDept && !isChecklistMatchFilter(cl, progressFilterDept, isAwb)) return;
+        // 只保留已分配该重点场所的检查表
+        if (objectName && (!cl.assignedObjects || !cl.assignedObjects.includes(objectName))) return;
         var f = cl.frequency || '';
         var matchedFreq = '';
         if (/日/.test(f) && !/周/.test(f) && !/月/.test(f) && !/季度/.test(f) && !/年/.test(f)) matchedFreq = '每日';
@@ -3102,24 +3120,34 @@
         else if (/年/.test(f) && !/季度/.test(f)) matchedFreq = '每年';
 
         if (frequency && matchedFreq !== frequency) return;
-        checklists.push({ name: cl.name, frequency: f, dept: cl.dept, person: cl.person || '', _idx: idx });
+        checklists.push({ name: cl.name, frequency: f, dept: cl.dept, person: cl.person || '', org: cl.org || '', assignedObjects: cl.assignedObjects || [], _idx: idx });
       });
     }
 
-    // 生成任务：每个管控对象 × 每个检查表 = 一条任务，状态由 getObjectDoneInfo 统一判定
+    // 生成任务：每个管控对象 × 每个检查表 = 一条任务
+    // 状态由 getObjectDoneInfo 统一判定（已修改为只计算被分配的检查表）
     var tasks = [];
+    var isAwb = isAwbUnit(currentPerspectiveId);
     objects.forEach(function(o) {
       if (objectName && o.name !== objectName) return;
       var info = getObjectDoneInfo(domainId, o, progressFilterDept);
       checklists.forEach(function(cl) {
         var status = info.set[cl._idx] ? '已完成' : '未完成';
         var dateStr = getDeadlineByFreq(cl.frequency);
+        // 安委办视角：扫码责任显示配置该表的监管单位名称（cl.org）
+        // 普通视角：扫码责任显示 责任科室/责任人
+        var responsibility = '';
+        if (isAwb) {
+          responsibility = cl.org || '-';
+        } else {
+          responsibility = (cl.dept || '-') + (cl.person ? '/' + cl.person : '');
+        }
         tasks.push({
           objectName: o.name,
           checklistName: cl.name,
           frequency: cl.frequency,
           date: dateStr,
-          responsibility: cl.dept + (cl.person ? '/' + cl.person : ''),
+          responsibility: responsibility,
           status: status
         });
       });
