@@ -94,12 +94,12 @@ var DOMAIN_SLOPE_CHECK_ITEMS = [
 
 /* ========== 边坡类检查表（普通/重点两种频次） ========== */
 var DOMAIN_SLOPE_CHECKLISTS_NORMAL = [
-  { id: 'cl_non_flood_check', name: '非汛期检查表', interval: '1', unit: 'month', times: '1', skipHoliday: false, frequency: '每月1次', items: JSON.parse(JSON.stringify(DOMAIN_SLOPE_CHECK_ITEMS)) },
-  { id: 'cl_flood_check', name: '汛期检查表', interval: '2', unit: 'week', times: '1', skipHoliday: false, frequency: '每两周1次', items: JSON.parse(JSON.stringify(DOMAIN_SLOPE_CHECK_ITEMS)) }
+  { id: 'cl_non_flood_check', name: '非汛期检查表', interval: '1', unit: 'month', times: '1', skipHoliday: false, frequency: '每1月检查1次', items: JSON.parse(JSON.stringify(DOMAIN_SLOPE_CHECK_ITEMS)) },
+  { id: 'cl_flood_check', name: '汛期检查表', interval: '2', unit: 'week', times: '1', skipHoliday: false, frequency: '每2周检查1次', items: JSON.parse(JSON.stringify(DOMAIN_SLOPE_CHECK_ITEMS)) }
 ];
 var DOMAIN_SLOPE_CHECKLISTS_KEY = [
-  { id: 'cl_non_flood_check', name: '非汛期检查表', interval: '2', unit: 'week', times: '1', skipHoliday: false, frequency: '每两周1次', items: JSON.parse(JSON.stringify(DOMAIN_SLOPE_CHECK_ITEMS)) },
-  { id: 'cl_flood_check', name: '汛期检查表', interval: '1', unit: 'week', times: '1', skipHoliday: false, frequency: '每周1次', items: JSON.parse(JSON.stringify(DOMAIN_SLOPE_CHECK_ITEMS)) }
+  { id: 'cl_non_flood_check', name: '非汛期检查表', interval: '2', unit: 'week', times: '1', skipHoliday: false, frequency: '每2周检查1次', items: JSON.parse(JSON.stringify(DOMAIN_SLOPE_CHECK_ITEMS)) },
+  { id: 'cl_flood_check', name: '汛期检查表', interval: '1', unit: 'week', times: '1', skipHoliday: false, frequency: '每1周检查1次', items: JSON.parse(JSON.stringify(DOMAIN_SLOPE_CHECK_ITEMS)) }
 ];
 
 /**

@@ -926,17 +926,13 @@
       font-weight: 500;
     }
     .supervisor-tag.locked {
-      background: var(--bg-muted, #f5f5f5);
-      border-color: var(--border-light);
-      color: var(--text-tertiary);
+      background: var(--primary-light, #e8f4fd);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 500;
       cursor: default;
       pointer-events: none;
     }
-    .supervisor-tag.locked::after {
-      content: '自动';
-      font-size: 10px;
-      padding: 0 4px;
-      border-radius: 2px;
       background: var(--primary-light, #e8f4fd);
       color: var(--primary);
       margin-left: 2px;
@@ -1291,6 +1287,20 @@
     </div>
   </div>
 
+  <!-- ========== 查看扫码配置弹窗（只读） ========== -->
+  <div class="modal-overlay" id="viewScanConfigModal" style="display:none;">
+    <div class="modal-dialog" style="width:800px; max-width:95vw; max-height:90vh; overflow-y:auto;">
+      <div class="modal-header">
+        <span class="modal-title">扫码配置详情</span>
+        <button class="modal-close" onclick="document.getElementById('viewScanConfigModal').style.display='none'">&times;</button>
+      </div>
+      <div class="modal-body" id="viewScanConfigContent"></div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="document.getElementById('viewScanConfigModal').style.display='none'">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ========== 模拟地图弹窗 ========== -->
   <div class="modal-overlay" id="mapModal" style="display:none;">
     <div class="modal-dialog" style="width:600px;">
@@ -1326,23 +1336,8 @@
           <div class="section-title">基本信息</div>
           <div class="kp-form-grid">
             <div class="kp-field">
-              <label class="kp-field-label"><span class="required">*</span>责任类型</label>
-              <select class="kp-field-select" id="scfRespType" onchange="onScfRespTypeChange()">
-                <option value="enterprise">企业</option>
-                <option value="government">政府</option>
-              </select>
-            </div>
-            <div class="kp-field">
-              <label class="kp-field-label"><span class="required">*</span>责任主体</label>
-              <select class="kp-field-select" id="scfRespId" onchange="onScfRespIdChange()">
-                <option value="">请选择</option>
-              </select>
-            </div>
-            <div class="kp-field">
-              <label class="kp-field-label">扫码责任人</label>
-              <select class="kp-field-select" id="scfScanner">
-                <option value="">全员（责任主体下所有人均可履职）</option>
-              </select>
+              <label class="kp-field-label"><span class="required">*</span>检查表名称</label>
+              <input type="text" class="kp-field-input" id="scfClName" placeholder="请输入检查表名称，选择推荐检查表时自动填充">
             </div>
             <div class="kp-field">
               <label class="kp-field-label"><span class="required">*</span>检查频次</label>
@@ -1360,6 +1355,25 @@
                 <input type="number" class="kp-field-input" id="scfTimes" value="1" min="1" style="width:70px;">
                 <span style="font-size:12px;color:var(--text-secondary);">次</span>
               </div>
+            </div>
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>责任类型</label>
+              <select class="kp-field-select" id="scfRespType" onchange="onScfRespTypeChange()">
+                <option value="enterprise">企业</option>
+                <option value="government">政府</option>
+              </select>
+            </div>
+            <div class="kp-field">
+              <label class="kp-field-label"><span class="required">*</span>责任主体</label>
+              <select class="kp-field-select" id="scfRespId" onchange="onScfRespIdChange()">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="kp-field">
+              <label class="kp-field-label">扫码责任人</label>
+              <select class="kp-field-select" id="scfScanner">
+                <option value="">全员（责任主体下所有人均可履职）</option>
+              </select>
             </div>
             <div class="kp-field">
               <label class="kp-field-label">跳过节假日</label>
@@ -1904,9 +1918,16 @@
       document.getElementById('fHandlerType').value = '';
       document.getElementById('fReviewerType').value = '';
       renderImagesArea();
+
+      // 新增时默认全选监管单位（属地监管除外，需选完区划后才显示）
+      const domain = domainData.find(d => d.id === currentDomainId);
+      if (domain && domain.supervisors) {
+        currentFormState.supervisors = domain.supervisors
+          .filter(s => s.type !== 'local')
+          .map(s => ({ type: s.type, orgId: s.orgId, name: s.name }));
+      }
       renderSupervisorGroups();
 
-      const domain = domainData.find(d => d.id === currentDomainId);
       const area = document.getElementById('dynamicFormArea');
       const hasCustomSections = domain && domain.formSections && domain.formSections.some(s => s.type === 'custom');
       const hasCustomFields = domain && domain.formFields && domain.formFields.length > 0;
@@ -2485,6 +2506,11 @@
         });
       });
 
+      // 自动填充检查表名称（多张表用 "+" 合并）
+      if (scfState.referencedCls.length) {
+        document.getElementById('scfClName').value = scfState.referencedCls.map(c => c.name).join(' + ');
+      }
+
       renderScfCheckItems();
       closeRecommendClModal();
       if (addedCount) showToast(`已引用 ${addedCount} 个检查项`, 'success');
@@ -2545,43 +2571,44 @@
       if (!list) return;
       const arr = currentFormState.scanConfigs || [];
       const rows = arr.length ? arr.map((row, idx) => {
+        const clTxt = row.cl_name ? escapeHtml(row.cl_name) : '<span style="color:var(--danger);">未配置</span>';
+        const freq = escapeHtml(row.freq || '未配置频次');
         const respTypeTxt = row.resp_type === 'government' ? '政府' : '企业';
         const respName = row.resp_name ? escapeHtml(row.resp_name) : '<span style="color:var(--danger);">未指定主体</span>';
         const scannerTxt = escapeHtml(row.scanner_id ? row.scanner_name : '全员');
-        const clTxt = row.cl_name ? escapeHtml(row.cl_name) : '<span style="color:var(--danger);">未配置</span>';
-        const itemCnt = (row.check_items || []).length;
-        const freq = escapeHtml(row.freq || '未配置频次');
-        const skip = row.skip_holiday ? '过滤节假日' : '不过滤节假日';
+        const skip = row.skip_holiday ? '是' : '否';
+        const isSource = row.source === 'source';
+        const rowStyle = isSource ? 'background:var(--bg-tertiary);' : '';
+        const actionHtml = isSource
+          ? '<button type="button" class="btn btn-default btn-sm" onclick="viewSourceScanConfig(' + idx + ')">查看</button>'
+          : `<button type="button" class="btn btn-default btn-sm" onclick="viewSourceScanConfig(${idx})">查看</button>
+              <button type="button" class="btn btn-default btn-sm" onclick="editScanConfigItem(${idx})">编辑</button>
+              <button type="button" class="btn btn-default btn-sm" style="color:var(--danger);" onclick="delScanConfigItem(${idx})">删除</button>`;
         return `
-          <tr>
+          <tr style="${rowStyle}">
             <td>${idx + 1}</td>
+            <td>${clTxt}</td>
+            <td>${freq}</td>
             <td>${respTypeTxt}</td>
             <td>${respName}</td>
             <td>${scannerTxt}</td>
-            <td>${clTxt}</td>
-            <td>${itemCnt} 项</td>
-            <td>${freq}</td>
             <td>${skip}</td>
-            <td style="white-space:nowrap;">
-              <button type="button" class="btn btn-default btn-sm" onclick="editScanConfigItem(${idx})">编辑</button>
-              <button type="button" class="btn btn-default btn-sm" style="color:var(--danger);" onclick="delScanConfigItem(${idx})">删除</button>
-            </td>
+            <td style="white-space:nowrap;">${actionHtml}</td>
           </tr>
         `;
-      }).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无扫码配置，点击右上「+ 添加扫码配置」新增</td></tr>';
+      }).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无扫码配置，点击右上「+ 添加扫码配置」新增</td></tr>';
       list.innerHTML = `
         <table class="kp-inline-table">
           <thead>
             <tr>
               <th style="width:52px;">序号</th>
+              <th>检查表名称</th>
+              <th style="width:130px;">检查频次</th>
               <th style="width:80px;">责任类型</th>
               <th>责任主体</th>
               <th>扫码责任人</th>
-              <th>检查表</th>
-              <th style="width:70px;">检查项</th>
-              <th style="width:130px;">检查频次</th>
-              <th style="width:110px;">节假日规则</th>
-              <th style="width:120px;">操作</th>
+              <th style="width:90px;">跳过节假日</th>
+              <th style="width:160px;">操作</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -2600,6 +2627,7 @@
       const row = editIdx >= 0 ? currentFormState.scanConfigs[editIdx] : null;
       const respType = row ? (row.resp_type || 'enterprise') : 'enterprise';
       document.getElementById('scfRespType').value = respType;
+      document.getElementById('scfClName').value = row ? (row.cl_name || '') : '';
       document.getElementById('scfInterval').value = row ? parseScfInterval(row.freq).interval : '1';
       document.getElementById('scfUnit').value = row ? parseScfInterval(row.freq).unit : 'week';
       document.getElementById('scfTimes').value = row ? parseScfInterval(row.freq).times : '1';
@@ -2647,15 +2675,25 @@
       const sel = document.getElementById('scfRespId');
       let opts = '<option value="">请选择</option>';
       if (respType === 'enterprise') {
-        const linkedEnts = (currentFormState.enterprises || [])
-          .filter(e => e.is_scanner && e.ent_id);
+        // 只能选当前重点场所关联的企业
+        const linkedEnts = (currentFormState.enterprises || []).filter(e => e.ent_id);
         if (!linkedEnts.length) {
-          sel.innerHTML = '<option value="">请先在「关联企业」中勾选扫码企业</option>';
+          sel.innerHTML = '<option value="">请先在「关联企业」中添加企业</option>';
           return;
         }
-        opts += linkedEnts.map(e => `<option value="${e.ent_id}" ${selectedId===e.ent_id?'selected':''}>${e.ent_name}</option>`).join('');
+        opts += linkedEnts.map(e => `<option value="${e.ent_id}" ${selectedId===e.ent_id?'selected':''}>${escapeHtml(e.ent_name)}</option>`).join('');
       } else {
-        opts += KEY_PLACE_GOV_DEPT_POOL.map(d => `<option value="${d.id}" ${selectedId===d.id?'selected':''}>${d.name}</option>`).join('');
+        // 只能选该领域小类配置的监管单位
+        const groups = getDomainSupervisors();
+        const allSups = [].concat(groups.industry || [], groups.professional || [], groups.local || []);
+        // 去重（local可能自动带出，与industry/professional不重复）
+        const seen = {};
+        const uniqueSups = allSups.filter(s => { if (seen[s.orgId]) return false; seen[s.orgId] = true; return true; });
+        if (!uniqueSups.length) {
+          sel.innerHTML = '<option value="">该领域小类暂未配置监管单位</option>';
+          return;
+        }
+        opts += uniqueSups.map(s => `<option value="${s.orgId}" ${selectedId===s.orgId?'selected':''}>${escapeHtml(s.name)}</option>`).join('');
       }
       sel.innerHTML = opts;
     }
@@ -2665,10 +2703,10 @@
       let opts = '<option value="">全员（责任主体下所有人均可履职）</option>';
       if (respType === 'enterprise' && respId) {
         const ent = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === respId);
-        if (ent) opts += ent.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${p.name}</option>`).join('');
+        if (ent) opts += ent.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
       } else if (respType === 'government' && respId) {
         const dept = KEY_PLACE_GOV_DEPT_POOL.find(x => x.id === respId);
-        if (dept) opts += dept.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${p.name}</option>`).join('');
+        if (dept) opts += dept.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
       }
       sel.innerHTML = opts;
     }
@@ -2721,9 +2759,13 @@
       const unitTxt = unit === 'day' ? '日' : unit === 'week' ? '周' : unit === 'month' ? '月' : unit === 'quarter' ? '季' : '年';
       const freq = '每' + interval + unitTxt + '检查' + times + '次';
 
-      // 生成合并检查表名称
-      const clNames = scfState.referencedCls.map(c => c.name);
-      const clName = clNames.length ? clNames.join(' + ') : '自定义检查表';
+      // 生成合并检查表名称（优先使用用户输入，其次推荐表名合并，兜底自定义）
+      const inputClName = (document.getElementById('scfClName').value || '').trim();
+      let clName = inputClName;
+      if (!clName) {
+        const fallbackNames = scfState.referencedCls.map(c => c.name);
+        clName = fallbackNames.length ? fallbackNames.join(' + ') : '自定义检查表';
+      }
 
       const newRow = {
         resp_type: respType, resp_id: respId, resp_name: respName,
@@ -2755,6 +2797,126 @@
       currentFormState.scanConfigs.splice(idx, 1);
       renderScanConfigList();
     }
+
+    /**
+     * 编辑弹窗中的扫码配置查看（只读，从 currentFormState 读取）
+     */
+    function viewSourceScanConfig(idx) {
+      const arr = currentFormState.scanConfigs || [];
+      if (!arr[idx]) return;
+      const s = arr[idx];
+      const respTypeTxt = s.resp_type === 'government' ? '政府' : '企业';
+      const scannerTxt = s.scanner_name && s.scanner_name !== '全员' ? s.scanner_name : '全员';
+      const skipTxt = s.skip_holiday ? '是' : '否';
+      const checkItems = (s.check_items || []);
+      const itemsHtml = checkItems.length
+        ? '<div class="checkitem-list" style="border:1px solid var(--border-section);border-radius:var(--radius-lg);overflow-y:auto;max-height:400px;">' +
+          checkItems.map((it, i) => {
+            var contentsHtml = (it.contents || []).length
+              ? (it.contents || []).map(c =>
+                  '<div style="display:flex;align-items:center;padding:6px 0;gap:6px;border-bottom:1px dashed var(--border-light);">' +
+                    '<span style="color:var(--text-tertiary);font-size:12px;">•</span>' +
+                    '<span style="flex:2;font-size:13px;color:var(--text-primary);">' + escapeHtml(c.name || '—') + '</span>' +
+                    (c.standard ? '<span style="flex:1;font-size:12px;color:var(--text-secondary);">标准：' + escapeHtml(c.standard) + '</span>' : '') +
+                  '</div>'
+                ).join('')
+              : '<div style="padding:6px 0;font-size:12px;color:var(--text-tertiary);">暂无检查内容</div>';
+            return '<div style="border-bottom:1px solid var(--border-light);">' +
+              '<div style="display:flex;align-items:center;padding:10px 12px;background:var(--bg-section);gap:10px;">' +
+                '<span style="width:22px;height:22px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;">' + (i + 1) + '</span>' +
+                '<span style="flex:1;font-weight:500;font-size:13px;color:var(--text-primary);">' + escapeHtml(it.desc || '—') + '</span>' +
+                '<span style="font-size:11px;color:var(--text-tertiary);">' + (it.contents || []).length + ' 项</span>' +
+              '</div>' +
+              '<div style="padding:6px 12px 6px 44px;background:var(--bg-primary);">' + contentsHtml + '</div>' +
+            '</div>';
+          }).join('') +
+          '</div>'
+        : '<div style="color:var(--text-tertiary);font-size:12px;padding:16px;text-align:center;">无检查项</div>';
+      const html = `
+        <div class="info-section" style="margin-bottom:var(--spacing-md);">
+          <div class="section-title">配置信息</div>
+          <div class="kp-form-grid">
+            <div class="kp-col">
+              <div class="kp-field"><div class="kp-field-label">责任类型</div><div class="kp-field-readonly">${respTypeTxt}</div></div>
+              <div class="kp-field"><div class="kp-field-label">扫码责任人</div><div class="kp-field-readonly">${scannerTxt}</div></div>
+              <div class="kp-field"><div class="kp-field-label">检查频次</div><div class="kp-field-readonly">${escapeHtml(s.freq || '—')}</div></div>
+            </div>
+            <div class="kp-col">
+              <div class="kp-field"><div class="kp-field-label">责任主体</div><div class="kp-field-readonly">${escapeHtml(s.resp_name || '—')}</div></div>
+              <div class="kp-field"><div class="kp-field-label">检查表</div><div class="kp-field-readonly">${escapeHtml(s.cl_name || '—')}</div></div>
+              <div class="kp-field"><div class="kp-field-label">跳过节假日</div><div class="kp-field-readonly">${skipTxt}</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="section-title">检查内容（${checkItems.length} 项）</div>
+          <div style="padding:var(--spacing-sm) 0;">${itemsHtml}</div>
+        </div>
+      `;
+      document.getElementById('viewScanConfigContent').innerHTML = html;
+      document.getElementById('viewScanConfigModal').style.display = 'flex';
+    }
+
+    /**
+     * 查看详情弹窗中的扫码配置查看（只读）
+     */
+    function viewScanConfigDetail(idx) {
+      const places = placeData[currentDomainId] || [];
+      const place = places.find(p => p.id === currentDetailPlaceId);
+      if (!place || !place.scan_configs || !place.scan_configs[idx]) return;
+      const s = place.scan_configs[idx];
+      const respTypeTxt = s.resp_type === 'government' ? '政府' : '企业';
+      const scannerTxt = s.scanner_name && s.scanner_name !== '全员' ? s.scanner_name : '全员';
+      const skipTxt = s.skip_holiday ? '是' : '否';
+      const checkItems = (s.check_items || []);
+      const itemsHtml = checkItems.length
+        ? '<div class="checkitem-list" style="border:1px solid var(--border-section);border-radius:var(--radius-lg);overflow-y:auto;max-height:400px;">' +
+          checkItems.map((it, i) => {
+            var contentsHtml = (it.contents || []).length
+              ? (it.contents || []).map(c =>
+                  '<div style="display:flex;align-items:center;padding:6px 0;gap:6px;border-bottom:1px dashed var(--border-light);">' +
+                    '<span style="color:var(--text-tertiary);font-size:12px;">•</span>' +
+                    '<span style="flex:2;font-size:13px;color:var(--text-primary);">' + escapeHtml(c.name || '—') + '</span>' +
+                    (c.standard ? '<span style="flex:1;font-size:12px;color:var(--text-secondary);">标准：' + escapeHtml(c.standard) + '</span>' : '') +
+                  '</div>'
+                ).join('')
+              : '<div style="padding:6px 0;font-size:12px;color:var(--text-tertiary);">暂无检查内容</div>';
+            return '<div style="border-bottom:1px solid var(--border-light);">' +
+              '<div style="display:flex;align-items:center;padding:10px 12px;background:var(--bg-section);gap:10px;">' +
+                '<span style="width:22px;height:22px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;">' + (i + 1) + '</span>' +
+                '<span style="flex:1;font-weight:500;font-size:13px;color:var(--text-primary);">' + escapeHtml(it.desc || '—') + '</span>' +
+                '<span style="font-size:11px;color:var(--text-tertiary);">' + (it.contents || []).length + ' 项</span>' +
+              '</div>' +
+              '<div style="padding:6px 12px 6px 44px;background:var(--bg-primary);">' + contentsHtml + '</div>' +
+            '</div>';
+          }).join('') +
+          '</div>'
+        : '<div style="color:var(--text-tertiary);font-size:12px;padding:16px;text-align:center;">无检查项</div>';
+      const html = `
+        <div class="info-section" style="margin-bottom:var(--spacing-md);">
+          <div class="section-title">配置信息</div>
+          <div class="kp-form-grid">
+            <div class="kp-col">
+              <div class="kp-field"><div class="kp-field-label">责任类型</div><div class="kp-field-readonly">${respTypeTxt}</div></div>
+              <div class="kp-field"><div class="kp-field-label">扫码责任人</div><div class="kp-field-readonly">${scannerTxt}</div></div>
+              <div class="kp-field"><div class="kp-field-label">检查频次</div><div class="kp-field-readonly">${escapeHtml(s.freq || '—')}</div></div>
+            </div>
+            <div class="kp-col">
+              <div class="kp-field"><div class="kp-field-label">责任主体</div><div class="kp-field-readonly">${escapeHtml(s.resp_name || '—')}</div></div>
+              <div class="kp-field"><div class="kp-field-label">检查表</div><div class="kp-field-readonly">${escapeHtml(s.cl_name || '—')}</div></div>
+              <div class="kp-field"><div class="kp-field-label">跳过节假日</div><div class="kp-field-readonly">${skipTxt}</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="section-title">检查内容（${checkItems.length} 项）</div>
+          <div style="padding:var(--spacing-sm) 0;">${itemsHtml}</div>
+        </div>
+      `;
+      document.getElementById('viewScanConfigContent').innerHTML = html;
+      document.getElementById('viewScanConfigModal').style.display = 'flex';
+    }
+    var currentDetailPlaceId = null;
 
     // ========== 场所图片（mock） ==========
     let currentImages = [];
@@ -2816,6 +2978,20 @@
       SUPERVISOR_TYPE_ORDER.forEach(type => {
         const items = groups[type] || [];
         if (!items.length) return;
+        // 属地监管：只在已选中时才显示（选完区划后回显对应街道办）
+        if (type === 'local') {
+          const localSelected = items.filter(item => selected.some(s => s.orgId === item.orgId && s.type === item.type));
+          if (!localSelected.length) return;
+          hasAny = true;
+          html += '<div class="supervisor-group">';
+          html += '<div class="supervisor-group-label">' + (SUPERVISOR_TYPE_LABELS[type] || type) + '</div>';
+          html += '<div class="supervisor-tags">';
+          localSelected.forEach(item => {
+            html += '<span class="supervisor-tag locked">' + escapeHtml(item.name) + '</span>';
+          });
+          html += '</div></div>';
+          return;
+        }
         hasAny = true;
         const label = SUPERVISOR_TYPE_LABELS[type] || type;
         html += '<div class="supervisor-group">';
@@ -2823,10 +2999,8 @@
         html += '<div class="supervisor-tags">';
         items.forEach(item => {
           const isSelected = selected.some(s => s.orgId === item.orgId && s.type === item.type);
-          const isLocal = type === 'local';
-          const cls = isLocal ? 'supervisor-tag locked' : ('supervisor-tag' + (isSelected ? ' active' : ''));
-          const onclick = isLocal ? '' : ' onclick="toggleSupervisorTag(\'' + escapeHtml(item.type) + '\',\'' + escapeHtml(item.orgId) + '\',\'' + escapeHtml(item.name) + '\')"';
-          html += '<span class="' + cls + '"' + onclick + '>' + escapeHtml(item.name) + '</span>';
+          const cls = 'supervisor-tag' + (isSelected ? ' active' : '');
+          html += '<span class="' + cls + '" onclick="toggleSupervisorTag(\'' + escapeHtml(item.type) + '\',\'' + escapeHtml(item.orgId) + '\',\'' + escapeHtml(item.name) + '\')">' + escapeHtml(item.name) + '</span>';
         });
         html += '</div></div>';
       });
@@ -3062,6 +3236,7 @@
 
     // ========== 详情 ==========
     function viewDetail(id) {
+      currentDetailPlaceId = id;
       const places = placeData[currentDomainId] || [];
       const p = places.find(x => x.id === id);
       if (!p) return;
@@ -3076,19 +3251,24 @@
       const handlerNameTxt = escapeHtml(p.hazard_handler_name || '—');
       const reviewerNameTxt = escapeHtml(p.hazard_reviewer_name || '—');
 
-      // 监管单位按类型分组显示（保留type信息用于「自动」标记）
+      // 监管单位按类型分组显示（复用编辑页 supervisor-group / supervisor-tag 样式）
       const supervisorsByType = {};
+      SUPERVISOR_TYPE_ORDER.forEach(t => { supervisorsByType[t] = []; });
       (p.supervisors || []).forEach(s => {
-        const label = SUPERVISOR_TYPE_LABELS[s.type] || s.type;
-        if (!supervisorsByType[label]) supervisorsByType[label] = [];
-        supervisorsByType[label].push({ name: s.name, type: s.type });
+        if (!supervisorsByType[s.type]) supervisorsByType[s.type] = [];
+        supervisorsByType[s.type].push({ name: s.name, type: s.type });
       });
-      const supervisorsHtml = Object.keys(supervisorsByType).length
-        ? Object.entries(supervisorsByType).map(([label, items]) =>
-            '<div style="margin-bottom:4px;"><span style="font-size:12px;color:var(--text-tertiary);margin-right:6px;">' + escapeHtml(label) + '：</span>' +
-            items.map(item => '<span style="display:inline-block;font-size:12px;padding:2px 8px;margin-right:4px;border-radius:3px;background:#e8f4fd;color:#1976d2;">' + escapeHtml(item.name) + (item.type === 'local' ? ' <span style="color:#999;font-size:11px;">（自动）</span>' : '') + '</span>').join('') +
-            '</div>'
-          ).join('')
+      const supervisorsHtml = Object.keys(supervisorsByType).some(t => supervisorsByType[t].length)
+        ? SUPERVISOR_TYPE_ORDER.map(type => {
+            const items = supervisorsByType[type] || [];
+            if (!items.length) return '';
+            const label = SUPERVISOR_TYPE_LABELS[type] || type;
+            return '<div class="supervisor-group">' +
+              '<div class="supervisor-group-label">' + escapeHtml(label) + '</div>' +
+              '<div class="supervisor-tags">' +
+              items.map(item => '<span class="supervisor-tag locked">' + escapeHtml(item.name) + '</span>').join('') +
+              '</div></div>';
+          }).filter(Boolean).join('')
         : '<div style="color:var(--text-tertiary);font-size:12px;">未配置监管单位</div>';
 
       const enterprisesHtml = (p.enterprises || []).length
@@ -3106,25 +3286,27 @@
       const scansHtml = (p.scan_configs || []).length
         ? `<table class="kp-inline-table"><thead><tr>
             <th style="width:52px;">序号</th>
+            <th>检查表名称</th>
+            <th style="width:130px;">检查频次</th>
             <th style="width:80px;">责任类型</th>
             <th>责任主体</th>
             <th>扫码责任人</th>
-            <th>检查表</th>
-            <th style="width:130px;">检查频次</th>
-            <th style="width:110px;">节假日规则</th>
+            <th style="width:90px;">跳过节假日</th>
+            <th style="width:60px;">操作</th>
           </tr></thead><tbody>` +
           (p.scan_configs || []).map((s, idx) => {
             const respTypeTxt = s.resp_type === 'government' ? '政府' : '企业';
             const scannerTxt = escapeHtml(s.scanner_name && s.scanner_name !== '全员' ? s.scanner_name : '全员');
-            const skipTxt = s.skip_holiday ? '过滤节假日' : '不过滤节假日';
+            const skipTxt = s.skip_holiday ? '是' : '否';
             return `<tr>
               <td>${idx + 1}</td>
+              <td>${escapeHtml(s.cl_name || '—')}</td>
+              <td>${escapeHtml(s.freq || '—')}</td>
               <td>${respTypeTxt}</td>
               <td>${escapeHtml(s.resp_name || '—')}</td>
               <td>${scannerTxt}</td>
-              <td>${escapeHtml(s.cl_name || '—')}</td>
-              <td>${escapeHtml(s.freq || '—')}</td>
               <td>${skipTxt}</td>
+              <td><button type="button" class="btn btn-default btn-sm" onclick="viewScanConfigDetail(${idx})">查看</button></td>
             </tr>`;
           }).join('') +
           `</tbody></table>`

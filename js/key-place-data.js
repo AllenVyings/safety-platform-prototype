@@ -205,14 +205,6 @@ function initKeyPlaceData(domainDataList) {
         var reviewer_type = isSlopeDomain ? 'government' : ((seq % 3 === 0) ? 'government' : 'enterprise');
         var reviewer = reviewer_type === 'enterprise' ? ent2.persons[0] : GOV_DEPT_POOL[1].persons[0];
 
-        // 扫码配置 1~2 行
-        var scanConfigs = [
-          { resp_type: 'enterprise', resp_id: ent1.id, resp_name: ent1.name, scanner_id: '', scanner_name: '全员', freq: '每1周检查1次', cl_id: 'cl_lib_1', cl_name: CHECKLIST_LIB[seq % CHECKLIST_LIB.length].name, skip_holiday: true }
-        ];
-        if (seq % 2 === 0) {
-          scanConfigs.push({ resp_type: 'government', resp_id: GOV_DEPT_POOL[0].id, resp_name: GOV_DEPT_POOL[0].name, scanner_id: GOV_DEPT_POOL[0].persons[0].id, scanner_name: GOV_DEPT_POOL[0].persons[0].name, freq: '每1月检查1次', cl_id: 'cl_lib_2', cl_name: '消防设施巡查表', skip_holiday: false });
-        }
-
         // 经纬度（确定性生成）
         var lngLat = keyPlaceGenLngLat(seq, streetIdx, domainIdx);
 
@@ -234,6 +226,49 @@ function initKeyPlaceData(domainDataList) {
             supervisors.push({ type: s.type, orgId: s.orgId, name: s.name });
           });
         }
+
+        // 扫码配置（source 标识回显数据，编辑时不可操作）
+        // 根据该场所的监管单位过滤检查表（每个场所的监管单位不同）
+        var scanConfigs = [];
+        supervisors.forEach(function(sup) {
+          // 从 domain.supervisors 中找到对应的完整 supervisor（含 checklists）
+          var fullSup = (domain.supervisors || []).find(function(ds) {
+            return ds.orgId === sup.orgId && ds.type === sup.type;
+          });
+          if (fullSup && fullSup.checklists && fullSup.checklists.length) {
+            fullSup.checklists.forEach(function(cl, clIdx) {
+              scanConfigs.push({
+                resp_type: 'government',
+                resp_id: fullSup.orgId,
+                resp_name: fullSup.name,
+                scanner_id: '',
+                scanner_name: '全员',
+                freq: cl.frequency || '每1月检查1次',
+                cl_id: cl.id || ('cl_sup_' + clIdx),
+                cl_name: cl.name || '检查表',
+                skip_holiday: cl.skipHoliday || false,
+                check_items: (cl.items || []).map(function(item) {
+                  return {
+                    desc: item.name || item.category || '',
+                    contents: (item.contents || []).map(function(c) {
+                      return { name: c.name || '', standard: c.standard || '' };
+                    })
+                  };
+                }),
+                source: 'source'
+              });
+            });
+          }
+        });
+        // 非边坡类：额外添加关联企业的扫码配置
+        if (!isSlopeDomain) {
+          scanConfigs.push({ resp_type: 'enterprise', resp_id: ent1.id, resp_name: ent1.name, scanner_id: '', scanner_name: '全员', freq: '每1周检查1次', cl_id: 'cl_lib_1', cl_name: CHECKLIST_LIB[seq % CHECKLIST_LIB.length].name, skip_holiday: true, source: 'source' });
+        }
+        // 如果监管单位无检查表配置，给一个默认配置（保证至少有数据）
+        if (scanConfigs.length === 0) {
+          scanConfigs.push({ resp_type: 'government', resp_id: GOV_DEPT_POOL[0].id, resp_name: GOV_DEPT_POOL[0].name, scanner_id: GOV_DEPT_POOL[0].persons[0].id, scanner_name: GOV_DEPT_POOL[0].persons[0].name, freq: '每1月检查1次', cl_id: 'cl_lib_1', cl_name: CHECKLIST_LIB[seq % CHECKLIST_LIB.length].name, skip_holiday: false, source: 'source' });
+        }
+
 
         places.push({
           id: domain.id + '_KP_' + String(seq).padStart(3, '0'),
