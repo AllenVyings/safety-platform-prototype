@@ -691,6 +691,14 @@
     _myDomains.forEach(function(d) {
       var internalId = DOMAIN_ID_MAP[d.id] || d.id;
       var systemCLs = getUnitSystemChecklists(internalId);
+      // 系统检查表须分配全部管控对象（BR-GOV-DS-16）
+      // systemClToConfigFormat 默认 assignedObjects: []，这里用该领域的全部对象名填充
+      var objNames = (getVisibleObjects(internalId) || generateObjects(d)).map(function(o) { return o.name; });
+      systemCLs.forEach(function(cl) {
+        if (!cl.assignedObjects || cl.assignedObjects.length === 0) {
+          cl.assignedObjects = objNames.slice();
+        }
+      });
       if (!CONFIG_DATA[internalId]) CONFIG_DATA[internalId] = { checklists: [] };
       if (isAwb) {
         // 安委办视角：只保留系统检查表（不去重，每条带监管单位名称）
@@ -892,6 +900,19 @@
       OBJECT_DETAILS[internalId] = adapted[internalId];
     });
   })();
+
+  /**
+   * 获取当前视角可见的管控对象列表
+   * 安委办 → 全部；其他单位 → 只返回 supervisors 包含本单位的重点场所
+   */
+  function getVisibleObjects(domainId) {
+    var all = OBJECT_DETAILS[domainId];
+    if (!all) return null;
+    if (isAwbUnit(currentPerspectiveId)) return all;
+    return all.filter(function(o) {
+      return (o.supervisors || []).some(function(s) { return s.orgId === currentPerspectiveId; });
+    });
+  }
 
   // ========== 配置数据 ==========
   var CONFIG_DATA = {
@@ -1135,7 +1156,7 @@
     Object.keys(CONFIG_DATA).forEach(function(domainId) {
       var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
       if (!d) return;
-      var objNames = (OBJECT_DETAILS[domainId] || generateObjects(d)).map(function(o) { return o.name; });
+      var objNames = (getVisibleObjects(domainId) || generateObjects(d)).map(function(o) { return o.name; });
       var cfg = CONFIG_DATA[domainId];
       (cfg.checklists || []).forEach(function(c) {
         if (c.assignedObjects) { delete c.scope; return; }
@@ -1526,7 +1547,7 @@
   }
 
   function renderObjectDetail(domain, el) {
-    var objects = OBJECT_DETAILS[domain.id] || generateObjects(domain);
+    var objects = getVisibleObjects(domain.id) || generateObjects(domain);
 
     if (currentObjectDomainId !== domain.id) {
       currentObjectDomainId = domain.id;
@@ -1623,7 +1644,7 @@
   // 从 OBJECT_DETAILS 明细数据动态重算 DOMAIN_SUMMARY 汇总数据，避免写死不一致
   function syncDomainSummary() {
     DOMAIN_SUMMARY.forEach(function(d) {
-      var objects = OBJECT_DETAILS[d.id];
+      var objects = getVisibleObjects(d.id);
       if (!objects || !objects.length) return;
       d.objects = objects.length;
       d.total = objects.length;
@@ -1720,7 +1741,7 @@
 
   // 从对象明细累加某领域某频次的计划/完成数（与明细表/任务清单同源）
   function getDomainFreqStats(domainId, freqLabel, deptFilter) {
-    var objects = OBJECT_DETAILS[domainId] || [];
+    var objects = getVisibleObjects(domainId) || [];
     var plannedCount = getPlannedByFreq(domainId, freqLabel, deptFilter);
     var planned = plannedCount * objects.length;
     var done = 0;
@@ -1827,7 +1848,7 @@
 
   // 辅助函数：按责任单位拆分某领域小类的管控对象（mock 数据无"责任单位"字段，按轮询方式模拟）
   function getObjectsByResponsibleUnit(internalDomainId, unitId) {
-    var objects = OBJECT_DETAILS[internalDomainId] || [];
+    var objects = getVisibleObjects(internalDomainId) || [];
     var rawId = getRawDomainIdByInternalId(internalDomainId);
     var units = rawId ? getDomainResponsibleUnits(rawId) : [];
     if (units.length === 0) return objects; // 找不到原始领域，返回全部
@@ -1889,7 +1910,7 @@
         html += '<td style="text-align:center;cursor:pointer;" title="点击查看任务清单" onclick="viewTaskList(\'' + d.id + '\',\'' + c + '\')">' + cellContent + '</td>';
       });
       // 整体列用 getObjectDoneInfo 统一计算，确保与明细表/任务清单完全一致
-      var objects = OBJECT_DETAILS[d.id] || [];
+      var objects = getVisibleObjects(d.id) || [];
       var totalChecklists = getTotalPlannedChecklists(d.id, progressFilterDept);
       var overallPlanned = totalChecklists * objects.length;
       var overallDone = objects.reduce(function(sum, o) {
@@ -1937,7 +1958,7 @@
       var d = isAwb ? row.domain : row;
       var objects = isAwb && row.unitId
         ? getObjectsByResponsibleUnit(d.id, row.unitId)
-        : (OBJECT_DETAILS[d.id] || []);
+        : (getVisibleObjects(d.id) || []);
       var totalChecklists = getTotalPlannedChecklists(d.id, progressFilterDept);
       var planned = totalChecklists * objects.length;
       var done = objects.reduce(function(sum, o) {
@@ -2003,7 +2024,7 @@
   }
 
   function renderProgressDetail(domain, el) {
-    var objects = OBJECT_DETAILS[domain.id] || generateObjects(domain);
+    var objects = getVisibleObjects(domain.id) || generateObjects(domain);
     var now = new Date();
 
     if (currentProgressDomainId !== domain.id) {
@@ -2181,7 +2202,7 @@
 
   window.viewObjectDetail = function(domainId, objIdx) {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
-    var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
+    var objects = getVisibleObjects(domainId) || (d ? generateObjects(d) : []);
     var o = objects[objIdx];
     if (!o) return;
     var hr = (typeof o.hazardRate === 'number') ? o.hazardRate : (typeof o.rate === 'number' ? o.rate : (o.hazards > 0 ? 0 : 100));
@@ -2392,11 +2413,8 @@
 
   // 打开责任分配弹窗
   window.openAssignModal = function() {
-    var defaultDept = configState.targetConfigDept || '';
-    if (!defaultDept) {
-      var d = DOMAIN_SUMMARY.find(function(x) { return x.id === currentNode; });
-      defaultDept = (d && d.dept) || '';
-    }
+    // 优先取⓪配置值，其次当前视角单位名称（与⓪下拉"XXX（默认）"一致），不再用 DOMAIN_SUMMARY 的写死 dept
+    var defaultDept = (draftConfig && draftConfig.dept) || getUnitNameById(currentPerspectiveId) || '';
     assignState.dept = defaultDept;
     assignState.selectedPersons = [];
     assignState.selectedDepts = [];
@@ -2832,7 +2850,7 @@
     document.getElementById('taskListTitle').textContent = domainName + (freqLabel ? ' — ' + freqLabel : '') + (objLabel ? ' — ' + objLabel : '') + ' 任务清单';
 
     // 读取管控对象和检查表配置
-    var objects = OBJECT_DETAILS[domainId] || [];
+    var objects = getVisibleObjects(domainId) || [];
     var cfg = CONFIG_DATA[domainId];
     var checklists = [];
     if (cfg && cfg.checklists) {
@@ -3063,7 +3081,7 @@
     var domainId = currentNode;
     if (!domainId) { showToast('请先选择领域小类'); return; }
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
-    var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
+    var objects = getVisibleObjects(domainId) || (d ? generateObjects(d) : []);
     // Reset modal
     document.getElementById('clModalTitle').textContent = '新增检查表配置';
     var nameInput = document.getElementById('clName');
@@ -3595,7 +3613,7 @@
     if (!draftConfig || !draftConfig.checklists || !draftConfig.checklists[idx]) return;
     var cl = draftConfig.checklists[idx];
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
-    var objects = OBJECT_DETAILS[domainId] || (d ? generateObjects(d) : []);
+    var objects = getVisibleObjects(domainId) || (d ? generateObjects(d) : []);
     // 设置弹窗标题
     document.getElementById('clModalTitle').textContent = '编辑检查表配置';
     var isSystemCl = (cl.checklistType === 'system');
@@ -3643,9 +3661,16 @@
     var assignedObjs = cl.assignedObjects || [];
     var objectPersons = cl.objectPersons || {};
     var selDepts = cl.selectedDepts || [];
+    // 系统检查表的责任科室取「⓪ 责任科室配置」的值（draftConfig.dept），未配置时回退为当前视角监管单位名称（与⓪下拉"XXX（默认）"一致）
+    var effectiveDept;
+    if (isSystemCl && draftConfig) {
+      effectiveDept = draftConfig.dept || getUnitNameById(currentPerspectiveId) || '';
+    } else {
+      effectiveDept = cl.dept || '';
+    }
     // 不再回退使用 cl.person（预填默认值），未配置时人员为空
     clAssignData = {
-      dept: cl.dept || '',
+      dept: effectiveDept,
       objects: assignedObjs.slice(),
       persons: objectPersons,
       selectedDepts: selDepts.slice()
@@ -3771,6 +3796,24 @@
   // 初次构建组织架构数据（GOV_USER_DATA_ALL 已在此前加载）
   rebuildOrgData();
 
+  // 自定义检查表 person 动态映射：根据 dept 从 PERSON_BY_DEPT 取该科室第一个启用人员
+  // 替换 CONFIG_DATA 中写死的假名（张伟/李娜/王强/陈敏/刘洋），确保与 gov-user-data.js 真实人员一致
+  // 仅在初始化时执行一次，随后更新 CONFIG_DATA_ORIGINAL，视角切换时从 ORIGINAL 恢复即为正确数据
+  function normalizeCustomChecklistPersons() {
+    Object.keys(CONFIG_DATA).forEach(function(domainId) {
+      var cfg = CONFIG_DATA[domainId];
+      (cfg.checklists || []).forEach(function(c) {
+        if (c.checklistType === 'custom' && c.dept && PERSON_BY_DEPT[c.dept] && PERSON_BY_DEPT[c.dept].length > 0) {
+          c.person = PERSON_BY_DEPT[c.dept][0];
+        }
+      });
+    });
+  }
+  // 初次构建后立即执行一次（PERSON_BY_DEPT 已就绪）
+  normalizeCustomChecklistPersons();
+  // 同步更新 CONFIG_DATA_ORIGINAL，避免视角切换时从 ORIGINAL 恢复又把写死的假名带回来
+  CONFIG_DATA_ORIGINAL = deepClone(CONFIG_DATA);
+
   var configState = {
     domainId: null,
     objects: [],
@@ -3827,6 +3870,12 @@
   window.onDraftDeptChange = function(value) {
     if (!draftConfig) return;
     draftConfig.dept = value;
+    // 同步到所有系统检查表的 dept（使"责任配置"列表显示一致）
+    if (draftConfig.checklists) {
+      draftConfig.checklists.forEach(function(cl) {
+        if (cl.checklistType === 'system') { cl.dept = value; }
+      });
+    }
     afterDraftChange();
   };
 
@@ -3947,11 +3996,11 @@
       if (next) next.classList.add('show');
     }
     configState.domainId = domainId;
-    configState.objects = (OBJECT_DETAILS[domainId] || generateObjects(d)).map(function(o) { return o; });
-    configState.targetConfigDept = d.dept || '';
+    configState.objects = (getVisibleObjects(domainId) || generateObjects(d)).map(function(o) { return o; });
+    configState.targetConfigDept = ''; // 不硬编码 d.dept，由⓪责任科室配置决定
     // BR-GOV-DS-18：进入配置页建立草稿基线，所有变更先写入 draftConfig，保存配置统一提交 / 取消全部丢弃
     draftBaseline = deepClone(CONFIG_DATA[domainId] || { checklists: [], hazard: null });
-    if (draftBaseline.dept === undefined) draftBaseline.dept = d.dept || '';
+    if (draftBaseline.dept === undefined) draftBaseline.dept = ''; // 不硬编码 d.dept，让⓪下拉显示"XXX（默认）"
     var allObjNames = configState.objects.map(function(o) { return o.name; });
 
     // CONFIG_DATA 已由 mergeSystemChecklistsToConfigData 按视角合并了系统检查表
@@ -3971,6 +4020,7 @@
         c.skipHoliday = false;
         c.items = Array.isArray(c.items) ? c.items : [];
         c.assignedObjects = allObjNames.slice(); // 系统检查表须分配全部对象（BR-GOV-DS-16）
+        c.dept = draftBaseline.dept || ''; // 系统检查表责任科室同步为⓪责任科室配置值
       } else {
         c.person = Array.isArray(c.person) ? c.person : (c.person ? [c.person] : []);
         c.scan = c.scan || { enabled: true };
@@ -4030,12 +4080,12 @@
   function autoInitConfigState(domainId) {
     var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
     if (!d) return;
-    var objs = OBJECT_DETAILS[domainId] || generateObjects(d);
+    var objs = getVisibleObjects(domainId) || generateObjects(d);
     configState.domainId = domainId;
     configState.objects = objs.map(function(o) { return o; });
-    configState.targetConfigDept = d.dept || '';
+    configState.targetConfigDept = ''; // 不硬编码 d.dept，由⓪责任科室配置决定
     draftBaseline = deepClone(CONFIG_DATA[domainId] || { checklists: [], hazard: null });
-    if (draftBaseline.dept === undefined) draftBaseline.dept = d.dept || '';
+    if (draftBaseline.dept === undefined) draftBaseline.dept = ''; // 不硬编码 d.dept，让⓪下拉显示"XXX（默认）"
     var allObjNames = configState.objects.map(function(o) { return o.name; });
 
     // CONFIG_DATA 已由 mergeSystemChecklistsToConfigData 按视角合并了系统检查表
@@ -4055,6 +4105,7 @@
         c.skipHoliday = false;
         c.items = Array.isArray(c.items) ? c.items : [];
         c.assignedObjects = allObjNames.slice(); // 系统检查表须分配全部对象（BR-GOV-DS-16）
+        c.dept = draftBaseline.dept || ''; // 系统检查表责任科室同步为⓪责任科室配置值
       } else {
         c.person = Array.isArray(c.person) ? c.person : (c.person ? [c.person] : []);
         c.scan = c.scan || { enabled: true };
@@ -4155,8 +4206,8 @@
             // 安委办视角：扫码责任 = 配置该表的监管单位名称
             scanRespText = c.org;
           } else {
-            // 普通视角（非安委办）：扫码责任跟随"责任科室"配置（⓪），未配置时回退到 c.dept
-            var effectiveDept = (draftConfig && draftConfig.dept) || c.dept || '';
+            // 普通视角（非安委办）：扫码责任跟随"责任科室"配置（⓪），未配置时回退为当前视角单位名称
+            var effectiveDept = (draftConfig && draftConfig.dept) || getUnitNameById(currentPerspectiveId) || c.dept || '';
             var isDeptLevel = c.selectedDepts && c.selectedDepts.indexOf('__dept_level__') >= 0;
             if (isDeptLevel) {
               scanRespText = effectiveDept + '（科室级）';

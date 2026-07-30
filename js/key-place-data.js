@@ -200,9 +200,9 @@ function initKeyPlaceData(domainDataList) {
         ];
 
         // 隐患整改/复核人（边坡类无企业，强制走政府人员）
-        var handler_type = isSlopeDomain ? 'gov' : ((seq % 2 === 0) ? 'enterprise' : 'gov');
+        var handler_type = isSlopeDomain ? 'government' : ((seq % 2 === 0) ? 'enterprise' : 'government');
         var handler = handler_type === 'enterprise' ? ent1.persons[0] : GOV_DEPT_POOL[0].persons[0];
-        var reviewer_type = isSlopeDomain ? 'gov' : ((seq % 3 === 0) ? 'gov' : 'enterprise');
+        var reviewer_type = isSlopeDomain ? 'government' : ((seq % 3 === 0) ? 'government' : 'enterprise');
         var reviewer = reviewer_type === 'enterprise' ? ent2.persons[0] : GOV_DEPT_POOL[1].persons[0];
 
         // 扫码配置 1~2 行
@@ -210,11 +210,30 @@ function initKeyPlaceData(domainDataList) {
           { resp_type: 'enterprise', resp_id: ent1.id, resp_name: ent1.name, scanner_id: '', scanner_name: '全员', freq: '每1周检查1次', cl_id: 'cl_lib_1', cl_name: CHECKLIST_LIB[seq % CHECKLIST_LIB.length].name, skip_holiday: true }
         ];
         if (seq % 2 === 0) {
-          scanConfigs.push({ resp_type: 'gov', resp_id: GOV_DEPT_POOL[0].id, resp_name: GOV_DEPT_POOL[0].name, scanner_id: GOV_DEPT_POOL[0].persons[0].id, scanner_name: GOV_DEPT_POOL[0].persons[0].name, freq: '每1月检查1次', cl_id: 'cl_lib_2', cl_name: '消防设施巡查表', skip_holiday: false });
+          scanConfigs.push({ resp_type: 'government', resp_id: GOV_DEPT_POOL[0].id, resp_name: GOV_DEPT_POOL[0].name, scanner_id: GOV_DEPT_POOL[0].persons[0].id, scanner_name: GOV_DEPT_POOL[0].persons[0].name, freq: '每1月检查1次', cl_id: 'cl_lib_2', cl_name: '消防设施巡查表', skip_holiday: false });
         }
 
         // 经纬度（确定性生成）
         var lngLat = keyPlaceGenLngLat(seq, streetIdx, domainIdx);
+
+        // 监管单位：属地监管（根据街道自动带出）+ 行业主管（测试数据每个场所只分配1个，确定性轮转）
+        var supervisors = [];
+        if (typeof getLocalSupervisorByStreetName === 'function') {
+          var localSup = getLocalSupervisorByStreetName(street.name);
+          if (localSup) supervisors.push({ type: 'local', orgId: localSup.orgId, name: localSup.name });
+        }
+        // 测试数据：行业主管只选1个（确定性轮转），专业监管全部选上
+        if (domain.supervisors) {
+          var industrySups = domain.supervisors.filter(function(s) { return s.type === 'industry'; });
+          var professionalSups = domain.supervisors.filter(function(s) { return s.type === 'professional'; });
+          if (industrySups.length > 0) {
+            var picked = industrySups[seq % industrySups.length];
+            supervisors.push({ type: picked.type, orgId: picked.orgId, name: picked.name });
+          }
+          professionalSups.forEach(function(s) {
+            supervisors.push({ type: s.type, orgId: s.orgId, name: s.name });
+          });
+        }
 
         places.push({
           id: domain.id + '_KP_' + String(seq).padStart(3, '0'),
@@ -240,6 +259,7 @@ function initKeyPlaceData(domainDataList) {
           hazard_reviewer_id: reviewer.id,
           hazard_reviewer_name: reviewer.name,
           scan_configs: scanConfigs,
+          supervisors: supervisors,
           status: seq % 11 === 0 ? '0' : '1',
           safety_code: keyPlaceGenSafetyCode('440305', seq),
           code_state: finalCodeState,
@@ -298,7 +318,8 @@ function adaptPlaceDataToObjectDetails(placeDataMap, domainIdMap) {
         dept: '',
         code: p.code_state,
         hazards: hazards,
-        rate: rate
+        rate: rate,
+        supervisors: p.supervisors || []
       };
     });
   });

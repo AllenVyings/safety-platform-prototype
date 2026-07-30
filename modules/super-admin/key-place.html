@@ -863,6 +863,64 @@
       align-items: center;
       gap: 6px;
     }
+    .section-title .section-hint {
+      font-size: var(--font-size-xs);
+      color: var(--text-tertiary);
+      font-weight: 400;
+      margin-left: 4px;
+    }
+
+    /* ========== 监管单位分组 ========== */
+    .supervisor-group { margin-bottom: var(--spacing-sm); }
+    .supervisor-group-label {
+      font-size: var(--font-size-xs);
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .supervisor-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .supervisor-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: var(--font-size-xs);
+      cursor: pointer;
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .supervisor-tag:hover { border-color: var(--primary); color: var(--primary); }
+    .supervisor-tag.active {
+      background: var(--primary-light, #e8f4fd);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .supervisor-tag.locked {
+      background: var(--bg-muted, #f5f5f5);
+      border-color: var(--border-light);
+      color: var(--text-tertiary);
+      cursor: default;
+      pointer-events: none;
+    }
+    .supervisor-tag.locked::after {
+      content: '自动';
+      font-size: 10px;
+      padding: 0 4px;
+      border-radius: 2px;
+      background: var(--primary-light, #e8f4fd);
+      color: var(--primary);
+      margin-left: 2px;
+    }
+    .supervisor-empty {
+      font-size: var(--font-size-xs);
+      color: var(--text-tertiary);
+      padding: 8px 0;
+    }
 
     /* 弹窗标题与其他模块统一（左侧色条 + 中号粗体） */
     .modal-header {
@@ -1098,9 +1156,15 @@
             <div class="kp-field kp-field-full">
               <label class="kp-field-label">场所图片</label>
               <div class="kp-upload-area" id="fImagesArea"></div>
-              <div class="kp-upload-hint">支持 jpg/png，单张不超过 5MB，最多 5 张</div>
+              <div class="kp-upload-hint">支持 jpg/jpeg/png/bmp/gif/svg，单张不超过 5MB，最多 5 张</div>
             </div>
           </div>
+        </div>
+
+        <!-- ===== 监管单位（按类型分组多选） ===== -->
+        <div class="info-section" id="placeSupervisorSection" style="margin-bottom:var(--spacing-lg);">
+          <div class="section-title"><span class="section-title-text">监管单位</span><span class="section-hint">（属地监管根据区划自动带出，其他类型可手动勾选）</span></div>
+          <div id="supervisorGroups"></div>
         </div>
 
         <!-- ===== 动态表单（按板块分组） ===== -->
@@ -1138,7 +1202,7 @@
                   <select class="kp-field-select" id="fHandlerType" onchange="onHazardTypeChange('handler')">
                     <option value="">类型</option>
                     <option value="enterprise">企业人员</option>
-                    <option value="gov">政府人员</option>
+                    <option value="government">政府人员</option>
                   </select>
                   <select class="kp-field-select" id="fHandlerId">
                     <option value="">请选择类型后选择具体人员</option>
@@ -1153,7 +1217,7 @@
                   <select class="kp-field-select" id="fReviewerType" onchange="onHazardTypeChange('reviewer')">
                     <option value="">类型</option>
                     <option value="enterprise">企业人员</option>
-                    <option value="gov">政府人员</option>
+                    <option value="government">政府人员</option>
                   </select>
                   <select class="kp-field-select" id="fReviewerId">
                     <option value="">请选择类型后选择具体人员</option>
@@ -1232,7 +1296,7 @@
               <label class="kp-field-label"><span class="required">*</span>责任类型</label>
               <select class="kp-field-select" id="scfRespType" onchange="onScfRespTypeChange()">
                 <option value="enterprise">企业</option>
-                <option value="gov">政府</option>
+                <option value="government">政府</option>
               </select>
             </div>
             <div class="kp-field">
@@ -1316,6 +1380,7 @@
     </div>
   </div>
 
+  <script src="../../js/domain-data.js"></script>
   <script src="../../js/pagination.js"></script>
   <script src="../../js/key-place-data.js"></script>
   <script>
@@ -1327,6 +1392,10 @@
         if (stored) domainData = JSON.parse(stored);
       } catch(e) {}
       if (!domainData.length) {
+        // 优先使用 domain-data.js 的 DOMAIN_TABLE_DATA（含 supervisors 配置）
+        if (typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.length) {
+          domainData = JSON.parse(JSON.stringify(DOMAIN_TABLE_DATA));
+        } else {
         domainData = [
           { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', dynamicFormEnabled: false,
             enterprise_types: [
@@ -1407,6 +1476,7 @@
             ]
           }
         ];
+        }
       }
     }
 
@@ -1748,7 +1818,8 @@
       region: null,      // {district, street, community, street_code}
       longitude: '',
       latitude: '',
-      checklistsCustom: [] // 场所私有检查表 [{id,name,items}]
+      checklistsCustom: [], // 场所私有检查表 [{id,name,items}]
+      supervisors: []    // [{type, orgId, name}] 当前选择的监管单位
     };
 
     function cloneCustomChecklists(items) {
@@ -1782,7 +1853,8 @@
         region: null,
         longitude: '',
         latitude: '',
-        checklistsCustom: []
+        checklistsCustom: [],
+        supervisors: []
       };
     }
 
@@ -1801,6 +1873,7 @@
       document.getElementById('fHandlerType').value = '';
       document.getElementById('fReviewerType').value = '';
       renderImagesArea();
+      renderSupervisorGroups();
 
       const domain = domainData.find(d => d.id === currentDomainId);
       const area = document.getElementById('dynamicFormArea');
@@ -1829,6 +1902,7 @@
       currentFormState.region = { district: p.district, street: p.street, community: p.community, street_code: p.street_code };
       currentFormState.longitude = p.longitude || '';
       currentFormState.latitude = p.latitude || '';
+      currentFormState.supervisors = (p.supervisors || []).map(s => ({...s}));
 
       document.getElementById('placeModalTitle').textContent = '编辑重点场所';
       document.getElementById('fPlaceName').value = p.place_name;
@@ -1845,6 +1919,7 @@
       renderHazardPersonOptions('reviewer', p.hazard_reviewer_id);
 
       renderImagesArea(p.images || []);
+      renderSupervisorGroups();
 
       const domain = domainData.find(d => d.id === currentDomainId);
       const area = document.getElementById('dynamicFormArea');
@@ -2009,6 +2084,10 @@
         const ok = currentFormState.enterprises.some(e => e.ent_id === handlerEntId && e.is_hazard_handler);
         if (!ok) { showToast('该企业人员所属企业未勾选"隐患责任人"', 'error'); return; }
       }
+      // BR-DOM-KP-30: 保存时校验supervisors至少有1个属地监管单位
+      const supervisors = currentFormState.supervisors || [];
+      const hasLocal = supervisors.some(s => s.type === 'local');
+      if (!hasLocal) { showToast('至少需要一个属地监管单位（请选择所属区划的街道自动带出）', 'error'); return; }
 
       const places = placeData[currentDomainId] || [];
       const status = document.getElementById('fStatus').value;
@@ -2041,7 +2120,8 @@
             scan_configs: currentFormState.scanConfigs,
             checklists_custom: cloneCustomChecklists(currentFormState.checklistsCustom),
             status: status,
-            ext_values: extValues
+            ext_values: extValues,
+            supervisors: currentFormState.supervisors
           });
         }
         showToast('保存成功', 'success');
@@ -2070,6 +2150,7 @@
           checklists_custom: cloneCustomChecklists(currentFormState.checklistsCustom),
           status: status,
           ext_values: extValues,
+          supervisors: currentFormState.supervisors,
           safety_code: keyPlaceGenSafetyCode('440305', places.length + 1),
           code_state: 'green',
           images: [],
@@ -2120,13 +2201,31 @@
       const tbody = document.getElementById('fEnterpriseTbody');
       const domain = domainData.find(d => d.id === currentDomainId);
       const types = (domain && domain.enterprise_types) || [];
+      // BR-DOM-KP-14: 整改人类型=government时强制禁用隐患责任人复选框
+      const fHandlerTypeVal = document.getElementById('fHandlerType') ? document.getElementById('fHandlerType').value : '';
+      const fReviewerTypeVal = document.getElementById('fReviewerType') ? document.getElementById('fReviewerType').value : '';
       if (!currentFormState.enterprises.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-tertiary);padding:16px;">暂无关联企业，点击下方按钮添加</td></tr>';
+        // §6.1.9.3.3.4: 空态文案
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-tertiary);padding:16px;">未关联企业</td></tr>';
+        // BR-DOM-KP-25: 关联企业=0时整改人/复核人类型自动回退government
+        if (document.getElementById('fHandlerType') && document.getElementById('fHandlerType').value === 'enterprise') {
+          document.getElementById('fHandlerType').value = 'government';
+          renderHazardPersonOptions('handler');
+        }
+        if (document.getElementById('fReviewerType') && document.getElementById('fReviewerType').value === 'enterprise') {
+          document.getElementById('fReviewerType').value = 'government';
+          renderHazardPersonOptions('reviewer');
+        }
         return;
       }
       tbody.innerHTML = currentFormState.enterprises.map((row, idx) => {
         const typeOpts = types.map(t => `<option value="${escapeHtml(t.code)}" ${row.type_code===t.code?'selected':''}>${escapeHtml(t.name)}</option>`).join('');
         const entOpts = KEY_PLACE_ENTERPRISE_POOL.map(e => `<option value="${escapeHtml(e.id)}" ${row.ent_id===e.id?'selected':''}>${escapeHtml(e.name)}</option>`).join('');
+        // BR-DOM-KP-14: hazard_handler_type=government时，隐患责任人复选框disabled
+        const handlerDisabled = (fHandlerTypeVal === 'government');
+        const reviewerDisabled = (fReviewerTypeVal === 'government');
+        if (handlerDisabled && row.is_hazard_handler) { row.is_hazard_handler = false; }
+        if (reviewerDisabled && row.is_hazard_reviewer) { row.is_hazard_reviewer = false; }
         return `
           <tr>
             <td>
@@ -2143,10 +2242,10 @@
               <input type="checkbox" checked disabled title="关联企业默认拥有扫码权限，不可取消">
             </td>
             <td class="check-cell">
-              <input type="checkbox" ${row.is_hazard_handler?'checked':''} onchange="onEnterpriseRowChange(${idx},'is_hazard_handler',this.checked)">
+              <input type="checkbox" ${row.is_hazard_handler?'checked':''} ${handlerDisabled?'disabled':''} onchange="onEnterpriseRowChange(${idx},'is_hazard_handler',this.checked)">
             </td>
             <td class="check-cell">
-              <input type="checkbox" ${row.is_hazard_reviewer?'checked':''} onchange="onEnterpriseRowChange(${idx},'is_hazard_reviewer',this.checked)">
+              <input type="checkbox" ${row.is_hazard_reviewer?'checked':''} ${reviewerDisabled?'disabled':''} onchange="onEnterpriseRowChange(${idx},'is_hazard_reviewer',this.checked)">
             </td>
             <td style="text-align:center;">
               <button type="button" class="kp-row-del" onclick="delEnterpriseRow(${idx})">删除</button>
@@ -2159,6 +2258,7 @@
     // ========== 隐患整改/复核人下拉 ==========
     function onHazardTypeChange(role) {
       renderHazardPersonOptions(role);
+      renderEnterpriseRows(); // BR-DOM-KP-14: 刷新复选框disabled状态
     }
     function renderHazardPersonOptions(role, presetId) {
       const typeEl = document.getElementById(role === 'handler' ? 'fHandlerType' : 'fReviewerType');
@@ -2183,7 +2283,7 @@
         if (eligibleEnts.length === 0) {
           options = '<option value="">请先勾选关联企业的"' + (role === 'handler' ? '隐患责任人' : '隐患复核人') + '"</option>';
         }
-      } else if (type === 'gov') {
+      } else if (type === 'government') {
         KEY_PLACE_GOV_DEPT_POOL.forEach(d => {
           options += `<optgroup label="${d.name}">`;
           d.persons.forEach(p => {
@@ -2414,7 +2514,7 @@
       if (!list) return;
       const arr = currentFormState.scanConfigs || [];
       const rows = arr.length ? arr.map((row, idx) => {
-        const respTypeTxt = row.resp_type === 'gov' ? '政府' : '企业';
+        const respTypeTxt = row.resp_type === 'government' ? '政府' : '企业';
         const respName = row.resp_name ? escapeHtml(row.resp_name) : '<span style="color:var(--danger);">未指定主体</span>';
         const scannerTxt = escapeHtml(row.scanner_id ? row.scanner_name : '全员');
         const clTxt = row.cl_name ? escapeHtml(row.cl_name) : '<span style="color:var(--danger);">未配置</span>';
@@ -2534,7 +2634,7 @@
       if (respType === 'enterprise' && respId) {
         const ent = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === respId);
         if (ent) opts += ent.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${p.name}</option>`).join('');
-      } else if (respType === 'gov' && respId) {
+      } else if (respType === 'government' && respId) {
         const dept = KEY_PLACE_GOV_DEPT_POOL.find(x => x.id === respId);
         if (dept) opts += dept.persons.map(p => `<option value="${p.id}" ${selectedScannerId===p.id?'selected':''}>${p.name}</option>`).join('');
       }
@@ -2649,6 +2749,76 @@
       renderImagesArea(currentImages);
     }
 
+    // ========== 监管单位（按类型分组多选） ==========
+    const SUPERVISOR_TYPE_LABELS = { industry: '行业主管', professional: '专业监管', local: '属地监管' };
+    const SUPERVISOR_TYPE_ORDER = ['industry', 'professional', 'local'];
+
+    function getDomainSupervisors() {
+      const domain = domainData.find(d => d.id === currentDomainId);
+      if (!domain || !domain.supervisors) return { industry: [], professional: [], local: [] };
+      const groups = { industry: [], professional: [], local: [] };
+      domain.supervisors.forEach(s => {
+        if (groups[s.type]) {
+          groups[s.type].push({ type: s.type, orgId: s.orgId, name: s.name });
+        }
+      });
+      return groups;
+    }
+
+    function renderSupervisorGroups() {
+      const container = document.getElementById('supervisorGroups');
+      if (!container) return;
+      const groups = getDomainSupervisors();
+      const selected = currentFormState.supervisors || [];
+      let html = '';
+      let hasAny = false;
+
+      SUPERVISOR_TYPE_ORDER.forEach(type => {
+        const items = groups[type] || [];
+        if (!items.length) return;
+        hasAny = true;
+        const label = SUPERVISOR_TYPE_LABELS[type] || type;
+        html += '<div class="supervisor-group">';
+        html += '<div class="supervisor-group-label">' + label + '</div>';
+        html += '<div class="supervisor-tags">';
+        items.forEach(item => {
+          const isSelected = selected.some(s => s.orgId === item.orgId && s.type === item.type);
+          const isLocal = type === 'local';
+          const cls = isLocal ? 'supervisor-tag locked' : ('supervisor-tag' + (isSelected ? ' active' : ''));
+          const onclick = isLocal ? '' : ' onclick="toggleSupervisorTag(\'' + escapeHtml(item.type) + '\',\'' + escapeHtml(item.orgId) + '\',\'' + escapeHtml(item.name) + '\')"';
+          html += '<span class="' + cls + '"' + onclick + '>' + escapeHtml(item.name) + '</span>';
+        });
+        html += '</div></div>';
+      });
+
+      if (!hasAny) {
+        html = '<div class="supervisor-empty">该领域小类暂未配置监管单位，请先在「领域小类管理」中配置</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function toggleSupervisorTag(type, orgId, name) {
+      if (type === 'local') return;
+      const idx = currentFormState.supervisors.findIndex(s => s.orgId === orgId && s.type === type);
+      if (idx >= 0) {
+        currentFormState.supervisors.splice(idx, 1);
+      } else {
+        currentFormState.supervisors.push({ type: type, orgId: orgId, name: name });
+      }
+      renderSupervisorGroups();
+    }
+
+    function syncLocalSupervisorFromStreet(streetName) {
+      currentFormState.supervisors = currentFormState.supervisors.filter(s => s.type !== 'local');
+      if (typeof getLocalSupervisorByStreetName === 'function' && streetName) {
+        const localSup = getLocalSupervisorByStreetName(streetName);
+        if (localSup) {
+          currentFormState.supervisors.push({ type: 'local', orgId: localSup.orgId, name: localSup.name });
+        }
+      }
+      renderSupervisorGroups();
+    }
+
     // ========== 区划级联面板（带搜索） ==========
     let regionPanelState = { district: '南山区', street: '', community: '', street_code: '' };
 
@@ -2734,6 +2904,7 @@
       regionPanelState.street_code = code;
       regionPanelState.community = '';
       renderRegionPanel();
+      syncLocalSupervisorFromStreet(name);
     }
     function onRegionPickCommunity(name) {
       regionPanelState.community = name;
@@ -2745,6 +2916,7 @@
       };
       setRegionLabel(currentFormState.region);
       document.getElementById('fRegionPopover').classList.remove('open');
+      syncLocalSupervisorFromStreet(regionPanelState.street);
     }
 
     // ========== 模拟地图 ==========
@@ -2851,6 +3023,22 @@
       const latitudeTxt = escapeHtml(p.latitude || '—');
       const handlerNameTxt = escapeHtml(p.hazard_handler_name || '—');
       const reviewerNameTxt = escapeHtml(p.hazard_reviewer_name || '—');
+
+      // 监管单位按类型分组显示（保留type信息用于「自动」标记）
+      const supervisorsByType = {};
+      (p.supervisors || []).forEach(s => {
+        const label = SUPERVISOR_TYPE_LABELS[s.type] || s.type;
+        if (!supervisorsByType[label]) supervisorsByType[label] = [];
+        supervisorsByType[label].push({ name: s.name, type: s.type });
+      });
+      const supervisorsHtml = Object.keys(supervisorsByType).length
+        ? Object.entries(supervisorsByType).map(([label, items]) =>
+            '<div style="margin-bottom:4px;"><span style="font-size:12px;color:var(--text-tertiary);margin-right:6px;">' + escapeHtml(label) + '：</span>' +
+            items.map(item => '<span style="display:inline-block;font-size:12px;padding:2px 8px;margin-right:4px;border-radius:3px;background:#e8f4fd;color:#1976d2;">' + escapeHtml(item.name) + (item.type === 'local' ? ' <span style="color:#999;font-size:11px;">（自动）</span>' : '') + '</span>').join('') +
+            '</div>'
+          ).join('')
+        : '<div style="color:var(--text-tertiary);font-size:12px;">未配置监管单位</div>';
+
       const enterprisesHtml = (p.enterprises || []).length
         ? `<table class="kp-inline-table"><thead><tr><th>企业类型</th><th>企业名称</th><th class="check-cell">扫码</th><th class="check-cell">隐患责任</th><th class="check-cell">隐患复核</th></tr></thead><tbody>` +
           p.enterprises.map(e => `<tr>
@@ -2874,7 +3062,7 @@
             <th style="width:110px;">节假日规则</th>
           </tr></thead><tbody>` +
           (p.scan_configs || []).map((s, idx) => {
-            const respTypeTxt = s.resp_type === 'gov' ? '政府' : '企业';
+            const respTypeTxt = s.resp_type === 'government' ? '政府' : '企业';
             const scannerTxt = escapeHtml(s.scanner_name && s.scanner_name !== '全员' ? s.scanner_name : '全员');
             const skipTxt = s.skip_holiday ? '过滤节假日' : '不过滤节假日';
             return `<tr>
@@ -2959,6 +3147,10 @@
               <div class="kp-field"><div class="kp-field-label">场所图片</div><div class="kp-upload-area">${(p.images||[]).map(()=>`<div class="kp-upload-thumb">📷</div>`).join('') || '<div style="color:var(--text-tertiary);font-size:12px;">无</div>'}</div></div>
             </div>
           </div>
+        </div>
+        <div class="info-section" style="margin-bottom:var(--spacing-lg);">
+          <div class="section-title">监管单位</div>
+          ${supervisorsHtml}
         </div>
         ${dynamicSectionsHtml}
         <div class="info-section" style="margin-bottom:var(--spacing-lg);">

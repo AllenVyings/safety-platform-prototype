@@ -37,6 +37,31 @@ var DOMAIN_LOCAL_STREETS = [
   { id: 'NS-TAOYUAN', name: '南山区桃源街道办事处' }
 ];
 
+/* ========== 区划树街道名 → 街道办 orgId 映射 ========== */
+// 重点场所在选择所属区划（街道）时，自动带出对应的属地监管单位
+var STREET_NAME_TO_ORG_ID = {
+  '南山街道': 'NS-NANSHAN-STREET',
+  '粤海街道': 'NS-YUEHAI',
+  '西丽街道': 'NS-XILI',
+  '南头街道': 'NS-NANTOU',
+  '沙河街道': 'NS-SHAHE',
+  '蛇口街道': 'NS-SHEKOU',
+  '招商街道': 'NS-ZHAOSHANG',
+  '桃源街道': 'NS-TAOYUAN'
+};
+
+/**
+ * 根据区划树街道名获取属地监管单位信息
+ * @param {string} streetName - 区划树中的街道名（如"南山街道"）
+ * @returns {{orgId: string, name: string}|null}
+ */
+function getLocalSupervisorByStreetName(streetName) {
+  var orgId = STREET_NAME_TO_ORG_ID[streetName];
+  if (!orgId) return null;
+  var unit = DOMAIN_LOCAL_STREETS.find(function(u) { return u.id === orgId; });
+  return unit ? { orgId: unit.id, name: unit.name } : null;
+}
+
 /* ========== 辅助函数 ========== */
 
 /**
