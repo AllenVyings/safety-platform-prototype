@@ -527,20 +527,38 @@
           <button type="button" class="btn btn-primary" onclick="goToAssignStep(2)">下一步：配置责任人 →</button>
         </div>
       </div>
-      <!-- 步骤 2：配置责任人 -->
+      <!-- 步骤 2：配置责任人（对象切换 + 穿梭框选人） -->
       <div class="wizard-panel" id="assignStep2" style="display:none;">
+        <!-- 对象切换 tabs -->
+        <div id="assignObjTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;padding:8px 12px;background:var(--bg-section);border-radius:var(--radius-md);"></div>
+        <!-- 批量操作 -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-sm);">
-          <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">为每个管控对象独立配置责任人（可多选）</span>
+          <span id="assignObjHint" style="font-size:var(--font-size-xs);color:var(--text-tertiary);"></span>
           <div style="display:flex;gap:8px;">
             <button type="button" class="btn btn-default btn-sm" onclick="batchAssignAllPersons()">批量设为本科室全员</button>
             <button type="button" class="btn btn-default btn-sm" onclick="clearAllPersons()">清空全部责任人</button>
           </div>
         </div>
-        <div class="assign-table-wrapper">
-          <table class="assign-table" id="assignPersonTable">
-            <thead><tr><th>管控对象</th><th>类型</th><th style="width:280px;">责任人</th></tr></thead>
-            <tbody id="assignPersonTableBody"></tbody>
-          </table>
+        <!-- 人员穿梭框 -->
+        <div class="shuttle-box">
+          <div class="shuttle-panel">
+            <div class="shuttle-header">
+              <label style="font-size:var(--font-size-sm);font-weight:500;" id="personShuttleLeftTitle">全部人员</label>
+              <label style="font-size:var(--font-size-xs);cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="personSelectAllLeft" onchange="togglePersonShuttleAll(this.checked, 'left')"> 全选</label>
+            </div>
+            <div class="shuttle-list" id="personShuttleLeft"></div>
+          </div>
+          <div class="shuttle-actions">
+            <button type="button" class="btn btn-default btn-sm" onclick="personShuttleMove('leftToRight')">添加 &gt;</button>
+            <button type="button" class="btn btn-default btn-sm" onclick="personShuttleMove('rightToLeft')">&lt; 移除</button>
+          </div>
+          <div class="shuttle-panel">
+            <div class="shuttle-header">
+              <label style="font-size:var(--font-size-sm);font-weight:500;">已选责任人</label>
+              <label style="font-size:var(--font-size-xs);cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="personSelectAllRight" onchange="togglePersonShuttleAll(this.checked, 'right')"> 全选</label>
+            </div>
+            <div class="shuttle-list" id="personShuttleRight"></div>
+          </div>
         </div>
         <div style="display:flex;justify-content:space-between;gap:var(--spacing-sm);margin-top:var(--spacing-md);">
           <button type="button" class="btn btn-default" onclick="goToAssignStep(1)">← 返回修改</button>
@@ -623,8 +641,11 @@
 
   /**
    * 将 domain-data.js 中 supervisor.checklists 格式转为 CONFIG_DATA.checklists 格式
+   * @param {Object} cl - 检查表数据
+   * @param {string} orgName - 监管单位名称
+   * @param {string} orgId - 监管单位ID，用于安委办视角下过滤分配对象
    */
-  function systemClToConfigFormat(cl, orgName) {
+  function systemClToConfigFormat(cl, orgName, orgId) {
     return {
       name: cl.name,
       frequency: cl.frequency || '',
@@ -632,6 +653,7 @@
       person: [],
       dept: '',
       org: orgName || '',  // 安委办视角：显示配置该表的监管单位名称（作为扫码责任）
+      orgId: orgId || '',  // 安委办视角：用于过滤该单位监管的管控对象
       enabled: true,
       assignedObjects: [],
       selectedDepts: [],
@@ -651,11 +673,11 @@
     if (!domain) return [];
 
     if (isAwbUnit(currentPerspectiveId)) {
-      // 安委办视角：所有监管单位的所有系统检查表（不去重），每条记录带监管单位名称
+      // 安委办视角：所有监管单位的所有系统检查表（不去重），每条记录带监管单位名称和ID
       var result = [];
       domain.supervisors.forEach(function(s) {
         (s.checklists || []).forEach(function(cl) {
-          result.push(systemClToConfigFormat(cl, s.name));
+          result.push(systemClToConfigFormat(cl, s.name, s.orgId));
         });
       });
       return result;
@@ -663,7 +685,7 @@
       // 普通单位视角：只读取本单位的系统检查表
       var mySup = domain.supervisors.find(function(s) { return s.orgId === currentPerspectiveId; });
       return (mySup ? (mySup.checklists || []) : []).map(function(cl) {
-        return systemClToConfigFormat(cl, mySup ? mySup.name : '');
+        return systemClToConfigFormat(cl, mySup ? mySup.name : '', mySup ? mySup.orgId : '');
       });
     }
   }
@@ -691,12 +713,33 @@
     _myDomains.forEach(function(d) {
       var internalId = DOMAIN_ID_MAP[d.id] || d.id;
       var systemCLs = getUnitSystemChecklists(internalId);
-      // 系统检查表须分配全部管控对象（BR-GOV-DS-16）
-      // systemClToConfigFormat 默认 assignedObjects: []，这里用该领域的全部对象名填充
-      var objNames = (getVisibleObjects(internalId) || generateObjects(d)).map(function(o) { return o.name; });
+      // 系统检查表须分配管控对象（BR-GOV-DS-16）
+      // 安委办视角：每个检查表只分配该单位监管的对象；普通视角：分配全部可见对象
+      var allObjects = getVisibleObjects(internalId) || generateObjects(d);
+      // 为没有 supervisors 的对象补充领域的 supervisors（basic 模式域的对象）
+      if (d.supervisors) {
+        allObjects.forEach(function(o) {
+          if (!o.supervisors || o.supervisors.length === 0) {
+            o.supervisors = d.supervisors.map(function(s) { return { orgId: s.orgId, name: s.name, type: s.type }; });
+          }
+        });
+      }
       systemCLs.forEach(function(cl) {
-        if (!cl.assignedObjects || cl.assignedObjects.length === 0) {
-          cl.assignedObjects = objNames.slice();
+        // 系统检查表每次都必须重新计算 assignedObjects（按单位过滤），不使用缓存值
+        if (cl.checklistType === 'system') {
+          if (isAwb && cl.orgId) {
+            // 安委办视角：只分配该单位监管的对象
+            var filtered = allObjects.filter(function(o) {
+              return (o.supervisors || []).some(function(s) { return s.orgId === cl.orgId; });
+            });
+            cl.assignedObjects = filtered.map(function(o) { return o.name; });
+          } else {
+            // 普通视角：分配全部可见对象
+            cl.assignedObjects = allObjects.map(function(o) { return o.name; });
+          }
+        } else if (!cl.assignedObjects || cl.assignedObjects.length === 0) {
+          // 自定义检查表：只在未分配时才填充全部对象
+          cl.assignedObjects = allObjects.map(function(o) { return o.name; });
         }
       });
       if (!CONFIG_DATA[internalId]) CONFIG_DATA[internalId] = { checklists: [] };
@@ -2409,12 +2452,13 @@
   }
 
   // ========== 责任分配 — 独立弹窗 + 两阶段向导 ==========
-  var assignState = { step: 1, selectedObjs: [], selectedPersons: [], selectedDepts: [], dept: '', objectPersons: {} };
+  var assignState = { step: 1, selectedObjs: [], selectedPersons: [], selectedDepts: [], dept: '', objectPersons: {}, currentObj: '', expandedDepts: {} };
 
   // 打开责任分配弹窗
   window.openAssignModal = function() {
-    // 优先取⓪配置值，其次当前视角单位名称（与⓪下拉"XXX（默认）"一致），不再用 DOMAIN_SUMMARY 的写死 dept
-    var defaultDept = (draftConfig && draftConfig.dept) || getUnitNameById(currentPerspectiveId) || '';
+    // 编辑模式：保持 clAssignData 中已有的责任科室（委办局名）；新增模式：取默认值
+    var isEditMode = clAssignData && clAssignData.objects && clAssignData.objects.length > 0;
+    var defaultDept = isEditMode ? (clAssignData.dept || '') : ((draftConfig && draftConfig.dept) || getUnitNameById(currentPerspectiveId) || '');
     assignState.dept = defaultDept;
     assignState.selectedPersons = [];
     assignState.selectedDepts = [];
@@ -2436,12 +2480,14 @@
       assignState.selectedDepts = [];
       assignState.objectPersons = {};
     }
+    assignState.currentObj = '';
+    assignState.expandedDepts = {};
     // 安委办视角：隐藏"责任科室"行，修改"批量设为本科室全员"按钮文案
     var isAwb = isAwbUnit(currentPerspectiveId);
     var deptRow = document.querySelector('#modal-assign-responsibility > div > div.modal-body > div:first-child');
     var batchBtn = document.querySelector('button[onclick="batchAssignAllPersons()"]');
     if (deptRow) deptRow.style.display = isAwb ? 'none' : '';
-    if (batchBtn) batchBtn.textContent = isAwb ? '批量设为全区全员' : '批量设为本科室全员';
+    if (batchBtn) batchBtn.textContent = isAwb ? '批量设为全部监管单位' : '批量设为本科室全员';
     goToAssignStep(1);
     renderAssignShuttleBox();
     updateAssignWizardCount();
@@ -2459,7 +2505,13 @@
       var s = parseInt(el.dataset.step, 10);
       el.classList.toggle('active', s <= step);
     });
-    if (step === 2) renderPersonTable();
+    if (step === 2) {
+      // 确保 currentObj 在已选列表中，否则设为第一个
+      if (!assignState.currentObj || assignState.selectedObjs.indexOf(assignState.currentObj) < 0) {
+        assignState.currentObj = assignState.selectedObjs[0] || '';
+      }
+      renderPersonShuttleBox();
+    }
     updateAssignWizardCount();
   };
 
@@ -2533,80 +2585,261 @@
     }
   };
 
-  // ========== 步骤② 配置责任人（表格形式） ==========
+  // ========== 步骤② 配置责任人（对象切换 + 穿梭框选人） ==========
 
-  function renderPersonTable() {
-    var dept = assignState.dept;
-    var tbody = document.getElementById('assignPersonTableBody');
-    if (!tbody) return;
-    var objects = window._clAllObjects || [];
-    var html = '';
-    var isAwb = isAwbUnit(currentPerspectiveId);
-    assignState.selectedObjs.forEach(function(objName) {
-      var obj = objects.find(function(o) { return o.name === objName; }) || { name: objName, type: '' };
-      var selectedPersons = assignState.objectPersons[objName] || [];
-      var selectHtml = '<select multiple class="form-select" style="width:100%;min-height:64px;" onchange="updateObjectPersons(\'' + objName + '\', this)">';
-      if (isAwb) {
-        // 安委办视角：按单位分组显示全区人员
-        var units = getAllSupervisorUnits();
-        units.forEach(function(u) {
-          var persons = getUnitPersonnel(u.id).filter(function(p) { return p.status !== '停用'; });
-          if (persons.length === 0) return;
-          selectHtml += '<optgroup label="' + u.name + '">';
-          persons.forEach(function(p) {
-            var selected = selectedPersons.indexOf(p.name) >= 0 ? ' selected' : '';
-            selectHtml += '<option value="' + p.name + '"' + selected + '>' + p.name + '（' + (p.deptName || '') + ' · ' + (p.title || '') + '）</option>';
-          });
-          selectHtml += '</optgroup>';
-        });
-      } else {
-        // 普通单位视角：沿用原责任科室人员池
-        var allPersons = getAllPersonsForDept(dept);
-        allPersons.forEach(function(p) {
-          var selected = selectedPersons.indexOf(p) >= 0 ? ' selected' : '';
-          selectHtml += '<option value="' + p + '"' + selected + '>' + p + '</option>';
-        });
-      }
-      selectHtml += '</select>';
-      var emptyHint = '';
-      if (isAwb) {
-        var totalCount = getAllSupervisorPersonnel().filter(function(p) { return p.status !== '停用'; }).length;
-        if (totalCount === 0) emptyHint = '<span style="color:var(--text-tertiary);font-size:var(--font-size-sm);">全区暂无启用人员</span>';
-      } else {
-        var allPersons = getAllPersonsForDept(dept);
-        if (allPersons.length === 0) emptyHint = '<span style="color:var(--text-tertiary);font-size:var(--font-size-sm);">该科室暂无人员</span>';
-      }
-      if (emptyHint) selectHtml = emptyHint;
-      html += '<tr><td>' + obj.name + '</td><td><span class="tag tag-cyan">' + obj.type + '</span></td><td>' + selectHtml + '</td></tr>';
-    });
-    if (!html) {
-      html = '<tr><td colspan="3" style="text-align:center;color:var(--text-tertiary);">请先在步骤①选择管控对象</td></tr>';
-    }
-    tbody.innerHTML = html;
+  function renderPersonShuttleBox() {
+    renderObjTabs();
+    renderPersonShuttle();
   }
 
-  window.updateObjectPersons = function(objName, selectEl) {
-    var selected = Array.from(selectEl.selectedOptions).map(function(o) { return o.value; });
-    assignState.objectPersons[objName] = selected;
+  // 渲染对象切换 tabs
+  function renderObjTabs() {
+    var container = document.getElementById('assignObjTabs');
+    var hint = document.getElementById('assignObjHint');
+    if (!container) return;
+    var objects = window._clAllObjects || [];
+    var selected = assignState.selectedObjs;
+    var isAwb = isAwbUnit(currentPerspectiveId);
+    if (selected.length === 0) {
+      container.innerHTML = '<span style="font-size:var(--font-size-sm);color:var(--text-tertiary);">请先在步骤①选择管控对象</span>';
+      if (hint) hint.textContent = '';
+      return;
+    }
+    var html = '';
+    selected.forEach(function(objName, idx) {
+      var obj = objects.find(function(o) { return o.name === objName; }) || { name: objName, type: '' };
+      var active = assignState.currentObj === objName;
+      var personCount = (assignState.objectPersons[objName] || []).length;
+      html += '<button type="button" class="btn btn-sm' + (active ? ' btn-primary' : ' btn-default') + '" onclick="switchAssignObj(\'' + objName + '\')" title="' + obj.type + '">' + obj.name + '（' + personCount + '人）</button>';
+    });
+    container.innerHTML = html;
+    if (hint) {
+      var currentPersons = assignState.objectPersons[assignState.currentObj] || [];
+      hint.textContent = '当前为「' + assignState.currentObj + '」配置责任人，已选 ' + currentPersons.length + ' 人';
+    }
+  }
+
+  window.switchAssignObj = function(objName) {
+    assignState.currentObj = objName;
+    renderPersonShuttleBox();
   };
+
+  // 渲染人员穿梭框
+  function renderPersonShuttle() {
+    var dept = assignState.dept;
+    var currentObj = assignState.currentObj;
+    var selectedItems = assignState.objectPersons[currentObj] || [];
+    var isAwb = isAwbUnit(currentPerspectiveId);
+
+    if (isAwb) {
+      renderAwbShuttle(selectedItems);
+    } else {
+      renderDeptTreeShuttle(dept, selectedItems);
+    }
+  }
+
+  // 安委办视角：左侧监管单位列表（单位级选择），右侧已选单位
+  function renderAwbShuttle(selectedItems) {
+    var units = getAllSupervisorUnits();
+    // 为每个单位计算启用人员数
+    var unitData = units.map(function(u) {
+      var count = getUnitPersonnel(u.id).filter(function(p) { return p.status !== '启用'; }).length === 0
+        ? getUnitPersonnel(u.id).filter(function(p) { return p.status !== '停用'; }).length
+        : getUnitPersonnel(u.id).filter(function(p) { return p.status !== '停用'; }).length;
+      return { id: u.id, name: u.name, type: u.type, count: count };
+    }).filter(function(u) { return u.count > 0; });
+
+    // 左侧：监管单位列表
+    var leftHtml = '';
+    if (unitData.length > 0) {
+      unitData.forEach(function(u) {
+        var checked = selectedItems.indexOf(u.name) >= 0 ? ' checked' : '';
+        var typeLabel = u.type === 'awb' ? '安委办' : u.type === 'commission' ? '委办局' : '街道';
+        leftHtml += '<div class="shuttle-item"><label><input type="checkbox" class="person-shuttle-left-cb" data-name="' + u.name + '"' + checked + '> <span class="shuttle-item-label">' + u.name + '</span> <span class="shuttle-item-tag">' + typeLabel + ' · ' + u.count + '人</span></label></div>';
+      });
+    } else {
+      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">🏢</div><div>全区暂无启用监管单位</div></div>';
+    }
+    document.getElementById('personShuttleLeft').innerHTML = leftHtml;
+
+    // 右侧：已选单位
+    var rightHtml = '';
+    var rightUnits = unitData.filter(function(u) { return selectedItems.indexOf(u.name) >= 0; });
+    if (rightUnits.length > 0) {
+      rightUnits.forEach(function(u) {
+        rightHtml += '<div class="shuttle-item"><label><input type="checkbox" class="person-shuttle-right-cb" data-name="' + u.name + '"> <span class="shuttle-item-label">' + u.name + '</span> <span class="shuttle-item-tag">' + u.count + '人</span></label></div>';
+      });
+    } else {
+      rightHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon"></div><div>尚未选择监管单位</div></div>';
+    }
+    document.getElementById('personShuttleRight').innerHTML = rightHtml;
+
+    var leftTitle = document.getElementById('personShuttleLeftTitle');
+    if (leftTitle) leftTitle.textContent = '监管单位（' + unitData.length + '）';
+    document.getElementById('personSelectAllLeft').checked = selectedItems.length === unitData.length && unitData.length > 0;
+    document.getElementById('personSelectAllRight').checked = false;
+  }
+
+  // 委办局视角：左侧科室→人员树（可展开/收起），右侧已选人员
+  function renderDeptTreeShuttle(dept, selectedItems) {
+    var depts = DEPT_LIST || [];
+    var expandedDepts = assignState.expandedDepts || {};
+
+    var leftHtml = '';
+    if (depts.length > 0) {
+      depts.forEach(function(deptName) {
+        var persons = PERSON_BY_DEPT[deptName] || [];
+        if (persons.length === 0) return;
+        var expanded = expandedDepts[deptName] !== false; // 默认展开
+        var arrow = expanded ? '▼' : '▶';
+        leftHtml += '<div class="shuttle-item" style="font-weight:600;background:var(--bg-section);cursor:pointer;" onclick="toggleDeptShuttle(\'' + deptName + '\')">';
+        leftHtml += '<span style="width:16px;font-size:var(--font-size-xs);color:var(--text-tertiary);flex-shrink:0;">' + arrow + '</span>';
+        leftHtml += '<span class="shuttle-item-label">' + deptName + '</span>';
+        leftHtml += '<span class="shuttle-item-tag">' + persons.length + '人</span>';
+        leftHtml += '</div>';
+        if (expanded) {
+          persons.forEach(function(p) {
+            var checked = selectedItems.indexOf(p) >= 0 ? ' checked' : '';
+            leftHtml += '<div class="shuttle-item" style="padding-left:36px;"><label><input type="checkbox" class="person-shuttle-left-cb" data-name="' + p + '"' + checked + '> <span class="shuttle-item-label">' + p + '</span></label></div>';
+          });
+        }
+      });
+    }
+    if (!leftHtml) {
+      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">👤</div><div>该科室暂无人员</div></div>';
+    }
+    document.getElementById('personShuttleLeft').innerHTML = leftHtml;
+
+    // 右侧：已选人员（按科室分组）
+    var rightHtml = '';
+    if (selectedItems.length > 0) {
+      var groupedByDept = {};
+      depts.forEach(function(deptName) {
+        var persons = PERSON_BY_DEPT[deptName] || [];
+        var matched = persons.filter(function(p) { return selectedItems.indexOf(p) >= 0; });
+        if (matched.length > 0) groupedByDept[deptName] = matched;
+      });
+      Object.keys(groupedByDept).forEach(function(deptName) {
+        rightHtml += '<div style="padding:4px 12px;font-size:var(--font-size-xs);font-weight:600;color:var(--text-secondary);background:var(--bg-section);border-top:1px solid var(--border-light);">' + deptName + '</div>';
+        groupedByDept[deptName].forEach(function(p) {
+          rightHtml += '<div class="shuttle-item"><label><input type="checkbox" class="person-shuttle-right-cb" data-name="' + p + '"> <span class="shuttle-item-label">' + p + '</span></label></div>';
+        });
+      });
+    } else {
+      rightHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon"></div><div>尚未选择责任人</div></div>';
+    }
+    document.getElementById('personShuttleRight').innerHTML = rightHtml;
+
+    var leftTitle = document.getElementById('personShuttleLeftTitle');
+    var totalPersons = depts.reduce(function(sum, d) { return sum + (PERSON_BY_DEPT[d] || []).length; }, 0);
+    if (leftTitle) leftTitle.textContent = '全部人员（' + totalPersons + '）';
+
+    var allSelected = selectedItems.length === totalPersons && totalPersons > 0;
+    document.getElementById('personSelectAllLeft').checked = allSelected;
+    document.getElementById('personSelectAllRight').checked = false;
+  }
+
+  window.toggleDeptShuttle = function(deptName) {
+    if (!assignState.expandedDepts) assignState.expandedDepts = {};
+    var current = assignState.expandedDepts[deptName];
+    assignState.expandedDepts[deptName] = current === false ? true : false;
+    renderPersonShuttleBox();
+  };
+
+  window.personShuttleMove = function(dir) {
+    var currentObj = assignState.currentObj;
+    var selectedPersons = assignState.objectPersons[currentObj] || [];
+    if (dir === 'leftToRight') {
+      document.querySelectorAll('.person-shuttle-left-cb:checked').forEach(function(cb) {
+        var name = cb.dataset.name;
+        if (selectedPersons.indexOf(name) < 0) selectedPersons.push(name);
+      });
+    } else {
+      var toRemove = [];
+      document.querySelectorAll('.person-shuttle-right-cb:checked').forEach(function(cb) {
+        toRemove.push(cb.dataset.name);
+      });
+      selectedPersons = selectedPersons.filter(function(n) { return toRemove.indexOf(n) < 0; });
+    }
+    assignState.objectPersons[currentObj] = selectedPersons;
+    renderPersonShuttleBox();
+  };
+
+  window.togglePersonShuttleAll = function(checked, side) {
+    var currentObj = assignState.currentObj;
+    var isAwb = isAwbUnit(currentPerspectiveId);
+    var dept = assignState.dept;
+    if (side === 'left') {
+      var allNames = [];
+      if (isAwb) {
+        // 安委办：全选所有有启用人员的监管单位
+        var units = getAllSupervisorUnits();
+        units.forEach(function(u) {
+          var count = getUnitPersonnel(u.id).filter(function(p) { return p.status !== '停用'; }).length;
+          if (count > 0) allNames.push(u.name);
+        });
+      } else {
+        // 委办局：全选所有科室的人员
+        var depts = DEPT_LIST || [];
+        depts.forEach(function(d) {
+          (PERSON_BY_DEPT[d] || []).forEach(function(p) { if (allNames.indexOf(p) < 0) allNames.push(p); });
+        });
+      }
+      if (checked) {
+        assignState.objectPersons[currentObj] = allNames.slice();
+      } else {
+        assignState.objectPersons[currentObj] = [];
+      }
+      renderPersonShuttleBox();
+    } else {
+      document.querySelectorAll('.person-shuttle-right-cb').forEach(function(cb) { cb.checked = checked; });
+    }
+  };
+
+  // 左侧 checkbox 直接取消时同步移除
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.classList && e.target.classList.contains('person-shuttle-left-cb')) {
+      var currentObj = assignState.currentObj;
+      var selectedPersons = assignState.objectPersons[currentObj] || [];
+      var name = e.target.dataset.name;
+      if (!e.target.checked) {
+        selectedPersons = selectedPersons.filter(function(n) { return n !== name; });
+      } else {
+        if (selectedPersons.indexOf(name) < 0) selectedPersons.push(name);
+      }
+      assignState.objectPersons[currentObj] = selectedPersons;
+      renderPersonShuttleBox();
+    }
+  });
+
+  // （旧表格形式已移除——步骤2改为穿梭框形式）
 
   window.batchAssignAllPersons = function() {
     var dept = assignState.dept;
     var isAwb = isAwbUnit(currentPerspectiveId);
-    var allPersons;
+    var allItems;
     var toastMsg;
     if (isAwb) {
-      // 安委办视角：批量设为全区所有启用人员
-      allPersons = getAllSupervisorPersonnel().filter(function(p) { return p.status !== '停用'; }).map(function(p) { return p.name; });
-      toastMsg = '已批量设为全区全员（' + allPersons.length + '人）';
+      // 安委办视角：批量设为全部监管单位
+      var units = getAllSupervisorUnits();
+      allItems = [];
+      units.forEach(function(u) {
+        var count = getUnitPersonnel(u.id).filter(function(p) { return p.status !== '停用'; }).length;
+        if (count > 0) allItems.push(u.name);
+      });
+      toastMsg = '已批量设为全部监管单位（' + allItems.length + '个）';
     } else {
-      allPersons = getAllPersonsForDept(dept);
-      toastMsg = '已批量设为本科室全员';
+      allItems = [];
+      var depts = DEPT_LIST || [];
+      depts.forEach(function(d) {
+        (PERSON_BY_DEPT[d] || []).forEach(function(p) { if (allItems.indexOf(p) < 0) allItems.push(p); });
+      });
+      toastMsg = '已批量设为本科室全员（' + allItems.length + '人）';
     }
     assignState.selectedObjs.forEach(function(objName) {
-      assignState.objectPersons[objName] = allPersons.slice();
+      assignState.objectPersons[objName] = allItems.slice();
     });
-    renderPersonTable();
+    renderPersonShuttleBox();
     showToast(toastMsg);
   };
 
@@ -2614,7 +2847,7 @@
     assignState.selectedObjs.forEach(function(objName) {
       assignState.objectPersons[objName] = [];
     });
-    renderPersonTable();
+    renderPersonShuttleBox();
     showToast('已清空全部责任人');
   };
 
@@ -2721,6 +2954,8 @@
     assignState.selectedDepts = clAssignData.selectedDepts ? clAssignData.selectedDepts.slice() : [];
     assignState.selectedPersons = clAssignData.persons ? Object.values(clAssignData.persons).flat().filter(function(v, i, a) { return a.indexOf(v) === i; }) : [];
     assignState.objectPersons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
+    assignState.currentObj = '';
+    assignState.expandedDepts = {};
 
     // 显示责任科室（只读）
     document.getElementById('assignDeptDisplay').textContent = assignState.dept || '未设置';
@@ -3661,10 +3896,10 @@
     var assignedObjs = cl.assignedObjects || [];
     var objectPersons = cl.objectPersons || {};
     var selDepts = cl.selectedDepts || [];
-    // 系统检查表的责任科室取「⓪ 责任科室配置」的值（draftConfig.dept），未配置时回退为当前视角监管单位名称（与⓪下拉"XXX（默认）"一致）
+    // 系统检查表的责任科室取该检查表所属监管单位的名称（安委办视角下 cl.orgId 指向配置该表的委办局）
     var effectiveDept;
-    if (isSystemCl && draftConfig) {
-      effectiveDept = draftConfig.dept || getUnitNameById(currentPerspectiveId) || '';
+    if (isSystemCl) {
+      effectiveDept = cl.org ? cl.org : (draftConfig ? draftConfig.dept : '') || getUnitNameById(cl.orgId || currentPerspectiveId) || '';
     } else {
       effectiveDept = cl.dept || '';
     }
@@ -3997,6 +4232,15 @@
     }
     configState.domainId = domainId;
     configState.objects = (getVisibleObjects(domainId) || generateObjects(d)).map(function(o) { return o; });
+    // 为没有 supervisors 的对象补充领域的 supervisors（确保安委办视角下按单位过滤对象）
+    var domainData = DOMAIN_TABLE_DATA.find(function(dd) { return (DOMAIN_ID_MAP[dd.id] || dd.id) === domainId; });
+    if (domainData && domainData.supervisors) {
+      configState.objects.forEach(function(o) {
+        if (!o.supervisors || o.supervisors.length === 0) {
+          o.supervisors = domainData.supervisors.map(function(s) { return { orgId: s.orgId, name: s.name, type: s.type }; });
+        }
+      });
+    }
     configState.targetConfigDept = ''; // 不硬编码 d.dept，由⓪责任科室配置决定
     // BR-GOV-DS-18：进入配置页建立草稿基线，所有变更先写入 draftConfig，保存配置统一提交 / 取消全部丢弃
     draftBaseline = deepClone(CONFIG_DATA[domainId] || { checklists: [], hazard: null });
@@ -4019,7 +4263,15 @@
         c.assignedPersons = [];
         c.skipHoliday = false;
         c.items = Array.isArray(c.items) ? c.items : [];
-        c.assignedObjects = allObjNames.slice(); // 系统检查表须分配全部对象（BR-GOV-DS-16）
+        // 系统检查表须分配对象（BR-GOV-DS-16）
+        // 安委办视角：按所属单位过滤；普通视角：分配全部可见对象
+        if (isAwbUnit(currentPerspectiveId) && c.orgId) {
+          c.assignedObjects = configState.objects.filter(function(o) {
+            return (o.supervisors || []).some(function(s) { return s.orgId === c.orgId; });
+          }).map(function(o) { return o.name; });
+        } else {
+          c.assignedObjects = allObjNames.slice();
+        }
         c.dept = draftBaseline.dept || ''; // 系统检查表责任科室同步为⓪责任科室配置值
       } else {
         c.person = Array.isArray(c.person) ? c.person : (c.person ? [c.person] : []);
@@ -4104,7 +4356,15 @@
         c.assignedPersons = [];
         c.skipHoliday = false;
         c.items = Array.isArray(c.items) ? c.items : [];
-        c.assignedObjects = allObjNames.slice(); // 系统检查表须分配全部对象（BR-GOV-DS-16）
+        // 系统检查表须分配对象（BR-GOV-DS-16）
+        // 安委办视角：按所属单位过滤；普通视角：分配全部可见对象
+        if (isAwbUnit(currentPerspectiveId) && c.orgId) {
+          c.assignedObjects = configState.objects.filter(function(o) {
+            return (o.supervisors || []).some(function(s) { return s.orgId === c.orgId; });
+          }).map(function(o) { return o.name; });
+        } else {
+          c.assignedObjects = allObjNames.slice();
+        }
         c.dept = draftBaseline.dept || ''; // 系统检查表责任科室同步为⓪责任科室配置值
       } else {
         c.person = Array.isArray(c.person) ? c.person : (c.person ? [c.person] : []);
