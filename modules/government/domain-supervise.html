@@ -1306,6 +1306,8 @@
     if (!newId || newId === currentPerspectiveId) return;
     currentPerspectiveId = newId;
     try { localStorage.setItem('gov_domain_supervise_perspective', newId); } catch (e) {}
+    // 清除缓存（视角变化导致 assignedObjects 和已完成集合变化）
+    DONE_CACHE = {};
     // 重置当前选中节点为根节点
     currentNode = 'root';
     // 重建数据
@@ -1443,6 +1445,11 @@
       if (draftHasChanges() && !window.confirm('当前配置未保存，是否放弃？')) return;
       draftBaseline = null; draftConfig = null;
       configState.domainId = null;
+    }
+
+    // 切换领域节点时清除缓存（不同领域的 assignedObjects 和已完成集合不同）
+    if (id !== currentNode && id.startsWith('domain-')) {
+      DONE_CACHE = {};
     }
 
     // 选中单位节点(root)时，仅展开领域大类层，折叠所有领域大类下的领域小类
@@ -3166,6 +3173,8 @@
       if (objectName && o.name !== objectName) return;
       var info = getObjectDoneInfo(domainId, o, progressFilterDept);
       checklists.forEach(function(cl) {
+        // 关键过滤：该检查表必须已分配给此对象，否则不计入任务（与矩阵 getDomainFreqStats 同源）
+        if (!cl.assignedObjects || !cl.assignedObjects.includes(o.name)) return;
         var status = info.set[cl._idx] ? '已完成' : '未完成';
         var dateStr = getDeadlineByFreq(cl.frequency);
         // 安委办视角：扫码责任显示配置该表的监管单位名称（cl.org）
