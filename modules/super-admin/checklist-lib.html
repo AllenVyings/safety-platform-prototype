@@ -758,12 +758,18 @@
           
           <!-- 筛选栏 -->
           <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-section); display: flex; gap: 12px; align-items: center; background: var(--bg-section);">
-            <select style="height:32px;border:1px solid var(--border);border-radius: var(--radius-md);padding:0 12px;font-size: var(--font-size-sm);">
+            <div class="filter-item" style="display:flex;align-items:center;gap:6px;">
+              <label style="font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap;">检查类型：</label>
+              <select style="height:32px;border:1px solid var(--border);border-radius: var(--radius-md);padding:0 12px;font-size: var(--font-size-sm);">
               <option>全部检查类型</option>
               <option>常规项</option>
               <option>重点项</option>
-            </select>
-            <input type="text" style="flex:1;max-width:320px;height:32px;border:1px solid var(--border);border-radius: var(--radius-md);padding:0 12px;font-size: var(--font-size-sm);" placeholder="搜索检查项内容...">
+              </select>
+            </div>
+            <div class="filter-item" style="display:flex;align-items:center;gap:6px;">
+              <label style="font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap;">关键词：</label>
+              <input type="text" style="flex:1;max-width:320px;height:32px;border:1px solid var(--border);border-radius: var(--radius-md);padding:0 12px;font-size: var(--font-size-sm);" placeholder="搜索检查项内容...">
+            </div>
             <button class="btn btn-primary btn-sm">查询</button>
             <button class="btn btn-default btn-sm">重置</button>
           </div>
@@ -1608,14 +1614,14 @@ var checklistTableData = [
 ];
 
 var checkitemTableData = [
-  { id: 'CI001', name: '消防通道是否畅通', category: '基础设施', type: '关键项', status: '启用', hazardCount: 3, lawCount: 2, createTime: '2026-04-20 10:30' },
-  { id: 'CI002', name: '灭火器压力是否正常', category: '基础设施', type: '关键项', status: '启用', hazardCount: 2, lawCount: 1, createTime: '2026-04-19 14:20' },
-  { id: 'CI003', name: '应急照明是否完好', category: '基础设施', type: '一般项', status: '启用', hazardCount: 1, lawCount: 1, createTime: '2026-04-18 09:15' },
-  { id: 'CI004', name: '配电箱是否有警示标识', category: '电气安全', type: '关键项', status: '停用', hazardCount: 2, lawCount: 2, createTime: '2026-04-17 16:45' },
-  { id: 'CI005', name: '接地保护是否有效', category: '电气安全', type: '关键项', status: '启用', hazardCount: 3, lawCount: 1, createTime: '2026-04-16 11:30' },
-  { id: 'CI006', name: '安全出口标识是否清晰', category: '基础设施', type: '一般项', status: '启用', hazardCount: 1, lawCount: 1, createTime: '2026-04-15 13:20' },
-  { id: 'CI007', name: '电缆线路是否规范敷设', category: '电气安全', type: '一般项', status: '启用', hazardCount: 2, lawCount: 2, createTime: '2026-04-14 10:00' },
-  { id: 'CI008', name: '应急预案是否制定并演练', category: '运营管理', type: '一般项', status: '启用', hazardCount: 1, lawCount: 3, createTime: '2026-04-13 15:30' }
+  { id: 'CI001', name: '消防通道是否畅通', category: '基础设施', type: '常规项', status: '启用', hazardCount: 3, lawCount: 2, createTime: '2026-04-20 10:30' },
+  { id: 'CI002', name: '灭火器压力是否正常', category: '基础设施', type: '常规项', status: '启用', hazardCount: 2, lawCount: 1, createTime: '2026-04-19 14:20' },
+  { id: 'CI003', name: '应急照明是否完好', category: '基础设施', type: '重点项', status: '启用', hazardCount: 1, lawCount: 1, createTime: '2026-04-18 09:15' },
+  { id: 'CI004', name: '配电箱是否有警示标识', category: '电气安全', type: '常规项', status: '停用', hazardCount: 2, lawCount: 2, createTime: '2026-04-17 16:45' },
+  { id: 'CI005', name: '接地保护是否有效', category: '电气安全', type: '常规项', status: '启用', hazardCount: 3, lawCount: 1, createTime: '2026-04-16 11:30' },
+  { id: 'CI006', name: '安全出口标识是否清晰', category: '基础设施', type: '重点项', status: '启用', hazardCount: 1, lawCount: 1, createTime: '2026-04-15 13:20' },
+  { id: 'CI007', name: '电缆线路是否规范敷设', category: '电气安全', type: '重点项', status: '启用', hazardCount: 2, lawCount: 2, createTime: '2026-04-14 10:00' },
+  { id: 'CI008', name: '应急预案是否制定并演练', category: '运营管理', type: '重点项', status: '启用', hazardCount: 1, lawCount: 3, createTime: '2026-04-13 15:30' }
 ];
 
 var libGroupsData = [
@@ -1787,7 +1793,7 @@ function renderCheckitemList() {
       <div style="width: 60px; text-align: center; color: var(--text-secondary);">${index + 1}</div>
       <div style="flex: 1; min-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.name}">${item.name}</div>
       <div style="width: 80px; text-align: center;">
-        <span style="padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); ${item.type === '关键项' ? 'background: var(--danger-light); color: var(--danger);' : 'background: var(--primary-light); color: var(--primary);'}">${item.type}</span>
+        <span style="padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); ${item.type === '重点项' ? 'background: var(--danger-light); color: var(--danger);' : 'background: var(--primary-light); color: var(--primary);'}">${item.type}</span>
       </div>
       <div style="width: 80px; text-align: center; color: var(--primary); cursor: pointer;" onclick="showRelatedHazards('${item.id}')" title="点击查看关联隐患">${item.hazardCount || 0}个</div>
       <div style="width: 80px; text-align: center; color: var(--primary); cursor: pointer;" onclick="showRelatedLaws('${item.id}')" title="点击查看关联法规">${item.lawCount || 0}条</div>
@@ -2573,7 +2579,7 @@ function openEditCheckItemModal(id) {
   if (editingCheckItem) {
     document.getElementById('checkItemContent').value = editingCheckItem.name;
     // 设置radio按钮
-    const typeValue = editingCheckItem.type === '关键项' ? '重点项' : '常规项';
+    const typeValue = editingCheckItem.type === '重点项' ? '重点项' : '常规项';
     const radioBtn = document.querySelector(`input[name="checkItemType"][value="${typeValue}"]`);
     if (radioBtn) radioBtn.checked = true;
   } else {

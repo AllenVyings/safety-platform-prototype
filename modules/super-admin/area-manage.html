@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>区域管理 - 超管端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 主体布局 ========== */
+    html, body { height: 100%; overflow: hidden; }
+    body { margin: 0; }
+    .page-container[data-module="super-admin/area-manage"] {
+      height: 100vh;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    /* ========== 右侧列容器 ========== */
+    .right-column {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      overflow: hidden;
+    }
+
+    /* ========== 筛选区（独立卡片） ========== */
+    .filter-card {
+      padding: var(--spacing-md) 20px;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-section);
+      flex-shrink: 0;
+    }
+    .filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-md); }
+    .filter-item { display: flex; align-items: center; gap: var(--spacing-sm); }
+    .filter-item label { font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap; }
+    .filter-item select,
+    .filter-item input[type="text"] {
+      width: 240px;
+      height: 32px;
+      padding: 0 var(--spacing-sm);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+    }
+    .filter-item select:focus,
+    .filter-item input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* ========== 左右分栏 ========== */
+    .main-layout {
+      display: flex;
+      gap: var(--spacing-md);
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ========== 左侧树面板 ========== */
+    .tree-panel {
+      width: 320px;
+      flex-shrink: 0;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .tree-header {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border-section);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    .tree-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
+    .tree-search-input {
+      width: 100%;
+      padding: var(--spacing-sm) 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+      box-sizing: border-box;
+    }
+    .tree-search-input:focus { outline: none; border-color: var(--primary); }
+    .tree-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-sm);
+    }
+    .tree-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-sm) 0;
+    }
+
+    /* 树节点 */
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px 8px calc(12px + var(--level, 0) * 20px);
+      cursor: pointer;
+      transition: all var(--duration-fast);
+      user-select: none;
+      min-width: 0;
+      position: relative;
+    }
+    .tree-node:hover { background: var(--bg-secondary); }
+    .tree-node.active { background: var(--primary-light); }
+    .tree-toggle {
+      width: 16px; height: 16px;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-right: 4px;
+      cursor: pointer;
+      transition: transform var(--duration-fast);
+      flex-shrink: 0;
+      border-radius: 3px;
+      color: var(--text-tertiary);
+      font-size: 9px; line-height: 1;
+    }
+    .tree-toggle:hover { background: var(--bg-hover); }
+    .tree-toggle.expanded { transform: rotate(90deg); }
+    .tree-toggle.leaf { visibility: hidden; pointer-events: none; }
+    .tree-node-icon {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      margin-right: var(--spacing-sm);
+      font-size: var(--font-size-md);
+      flex-shrink: 0;
+    }
+    .tree-node-label {
+      flex: 1;
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .tree-node-count {
+      font-size: var(--font-size-xs);
+      color: var(--primary);
+      margin-left: var(--spacing-xs);
+      flex-shrink: 0;
+    }
+    .tree-node-status {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-left: var(--spacing-sm);
+      flex-shrink: 0;
+    }
+    .tree-node-status.enabled { background: var(--success); }
+    .tree-node-status.disabled { background: var(--text-tertiary); }
+
+    .tree-children { display: none; }
+    .tree-children.show { display: block; }
+
+    /* 右键菜单 */
+    .context-menu {
+      position: fixed;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      padding: 4px 0;
+      z-index: 2000;
+      min-width: 140px;
+      display: none;
+    }
+    .context-menu-item {
+      padding: 8px 16px;
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background var(--duration-fast);
+      white-space: nowrap;
+    }
+    .context-menu-item:hover { background: var(--bg-secondary); }
+    .context-menu-item.danger { color: var(--danger); }
+    .context-menu-item.disabled {
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+    .context-menu-item.disabled:hover { background: transparent; }
+    .context-menu-divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: 4px 0;
+    }
+
+    /* ========== 右侧内容区 ========== */
+    .right-content {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .content-header {
+      padding: var(--spacing-md) 20px;
+      border-bottom: 1px solid var(--border-section);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--spacing-md);
+      background: var(--bg-section);
+      flex-shrink: 0;
+    }
+    .content-heading { min-width: 0; }
+    .content-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .content-subtitle { margin-top: 4px; font-size: var(--font-size-xs); color: var(--text-secondary); }
+    .content-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    /* 表格 */
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+    .data-table th,
+    .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-light); }
+    .data-table th { background: var(--bg-section); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+    .data-table tbody tr:hover { background: var(--bg-secondary); }
+    .data-table .action-col { white-space: nowrap; }
+    .data-table .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+
+    /* 标签 */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500; }
+    .tag-success { background: var(--success-light); color: var(--success); }
+    .tag-disabled { background: var(--bg-section); color: var(--text-tertiary); }
+    .tag-level-1 { background: #e6f7ff; color: #096dd9; }
+    .tag-level-2 { background: #f6ffed; color: #389e0d; }
+    .tag-level-3 { background: #fff7e6; color: #d46b08; }
+    .tag-level-4 { background: #f9f0ff; color: #722ed1; }
+
+    /* 按钮 */
+    .btn-sm { padding: 4px 10px; font-size: var(--font-size-xs); }
+
+    /* 空状态 */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      color: var(--text-tertiary);
+    }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state .empty-text { font-size: var(--font-size-md); }
+
+    /* ========== 弹窗 ========== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-dialog {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      width: 520px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      padding: var(--spacing-md) 20px;
+      border-bottom: 1px solid var(--border-section);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-section);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      flex-shrink: 0;
+    }
+    .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
+    .modal-close {
+      width: 32px; height: 32px;
+      border: none; background: none;
+      font-size: var(--font-size-xxl);
+      cursor: pointer; color: var(--text-tertiary);
+      border-radius: var(--radius-sm);
+      transition: all var(--duration-normal);
+    }
+    .modal-close:hover { background: var(--border-light); color: var(--text-primary); }
+    .modal-body { padding: 20px; background: var(--bg-primary); }
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-section);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: var(--bg-section);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      flex-shrink: 0;
+    }
+
+    /* 表单 */
+    .form-group { margin-bottom: var(--spacing-md); }
+    .form-label { display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 6px; }
+    .form-label .required { color: var(--danger); margin-left: 2px; }
+    .form-control {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: var(--bg-primary);
+      box-sizing: border-box;
+    }
+    .form-control:focus { outline: none; border-color: var(--primary); }
+    .form-control:read-only { background: var(--bg-section); color: var(--text-secondary); }
+    textarea.form-control { resize: vertical; min-height: 80px; }
+
+    /* 确认弹窗 */
+    .confirm-dialog { width: 400px; }
+    .confirm-body { text-align: center; padding: 32px 24px; }
+    .confirm-icon { font-size: 48px; margin-bottom: 16px; }
+    .confirm-title { font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 8px; }
+    .confirm-text { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; }
+    .confirm-detail { margin-top: 12px; padding: 12px; background: var(--bg-section); border-radius: var(--radius-md); font-size: var(--font-size-sm); text-align: left; }
+
+    /* 分页 */
+    .pagination-wrap {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) 0 0 0;
+      border-top: 1px solid var(--border-light);
+      margin-top: var(--spacing-md);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container" data-module="super-admin/area-manage">
+    <!-- 左右分栏 -->
+    <div class="main-layout">
+      <!-- 左侧区划树 -->
+      <div class="tree-panel">
+        <div class="tree-header">
+          <div class="tree-title">行政区划</div>
+          <input type="text" class="tree-search-input" id="treeSearch" placeholder="搜索区划名称" oninput="searchTree(this.value)">
+          <div class="tree-toolbar">
+            <button class="btn btn-sm btn-default" onclick="expandAll()">展开全部</button>
+            <button class="btn btn-sm btn-default" onclick="collapseAll()">收起全部</button>
+          </div>
+        </div>
+        <div class="tree-body" id="treeBody"></div>
+      </div>
+
+      <!-- 右侧列容器 -->
+      <div class="right-column">
+        <!-- 筛选卡片（在列表卡片外部） -->
+        <div class="filter-card">
+          <div class="filter-bar">
+            <div class="filter-item">
+              <label>层级：</label>
+              <select id="filterLevel"><option value="">全部</option><option value="1">区</option><option value="2">街道</option><option value="3">社区</option><option value="4">网格</option></select>
+            </div>
+            <div class="filter-item">
+              <label>状态：</label>
+              <select id="filterStatus"><option value="">全部</option><option value="ENABLED">启用</option><option value="DISABLED">停用</option></select>
+            </div>
+            <div class="filter-item">
+              <label>关键词：</label>
+              <input type="text" id="filterKeyword" placeholder="搜索名称、编码">
+            </div>
+            <button class="btn btn-primary" onclick="doFilter()">查询</button>
+            <button class="btn btn-default" onclick="resetFilter()">重置</button>
+          </div>
+        </div>
+
+        <!-- 右侧列表卡片 -->
+        <div class="right-content">
+          <div class="content-header">
+            <div class="content-heading">
+              <div class="content-title" id="listTitle">区划列表</div>
+              <div class="content-subtitle" id="listSubtitle">请从左侧选择区划节点</div>
+            </div>
+            <div class="action-bar">
+              <button class="btn btn-primary" id="btnAddChild" onclick="openAddModal()" disabled>新增子区划</button>
+            </div>
+          </div>
+          <div class="content-body">
+          <div class="table-wrap">
+            <table class="data-table" id="dataTable">
+              <thead>
+                <tr>
+                  <th>区划编码</th>
+                  <th>区划名称</th>
+                  <th>层级</th>
+                  <th>全路径</th>
+                  <th>排序</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyState" style="display:none">
+            <div class="empty-icon">📂</div>
+            <div class="empty-text">暂无数据</div>
+          </div>
+          <div class="pagination-wrap" id="paginationWrap"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- 右键菜单 -->
+  <div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" id="ctxAdd" onclick="ctxAddChild()">新增子节点</div>
+    <div class="context-menu-item" id="ctxEdit" onclick="ctxEdit()">编辑</div>
+    <div class="context-menu-item" id="ctxToggle" onclick="ctxToggleStatus()">停用</div>
+    <div class="context-menu-divider" id="ctxDivider"></div>
+    <div class="context-menu-item danger" id="ctxDelete" onclick="ctxDelete()">删除</div>
+  </div>
+
+  <!-- 新增/编辑弹窗 -->
+  <div class="modal-overlay" id="areaModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="areaModalTitle">新增区划</div>
+        <button class="modal-close" onclick="closeAreaModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div class="form-label">上级区划</div>
+          <input type="text" class="form-control" id="modalParentName" readonly>
+        </div>
+        <div class="form-group">
+          <div class="form-label">区划名称<span class="required">*</span></div>
+          <input type="text" class="form-control" id="modalAreaName" placeholder="请输入区划名称" maxlength="100">
+        </div>
+        <div class="form-group">
+          <div class="form-label">区划编码</div>
+          <input type="text" class="form-control" id="modalAreaCode" readonly>
+        </div>
+        <div class="form-group">
+          <div class="form-label">层级</div>
+          <input type="text" class="form-control" id="modalAreaLevel" readonly>
+        </div>
+        <div class="form-group">
+          <div class="form-label">排序号</div>
+          <input type="number" class="form-control" id="modalSortOrder" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <div class="form-label">备注</div>
+          <textarea class="form-control" id="modalRemark" placeholder="请输入备注（最长200字符）" maxlength="200"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeAreaModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveArea()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认弹窗 -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-dialog confirm-dialog">
+      <div class="modal-body confirm-body">
+        <div class="confirm-icon" id="confirmIcon">⚠️</div>
+        <div class="confirm-title" id="confirmTitle">确认操作</div>
+        <div class="confirm-text" id="confirmText"></div>
+        <div class="confirm-detail" id="confirmDetail" style="display:none"></div>
+      </div>
+      <div class="modal-footer" style="justify-content:center">
+        <button class="btn btn-default" onclick="closeConfirmModal()">取消</button>
+        <button class="btn btn-primary" id="confirmBtn" onclick="doConfirm()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/pagination.js"></script>
+  <script>
+    (function() {
+      'use strict';
+      const CONFIG = { moduleId: 'sa-area-manage', moduleName: '区域管理' };
+
+      // ========== 初始数据 ==========
+      let nextId = 1000;
+      let areaData = [];
+      let selectedNodeId = null;
+      let contextNodeId = null;
+      let modalMode = 'add';
+      let modalNodeId = null;
+      let confirmCallback = null;
+
+      const LEVEL_NAMES = { 1: '区', 2: '街道', 3: '社区', 4: '网格' };
+      const LEVEL_TAGS = { 1: 'tag-level-1', 2: 'tag-level-2', 3: 'tag-level-3', 4: 'tag-level-4' };
+
+      // 街道列表
+      const STREETS = [
+        { name: '南头街道', communities: ['南头城社区','大新社区','大汪山社区','红花园社区','马家龙社区','南联社区','莲城社区','前海社区'] },
+        { name: '南山街道', communities: ['南山社区','南光社区','北头社区','南园社区','登良社区','荔湾社区','月亮湾社区','学府社区'] },
+        { name: '沙河街道', communities: ['沙河街社区','明珠街社区','光华街社区','中新街社区','文昌街社区','香山街社区','东方社区','高发社区'] },
+        { name: '蛇口街道', communities: ['蛇口社区','海湾社区','渔一社区','渔二社区','海滨社区','南水社区','大铲社区','内伶仃岛社区'] },
+        { name: '招商街道', communities: ['花果山社区','四海社区','兰园社区','桂园社区','文竹园社区','海月社区','五湾社区','水湾社区'] },
+        { name: '粤海街道', communities: ['蔚蓝海岸社区','创业路社区','龙城社区','京光社区','名海社区','铜鼓社区','科技园社区','大冲社区'] },
+        { name: '桃源街道', communities: ['龙光社区','龙辉社区','珠光社区','塘朗社区','福光社区','长源社区','桃源社区','平山社区'] },
+        { name: '西丽街道', communities: ['西丽社区','曙光社区','松坪山社区','大磡社区','麻磡社区','白芒社区','丽湖社区','新围社区'] },
+        { name: '前海合作区', communities: ['桂湾社区','前湾社区','妈湾社区'] }
+      ];
+
+      function initData() {
+        const data = [];
+        // 根节点：南山区
+        data.push({ id: 1, code: '440305', name: '南山区', level: 1, parentId: 0, fullPath: '南山区', sortOrder: 1, status: 'ENABLED', isSystem: true, expanded: true });
+
+        let codeIdx = 1;
+        STREETS.forEach((st, si) => {
+          const sId = si + 2;
+          const sCode = '440305' + String(codeIdx).padStart(3, '0');
+          data.push({ id: sId, code: sCode, name: st.name, level: 2, parentId: 1, fullPath: `南山区/${st.name}`, sortOrder: si + 1, status: 'ENABLED', isSystem: false, expanded: true });
+
+          st.communities.forEach((comm, ci) => {
+            const cId = sId * 100 + ci + 1;
+            const cCode = sCode + String(ci + 1).padStart(3, '0');
+            data.push({ id: cId, code: cCode, name: comm, level: 3, parentId: sId, fullPath: `南山区/${st.name}/${comm}`, sortOrder: ci + 1, status: 'ENABLED', isSystem: false, expanded: false });
+
+            // 每个社区下2个网格
+            for (let g = 1; g <= 2; g++) {
+              const gId = cId * 10 + g;
+              const gCode = cCode + String(g).padStart(3, '0');
+              data.push({ id: gId, code: gCode, name: `${comm}${g}号网格`, level: 4, parentId: cId, fullPath: `南山区/${st.name}/${comm}/${comm}${g}号网格`, sortOrder: g, status: 'ENABLED', isSystem: false });
+            }
+          });
+          codeIdx++;
+        });
+
+        areaData = data;
+        nextId = 10000;
+      }
+
+      // ========== 区划树 ==========
+      function getChildren(parentId) {
+        return areaData.filter(a => a.parentId === parentId).sort((a, b) => a.sortOrder - b.sortOrder);
+      }
+
+      function renderTree() {
+        const container = document.getElementById('treeBody');
+        container.innerHTML = '';
+        renderTreeNode(container, 0, 0);
+      }
+
+      function renderTreeNode(container, parentId, level) {
+        const children = getChildren(parentId);
+        children.forEach(node => {
+          const hasChildren = getChildren(node.id).length > 0;
+          const isActive = selectedNodeId === node.id;
+          const el = document.createElement('div');
+          el.className = 'tree-node' + (isActive ? ' active' : '');
+          el.style.setProperty('--level', level);
+          el.dataset.id = node.id;
+          el.onclick = (e) => { e.stopPropagation(); selectNode(node.id); };
+          el.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); showContextMenu(e, node.id); };
+
+          const toggleClass = 'tree-toggle' + (!hasChildren ? ' leaf' : '') + (node.expanded ? ' expanded' : '');
+          const toggleIcon = hasChildren ? '▶' : '';
+          const icon = node.level === 1 ? '🏙️' : node.level === 2 ? '🏘️' : node.level === 3 ? '📍' : '▦';
+          const statusClass = node.status === 'ENABLED' ? 'enabled' : 'disabled';
+          const childCount = getChildren(node.id).length;
+          const countHtml = childCount > 0 ? `<span class="tree-node-count">(${childCount})</span>` : '';
+
+          el.innerHTML = `
+            <span class="${toggleClass}" onclick="toggleNode(event, ${node.id})">${toggleIcon}</span>
+            <span class="tree-node-icon">${icon}</span>
+            <span class="tree-node-label">${escapeHtml(node.name)}</span>
+            ${countHtml}
+            <span class="tree-node-status ${statusClass}"></span>
+          `;
+          container.appendChild(el);
+
+          if (hasChildren && node.expanded) {
+            const childWrap = document.createElement('div');
+            childWrap.className = 'tree-children show';
+            childWrap.dataset.parent = node.id;
+            renderTreeNode(childWrap, node.id, level + 1);
+            container.appendChild(childWrap);
+          } else if (hasChildren) {
+            const childWrap = document.createElement('div');
+            childWrap.className = 'tree-children';
+            childWrap.dataset.parent = node.id;
+            renderTreeNode(childWrap, node.id, level + 1);
+            container.appendChild(childWrap);
+          }
+        });
+      }
+
+      window.toggleNode = function(e, id) {
+        e.stopPropagation();
+        const node = areaData.find(a => a.id === id);
+        if (!node) return;
+        const hasChildren = getChildren(id).length > 0;
+        if (!hasChildren) return;
+        node.expanded = !node.expanded;
+        renderTree();
+      };
+
+      window.selectNode = function(id) {
+        selectedNodeId = id;
+        renderTree();
+        const node = areaData.find(a => a.id === id);
+        const btnAdd = document.getElementById('btnAddChild');
+        if (node) {
+          document.getElementById('listTitle').textContent = node.name + ' — 下属区划列表';
+          document.getElementById('listSubtitle').textContent = '全路径：' + node.fullPath;
+          if (node.level >= 4) {
+            btnAdd.disabled = false;
+            btnAdd.textContent = '新增同级区划';
+          } else {
+            btnAdd.disabled = false;
+            btnAdd.textContent = '新增子区划';
+          }
+        } else {
+          document.getElementById('listTitle').textContent = '区划列表';
+          document.getElementById('listSubtitle').textContent = '请从左侧选择区划节点';
+          btnAdd.disabled = true;
+          btnAdd.textContent = '新增子区划';
+        }
+        doFilter();
+      };
+
+      window.expandAll = function() {
+        areaData.forEach(a => { if (getChildren(a.id).length > 0) a.expanded = true; });
+        renderTree();
+      };
+
+      function restoreDefaultExpand() {
+        areaData.forEach(a => { a.expanded = a.level <= 2; });
+      }
+
+      window.collapseAll = function() {
+        restoreDefaultExpand();
+        renderTree();
+      };
+
+      window.searchTree = function(keyword) {
+        if (!keyword.trim()) {
+          restoreDefaultExpand();
+          renderTree();
+          return;
+        }
+        const kw = keyword.trim().toLowerCase();
+        // 找到匹配的节点及其祖先，展开祖先
+        const matched = areaData.filter(a => a.name.toLowerCase().includes(kw) || a.code.includes(kw));
+        const expandSet = new Set();
+        matched.forEach(m => {
+          let pid = m.parentId;
+          while (pid !== 0) {
+            expandSet.add(pid);
+            const p = areaData.find(a => a.id === pid);
+            pid = p ? p.parentId : 0;
+          }
+        });
+        areaData.forEach(a => { a.expanded = expandSet.has(a.id) || a.level === 1; });
+        renderTree();
+      };
+
+      // ========== 右键菜单 ==========
+      function showContextMenu(e, nodeId) {
+        contextNodeId = nodeId;
+        const node = areaData.find(a => a.id === nodeId);
+        if (!node) return;
+        const menu = document.getElementById('contextMenu');
+
+        // 根据层级控制菜单项
+        const isRoot = node.level === 1;
+        const hasChildren = getChildren(node.id).length > 0;
+
+        document.getElementById('ctxAdd').classList.toggle('disabled', false);
+        document.getElementById('ctxAdd').textContent = node.level >= 4 ? '新增同级' : '新增子节点';
+        document.getElementById('ctxEdit').classList.toggle('disabled', false);
+        document.getElementById('ctxToggle').textContent = node.status === 'ENABLED' ? '停用' : '启用';
+        document.getElementById('ctxDelete').classList.toggle('disabled', isRoot || hasChildren);
+        document.getElementById('ctxDivider').style.display = isRoot ? 'none' : 'block';
+        document.getElementById('ctxDelete').style.display = isRoot ? 'none' : 'block';
+
+        menu.style.left = e.clientX + 'px';
+        menu.style.top = e.clientY + 'px';
+        menu.style.display = 'block';
+      }
+
+      function hideContextMenu() {
+        document.getElementById('contextMenu').style.display = 'none';
+        contextNodeId = null;
+      }
+
+      function onDocumentClick() { hideContextMenu(); }
+      function onDocumentScroll() { hideContextMenu(); }
+      function onKeydown(e) {
+        if (e.key === 'Escape') {
+          if (document.getElementById('confirmModal').classList.contains('show')) {
+            closeConfirmModal();
+          } else if (document.getElementById('areaModal').classList.contains('show')) {
+            closeAreaModal();
+          }
+        }
+      }
+      document.addEventListener('click', onDocumentClick);
+      document.addEventListener('scroll', onDocumentScroll, true);
+      document.addEventListener('keydown', onKeydown);
+
+      window.ctxAddChild = function() {
+        if (!contextNodeId) return;
+        const node = areaData.find(a => a.id === contextNodeId);
+        if (!node) return;
+        selectedNodeId = contextNodeId;
+        renderTree();
+        openAddModal();
+      };
+
+      window.ctxEdit = function() {
+        if (!contextNodeId) return;
+        openEditModal(contextNodeId);
+      };
+
+      window.ctxToggleStatus = function() {
+        if (!contextNodeId) return;
+        const node = areaData.find(a => a.id === contextNodeId);
+        if (!node) return;
+        if (node.status === 'ENABLED') {
+          // 停用：级联停用子节点
+          const cascadeIds = getCascadeIds(node.id);
+          const cascadeNames = cascadeIds.map(id => areaData.find(a => a.id === id)).filter(Boolean).map(a => a.name);
+          showConfirm('停用确认', `确定停用「${node.name}」吗？`, `将同时停用 ${cascadeNames.length} 个区划（含自身）：${cascadeNames.join('、')}`, () => {
+            cascadeIds.forEach(id => {
+              const n = areaData.find(a => a.id === id);
+              if (n) n.status = 'DISABLED';
+            });
+            renderTree();
+            selectNode(selectedNodeId);
+          });
+        } else {
+          // 启用：仅启用自身
+          showConfirm('启用确认', `确定启用「${node.name}」吗？`, null, () => {
+            node.status = 'ENABLED';
+            renderTree();
+            selectNode(selectedNodeId);
+          });
+        }
+      };
+
+      window.ctxDelete = function() {
+        if (!contextNodeId) return;
+        const node = areaData.find(a => a.id === contextNodeId);
+        if (!node || node.isSystem) return;
+        const hasChildren = getChildren(node.id).length > 0;
+        if (hasChildren) {
+          alert('该区划存在子节点，请先处理子节点后再删除。');
+          return;
+        }
+        showConfirm('删除确认', `确定删除「${node.name}」吗？`, '删除后不可恢复，请谨慎操作。', () => {
+          areaData = areaData.filter(a => a.id !== node.id);
+          if (selectedNodeId === node.id) selectedNodeId = node.parentId;
+          renderTree();
+          selectNode(selectedNodeId);
+        });
+      };
+
+      function getCascadeIds(parentId) {
+        const result = [parentId];
+        const children = getChildren(parentId);
+        children.forEach(c => {
+          result.push(...getCascadeIds(c.id));
+        });
+        return result;
+      }
+
+      function getDescendantIds(parentId) {
+        const result = [];
+        const children = getChildren(parentId);
+        children.forEach(c => {
+          result.push(c.id);
+          result.push(...getDescendantIds(c.id));
+        });
+        return result;
+      }
+
+      // ========== 列表与筛选 ==========
+      let pg = null;
+      let currentListData = [];
+
+      function getFilteredData() {
+        let data = areaData;
+        // 如果选中了节点，显示其所有后代节点（含子、孙等）
+        if (selectedNodeId) {
+          const descendantIds = new Set(getDescendantIds(selectedNodeId));
+          data = data.filter(a => descendantIds.has(a.id));
+        } else {
+          data = [];
+        }
+        // 层级筛选
+        const level = document.getElementById('filterLevel').value;
+        if (level) data = data.filter(a => a.level === parseInt(level));
+        // 状态筛选
+        const status = document.getElementById('filterStatus').value;
+        if (status) data = data.filter(a => a.status === status);
+        // 关键词
+        const kw = document.getElementById('filterKeyword').value.trim().toLowerCase();
+        if (kw) data = data.filter(a => a.name.toLowerCase().includes(kw) || a.code.includes(kw));
+        return data;
+      }
+
+      function refreshTable() {
+        if (!pg) return;
+        const state = pg.getState();
+        const start = (state.page - 1) * state.size;
+        const pageData = currentListData.slice(start, start + state.size);
+        renderTable(pageData);
+      }
+
+      window.doFilter = function() {
+        currentListData = getFilteredData();
+        if (!pg) {
+          pg = new Pagination('paginationWrap', {
+            size: 10,
+            onChange: function() { refreshTable(); }
+          });
+        }
+        pg.setTotal(currentListData.length);
+        pg.setPage(1);
+        refreshTable();
+      };
+
+      window.resetFilter = function() {
+        document.getElementById('filterLevel').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterKeyword').value = '';
+        doFilter();
+      };
+
+      function renderTable(pageData) {
+        const tbody = document.getElementById('tableBody');
+        const empty = document.getElementById('emptyState');
+        if (!pageData || pageData.length === 0) {
+          tbody.innerHTML = '';
+          empty.style.display = 'flex';
+          return;
+        }
+        empty.style.display = 'none';
+        tbody.innerHTML = pageData.map(row => {
+          const statusTag = row.status === 'ENABLED'
+            ? '<span class="tag tag-success">启用</span>'
+            : '<span class="tag tag-disabled">停用</span>';
+          const levelTagClass = LEVEL_TAGS[row.level] || '';
+          const levelName = LEVEL_NAMES[row.level] || '';
+          const canDelete = !row.isSystem;
+          const canToggle = !row.isSystem;
+          const toggleText = row.status === 'ENABLED' ? '停用' : '启用';
+          const toggleBtnClass = row.status === 'ENABLED' ? 'btn-default' : 'btn-default';
+          return `
+            <tr>
+              <td>${row.code}</td>
+              <td>${escapeHtml(row.name)}</td>
+              <td><span class="tag ${levelTagClass}">${levelName}</span></td>
+              <td class="ellipsis-col" title="${escapeHtml(row.fullPath)}">${escapeHtml(row.fullPath)}</td>
+              <td>${row.sortOrder}</td>
+              <td>${statusTag}</td>
+              <td class="action-col">
+                <button class="btn btn-sm btn-default" onclick="openEditModal(${row.id})">编辑</button>
+                ${canToggle ? `<button class="btn btn-sm ${toggleBtnClass}" onclick="toggleRowStatus(${row.id})">${toggleText}</button>` : ''}
+                ${canDelete ? `<button class="btn btn-sm btn-danger" onclick="deleteRow(${row.id})">删除</button>` : ''}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      window.toggleRowStatus = function(id) {
+        const node = areaData.find(a => a.id === id);
+        if (!node) return;
+        if (node.status === 'ENABLED') {
+          const cascadeIds = getCascadeIds(node.id);
+          const cascadeNames = cascadeIds.map(cid => areaData.find(a => a.id === cid)).filter(Boolean).map(a => a.name);
+          showConfirm('停用确认', `确定停用「${node.name}」吗？`, `将同时停用 ${cascadeNames.length} 个区划（含自身）：${cascadeNames.join('、')}`, () => {
+            cascadeIds.forEach(cid => {
+              const n = areaData.find(a => a.id === cid);
+              if (n) n.status = 'DISABLED';
+            });
+            renderTree();
+            doFilter();
+          });
+        } else {
+          showConfirm('启用确认', `确定启用「${node.name}」吗？`, null, () => {
+            node.status = 'ENABLED';
+            renderTree();
+            doFilter();
+          });
+        }
+      };
+
+      window.deleteRow = function(id) {
+        const node = areaData.find(a => a.id === id);
+        if (!node || node.isSystem) return;
+        const hasChildren = getChildren(node.id).length > 0;
+        if (hasChildren) {
+          alert('该区划存在子节点，请先处理子节点后再删除。');
+          return;
+        }
+        showConfirm('删除确认', `确定删除「${node.name}」吗？`, '删除后不可恢复，请谨慎操作。', () => {
+          areaData = areaData.filter(a => a.id !== id);
+          renderTree();
+          doFilter();
+        });
+      };
+
+      // ========== 弹窗 ==========
+      window.openAddModal = function() {
+        if (!selectedNodeId) return;
+        const node = areaData.find(a => a.id === selectedNodeId);
+        if (!node) return;
+        // 网格级新增同级：实际父节点为当前节点的父节点
+        const parent = node.level >= 4
+          ? areaData.find(a => a.id === node.parentId)
+          : node;
+        if (!parent) return;
+        modalMode = 'add';
+        modalNodeId = null;
+        document.getElementById('areaModalTitle').textContent = '新增区划';
+        document.getElementById('modalParentName').value = parent.name;
+        document.getElementById('modalAreaName').value = '';
+        document.getElementById('modalAreaCode').value = generateCode(parent);
+        document.getElementById('modalAreaLevel').value = LEVEL_NAMES[parent.level + 1] || '';
+        document.getElementById('modalSortOrder').value = '0';
+        document.getElementById('modalRemark').value = '';
+        document.getElementById('areaModal').classList.add('show');
+      };
+
+      window.openEditModal = function(id) {
+        const node = areaData.find(a => a.id === id);
+        if (!node) return;
+        const parent = areaData.find(a => a.id === node.parentId);
+        modalMode = 'edit';
+        modalNodeId = id;
+        document.getElementById('areaModalTitle').textContent = '编辑区划';
+        document.getElementById('modalParentName').value = parent ? parent.name : '无';
+        document.getElementById('modalAreaName').value = node.name;
+        document.getElementById('modalAreaCode').value = node.code;
+        document.getElementById('modalAreaLevel').value = LEVEL_NAMES[node.level] || '';
+        document.getElementById('modalSortOrder').value = node.sortOrder;
+        document.getElementById('modalRemark').value = node.remark || '';
+        document.getElementById('areaModal').classList.add('show');
+      };
+
+      window.closeAreaModal = function() {
+        document.getElementById('areaModal').classList.remove('show');
+      };
+
+      window.saveArea = function() {
+        const name = document.getElementById('modalAreaName').value.trim();
+        if (!name) { alert('请输入区划名称'); return; }
+        if (name.length > 100) { alert('区划名称最长100字符'); return; }
+
+        const sortOrder = parseInt(document.getElementById('modalSortOrder').value) || 0;
+        const remark = document.getElementById('modalRemark').value.trim();
+
+        if (modalMode === 'add') {
+          const currentNode = areaData.find(a => a.id === selectedNodeId);
+          // 网格级新增同级：实际父节点为当前节点的父节点
+          const parent = (currentNode && currentNode.level >= 4)
+            ? areaData.find(a => a.id === currentNode.parentId)
+            : currentNode;
+          if (!parent) return;
+          const newId = nextId++;
+          const newLevel = parent.level + 1;
+          if (newLevel > 4) { alert('区划层级不能超过 4 级'); return; }
+          const newCode = generateCode(parent);
+          const newNode = {
+            id: newId,
+            code: newCode,
+            name: name,
+            level: newLevel,
+            parentId: parent.id,
+            fullPath: parent.fullPath + '/' + name,
+            sortOrder: sortOrder,
+            status: 'ENABLED',
+            isSystem: false,
+            remark: remark,
+            expanded: false
+          };
+          areaData.push(newNode);
+          // 展开父节点
+          parent.expanded = true;
+          // 如果新增的是同级，选中节点切回父节点，确保列表能看到新节点
+          if (currentNode && currentNode.level >= 4) {
+            selectedNodeId = parent.id;
+          }
+          renderTree();
+          selectNode(selectedNodeId);
+        } else {
+          const node = areaData.find(a => a.id === modalNodeId);
+          if (!node) return;
+          // 更新名称时同步更新全路径
+          const oldName = node.name;
+          node.name = name;
+          node.sortOrder = sortOrder;
+          node.remark = remark;
+          if (oldName !== name) {
+            rebuildFullPath(node);
+          }
+          renderTree();
+          doFilter();
+        }
+        closeAreaModal();
+      };
+
+      function generateCode(parent) {
+        const siblings = getChildren(parent.id);
+        const seq = siblings.length + 1;
+        return parent.code + String(seq).padStart(3, '0');
+      }
+
+      function rebuildFullPath(node) {
+        const parent = areaData.find(a => a.id === node.parentId);
+        node.fullPath = parent ? parent.fullPath + '/' + node.name : node.name;
+        // 级联更新子节点
+        getChildren(node.id).forEach(child => rebuildFullPath(child));
+      }
+
+      // ========== 确认弹窗 ==========
+      function showConfirm(title, text, detail, callback) {
+        confirmCallback = callback;
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmText').textContent = text;
+        const detailEl = document.getElementById('confirmDetail');
+        if (detail) {
+          detailEl.textContent = detail;
+          detailEl.style.display = 'block';
+        } else {
+          detailEl.style.display = 'none';
+        }
+        document.getElementById('confirmModal').classList.add('show');
+      }
+
+      window.closeConfirmModal = function() {
+        document.getElementById('confirmModal').classList.remove('show');
+        confirmCallback = null;
+      };
+
+      window.doConfirm = function() {
+        if (confirmCallback) confirmCallback();
+        closeConfirmModal();
+      };
+
+      // ========== 工具函数 ==========
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      // ========== 初始化 ==========
+      function init() {
+        initData();
+        renderTree();
+        // 默认选中根节点
+        const root = areaData.find(a => a.parentId === 0);
+        if (root) selectNode(root.id);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+      window.destroyModule = function() {
+        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        if (pg && typeof pg.destroy === 'function') { pg.destroy(); }
+        pg = null;
+        document.removeEventListener('click', onDocumentClick);
+        document.removeEventListener('scroll', onDocumentScroll, true);
+        document.removeEventListener('keydown', onKeydown);
+      };
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

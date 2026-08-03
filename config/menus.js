@@ -133,34 +133,92 @@ const MENU_CONFIG = {
       disabled: false
     },
     {
-      id: 'sa-role-permission',
-      name: '角色权限管理',
-      icon: '🔐',
-      module: 'super-admin/role-permission',
-      path: 'modules/super-admin/role-permission.html',
-      description: '平台角色定义与权限配置',
-      badge: '待开发',
-      disabled: true
-    },
-    {
-      id: 'sa-position-manage',
-      name: '职务管理',
-      icon: '👔',
-      module: 'super-admin/position-manage',
-      path: 'modules/super-admin/position-manage.html',
-      description: '全局职务配置，支持场景隔离与单位类型联动',
-      badge: null,
-      disabled: false
-    },
-    {
       id: 'sa-system-config',
       name: '系统配置',
       icon: '⚙️',
-      module: 'super-admin/system-config',
-      path: 'modules/super-admin/system-config.html',
-      description: '数据字典与系统参数配置',
-      badge: '待开发',
-      disabled: true
+      children: [
+        {
+          id: 'sa-role-manage',
+          name: '角色管理',
+          module: 'super-admin/role-permission',
+          path: 'modules/super-admin/role-permission.html',
+          description: '平台角色定义与权限配置',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'sa-menu-manage',
+          name: '菜单管理',
+          module: 'super-admin/menu-manage',
+          path: 'modules/super-admin/menu-manage.html',
+          description: '系统菜单与按钮权限配置',
+          badge: '待开发',
+          disabled: true
+        },
+        {
+          id: 'sa-position-manage',
+          name: '职务管理',
+          module: 'super-admin/position-manage',
+          path: 'modules/super-admin/position-manage.html',
+          description: '全局职务配置，支持场景隔离与单位类型联动',
+          badge: null,
+          disabled: false
+        },
+        {
+          id: 'sa-dict-manage',
+          name: '字典管理',
+          module: 'super-admin/dict-manage',
+          path: 'modules/super-admin/dict-manage.html',
+          description: '数据字典分类与字典项维护',
+          badge: '待开发',
+          disabled: true
+        },
+        {
+          id: 'sa-param-setting',
+          name: '参数设置',
+          module: 'super-admin/param-setting',
+          path: 'modules/super-admin/param-setting.html',
+          description: '系统级参数配置',
+          badge: '待开发',
+          disabled: true
+        },
+        {
+          id: 'sa-calendar-manage',
+          name: '日历管理',
+          module: 'super-admin/calendar-manage',
+          path: 'modules/super-admin/calendar-manage.html',
+          description: '年度节假日与工作日方案管理',
+          badge: '待开发',
+          disabled: true
+        },
+        {
+          id: 'sa-operation-log',
+          name: '操作日志',
+          module: 'super-admin/operation-log',
+          path: 'modules/super-admin/operation-log.html',
+          description: '系统操作行为审计日志',
+          badge: '待开发',
+          disabled: true
+        },
+        {
+          id: 'sa-login-log',
+          name: '登录日志',
+          module: 'super-admin/login-log',
+          path: 'modules/super-admin/login-log.html',
+          description: '登录行为日志与在线用户管理',
+          badge: '待开发',
+          disabled: true
+        },
+        {
+          id: 'sa-area-manage',
+          name: '区域管理',
+          module: 'super-admin/area-manage',
+          path: 'modules/super-admin/area-manage.html',
+          description: '行政区划数据源管理（区/街道/社区/网格）',
+          badge: null,
+          disabled: false
+        }
+      ]
     },
   ],
   
