@@ -26,7 +26,7 @@
 
     /* ========== 左侧树状列表 ========== */
     .tree-panel {
-      width: 260px;
+      width: 280px;
       flex-shrink: 0;
       background: var(--bg-card);
       border-radius: var(--radius-lg);
@@ -70,7 +70,9 @@
       font-size: var(--font-size-sm);
       color: var(--text-secondary);
       cursor: pointer;
+      border: none;
       border-bottom: 2px solid transparent;
+      background: none;
       transition: all var(--duration-fast);
     }
     .tree-tab:hover {
@@ -91,54 +93,6 @@
       padding: var(--spacing-xs) 0;
     }
 
-    /* 树节点 */
-    .tree-node {
-      display: flex;
-      align-items: center;
-      padding: var(--spacing-xs) var(--spacing-md);
-      cursor: pointer;
-      transition: all var(--duration-fast);
-      font-size: var(--font-size-sm);
-    }
-    .tree-node:hover {
-      background: var(--bg-hover);
-    }
-    .tree-node.selected {
-      background: var(--primary-light);
-      color: var(--primary);
-    }
-    .tree-node .expand-icon {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-tertiary);
-      font-size: 10px;
-      transition: transform var(--duration-fast);
-      flex-shrink: 0;
-    }
-    .tree-node .expand-icon.expanded {
-      transform: rotate(90deg);
-    }
-    .tree-node .node-icon {
-      width: 20px;
-      height: 20px;
-      margin-right: var(--spacing-xs);
-      flex-shrink: 0;
-    }
-    .tree-node .node-name {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .tree-node .node-count {
-      font-size: var(--font-size-xs);
-      color: var(--primary);
-      margin-left: var(--spacing-xs);
-    }
-
     /* 子节点（自定义树形，不受 tree-select 全局规则影响） */
     .tree-children { display: none; }
     .tree-children.show { display: block; }
@@ -150,6 +104,7 @@
       min-height: 0;
       display: flex;
       flex-direction: column;
+      gap: var(--spacing-md);
       overflow: hidden;
     }
 
@@ -158,7 +113,6 @@
       border-radius: var(--radius-lg);
       padding: var(--spacing-md) 20px;
       border: 1px solid var(--border-section);
-      margin-bottom: var(--spacing-md);
     }
 
     .filter-card .filter-bar {
@@ -169,7 +123,7 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 20px 30px;
     }
 
     .filter-card .filter-item {
@@ -305,21 +259,13 @@
     .audit-footer-pages button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     .audit-footer-pages button:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
 
-    /* ========== 弹窗样式（本页专用） ========== */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--overlay-bg); display: none; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-overlay.show { display: flex; }
-    .modal-dialog { background: var(--bg-card); border-radius: var(--radius-lg); width: 720px; max-width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
-    .modal-dialog.modal-sm { width: 480px; }
-    .modal-dialog.modal-lg { width: 800px; }
-    .modal-dialog .modal-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
-    .modal-dialog .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
-    .modal-dialog .modal-close { width: 32px; height: 32px; border: none; background: none; font-size: var(--font-size-xxl); cursor: pointer; color: var(--text-tertiary); border-radius: var(--radius-sm); transition: all var(--duration-fast); }
-    .modal-dialog .modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-    .modal-dialog .modal-body { padding: var(--spacing-lg); background: var(--bg-card); }
-    .modal-dialog .modal-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-section); display: flex; justify-content: flex-end; gap: var(--spacing-md); background: var(--bg-section); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+    /* ========== 弹窗尺寸覆盖（framework.css 提供基础弹窗，本页仅覆盖尺寸） ========== */
+    .modal-dialog { width: 720px; }
+    .modal-sm { width: 400px; }
+    .modal-lg { width: 720px; }
 
     /* ========== 分步弹窗 ========== */
-    .form-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); padding-bottom: var(--spacing-sm); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); border-bottom: 1px solid var(--border-section); }
+    .form-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); padding-bottom: var(--spacing-sm); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); border-bottom: 2px solid var(--primary); }
     .form-section-title:first-child { margin-top: 0; }
 
     /* ========== 文件上传 ========== */
@@ -353,45 +299,15 @@
     .action-buttons { display: flex; gap: var(--spacing-md); }
     .action-buttons .btn-link { margin: 0; }
 
-    /* ========== 信息板块（弹窗内） ========== */
-    .info-section {
-      margin-bottom: var(--spacing-lg);
-      background: var(--bg-section);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md);
-      border: 1px solid var(--border-section);
-    }
-    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); }
-    .info-item { display: flex; flex-direction: column; gap: var(--spacing-xs); }
-    .info-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
-    .info-value { font-size: var(--font-size-md); color: var(--text-primary); }
-    .domain-tag { background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: var(--spacing-xs); font-size: var(--font-size-xs); white-space: nowrap; }
 
-    /* ========== 模块标题样式 ========== */
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md);
-      padding: var(--spacing-md) var(--spacing-md);
-      background: var(--bg-card);
+    /* ========== 模块标题样式 - framework.css 已提供 .section-title，此处仅覆盖弹窗内负 margin 定位 ========== */
+    .modal-body .section-title {
+      margin: calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg)) var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      border-bottom: 1px solid var(--border-section);
-    }
-    .section-title::before {
-      content: '';
-      width: 4px;
-      height: 16px;
-      background: var(--primary);
-      border-radius: 2px;
-      flex-shrink: 0;
     }
 
-    /* ========== 账号卡片 ========== */
-    .account-card { background: var(--bg-card); border: 1px solid var(--border-section); border-radius: var(--radius-lg); padding: var(--spacing-md); }
+    /* ========== 账号卡片 - framework.css 已提供 .account-card，此处仅补充行布局 ========== */
     .account-row { display: flex; justify-content: space-between; align-items: center; }
     .account-info { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 
@@ -413,13 +329,13 @@
     .ent-region-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
     .ent-region-item.matched { background: #fffbe6; }
 
-    /* ========== 开关组件 ========== */
-    .switch-wrapper { display: flex; align-items: center; gap: var(--spacing-xs); }
-    .switch { position: relative; width: 44px; height: 22px; background: var(--border); border-radius: 11px; cursor: pointer; transition: background var(--duration-normal); }
-    .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--bg-primary); border-radius: 50%; transition: transform var(--duration-normal); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-    .switch.active { background: var(--primary); }
-    .switch.active::after { transform: translateX(22px); }
-    .switch-input { display: none; }
+    /* ========== 开关组件（SKILL §4.11 .form-switch 模式） ========== */
+    .form-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; position: relative; }
+    .form-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .switch-track { width: 40px; height: 22px; border-radius: 999px; background: var(--border); position: relative; transition: background var(--duration-normal); }
+    .switch-track::after { content: ''; position: absolute; width: 18px; height: 18px; left: 2px; top: 2px; border-radius: 50%; background: #fff; transition: transform var(--duration-normal); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .form-switch input:checked + .switch-track { background: var(--primary); }
+    .form-switch input:checked + .switch-track::after { transform: translateX(18px); }
     .switch-label { font-size: var(--font-size-sm); color: var(--text-secondary); }
 
     /* ========== 地图选点 ========== */
@@ -463,10 +379,7 @@
   <div class="page-container" data-module="super-admin/ent-manage">
     <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb"></div>
-    
-    <div class="page-header" style="display: none;">
-    </div>
-    
+
     <div class="main-layout">
       <!-- 左侧树状列表 -->
       <div class="tree-panel">
@@ -474,8 +387,8 @@
           <input type="text" placeholder="搜索企业名称..." id="treeSearchInput">
         </div>
         <div class="tree-tabs">
-          <div class="tree-tab active" id="tabDistrict">区划</div>
-          <div class="tree-tab" id="tabIndustry">领域</div>
+          <button class="tree-tab active" id="tabDistrict">区划</button>
+          <button class="tree-tab" id="tabIndustry">领域</button>
         </div>
         <div class="tree-content" id="treeContent"></div>
       </div>
@@ -563,12 +476,12 @@
   
   <!-- 新增企业弹窗 -->
   <div class="modal-overlay" id="addModal">
-    <div class="modal-dialog modal-lg" style="max-height:85vh;display:flex;flex-direction:column;">
+    <div class="modal-dialog modal-lg">
       <div class="modal-header">
         <span class="modal-title">新增企业</span>
         <button class="modal-close" onclick="closeModal('addModal')">&times;</button>
       </div>
-      <div class="modal-body" style="flex:1;overflow-y:auto;min-height:0;">
+      <div class="modal-body">
         <form id="entForm">
           <!-- 基本信息 -->
           <div class="form-section-title">基本信息</div>
@@ -628,9 +541,9 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">状态<span class="required">*</span></label>
-              <label class="switch-wrapper" style="margin-top:6px">
-                <input type="checkbox" class="switch-input" id="formStatusSwitch" checked onchange="toggleFormSwitch(this, 'formStatusLabel')">
-                <span class="switch active"></span>
+              <label class="form-switch" style="margin-top:6px">
+                <input type="checkbox" id="formStatusSwitch" checked onchange="toggleFormSwitch(this, 'formStatusLabel')">
+                <span class="switch-track"></span>
                 <span class="switch-label" id="formStatusLabel">启用</span>
               </label>
             </div>
@@ -703,7 +616,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <span class="modal-title">企业详情</span>
-        <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+        <button class="modal-close" onclick="closeModal('detailModal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="info-section">
@@ -763,7 +676,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <span class="modal-title">编辑企业</span>
-        <button class="modal-close" onclick="closeModal('editModal')">×</button>
+        <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="info-section" style="margin-bottom: var(--spacing-lg);">
@@ -811,9 +724,9 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">状态<span class="required">*</span></label>
-              <label class="switch-wrapper" style="margin-top:6px">
-                <input type="checkbox" class="switch-input" id="editStatusSwitch" onchange="toggleFormSwitch(this, 'editStatusLabel')">
-                <span class="switch"></span>
+              <label class="form-switch" style="margin-top:6px">
+                <input type="checkbox" id="editStatusSwitch" onchange="toggleFormSwitch(this, 'editStatusLabel')">
+                <span class="switch-track"></span>
                 <span class="switch-label" id="editStatusLabel">停用</span>
               </label>
             </div>
@@ -863,7 +776,7 @@
     <div class="modal-dialog modal-lg" style="max-width: 920px;">
       <div class="modal-header">
         <span class="modal-title">审批单列表（3条待审批）</span>
-        <button class="modal-close" onclick="closeModal('auditModal')">×</button>
+        <button class="modal-close" onclick="closeModal('auditModal')">&times;</button>
       </div>
       <div class="modal-body" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
         <div class="audit-tabs" id="auditTabs">
@@ -967,7 +880,7 @@
     <div class="modal-dialog modal-sm">
       <div class="modal-header">
         <span class="modal-title">驳回注册申请</span>
-        <button class="modal-close" onclick="closeModal('rejectModal')">×</button>
+        <button class="modal-close" onclick="closeModal('rejectModal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -3525,9 +3438,9 @@
           <td title="${safeDomain}"><span class="domain-tag">${safeDomain}</span></td>
           <td title="${safeBizAddr}">${safeBizAddr || '—'}</td>
           <td>
-            <label class="switch-wrapper">
-              <input type="checkbox" class="switch-input" data-name="${safeName}" ${e.status === '启用' ? 'checked' : ''} onchange="toggleEntStatus(this.dataset.name, this.checked)">
-              <span class="switch ${e.status === '启用' ? 'active' : ''}"></span>
+            <label class="form-switch">
+              <input type="checkbox" data-name="${safeName}" ${e.status === '启用' ? 'checked' : ''} onchange="toggleEntStatus(this.dataset.name, this.checked)">
+              <span class="switch-track"></span>
             </label>
           </td>
           <td><span class="code-cell ${codeColor}" title="${codeLabel}">${QR_ICON_SVG}</span></td>
@@ -3959,8 +3872,6 @@
 
     function toggleFormSwitch(input, labelId) {
       var label = document.getElementById(labelId);
-      var sw = input.parentElement.querySelector('.switch');
-      if (sw) sw.classList.toggle('active', input.checked);
       if (label) label.textContent = input.checked ? '启用' : '停用';
     }
 
@@ -4079,7 +3990,7 @@ function bindMapCanvasClick() {
     <div class="modal-dialog" style="width: 800px;">
       <div class="modal-header">
         <span class="modal-title">📍 地图选点</span>
-        <button class="modal-close" onclick="closeMapPicker()">×</button>
+        <button class="modal-close" onclick="closeMapPicker()">&times;</button>
       </div>
       <div class="modal-body" style="padding:0;">
         <div class="map-modal-content">

@@ -26,7 +26,7 @@
 
     /* ========== 左侧树状列表 ========== */
     .tree-panel {
-      width: 260px;
+      width: 280px;
       flex-shrink: 0;
       background: var(--bg-card);
       border-radius: var(--radius-lg);
@@ -70,7 +70,9 @@
       font-size: var(--font-size-sm);
       color: var(--text-secondary);
       cursor: pointer;
+      border: none;
       border-bottom: 2px solid transparent;
+      background: none;
       transition: all var(--duration-fast);
     }
     .tree-tab:hover {
@@ -91,54 +93,6 @@
       padding: var(--spacing-xs) 0;
     }
 
-    /* 树节点 */
-    .tree-node {
-      display: flex;
-      align-items: center;
-      padding: var(--spacing-xs) var(--spacing-md);
-      cursor: pointer;
-      transition: all var(--duration-fast);
-      font-size: var(--font-size-sm);
-    }
-    .tree-node:hover {
-      background: var(--bg-hover);
-    }
-    .tree-node.selected {
-      background: var(--primary-light);
-      color: var(--primary);
-    }
-    .tree-node .expand-icon {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-tertiary);
-      font-size: 10px;
-      transition: transform var(--duration-fast);
-      flex-shrink: 0;
-    }
-    .tree-node .expand-icon.expanded {
-      transform: rotate(90deg);
-    }
-    .tree-node .node-icon {
-      width: 20px;
-      height: 20px;
-      margin-right: var(--spacing-xs);
-      flex-shrink: 0;
-    }
-    .tree-node .node-name {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .tree-node .node-count {
-      font-size: var(--font-size-xs);
-      color: var(--primary);
-      margin-left: var(--spacing-xs);
-    }
-
     /* 子节点（自定义树形，不受 tree-select 全局规则影响） */
     .tree-children { display: none; }
     .tree-children.show { display: block; }
@@ -150,6 +104,7 @@
       min-height: 0;
       display: flex;
       flex-direction: column;
+      gap: var(--spacing-md);
       overflow: hidden;
     }
 
@@ -158,7 +113,6 @@
       border-radius: var(--radius-lg);
       padding: var(--spacing-md) 20px;
       border: 1px solid var(--border-section);
-      margin-bottom: var(--spacing-md);
     }
 
     .filter-card .filter-bar {
@@ -169,7 +123,7 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 20px 30px;
     }
 
     .filter-card .filter-item {
@@ -290,21 +244,13 @@
     .audit-footer-pages button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     .audit-footer-pages button:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
 
-    /* ========== 弹窗样式（本页专用） ========== */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--overlay-bg); display: none; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-overlay.show { display: flex; }
-    .modal-dialog { background: var(--bg-card); border-radius: var(--radius-lg); width: 720px; max-width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
-    .modal-dialog.modal-sm { width: 480px; }
-    .modal-dialog.modal-lg { width: 800px; }
-    .modal-dialog .modal-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
-    .modal-dialog .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
-    .modal-dialog .modal-close { width: 32px; height: 32px; border: none; background: none; font-size: var(--font-size-xxl); cursor: pointer; color: var(--text-tertiary); border-radius: var(--radius-sm); transition: all var(--duration-fast); }
-    .modal-dialog .modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-    .modal-dialog .modal-body { padding: var(--spacing-lg); background: var(--bg-card); }
-    .modal-dialog .modal-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-section); display: flex; justify-content: flex-end; gap: var(--spacing-md); background: var(--bg-section); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+    /* ========== 弹窗尺寸覆盖（framework.css 提供基础弹窗，本页仅覆盖尺寸） ========== */
+    .modal-dialog { width: 720px; }
+    .modal-sm { width: 400px; }
+    .modal-lg { width: 720px; }
 
     /* ========== 分步弹窗 ========== */
-    .form-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); padding-bottom: var(--spacing-sm); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); border-bottom: 1px solid var(--border-section); }
+    .form-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); padding-bottom: var(--spacing-sm); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); border-bottom: 2px solid var(--primary); }
     .form-section-title:first-child { margin-top: 0; }
 
     /* ========== 文件上传 ========== */
@@ -338,45 +284,15 @@
     .action-buttons { display: flex; gap: var(--spacing-md); }
     .action-buttons .btn-link { margin: 0; }
 
-    /* ========== 信息板块（弹窗内） ========== */
-    .info-section {
-      margin-bottom: var(--spacing-lg);
-      background: var(--bg-section);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md);
-      border: 1px solid var(--border-section);
-    }
-    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); }
-    .info-item { display: flex; flex-direction: column; gap: var(--spacing-xs); }
-    .info-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
-    .info-value { font-size: var(--font-size-md); color: var(--text-primary); }
-    .domain-tag { background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: var(--spacing-xs); font-size: var(--font-size-xs); white-space: nowrap; }
 
-    /* ========== 模块标题样式 ========== */
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md);
-      padding: var(--spacing-md) var(--spacing-md);
-      background: var(--bg-card);
+    /* ========== 模块标题样式 - framework.css 已提供 .section-title，此处仅覆盖弹窗内负 margin 定位 ========== */
+    .modal-body .section-title {
+      margin: calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg)) var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      border-bottom: 1px solid var(--border-section);
-    }
-    .section-title::before {
-      content: '';
-      width: 4px;
-      height: 16px;
-      background: var(--primary);
-      border-radius: 2px;
-      flex-shrink: 0;
     }
 
-    /* ========== 账号卡片 ========== */
-    .account-card { background: var(--bg-card); border: 1px solid var(--border-section); border-radius: var(--radius-lg); padding: var(--spacing-md); }
+    /* ========== 账号卡片 - framework.css 已提供 .account-card，此处仅补充行布局 ========== */
     .account-row { display: flex; justify-content: space-between; align-items: center; }
     .account-info { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 
@@ -466,16 +382,8 @@
   <script src="../../js/pagination.js"></script>
   <div class="page-container" data-module="government/ent-manage">
     <!-- 面包屑导航 -->
-    <div class="breadcrumb" id="breadcrumb">
-      <span class="breadcrumb-prefix">当前位置：</span>
-      <span class="breadcrumb-item">政府端</span>
-      <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">企业基本信息</span>
-    </div>
-    
-    <div class="page-header" style="display: none;">
-    </div>
-    
+    <div class="breadcrumb" id="breadcrumb"></div>
+
     <div class="main-layout">
       <!-- 左侧树状列表 -->
       <div class="tree-panel">
@@ -483,8 +391,8 @@
           <input type="text" placeholder="搜索企业名称..." id="treeSearchInput">
         </div>
         <div class="tree-tabs">
-          <div class="tree-tab active" id="tabDistrict">区划</div>
-          <div class="tree-tab" id="tabIndustry">领域</div>
+          <button class="tree-tab active" id="tabDistrict">区划</button>
+          <button class="tree-tab" id="tabIndustry">领域</button>
         </div>
         <div class="tree-content" id="treeContent"></div>
       </div>
@@ -573,12 +481,12 @@
   
   <!-- 新增企业弹窗 -->
   <div class="modal-overlay" id="addModal">
-    <div class="modal-dialog modal-lg" style="max-height:85vh;display:flex;flex-direction:column;">
+    <div class="modal-dialog modal-lg">
       <div class="modal-header">
         <span class="modal-title">新增企业</span>
         <button class="modal-close" onclick="closeModal('addModal')">&times;</button>
       </div>
-      <div class="modal-body" style="flex:1;overflow-y:auto;min-height:0;">
+      <div class="modal-body">
         <form id="entForm">
           <!-- 基本信息 -->
           <div class="form-section-title">基本信息</div>
@@ -711,7 +619,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <span class="modal-title">企业详情</span>
-        <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+        <button class="modal-close" onclick="closeModal('detailModal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="info-section">
@@ -781,7 +689,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <span class="modal-title">编辑企业</span>
-        <button class="modal-close" onclick="closeModal('editModal')">×</button>
+        <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="info-section" style="margin-bottom: var(--spacing-lg);">
@@ -880,7 +788,7 @@
     <div class="modal-dialog modal-lg" style="max-width: 920px;">
       <div class="modal-header">
         <span class="modal-title">审批列表</span>
-        <button class="modal-close" onclick="closeModal('auditModal')">×</button>
+        <button class="modal-close" onclick="closeModal('auditModal')">&times;</button>
       </div>
       <div class="modal-body" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
         <div class="audit-tabs" id="auditTabs">
@@ -1008,7 +916,7 @@
     <div class="modal-dialog modal-sm">
       <div class="modal-header">
         <span class="modal-title">驳回注册申请</span>
-        <button class="modal-close" onclick="closeModal('rejectModal')">×</button>
+        <button class="modal-close" onclick="closeModal('rejectModal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -1102,7 +1010,7 @@
 
   <script>
     // 区划树数据（与重点场所”区划筛选”保持一致：区→街道→社区）
-    const regionTree = {
+    var regionTree = {
       id: '440305',
       name: '南山区',
       children: [
@@ -1117,7 +1025,7 @@
         { id: '440305009', name: '前海合作区', communities: ['前海合作区社区'] }
       ]
     };
-    const districtData = [
+    var districtData = [
       {
         id: regionTree.id,
         name: regionTree.name,
@@ -1136,7 +1044,7 @@
     ];
 
     // 领域小类数据读取自“领域小类管理”：先读取全量，再按业态模式=基础模式筛选给企业使用
-    const fallbackDomainData = [
+    var fallbackDomainData = [
       {
             "id": "COMM_001",
             "name": "电动自行车充电场所",
@@ -1322,7 +1230,7 @@
             "status": "1"
       }
 ];
-    const domainIndustryOptions = [
+    var domainIndustryOptions = [
       { id: 'IND', name: '工业制造类', icon: '🏭' },
       { id: 'CITY', name: '城市运行类', icon: '🏙️' },
       { id: 'CONS', name: '建设工程类', icon: '🏗️' },
@@ -1331,9 +1239,9 @@
       { id: 'COMM', name: '公共场所类', icon: '🏬' },
       { id: 'OTH', name: '其他类', icon: '📦' }
     ];
-    let allDomainData = [];
-    let basicDomainData = [];
-    let industryData = [];
+    var allDomainData = [];
+    var basicDomainData = [];
+    var industryData = [];
 
     function loadDomainManageData() {
       var data = [];
@@ -1397,12 +1305,12 @@
       return basicDomainData.find(function(domain) { return domain.id === domainId; });
     }
 
-    let currentTab = 'district';
-    let selectedNode = null;
+    var currentTab = 'district';
+    var selectedNode = null;
     var _currentDetailEnt = null;
 
     // 企业数据（模拟，仅南山区）
-    const enterpriseData = [
+    var enterpriseData = [
       {
             "name": "南头街道商业广场",
             "code": "91440300MA02BC271",
@@ -3439,9 +3347,9 @@
       }
     ];
     // 补充码色字段
-    var _codeStates = ['red','yellow','green'];
+    var _codeColors = ['red','yellow','green'];
     enterpriseData.forEach(function(e, i) {
-      if (!e.codeState) e.codeState = _codeStates[i % _codeStates.length];
+      if (!e.codeColor) e.codeColor = _codeColors[i % _codeColors.length];
     });
     function enrichIndustryNames() {
       enterpriseData.forEach(function(e) {
@@ -3457,15 +3365,15 @@
       currentTab = tab;
       document.getElementById('tabDistrict').classList.toggle('active', tab === 'district');
       document.getElementById('tabIndustry').classList.toggle('active', tab === 'industry');
-      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.tree-node').forEach(function(n) { n.classList.remove('active'); });
       selectedNode = null;
       renderTable();
     }
 
     // 渲染树
     function renderTree() {
-      const treeContainer = document.getElementById('treeContent');
-      const data = currentTab === 'district' ? getDistrictTreeWithCounts() : industryData;
+      var treeContainer = document.getElementById('treeContent');
+      var data = currentTab === 'district' ? getDistrictTreeWithCounts() : industryData;
       treeContainer.innerHTML = renderNodes(data, 0);
       bindTreeEvents();
     }
@@ -3497,13 +3405,13 @@
     }
 
     function renderNodes(nodes, level) {
-      let html = '';
-      nodes.forEach(node => {
-        const hasChildren = node.children && node.children.length > 0;
-        const icon = node.icon || (hasChildren ? '📁' : '📄');
+      var html = '';
+      nodes.forEach(function(node) {
+        var hasChildren = node.children && node.children.length > 0;
+        var icon = node.icon || (hasChildren ? '📁' : '📄');
         
-        const safeId = escapeHtml(node.id);
-        const safeName = escapeHtml(node.name);
+        var safeId = escapeHtml(node.id);
+        var safeName = escapeHtml(node.name);
         html += `
           <div class="tree-node" data-id="${safeId}" data-name="${safeName}" style="padding-left: ${12 + level * 20}px">
             <span class="tree-toggle ${hasChildren ? '' : 'leaf'}" data-id="${safeId}">▶</span>
@@ -3522,7 +3430,7 @@
 
     function bindTreeEvents() {
       // 点击节点选中
-      document.querySelectorAll('.tree-node').forEach(node => {
+      document.querySelectorAll('.tree-node').forEach(function(node) {
         node.addEventListener('click', function(e) {
           if (!e.target.classList.contains('tree-toggle')) {
             selectTreeNode(this.dataset.id, this.dataset.name);
@@ -3531,7 +3439,7 @@
       });
       
       // 点击展开/收起
-      document.querySelectorAll('.tree-toggle:not(.leaf)').forEach(toggle => {
+      document.querySelectorAll('.tree-toggle:not(.leaf)').forEach(function(toggle) {
         toggle.addEventListener('click', function(e) {
           e.stopPropagation();
           toggleTreeNode(this.dataset.id);
@@ -3540,8 +3448,8 @@
     }
 
     function toggleTreeNode(nodeId) {
-      const toggle = document.querySelector(`.tree-toggle[data-id="${nodeId}"]`);
-      const children = document.querySelector(`.tree-children[data-parent="${nodeId}"]`);
+      var toggle = document.querySelector(`.tree-toggle[data-id="${nodeId}"]`);
+      var children = document.querySelector(`.tree-children[data-parent="${nodeId}"]`);
       
       if (toggle && children) {
         toggle.classList.toggle('expanded');
@@ -3550,8 +3458,8 @@
     }
 
     function selectTreeNode(nodeId, nodeName) {
-      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
-      const nodeEl = document.querySelector(`.tree-node[data-id="${nodeId}"]`);
+      document.querySelectorAll('.tree-node').forEach(function(n) { n.classList.remove('active'); });
+      var nodeEl = document.querySelector(`.tree-node[data-id="${nodeId}"]`);
       if (nodeEl) nodeEl.classList.add('active');
       selectedNode = { id: nodeId, name: nodeName };
       
@@ -3617,26 +3525,26 @@
       if (selectedNode) {
         if (currentTab === 'district') {
           // 区划筛选：筛选该区划下的企业
-          filteredData = filteredData.filter(e => e.gridId.startsWith(selectedNode.id));
+          filteredData = filteredData.filter(function(e) { return e.gridId.startsWith(selectedNode.id); });
         } else {
           // 领域筛选：筛选该领域下的企业
-          filteredData = filteredData.filter(e => e.domainId.startsWith(selectedNode.id));
+          filteredData = filteredData.filter(function(e) { return e.domainId.startsWith(selectedNode.id); });
         }
       }
 
       // 分页
-      const start = (currentPage - 1) * pageSize;
-      const pageData = filteredData.slice(start, start + pageSize);
+      var start = (currentPage - 1) * pageSize;
+      var pageData = filteredData.slice(start, start + pageSize);
 
       // 渲染表格
-      const tbody = document.getElementById('entTableBody');
+      var tbody = document.getElementById('entTableBody');
       if (pageData.length === 0) {
         tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--text-tertiary); padding: 40px;">暂无数据</td></tr>`;
         if (pg) pg.setTotal(filteredData.length);
         return;
       }
 
-      tbody.innerHTML = pageData.map((e, idx) => {
+      tbody.innerHTML = pageData.map(function(e, idx) {
         var safeName = escapeHtml(e.name);
         var safeCode = escapeHtml(e.code);
         var safeAccount = escapeHtml(e.account);
@@ -3647,7 +3555,7 @@
         var safeDate = escapeHtml(e.date);
         var statusClass = e.status === '启用' ? 'tag-green' : e.status === '停用' ? 'tag-gray' : 'tag-gray';
         var statusAction = e.status === '停用' ? '启用' : '停用';
-        var cs = e.codeState || 'green';
+        var cs = e.codeColor || 'green';
         return `
         <tr>
           <td class="col-check"><input type="checkbox" class="ent-check" value="${safeCode}"></td>
@@ -3672,7 +3580,7 @@
         </tr>`;
       }).join('');
 
-      const checkAll = document.getElementById('checkAllEnt');
+      var checkAll = document.getElementById('checkAllEnt');
       if (checkAll) checkAll.checked = false;
 
       // 更新统计卡片（联动 4 卡）
@@ -3689,7 +3597,7 @@
     }
 
     function toggleAllEnt(checkbox) {
-      document.querySelectorAll('.ent-check').forEach(item => {
+      document.querySelectorAll('.ent-check').forEach(function(item) {
         item.checked = checkbox.checked;
       });
     }
@@ -3706,22 +3614,22 @@
 
     // 展开全部
     function expandAll() {
-      document.querySelectorAll('.tree-toggle').forEach(t => t.classList.add('expanded'));
-      document.querySelectorAll('.tree-children').forEach(c => c.classList.add('show'));
+      document.querySelectorAll('.tree-toggle').forEach(function(t) { t.classList.add('expanded'); });
+      document.querySelectorAll('.tree-children').forEach(function(c) { c.classList.add('show'); });
     }
 
     // 收起全部
     function collapseAll() {
-      document.querySelectorAll('.tree-toggle').forEach(t => t.classList.remove('expanded'));
-      document.querySelectorAll('.tree-children').forEach(c => c.classList.remove('show'));
+      document.querySelectorAll('.tree-toggle').forEach(function(t) { t.classList.remove('expanded'); });
+      document.querySelectorAll('.tree-children').forEach(function(c) { c.classList.remove('show'); });
     }
 
     // 初始化
     loadDomainManageData();
     enrichIndustryNames();
     renderBasicDomainSelects();
-    document.getElementById('tabDistrict').addEventListener('click', () => { currentTab = 'district'; switchTab('district'); renderTree(); expandDistrictToStreets(); });
-    document.getElementById('tabIndustry').addEventListener('click', () => { currentTab = 'industry'; switchTab('industry'); renderTree(); });
+    document.getElementById('tabDistrict').addEventListener('click', function() { currentTab = 'district'; switchTab('district'); renderTree(); expandDistrictToStreets(); });
+    document.getElementById('tabIndustry').addEventListener('click', function() { currentTab = 'industry'; switchTab('industry'); renderTree(); });
     renderTree();
     // 初始化分页（先初始数据计算total）
     var initialFiltered = [...enterpriseData];
@@ -3740,15 +3648,15 @@
     function renderBreadcrumb() {
       // 当前页面配置（可动态获取）
       // menuCategory: 菜单分类名称，如果没有则填 null
-      const currentPage = {
+      var currentPage = {
         pageName: '企业基本信息',
         menuCategory: null  // 如果没有菜单分类，设为 null
       };
       
-      const breadcrumb = document.getElementById('breadcrumb');
+      var breadcrumb = document.getElementById('breadcrumb');
       if (!breadcrumb) return;
       
-      let html = '<span class="breadcrumb-prefix">当前位置：</span>';
+      var html = '<span class="breadcrumb-prefix">当前位置：</span>';
       
       // 固定显示：端名称
       html += '<span class="breadcrumb-item current">超管端</span>';
@@ -3767,11 +3675,11 @@
     }
 
     // 默认展开区划树到街道节点
-    setTimeout(() => {
+    setTimeout(function() {
       if (currentTab === 'district') {
         expandDistrictToStreets();
       } else {
-        const firstToggle = document.querySelector('.tree-toggle:not(.leaf)');
+        var firstToggle = document.querySelector('.tree-toggle:not(.leaf)');
         if (firstToggle) toggleTreeNode(firstToggle.dataset.id);
       }
     }, 150);
@@ -3819,7 +3727,7 @@
         if (statusEl) statusEl.innerHTML = renderStatusTag(ent.status);
         var codeColorEl = document.getElementById('detailCodeColor');
         if (codeColorEl) {
-          var cc = ent.codeState || 'green';
+          var cc = ent.codeColor || 'green';
           codeColorEl.innerHTML = '<span class="code-cell ' + cc + '">' + QR_ICON_SVG + getCodeLabel(cc) + '</span>';
         }
       }
@@ -4159,7 +4067,7 @@ function bindMapCanvasClick() {
     <div class="modal-dialog" style="width: 800px;">
       <div class="modal-header">
         <span class="modal-title">📍 地图选点</span>
-        <button class="modal-close" onclick="closeMapPicker()">×</button>
+        <button class="modal-close" onclick="closeMapPicker()">&times;</button>
       </div>
       <div class="modal-body" style="padding:0;">
         <div class="map-modal-content">
