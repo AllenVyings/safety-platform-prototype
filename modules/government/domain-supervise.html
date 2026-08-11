@@ -539,7 +539,7 @@
       <!-- 步骤 2：选择对象（穿梭框 + 对象 tabs 调整责任人） -->
       <div class="wizard-panel" id="assignStep2" style="display:none;">
         <!-- 对象切换 tabs -->
-        <div id="assignObjTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;padding:8px 12px;background:var(--bg-section);border-radius:var(--radius-md);"></div>
+        <div id="assignObjTabs" style="display:none;"></div>
         <!-- 穿梭框 -->
         <div class="shuttle-box">
           <div class="shuttle-panel">
@@ -2527,8 +2527,10 @@
 
   // 打开责任分配弹窗
   window.openAssignModal = function() {
-    // 编辑模式：保持 clAssignData 中已有的责任科室（委办局名）；新增模式：取默认值
-    var isEditMode = clAssignData && clAssignData.objects && clAssignData.objects.length > 0;
+    // 编辑模式：clAssignData 中有 objects 或 legacyPersons 均视为编辑模式
+    var hasObjects = clAssignData && clAssignData.objects && clAssignData.objects.length > 0;
+    var hasLegacyPersons = clAssignData && clAssignData.legacyPersons && clAssignData.legacyPersons.length > 0;
+    var isEditMode = hasObjects || hasLegacyPersons;
     var defaultDept = isEditMode ? (clAssignData.dept || '') : ((draftConfig && draftConfig.dept) || getUnitNameById(currentPerspectiveId) || '');
     assignState.dept = defaultDept;
     assignState.selectedDepts = [];
@@ -2538,42 +2540,51 @@
     if (!(window._clAllObjects && window._clAllObjects.length)) {
       window._clAllObjects = (configState.objects || []).map(function(o) { return { name: o.name, type: o.type }; });
     }
+    var isSystemCl = (assignState.checklistType === 'system');
     // 复制已有配置（如果是编辑模式）
-    if (clAssignData && clAssignData.objects && clAssignData.objects.length > 0) {
+    if (hasObjects) {
       assignState.selectedObjs = clAssignData.objects.slice();
       assignState.selectedDepts = clAssignData.selectedDepts ? clAssignData.selectedDepts.slice() : [];
-      // 科室级分配（__dept_level__）或无人员配置：默认选中责任科室全部启用人员
       var isDeptLevel = assignState.selectedDepts.indexOf('__dept_level__') >= 0;
       var hasPersonsConfig = clAssignData.persons && Object.keys(clAssignData.persons).length > 0 &&
                              Object.values(clAssignData.persons).some(function(arr) { return arr && arr.length > 0; });
-      if ((isDeptLevel || !hasPersonsConfig) && defaultDept) {
-        // effectiveDept 是单位名称，需聚合全部科室人员
+      if (isDeptLevel && defaultDept) {
+        // 科室级分配：聚合全部科室人员
         var allDeptPersons = [];
         DEPT_LIST.forEach(function(d) {
           (PERSON_BY_DEPT[d] || []).forEach(function(p) { if (allDeptPersons.indexOf(p) < 0) allDeptPersons.push(p); });
         });
         assignState.selectedPersons = allDeptPersons;
-        // 科室级分配：为每个对象填充全部人员
-        if (isDeptLevel) {
-          assignState.objectPersons = {};
-          assignState.selectedObjs.forEach(function(objName) { assignState.objectPersons[objName] = allDeptPersons.slice(); });
-        } else {
-          assignState.objectPersons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
-        }
+        assignState.objectPersons = {};
+        assignState.selectedObjs.forEach(function(objName) { assignState.objectPersons[objName] = allDeptPersons.slice(); });
+      } else if (!hasPersonsConfig && isSystemCl && defaultDept) {
+        // 仅系统检查表：无人员配置时默认选中全部科室人员
+        var allDeptPersons2 = [];
+        DEPT_LIST.forEach(function(d) {
+          (PERSON_BY_DEPT[d] || []).forEach(function(p) { if (allDeptPersons2.indexOf(p) < 0) allDeptPersons2.push(p); });
+        });
+        assignState.selectedPersons = allDeptPersons2;
+        assignState.objectPersons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
       } else {
+        // 自定义检查表：使用已有配置（可能为空）
         assignState.selectedPersons = clAssignData.persons ? Object.values(clAssignData.persons).flat().filter(function(v, i, a) { return a.indexOf(v) === i; }) : [];
         assignState.objectPersons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
       }
+    } else if (hasLegacyPersons) {
+      // 存量数据：objects 为空但有 legacyPersons → 用 legacyPersons 初始化
+      assignState.selectedObjs = [];
+      assignState.selectedPersons = clAssignData.legacyPersons.slice();
+      assignState.objectPersons = {};
     } else {
       assignState.selectedObjs = [];
       assignState.objectPersons = {};
-      // 系统检查表：默认选中责任科室全部启用人员
-      if (assignState.checklistType === 'system' && defaultDept) {
-        var allDeptPersons = [];
+      // 仅系统检查表：默认选中责任科室全部启用人员
+      if (isSystemCl && defaultDept) {
+        var allDeptPersons3 = [];
         DEPT_LIST.forEach(function(d) {
-          (PERSON_BY_DEPT[d] || []).forEach(function(p) { if (allDeptPersons.indexOf(p) < 0) allDeptPersons.push(p); });
+          (PERSON_BY_DEPT[d] || []).forEach(function(p) { if (allDeptPersons3.indexOf(p) < 0) allDeptPersons3.push(p); });
         });
-        assignState.selectedPersons = allDeptPersons;
+        assignState.selectedPersons = allDeptPersons3;
       } else {
         assignState.selectedPersons = [];
       }
@@ -2640,25 +2651,139 @@
     }
   }
 
+  // 从对象名称提取街道名（如"危险边坡·南山1号" → "南山"）
+  function extractStreetFromObjName(name) {
+    var m = name.match(/[·]([^\d]+)/);
+    return m ? m[1] : '';
+  }
+
   function renderAssignShuttleBox() {
     var all = window._clAllObjects || [];
     var selected = assignState.selectedObjs;
     var right = all.filter(function(o) { return selected.indexOf(o.name) >= 0; });
 
-    // 左侧始终显示全部对象，已选中的复选框为 checked 可取消
-    document.getElementById('assignShuttleLeft').innerHTML = all.length ? all.map(function(o) {
-      var checked = selected.indexOf(o.name) >= 0 ? ' checked' : '';
-      return '<div class="shuttle-item"><label><input type="checkbox" class="assign-shuttle-left-cb" value="' + o.name + '"' + checked + ' onchange="onAssignLeftCheckboxChange(\'' + o.name + '\', this.checked)"> <span class="shuttle-item-label">' + o.name + '</span> <span class="shuttle-item-tag">' + o.type + '</span></label></div>';
-    }).join('') : '<div class="shuttle-empty"><div class="shuttle-empty-icon">📦</div><div>暂无管控对象</div></div>';
+    // 按街道分组
+    var streetOrder = ['南山', '南头', '西丽', '沙河', '蛇口', '招商', '粤海', '桃源', '前海'];
+    var grouped = {};
+    var allStreets = [];
+    all.forEach(function(o) {
+      var street = extractStreetFromObjName(o.name) || '其他';
+      if (!grouped[street]) { grouped[street] = []; allStreets.push(street); }
+      grouped[street].push(o);
+    });
+    // 按预定义顺序排序
+    allStreets.sort(function(a, b) {
+      var ai = streetOrder.indexOf(a), bi = streetOrder.indexOf(b);
+      if (ai >= 0 && bi >= 0) return ai - bi;
+      if (ai >= 0) return -1;
+      if (bi >= 0) return 1;
+      return a.localeCompare(b, 'zh');
+    });
 
+    // 左侧：树形结构 南山区 → 街道 → 对象
+    var leftHtml = '';
+    if (all.length === 0) {
+      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">📦</div><div>暂无管控对象</div></div>';
+    } else {
+      var allChecked = selected.length === all.length;
+      var allIndeterminate = selected.length > 0 && selected.length < all.length;
+      var unitExpanded = !assignState.assignUnitCollapsed;
+      var unitArrow = unitExpanded ? '▼' : '▶';
+      leftHtml += '<div class="shuttle-item" style="display:flex;justify-content:space-between;align-items:center;font-weight:700;background:var(--bg-section);padding:6px 12px;">';
+      leftHtml += '<span style="cursor:pointer;" onclick="toggleAssignUnitNode()">';
+      leftHtml += '<span style="width:16px;font-size:var(--font-size-xs);color:var(--text-tertiary);display:inline-block;">' + unitArrow + '</span>';
+      leftHtml += '<span class="shuttle-item-label">南山区</span>';
+      leftHtml += '<span class="shuttle-item-tag">' + all.length + '个对象</span>';
+      leftHtml += '</span>';
+      leftHtml += '<label style="flex-shrink:0;"><input type="checkbox" id="assignUnitCb"' + (allChecked ? ' checked' : '') + (allIndeterminate ? ' indeterminate' : '') + ' onchange="handleAssignUnitChange(this)"> 全选</label>';
+      leftHtml += '</div>';
+
+      if (unitExpanded) {
+        allStreets.forEach(function(street) {
+          var objs = grouped[street];
+          if (!objs || objs.length === 0) return;
+          var streetChecked = objs.every(function(o) { return selected.indexOf(o.name) >= 0; });
+          var streetIndeterminate = objs.some(function(o) { return selected.indexOf(o.name) >= 0; }) && !streetChecked;
+          var streetExpanded = assignState.assignStreetExpanded && assignState.assignStreetExpanded[street] === true;
+          var streetArrow = streetExpanded ? '▼' : '▶';
+          leftHtml += '<div class="shuttle-item" style="display:flex;justify-content:space-between;align-items:center;font-weight:600;background:var(--bg-section);padding-left:24px;">';
+          leftHtml += '<span style="cursor:pointer;" onclick="toggleAssignStreet(\'' + street + '\')">';
+          leftHtml += '<span style="width:16px;font-size:var(--font-size-xs);color:var(--text-tertiary);display:inline-block;">' + streetArrow + '</span>';
+          leftHtml += '<span class="shuttle-item-label">' + street + '街道</span>';
+          leftHtml += '<span class="shuttle-item-tag">' + objs.length + '个</span>';
+          leftHtml += '</span>';
+          leftHtml += '<label style="flex-shrink:0;"><input type="checkbox" class="assign-street-cb" data-street="' + street + '"' + (streetChecked ? ' checked' : '') + (streetIndeterminate ? ' indeterminate' : '') + ' onchange="handleAssignStreetChange(this)"> 全选</label>';
+          leftHtml += '</div>';
+          if (streetExpanded) {
+            objs.forEach(function(o) {
+              var checked = selected.indexOf(o.name) >= 0 ? ' checked' : '';
+              leftHtml += '<div class="shuttle-item" style="display:flex;justify-content:space-between;align-items:center;padding-left:48px;"><label><input type="checkbox" class="assign-shuttle-left-cb" value="' + o.name + '"' + checked + ' onchange="onAssignLeftCheckboxChange(\'' + o.name + '\', this.checked)"> <span class="shuttle-item-label">' + o.name + '</span> <span class="shuttle-item-tag">' + o.type + '</span></label></div>';
+            });
+          }
+        });
+      }
+    }
+    document.getElementById('assignShuttleLeft').innerHTML = leftHtml;
+
+    // 设置 indeterminate 状态
+    var unitCb = document.getElementById('assignUnitCb');
+    if (unitCb) { unitCb.checked = allChecked; unitCb.indeterminate = allIndeterminate; }
+    document.querySelectorAll('.assign-street-cb').forEach(function(cb) {
+      var street = cb.dataset.street;
+      var objs = grouped[street] || [];
+      var streetSel = objs.filter(function(o) { return selected.indexOf(o.name) >= 0; });
+      cb.checked = streetSel.length === objs.length && objs.length > 0;
+      cb.indeterminate = streetSel.length > 0 && streetSel.length < objs.length;
+    });
+
+    // 右侧：已分配对象
     document.getElementById('assignShuttleRight').innerHTML = right.length ? right.map(function(o) {
       return '<div class="shuttle-item"><label><input type="checkbox" class="assign-shuttle-right-cb" value="' + o.name + '"> <span class="shuttle-item-label">' + o.name + '</span> <span class="shuttle-item-tag">' + o.type + '</span></label></div>';
-    }).join('') : '<div class="shuttle-empty"><div class="shuttle-empty-icon">📦</div><div>尚未选择对象</div></div>';
+    }).join('') : '<div class="shuttle-empty"><div class="shuttle-empty-icon"></div><div>尚未选择对象</div></div>';
 
-    document.getElementById('assignSelectAllLeft').checked = selected.length === all.length;
+    document.getElementById('assignSelectAllLeft').checked = allChecked;
     document.getElementById('assignSelectAllRight').checked = false;
   }
 
+  // 单位根节点展开/收起
+  window.toggleAssignUnitNode = function() {
+    assignState.assignUnitCollapsed = !assignState.assignUnitCollapsed;
+    renderAssignShuttleBox();
+  };
+
+  // 单位根节点全选/全不选
+  window.handleAssignUnitChange = function(cb) {
+    var all = window._clAllObjects || [];
+    if (cb.checked) {
+      assignState.selectedObjs = all.map(function(o) { return o.name; });
+    } else {
+      assignState.selectedObjs = [];
+    }
+    renderAssignShuttleBox();
+    updateAssignWizardCount();
+  };
+
+  // 街道节点展开/收起
+  window.toggleAssignStreet = function(street) {
+    if (!assignState.assignStreetExpanded) assignState.assignStreetExpanded = {};
+    var isExpanded = assignState.assignStreetExpanded[street] === true;
+    assignState.assignStreetExpanded[street] = !isExpanded;
+    renderAssignShuttleBox();
+  };
+
+  // 街道节点全选/全不选
+  window.handleAssignStreetChange = function(cb) {
+    var street = cb.dataset.street;
+    var all = window._clAllObjects || [];
+    var streetObjs = all.filter(function(o) { return extractStreetFromObjName(o.name) === street; });
+    if (cb.checked) {
+      streetObjs.forEach(function(o) { if (assignState.selectedObjs.indexOf(o.name) < 0) assignState.selectedObjs.push(o.name); });
+    } else {
+      assignState.selectedObjs = assignState.selectedObjs.filter(function(n) { return !streetObjs.some(function(o) { return o.name === n; }); });
+    }
+    renderAssignShuttleBox();
+    updateAssignWizardCount();
+  };
   window.assignShuttleMove = function(dir) {
     if (dir === 'leftToRight') {
       document.querySelectorAll('.assign-shuttle-left-cb:checked').forEach(function(cb) {
@@ -2707,29 +2832,9 @@
 
   // 渲染对象切换 tabs
   function renderObjTabs() {
+    // 上方对象网格已隐藏——下方穿梭框已展示全部管控对象
     var container = document.getElementById('assignObjTabs');
-    var hint = document.getElementById('assignObjHint');
-    if (!container) return;
-    var objects = window._clAllObjects || [];
-    var selected = assignState.selectedObjs;
-    var isAwb = isAwbUnit(currentPerspectiveId);
-    if (selected.length === 0) {
-      container.innerHTML = '<span style="font-size:var(--font-size-sm);color:var(--text-tertiary);">请在下方穿梭框选择管控对象</span>';
-      if (hint) hint.textContent = '';
-      return;
-    }
-    var html = '';
-    selected.forEach(function(objName, idx) {
-      var obj = objects.find(function(o) { return o.name === objName; }) || { name: objName, type: '' };
-      var active = assignState.currentObj === objName;
-      var personCount = (assignState.objectPersons[objName] || []).length;
-      html += '<button type="button" class="btn btn-sm' + (active ? ' btn-primary' : ' btn-default') + '" onclick="switchAssignObj(\'' + objName + '\')" title="' + obj.type + '">' + obj.name + '（' + personCount + '人）</button>';
-    });
-    container.innerHTML = html;
-    if (hint) {
-      var currentPersons = assignState.objectPersons[assignState.currentObj] || [];
-      hint.textContent = '当前为「' + assignState.currentObj + '」配置责任人，已选 ' + currentPersons.length + ' 人';
-    }
+    if (container) container.style.display = 'none';
   }
 
   window.switchAssignObj = function(objName) {
@@ -3174,11 +3279,24 @@
 
   function renderAssignResult() {
     var container = document.getElementById('clAssignResult');
-    if (!clAssignData || !clAssignData.objects || clAssignData.objects.length === 0) {
+    if (!clAssignData) {
       container.innerHTML = '<div style="font-size:var(--font-size-sm);color:var(--text-tertiary);padding:12px 0;">尚未配置——点击"配置责任分配"开始设置</div>';
       return;
     }
     var dept = clAssignData.dept || '未设置';
+    // 存量数据回退：objects 为空但 legacyPersons 有数据 → 显示汇总行（未分配对象）
+    if (!clAssignData.objects || clAssignData.objects.length === 0) {
+      if (clAssignData.legacyPersons && clAssignData.legacyPersons.length > 0) {
+        var personText = clAssignData.legacyPersons.join('、');
+        container.innerHTML =
+          '<div class="assign-table-wrapper">' +
+          '<table class="assign-table"><thead><tr><th>责任科室</th><th>责任人</th><th style="width:100px;">管控对象数</th><th class="action-col">操作</th></tr></thead>' +
+          '<tbody><tr><td>' + dept + '</td><td>' + personText + '</td><td style="text-align:center;">0 <span style="font-size:var(--font-size-xs);color:var(--text-tertiary);">（未分配对象）</span></td><td class="action-col"><button type="button" class="btn-link" onclick="viewAssignDetail()">编辑</button></td></tr></tbody></table></div>';
+      } else {
+        container.innerHTML = '<div style="font-size:var(--font-size-sm);color:var(--text-tertiary);padding:12px 0;">尚未配置——点击"配置责任分配"开始设置</div>';
+      }
+      return;
+    }
     var rows = '';
     var isDeptLevel = clAssignData.selectedDepts && clAssignData.selectedDepts.indexOf('__dept_level__') >= 0;
     // 科室级行（所有对象责任人相同，汇总显示一条，责任人为"—"）
@@ -3211,7 +3329,12 @@
 
   // 查看明细（复用同一弹窗，以查看态打开）
   window.viewAssignDetail = function() {
-    if (!clAssignData || !clAssignData.objects || clAssignData.objects.length === 0) {
+    if (!clAssignData) {
+      showToast('尚未配置责任分配'); return;
+    }
+    var hasObjects = clAssignData.objects && clAssignData.objects.length > 0;
+    var hasLegacyPersons = clAssignData.legacyPersons && clAssignData.legacyPersons.length > 0;
+    if (!hasObjects && !hasLegacyPersons) {
       showToast('尚未配置责任分配'); return;
     }
     // 确保 _clAllObjects 有数据
@@ -3220,7 +3343,7 @@
     }
     // 复制已有配置
     assignState.dept = clAssignData.dept || '';
-    assignState.selectedObjs = clAssignData.objects.slice();
+    assignState.selectedObjs = hasObjects ? clAssignData.objects.slice() : [];
     assignState.selectedDepts = clAssignData.selectedDepts ? clAssignData.selectedDepts.slice() : [];
     // 科室级分配：预选调入责任科室全部人员
     var isDeptLevel = assignState.selectedDepts.indexOf('__dept_level__') >= 0;
@@ -3233,6 +3356,10 @@
       assignState.selectedPersons = allPersons;
       assignState.objectPersons = {};
       assignState.selectedObjs.forEach(function(objName) { assignState.objectPersons[objName] = allPersons.slice(); });
+    } else if (hasLegacyPersons) {
+      // 存量数据回退：使用 legacyPersons
+      assignState.selectedPersons = clAssignData.legacyPersons.slice();
+      assignState.objectPersons = {};
     } else {
       assignState.selectedPersons = clAssignData.persons ? Object.values(clAssignData.persons).flat().filter(function(v, i, a) { return a.indexOf(v) === i; }) : [];
       assignState.objectPersons = clAssignData.persons ? JSON.parse(JSON.stringify(clAssignData.persons)) : {};
@@ -4244,21 +4371,28 @@
     } else {
       effectiveDept = cl.dept || '';
     }
-    // 没有 objectPersons 时，用当前视角全部启用人员作为默认（系统表和自定义表均适用）
-    // 注意：effectiveDept 是单位名称（如"区应急管理局"），PERSON_BY_DEPT 按科室名组织，需聚合全部科室人员
+    // 没有 objectPersons 时，按优先级回退（不再默认填充全部科室人员）
+    // 优先级：objectPersons > cl.person（存量扁平数据）> 空（未配置）
+    var legacyPersons = []; // 存量 person 回退（当 assignedObjects 为空时保留）
+    var isLegacyFill = false; // 标记：objectPersons 是从 cl.person 回退填充的（不应触发科室级自动检测）
     if (!cl.objectPersons || Object.keys(cl.objectPersons).length === 0) {
-      var allDeptPersons = [];
-      DEPT_LIST.forEach(function(d) {
-        (PERSON_BY_DEPT[d] || []).forEach(function(p) { if (allDeptPersons.indexOf(p) < 0) allDeptPersons.push(p); });
-      });
-      assignedObjs.forEach(function(objName) {
-        objectPersons[objName] = allDeptPersons.slice();
-      });
+      var flatPersons = Array.isArray(cl.person) ? cl.person : (cl.person ? [cl.person] : []);
+      if (flatPersons.length > 0 && assignedObjs.length > 0) {
+        // 情况①存量数据：有 person 也有 assignedObjects，但缺 objectPersons → 用 flatPersons 填充每个对象
+        assignedObjs.forEach(function(objName) {
+          objectPersons[objName] = flatPersons.slice();
+        });
+        isLegacyFill = true; // 标记为存量回退，跳过科室级自动检测
+      } else if (flatPersons.length > 0) {
+        // 有 person 但无 assignedObjects → 保留为 legacyPersons 供 renderAssignResult 展示
+        legacyPersons = flatPersons.slice();
+      }
+      // else:  truly 未配置，objectPersons 保持空
     }
-    // 不再回退使用 cl.person（预填默认值），未配置时人员为空
     // 存量数据兼容：检测所有对象责任人是否相同，标记为科室级分配
+    // 注意：从 cl.person 回退填充的数据不触发此检测（所有对象相同是回退导致的，不是用户意图）
     var isDeptLevel = selDepts.indexOf('__dept_level__') >= 0;
-    if (!isDeptLevel && assignedObjs.length > 1) {
+    if (!isDeptLevel && !isLegacyFill && assignedObjs.length > 1) {
       var firstObjPersons = objectPersons[assignedObjs[0]] || [];
       isDeptLevel = assignedObjs.every(function(objName) {
         var objPersons = objectPersons[objName] || [];
@@ -4276,7 +4410,8 @@
       dept: effectiveDept,
       objects: assignedObjs.slice(),
       persons: isDeptLevel ? {} : objectPersons,
-      selectedDepts: selDepts.slice()
+      selectedDepts: selDepts.slice(),
+      legacyPersons: legacyPersons // 存量 person 回退（objects 为空时用于展示）
     };
     renderAssignResult();
     document.getElementById('modal-checklist').dataset.domainId = domainId;
