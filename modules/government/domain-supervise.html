@@ -1994,7 +1994,7 @@
         var displayRate = planned > 0 ? Math.round(done / planned * 100) : 0;
         totalPlanned += planned;
         totalDone += done;
-        var rateColor = displayRate >= 100 ? 'green' : displayRate >= 80 ? 'yellow' : 'red';
+        var rateColor = getProgressColor(c, displayRate, new Date());
         var pending = planned - done;
         var pendingObjects = st.pendingObjects || 0;
         var cellContent = planned > 0
@@ -2064,7 +2064,7 @@
         done += getObjectDoneInfo(d.id, o, progressFilterDept).count;
       });
       var displayRate = planned > 0 ? Math.round(done / planned * 100) : 0;
-      var rateColor = displayRate >= 100 ? 'green' : displayRate >= 80 ? 'yellow' : 'red';
+      var rateColor = getWorstProgressColor(displayRate, new Date());
       html += '<tr>';
       html += '<td>' + d.name + '</td>';
       if (isAwb) {
@@ -2120,6 +2120,18 @@
       default:
         return rate >= 100 ? 'green' : rate >= 80 ? 'yellow' : 'red';
     }
+  }
+
+  // 取所有频次中最差的颜色（木桶效应，用于整体/跨频次统计）
+  function getWorstProgressColor(rate, now) {
+    var cycles = ['每日', '每周', '每月', '每季度', '每年'];
+    var worst = 'green';
+    var colorRank = { green: 0, yellow: 1, red: 2 };
+    cycles.forEach(function(c) {
+      var c_ = getProgressColor(c, rate, now);
+      if (colorRank[c_] > colorRank[worst]) worst = c_;
+    });
+    return worst;
   }
 
   function renderProgressDetail(domain, el) {
@@ -3446,26 +3458,51 @@
     }
     html += '</div>';
 
-    // 按管控对象分组展示（单对象模式下直接平铺）
+    // 按管控对象分组展示（单对象模式下按频次分组）
     if (objectName) {
-      html += '<table style="width:100%;border-collapse:collapse;"><thead><tr>';
-      html += '<th style="padding:10px 14px;text-align:left;font-size:var(--font-size-sm);background:var(--bg-section);font-weight:600;">检查表名称</th>';
-      html += '<th style="padding:10px 14px;text-align:left;font-size:var(--font-size-sm);background:var(--bg-section);font-weight:600;">检查频次</th>';
-      html += '<th style="padding:10px 14px;text-align:left;font-size:var(--font-size-sm);background:var(--bg-section);font-weight:600;">截止时间</th>';
-      html += '<th style="padding:10px 14px;text-align:left;font-size:var(--font-size-sm);background:var(--bg-section);font-weight:600;">扫码责任</th>';
-      html += '<th style="padding:10px 14px;text-align:center;font-size:var(--font-size-sm);background:var(--bg-section);font-weight:600;">状态</th>';
-      html += '</tr></thead><tbody>';
-      tasks.forEach(function(item) {
-        var statusIcon = item.status === '已完成' ? '✅' : '⏳';
-        html += '<tr>';
-        html += '<td style="padding:10px 14px;font-size:var(--font-size-sm);">' + item.checklistName + '</td>';
-        html += '<td style="padding:10px 14px;font-size:var(--font-size-sm);"><span class="tag tag-blue">' + item.frequency + '</span></td>';
-        html += '<td style="padding:10px 14px;font-size:var(--font-size-sm);color:var(--text-secondary);">' + item.date + '</td>';
-        html += '<td style="padding:10px 14px;font-size:var(--font-size-sm);">' + item.responsibility + '</td>';
-        html += '<td style="padding:10px 14px;font-size:var(--font-size-sm);text-align:center;">' + statusIcon + ' <span style="color:' + (item.status === '已完成' ? 'var(--success)' : 'var(--warning)') + ';">' + item.status + '</span></td>';
-        html += '</tr>';
+      // 辅助：从频次字符串提取频次标签
+      function getFreqLabel(freqStr) {
+        var f = freqStr || '';
+        if (/日/.test(f) && !/周/.test(f) && !/月/.test(f) && !/季度/.test(f) && !/年/.test(f)) return '每日';
+        if (/周/.test(f) && !/月/.test(f) && !/季度/.test(f) && !/年/.test(f)) return '每周';
+        if (/月/.test(f) && !/季度/.test(f) && !/年/.test(f)) return '每月';
+        if (/季度/.test(f) && !/年/.test(f)) return '每季度';
+        if (/年/.test(f)) return '每年';
+        return '其他';
+      }
+      var freqOrder = ['每日', '每周', '每月', '每季度', '每年'];
+      var groupedByFreq = {};
+      tasks.forEach(function(t) {
+        var fl = getFreqLabel(t.frequency);
+        if (!groupedByFreq[fl]) groupedByFreq[fl] = [];
+        groupedByFreq[fl].push(t);
       });
-      html += '</tbody></table>';
+      freqOrder.forEach(function(fl) {
+        var freqTasks = groupedByFreq[fl];
+        if (!freqTasks || freqTasks.length === 0) return;
+        var freqDone = freqTasks.filter(function(t) { return t.status === '已完成'; }).length;
+        html += '<div style="margin-bottom:12px;border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">';
+        html += '<div style="padding:8px 16px;background:var(--bg-section);display:flex;justify-content:space-between;align-items:center;">';
+        html += '<span style="font-weight:600;font-size:var(--font-size-sm);">' + fl + '</span>';
+        html += '<span class="tag tag-blue" style="font-size:var(--font-size-xs);">' + freqDone + '/' + freqTasks.length + ' 已完成</span>';
+        html += '</div>';
+        html += '<table style="width:100%;border-collapse:collapse;"><thead><tr>';
+        html += '<th style="padding:8px 14px;text-align:left;font-size:var(--font-size-sm);background:var(--bg-primary);font-weight:600;">检查表名称</th>';
+        html += '<th style="padding:8px 14px;text-align:left;font-size:var(--font-size-sm);background:var(--bg-primary);font-weight:600;">截止时间</th>';
+        html += '<th style="padding:8px 14px;text-align:left;font-size:var(--font-size-sm);background:var(--bg-primary);font-weight:600;">扫码责任</th>';
+        html += '<th style="padding:8px 14px;text-align:center;font-size:var(--font-size-sm);background:var(--bg-primary);font-weight:600;">状态</th>';
+        html += '</tr></thead><tbody>';
+        freqTasks.forEach(function(item) {
+          var statusIcon = item.status === '已完成' ? '✅' : '⏳';
+          html += '<tr>';
+          html += '<td style="padding:8px 14px;font-size:var(--font-size-sm);">' + item.checklistName + '</td>';
+          html += '<td style="padding:8px 14px;font-size:var(--font-size-sm);color:var(--text-secondary);">' + item.date + '</td>';
+          html += '<td style="padding:8px 14px;font-size:var(--font-size-sm);">' + item.responsibility + '</td>';
+          html += '<td style="padding:8px 14px;font-size:var(--font-size-sm);text-align:center;">' + statusIcon + ' <span style="color:' + (item.status === '已完成' ? 'var(--success)' : 'var(--warning)') + ';">' + item.status + '</span></td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+      });
     } else {
       objects.forEach(function(o) {
         var objTasks = tasks.filter(function(t) { return t.objectName === o.name; });
@@ -3473,7 +3510,7 @@
 
         var objDone = objTasks.filter(function(t) { return t.status === '已完成'; }).length;
         var objRate = objTasks.length > 0 ? Math.round(objDone / objTasks.length * 100) : 0;
-        var objRateColor = objRate >= 100 ? 'green' : objRate >= 80 ? 'yellow' : 'red';
+        var objRateColor = getWorstProgressColor(objRate, new Date());
 
         html += '<div style="margin-bottom:16px;border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">';
         html += '<div style="padding:10px 16px;background:var(--bg-section);display:flex;justify-content:space-between;align-items:center;">';
@@ -4760,7 +4797,7 @@
             var effectiveDept = (draftConfig && draftConfig.dept) || getUnitNameById(currentPerspectiveId) || c.dept || '';
             var isDeptLevel = c.selectedDepts && c.selectedDepts.indexOf('__dept_level__') >= 0;
             if (isDeptLevel) {
-              scanRespText = effectiveDept + '（科室级）';
+              scanRespText = effectiveDept;
             } else {
               scanRespText = effectiveDept;
             }
@@ -4780,7 +4817,7 @@
             });
           }
           if (isDeptLevel) {
-            scanRespText = c.dept + '（科室级）';
+            scanRespText = c.dept;
           } else if (c.person && c.person.length > 0) {
             scanRespText = Array.isArray(c.person) ? c.person.join('、') : c.person;
           } else {
