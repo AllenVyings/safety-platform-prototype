@@ -364,6 +364,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 </div>
 
 <script src="../../js/pagination.js"></script>
+<script src="../../js/shared/district-data.js"></script>
 <script>
 
 function showToast(msg, type) {
@@ -386,32 +387,66 @@ function showToast(msg, type) {
   setTimeout(function() { toast.remove(); }, 3000);
 }
 // ========== 树数据 ==========
-const districtData=[
-  {id:'nanshan',name:'南山区',count:245,children:[
-    {id:'yuehai',name:'粤海街道',count:89,children:[
-      {id:'gaoxin',name:'高新社区',count:45,children:[
-        {id:1,name:'腾讯科技（深圳）有限公司',count:12,isEnterprise:true},
-        {id:4,name:'大疆创新科技有限公司',count:8,isEnterprise:true}
-      ]}
-    ]}
-  ]},
-  {id:'futian',name:'福田区',count:189,children:[
-    {id:'futian-st',name:'福田街道',count:56,children:[
-      {id:5,name:'顺丰速运有限公司',count:15,isEnterprise:true},
-      {id:6,name:'招商银行股份有限公司',count:22,isEnterprise:true}
-    ]}
-  ]},
-  {id:'longgang',name:'龙岗区',count:156,children:[
-    {id:'bantian',name:'坂田街道',count:78,children:[
-      {id:2,name:'华为技术有限公司',count:35,isEnterprise:true}
-    ]}
-  ]},
-  {id:'pingshan',name:'坪山区',count:98,children:[
-    {id:'pingshan-st',name:'坪山街道',count:45,children:[
-      {id:3,name:'比亚迪股份有限公司',count:28,isEnterprise:true}
-    ]}
-  ]}
+// 企业池（enterpriseId 与 allUsers 中的 enterpriseId 对应）
+const entUserEnterprisePool = [
+  { id: 1, name: '腾讯科技（深圳）有限公司' },
+  { id: 2, name: '华为技术有限公司' },
+  { id: 3, name: '比亚迪股份有限公司' },
+  { id: 5, name: '顺丰速运有限公司' },
+  { id: 6, name: '招商银行股份有限公司' }
 ];
+
+// 从共享区划数据 (district-data.js) 构建区划树：区→街道→社区→企业
+// 企业按确定性分布挂载到社区下
+function buildEntUserDistrictTree() {
+  const root = { id: 'nanshan', name: REGION_ROOT.name, type: 'district', count: 0, children: [] };
+  const allEnts = entUserEnterprisePool;
+  let entIdx = 0;
+  STREETS.forEach((st, stIdx) => {
+    const streetNode = { id: 'st_' + stIdx, name: st.name, type: 'street', count: 0, children: [] };
+    st.communities.forEach((comm, commIdx) => {
+      const commNode = { id: 'comm_' + stIdx + '_' + commIdx, name: comm.name, type: 'community', count: 0, children: [] };
+      // 每3个社区放1家企业（确定性分布）
+      if ((stIdx * 7 + commIdx * 3) % 5 === 0 && entIdx < allEnts.length) {
+        const ent = allEnts[entIdx];
+        commNode.children.push({ id: ent.id, name: ent.name, type: 'enterprise', isEnterprise: true, count: 0 });
+        entIdx++;
+      }
+      // 确保所有企业都有归属：最后一个社区兜底剩余企业
+      if (stIdx === STREETS.length - 1 && commIdx === st.communities.length - 1) {
+        while (entIdx < allEnts.length) {
+          const ent = allEnts[entIdx];
+          commNode.children.push({ id: ent.id, name: ent.name, type: 'enterprise', isEnterprise: true, count: 0 });
+          entIdx++;
+        }
+      }
+      streetNode.children.push(commNode);
+    });
+    root.children.push(streetNode);
+  });
+  return root;
+}
+
+// 递归计算节点用户数（叶子企业节点从 allUsers 统计，上级节点为子节点之和）
+function computeNodeCounts(node) {
+  if (!node.children || node.children.length === 0) {
+    if (node.isEnterprise && typeof allUsers !== 'undefined') {
+      node.count = allUsers.filter(u => u.enterpriseId === node.id).length;
+    } else {
+      node.count = 0;
+    }
+    return node.count;
+  }
+  let sum = 0;
+  for (const child of node.children) {
+    sum += computeNodeCounts(child);
+  }
+  node.count = sum;
+  return sum;
+}
+
+// 区划树（从共享数据构建，数组包装根节点以兼容 renderNodes）
+const districtData = [buildEntUserDistrictTree()];
 
 // 三级领域树：行业大类 -> 领域小类 -> 企业
 // 领域树数据源：从 domain-manage.html 的真实数据构建（行业大类 → 领域小类）
@@ -478,12 +513,12 @@ function buildIndustryTree(){
         industry:sub.industry,
         count:0
       });
-      cat.count+=userCount;
     }
   }
-  // 转为数组
+  // 转为数组，并从 allUsers 计算大类用户数
   for(const cat of Object.values(categoryMap)){
     if(cat.children.length>0){
+      cat.count = typeof allUsers !== 'undefined' ? allUsers.filter(u => u.industry === cat.id).length : 0;
       tree.push(cat);
     }
   }
@@ -574,13 +609,18 @@ function switchTab(tab){
 }
 
 function renderTree(){
-  // 区划Tab 用静态 districtData，领域Tab 用动态 buildIndustryTree()
+  if(currentTab==='district'){
+    // 每次渲染时从 allUsers 重算节点 count（allUsers 在 districtData 之后定义）
+    computeNodeCounts(districtData[0]);
+  }
   const data=currentTab==='district'?districtData:buildIndustryTree();
   document.getElementById('orgTree').innerHTML=renderNodes(data,0);
 }
 
 function renderNodes(nodes,level){
   if(!nodes||nodes.length===0)return'';
+  // 区划Tab 默认展开到街道（level 0=区, level 1=街道）
+  const autoExpand = currentTab==='district' && level < 2;
   return nodes.map(node=>{
     const hasChildren=node.children&&node.children.length>0;
     const isEnterprise=node.isEnterprise;
@@ -594,14 +634,17 @@ function renderNodes(nodes,level){
         icon='&#128193;';
       }
     }
+    const toggleClass = hasChildren ? (autoExpand ? 'toggle open' : 'toggle collapsed') : 'toggle';
+    const childrenClass = hasChildren ? (autoExpand ? 'tree-children show' : 'tree-children') : '';
+    const toggleVisibility = hasChildren ? '' : ' style="visibility:hidden"';
     return`<div class="tree-node-wrapper">
       <div class="tree-node ${isSelected?'active':''}" data-id="${node.id}" data-enterprise="${isEnterprise||false}" data-type="${node.type||''}" onclick="selectTreeNode(${JSON.stringify(node).replace(/"/g,'&quot;')})" style="padding-left:${12+level*16}px">
-        ${hasChildren?'<span class="toggle collapsed" onclick="toggleNode(this,event)">&#9654;</span>':'<span class="toggle" style="visibility:hidden">&#9654;</span>'}
+        <span class="${toggleClass}"${toggleVisibility} onclick="toggleNode(this,event)">&#9654;</span>
         <span class="tree-node-icon">${icon}</span>
         <span class="tree-node-label">${node.name}</span>
         <span class="tree-node-count">${node.count||0}${isEnterprise?'人':''}</span>
       </div>
-      ${hasChildren?`<div class="tree-children">${renderNodes(node.children,level+1)}</div>`:''}
+      ${hasChildren?`<div class="${childrenClass}">${renderNodes(node.children,level+1)}</div>`:''}
     </div>`;
   }).join('');
 }

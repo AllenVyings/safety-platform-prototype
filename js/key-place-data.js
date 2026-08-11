@@ -7,21 +7,8 @@
 'use strict';
 
 /* ========== 南山区行政区划数据（区→街道→社区） ========== */
-var KEY_PLACE_REGION_TREE = {
-  code: '440305',
-  name: '南山区',
-  streets: [
-    { code: '440305001', name: '南头街道', communities: ['南头城社区','马家龙社区','北头社区','向南社区','田厦社区','同乐社区','大汪山社区','大新社区','九街社区','南光社区','龙珠社区','桂庙社区'] },
-    { code: '440305002', name: '南山街道', communities: ['南光社区','南山社区','南园社区','北头社区','向南社区','荔湾社区','荔林社区','月亮湾社区','前海社区','南水社区','向南瑞峰社区','大新社区','登良社区','龙瑞社区'] },
-    { code: '440305003', name: '沙河街道', communities: ['白石洲社区','沙河社区','侨城北社区','侨城东社区','侨城西社区','侨香社区','光华社区','沙河西社区','新塘社区','燕晗山社区','汉京九榕台社区','沙河天健社区','沙河翰邦社区','光侨社区'] },
-    { code: '440305004', name: '蛇口街道', communities: ['南水社区','龟山社区','蛇口社区','后海社区','海昌社区','海湾社区','工业七路社区','花果山社区','湾厦社区','育才社区','渔二社区','龟山一社区','龟山二社区'] },
-    { code: '440305005', name: '招商街道', communities: ['鲸山社区','水湾社区','文竹园社区','花园城社区','蛇口社区','南水社区','南光社区','沿山社区','望海社区','招商东角头社区','蛇口工业区社区'] },
-    { code: '440305006', name: '粤海街道', communities: ['麻岭社区','大冲社区','科技园社区','科技园东社区','高新区社区','深圳湾社区','后海社区','后海福海社区','后海大新社区','滨海之窗社区','蔚蓝海岸社区','海珠社区','海德社区','海风社区','海月社区','华联社区'] },
-    { code: '440305007', name: '桃源街道', communities: ['平山社区','龙珠社区','龙辉社区','光前社区','光华社区','茶光社区','长源社区','金桃园社区','金桂园社区','留仙社区','桃源村社区','大磡社区'] },
-    { code: '440305008', name: '西丽街道', communities: ['西丽社区','麻磡社区','大磡社区','白芒社区','大学城社区','九祥岭社区','茶光社区','长岭社区','松坪社区','松坪山社区','西丽湖社区','官龙村社区','新围社区','丽湖社区','南科大社区','长源社区','沙河社区'] },
-    { code: '440305009', name: '前海合作区', communities: ['前海合作区社区'] }
-  ]
-};
+/* 数据源自 js/shared/district-data.js 的 STREETS 数组，buildKeyPlaceRegionTree() 构建 */
+var KEY_PLACE_REGION_TREE = buildKeyPlaceRegionTree();
 
 /* ========== 关联企业 mock 池 ========== */
 var KEY_PLACE_ENTERPRISE_POOL = [
@@ -169,8 +156,8 @@ function initKeyPlaceData(domainDataList) {
   var keySiteDomains = domainDataList.filter(function(d) { return d.mode === 'special'; });
   var codeStates = ['red', 'yellow', 'green'];
   var streetWeights = {
-    '南山区南头街道办事处': 12, '南山区南山街道办事处': 14, '南山区沙河街道办事处': 14, '南山区蛇口街道办事处': 13,
-    '南山区招商街道办事处': 11, '南山区粤海街道办事处': 16, '南山区桃源街道办事处': 12, '南山区西丽街道办事处': 17, '前海合作区': 1
+    '南头街道': 12, '南山街道': 14, '沙河街道': 14, '蛇口街道': 13,
+    '招商街道': 11, '粤海街道': 16, '桃源街道': 12, '西丽街道': 17, '前海合作区': 1
   };
   var REGION_TREE = KEY_PLACE_REGION_TREE;
   var ENTERPRISE_POOL = KEY_PLACE_ENTERPRISE_POOL;
@@ -185,7 +172,9 @@ function initKeyPlaceData(domainDataList) {
       var weight = streetWeights[street.name] || 1;
       var count = Math.max(1, Math.floor(weight * (0.4 + (domainIdx * 0.18 % 0.5))));
       for (var i = 0; i < count; i++) {
-        var community = street.communities[(i + streetIdx) % street.communities.length];
+        var commObj = street.communities[(i + streetIdx) % street.communities.length];
+        var commName = commObj.name;
+        var commGrids = commObj.grids || [];
         var codeState = codeStates[(i + streetIdx + domainIdx) % 3];
         var finalCodeState = i % 4 === 0 && codeState === 'red' ? 'green' : codeState;
 
@@ -282,8 +271,8 @@ function initKeyPlaceData(domainDataList) {
           district_code: '440305',
           street: street.name,
           street_code: street.code,
-          community: community,
-          detail_address: community.replace('社区','') + '路' + (10 + i * 2) + '号',
+          community: commName,
+          detail_address: commName.replace('社区','') + '路' + (10 + i * 2) + '号',
           longitude: lngLat.lng,
           latitude: lngLat.lat,
           enterprises: enterprises,

@@ -565,7 +565,7 @@
       border-radius: var(--radius-md);
       box-shadow: 0 4px 16px rgba(0,0,0,0.12);
       padding: 12px;
-      width: 540px;
+      width: 680px;
       max-height: 360px;
       display: none;
       flex-direction: column;
@@ -1165,11 +1165,12 @@
                 <span class="arrow">▼</span>
               </button>
               <div class="kp-region-popover" id="fRegionPopover" onclick="event.stopPropagation()">
-                <input type="text" class="kp-region-search" id="fRegionSearch" placeholder="搜索区/街道/社区..." oninput="onRegionSearch()">
+                <input type="text" class="kp-region-search" id="fRegionSearch" placeholder="搜索区/街道/社区/网格..." oninput="onRegionSearch()">
                 <div class="kp-region-cols">
                   <div class="kp-region-col" id="fRegionColDistrict"></div>
                   <div class="kp-region-col" id="fRegionColStreet"></div>
                   <div class="kp-region-col" id="fRegionColCommunity"></div>
+                  <div class="kp-region-col" id="fRegionColGrid"></div>
                 </div>
               </div>
             </div>
@@ -1430,6 +1431,7 @@
 
   <script src="../../js/domain-data.js"></script>
   <script src="../../js/pagination.js"></script>
+  <script src="../../js/shared/district-data.js"></script>
   <script src="../../js/key-place-data.js"></script>
   <script>
     // ========== 从领域小类管理读取数据 ==========
@@ -1640,12 +1642,12 @@
     function streetMatchedBySearch(street) {
       if (!treeSearchKeyword) return true;
       if (nodeMatchesSearch(street.name)) return true;
-      return street.communities.some(nodeMatchesSearch);
+      return street.communities.some(c => nodeMatchesSearch(c.name));
     }
 
-    function communityMatchedBySearch(name) {
+    function communityMatchedBySearch(c) {
       if (!treeSearchKeyword) return true;
-      return nodeMatchesSearch(name);
+      return nodeMatchesSearch(c.name);
     }
 
     function renderTree() {
@@ -1660,10 +1662,11 @@
       const streetItems = root.streets.filter(streetMatchedBySearch).map(street => {
         const streetCount = countPlacesAtNode('street', street.code, street.name);
         const isStreetSelected = selectedRegion.type === 'street' && selectedRegion.code === street.code;
-        const isStreetExpanded = expandedNodes.has(street.code) || (treeSearchKeyword && street.communities.some(nodeMatchesSearch));
+        const isStreetExpanded = expandedNodes.has(street.code) || (treeSearchKeyword && street.communities.some(c => nodeMatchesSearch(c.name)));
         const matched = nodeMatchesSearch(street.name);
 
-        const communityItems = street.communities.filter(communityMatchedBySearch).map(community => {
+        const communityItems = street.communities.filter(communityMatchedBySearch).map(commObj => {
+          const community = commObj.name;
           const ccount = countPlacesAtNode('community', '', community);
           const isCommunitySelected = selectedRegion.type === 'community' && selectedRegion.code === street.code + '_' + community;
           const cMatched = nodeMatchesSearch(community);
@@ -1733,7 +1736,7 @@
       if (treeSearchKeyword) {
         // 命中时自动展开所有街道（祖先）
         KEY_PLACE_REGION_TREE.streets.forEach(s => {
-          if (nodeMatchesSearch(s.name) || s.communities.some(nodeMatchesSearch)) {
+          if (nodeMatchesSearch(s.name) || s.communities.some(c => nodeMatchesSearch(c.name))) {
             expandedNodes.add(s.code);
           }
         });
@@ -1800,7 +1803,7 @@
       }
 
       tbody.innerHTML = pageData.map((p, i) => {
-        const region = [p.district, p.street, p.community].filter(Boolean).join(' / ');
+        const region = [p.district, p.street, p.community, p.grid].filter(Boolean).join(' / ');
         const isEnabled = p.status === '1';
         const safeId = escapeHtml(p.id);
         const idArg = jsStringAttr(p.id);
@@ -1951,7 +1954,7 @@
       currentFormState.enterprises = (p.enterprises || []).map(e => ({...e}));
       currentFormState.scanConfigs = (p.scan_configs || []).map(s => ({...s}));
       currentFormState.checklistsCustom = cloneCustomChecklists(p.checklists_custom);
-      currentFormState.region = { district: p.district, street: p.street, community: p.community, street_code: p.street_code };
+      currentFormState.region = { district: p.district, street: p.street, community: p.community, street_code: p.street_code, grid: p.grid || '' };
       currentFormState.longitude = p.longitude || '';
       currentFormState.latitude = p.latitude || '';
       currentFormState.supervisors = (p.supervisors || []).map(s => ({...s}));
@@ -2125,7 +2128,7 @@
       const address = document.getElementById('fDetailAddress').value.trim();
       const region = currentFormState.region;
       if (!name) { showToast('请输入场所名称', 'error'); return; }
-      if (!region || !region.street) { showToast('请选择所属区划（精确到街道）', 'error'); return; }
+      if (!region || !region.grid) { showToast('请选择所属区划（须选到网格）', 'error'); return; }
       if (!address) { showToast('请输入详细地址', 'error'); return; }
 
       // BR-15: 关联企业必勾扫码（已硬约束 disabled，校验冗余）；BR-16: 整改人若选企业人员需勾选 is_hazard_handler
@@ -2159,6 +2162,7 @@
             street: region.street,
             street_code: region.street_code,
             community: region.community,
+            grid: region.grid || '',
             detail_address: address,
             longitude: currentFormState.longitude,
             latitude: currentFormState.latitude,
@@ -2188,6 +2192,7 @@
           district: region.district, district_code: '440305',
           street: region.street, street_code: region.street_code,
           community: region.community,
+          grid: region.grid || '',
           detail_address: address,
           longitude: currentFormState.longitude,
           latitude: currentFormState.latitude,
@@ -3043,7 +3048,7 @@
     }
 
     // ========== 区划级联面板（带搜索） ==========
-    let regionPanelState = { district: '南山区', street: '', community: '', street_code: '' };
+    let regionPanelState = { district: '南山区', street: '', community: '', street_code: '', grid: '' };
 
     function toggleRegionPopover(ev) {
       ev.stopPropagation();
@@ -3074,7 +3079,7 @@
         label.textContent = '请选择所属区划';
         trigger.classList.add('placeholder');
       } else {
-        label.textContent = [region.district, region.street, region.community].filter(Boolean).join(' / ');
+        label.textContent = [region.district, region.street, region.community, region.grid].filter(Boolean).join(' / ');
         trigger.classList.remove('placeholder');
       }
     }
@@ -3088,6 +3093,7 @@
       const colD = document.getElementById('fRegionColDistrict');
       const colS = document.getElementById('fRegionColStreet');
       const colC = document.getElementById('fRegionColCommunity');
+      const colG = document.getElementById('fRegionColGrid');
 
       // 区列：只有南山区
       const selDistrict = regionPanelState.district === '南山区';
@@ -3097,7 +3103,7 @@
       const streets = KEY_PLACE_REGION_TREE.streets.filter(s => {
         if (!kw) return true;
         return s.name.toLowerCase().includes(kw) ||
-               s.communities.some(c => c.toLowerCase().includes(kw));
+               s.communities.some(c => c.name.toLowerCase().includes(kw));
       });
       colS.innerHTML = streets.map(s => {
         const matched = kw && s.name.toLowerCase().includes(kw);
@@ -3108,14 +3114,30 @@
       // 社区列
       const currentStreet = KEY_PLACE_REGION_TREE.streets.find(s => s.name === regionPanelState.street);
       if (currentStreet) {
-        const comms = currentStreet.communities.filter(c => !kw || c.toLowerCase().includes(kw) || currentStreet.name.toLowerCase().includes(kw));
+        const comms = currentStreet.communities.filter(c => !kw || c.name.toLowerCase().includes(kw) || currentStreet.name.toLowerCase().includes(kw));
         colC.innerHTML = comms.map(c => {
-          const matched = kw && c.toLowerCase().includes(kw);
-          const isSel = regionPanelState.community === c;
-          return `<div class="kp-region-item ${isSel?'active':''} ${matched&&!isSel?'matched':''}" onclick="onRegionPickCommunity('${c.replace(/'/g,"\\'")}')">${c}</div>`;
+          const matched = kw && c.name.toLowerCase().includes(kw);
+          const isSel = regionPanelState.community === c.name;
+          return `<div class="kp-region-item ${isSel?'active':''} ${matched&&!isSel?'matched':''}" onclick="onRegionPickCommunity('${c.name.replace(/'/g,"\\'")}')">${c.name}</div>`;
         }).join('') || '<div class="kp-region-item" style="color:var(--text-tertiary);cursor:default;">无匹配</div>';
       } else {
         colC.innerHTML = '<div class="kp-region-item" style="color:var(--text-tertiary);cursor:default;">请先选择街道</div>';
+        colG.innerHTML = '<div class="kp-region-item" style="color:var(--text-tertiary);cursor:default;">请先选择社区</div>';
+        return;
+      }
+
+      // 网格列（选中社区后显示）
+      if (regionPanelState.community) {
+        const commObj = currentStreet.communities.find(c => c.name === regionPanelState.community);
+        const grids = (commObj && commObj.grids) || [];
+        const filteredGrids = grids.filter(g => !kw || g.toLowerCase().includes(kw));
+        colG.innerHTML = filteredGrids.map(g => {
+          const matched = kw && g.toLowerCase().includes(kw);
+          const isSel = regionPanelState.grid === g;
+          return `<div class="kp-region-item ${isSel?'active':''} ${matched&&!isSel?'matched':''}" onclick="onRegionPickGrid('${g.replace(/'/g,"\\'")}')">${g}</div>`;
+        }).join('') || '<div class="kp-region-item" style="color:var(--text-tertiary);cursor:default;">无匹配网格</div>';
+      } else {
+        colG.innerHTML = '<div class="kp-region-item" style="color:var(--text-tertiary);cursor:default;">请先选择社区</div>';
       }
     }
     function onRegionPickDistrict() {
@@ -3126,21 +3148,29 @@
       regionPanelState.street = name;
       regionPanelState.street_code = code;
       regionPanelState.community = '';
+      regionPanelState.grid = '';
       renderRegionPanel();
       // 街道变化时自动更新属地监管单位
       syncLocalSupervisorFromStreet(name);
     }
     function onRegionPickCommunity(name) {
       regionPanelState.community = name;
+      regionPanelState.grid = '';
+      renderRegionPanel();
+      // 区划确认时同步属地监管
+      syncLocalSupervisorFromStreet(regionPanelState.street);
+    }
+    function onRegionPickGrid(name) {
+      regionPanelState.grid = name;
       currentFormState.region = {
         district: regionPanelState.district,
         street: regionPanelState.street,
         street_code: regionPanelState.street_code,
-        community: name
+        community: regionPanelState.community,
+        grid: name
       };
       setRegionLabel(currentFormState.region);
       document.getElementById('fRegionPopover').classList.remove('open');
-      // 区划确认时同步属地监管
       syncLocalSupervisorFromStreet(regionPanelState.street);
     }
 
@@ -3150,7 +3180,7 @@
       // 默认中心 = 当前已选或南山中心
       const baseLng = currentFormState.longitude || '113.9300000';
       const baseLat = currentFormState.latitude || '22.5300000';
-      mapState = { lng: baseLng, lat: baseLat, address: currentFormState.region ? [currentFormState.region.district, currentFormState.region.street, currentFormState.region.community].filter(Boolean).join('') + (document.getElementById('fDetailAddress').value || '') : '南山区中心' };
+      mapState = { lng: baseLng, lat: baseLat, address: currentFormState.region ? [currentFormState.region.district, currentFormState.region.street, currentFormState.region.community, currentFormState.region.grid].filter(Boolean).join('') + (document.getElementById('fDetailAddress').value || '') : '南山区中心' };
       document.getElementById('mapModal').style.display = 'flex';
       const pin = document.getElementById('kpMapPin');
       pin.style.left = '50%';
@@ -3242,9 +3272,9 @@
       if (!p) return;
 
       const codeLabel = p.code_state === 'red' ? '红码' : p.code_state === 'yellow' ? '黄码' : '绿码';
-      const fullAddress = escapeHtml([p.province, p.city, p.district, p.street, p.community, p.detail_address].filter(Boolean).join(' '));
+      const fullAddress = escapeHtml([p.province, p.city, p.district, p.street, p.community, p.grid, p.detail_address].filter(Boolean).join(' '));
       const placeNameTxt = escapeHtml(p.place_name || '—');
-      const regionTxt = escapeHtml([p.district, p.street, p.community].filter(Boolean).join(' / '));
+      const regionTxt = escapeHtml([p.district, p.street, p.community, p.grid].filter(Boolean).join(' / '));
       const safetyCodeTxt = escapeHtml(p.safety_code || '—');
       const longitudeTxt = escapeHtml(p.longitude || '—');
       const latitudeTxt = escapeHtml(p.latitude || '—');

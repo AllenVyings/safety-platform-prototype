@@ -97,10 +97,10 @@
 
     <div class="filter-card">
       <div class="filter-bar">
-        <div class="filter-item"><label>整改状态：</label><select><option>全部</option><option>待整改</option><option>整改中</option><option>待验收</option><option>已整改</option><option>已逾期</option></select></div>
-        <div class="filter-item"><label>隐患等级：</label><select><option>全部</option><option>一般隐患</option><option>重大隐患</option></select></div>
-        <div class="filter-item"><label>关键词：</label><input type="text" placeholder="搜索隐患描述"></div>
-        <button class="btn btn-primary" onclick="resetFilters()">查询</button>
+        <div class="filter-item"><label>整改状态：</label><select id="filterStatus"><option>全部</option><option>待整改</option><option>整改中</option><option>待验收</option><option>已整改</option><option>已逾期</option></select></div>
+        <div class="filter-item"><label>隐患等级：</label><select id="filterLevel"><option>全部</option><option>一般隐患</option><option>重大隐患</option></select></div>
+        <div class="filter-item"><label>关键词：</label><input type="text" id="searchKeyword" placeholder="搜索隐患描述"></div>
+        <button class="btn btn-primary" onclick="applyFilters()">查询</button>
         <button class="btn btn-default" onclick="resetFilters()">重置</button>
         <div style="flex: 1;"></div>
         <button class="btn btn-primary" onclick="openReportModal()">+ 上报隐患</button>
@@ -143,7 +143,7 @@
           <tr>
             <td>HD2026040101</td>
             <td>仓库安全出口标识缺失</td>
-            <td><span class="tag tag-blue">一般隐患</span></td>
+            <td><span class="tag tag-orange">一般隐患</span></td>
             <td>日常自查</td>
             <td>2026-04-08</td>
             <td>
@@ -160,7 +160,7 @@
           <tr>
             <td>HD2026032801</td>
             <td>安全通道堆放杂物</td>
-            <td><span class="tag tag-blue">一般隐患</span></td>
+            <td><span class="tag tag-orange">一般隐患</span></td>
             <td>日常自查</td>
             <td>2026-04-04</td>
             <td>
@@ -194,19 +194,7 @@
         </tbody>
       </table>
       </div>
-      <div class="pagination">
-        <span class="pg-info">共 12 条</span>
-        <select class="pg-size">
-          <option value="10" selected>10 条/页</option>
-          <option value="20">20 条/页</option>
-          <option value="50">50 条/页</option>
-        </select>
-        <button class="pg" disabled>上一页</button>
-        <button class="pg active">1</button>
-        <button class="pg">2</button>
-        <button class="pg">下一页</button>
-        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="2" value="1"> 页</span>
-      </div>
+      <div class="pagination" id="paginationBar"></div>
     </div>
   </div>
 
@@ -247,7 +235,8 @@
           </div>
           <div class="form-col">
             <label>整改照片（选填，最多5张）</label>
-            <input type="file" accept="image/*">
+            <input type="file" accept="image/*" multiple>
+            <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px;">最多 5 张，支持 JPG/PNG/WEBP，单张 ≤ 5MB</div>
           </div>
         </div>
         <div class="form-row">
@@ -291,13 +280,72 @@
         <div class="form-row">
           <div class="form-col">
             <label>整改完成照片（选填，最多5张）</label>
-            <input type="file" accept="image/*">
+            <input type="file" accept="image/*" multiple>
+            <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px;">最多 5 张，支持 JPG/PNG/WEBP，单张 ≤ 5MB</div>
           </div>
         </div>
       </div>
       <div class="modal-foot">
         <button onclick="closeHazardFixModal('modal-recheck')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">取消</button>
         <button onclick="submitRecheck()" style="padding: 6px var(--spacing-md);border:1px solid var(--primary);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--primary);color:var(--bg-primary)">提交申请</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 上报隐患弹窗 -->
+  <div class="modal-overlay" id="modal-report">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <span class="modal-head-title">上报隐患</span>
+        <button class="modal-head-close" onclick="closeHazardFixModal('modal-report')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 隐患描述</label>
+            <textarea rows="3" placeholder="请描述隐患情况" id="reportDesc"></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 隐患等级</label>
+            <select id="reportLevel">
+              <option value="">请选择</option>
+              <option value="一般隐患">一般隐患</option>
+              <option value="重大隐患">重大隐患</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label><span class="req">*</span> 发现来源</label>
+            <select id="reportSource">
+              <option value="">请选择</option>
+              <option value="日常自查">日常自查</option>
+              <option value="政府检查">政府检查</option>
+              <option value="专项检查">专项检查</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 整改期限</label>
+            <input type="date" id="reportDeadline">
+          </div>
+          <div class="form-col">
+            <label>隐患照片（选填，最多5张）</label>
+            <input type="file" accept="image/*" multiple>
+            <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px;">最多 5 张，支持 JPG/PNG/WEBP，单张 ≤ 5MB</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label>备注说明</label>
+            <textarea rows="2" placeholder="请输入备注说明" id="reportRemark"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button onclick="closeHazardFixModal('modal-report')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">取消</button>
+        <button onclick="submitReport()" style="padding: 6px var(--spacing-md);border:1px solid var(--primary);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--primary);color:var(--bg-primary)">提交上报</button>
       </div>
     </div>
   </div>
@@ -350,30 +398,176 @@
   <script>
     (function() {
       'use strict';
-      
+
       const CONFIG = {
         moduleId: 'ent-hazard-fix',
         moduleName: '隐患整改管理'
       };
-      
+
       let state = {
-        initialized: false
+        initialized: false,
+        currentPage: 1,
+        pageSize: 10
       };
-      
-      function init() {
-        if (state.initialized) return;
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
-        state.initialized = true;
+
+      // 隐患模拟数据
+      const hazardData = [
+        { id: 'HD2026040201', desc: '电动车充电区消防器材过期', level: '一般隐患', source: '政府检查', deadline: '2026-04-09', status: '整改中', timeline: 'rectify' },
+        { id: 'HD2026040101', desc: '仓库安全出口标识缺失', level: '一般隐患', source: '日常自查', deadline: '2026-04-08', status: '待验收', timeline: 'review' },
+        { id: 'HD2026032801', desc: '安全通道堆放杂物', level: '一般隐患', source: '日常自查', deadline: '2026-04-04', status: '已整改', timeline: 'fixed' },
+        { id: 'HD2026032001', desc: '消防栓无水', level: '重大隐患', source: '政府检查', deadline: '2026-03-27', status: '已逾期', timeline: 'overdue' },
+        { id: 'HD2026040301', desc: '配电箱未张贴警示标识', level: '一般隐患', source: '专项检查', deadline: '2026-04-10', status: '待整改', timeline: 'pending' },
+        { id: 'HD2026040501', desc: '应急照明灯损坏', level: '一般隐患', source: '日常自查', deadline: '2026-04-12', status: '整改中', timeline: 'rectify' },
+        { id: 'HD2026040601', desc: '危化品仓库未设置防泄漏围堰', level: '重大隐患', source: '政府检查', deadline: '2026-04-06', status: '已逾期', timeline: 'overdue' },
+        { id: 'HD2026040701', desc: '消防通道划线模糊', level: '一般隐患', source: '专项检查', deadline: '2026-04-15', status: '待整改', timeline: 'pending' },
+        { id: 'HD2026040801', desc: '员工未佩戴劳动防护用品', level: '一般隐患', source: '日常自查', deadline: '2026-04-14', status: '整改中', timeline: 'rectify' },
+        { id: 'HD2026040901', desc: '压力容器未定期检验', level: '重大隐患', source: '政府检查', deadline: '2026-04-05', status: '待验收', timeline: 'review' },
+        { id: 'HD2026041001', desc: '疏散指示标志设置不规范', level: '一般隐患', source: '专项检查', deadline: '2026-04-16', status: '已整改', timeline: 'fixed' },
+        { id: 'HD2026041101', desc: '起重设备吊钩裂纹', level: '重大隐患', source: '日常自查', deadline: '2026-04-07', status: '已整改', timeline: 'fixed' }
+      ];
+
+      function getFilteredData() {
+        const status = document.getElementById('filterStatus').value;
+        const level = document.getElementById('filterLevel').value;
+        const keyword = document.getElementById('searchKeyword').value.trim().toLowerCase();
+        return hazardData.filter(function(h) {
+          if (status !== '全部' && h.status !== status) return false;
+          if (level !== '全部' && h.level !== level) return false;
+          if (keyword && h.desc.toLowerCase().indexOf(keyword) < 0 && h.id.toLowerCase().indexOf(keyword) < 0) return false;
+          return true;
+        });
       }
-      
+
+      function getLevelClass(level) {
+        return level === '重大隐患' ? 'tag-red' : 'tag-orange';
+      }
+
+      function getStatusClass(status) {
+        if (status === '待整改') return 'tag-blue';
+        if (status === '整改中') return 'tag-orange';
+        if (status === '待验收') return 'tag-blue';
+        if (status === '已整改') return 'tag-green';
+        if (status === '已逾期') return 'tag-red';
+        return 'tag-gray';
+      }
+
+      function renderTimeline(type) {
+        const steps = ['发现', '整改', '验收', '闭环'];
+        const map = {
+          pending: [1,0,0,0],
+          rectify: [1,1,0,0],
+          review: [1,1,1,0],
+          fixed: [1,1,1,1],
+          overdue: [1,1,0,0]
+        };
+        const st = map[type] || [0,0,0,0];
+        let html = '<div class="timeline">';
+        for (var i = 0; i < steps.length; i++) {
+          var cls = st[i] === 1 ? 'done' : (st[i+1] === 0 && st[i] === 0 ? '' : '');
+          if (type === 'rectify' && i === 1) cls = 'current';
+          if (type === 'review' && i === 2) cls = 'current';
+          if (type === 'overdue' && i === 1) cls = 'current';
+          if (type === 'pending' && i === 1) cls = 'current';
+          html += '<span class="timeline-step ' + cls + '"' + (type === 'overdue' && i === 1 ? ' style="background:var(--danger);color:var(--bg-primary)"' : '') + '>' + steps[i] + '</span>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      function getActionButtons(h) {
+        if (h.status === '整改中') {
+          return '<button class="btn-link" onclick="fillRectify(\'' + h.id + '\')">填写整改</button><button class="btn-link" onclick="viewDetail(\'' + h.id + '\')">详情</button>';
+        }
+        if (h.status === '待验收') {
+          return '<button class="btn-link" onclick="applyReview(\'' + h.id + '\')">申请验收</button><button class="btn-link" onclick="viewDetail(\'' + h.id + '\')">详情</button>';
+        }
+        if (h.status === '已整改') {
+          return '<button class="btn-link" onclick="viewDetail(\'' + h.id + '\')">查看详情</button>';
+        }
+        if (h.status === '已逾期') {
+          return '<button class="btn-link danger" onclick="fillRectify(\'' + h.id + '\')">立即整改</button><button class="btn-link" onclick="viewDetail(\'' + h.id + '\')">详情</button>';
+        }
+        return '<button class="btn-link" onclick="fillRectify(\'' + h.id + '\')">填写整改</button><button class="btn-link" onclick="viewDetail(\'' + h.id + '\')">详情</button>';
+      }
+
+      function renderTable(data) {
+        var tbody = document.querySelector('tbody');
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-tertiary)">暂无隐患记录</td></tr>';
+          return;
+        }
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+          var h = data[i];
+          html += '<tr>';
+          html += '<td>' + h.id + '</td>';
+          html += '<td>' + h.desc + '</td>';
+          html += '<td><span class="tag ' + getLevelClass(h.level) + '"' + '>' + h.level + '</span></td>';
+          html += '<td>' + h.source + '</td>';
+          html += '<td>' + h.deadline + '</td>';
+          html += '<td>' + renderTimeline(h.timeline) + '</td>';
+          html += '<td><span class="tag ' + getStatusClass(h.status) + '"' + '>' + h.status + '</span></td>';
+          html += '<td class="action-col">' + getActionButtons(h) + '</td>';
+          html += '</tr>';
+        }
+        tbody.innerHTML = html;
+      }
+
+      function updateStats(data) {
+        var total = data.length;
+        var pending = 0, rectifying = 0, fixed = 0, overdue = 0;
+        for (var i = 0; i < data.length; i++) {
+          var s = data[i].status;
+          if (s === '待整改') pending++;
+          if (s === '整改中') rectifying++;
+          if (s === '已整改') fixed++;
+          if (s === '已逾期') overdue++;
+        }
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statPending').textContent = pending + rectifying;
+        document.getElementById('statFixed').textContent = fixed;
+        document.getElementById('statOverdue').textContent = overdue;
+      }
+
+      window.applyFilters = function() {
+        var data = getFilteredData();
+        updateStats(data);
+        state.currentPage = 1;
+        if (typeof pg !== 'undefined') {
+          pg.setTotal(data.length);
+          pg.setPage(1);
+        }
+        renderTable(data.slice(0, state.pageSize));
+      };
+
       window.resetFilters = function() {
-        console.log('重置筛选');
+        document.getElementById('filterStatus').value = '全部';
+        document.getElementById('filterLevel').value = '全部';
+        document.getElementById('searchKeyword').value = '';
+        applyFilters();
         showToast('筛选条件已重置');
       };
 
       window.openReportModal = function() {
-        console.log('上报隐患');
-        showToast('打开上报隐患弹窗');
+        document.getElementById('reportDesc').value = '';
+        document.getElementById('reportLevel').value = '';
+        document.getElementById('reportSource').value = '';
+        document.getElementById('reportDeadline').value = '';
+        document.getElementById('reportRemark').value = '';
+        document.getElementById('modal-report').style.display = 'flex';
+      };
+
+      window.submitReport = function() {
+        var desc = document.getElementById('reportDesc').value.trim();
+        if (!desc) { showToast('请输入隐患描述'); return; }
+        var level = document.getElementById('reportLevel').value;
+        if (!level) { showToast('请选择隐患等级'); return; }
+        var source = document.getElementById('reportSource').value;
+        if (!source) { showToast('请选择发现来源'); return; }
+        var deadline = document.getElementById('reportDeadline').value;
+        if (!deadline) { showToast('请选择整改期限'); return; }
+        closeHazardFixModal('modal-report');
+        showToast('隐患上报成功');
       };
 
       window.fillRectify = function(id) {
@@ -421,19 +615,43 @@
         document.body.appendChild(t);
         setTimeout(function() { t.remove(); }, 2000);
       }
-      
+
+      var pg = null;
+
+      function init() {
+        if (state.initialized) return;
+        console.log('[' + CONFIG.moduleId + '] 模块初始化');
+        state.initialized = true;
+
+        // 初始化分页
+        pg = new Pagination('paginationBar', {
+          total: hazardData.length,
+          onChange: function(page, size) {
+            state.currentPage = page;
+            state.pageSize = size;
+            var data = getFilteredData();
+            var start = (page - 1) * size;
+            renderTable(data.slice(start, start + size));
+          }
+        });
+
+        // 初始渲染
+        applyFilters();
+      }
+
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
       } else {
         init();
       }
-      
+
       window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
+        console.log('[' + CONFIG.moduleId + '] 模块销毁');
         state.initialized = false;
       };
     })();
   </script>
+<script src="../../js/pagination.js"></script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>
