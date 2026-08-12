@@ -9,7 +9,8 @@
 
 <style>
 .breadcrumb-item:hover{color:var(--primary)}
-.main-layout{display:flex;flex-direction:row;gap: var(--spacing-md);margin-top: var(--spacing-md);height:calc(100vh - 80px)}
+.page-container{padding:20px}
+.main-layout{display:flex;flex-direction:row;gap:var(--spacing-md);height:calc(100vh - 40px)}
 .tree-panel{width:260px;flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md);display:flex;flex-direction:column;overflow:hidden}
 .tree-panel-title{font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border-light)}
 .tree-tabs{display:flex;border-bottom:1px solid var(--border-light);margin-bottom:12px}
@@ -29,9 +30,10 @@
 .tree-node-count{font-size:11px;color:var(--text-tertiary);background:var(--border-light);padding:2px 6px;border-radius:10px}
 #orgTree{flex:1;overflow-y:auto;min-height:0}
 .right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap: var(--spacing-md)}
+.right-panel > .stats-row{flex-shrink:0;gap:var(--spacing-md)}
 
-.filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px}
-.filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;width:100%}
+.filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);flex-shrink:0}
+.filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;width:100%;background:transparent;padding:0;margin-bottom:0;border:none;border-radius:0}
 .filter-card .filter-item{display:flex;align-items:center;gap:6px}
 .filter-card label{font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
 .filter-card select,.filter-card input{padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:border-color .2s;width:240px;height:32px;box-sizing:border-box}
@@ -45,29 +47,35 @@
 .btn-link.btn-sm{font-size: var(--font-size-xs);padding: 1px var(--spacing-xs)}
 
 .btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
-.table-card{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);flex:1;overflow:hidden}
+.table-card{background:var(--bg-primary);border-radius: var(--radius-lg);padding: var(--spacing-md);flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md);flex-shrink:0}
 .table-toolbar-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
 .table-toolbar-actions{display:flex;gap:8px}
-.table-container{overflow-x:auto}
+.table-container{overflow-x:auto;flex:1;min-height:0}
 table{width:100%;border-collapse:collapse;font-size: var(--font-size-sm);min-width:900px}
-thead th{background:var(--bg-tertiary);padding:10px 12px;text-align:center;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;position:relative}
+thead th{background:var(--bg-tertiary);padding:10px 12px;text-align:left;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;position:relative}
 tbody td{padding:10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary);max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 tbody tr:hover{background:var(--bg-section)}
 tbody tr:last-child td{border-bottom:none}
 /* 列宽固定 */
-thead th:nth-child(1),tbody td:nth-child(1){width:60px;max-width:60px}   /* 序号 */
-thead th:nth-child(2),tbody td:nth-child(2){width:120px;max-width:120px}  /* 用户姓名 */
-thead th:nth-child(3),tbody td:nth-child(3){width:150px;max-width:150px}  /* 账号 */
-thead th:nth-child(4),tbody td:nth-child(4){width:120px;max-width:120px}  /* 联系电话 */
-thead th:nth-child(5),tbody td:nth-child(5){width:80px;max-width:80px}    /* 职务 */
-thead th:nth-child(6),tbody td:nth-child(6){width:90px;max-width:90px}    /* 管控层级 */
-thead th:nth-child(7),tbody td:nth-child(7){width:80px;max-width:80px;text-align:center}  /* 安全码 */
-thead th:nth-child(8),tbody td:nth-child(8){width:80px;max-width:80px}    /* 启用状态 */
-thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创建时间 */
-    /* 操作列固定在右侧，表头居中 */
-.action-col{box-shadow:-2px 0 4px rgba(0,0,0,.04)}
+thead th:nth-child(1),tbody td:nth-child(1){width:40px;max-width:40px}   /* 复选框 */
+thead th:nth-child(2),tbody td:nth-child(2){width:60px;max-width:60px}   /* 序号 */
+thead th:nth-child(3),tbody td:nth-child(3){width:100px;max-width:100px}  /* 用户姓名 */
+thead th:nth-child(4),tbody td:nth-child(4){width:120px;max-width:120px}  /* 账号 */
+thead th:nth-child(5),tbody td:nth-child(5){width:120px;max-width:120px}  /* 联系电话 */
+thead th:nth-child(6),tbody td:nth-child(6){width:80px;max-width:80px}    /* 职务 */
+thead th:nth-child(7),tbody td:nth-child(7){width:90px;max-width:90px}    /* 管控层级 */
+thead th:nth-child(8),tbody td:nth-child(8){width:80px;max-width:80px;text-align:center}  /* 安全码 */
+thead th:nth-child(9),tbody td:nth-child(9){width:80px;max-width:80px}    /* 启用状态 */
+thead th:nth-child(10),tbody td:nth-child(10){width:140px;max-width:140px}  /* 创建时间 */
+    /* 操作列固定在右侧 */
+.action-col{box-shadow:-2px 0 4px rgba(0,0,0,.04);max-width:none;overflow:visible}
+.action-col:hover{background:var(--bg-primary)}
+.action-col .btn-link{margin-right:30px}
 .action-col .btn-link:last-child{margin-right:0}
+
+.batch-bar{display:none;align-items:center;gap:10px;padding:8px 0;font-size:var(--font-size-sm);color:var(--text-secondary);flex-shrink:0}
+.batch-bar.show{display:flex}
 
 .tag-green{background:var(--success-light);color:var(--success)}
 .tag-red{background:var(--danger-light);color:var(--danger)}
@@ -81,7 +89,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 .code-cell.green .qrcode-icon{color:var(--success)}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);width:800px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);width:900px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-md) 20px;border-bottom:1px solid var(--border-light);flex-shrink:0}
 .modal-title{font-size: var(--font-size-lg);font-weight:600;color:var(--text-primary)}
 .modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius: var(--radius-md);cursor:pointer;font-size: var(--font-size-md);color:var(--text-tertiary);transition:all .2s}
@@ -91,18 +99,19 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 .form-section{margin-bottom: var(--spacing-md)}
 .form-section-title{font-size: var(--font-size-sm);font-weight:600;color:var(--text-primary);padding:0 0 10px;margin-bottom:10px;border-bottom:2px solid var(--primary)}
 .form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
-.form-group{display:flex;flex-direction:column;flex:1;min-width:160px}
-.form-label{font-size: var(--font-size-sm);color:var(--text-primary);margin-bottom:5px;font-weight:500}
+.form-group{display:flex;flex-direction:row;align-items:center;flex:1;min-width:0;max-width:calc(50% - 6px)}
+.form-group.full-width{max-width:100%;flex-basis:100%}
+.form-label{flex-shrink:0;width:80px;margin-right:10px;text-align:right;font-size:var(--font-size-sm);color:var(--text-primary);font-weight:500}
 .form-label .required{color:var(--danger);margin-right:2px}
-.form-input{padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
-.form-input:focus{border-color:var(--primary)}
-.form-select{padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box;background:var(--bg-primary)}
-.form-select:focus{border-color:var(--primary)}
+.form-input,.form-select{flex:1;height:36px;padding:var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-input:focus,.form-select:focus{border-color:var(--primary)}
+.form-group.full-width textarea.form-input{min-height:60px;resize:vertical}
 .no-data td{text-align:center;color:var(--border);padding:40px 0}
 /* 分页 - .pagination 由 framework.css 提供, JS 分页由 pagination.js 驱动 */
+.table-card > .pagination{flex-shrink:0;padding:var(--spacing-sm) 0 0}
 
 /* 多选下拉框样式 */
-.multi-select{position:relative;width:100%}
+.multi-select{position:relative;flex:1;min-width:0}
 .multi-select-input{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border:1px solid var(--border);border-radius: var(--radius-md);cursor:pointer;background:var(--bg-primary);transition:border-color .2s}
 .multi-select-input:hover{border-color:var(--primary)}
 .multi-select-placeholder{color:var(--text-tertiary);font-size: var(--font-size-sm)}
@@ -124,12 +133,6 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 </head>
 <body>
 <div class="page-container" data-module="super-admin/ent-user">
-  <div class="breadcrumb" id="breadcrumb">
-    <span class="breadcrumb-prefix">当前位置：</span>
-    <span class="breadcrumb-item">超管端</span>
-    <span class="breadcrumb-separator">&gt;</span>
-    <span class="breadcrumb-item current">企业用户管理</span>
-  </div>
   <div class="main-layout">
     <!-- 左侧：企业树 -->
     <div class="tree-panel">
@@ -146,9 +149,9 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
       <!-- 统计卡片 -->
       <div class="stats-row">
         <div class="stat-card"><div class="stat-card-body"><div class="stat-label">用户总数</div><div class="stat-value" id="statTotal">0</div></div><div class="stat-indicator" style="background:var(--primary)"></div></div>
-        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">红码</div><div class="stat-value" id="statRed">0</div></div><div class="stat-indicator" style="background:var(--danger)"></div></div>
-        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">黄码</div><div class="stat-value" id="statYellow">0</div></div><div class="stat-indicator" style="background:var(--warning)"></div></div>
-        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">绿码</div><div class="stat-value" id="statGreen">0</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">红码<span style="font-weight:400;color:var(--text-tertiary);margin-left:4px;font-size:11px">高风险</span></div><div class="stat-value" id="statRed">0</div></div><div class="stat-indicator" style="background:var(--danger)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">黄码<span style="font-weight:400;color:var(--text-tertiary);margin-left:4px;font-size:11px">中风险</span></div><div class="stat-value" id="statYellow">0</div></div><div class="stat-indicator" style="background:var(--warning)"></div></div>
+        <div class="stat-card"><div class="stat-card-body"><div class="stat-label">绿码<span style="font-weight:400;color:var(--text-tertiary);margin-left:4px;font-size:11px">正常</span></div><div class="stat-value" id="statGreen">0</div></div><div class="stat-indicator" style="background:var(--success)"></div></div>
       </div>
       <!-- 查询条件 -->
       <div class="filter-card">
@@ -174,16 +177,24 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
         <div class="table-toolbar">
           <span class="table-toolbar-title">用户列表</span>
           <div class="table-toolbar-actions">
+            <button class="btn btn-default" onclick="batchDelete()">批量删除</button>
+            <button class="btn btn-default" onclick="batchEnable()">批量启用</button>
+            <button class="btn btn-default" onclick="batchDisable()">批量停用</button>
             <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
           </div>
         </div>
-        <div class="table-container table-scroll">
+        <div class="batch-bar" id="batchBar">
+          <span>已选 <strong id="batchCount">0</strong> 项</span>
+          <button class="btn btn-link" onclick="clearSelection()">取消选择</button>
+        </div>
+        <div class="table-container table-wrap">
           <table>
             <thead><tr>
+              <th class="col-check"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)"></th>
               <th>序号</th><th>用户姓名</th><th>账号</th><th>联系电话</th><th>职务</th>
               <th>管控层级</th><th>安全码</th><th>启用状态</th><th>创建时间</th><th class="action-col">操作</th>
             </tr></thead>
-            <tbody id="userTableBody"><tr><td colspan="10" class="no-data">加载中...</td></tr></tbody>
+            <tbody id="userTableBody"><tr><td colspan="11" class="no-data">加载中...</td></tr></tbody>
           </table>
         </div>
         <!-- 分页 -->
@@ -213,16 +224,18 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
               <label class="form-label"><span class="required">*</span>联系电话</label>
               <input class="form-input" name="userPhone" id="editUserPhone" required>
             </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label class="form-label">邮箱</label>
               <input class="form-input" name="userEmail" id="editUserEmail" type="email">
             </div>
-          </div>
-          <div class="form-row">
             <div class="form-group">
               <label class="form-label">职务</label>
               <input class="form-input" name="userPosition" id="editUserPosition">
             </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>所属部门</label>
               <select class="form-select" name="userDept" id="editUserDept" required>
@@ -265,6 +278,8 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
                 </div>
               </div>
             </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>角色类型</label>
               <select class="form-select" name="userRole" id="editUserRole" required>
@@ -273,8 +288,6 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
                 <option>普通用户</option>
               </select>
             </div>
-          </div>
-          <div class="form-row">
             <div class="form-group">
               <label class="form-label"><span class="required">*</span>启用状态</label>
               <select class="form-select" name="userStatus" id="editUserStatus" required>
@@ -282,9 +295,11 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
                 <option value="停用">停用</option>
               </select>
             </div>
-            <div class="form-group" style="flex:2">
+          </div>
+          <div class="form-row">
+            <div class="form-group full-width">
               <label class="form-label">备注</label>
-              <input class="form-input" name="remark" id="editRemark" placeholder="请输入备注信息（200字以内）">
+              <textarea class="form-input" name="remark" id="editRemark" placeholder="请输入备注信息（200字以内）"></textarea>
             </div>
           </div>
         </div>
@@ -323,7 +338,7 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('deleteModal')">取消</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+      <button class="btn btn-primary" onclick="confirmDelete()">删除</button>
     </div>
   </div>
 </div>
@@ -369,26 +384,24 @@ thead th:nth-child(9),tbody td:nth-child(9){width:140px;max-width:140px}  /* 创
 
 function showToast(msg, type) {
   type = type || 'info';
-  var container = document.getElementById('toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toast-container';
-    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
-    document.body.appendChild(container);
+  var el = document.getElementById('_toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = '_toast';
+    el.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:var(--radius-lg);font-size:var(--font-size-md);z-index:9999;transition:opacity .3s;';
+    document.body.appendChild(el);
   }
-  var toast = document.createElement('div');
-  toast.className = 'toast toast-' + type;
-  toast.style.cssText = 'padding:10px 20px;margin-bottom: var(--spacing-sm);border-radius: var(--radius-sm);background:var(--primary);color:var(--bg-primary);font-size: var(--font-size-md);box-shadow: var(--shadow-md);';
-  if (type === 'success') toast.style.background = 'var(--success)';
-  if (type === 'warning') toast.style.background = 'var(--warning)';
-  if (type === 'error') toast.style.background = 'var(--danger)';
-  toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(function() { toast.remove(); }, 3000);
+  var bgMap = { success: 'var(--success)', warning: 'var(--warning)', error: 'var(--danger)', info: 'var(--primary)' };
+  el.style.background = bgMap[type] || bgMap.info;
+  el.style.color = '#fff';
+  el.textContent = msg;
+  el.style.opacity = '1';
+  if (el._timer) clearTimeout(el._timer);
+  el._timer = setTimeout(function() { el.style.opacity = '0'; }, 2000);
 }
 // ========== 树数据 ==========
 // 企业池（enterpriseId 与 allUsers 中的 enterpriseId 对应）
-const entUserEnterprisePool = [
+var entUserEnterprisePool = [
   { id: 1, name: '腾讯科技（深圳）有限公司' },
   { id: 2, name: '华为技术有限公司' },
   { id: 3, name: '比亚迪股份有限公司' },
@@ -399,23 +412,23 @@ const entUserEnterprisePool = [
 // 从共享区划数据 (district-data.js) 构建区划树：区→街道→社区→企业
 // 企业按确定性分布挂载到社区下
 function buildEntUserDistrictTree() {
-  const root = { id: 'nanshan', name: REGION_ROOT.name, type: 'district', count: 0, children: [] };
-  const allEnts = entUserEnterprisePool;
-  let entIdx = 0;
+  var root = { id: 'nanshan', name: REGION_ROOT.name, type: 'district', count: 0, children: [] };
+  var allEnts = entUserEnterprisePool;
+  var entIdx = 0;
   STREETS.forEach((st, stIdx) => {
-    const streetNode = { id: 'st_' + stIdx, name: st.name, type: 'street', count: 0, children: [] };
+    var streetNode = { id: 'st_' + stIdx, name: st.name, type: 'street', count: 0, children: [] };
     st.communities.forEach((comm, commIdx) => {
-      const commNode = { id: 'comm_' + stIdx + '_' + commIdx, name: comm.name, type: 'community', count: 0, children: [] };
+      var commNode = { id: 'comm_' + stIdx + '_' + commIdx, name: comm.name, type: 'community', count: 0, children: [] };
       // 每3个社区放1家企业（确定性分布）
       if ((stIdx * 7 + commIdx * 3) % 5 === 0 && entIdx < allEnts.length) {
-        const ent = allEnts[entIdx];
+        var ent = allEnts[entIdx];
         commNode.children.push({ id: ent.id, name: ent.name, type: 'enterprise', isEnterprise: true, count: 0 });
         entIdx++;
       }
       // 确保所有企业都有归属：最后一个社区兜底剩余企业
       if (stIdx === STREETS.length - 1 && commIdx === st.communities.length - 1) {
         while (entIdx < allEnts.length) {
-          const ent = allEnts[entIdx];
+          var ent = allEnts[entIdx];
           commNode.children.push({ id: ent.id, name: ent.name, type: 'enterprise', isEnterprise: true, count: 0 });
           entIdx++;
         }
@@ -437,7 +450,7 @@ function computeNodeCounts(node) {
     }
     return node.count;
   }
-  let sum = 0;
+  var sum = 0;
   for (const child of node.children) {
     sum += computeNodeCounts(child);
   }
@@ -446,12 +459,12 @@ function computeNodeCounts(node) {
 }
 
 // 区划树（从共享数据构建，数组包装根节点以兼容 renderNodes）
-const districtData = [buildEntUserDistrictTree()];
+var districtData = [buildEntUserDistrictTree()];
 
 // 三级领域树：行业大类 -> 领域小类 -> 企业
 // 领域树数据源：从 domain-manage.html 的真实数据构建（行业大类 → 领域小类）
 // 行业大类映射（与 domain-manage.html 一致）
-const industryCategoryMap={
+var industryCategoryMap={
   'IND':{id:'cat_ind',name:'工业制造类',type:'category',icon:'&#127981;'},
   'CITY':{id:'cat_city',name:'城市运行类',type:'category',icon:'&#127961;'},
   'TRANS':{id:'cat_trans',name:'交通运输类',type:'category',icon:'&#128666;'},
@@ -463,7 +476,7 @@ const industryCategoryMap={
 };
 
 // 领域小类数据（从 domain-manage.html 同步）
-const domainSubcategories=[
+var domainSubcategories=[
   {id:'MANUFACTURING_001',name:'生产车间',industry:'IND'},
   {id:'CITY_001',name:'充换电设施',industry:'CITY'},
   {id:'TRANS_001',name:'道路运输',industry:'TRANS'},
@@ -488,8 +501,8 @@ const domainSubcategories=[
 
 // 动态构建领域树（按行业大类分组）
 function buildIndustryTree(){
-  const tree=[];
-  const categoryMap={};
+  var tree=[];
+  var categoryMap={};
   // 先创建所有大类节点
   for(const[code,cat]of Object.entries(industryCategoryMap)){
     categoryMap[code]={
@@ -503,7 +516,7 @@ function buildIndustryTree(){
   }
   // 再将领域小类挂载到对应大类下
   for(const sub of domainSubcategories){
-    const cat=categoryMap[sub.industry];
+    var cat=categoryMap[sub.industry];
     if(cat){
       // mock 数据仅关联到大类，小类级别无法细分统计，count 显示 0
       cat.children.push({
@@ -531,7 +544,7 @@ function buildIndustryTree(){
 //       userStatus(启用/停用), createTime, safetyCode(红/黄/绿), 
 //       superiorId(分管领导ID), manageDepts(管辖部门数组), remark
 // 用户数据：enterpriseId 关联区划树企业节点，industry 关联领域树行业大类
-let allUsers=[
+var allUsers=[
   {id:1,userName:'张三',userAccount:'zhangsan001',userPhone:'13800138001',userEmail:'zhangsan@tencent.com',userDept:'安全部',userPosition:'安全主管',userLevel:'管理层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-01-15 09:30',safetyCode:'绿',superiorId:null,manageDepts:['安全部','技术部'],remark:'',enterpriseId:1,industry:'IND'},
   {id:2,userName:'李四',userAccount:'lisi002',userPhone:'13800138002',userEmail:'lisi@tencent.com',userDept:'技术部',userPosition:'工程师',userLevel:'员工层',userRole:'普通用户',userStatus:'启用',createTime:'2024-02-20 14:15',safetyCode:'绿',superiorId:1,manageDepts:[],remark:'',enterpriseId:1,industry:'IND'},
   {id:3,userName:'王五',userAccount:'wangwu003',userPhone:'13800138003',userEmail:'wangwu@huawei.com',userDept:'生产部',userPosition:'部门经理',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-03-10 10:00',safetyCode:'黄',superiorId:null,manageDepts:['生产部','质检部'],remark:'负责生产安全',enterpriseId:2,industry:'IND'},
@@ -555,8 +568,11 @@ let allUsers=[
   {id:21,userName:'吴二三',userAccount:'wu23',userPhone:'13800138021',userEmail:'wu23@cmb.com',userDept:'风控部',userPosition:'风控总监',userLevel:'领导层',userRole:'企业管理员',userStatus:'启用',createTime:'2024-11-10 14:00',safetyCode:'绿',superiorId:null,manageDepts:['风控部'],remark:'',enterpriseId:6,industry:'OTHE'}
 ];
 
+// 初始化待办任务数（演示删除校验：id=1 有 2 个待办，其余 0 个）
+allUsers.forEach(function(u){u.pendingTasks=u.id===1?2:0;});
+
 // 企业组织架构数据（用于所属部门、管辖部门下拉框）
-const enterpriseDepts=[
+var enterpriseDepts=[
   {id:'dept_safe',name:'安全部'},
   {id:'dept_tech',name:'技术部'},
   {id:'dept_prod',name:'生产部'},
@@ -567,14 +583,14 @@ const enterpriseDepts=[
   {id:'dept_finance',name:'财务部'}
 ];
 
-let filteredUsers=[];
-let currentTab='district';
-let selectedNode=null;
-let editingId=null;
-let deletingId=null;
-let resetPwdId=null;
-let currentPage=1;
-let pageSize=10;
+var filteredUsers=[];
+var currentTab='district';
+var selectedNode=null;
+var editingId=null;
+var deletingId=null;
+var resetPwdId=null;
+var currentPage=1;
+var pageSize=10;
 
 // 分页组件
 var pg = new Pagination('paginationBar', {
@@ -613,20 +629,20 @@ function renderTree(){
     // 每次渲染时从 allUsers 重算节点 count（allUsers 在 districtData 之后定义）
     computeNodeCounts(districtData[0]);
   }
-  const data=currentTab==='district'?districtData:buildIndustryTree();
+  var data=currentTab==='district'?districtData:buildIndustryTree();
   document.getElementById('orgTree').innerHTML=renderNodes(data,0);
 }
 
 function renderNodes(nodes,level){
   if(!nodes||nodes.length===0)return'';
   // 区划Tab 默认展开到街道（level 0=区, level 1=街道）
-  const autoExpand = currentTab==='district' && level < 2;
+  var autoExpand = currentTab==='district' && level < 2;
   return nodes.map(node=>{
-    const hasChildren=node.children&&node.children.length>0;
-    const isEnterprise=node.isEnterprise;
-    const isSelected=selectedNode&&selectedNode.id===node.id;
+    var hasChildren=node.children&&node.children.length>0;
+    var isEnterprise=node.isEnterprise;
+    var isSelected=selectedNode&&selectedNode.id===node.id;
     // 根据节点类型显示不同图标
-    let icon=node.icon||'&#128196;';
+    var icon=node.icon||'&#128196;';
     if(!node.icon){
       if(isEnterprise){
         icon='&#127970;';
@@ -634,9 +650,9 @@ function renderNodes(nodes,level){
         icon='&#128193;';
       }
     }
-    const toggleClass = hasChildren ? (autoExpand ? 'toggle open' : 'toggle collapsed') : 'toggle';
-    const childrenClass = hasChildren ? (autoExpand ? 'tree-children show' : 'tree-children') : '';
-    const toggleVisibility = hasChildren ? '' : ' style="visibility:hidden"';
+    var toggleClass = hasChildren ? (autoExpand ? 'toggle open' : 'toggle collapsed') : 'toggle';
+    var childrenClass = hasChildren ? (autoExpand ? 'tree-children show' : 'tree-children') : '';
+    var toggleVisibility = hasChildren ? '' : ' style="visibility:hidden"';
     return`<div class="tree-node-wrapper">
       <div class="tree-node ${isSelected?'active':''}" data-id="${node.id}" data-enterprise="${isEnterprise||false}" data-type="${node.type||''}" onclick="selectTreeNode(${JSON.stringify(node).replace(/"/g,'&quot;')})" style="padding-left:${12+level*16}px">
         <span class="${toggleClass}"${toggleVisibility} onclick="toggleNode(this,event)">&#9654;</span>
@@ -651,7 +667,7 @@ function renderNodes(nodes,level){
 
 function toggleNode(el,e){
   e.stopPropagation();
-  const children=el.closest('.tree-node-wrapper').querySelector('.tree-children');
+  var children=el.closest('.tree-node-wrapper').querySelector('.tree-children');
   if(children){
     children.classList.toggle('show');
     el.classList.toggle('open');
@@ -659,9 +675,9 @@ function toggleNode(el,e){
 }
 
 function searchTree(){
-  const keyword=document.getElementById('treeSearch').value.toLowerCase();
+  var keyword=document.getElementById('treeSearch').value.toLowerCase();
   document.querySelectorAll('.tree-node').forEach(node=>{
-    const name=node.querySelector('.tree-node-label').textContent.toLowerCase();
+    var name=node.querySelector('.tree-node-label').textContent.toLowerCase();
     node.style.display=name.includes(keyword)?'flex':'none';
   });
 }
@@ -694,7 +710,7 @@ function getFilteredUsersByNode(){
     }
     // 如果选中的是区划/街道/社区节点，返回该区域下所有企业的用户
     // 需要递归查找该节点下所有企业ID
-    const enterpriseIds=getEnterpriseIdsInNode(selectedNode,districtData);
+    var enterpriseIds=getEnterpriseIdsInNode(selectedNode,districtData);
     if(enterpriseIds.length>0){
       return allUsers.filter(u=>enterpriseIds.includes(u.enterpriseId));
     }
@@ -706,7 +722,7 @@ function getFilteredUsersByNode(){
     // 如果选中的是大类节点
     if(selectedNode.type==='category'){
       // 从节点ID映射到行业代码（cat_ind -> IND）
-      const industryCode=Object.entries(industryCategoryMap).find(([code,cat])=>cat.id===selectedNode.id)?.[0];
+      var industryCode=Object.entries(industryCategoryMap).find(([code,cat])=>cat.id===selectedNode.id)?.[0];
       if(industryCode){
         return allUsers.filter(u=>u.industry===industryCode);
       }
@@ -722,7 +738,7 @@ function getFilteredUsersByNode(){
 
 // 递归获取节点下所有企业ID
 function getEnterpriseIdsInNode(node,data){
-  const ids=[];
+  var ids=[];
   function traverse(nodes){
     for(const n of nodes){
       if(n.id===node.id){
@@ -754,7 +770,7 @@ function collectEnterpriseIds(node,ids){
 
 // 更新顶部提示栏显示当前选中路径
 function updateBreadcrumb(node){
-  const breadcrumbEl=document.querySelector('.breadcrumb');
+  var breadcrumbEl=document.querySelector('.breadcrumb');
   if(!node){
     breadcrumbEl.innerHTML='<span class="breadcrumb-item">全部企业</span>';
     return;
@@ -763,7 +779,7 @@ function updateBreadcrumb(node){
   // 区划Tab
   if(currentTab==='district'){
     if(node.isEnterprise){
-      const path=findNodePath(districtData,node.id);
+      var path=findNodePath(districtData,node.id);
       if(path.length>0){
         breadcrumbEl.innerHTML=path.map(n=>`<span class="breadcrumb-item">${n.name}</span>`).join('<span class="breadcrumb-separator">&gt;</span>');
       }
@@ -780,7 +796,7 @@ function updateBreadcrumb(node){
       breadcrumbEl.innerHTML=`<span class="breadcrumb-item">${node.name}</span>`;
     }else if(node.type==='subcategory'){
       // 找到父级大类
-      const cat=industryCategoryMap[node.industry];
+      var cat=industryCategoryMap[node.industry];
       if(cat){
         breadcrumbEl.innerHTML=`<span class="breadcrumb-item">${cat.name}</span><span class="breadcrumb-separator">&gt;</span><span class="breadcrumb-item">${node.name}</span>`;
       }
@@ -791,10 +807,10 @@ function updateBreadcrumb(node){
 // 在树中查找节点路径
 function findNodePath(nodes,targetId,currentPath=[]){
   for(let node of nodes){
-    const newPath=[...currentPath,node];
+    var newPath=[...currentPath,node];
     if(node.id==targetId)return newPath;
     if(node.children&&node.children.length>0){
-      const found=findNodePath(node.children,targetId,newPath);
+      var found=findNodePath(node.children,targetId,newPath);
       if(found)return found;
     }
   }
@@ -802,7 +818,7 @@ function findNodePath(nodes,targetId,currentPath=[]){
 }
 
 // 安全码 QR 图标（stroke-based，颜色由 .code-cell 父级控制）
-const QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
+var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
 
 // 安全码颜色类名映射（中文→CSS类名）
 function getCodeStateClass(code){return{'红':'red','黄':'yellow','绿':'green'}[code]||'';}
@@ -810,13 +826,13 @@ function getCodeLabel(code){return code?code+'码':'—';}
 
 // ========== 用户列表 ==========
 function renderTable(){
-  const name=document.getElementById('filterName').value.toLowerCase();
-  const account=document.getElementById('filterAccount').value.toLowerCase();
-  const level=document.getElementById('filterLevel').value;
-  const status=document.getElementById('filterStatus').value;
+  var name=document.getElementById('filterName').value.toLowerCase();
+  var account=document.getElementById('filterAccount').value.toLowerCase();
+  var level=document.getElementById('filterLevel').value;
+  var status=document.getElementById('filterStatus').value;
 
   // 先根据树节点过滤
-  const nodeFiltered=getFilteredUsersByNode();
+  var nodeFiltered=getFilteredUsersByNode();
   
   filteredUsers=nodeFiltered.filter(user=>{
     if(name&&!user.userName.toLowerCase().includes(name))return false;
@@ -830,24 +846,25 @@ function renderTable(){
   updateStats();
 
   // 分页计算
-  const totalCount=filteredUsers.length;
-  const totalPages=Math.ceil(totalCount/pageSize)||1;
+  var totalCount=filteredUsers.length;
+  var totalPages=Math.ceil(totalCount/pageSize)||1;
   if(currentPage>totalPages)currentPage=totalPages;
   if(currentPage<1)currentPage=1;
 
-  const startIndex=(currentPage-1)*pageSize;
-  const pageData=filteredUsers.slice(startIndex,startIndex+pageSize);
+  var startIndex=(currentPage-1)*pageSize;
+  var pageData=filteredUsers.slice(startIndex,startIndex+pageSize);
 
   // 更新分页组件
   pg.setTotal(totalCount);
 
-  const tbody=document.getElementById('userTableBody');
+  var tbody=document.getElementById('userTableBody');
   if(pageData.length===0){
-    tbody.innerHTML='<tr><td colspan="10" class="no-data">暂无数据</td></tr>';
+    tbody.innerHTML='<tr><td colspan="11" class="no-data">暂无数据</td></tr>';
     return;
   }
 
   tbody.innerHTML=pageData.map((user,index)=>`<tr>
+    <td class="col-check"><input type="checkbox" class="row-checkbox" data-id="${user.id}" onchange="syncSelectAllState()"></td>
     <td>${startIndex+index+1}</td>
     <td title="${user.userName}">${user.userName}</td>
     <td title="${user.userAccount}">${user.userAccount}</td>
@@ -867,7 +884,7 @@ function renderTable(){
 }
 
 function updateStats(){
-  const filtered=getFilteredUsersByNode();
+  var filtered=getFilteredUsersByNode();
   document.getElementById('statTotal').textContent=filtered.length;
   document.getElementById('statRed').textContent=filtered.filter(u=>u.safetyCode==='红').length;
   document.getElementById('statYellow').textContent=filtered.filter(u=>u.safetyCode==='黄').length;
@@ -890,6 +907,57 @@ function resetFilter(){
   updateStats();
 }
 
+// ========== 复选框与批量操作 ==========
+function toggleSelectAll(checked){
+  document.querySelectorAll('.row-checkbox').forEach(function(cb){cb.checked=checked;});
+  updateBatchBar();
+}
+function syncSelectAllState(){
+  var all=document.querySelectorAll('.row-checkbox');
+  var checked=document.querySelectorAll('.row-checkbox:checked');
+  var selectAllEl=document.getElementById('selectAll');
+  if(selectAllEl) selectAllEl.checked=all.length>0&&all.length===checked.length;
+  updateBatchBar();
+}
+function updateBatchBar(){
+  var checked=document.querySelectorAll('.row-checkbox:checked');
+  var bar=document.getElementById('batchBar');
+  var countEl=document.getElementById('batchCount');
+  if(bar) bar.classList.toggle('show',checked.length>0);
+  if(countEl) countEl.textContent=checked.length;
+}
+function getSelectedUserIds(){
+  return Array.from(document.querySelectorAll('.row-checkbox:checked')).map(function(cb){return parseInt(cb.getAttribute('data-id'));});
+}
+function clearSelection(){
+  document.querySelectorAll('.row-checkbox').forEach(function(cb){cb.checked=false;});
+  var selectAllEl=document.getElementById('selectAll');
+  if(selectAllEl) selectAllEl.checked=false;
+  updateBatchBar();
+}
+function batchDelete(){
+  var ids=getSelectedUserIds();
+  if(ids.length===0){showToast('请先选择用户','warning');return;}
+  if(!confirm('确定要删除选中的 '+ids.length+' 个用户吗？此操作不可恢复'))return;
+  // 检查待办任务
+  var blocked=ids.filter(function(id){var u=allUsers.find(function(x){return x.id===id;});return u&&u.pendingTasks>0;});
+  if(blocked.length>0){showToast('选中用户中有 '+blocked.length+' 个存在待办任务，无法删除','error');return;}
+  allUsers=allUsers.filter(function(u){return ids.indexOf(u.id)===-1;});
+  renderTable();updateStats();showToast('已删除 '+ids.length+' 个用户','success');
+}
+function batchEnable(){
+  var ids=getSelectedUserIds();
+  if(ids.length===0){showToast('请先选择用户','warning');return;}
+  ids.forEach(function(id){var u=allUsers.find(function(x){return x.id===id;});if(u)u.userStatus='启用';});
+  renderTable();updateStats();showToast('已启用 '+ids.length+' 个用户','success');
+}
+function batchDisable(){
+  var ids=getSelectedUserIds();
+  if(ids.length===0){showToast('请先选择用户','warning');return;}
+  ids.forEach(function(id){var u=allUsers.find(function(x){return x.id===id;});if(u)u.userStatus='停用';});
+  renderTable();updateStats();showToast('已停用 '+ids.length+' 个用户','success');
+}
+
 // ========== 弹窗操作 ==========
 function closeModal(id){
   document.getElementById(id).classList.remove('show');
@@ -907,13 +975,19 @@ function openAddModal(){
   updateManageDeptsDisplay();
   document.getElementById('manageDeptsGroup').style.display='none';
   document.getElementById('editSuperiorId').innerHTML='<option value="">请选择</option>';
-  
+
+  // 新增模式：账号字段可编辑
+  var accountInput=document.getElementById('editUserAccount');
+  accountInput.readOnly=false;
+  accountInput.style.background='';
+  accountInput.style.cursor='';
+
   document.getElementById('editModal').classList.add('show');
 }
 
 function openEditModal(id){
   editingId=id;
-  const user=allUsers.find(u=>u.id===id);
+  var user=allUsers.find(u=>u.id===id);
   if(!user)return;
   document.getElementById('modalTitle').textContent='编辑用户';
   document.getElementById('editUserName').value=user.userName;
@@ -925,7 +999,12 @@ function openEditModal(id){
   document.getElementById('editUserRole').value=user.userRole;
   document.getElementById('editUserStatus').value=user.userStatus;
   document.getElementById('editRemark').value=user.remark||'';
-  document.getElementById('editUserAccount').value=user.userAccount;
+  // 编辑模式：账号字段只读不可改
+  var accountInput=document.getElementById('editUserAccount');
+  accountInput.value=user.userAccount;
+  accountInput.readOnly=true;
+  accountInput.style.background='var(--bg-secondary)';
+  accountInput.style.cursor='not-allowed';
   document.getElementById('editUserPassword').value='********';
   
   // 触发层级切换，更新分管领导和管辖部门
@@ -944,31 +1023,42 @@ function openEditModal(id){
 }
 
 function saveUser(){
-  const form=document.getElementById('editForm');
-  const formData=new FormData(form);
-  const data=Object.fromEntries(formData);
-  
+  // 手动收集表单数据（替代 Object.fromEntries 保证兼容性）
+  var data={
+    userName:document.getElementById('editUserName').value,
+    userPhone:document.getElementById('editUserPhone').value,
+    userEmail:document.getElementById('editUserEmail').value,
+    userPosition:document.getElementById('editUserPosition').value,
+    userDept:document.getElementById('editUserDept').value,
+    userLevel:document.getElementById('editUserLevel').value,
+    superiorId:document.getElementById('editSuperiorId').value,
+    userRole:document.getElementById('editUserRole').value,
+    userStatus:document.getElementById('editUserStatus').value,
+    remark:document.getElementById('editRemark').value,
+    userAccount:document.getElementById('editUserAccount').value,
+    userPassword:document.getElementById('editUserPassword').value
+  };
+
   // 补充管辖部门和分管领导数据
   data.manageDepts=selectedManageDepts;
   data.superiorId=data.superiorId||null;
-  
+
   // 新增时设置默认安全码
   if(!editingId){
     data.safetyCode='绿';
   }
 
   if(editingId){
-    const idx=allUsers.findIndex(u=>u.id===editingId);
+    var idx=allUsers.findIndex(function(u){return u.id===editingId;});
     if(idx!==-1){
-      allUsers[idx]={...allUsers[idx],...data};
+      var original=allUsers[idx];
+      for(var k in data){if(data[k]!==undefined&&data[k]!=='')original[k]=data[k];}
     }
   }else{
-    const newId=allUsers.length>0?Math.max(...allUsers.map(u=>u.id))+1:1;
-    allUsers.push({
-      id:newId,
-      ...data,
-      createTime:new Date().toISOString().split('T')[0]+' '+new Date().toTimeString().slice(0,5)
-    });
+    var newId=allUsers.length>0?Math.max.apply(null,allUsers.map(function(u){return u.id;}))+1:1;
+    data.id=newId;
+    data.createTime=new Date().toISOString().split('T')[0]+' '+new Date().toTimeString().slice(0,5);
+    allUsers.push(data);
   }
 
   closeModal('editModal');
@@ -983,8 +1073,13 @@ function saveUser(){
 
 function openDeleteModal(id){
   deletingId=id;
-  const user=allUsers.find(u=>u.id===id);
+  var user=allUsers.find(function(u){return u.id===id;});
   if(!user)return;
+  // 删除前检查待办任务（BR-SU-EU 强校验）
+  if(user.pendingTasks>0){
+    showToast('该用户有 '+user.pendingTasks+' 个待办任务，无法删除','error');
+    return;
+  }
   document.getElementById('deleteUserName').textContent=user.userName;
   document.getElementById('deleteModal').classList.add('show');
 }
@@ -999,7 +1094,7 @@ function confirmDelete(){
 
 function openResetPwdModal(id){
   resetPwdId=id;
-  const user=allUsers.find(u=>u.id===id);
+  var user=allUsers.find(u=>u.id===id);
   if(!user)return;
   document.getElementById('resetPwdUserName').textContent=user.userName;
   document.getElementById('newPassword').value='';
@@ -1007,49 +1102,52 @@ function openResetPwdModal(id){
 }
 
 function confirmResetPwd(){
-  const pwd=document.getElementById('newPassword').value;
-  if(!pwd){showToast('请输入新密码', 'warning');return;}
+  var pwd=document.getElementById('newPassword').value;
+  if(!pwd){pwd='Abc@123456';}
   closeModal('resetPwdModal');
-  showToast('密码重置成功', 'success');
+  showToast('密码已重置为：'+pwd,'success');
 }
 
 function openDetailModal(id){
-  const user=allUsers.find(u=>u.id===id);
+  var user=allUsers.find(function(u){return u.id===id;});
   if(!user)return;
-  const superiorUser=allUsers.find(u=>u.id===user.superiorId);
-  const manageDeptsText=user.manageDepts&&user.manageDepts.length>0?user.manageDepts.join('、'):'-';
+  var superiorUser=allUsers.find(function(u){return u.id===user.superiorId;});
+  var manageDeptsText=user.manageDepts&&user.manageDepts.length>0?user.manageDepts.join('、'):'-';
   document.getElementById('detailContent').innerHTML=`<div class="form-row">
     <div class="form-group"><label class="form-label">用户姓名</label><div class="form-input" style="background:var(--bg-secondary)">${user.userName}</div></div>
     <div class="form-group"><label class="form-label">账号</label><div class="form-input" style="background:var(--bg-secondary)">${user.userAccount}</div></div>
-    <div class="form-group"><label class="form-label">联系电话</label><div class="form-input" style="background:var(--bg-secondary)">${user.userPhone}</div></div>
   </div>
   <div class="form-row">
+    <div class="form-group"><label class="form-label">联系电话</label><div class="form-input" style="background:var(--bg-secondary)">${user.userPhone}</div></div>
     <div class="form-group"><label class="form-label">邮箱</label><div class="form-input" style="background:var(--bg-secondary)">${user.userEmail||'-'}</div></div>
+  </div>
+  <div class="form-row">
     <div class="form-group"><label class="form-label">职务</label><div class="form-input" style="background:var(--bg-secondary)">${user.userPosition||'-'}</div></div>
     <div class="form-group"><label class="form-label">所属部门</label><div class="form-input" style="background:var(--bg-secondary)">${user.userDept||'-'}</div></div>
   </div>
   <div class="form-row">
     <div class="form-group"><label class="form-label">员工层级</label><div class="form-input" style="background:var(--bg-secondary)">${user.userLevel}</div></div>
     <div class="form-group"><label class="form-label">分管领导</label><div class="form-input" style="background:var(--bg-secondary)">${superiorUser?superiorUser.userName:'-'}</div></div>
+  </div>
+  <div class="form-row">
     <div class="form-group"><label class="form-label">管辖部门</label><div class="form-input" style="background:var(--bg-secondary)">${manageDeptsText}</div></div>
-  </div>
-  <div class="form-row">
     <div class="form-group"><label class="form-label">角色类型</label><div class="form-input" style="background:var(--bg-secondary)">${user.userRole}</div></div>
-    <div class="form-group"><label class="form-label">启用状态</label><div class="form-input" style="background:var(--bg-secondary)"><span class="tag ${user.userStatus==='启用'?'tag-green':'tag-gray'}">${user.userStatus}</span></div></div>
-    <div class="form-group"><label class="form-label">安全码</label><div class="form-input" style="background:var(--bg-secondary);display:flex;align-items:center"><span class="code-cell ${getCodeStateClass(user.safetyCode)}">${QR_ICON_SVG}</span><span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">${user.safetyCode||'—'}</span><span style="margin-left:8px;color:${user.safetyCode==='红'?'var(--danger)':user.safetyCode==='黄'?'var(--warning)':'var(--success)'};">（${getCodeLabel(user.safetyCode)}）</span></div></div>
   </div>
   <div class="form-row">
-    <div class="form-group" style="flex:1"><label class="form-label">备注</label><div class="form-input" style="background:var(--bg-secondary);min-height:60px">${user.remark||'-'}</div></div>
+    <div class="form-group"><label class="form-label">启用状态</label><div class="form-input" style="background:var(--bg-secondary)"><span class="tag ${user.userStatus==='启用'?'tag-green':'tag-gray'}">${user.userStatus}</span></div></div>
     <div class="form-group"><label class="form-label">创建时间</label><div class="form-input" style="background:var(--bg-secondary)">${user.createTime}</div></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group full-width"><label class="form-label">备注</label><div class="form-input" style="background:var(--bg-secondary);min-height:60px">${user.remark||'-'}</div></div>
   </div>`;
   document.getElementById('detailModal').classList.add('show');
 }
 
 // ========== 员工层级切换处理 ==========
 function onLevelChange(){
-  const level=document.getElementById('editUserLevel').value;
-  const manageDeptsGroup=document.getElementById('manageDeptsGroup');
-  const superiorSelect=document.getElementById('editSuperiorId');
+  var level=document.getElementById('editUserLevel').value;
+  var manageDeptsGroup=document.getElementById('manageDeptsGroup');
+  var superiorSelect=document.getElementById('editSuperiorId');
   
   // 显示/隐藏管辖部门
   if(level==='领导层'||level==='管理层'){
@@ -1063,11 +1161,11 @@ function onLevelChange(){
   updateSuperiorOptions(level);
 }
 
-// 更新分管领导下拉选项
+// 更新分管领导下拉选项（按员工层级 + 当前企业过滤）
 function updateSuperiorOptions(currentLevel){
-  const superiorSelect=document.getElementById('editSuperiorId');
-  let allowedLevels=[];
-  
+  var superiorSelect=document.getElementById('editSuperiorId');
+  var allowedLevels=[];
+
   if(currentLevel==='员工层'){
     allowedLevels=['领导层','管理层'];
   }else if(currentLevel==='管理层'){
@@ -1075,21 +1173,38 @@ function updateSuperiorOptions(currentLevel){
   }else if(currentLevel==='领导层'){
     allowedLevels=['领导层'];
   }
-  
-  // 过滤可选用户
-  const options=allUsers
-    .filter(u=>allowedLevels.includes(u.userLevel))
-    .map(u=>`<option value="${u.id}">${u.userName}（${u.userLevel}）</option>`)
+
+  // 按当前选中企业过滤（PRD §6.1.3.2.3.2.2：当前企业下所有用户）
+  var candidates=allUsers;
+  var selectedEntId=null;
+  if(selectedNode){
+    if(selectedNode.isEnterprise){
+      selectedEntId=selectedNode.id;
+    }else if(selectedNode.type==='community'||selectedNode.type==='street'||selectedNode.type==='district'){
+      // 选中的是区划节点，收集其下所有企业ID
+      var entIds=getEnterpriseIdsInNode(selectedNode,districtData);
+      if(entIds.length===1) selectedEntId=entIds[0];
+    }
+  }
+  if(selectedEntId){
+    candidates=candidates.filter(function(u){return u.enterpriseId===selectedEntId;});
+  }
+
+  // 按员工层级过滤
+  candidates=candidates.filter(function(u){return allowedLevels.indexOf(u.userLevel)>-1;});
+
+  var options=candidates
+    .map(function(u){return '<option value="'+u.id+'">'+u.userName+'（'+u.userLevel+'）</option>';})
     .join('');
-  
+
   superiorSelect.innerHTML='<option value="">请选择</option>'+(options||'<option disabled>暂无数据</option>');
 }
 
 // ========== 多选下拉框操作 ==========
-let selectedManageDepts=[];
+var selectedManageDepts=[];
 
 function toggleMultiDropdown(){
-  const dropdown=document.getElementById('manageDeptsDropdown');
+  var dropdown=document.getElementById('manageDeptsDropdown');
   dropdown.classList.toggle('show');
   if(dropdown.classList.contains('show')){
     renderManageDeptsOptions();
@@ -1097,7 +1212,7 @@ function toggleMultiDropdown(){
 }
 
 function renderManageDeptsOptions(){
-  const container=document.getElementById('manageDeptsOptions');
+  var container=document.getElementById('manageDeptsOptions');
   container.innerHTML=enterpriseDepts.map(dept=>`
     <div class="multi-select-option" onclick="toggleManageDept('${dept.name}')">
       <input type="checkbox" ${selectedManageDepts.includes(dept.name)?'checked':''} onclick="event.stopPropagation()">
@@ -1107,7 +1222,7 @@ function renderManageDeptsOptions(){
 }
 
 function toggleManageDept(deptName){
-  const idx=selectedManageDepts.indexOf(deptName);
+  var idx=selectedManageDepts.indexOf(deptName);
   if(idx>-1){
     selectedManageDepts.splice(idx,1);
   }else{
@@ -1129,7 +1244,7 @@ function clearManageDepts(){
 }
 
 function updateManageDeptsDisplay(){
-  const textEl=document.getElementById('manageDeptsText');
+  var textEl=document.getElementById('manageDeptsText');
   if(selectedManageDepts.length===0){
     textEl.textContent='请选择管辖部门';
     textEl.className='multi-select-placeholder';
@@ -1140,7 +1255,7 @@ function updateManageDeptsDisplay(){
 }
 
 function removeManageDept(deptName){
-  const idx=selectedManageDepts.indexOf(deptName);
+  var idx=selectedManageDepts.indexOf(deptName);
   if(idx>-1){
     selectedManageDepts.splice(idx,1);
     updateManageDeptsDisplay();
@@ -1150,7 +1265,7 @@ function removeManageDept(deptName){
 
 // 点击外部关闭下拉框
 document.addEventListener('click',function(e){
-  const wrap=document.getElementById('manageDeptsWrap');
+  var wrap=document.getElementById('manageDeptsWrap');
   if(wrap&&!wrap.contains(e.target)){
     document.getElementById('manageDeptsDropdown').classList.remove('show');
   }
