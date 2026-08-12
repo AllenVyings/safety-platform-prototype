@@ -40,6 +40,7 @@
 
     .table-wrap {
       flex: 1;
+      flex-shrink: 0;  /* §8.8 防止表格被 flex 压缩 */
       min-height: 0;
       box-shadow: none;
     }
@@ -50,6 +51,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      text-align: left;
     }
     .table-wrap .domain-name {
       min-width: 180px;
@@ -67,13 +69,26 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      gap: var(--spacing-md);  /* §8.8 纵向卡片间距统一 16px */
       overflow: hidden;
+      padding: 20px;  /* §8.8 页面边距统一 */
     }
-    .page-container[data-module="super-admin/domain-manage"] > .breadcrumb,
     .page-container[data-module="super-admin/domain-manage"] > .stats-row,
     .page-container[data-module="super-admin/domain-manage"] > .filter-bar,
     .page-container[data-module="super-admin/domain-manage"] > .filter-card {
       flex-shrink: 0;
+    }
+    /* §8.8 统计卡行内间距统一 */
+    .page-container[data-module="super-admin/domain-manage"] > .stats-row {
+      gap: var(--spacing-md);
+    }
+    /* §8.8 分页可见性 */
+    .table-card > .pagination {
+      flex-shrink: 0;
+    }
+    /* 表头左对齐 */
+    .table-wrap th {
+      text-align: left;
     }
 
     .table-card {
@@ -109,7 +124,6 @@
       background: var(--bg-card);
       border-radius: var(--radius-lg);
       padding: var(--spacing-md) var(--spacing-lg);
-      margin-bottom: var(--spacing-md);
       box-shadow: var(--shadow-sm, var(--shadow-card));
       flex-shrink: 0;
     }
@@ -127,7 +141,7 @@
     .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
     .tag-orange { background: var(--warning-light); color: var(--warning); }
     .tag-blue { background: var(--primary-light); color: var(--primary); }
-    .tag-purple { background: var(--primary-light); color: var(--primary); }
+    .tag-purple { background: var(--accent-light); color: var(--accent); }
     .tag-cyan { background: var(--info-light); color: var(--info); }
 
     /* ========== 弹窗样式 ========== */
@@ -2127,16 +2141,6 @@
   <script src="../../js/domain-data.js"></script>
   <script src="../../js/pagination.js"></script>
   <div class="page-container" data-module="super-admin/domain-manage">
-    <!-- 面包屑导航 -->
-    <div class="breadcrumb" id="breadcrumb">
-      <span class="breadcrumb-prefix">当前位置：</span>
-      <span class="breadcrumb-item" onclick="goToHome()">首页</span>
-      <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item" onclick="goToWorkbench()">超管端</span>
-      <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">领域小类管理</span>
-    </div>
-
     <!-- 统计卡片 -->
     <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat-card" onclick="filterByStatus('')">
@@ -6794,9 +6798,7 @@ function showToast(msg, type) {
   </div>
 </div>
 
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>
+<style>
 /* 检查内容列表样式 */
 .checkitem-list {
   border: 1px solid var(--border-section);
@@ -7081,9 +7083,7 @@ function renderCheckitemList(items) {
 }
 </script>
 
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>
+<style>
 /* 行内编辑样式 */
 .checkitem-header.editing {
   background: var(--primary-light);
