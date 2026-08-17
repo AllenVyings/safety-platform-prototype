@@ -191,13 +191,13 @@ const TableComponents = {
    * 标准表格
    */
   basic(columns, data, options = {}) {
-    const { id = 'table', emptyText = '暂无数据' } = options;
-    
-    const theadHtml = columns.map(col => 
+    const { id = 'table', emptyText = '暂无数据', emptyType = '' } = options;
+
+    const theadHtml = columns.map(col =>
       `<th style="${col.width ? 'width:' + col.width : ''}">${col.title}</th>`
     ).join('');
-    
-    const tbodyHtml = data.length > 0 
+
+    const tbodyHtml = data.length > 0
       ? data.map((row, i) => {
           const cells = columns.map(col => {
             const value = row[col.key];
@@ -208,8 +208,14 @@ const TableComponents = {
           }).join('');
           return `<tr data-index="${i}">${cells}</tr>`;
         }).join('')
-      : `<tr><td colspan="${columns.length}" style="text-align: center; color: var(--text3); padding: 40px;">${emptyText}</td></tr>`;
-    
+      : (() => {
+          // 支持新式空状态组件（emptyType）或传统文本（emptyText）
+          if (emptyType && window.Components && window.Components.Empty) {
+            return `<tr><td colspan="${columns.length}" style="padding: 0;">${window.Components.Empty.render(emptyType, options)}</td></tr>`;
+          }
+          return `<tr><td colspan="${columns.length}" style="text-align: center; color: var(--text-tertiary); padding: 40px;">${emptyText}</td></tr>`;
+        })();
+
     return `
       <div class="table-wrapper">
         <table class="table-basic">
@@ -340,12 +346,82 @@ const SelectComponents = {
   }
 };
 
+// ==================== 空状态组件 ====================
+const EmptyStates = {
+  /**
+   * 渲染空状态
+   * @param {string} type - 类型：list-empty | no-selection | first-use | load-error | no-permission | no-search-result | maintenance
+   * @param {Object} options - 配置项
+   * @param {string} options.title - 自定义标题（覆盖默认）
+   * @param {string} options.description - 自定义描述（覆盖默认）
+   * @param {string} options.actionText - 操作按钮文字
+   * @param {Function} options.onAction - 操作按钮回调
+   * @returns {string} HTML 字符串
+   */
+  render(type, options = {}) {
+    const presets = {
+      'list-empty': {
+        icon: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="12" y="16" width="40" height="32" rx="4" stroke="#bfbfbf" stroke-width="2"/><line x1="20" y1="28" x2="44" y2="28" stroke="#d9d9d9" stroke-width="2"/><line x1="20" y1="36" x2="36" y2="36" stroke="#d9d9d9" stroke-width="2"/></svg>',
+        title: '暂无数据',
+        description: '当前列表为空，请先添加数据或调整筛选条件'
+      },
+      'no-selection': {
+        icon: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="20" stroke="#bfbfbf" stroke-width="2" stroke-dasharray="4 4"/><path d="M26 32L30 36L38 28" stroke="#d9d9d9" stroke-width="2"/></svg>',
+        title: '未选择',
+        description: '请从左侧列表中选择一项查看详情'
+      },
+      'first-use': {
+        icon: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="16" y="20" width="32" height="24" rx="4" stroke="#bfbfbf" stroke-width="2"/><circle cx="32" cy="32" r="6" stroke="#bfbfbf" stroke-width="2"/><path d="M32 26V20M32 44V38" stroke="#d9d9d9" stroke-width="2"/></svg>',
+        title: '欢迎使用',
+        description: '这是您首次进入该功能，点击开始配置'
+      },
+      'load-error': {
+        icon: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="20" stroke="#ff4d4f" stroke-width="2"/><line x1="32" y1="22" x2="32" y2="34" stroke="#ff4d4f" stroke-width="2"/><circle cx="32" cy="40" r="2" fill="#ff4d4f"/></svg>',
+        title: '加载失败',
+        description: '网络异常或数据获取失败，请稍后重试'
+      },
+      'no-permission': {
+        icon: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="20" y="28" width="24" height="16" rx="2" stroke="#bfbfbf" stroke-width="2"/><path d="M24 28V22C24 17.58 27.58 14 32 14C36.42 14 40 17.58 40 22V28" stroke="#bfbfbf" stroke-width="2"/><circle cx="32" cy="36" r="2" fill="#bfbfbf"/></svg>',
+        title: '无访问权限',
+        description: '您没有权限查看此内容，请联系管理员开通'
+      },
+      'no-search-result': {
+        icon: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="28" cy="28" r="12" stroke="#bfbfbf" stroke-width="2"/><line x1="36" y1="36" x2="44" y2="44" stroke="#bfbfbf" stroke-width="2"/><line x1="24" y1="28" x2="32" y2="28" stroke="#d9d9d9" stroke-width="2"/></svg>',
+        title: '搜索无结果',
+        description: '未找到匹配的内容，请尝试其他关键词'
+      },
+      'maintenance': {
+        icon: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><path d="M32 16L48 44H16L32 16Z" stroke="#faad14" stroke-width="2" fill="none"/><line x1="32" y1="26" x2="32" y2="34" stroke="#faad14" stroke-width="2"/><circle cx="32" cy="38" r="1.5" fill="#faad14"/></svg>',
+        title: '功能维护中',
+        description: '该功能正在升级维护，预计很快恢复，敬请期待'
+      }
+    };
+
+    const preset = presets[type] || presets['list-empty'];
+    const title = options.title || preset.title;
+    const description = options.description || preset.description;
+    const actionHtml = options.actionText
+      ? `<button class="btn btn-primary" style="margin-top: 16px;" onclick="${options.onAction || ''}">${options.actionText}</button>`
+      : '';
+
+    return `
+      <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center;">
+        <div class="empty-state-icon" style="margin-bottom: 16px;">${preset.icon}</div>
+        <div class="empty-state-title" style="font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px;">${title}</div>
+        <div class="empty-state-description" style="font-size: 13px; color: var(--text-tertiary); max-width: 300px; line-height: 1.6;">${description}</div>
+        ${actionHtml}
+      </div>
+    `;
+  }
+};
+
 // ==================== 导出组件 ====================
 window.Components = {
   Modal: ModalComponent,
   Form: FormComponents,
   Table: TableComponents,
-  Select: SelectComponents
+  Select: SelectComponents,
+  Empty: EmptyStates
 };
 
 console.log('[Components] 公共组件库加载完成 ✅');

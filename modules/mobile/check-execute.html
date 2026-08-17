@@ -483,6 +483,7 @@
   <div class="ce-bottom-bar">
     <button class="ce-bar-btn add" onclick="openDrawer(-1)">新增</button>
     <button class="ce-bar-btn submit" onclick="handleSubmit()">提交</button>
+    <button class="ce-bar-btn ai" onclick="goAiAnalysis()">🤖</button>
   </div>
 
   <!-- 抽屉遮罩 -->
@@ -1002,6 +1003,17 @@ function showToast(msg, type) {
         html += '</div>';
       });
       list.innerHTML = html;
+    }
+
+    /* ========== 跳转AI分析前保存隐患 ========== */
+    function goAiAnalysis() {
+      try {
+        localStorage.setItem('checkExecuteHazards', JSON.stringify(hazards));
+        var judgments = {};
+        checkItems.forEach(function(item) { if (item.judgment) judgments[item.idx] = item.judgment; });
+        localStorage.setItem('checkExecuteJudgments', JSON.stringify(judgments));
+      } catch(e) {}
+      parent.navigateTo('ai-analysis');
     }
 
     /* ========== 提交流程 ========== */

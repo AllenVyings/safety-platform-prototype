@@ -1051,6 +1051,11 @@ html, body {
   color: var(--text-secondary);
 }
 
+.tag-yellow {
+  background: #fef3cd;
+  color: #b7791f;
+}
+
 /* ========== 页面组件样式 ========== */
 
 /* 页面容器 */
@@ -1729,3 +1734,233 @@ html, body {
 .mobile-info-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 13px; }
 .mobile-info-row-label { color: #666; }
 .mobile-info-row-value { color: #000; font-weight: 500; }
+
+/* ========== 共享布局类（模板复用，避免页面重复定义） ========== */
+
+/* 树面板容器（模式 A/B/E/F 共用） */
+.tree-panel {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.tree-search {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+.tree-search input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  box-sizing: border-box;
+}
+.tree-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-light);
+}
+.tree-tab {
+  flex: 1;
+  padding: 10px 0;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+}
+.tree-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 500;
+}
+.tree-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+.tree-node.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+.tree-node .arrow {
+  margin-right: var(--spacing-xs);
+  font-size: 10px;
+  transition: transform .2s;
+  width: 12px;
+  text-align: center;
+}
+.tree-node .arrow.expanded {
+  transform: rotate(90deg);
+}
+.tree-node .node-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  background: var(--bg-secondary);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.tree-children {
+  padding-left: 20px;
+}
+
+/* 详情面板（模式 B/E 共用） */
+.detail-panel {
+  flex: 1;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+}
+.detail-header {
+  padding: var(--spacing-md) 20px;
+  border-bottom: 1px solid var(--border-section);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-section);
+}
+.detail-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+.detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.tab-nav {
+  display: flex;
+  border-bottom: 1px solid var(--border-light);
+  padding: 0 20px;
+  background: var(--bg-primary);
+}
+.tab-btn {
+  padding: 10px 20px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+}
+.tab-btn:hover {
+  color: var(--primary);
+}
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 500;
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+
+/* 表格卡片容器（模式 A/C/F 共用） */
+.table-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.table-container {
+  flex: 1;
+  overflow-x: auto;
+  min-height: 0;
+}
+.table-card > .pagination {
+  flex-shrink: 0;
+}
+.no-data td {
+  text-align: center;
+  color: var(--text-tertiary);
+  padding: 40px 0;
+}
+
+/* 查询栏（模式 A/C 共用） */
+.query-bar {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.query-bar .q-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.query-bar label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.query-bar select,
+.query-bar input {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+/* ========== 减弱动效偏好（WCAG 2.1 AA §2.3.3） ========== */
+/* 当用户系统设置"减少动态效果"时，禁用所有过渡和动画 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========== 浏览器表面主题化 ========== */
+/* 文本选中色 */
+::selection {
+  background: var(--primary-light);
+  color: var(--primary-active);
+}
+
+/* 滚动条（Webkit） */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+
+/* 滚动条（Firefox） */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-dark) var(--bg-secondary);
+}
+
+/* 焦点环（键盘导航可见，WCAG 2.4.7） */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* 输入光标 */
+input, textarea, [contenteditable] {
+  caret-color: var(--primary);
+}
