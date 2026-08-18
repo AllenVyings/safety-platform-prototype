@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>安全码综合管理平台 V5.0</title>
+  <link rel="icon" href="%E5%AE%89%E5%85%A8%E7%A0%81%E5%B0%8F%E7%A8%8B%E5%BA%8F/logo%403x.png" type="image/png">
   
   <!-- CSS 样式 -->
   <link rel="stylesheet" href="css/variables.css">
@@ -255,32 +256,37 @@
         <div class="mobile-nav-panel" id="mobileNavPanel">
           <div class="mobile-nav-title">移动端-企业侧</div>
           <div class="mobile-nav-section">
+            <a class="mobile-nav-item" onclick="mobileNav('login')">🔑 登录</a>
+          </div>
+          <div class="mobile-nav-section">
             <div class="mobile-nav-section-label">Tab 页面</div>
-            <a class="mobile-nav-item active" onclick="mobileNav('enterprise-code')">🏠 企业码首页</a>
+            <a class="mobile-nav-item" onclick="mobileNav('enterprise-code')">🏠 首页</a>
             <a class="mobile-nav-item" onclick="mobileNav('control-list')">📋 列表</a>
             <a class="mobile-nav-item" onclick="mobileNav('workbench')">⚡ 工作台</a>
-            <a class="mobile-nav-item" onclick="mobileNav('task-list')">📌 任务管理</a>
-            <a class="mobile-nav-item" onclick="mobileNav('profile')">👤 个人码</a>
+            <a class="mobile-nav-item" onclick="mobileNav('task-list')">📌 任务</a>
+            <a class="mobile-nav-item" onclick="mobileNav('profile')">👤 我的</a>
           </div>
           <div class="mobile-nav-section">
-            <div class="mobile-nav-section-label">码首页</div>
-            <a class="mobile-nav-item" onclick="mobileNav('place-code')">📍 场所码首页</a>
-            <a class="mobile-nav-item" onclick="mobileNav('hazard-code')">⚡ 危险源码首页</a>
-          </div>
-          <div class="mobile-nav-section">
-            <div class="mobile-nav-section-label">二级页面</div>
-            <a class="mobile-nav-item" onclick="mobileNav('check-list')">📋 检查表选择</a>
+            <div class="mobile-nav-section-label">企业码</div>
+            <div class="mobile-nav-subgroup">二级页面</div>
+            <a class="mobile-nav-item" onclick="mobileNav('check-list')">🔎 码上排查</a>
+            <a class="mobile-nav-item" onclick="mobileNav('hazard-stats')">⚠️ 隐患记录</a>
+            <a class="mobile-nav-item" onclick="mobileNav('inspection-stats')">📄 检查记录</a>
+            <div class="mobile-nav-subgroup">三级页面</div>
             <a class="mobile-nav-item" onclick="mobileNav('check-execute')">📝 码上排查执行</a>
             <a class="mobile-nav-item" onclick="mobileNav('ai-analysis')">🤖 AI智能分析</a>
             <a class="mobile-nav-item" onclick="mobileNav('hazard-detail')">🔧 隐患详情</a>
-            <a class="mobile-nav-item" onclick="mobileNav('check-detail')">📄 检查详情</a>
+            <a class="mobile-nav-item" onclick="mobileNav('check-detail')">📋 检查详情</a>
             <a class="mobile-nav-item" onclick="mobileNav('code-change')">🔄 变码记录</a>
             <a class="mobile-nav-item" onclick="mobileNav('scan')">📷 扫一扫</a>
-            <a class="mobile-nav-item" onclick="mobileNav('settings')">⚙️ 设置</a>
           </div>
           <div class="mobile-nav-section">
-            <div class="mobile-nav-section-label">其他</div>
-            <a class="mobile-nav-item" onclick="mobileNav('login')">🔑 登录</a>
+            <div class="mobile-nav-section-label">码首页</div>
+            <a class="mobile-nav-item" onclick="mobileNav('place-code')">📍 场所码</a>
+            <a class="mobile-nav-item" onclick="mobileNav('hazard-code')">⚡ 危险源码</a>
+          </div>
+          <div class="mobile-nav-section">
+            <a class="mobile-nav-item" onclick="mobileNav('settings')">⚙️ 设置</a>
           </div>
         </div>
 
@@ -301,7 +307,7 @@
                 </div>
               </div>
               <!-- 小程序导航栏 (44px) -->
-              <div class="mobile-nav-bar">
+              <div class="mobile-nav-bar" style="display:none">
                 <div class="mobile-nav-bar-left" id="mobileNavBarLeft">
                   <!-- 二级页面显示返回按钮 -->
                 </div>
@@ -320,10 +326,10 @@
               </div>
               <!-- 页面内容区 -->
               <div class="mobile-phone-content">
-                <iframe id="mobileFrame" src="modules/mobile/enterprise-code.html"></iframe>
+                <iframe id="mobileFrame" src="modules/mobile/login.html"></iframe>
               </div>
               <!-- 底部TabBar (50px + 34px安全区) -->
-              <div class="mobile-tab-bar" id="mobileTabBar">
+              <div class="mobile-tab-bar" id="mobileTabBar" style="display:none">
                 <div class="mobile-tab-bar-inner">
                   <div class="mobile-tab-item active" onclick="mobileTab(0,'enterprise-code')"><span class="mobile-tab-icon">🏠</span><span class="mobile-tab-label">首页</span></div>
                   <div class="mobile-tab-item" onclick="mobileTab(1,'control-list')"><span class="mobile-tab-icon">📋</span><span class="mobile-tab-label">列表</span></div>
@@ -680,21 +686,23 @@
   <script>
   (function() {
     var mobilePageInfo = {
-      'enterprise-code': {section:'6.5.2', name:'企业码', isTab:true, navTitle:'企业码', transparentNav:true},
-      'place-code':     {section:'6.5.3', name:'场所码首页', isTab:false, navTitle:'场所码首页', transparentNav:true},
-      'hazard-code':    {section:'6.5.4', name:'危险源码首页', isTab:false, navTitle:'危险源码首页', transparentNav:true},
+      'enterprise-code': {section:'6.5.3', name:'企业码', isTab:true, navTitle:'企业码', transparentNav:true},
+      'place-code':     {section:'6.5.4', name:'场所码', isTab:false, navTitle:'场所码', transparentNav:true},
+      'hazard-code':    {section:'6.5.4', name:'危险源码', isTab:false, navTitle:'危险源码', transparentNav:true},
       'control-list':   {section:'6.5.5', name:'列表', isTab:true, navTitle:'列表', transparentNav:true},
       'workbench':      {section:'6.5.6', name:'工作台', isTab:true, navTitle:'工作台', transparentNav:true},
-      'task-list':      {section:'6.5.7', name:'任务管理', isTab:true, navTitle:'任务管理', transparentNav:true},
-      'profile':        {section:'6.5.8', name:'个人码', isTab:true, navTitle:'个人码', transparentNav:true},
+      'task-list':      {section:'6.5.6', name:'任务', isTab:true, navTitle:'任务', transparentNav:true},
+      'profile':        {section:'6.5.7', name:'我的', isTab:true, navTitle:'我的', transparentNav:true},
+      'check-list':     {section:'6.5.2.3', name:'码上排查', isTab:false, navTitle:'码上排查'},
       'check-execute':  {section:'6.5.2.3', name:'码上排查执行', isTab:false, navTitle:'码上排查'},
-      'check-list':      {section:'6.5.2.3', name:'检查表选择', isTab:false, navTitle:'码上排查'},
+      'ai-analysis':    {section:'6.5.2.4', name:'AI智能分析', isTab:false, navTitle:'AI智能分析'},
+      'hazard-stats':   {section:'6.5.2.5', name:'隐患记录', isTab:false, navTitle:'隐患记录'},
+      'inspection-stats':{section:'6.5.2.6', name:'检查记录', isTab:false, navTitle:'检查记录'},
       'hazard-detail':  {section:'6.5.6.5.3', name:'隐患详情', isTab:false, navTitle:'隐患详情'},
       'check-detail':   {section:'6.5.6.4.5', name:'检查详情', isTab:false, navTitle:'检查详情'},
-      'ai-analysis':    {section:'6.5.2.3', name:'AI智能分析', isTab:false, navTitle:'AI智能分析'},
-      'code-change':    {section:'6.5.2.4', name:'变码记录', isTab:false, navTitle:'变码记录'},
+      'code-change':    {section:'6.5.2.7', name:'变码记录', isTab:false, navTitle:'变码记录'},
       'scan':           {section:'6.5.2.2', name:'扫一扫', isTab:false, navTitle:'扫一扫', darkNav:true},
-      'login':          {section:'6.5.1', name:'登录', isTab:false, navTitle:'', noNav:true},
+      'login':          {section:'6.5.2', name:'登录', isTab:false, navTitle:'', noNav:true, loginBg:true},
       'settings':       {section:'6.5.8', name:'设置', isTab:false, navTitle:'设置'}
     };
     var tabModules = ['enterprise-code','control-list','workbench','task-list','profile'];
@@ -735,7 +743,6 @@
         titleEl.style.color = '#fff';
         sysStatus.style.background = 'transparent';
         sysStatus.style.color = '#fff';
-        // 布局：让状态栏和导航栏浮在内容上方，iframe 从顶部渲染
         sysStatus.style.position = 'absolute';
         sysStatus.style.top = '0';
         sysStatus.style.left = '0';
@@ -762,6 +769,28 @@
         });
         var backSvg = leftEl.querySelector('.mobile-nav-back svg path');
         if (backSvg) backSvg.setAttribute('stroke', '#fff');
+      }
+      // 登录页：状态栏透明穿透背景图，黑色图标
+      else if (info.loginBg) {
+        navBar.style.background = 'transparent';
+        navBar.style.borderBottom = 'none';
+        navBar.style.display = 'none';
+        sysStatus.style.background = 'transparent';
+        sysStatus.style.color = '#000';
+        sysStatus.style.position = 'absolute';
+        sysStatus.style.top = '0';
+        sysStatus.style.left = '0';
+        sysStatus.style.right = '0';
+        sysStatus.style.zIndex = '10';
+        // 图标保持黑色
+        sysStatus.querySelectorAll('svg path, svg rect, svg circle').forEach(function(el) {
+          if (el.getAttribute('fill') === '#fff') el.setAttribute('fill', '#000');
+          if (el.getAttribute('stroke') === '#fff') el.setAttribute('stroke', '#000');
+        });
+        sysStatus.querySelector('.mobile-sys-time').style.color = '#000';
+        sysStatus.querySelector('.mobile-sys-battery-fill').style.background = '#000';
+        sysStatus.querySelector('.mobile-sys-battery-body').style.borderColor = '#000';
+        sysStatus.querySelector('.mobile-sys-battery-cap').style.background = '#000';
       }
       // 暗色导航栏（如扫一扫）
       else if (info.darkNav) {
@@ -832,7 +861,7 @@
       tabBar.style.display = info.isTab ? '' : 'none';
     }
 
-    var currentModule = 'enterprise-code';
+    var currentModule = 'login';
     var previousModule = '';
     window.mobileNav = function(mod) {
       previousModule = currentModule;

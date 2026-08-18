@@ -116,9 +116,9 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><line x1="6.5" y1="6.5" x2="8" y2="6.5"/><line x1="6.5" y1="6.5" x2="6.5" y2="8"/><line x1="17.5" y1="6.5" x2="16" y2="6.5"/><line x1="17.5" y1="6.5" x2="17.5" y2="8"/><line x1="6.5" y1="17.5" x2="8" y2="17.5"/><line x1="6.5" y1="17.5" x2="6.5" y2="16"/><line x1="17.5" y1="17.5" x2="16" y2="17.5"/><line x1="17.5" y1="17.5" x2="17.5" y2="16"/></svg>
             </div>
           </div>
-          <div style="font-size:var(--wc-font-small);color:var(--wc-text-placeholder);text-align:left;margin-bottom:6px;cursor:pointer;" onclick="parent.navigateTo('place-code')">‹ 上级：A栋生产车间（场所码）</div>
-          <div style="font-size:var(--wc-font-title);font-weight:700;color:var(--wc-text-primary);text-align:left;margin-bottom:6px;">危化品存储区</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--wc-gap-xl);font-size:var(--wc-font-small);">
+          <div id="hcParentLabel" style="font-size:var(--wc-font-small);color:var(--wc-text-placeholder);text-align:left;margin-bottom:6px;cursor:pointer;" onclick="parent.navigateTo('place-code')">‹ 上级：A栋生产车间（场所码）</div>
+          <div id="hcHazardName" style="font-size:var(--wc-font-title);font-weight:700;color:var(--wc-text-primary);text-align:left;margin-bottom:6px;">危化品存储区</div>
+          <div id="hcHazardTags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--wc-gap-xl);font-size:var(--wc-font-small);">
             <span style="background:var(--code-red-light);color:var(--code-red-dark);padding:2px 8px;border-radius:4px;">等级：重大（红色）</span>
             <span style="background:var(--code-yellow-light);color:var(--code-yellow-dark);padding:2px 8px;border-radius:4px;">R值：25</span>
             <span style="background:var(--wc-bg-gray);color:var(--wc-text-secondary);padding:2px 8px;border-radius:4px;">责任部门：生产运营部</span>
@@ -136,7 +136,7 @@
 
       <!-- 快捷入口 -->
       <div style="margin-top:var(--wc-gap-lg);position:relative;z-index:1;padding:0 var(--wc-page-padding);">
-        <div class="hc-quick-grid">
+        <div id="hcQuickGrid" class="hc-quick-grid">
           <div class="hc-quick-item" onclick="parent.navigateTo('check-list')">
             <div class="hc-quick-icon orange">🔎</div>
             <div class="hc-quick-label">码上排查</div>
@@ -244,7 +244,156 @@
     function closeQrDetail() {
       document.getElementById('qrOverlay').classList.remove('show');
     }
+
+    // 初始化危险源码页面（根据 session 动态渲染）
+    function initHazardCodePage() {
+      if (typeof MobilePageConfig === 'undefined') return;
+      var config = MobilePageConfig.getHazardCodeConfig();
+      if (!config || !config.hazard) return;
+      var h = config.hazard;
+
+      // 更新父级标签
+      var parentEl = document.getElementById('hcParentLabel');
+      if (parentEl) {
+        if (!h.parentName) {
+          parentEl.style.display = 'none';
+        } else {
+          parentEl.style.display = '';
+          parentEl.innerHTML = '&lsaquo; 上级：' + h.parentName + '（场所码）';
+        }
+      }
+
+      // 更新危险源名称
+      var nameEl = document.getElementById('hcHazardName');
+      if (nameEl) nameEl.textContent = h.name;
+
+      // 更新等级标签
+      var tagsEl = document.getElementById('hcHazardTags');
+      if (tagsEl) {
+        var levelClassMap = { red: 'var(--code-red-light)', yellow: 'var(--code-yellow-light)', green: 'var(--code-bg-green)', orange: 'var(--code-yellow-light)' };
+        var levelColorMap = { red: 'var(--code-red-dark)', yellow: 'var(--code-yellow-dark)', green: 'var(--code-green)', orange: 'var(--code-yellow-dark)' };
+        tagsEl.innerHTML =
+          '<span style="background:' + (levelClassMap[h.levelColor] || 'var(--code-red-light)') + ';color:' + (levelColorMap[h.levelColor] || 'var(--code-red-dark)') + ';padding:2px 8px;border-radius:4px;">等级：' + h.level + '（' + (h.levelColor === 'red' ? '红色' : h.levelColor === 'yellow' ? '黄色' : h.levelColor === 'green' ? '绿色' : '橙色') + '）</span>' +
+          '<span style="background:var(--code-yellow-light);color:var(--code-yellow-dark);padding:2px 8px;border-radius:4px;">R值：' + h.rValue + '</span>' +
+          '<span style="background:var(--wc-bg-gray);color:var(--wc-text-secondary);padding:2px 8px;border-radius:4px;">责任部门：' + h.dept + '</span>';
+      }
+
+      // 更新背景渐变
+      var mPage = document.querySelector('.m-page');
+      if (mPage) mPage.style.backgroundImage = config.gradient;
+
+      // 更新危险源码边框颜色
+      var qrWrap = document.querySelector('.hc-qr-wrap');
+      if (qrWrap) {
+        var borderColors = { red: 'var(--wc-code-border-red)', yellow: 'var(--wc-code-border-yellow)', green: 'var(--wc-code-border-green)', orange: 'var(--wc-code-border-orange, #fa8c16)' };
+        qrWrap.style.borderColor = borderColors[h.levelColor] || 'var(--wc-code-border-red)';
+      }
+
+      // 更新时间
+      var timeEl = document.querySelector('.hc-qr-time');
+      if (timeEl) timeEl.textContent = '更新时间：' + h.qrTime;
+
+      // 更新快捷入口
+      var quickGrid = document.getElementById('hcQuickGrid');
+      if (quickGrid && h.quickActions) {
+        var html = '';
+        h.quickActions.forEach(function(a) {
+          var onclick = a.nav ? " onclick=\"parent.navigateTo('" + a.nav + "')\"" : '';
+          html += '<div class="hc-quick-item"' + onclick + '>' +
+            '<div class="hc-quick-icon ' + a.color + '">' + a.icon + '</div>' +
+            '<div class="hc-quick-label">' + a.label + '</div>' +
+            '</div>';
+        });
+        quickGrid.innerHTML = html;
+      }
+
+      // 更新责任与履职状态
+      var dutyCards = document.querySelectorAll('.duty-person-card');
+      if (dutyCards.length > 0 && h.dutyPersons) {
+        var dutyHtml = '';
+        h.dutyPersons.forEach(function(p) {
+          var avatarClass = p.pos && p.pos.indexOf('区域') >= 0 ? 'area' : 'scan';
+          var avatarIcon = avatarClass === 'area' ? '&#x1F477;' : '&#x1F50D;';
+          var statusLine = '';
+          if (p.freq) {
+            statusLine = '<div style="display:flex;justify-content:space-between;font-size:var(--wc-font-small);color:var(--wc-text-tertiary);margin-bottom:6px;">' +
+              '<span>巡检频次：' + p.freq + '</span>' +
+              '<span style="color:' + (p.statusColor || 'var(--success)') + '">' + (p.status || '已完成') + '</span>' +
+              '</div>';
+          }
+          dutyHtml +=
+            '<div class="duty-person-card">' +
+              '<div class="duty-person-avatar ' + avatarClass + '">' + avatarIcon + '</div>' +
+              '<div class="duty-person-detail">' +
+                '<div class="duty-person-row">' +
+                  '<span class="duty-person-name">' + p.name + '</span>' +
+                  '<span class="duty-person-pos">' + p.pos + '</span>' +
+                '</div>' +
+                '<div class="duty-person-dept">' + p.dept + '</div>' +
+                statusLine +
+                '<div class="duty-person-progress">' +
+                  '<div class="progress-bar" style="flex:1">' +
+                    '<div class="progress-fill ' + (p.progressPct >= 100 ? 'green' : p.progressPct >= 50 ? 'yellow' : 'red') + '" style="width:' + p.progressPct + '%"></div>' +
+                  '</div>' +
+                  '<span class="progress-text">整改 ' + p.progress + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+        });
+        // Replace all duty person cards
+        var dutyContainer = dutyCards[0].parentElement;
+        dutyContainer.innerHTML = dutyHtml;
+      }
+
+      // 更新隐患统计
+      var hazardStatsCards = document.querySelectorAll('.m-card .stat-row');
+      if (hazardStatsCards.length > 0 && h.hazardStats) {
+        var hs = h.hazardStats;
+        var statsRow = hazardStatsCards[0];
+        statsRow.innerHTML =
+          '<div class="stat-item"><div class="stat-num">' + hs.total + '</div><div class="stat-label">隐患总数</div></div>' +
+          '<div class="stat-item"><div class="stat-num" style="color:var(--code-red)">' + hs.pending + '</div><div class="stat-label">待整改</div></div>' +
+          '<div class="stat-item"><div class="stat-num" style="color:var(--code-yellow)">' + hs.fixing + '</div><div class="stat-label">整改中</div></div>' +
+          '<div class="stat-item"><div class="stat-num" style="color:var(--code-green)">' + hs.done + '</div><div class="stat-label">已整改</div></div>';
+
+        // Update ring chart
+        var ringCharts = document.querySelectorAll('.ring-chart');
+        if (ringCharts.length > 0 && hs.total > 0) {
+          var donePct = Math.round(hs.done / hs.total * 100);
+          var fixingEnd = Math.round((hs.done + hs.fixing) / hs.total * 100);
+          ringCharts[0].style.background = 'conic-gradient(var(--code-green) 0% ' + donePct + '%, var(--code-yellow) ' + donePct + '% ' + fixingEnd + '%, var(--code-red) ' + fixingEnd + '% 100%)';
+          var innerEl = ringCharts[0].querySelector('.ring-chart-inner');
+          if (innerEl) innerEl.textContent = donePct + '%';
+        }
+
+        // Update legend
+        var legends = document.querySelectorAll('.m-card .stat-row');
+        // Find the legend div after stat-row
+        var statRowParent = statsRow.parentElement;
+        var flexDiv = statRowParent.querySelector('div[style*="display:flex"]');
+        if (flexDiv) {
+          var legendTexts = flexDiv.querySelectorAll('div[style*="line-height:2"]');
+          if (legendTexts.length > 0) {
+            legendTexts[0].innerHTML =
+              '<span style="color:var(--code-green)">&#x25CF;</span> 已整改 ' + hs.done + '项<br>' +
+              '<span style="color:var(--code-yellow)">&#x25CF;</span> 整改中 ' + hs.fixing + '项<br>' +
+              '<span style="color:var(--code-red)">&#x25CF;</span> 待整改 ' + hs.pending + '项';
+          }
+        }
+      }
+
+      // 更新QR码详情弹层
+      var qrDetailName = document.querySelector('.qr-detail-name');
+      if (qrDetailName) qrDetailName.textContent = h.name;
+      var qrDetailTime = document.querySelector('.qr-detail-time');
+      if (qrDetailTime) qrDetailTime.textContent = '更新时间：' + h.qrTime;
+    }
+    // initHazardCodePage 将在外部脚本加载后调用
   </script>
+<script src="../../js/domain-data.js"></script>
+<script src="../../js/mobile-page-config.js"></script>
+<script src="../../js/mobile-session.js"></script>
+<script>initHazardCodePage();</script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

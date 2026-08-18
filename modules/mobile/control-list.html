@@ -81,7 +81,7 @@
 <body>
   <div class="m-page with-tabbar">
     <div class="cl-header">
-      <input class="cl-search" placeholder="搜索安全管控对象名称" style="position:relative;z-index:1;">
+      <input class="cl-search" id="listSearchInput" placeholder="搜索安全管控对象名称" style="position:relative;z-index:1;">
     </div>
 
     <!-- 内容区：页签+列表合为一体 -->
@@ -95,8 +95,8 @@
       <div class="cl-list">
         <div class="tree-node" onclick="toggleTree(this)">
           <span class="tree-toggle">▼</span>
-          <span class="tree-name">创安电子科技有限公司</span>
-          <span class="tree-type ent">企业码</span>
+          <span class="tree-name" id="listRootName">创安电子科技有限公司</span>
+          <span class="tree-type ent" id="listRootType">企业码</span>
           <span class="tree-code green"></span>
           <span class="tree-person">张建国</span>
         </div>
@@ -282,7 +282,40 @@
         node.onclick = function(){ parent.navigateTo(target); };
       }
     });
+
+    // ========== 页面初始化：根据 session 动态渲染 ==========
+    function initListPage() {
+      if (typeof MobilePageConfig === 'undefined') return;
+      var config = MobilePageConfig.getListConfig();
+      if (!config || !config.portalType) return;
+
+      // 更新搜索占位符
+      var searchInput = document.getElementById('listSearchInput');
+      if (searchInput) searchInput.placeholder = config.searchPlaceholder;
+
+      // 更新根节点名称
+      var rootNameEl = document.getElementById('listRootName');
+      if (rootNameEl) rootNameEl.textContent = config.rootName;
+
+      // 更新根节点类型标签
+      var rootTypeEl = document.getElementById('listRootType');
+      if (rootTypeEl) {
+        rootTypeEl.textContent = config.rootTypeLabel;
+        rootTypeEl.className = 'tree-type ' + config.rootTypeClass;
+      }
+
+      // 政府端：更新页面标题
+      var headerTitle = document.querySelector('.cl-header-title');
+      if (headerTitle && config.portalType === 'gov') {
+        headerTitle.textContent = '辖区管控对象';
+      }
+    }
+
+    // initListPage 将在外部脚本加载后调用
   </script>
+<script src="../../js/mobile-page-config.js"></script>
+<script src="../../js/mobile-session.js"></script>
+<script>initListPage();</script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

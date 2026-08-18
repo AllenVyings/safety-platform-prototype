@@ -31,12 +31,60 @@
     }
     .st-logout:active { background: var(--wc-code-bg-red); }
     .st-version { text-align: center; font-size: var(--wc-font-small); color: var(--wc-text-disabled); margin-top: var(--wc-page-padding); }
+
+    /* Account switch bottom sheet */
+    .st-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4); z-index: 300;
+    }
+    .st-overlay.show { display: block; }
+    .st-sheet {
+      position: fixed; left: 0; right: 0; bottom: 0; background: var(--wc-card-bg);
+      border-radius: 16px 16px 0 0; z-index: 301; transform: translateY(100%);
+      transition: transform 0.3s ease; max-height: 70vh; overflow-y: auto;
+    }
+    .st-sheet.show { transform: translateY(0); }
+    .st-sheet-handle { width: 36px; height: 4px; background: var(--wc-track-bg); border-radius: 2px; margin: 10px auto 0; }
+    .st-sheet-header {
+      display: flex; align-items: center; padding: 14px var(--wc-page-padding);
+      border-bottom: 0.5px solid var(--wc-divider);
+    }
+    .st-sheet-title { flex: 1; font-size: var(--wc-font-title); font-weight: 600; color: var(--wc-text-primary); }
+    .st-sheet-close { font-size: 20px; color: var(--wc-text-disabled); cursor: pointer; padding: 4px 8px; }
+    .st-identity-item {
+      display: flex; align-items: center; padding: 14px var(--wc-page-padding);
+      border-bottom: 0.5px solid var(--wc-track-bg); cursor: pointer;
+    }
+    .st-identity-item:active { background: var(--wc-pressed-bg); }
+    .st-identity-item:last-child { border-bottom: none; }
+    .st-identity-check { width: 20px; margin-right: var(--wc-gap-lg); color: var(--wc-blue); font-weight: bold; }
+    .st-identity-info { flex: 1; min-width: 0; }
+    .st-identity-name {
+      font-size: var(--wc-font-body); color: var(--wc-text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .st-identity-meta { font-size: var(--wc-font-small); color: var(--wc-text-disabled); margin-top: 2px; }
+    .st-identity-tag {
+      display: inline-block; padding: 1px 6px; border-radius: 4px;
+      font-size: var(--wc-font-small); background: var(--wc-bg-light); color: var(--wc-blue);
+    }
+    .st-identity-tag.tag-orange { background: #fff7e6; color: #d46b08; }
+    .st-identity-tag.tag-gray { background: #f0f0f0; color: #666; }
+    .st-sheet-current {
+      padding: var(--wc-gap-lg) var(--wc-page-padding); font-size: var(--wc-font-small);
+      color: var(--wc-text-disabled); background: var(--wc-bg-light);
+    }
   </style>
 </head>
 <body>
   <div class="m-page">
 
     <div class="st-group">
+      <div class="st-item" id="accountSwitchItem" onclick="showIdentitySheet()" style="display:none;">
+        <span class="st-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1068ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span class="st-label">账号切换</span>
+        <span class="st-arrow" id="currentIdentityLabel">›</span>
+      </div>
       <div class="st-item" onclick="parent.navigateTo('scan')">
         <span class="st-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1068ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
         <span class="st-label">扫码</span><span class="st-arrow">›</span>
@@ -62,7 +110,19 @@
       </div>
     </div>
 
-    <button class="st-logout" onclick="parent.navigateTo('login')">退出登录</button>
+    <button class="st-logout" onclick="handleLogout()">退出登录</button>
+
+    <!-- 账号切换底部弹窗 -->
+    <div class="st-overlay" id="identityOverlay" onclick="hideIdentitySheet()"></div>
+    <div class="st-sheet" id="identitySheet">
+      <div class="st-sheet-handle"></div>
+      <div class="st-sheet-header">
+        <span class="st-sheet-title">选择业务身份</span>
+        <span class="st-sheet-close" onclick="hideIdentitySheet()">✕</span>
+      </div>
+      <div class="st-sheet-current" id="sheetCurrentPhone"></div>
+      <div id="identityList"></div>
+    </div>
 
     <div class="st-version">安全码管理平台 V7.0</div>
     <div style="height:20px;"></div>
@@ -76,7 +136,112 @@
       document.body.appendChild(t);
       setTimeout(function(){ t.remove(); }, 2000);
     }
+
+    // 显示账号切换弹窗
+    function showIdentitySheet() {
+      var session = MobileSession.get();
+      if (!session || session.portalType !== 'ent') return;
+      var identities = session.identities || [];
+      if (identities.length <= 1) return;
+
+      var activeId = session.activeDomainId;
+      var listEl = document.getElementById('identityList');
+      listEl.innerHTML = '';
+
+      var modeLabels = { basic: '企业', project: '项目', other: '其他', special: '场所' };
+      var tagClasses = { basic: '', project: 'tag-orange', other: 'tag-gray', special: 'tag-green' };
+
+      identities.forEach(function(id) {
+        var isActive = id.domainId === activeId;
+        var item = document.createElement('div');
+        item.className = 'st-identity-item';
+        item.onclick = function() { doSwitchIdentity(id.domainId); };
+        item.innerHTML =
+          '<span class="st-identity-check">' + (isActive ? '✓' : '') + '</span>'
+          + '<div class="st-identity-info">'
+          + '  <div class="st-identity-name">' + id.name + '</div>'
+          + '  <div class="st-identity-meta">'
+          + '    <span class="st-identity-tag ' + (tagClasses[id.mode] || '') + '">'
+          + (modeLabels[id.mode] || id.mode) + '</span>'
+          + (id.entName ? ' · ' + id.entName : '')
+          + '  </div>'
+          + '</div>';
+        listEl.appendChild(item);
+      });
+
+      // 显示手机号
+      document.getElementById('sheetCurrentPhone').textContent = '当前账号：' + (session.phone || '未知');
+
+      document.getElementById('identityOverlay').classList.add('show');
+      document.getElementById('identitySheet').classList.add('show');
+    }
+
+    function hideIdentitySheet() {
+      document.getElementById('identityOverlay').classList.remove('show');
+      document.getElementById('identitySheet').classList.remove('show');
+    }
+
+    function doSwitchIdentity(domainId) {
+      var session = MobileSession.get();
+      if (!session || session.activeDomainId === domainId) {
+        hideIdentitySheet();
+        return;
+      }
+      // 确认切换（防止误操作丢失数据）
+      if (!confirm('切换身份将刷新页面，未保存的数据将丢失。确认切换？')) return;
+
+      var ok = MobileSession.switchIdentity(domainId);
+      if (ok) {
+        var identity = MobileSession.getActiveIdentity();
+        showToast('已切换到：' + (identity ? identity.name : ''));
+        hideIdentitySheet();
+        // 通知父页面刷新首页
+        setTimeout(function() {
+          if (window.parent && window.parent.mobileNav) window.parent.mobileNav('enterprise-code');
+        }, 600);
+      } else {
+        showToast('切换失败，请重试');
+      }
+    }
+
+    function handleLogout() {
+      if (!confirm('确认退出登录？')) return;
+      MobileSession.clear();
+      if (window.parent && window.parent.mobileNav) {
+        window.parent.mobileNav('login');
+      }
+    }
+
+    // 初始化：根据 session 控制"账号切换"入口可见性
+    function initSettings() {
+      var session = MobileSession.get();
+      var switchItem = document.getElementById('accountSwitchItem');
+      var labelEl = document.getElementById('currentIdentityLabel');
+
+      if (!session) {
+        switchItem.style.display = 'none';
+        return;
+      }
+
+      if (session.portalType === 'ent') {
+        var identities = session.identities || [];
+        if (identities.length > 1) {
+          switchItem.style.display = '';
+          var active = MobileSession.getActiveIdentity();
+          if (active) labelEl.textContent = active.name + ' ›';
+        } else {
+          switchItem.style.display = 'none';
+        }
+      } else {
+        // 政府端不显示账号切换
+        switchItem.style.display = 'none';
+      }
+    }
+
+    // initSettings 将在外部脚本加载后调用
   </script>
+<script src="../../js/mobile-session.js"></script>
+<script>initSettings();</script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

@@ -7,91 +7,147 @@
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
     .login-page {
-      min-height: 100vh;
-      background: linear-gradient(180deg, #cce7ff 0%, #d6eeff 15%, #93e0fa 35%, #ebf6fd 55%, #f5fbfe 70%, var(--wc-card-bg) 100%);
-      display: flex; flex-direction: column;
+      min-height: 100vh; height: 100%;
+      background-color: #f7faff;
+      background-image:
+        url('../../安全码小程序/登录背景.png'),
+        linear-gradient(180deg, #d6eeff 0%, #e8f4fd 30%, #f0f7fe 60%, #f7faff 100%);
+      background-size: 100% auto, 100% 100%;
+      background-repeat: no-repeat, no-repeat;
+      background-position: top center, top;
+      display: flex; flex-direction: column; position: relative; overflow: hidden;
     }
-    .login-header { text-align: center; padding: 48px 0 24px; position: relative; }
-    .login-cloud { position: absolute; opacity: 0.15; font-size: 60px; }
-    .login-cloud-1 { top: 10px; left: 20px; }
-    .login-cloud-2 { top: 30px; right: 15px; font-size: 40px; }
+    /* 企业注册入口 */
+    .register-link {
+      position: absolute; top: 60px; right: 24px; z-index: 2;
+      font-size: 15px; color: #1a1a2e; cursor: pointer; font-weight: 500;
+    }
+    .register-link:active { opacity: 0.6; }
+    .register-link.hidden { display: none; }
 
+    .login-header { text-align: center; padding: 180px 0 30px; position: relative; z-index: 1; }
     .login-logo-wrap { display: flex; flex-direction: column; align-items: center; }
-    .login-logo-red {
-      width: 68px; height: 68px; border-radius: 18px;
-      background: linear-gradient(135deg, #ff1a1a, var(--brand-red));
+    .login-logo-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--wc-card-bg);
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px; color: var(--wc-card-bg);
-      box-shadow: 0 6px 20px rgba(230, 0, 18, 0.25);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
-    .login-logo-title { font-size: 19px; font-weight: 600; color: #1c2469; margin-top: 14px; letter-spacing: 1px; }
-    .login-logo-sub { font-size: var(--wc-font-small); color: #8d91b4; margin-top: var(--wc-gap-sm); }
+    .login-logo-icon img { width: 64px; height: 64px; }
+    .login-logo-title { font-size: 19px; font-weight: 700; color: #1a1a2e; margin-top: 10px; letter-spacing: 3px; }
 
-    .login-tabs { display: flex; padding: 0 32px; margin: 28px 0 20px; }
-    .login-tab { flex: 1; text-align: center; padding: var(--wc-gap-lg) 0; font-size: var(--wc-font-body); color: #8d91b4; cursor: pointer; position: relative; transition: all 0.2s; }
-    .login-tab.active { color: #1c2469; font-weight: 600; }
-    .login-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: var(--brand-red); border-radius: 1.5px; }
+    /* 登录卡片 */
+    .login-card {
+      margin: 0 16px 12px 16px; background: var(--wc-card-bg); border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10); overflow: hidden; position: relative; z-index: 1;
+      margin-top: 20px;
+    }
 
-    .login-form { padding: 0 32px; flex: 1; }
-    .form-group { margin-bottom: 14px; }
+    /* Tab 切换 — 文件夹凸出风格 */
+    .login-tabs { display: flex; position: relative; overflow: visible; }
+    .login-tab {
+      flex: 1; text-align: center; padding: 12px 0 14px;
+      font-size: 16px; color: #8d91b4; cursor: pointer;
+      position: relative; transition: all 0.25s; font-weight: 500;
+      z-index: 1;
+    }
+    .login-tab.active {
+      color: #165DFF; font-weight: 600;
+      background: rgba(22, 93, 255, 0.06);
+      border-radius: 12px 12px 0 0;
+      margin-top: -2px;
+      box-shadow: 0 -4px 12px rgba(22, 93, 255, 0.12), 0 -2px 4px rgba(0,0,0,0.04);
+      z-index: 2;
+    }
+
+    /* 表单 */
+    .login-form { padding: 10px 20px 6px; }
+    .form-group { margin-bottom: 10px; position: relative; }
     .form-input {
-      width: 100%; padding: 13px var(--wc-page-padding); border: none; border-radius: var(--wc-btn-radius);
-      font-size: var(--wc-font-body); outline: none; background: #f5f8fc;
-      box-sizing: border-box; transition: background 0.2s; color: #1c2469;
+      width: 100%; padding: 12px 16px; border: 1px solid #e4e8f0; border-radius: 10px;
+      font-size: 15px; outline: none; background: var(--wc-card-bg);
+      box-sizing: border-box; transition: border-color 0.2s; color: #1a1a2e;
     }
-    .form-input:focus { background: #edf2f8; }
-    .form-input::placeholder { color: #b8bfcc; }
+    .form-input:focus { border-color: #165DFF; }
+    .form-input::placeholder { color: #b0b8c8; }
 
-    .code-row { display: flex; gap: var(--wc-gap-lg); }
+    /* 密码框眼睛图标 */
+    .pwd-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      width: 20px; height: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .pwd-toggle svg { width: 16px; height: 16px; }
+    .pwd-input { padding-right: 42px !important; }
+
+    /* 验证码行 */
+    .code-row { display: flex; gap: 12px; align-items: center; }
     .code-row .form-input { flex: 1; }
-    .code-btn {
-      flex-shrink: 0; padding: 0 var(--wc-page-padding); background: var(--wc-card-bg); color: #1c2469;
-      border: 0.5px solid #1c2469; border-radius: var(--wc-btn-radius); font-size: 13px;
-      cursor: pointer; white-space: nowrap;
+    .captcha-box {
+      flex-shrink: 0; width: 90px; height: 42px; border-radius: 8px;
+      background: #f0f4f8; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; user-select: none; overflow: hidden; border: 1px solid #e4e8f0;
     }
-    .code-btn:active { background: var(--wc-bg-blue-hover); }
-    .code-btn.disabled { color: #b8bfcc; border-color: #d9dde6; pointer-events: none; }
+    .captcha-box canvas { width: 100%; height: 100%; }
 
+    /* 登录按钮 */
     .login-btn {
-      width: 100%; padding: 13px; background: linear-gradient(135deg, #ff2d2d, var(--brand-red));
-      color: var(--wc-card-bg); border: none; border-radius: var(--wc-btn-radius); font-size: var(--wc-font-title); font-weight: 500;
-      cursor: pointer; margin-top: var(--wc-gap-md);
-      box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2);
+      width: 100%; margin: 2px 0 0; padding: 13px;
+      background: linear-gradient(180deg, #5B9DFF 0%, #165DFF 100%);
+      color: var(--wc-card-bg); border: none; border-radius: 12px;
+      font-size: 17px; font-weight: 600; cursor: pointer;
+      transition: background 0.2s; letter-spacing: 2px;
+      box-shadow: 0 4px 12px rgba(22, 93, 255, 0.35);
     }
-    .login-btn:active { background: linear-gradient(135deg, #cc0000, #c40010); box-shadow: none; }
+    .login-btn.active { background: linear-gradient(180deg, #5B9DFF 0%, #165DFF 100%); }
+    .login-btn:active.active { background: linear-gradient(180deg, #4A8DE8 0%, #1250d4 100%); }
 
-    .wechat-login { text-align: center; padding: 24px 0; }
-    .wechat-icon {
-      width: 56px; height: 56px; border-radius: 50%;
-      background: linear-gradient(135deg, #2dc100, var(--wc-green));
-      margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;
-      font-size: 28px; box-shadow: 0 4px 12px rgba(7, 193, 96, 0.2);
+    /* 复选框行 — 卡片内 */
+    .checkbox-row { display: flex; align-items: flex-start; padding: 0 20px; gap: 8px; margin-top: 10px; }
+    .checkbox-row input[type="checkbox"] {
+      width: 16px; height: 16px; appearance: none; -webkit-appearance: none;
+      border: 1.5px solid #d0d5dd; border-radius: 3px; flex-shrink: 0; cursor: pointer;
+      margin-top: 1px; position: relative; background: #fff;
     }
+    .checkbox-row input[type="checkbox"]:checked {
+      background: #165DFF; border-color: #165DFF;
+    }
+    .checkbox-row input[type="checkbox"]:checked::after {
+      content: ''; position: absolute; left: 5px; top: 2px; width: 4px; height: 7px;
+      border: solid #fff; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+    }
+    .checkbox-row label {
+      font-size: 13px; color: #8d91b4; cursor: pointer; line-height: 1.5;
+    }
+    .checkbox-row label a { color: #165DFF; text-decoration: none; }
+    .checkbox-row label a:active { opacity: 0.7; }
+
+    /* 微信一键登录 — 卡片内 */
+    .wechat-section { padding: 10px 20px 36px; text-align: center; }
     .wechat-btn {
-      width: 100%; padding: 13px; background: linear-gradient(135deg, #2dc100, var(--wc-green));
-      color: var(--wc-card-bg); border: none; border-radius: var(--wc-btn-radius); font-size: var(--wc-font-title); font-weight: 500;
-      cursor: pointer; box-shadow: 0 4px 12px rgba(7, 193, 96, 0.15);
+      display: inline-block; padding: 10px 32px;
+      background: linear-gradient(135deg, #07c160 0%, #06ad56 100%);
+      color: #fff; border: none; border-radius: 24px;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(7, 193, 96, 0.25);
     }
-    .wechat-btn:active { background: linear-gradient(135deg, #06ad56, #069e4d); box-shadow: none; }
+    .wechat-btn:active { background: linear-gradient(135deg, #06ad56 0%, #059a4c 100%); }
 
-    .login-footer { padding: var(--wc-page-padding) 32px 40px; text-align: center; }
-    .login-footer-links { display: flex; justify-content: center; gap: 24px; }
-    .login-footer-link { font-size: var(--wc-font-caption); color: var(--wc-blue); cursor: pointer; }
-    .login-footer-link:active { opacity: 0.7; }
-    .login-footer-divider { width: 0.5px; height: 14px; background: #d9dde6; }
+    /* 注册/改密视图 */
     .register-page { display: none; min-height: 100vh; background: var(--wc-page-bg); }
     .register-page.show { display: flex; flex-direction: column; }
     .register-header { display: flex; align-items: center; padding: 14px var(--wc-page-padding); background: var(--wc-card-bg); border-bottom: 0.5px solid var(--wc-divider); }
-    .register-back { font-size: 20px; color: #1c2469; cursor: pointer; margin-right: var(--wc-gap-xl); line-height: 1; }
-    .register-title { font-size: var(--wc-font-title); font-weight: 600; color: #1c2469; }
+    .register-back { font-size: 20px; color: #1a1a2e; cursor: pointer; margin-right: var(--wc-gap-xl); line-height: 1; }
+    .register-title { font-size: var(--wc-font-title); font-weight: 600; color: #1a1a2e; }
     .register-form { padding: 20px var(--wc-page-padding); flex: 1; }
     .register-form .form-group { margin-bottom: 14px; }
-    .register-form .form-input { width: 100%; padding: 13px var(--wc-page-padding); border: none; border-radius: var(--wc-btn-radius); font-size: var(--wc-font-body); outline: none; background: #f5f8fc; box-sizing: border-box; color: #1c2469; }
-    .register-form .form-input:focus { background: #edf2f8; }
-    .register-form .form-input::placeholder { color: #b8bfcc; }
-    .register-form select.form-input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b8bfcc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-    .register-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #ff2d2d, var(--brand-red)); color: var(--wc-card-bg); border: none; border-radius: var(--wc-btn-radius); font-size: var(--wc-font-title); font-weight: 500; cursor: pointer; margin-top: var(--wc-gap-md); box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2); }
-    .register-btn:active { background: linear-gradient(135deg, #cc0000, #c40010); box-shadow: none; }
+    .register-form .form-input { width: 100%; padding: 13px 16px; border: 1px solid #e4e8f0; border-radius: 10px; font-size: var(--wc-font-body); outline: none; background: var(--wc-card-bg); box-sizing: border-box; color: #1a1a2e; }
+    .register-form .form-input:focus { border-color: #165DFF; }
+    .register-form .form-input::placeholder { color: #b0b8c8; }
+    .register-form select.form-input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b0b8c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+    .register-btn { width: 100%; padding: 13px; background: #165DFF; color: var(--wc-card-bg); border: none; border-radius: 12px; font-size: var(--wc-font-title); font-weight: 600; cursor: pointer; margin-top: var(--wc-gap-md); }
+    .register-btn:active { background: #1250d4; }
+
+    /* Toast */
     .m-toast {
       position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
       background: rgba(0,0,0,0.78); color: var(--wc-card-bg); padding: var(--wc-gap-lg) 24px;
@@ -103,57 +159,64 @@
 </head>
 <body>
   <div class="login-page">
+    <!-- 企业注册入口（仅企业端显示） -->
+    <span class="register-link hidden" id="registerLink" onclick="showRegister('enterprise')">企业注册</span>
+
     <div class="login-header">
-      <span class="login-cloud login-cloud-1">☁</span>
-      <span class="login-cloud login-cloud-2">☁</span>
       <div class="login-logo-wrap">
-        <div class="login-logo-red">🛡</div>
-        <div class="login-logo-title">安全码综合管理平台</div>
-        <div class="login-logo-sub">Safety Code Management Platform</div>
-      </div>
-    </div>
-
-    <div class="login-tabs">
-      <div class="login-tab active" onclick="switchLoginTab(this,0)">账号密码</div>
-      <div class="login-tab" onclick="switchLoginTab(this,1)">手机验证码</div>
-      <div class="login-tab" onclick="switchLoginTab(this,2)">微信一键登录</div>
-    </div>
-
-    <div class="login-form" id="loginPanel0">
-      <div class="form-group">
-        <input class="form-input" type="text" placeholder="请输入账号" />
-      </div>
-      <div class="form-group">
-        <input class="form-input" type="password" placeholder="请输入密码" />
-      </div>
-      <button class="login-btn" onclick="handleLogin()">登录</button>
-    </div>
-
-    <div class="login-form" id="loginPanel1" style="display:none;">
-      <div class="form-group">
-        <input class="form-input" type="tel" placeholder="请输入手机号" maxlength="11" />
-      </div>
-      <div class="form-group">
-        <div class="code-row">
-          <input class="form-input" type="text" placeholder="请输入验证码" maxlength="6" />
-          <button class="code-btn" id="codeBtn" onclick="sendCode()">获取验证码</button>
+        <div class="login-logo-icon">
+          <img src="../../安全码小程序/logo@3x.png" alt="安全码Logo">
         </div>
+        <div class="login-logo-title">南山安全码</div>
       </div>
-      <button class="login-btn" onclick="handleLogin()">登录</button>
     </div>
 
-    <div class="login-form" id="loginPanel2" style="display:none;">
-      <div class="wechat-login">
-        <div class="wechat-icon">💬</div>
+    <!-- 登录卡片 -->
+    <div class="login-card">
+      <!-- 端类型 Tab -->
+      <div class="login-tabs">
+        <div class="login-tab active" onclick="switchPortal('ent')">企业</div>
+        <div class="login-tab" onclick="switchPortal('gov')">政府</div>
+      </div>
+
+      <!-- 表单 -->
+      <div class="login-form">
+        <div class="form-group">
+          <input class="form-input" type="text" id="loginAccount" placeholder="请输入账号/手机号" maxlength="20" />
+        </div>
+        <div class="form-group">
+          <input class="form-input pwd-input" type="password" id="loginPassword" placeholder="请输入密码" />
+          <div class="pwd-toggle" onclick="togglePassword()">
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="#b0b8c8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="code-row">
+            <input class="form-input" type="text" id="loginCaptcha" placeholder="请输入验证码" maxlength="6" style="flex:1;" />
+            <div class="captcha-box" onclick="refreshCaptcha()" title="点击刷新">
+              <canvas id="captchaCanvas" width="180" height="88"></canvas>
+            </div>
+          </div>
+        </div>
+        <button class="login-btn" id="loginBtn" onclick="handleLogin()">登录</button>
+      </div>
+
+      <!-- 复选框行 -->
+      <div class="checkbox-row">
+        <input type="checkbox" id="rememberPwd" />
+        <label for="rememberPwd">记住密码</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="agreeTerms" />
+        <label for="agreeTerms">登录即代表您同意 <a href="#">《用户协议》</a> 和 <a href="#">《隐私政策》</a></label>
+      </div>
+
+      <!-- 微信一键登录 -->
+      <div class="wechat-section">
         <button class="wechat-btn" onclick="handleWechatLogin()">微信一键登录</button>
-      </div>
-    </div>
-
-    <div class="login-footer">
-      <div class="login-footer-links">
-        <span class="login-footer-link" onclick="showRegister('enterprise')">企业注册</span>
-        <div class="login-footer-divider"></div>
-        <span class="login-footer-link" onclick="showFirstLogin()">首次登录改密</span>
       </div>
     </div>
   </div>
@@ -177,31 +240,8 @@
           <option value="chemical">危险化学品</option>
           <option value="mining">矿山</option>
           <option value="construction">建筑施工</option>
-          <option value="metallurgy">冶金</option>
           <option value="machinery">机械制造</option>
           <option value="other">其他</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <select class="form-input">
-          <option value="" disabled selected>领域小类</option>
-          <option value="chem-prod">危险化学品生产</option>
-          <option value="chem-store">危险化学品储存</option>
-          <option value="chem-use">危险化学品使用</option>
-          <option value="chem-trans">危险化学品运输</option>
-          <option value="mine-metal">金属非金属矿山</option>
-          <option value="mine-coal">煤矿</option>
-          <option value="bldg-gen">房屋建筑工程</option>
-          <option value="bldg-muni">市政工程</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <select class="form-input">
-          <option value="" disabled selected>审批单位（监管主体）</option>
-          <option value="lh-ems">龙华区应急管理局</option>
-          <option value="lh-fire">龙华区消防救援大队</option>
-          <option value="lh-build">龙华区住建局</option>
-          <option value="lh-mine">龙华区自然资源局</option>
         </select>
       </div>
       <div class="form-group">
@@ -237,7 +277,84 @@
   <!-- Toast提示 -->
   <div class="m-toast" id="mToast"></div>
 
+  <script src="../../js/domain-data.js"></script>
   <script>
+    var _currentPortal = 'ent';
+    var _captchaCode = '';
+
+    // ==================== 密码显示切换 ====================
+    function togglePassword() {
+      var pwd = document.getElementById('loginPassword');
+      var icon = document.getElementById('eyeIcon');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        pwd.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+
+    // ==================== 图形验证码（红色手写体数字） ====================
+    function generateCaptcha() {
+      var canvas = document.getElementById('captchaCanvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // 白底
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, w, h);
+
+      // 轻微背景干扰线
+      for (var i = 0; i < 3; i++) {
+        ctx.strokeStyle = 'rgba(200,200,200,0.3)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * w, Math.random() * h);
+        ctx.bezierCurveTo(Math.random()*w, Math.random()*h, Math.random()*w, Math.random()*h, Math.random()*w, Math.random()*h);
+        ctx.stroke();
+      }
+
+      // 4 位红色手写体数字（模拟设计稿 6189 风格）
+      var digits = '0123456789';
+      _captchaCode = '';
+      var colors = ['#c0392b','#e74c3c','#d42020','#e8731a','#c41e3a'];
+      // 手写体 font stack
+      var fontStack = '"KaiTi","STKaiti","楷体","STXingkai","华文行楷","Comic Sans MS",cursive';
+      for (var j = 0; j < 4; j++) {
+        var ch = digits.charAt(Math.floor(Math.random() * digits.length));
+        _captchaCode += ch;
+        var size = 28 + Math.floor(Math.random() * 6); // 28-33px
+        ctx.font = 'italic bold ' + size + 'px ' + fontStack;
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+        ctx.textBaseline = 'middle';
+        ctx.save();
+        var x = 16 + j * 44;
+        var y = 42 + (Math.random() * 10 - 5); // 轻微上下偏移
+        var angle = (Math.random() * 24 - 12) * Math.PI / 180; // ±12°
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(ch, 0, 0);
+        ctx.restore();
+      }
+    }
+    function refreshCaptcha() { generateCaptcha(); }
+
+    // ==================== 端类型切换 ====================
+    function switchPortal(type) {
+      _currentPortal = type;
+      var tabs = document.querySelectorAll('.login-tab');
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tabs[type === 'gov' ? 1 : 0].classList.add('active');
+
+      // 企业注册入口：仅企业端显示
+      var regLink = document.getElementById('registerLink');
+      if (regLink) regLink.classList.toggle('hidden', type !== 'ent');
+    }
+
+    // ==================== 注册/改密 ====================
     function showRegister(type) {
       var page = document.getElementById('view-' + type + '-register');
       if (page) page.classList.add('show');
@@ -249,34 +366,93 @@
     function hideRegister() {
       document.querySelectorAll('.register-page').forEach(function(p){ p.classList.remove('show'); });
     }
-    function switchLoginTab(el, idx) {
-      el.parentElement.querySelectorAll('.login-tab').forEach(function(t){ t.classList.remove('active'); });
-      el.classList.add('active');
-      for (var i = 0; i < 3; i++) {
-        var panel = document.getElementById('loginPanel' + i);
-        if (panel) panel.style.display = i === idx ? 'block' : 'none';
+
+    // ==================== 登录 ====================
+    function handleLogin() {
+      var account = document.getElementById('loginAccount').value.trim();
+      var password = document.getElementById('loginPassword').value.trim();
+      var captcha = document.getElementById('loginCaptcha').value.trim();
+
+      if (!account) { showToast('请输入账号/手机号'); return; }
+      if (!password) { showToast('请输入密码'); return; }
+      if (!captcha) { showToast('请输入验证码'); return; }
+      if (captcha.toLowerCase() !== _captchaCode.toLowerCase()) {
+        showToast('验证码错误，请重新输入');
+        refreshCaptcha();
+        return;
       }
+
+      // 政府端登录
+      if (_currentPortal === 'gov') {
+        MobileSession.set({
+          portalType: 'gov',
+          govOrgId: 'NS-AMB',
+          govOrgName: '区应急管理局',
+          phone: account
+        });
+        showToast('政府端登录成功');
+      } else {
+        // 企业端登录：生成模拟身份
+        var demoDomains = DOMAIN_TABLE_DATA.filter(function(d) { return d.mode !== 'special'; });
+        var primary = demoDomains.length > 0 ? demoDomains[0] : { id:'COMM_002', name:'商业综合体', mode:'basic', industry:'COMM' };
+        var identities = [{
+          domainId: primary.id, name: primary.name, mode: primary.mode,
+          industry: primary.industry, entId: 'E001', entName: '创安电子科技', roleTag: '安全管理人员'
+        }];
+        // 添加第二个身份用于演示切换
+        if (demoDomains.length > 1) {
+          var secondary = demoDomains[1];
+          identities.push({
+            domainId: secondary.id, name: secondary.name, mode: secondary.mode,
+            industry: secondary.industry, entId: 'E002', entName: '中建三局项目部', roleTag: '项目负责人'
+          });
+        }
+
+        MobileSession.set({
+          portalType: 'ent',
+          phone: account,
+          identities: identities,
+          activeDomainId: primary.id
+        });
+        showToast('企业端登录成功（' + primary.name + '）');
+      }
+
+      setTimeout(function() {
+        if (window.parent && window.parent.mobileNav) window.parent.mobileNav('enterprise-code');
+      }, 600);
     }
-    function handleLogin() { showToast('登录成功（原型演示）'); }
+
     function handleWechatLogin() { showToast('正在拉起微信授权（原型演示）'); }
-    function showToast(msg, duration) {
+
+    function showToast(msg) {
       var toast = document.getElementById('mToast');
       toast.textContent = msg;
       toast.classList.add('show');
-      setTimeout(function() {
-        toast.classList.remove('show');
-      }, duration || 2000);
+      setTimeout(function() { toast.classList.remove('show'); }, 2000);
     }
-    function sendCode() {
-      var btn = document.getElementById('codeBtn');
-      var seconds = 60;
-      btn.classList.add('disabled');
-      btn.textContent = seconds + 's';
-      var timer = setInterval(function(){
-        seconds--;
-        if (seconds <= 0) { clearInterval(timer); btn.classList.remove('disabled'); btn.textContent = '获取验证码'; }
-        else { btn.textContent = seconds + 's'; }
-      }, 1000);
+
+    // 输入联动：登录按钮激活态
+    function checkLoginBtn() {
+      var account = document.getElementById('loginAccount').value.trim();
+      var password = document.getElementById('loginPassword').value.trim();
+      var captcha = document.getElementById('loginCaptcha').value.trim();
+      var btn = document.getElementById('loginBtn');
+      if (btn) btn.classList.toggle('active', account && password && captcha);
+    }
+    // init 在外部脚本加载后调用
+  </script>
+<script src="../../js/mobile-session.js"></script>
+<script>
+    if (MobileSession && MobileSession.isLoggedIn()) {
+      if (window.parent && window.parent.mobileNav) window.parent.mobileNav('enterprise-code');
+    } else {
+      generateCaptcha();
+      switchPortal('ent');
+      // 输入联动
+      ['loginAccount','loginPassword','loginCaptcha'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', checkLoginBtn);
+      });
     }
   </script>
 <script src="../../js/annotations.js"></script>

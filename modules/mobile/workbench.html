@@ -49,7 +49,7 @@
       <!-- 常用功能 -->
       <div class="wb-card">
         <div class="wb-card-title">常用功能</div>
-        <div class="wb-grid">
+        <div class="wb-grid" id="wbCommonGrid">
           <div class="wb-item" onclick="parent.navigateTo('check-list')">
             <div class="wb-icon" style="background:var(--wc-icon-bg-blue);">🔎</div>
             <div class="wb-label">码上排查</div>
@@ -71,7 +71,7 @@
 
       <!-- 安全档案 -->
       <div class="wb-card">
-        <div class="wb-card-title">安全档案</div>
+        <div class="wb-card-title" id="wbArchiveTitle">安全档案</div>
         <div class="wb-grid">
           <div class="wb-item" onclick="parent.navigateTo('inspection-stats')">
             <div class="wb-icon" style="background:var(--wc-icon-bg-blue);">📊</div>
@@ -93,7 +93,7 @@
       </div>
 
       <!-- 安全知识库 -->
-      <div class="wb-card">
+      <div class="wb-card" id="wbKnowledgeCard">
         <div class="wb-card-title">安全知识库</div>
         <div class="wb-grid">
           <div class="wb-item">
@@ -120,7 +120,7 @@
       </div>
 
       <!-- 监测预警（最后一个卡片，底部间距收窄） -->
-      <div class="wb-card" style="margin-bottom:var(--wc-gap-sm);">
+      <div class="wb-card" id="wbMonitoringCard" style="margin-bottom:var(--wc-gap-sm);">
         <div class="wb-card-title">监测预警</div>
         <div class="wb-grid">
           <div class="wb-item">
@@ -151,7 +151,45 @@
       document.body.appendChild(t);
       setTimeout(function(){ t.remove(); }, 2000);
     }
+
+    // ========== 页面初始化：根据 session 动态渲染 ==========
+    function initWorkbenchPage() {
+      if (typeof MobilePageConfig === 'undefined') return;
+      var config = MobilePageConfig.getWorkbenchConfig();
+      if (!config || !config.portalType) return;
+
+      // 更新常用功能网格
+      var commonGrid = document.getElementById('wbCommonGrid');
+      if (commonGrid) {
+        var html = '';
+        config.commonFunctions.forEach(function(f) {
+          var onclick = f.nav ? ' onclick="parent.navigateTo(\'' + f.nav + '\')"' : '';
+          html += '<div class="wb-item"' + onclick + '>' +
+            '<div class="wb-icon" style="background:var(--wc-icon-bg-' + f.color + ');">' + f.icon + '</div>' +
+            '<div class="wb-label">' + f.label + '</div>' +
+            '</div>';
+        });
+        commonGrid.innerHTML = html;
+      }
+
+      // 更新安全档案标题
+      var archiveTitle = document.getElementById('wbArchiveTitle');
+      if (archiveTitle) archiveTitle.textContent = config.archiveSectionTitle;
+
+      // 控制安全知识库可见性
+      var knowledgeCard = document.getElementById('wbKnowledgeCard');
+      if (knowledgeCard) knowledgeCard.style.display = config.showKnowledgeBase ? '' : 'none';
+
+      // 控制监测预警可见性
+      var monitoringCard = document.getElementById('wbMonitoringCard');
+      if (monitoringCard) monitoringCard.style.display = config.showMonitoring ? '' : 'none';
+    }
+
+    // initWorkbenchPage 将在外部脚本加载后调用
   </script>
+<script src="../../js/mobile-page-config.js"></script>
+<script src="../../js/mobile-session.js"></script>
+<script>initWorkbenchPage();</script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

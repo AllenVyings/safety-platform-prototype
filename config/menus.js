@@ -613,6 +613,15 @@ const MENU_CONFIG = {
           description: '登录注册',
           badge: null,
           disabled: false
+        },
+        {
+          id: 'mobile-settings',
+          name: '设置',
+          module: 'mobile/settings',
+          path: 'modules/mobile/settings.html',
+          description: '账号切换、扫码、码变更记录、清除缓存',
+          badge: null,
+          disabled: false
         }
       ]
     }

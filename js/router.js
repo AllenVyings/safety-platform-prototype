@@ -224,7 +224,7 @@ class Router {
       if (contentArea) contentArea.style.display = 'none';
       if (mobileViewer) mobileViewer.style.display = 'flex';
       // 初始化移动端导航状态，确保Tab高亮、导航栏样式、信息面板与iframe内容一致
-      if (typeof mobileNav === 'function') mobileNav('enterprise-code');
+      if (typeof mobileNav === 'function') mobileNav('login');
     } else {
       if (sideMenu) sideMenu.style.display = '';
       if (contentArea) contentArea.style.display = '';

@@ -759,40 +759,40 @@ var ANNOTATIONS_CONFIG = {
   'mobile/login': [
     {
       id: 'm-login-001',
-      selector: '.login-card',
+      selector: '.login-tabs',
       position: 'top-right',
-      title: '账号登录',
+      title: '端类型切换',
       category: '交互说明',
       categoryColor: 'info',
-      description: '从业人员使用账号密码登录移动端。登录后系统按角色（主要负责人/安全管理人员/从业人员）加载对应工作台。密码连续5次错误锁定账号30分钟。',
-      prdRef: '6.3.1 登录认证'
+      description: '登录页顶部 Tab 切换政府端/企业端。两端数据域完全隔离，切换需退出重登（不在设置页提供快捷切换）。政府端填写手机号+密码+验证码；企业端填写手机号+密码+验证码。',
+      prdRef: '6.5.2 登录与注册'
     },
     {
       id: 'm-login-002',
-      selector: '.login-card select',
+      selector: '.login-card',
       position: 'top-right',
-      title: '领域小类 + 审批单位',
+      title: '登录表单',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '注册时必选领域小类（危险化学品生产/储存/使用/运输、金属非金属矿山、煤矿、房屋建筑工程、市政工程等8类）和审批单位（监管主体：龙华区应急管理局/消防救援大队/住建局/自然资源局），用于绑定企业所属监管单位。',
-      prdRef: '6.3.1 注册字段 BR-MOB-LOGIN-01'
+      description: '登录卡片包含：账号/手机号输入框、密码输入框（带眼睛切换）、验证码输入框+图形验证码、登录按钮。登录按钮在三个字段都填写后激活（深蓝）。',
+      prdRef: '6.5.2 登录与注册'
     },
     {
       id: 'm-login-003',
-      selector: 'a[onclick*="showFirstLogin"]',
+      selector: '#view-first-login',
       position: 'top-right',
       title: '首次登录改密',
       category: '业务规则',
       categoryColor: 'warning',
       description: '首次登录强制修改初始密码，需输入原密码+新密码+确认新密码，新密码不少于8位含数字字母组合。改密成功后跳转工作台。',
-      prdRef: '6.3.1 BR-MOB-LOGIN-02 首次改密'
+      prdRef: '6.5.2 BR-MOB-LOGIN-02 首次改密'
     }
   ],
 
   'mobile/workbench': [
     {
       id: 'm-wb-001',
-      selector: '.wb-header',
+      selector: '.wb-body',
       position: 'top-right',
       title: '工作台首页',
       category: '交互说明',
@@ -802,13 +802,13 @@ var ANNOTATIONS_CONFIG = {
     },
     {
       id: 'm-wb-002',
-      selector: '.wb-stats',
+      selector: '.wb-card',
       position: 'top-right',
-      title: '今日待办统计',
+      title: '功能卡片',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '实时计算当前用户的今日待办：待排查（pending检查表数）、隐患待整改（red状态）、超期任务（overdue）。点击数字跳转对应列表页。',
-      prdRef: '6.3.2 待办聚合'
+      description: '包含常用功能、安全档案、安全知识库、监测预警等卡片模块。',
+      prdRef: '6.3.2 功能入口'
     },
     {
       id: 'm-wb-003',
@@ -819,6 +819,16 @@ var ANNOTATIONS_CONFIG = {
       categoryColor: 'warning',
       description: '4个常用入口：码上排查（scan）、隐患排查（my-hazards）、任务管理（task-list）、安全管控对象（control-list）。按角色权限动态显示，从业人员隐藏任务管理。',
       prdRef: '6.3.2 功能入口'
+    },
+    {
+      id: 'm-wb-004',
+      selector: '#wbCommonGrid',
+      position: 'top-right',
+      title: 'Session 驱动工作台差异化（V1.2 新增）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '工作台根据 session 的 portalType 和 mode 动态渲染：常用功能按模式差异化（other 模式显示巡查记录/问题上报/劝导记录），安全档案标题按端类型变化（监管档案/安全档案），other 模式隐藏安全知识库和监测预警。由 MobilePageConfig.getWorkbenchConfig() 提供数据。',
+      prdRef: '重构方案 §3.5 other 模式特殊处理'
     }
   ],
 
@@ -963,7 +973,7 @@ var ANNOTATIONS_CONFIG = {
   'mobile/hazard-stats': [
     {
       id: 'm-hs-001',
-      selector: '.hs-stats',
+      selector: '.hs-card',
       position: 'top-right',
       title: '隐患统计',
       category: '交互说明',
@@ -973,12 +983,12 @@ var ANNOTATIONS_CONFIG = {
     },
     {
       id: 'm-hs-002',
-      selector: '.hs-list',
+      selector: '.hs-filter-bar',
       position: 'top-right',
-      title: '隐患等级分布',
+      title: '隐患筛选',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '按隐患等级分类：重大（red，红色）、较大（orange）、一般（yellow）。重大隐患 urgency 标识为红色，状态为"待整改"。',
+      description: '按状态筛选隐患列表：全部/待整改/整改中/待验收/已整改。',
       prdRef: '6.3.9 BR-HAZ-03 等级配色'
     }
   ],
@@ -1026,6 +1036,16 @@ var ANNOTATIONS_CONFIG = {
       categoryColor: 'warning',
       description: '企业码下挂载场所码和危险源码。管控对象按码色统计（绿色/黄色/红色），码色按上下级关联计算（异常占比>20%码色变黄）。',
       prdRef: '6.3.11 BR-CODE-01 上下关联'
+    },
+    {
+      id: 'm-ec-003',
+      selector: '#homeEntityName',
+      position: 'top-right',
+      title: 'Session 驱动差异化（V1.2 新增）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '首页根据 MobileSession 的 portalType 和 activeDomainId 动态渲染：政府端显示监管码+监管单位名称，企业端根据 mode（basic/project/special/other）显示企业码/项目码/场所码/管理码+企业名称。背景渐变、码边框颜色、统计数据、快捷入口均按模式差异化。由 js/mobile-page-config.js 提供配置数据。',
+      prdRef: '重构方案 §3.3 页面差异化策略'
     }
   ],
 
@@ -1118,6 +1138,16 @@ var ANNOTATIONS_CONFIG = {
       categoryColor: 'warning',
       description: '"人员"Tab按 PRD 角色分类：主要负责人/安全管理人员/从业人员。每位人员显示姓名+岗位+角色。重点部位标记为"重点场所码"。',
       prdRef: '6.3.15 BR-MOB-CTRL 角色术语'
+    },
+    {
+      id: 'm-ctrl-003',
+      selector: '#listRootName',
+      position: 'top-right',
+      title: 'Session 驱动列表差异化（V1.2 新增）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '列表页根据 session 动态调整：政府端显示全部管控对象（根节点=监管单位名称+监管码），企业端根据 activeDomainId 显示本企业/项目管控对象（根节点=企业名称+企业码/项目码/场所码）。搜索框 placeholder 也按模式变化。',
+      prdRef: '重构方案 §3.3 页面差异化策略'
     }
   ],
 
@@ -1134,13 +1164,23 @@ var ANNOTATIONS_CONFIG = {
     },
     {
       id: 'm-pf-002',
-      selector: '.pf-legend',
+      selector: '.pf-safety-legend',
       position: 'top-right',
-      title: '隐患图例',
+      title: '安全管控图例',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '统计图例使用 PRD 状态术语："● 待整改 N"（红色）、"● 整改中 N"（黄色）、"● 已整改 N"（绿色）。不使用"未整改"。',
+      description: '安全管控对象统计图例：绿色/黄色/红色数量展示。',
       prdRef: '6.3.16 BR-HAZ-01 状态术语'
+    },
+    {
+      id: 'm-pf-003',
+      selector: '#profileRoleTag',
+      position: 'top-right',
+      title: 'Session 驱动所属单位（V1.2 新增）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '"我的"页面角色标签根据 session 动态渲染：政府端显示"监管人员 · 区应急管理局"，企业端显示"安全管理人员 · 企业名称"。由 MobilePageConfig.getProfileConfig() 提供数据。',
+      prdRef: '重构方案 §3.3 页面差异化策略'
     }
   ],
 
@@ -1157,12 +1197,22 @@ var ANNOTATIONS_CONFIG = {
     },
     {
       id: 'm-st-002',
+      selector: '#accountSwitchItem',
+      position: 'top-right',
+      title: '账号切换（V1.2 新增）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '企业端用户可绑定多个业务身份（领域小类）。点击后弹出底部弹窗展示身份列表，以领域小类名称为主体（如"商业综合体"），模式类型（企业/项目/其他）作为副标签。basic/project/other 平级互切，special 不在列表中。单身份用户自动隐藏此入口。切换前弹出确认弹窗防误操作。',
+      prdRef: '重构方案 §2.4 账号切换机制'
+    },
+    {
+      id: 'm-st-003',
       selector: '.st-list',
       position: 'top-right',
       title: '设置项',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '设置项：消息通知、缓存清理、修改密码、关于我们、退出登录。退出登录返回 login 页面并清除本地缓存。',
+      description: '设置项：扫码、码变更记录、密码修改、账号切换、清除缓存、关于我们、退出登录。退出登录清除 session 并跳转登录页。',
       prdRef: '6.3.17 设置项'
     }
   ],
@@ -1183,12 +1233,12 @@ var ANNOTATIONS_CONFIG = {
   'mobile/inspection-stats': [
     {
       id: 'm-is-001',
-      selector: '.is-chart',
+      selector: '.is-chart-row',
       position: 'top-right',
       title: '检查统计',
       category: '交互说明',
       categoryColor: 'info',
-      description: '统计当前用户的检查情况：本月检查次数、合格率、隐患发现数。支持按周/月/季度切换。',
+      description: '统计当前用户的检查情况：总检查次数、政府巡查、企业自查。支持按周/月/季度切换。',
       prdRef: '6.3.19 检查统计'
     }
   ],
