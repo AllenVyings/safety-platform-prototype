@@ -9,7 +9,7 @@ const MENU_CONFIG = {
     {
       id: 'sa-workbench',
       name: '安全态势',
-      icon: '📈',
+      icon: '🛡️',
       module: 'super-admin/workbench',
       path: 'modules/super-admin/workbench.html',
       description: '系统概览与快捷操作',
@@ -69,7 +69,7 @@ const MENU_CONFIG = {
     {
       id: 'sa-project-group',
       name: '项目管理',
-      icon: '🏗️',
+      icon: '📁',
       children: [
         {
           id: 'sa-project-manage',
@@ -85,7 +85,7 @@ const MENU_CONFIG = {
     {
       id: 'sa-key-place',
       name: '重点场所管理',
-      icon: '🏭',
+      icon: '📍',
       module: 'super-admin/key-place',
       path: 'modules/super-admin/key-place.html?v=20260625-layout',
       description: '重点场所信息管理',
