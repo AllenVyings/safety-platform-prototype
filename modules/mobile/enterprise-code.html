@@ -4,13 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>企业码</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="../../css/mobile.css">
+  <script src="../../js/vendor/echarts.min.js"></script>
   <style>
-    .ec-gradient { display: none; }
+    /* 页面背景渐变（overflow:hidden，由主框架 .mobile-phone-content 做滚动容器） */
     .m-page {
-      position: relative; overflow: hidden; background-color: var(--wc-page-bg);
+      position: relative; overflow: hidden;
+      background-color: var(--wc-page-bg);
       background-image: linear-gradient(180deg, #1068ff 0%, #3d86ff 30%, #5a9aff 50%, #70a4fd 70%, #b8d4fe 85%, var(--wc-page-bg) 100%);
-      background-size: 100% 350px; background-repeat: no-repeat; background-position: top;
+      background-size: 100% 380px; background-repeat: no-repeat; background-position: top;
+    }
+    /* 内容区顶部留白，避开透明导航栏（47px状态栏 + 44px导航栏 + 16px间距） */
+    .ec-header {
+      padding: 107px 0 0;
+      display: flex; flex-direction: column;
     }
     .m-page::before {
       content: ''; position: absolute; top: 110px; right: -10px; width: 160px; height: 160px;
@@ -20,10 +28,7 @@
       content: ''; position: absolute; top: 220px; left: -20px; width: 100px; height: 100px;
       border-radius: 50%; background: rgba(255,255,255,0.05); pointer-events: none;
     }
-    .ec-header {
-      padding: 107px 0 0;
-      display: flex; flex-direction: column;
-    }
+    /* 企业码卡片 */
     .ec-code-card {
       background: var(--wc-card-bg); border-radius: var(--wc-card-radius); padding: var(--wc-page-padding); text-align: center;
       box-shadow: var(--wc-shadow-card); position: relative; z-index: 1;
@@ -33,8 +38,7 @@
     }
     .ec-card-icon-btn {
       width: 30px; height: 30px; border-radius: 50%; background: var(--wc-page-bg);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
     .ec-card-icon-btn:active { background: var(--wc-icon-btn-active); }
     .ec-card-icon-btn svg { width: 16px; height: 16px; }
@@ -49,6 +53,8 @@
     .m-btn-outline:active { background: var(--primary-light); }
     .ec-action-row svg { width: 14px; height: 14px; flex-shrink: 0; }
     .ec-qr-time { font-size: var(--wc-font-tiny); color: var(--wc-text-disabled); margin-top: var(--wc-gap-sm); }
+
+    /* 快捷入口 */
     .ec-quick-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--wc-gap-sm);
       background: var(--wc-card-bg); border-radius: var(--wc-card-radius); padding: 14px var(--wc-gap-md) var(--wc-gap-lg);
@@ -64,30 +70,149 @@
     .ec-quick-icon.green { background: var(--wc-code-bg-green); }
     .ec-quick-icon.purple { background: var(--wc-icon-bg-purple); }
     .ec-quick-label { font-size: var(--wc-font-small); color: var(--wc-text-tertiary); }
-    /* 主Tab样式 */
+
+    /* 主Tab卡片 */
     .ec-tab-card {
       background: var(--wc-card-bg); border-radius: var(--wc-card-radius); margin: var(--wc-gap-lg) var(--wc-page-padding);
       box-shadow: var(--wc-shadow-card-sm); overflow: hidden;
     }
+
+    /* 胶囊式 Tab 切换 */
     .ec-main-tabs {
-      display: flex; padding: 0; border-bottom: 0.5px solid rgba(0,0,0,0.08);
+      display: flex; padding: 0; gap: 0;
+      background: #f0f5ff; border-radius: 8px; margin: 12px;
+      overflow: hidden;
     }
     .ec-main-tab {
-      flex: 1; text-align: center; padding: var(--wc-gap-xl) 0 var(--wc-gap-lg); font-size: var(--wc-font-caption);
-      color: var(--wc-text-placeholder); cursor: pointer; position: relative; transition: color 0.2s;
+      flex: 1; text-align: center; padding: 10px 0; font-size: var(--wc-font-caption);
+      color: var(--brand-blue); cursor: pointer;
+      transition: all 0.2s; font-weight: 400;
     }
-    .ec-main-tab.active { color: var(--brand-blue); font-weight: 600; }
-    .ec-main-tab.active::after {
-      content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 24px; height: 3px; background: var(--brand-blue); border-radius: 1.5px;
+    .ec-main-tab.active {
+      background: var(--brand-blue); color: #fff; font-weight: 600;
+      border-radius: 8px;
     }
-    .ec-main-tab:active { opacity: 0.7; }
+    .ec-main-tab:active { opacity: 0.85; }
+
+    /* 面板内容 */
     .ec-panel { display: none; }
     .ec-panel.active { display: block; }
     .ec-panel-body { padding: 14px var(--wc-page-padding); }
-    /* 人员履职子Tab */
-    .ec-duty-tabs .m-tab.active { color: var(--brand-blue); font-weight: 500; }
-    .ec-duty-tabs .m-tab.active::after { background: var(--brand-blue); }
+
+    /* 月历 */
+    .ec-calendar { margin-bottom: 16px; }
+    .ec-calendar-header {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      margin-bottom: 12px;
+    }
+    .ec-calendar-header .cal-nav {
+      width: 28px; height: 28px; border-radius: 6px; background: var(--brand-blue);
+      display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff;
+      font-size: 14px; font-weight: 700;
+    }
+    .ec-calendar-header .cal-nav:active { opacity: 0.8; }
+    .ec-calendar-header .cal-title { font-size: var(--wc-font-title); font-weight: 600; color: var(--wc-text-primary); min-width: 120px; text-align: center; }
+    .ec-calendar table { width: 100%; border-collapse: collapse; }
+    .ec-calendar th { font-size: var(--wc-font-tiny); color: var(--wc-text-placeholder); padding: 6px 0; font-weight: 400; }
+    .ec-calendar td { text-align: center; padding: 6px 0; font-size: var(--wc-font-small); color: var(--wc-text-secondary); position: relative; }
+    .ec-calendar td.cal-today { font-weight: 700; }
+    .ec-calendar td.cal-other-month { color: var(--wc-text-disabled); }
+    .ec-calendar td .cal-dot {
+      display: inline-block; width: 22px; height: 22px; line-height: 22px;
+      border-radius: 4px; font-size: 12px;
+    }
+    .ec-calendar td .cal-dot.green { background: #52c41a; color: #fff; }
+    .ec-calendar td .cal-dot.yellow { background: #faad14; color: #fff; }
+    .ec-calendar td .cal-dot.red { background: #f5222d; color: #fff; }
+    .ec-calendar td .cal-dot.empty { background: transparent; color: var(--wc-text-disabled); }
+    .ec-calendar td.cal-future { color: #bbb; }
+    .cal-nav-disabled { opacity: 0.3; pointer-events: none; }
+
+    /* ===== 统一数据行布局（三个 Tab 共用） ===== */
+    .ec-stat-row {
+      display: flex; align-items: center; padding: 14px 0;
+      border-bottom: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .ec-stat-row:last-child { border-bottom: none; }
+    .ec-stat-row .stat-label { font-size: 13px; color: var(--wc-text-primary); min-width: 72px; }
+    .ec-stat-row .stat-num { font-size: 16px; font-weight: 700; color: var(--wc-text-primary); margin-right: 4px; }
+    .ec-stat-row .stat-num .arrow { font-size: 14px; color: var(--wc-text-disabled); margin-left: 2px; cursor: pointer; }
+    .ec-stat-row .stat-rate { font-size: 12px; font-weight: 600; margin-left: 10px; min-width: 50px; text-align: right; line-height: 1.3; }
+    .ec-stat-row .stat-rate.green { color: var(--success); }
+    .ec-stat-row .stat-rate.yellow { color: var(--warning); }
+    .ec-stat-row .stat-rate.red { color: var(--danger); }
+    .ec-stat-row .stat-rate.blue { color: #1677ff; }
+
+    /* 通用图表容器（三个 Tab 共用） */
+    .stat-chart { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .stat-chart .ring-container { width: 80px; height: 80px; }
+    .stat-chart .ring-legend { display: flex; gap: 8px; margin-top: 4px; }
+    .stat-chart .ring-legend-item { display: flex; align-items: center; gap: 3px; font-size: 10px; color: var(--wc-text-disabled); }
+    .stat-chart .ring-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+    /* 时间选择器 */
+    .ec-time-select {
+      display: flex; justify-content: flex-end; margin-bottom: 12px;
+    }
+    .ec-time-select select {
+      padding: 4px 24px 4px 8px; border: 0.5px solid var(--wc-border); border-radius: 6px;
+      font-size: var(--wc-font-small); color: var(--wc-text-primary); background: var(--wc-card-bg);
+      appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 6px center;
+      cursor: pointer;
+    }
+
+    /* 人员层级 */
+    .ec-duty-level {
+      padding: 12px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .ec-duty-level:last-child { border-bottom: none; }
+    .ec-duty-level-header {
+      display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+    }
+    .ec-duty-level-name { font-size: 13px; color: var(--wc-text-primary); display: flex; align-items: baseline; }
+    .ec-duty-level-name .count { font-size: 16px; font-weight: 700; margin: 0 2px; }
+    .ec-duty-level-name .arrow { font-size: 14px; color: var(--wc-text-disabled); margin-left: 4px; }
+    .ec-duty-level-chart { display: flex; align-items: center; }
+    .ec-duty-level-chart .ring-container { width: 80px; height: 80px; }
+    .ec-duty-level-chart .rate-label { font-size: 12px; font-weight: 600; margin-left: 10px; min-width: 50px; text-align: right; line-height: 1.3; }
+    .ec-duty-level-chart .rate-label.green { color: var(--success); }
+    .ec-duty-level-chart .rate-label.yellow { color: var(--warning); }
+    .ec-duty-level-chart .rate-label.red { color: var(--danger); }
+    .ec-duty-level-chart .rate-label.blue { color: #1677ff; }
+
+    /* 领导层条图 */
+    .ec-leader-bar { margin-top: 12px; }
+    .ec-leader-row {
+      display: flex; align-items: center; margin-bottom: 8px;
+    }
+    .ec-leader-row .leader-name { width: 60px; text-align: right; font-size: var(--wc-font-small); color: var(--wc-text-secondary); margin-right: 8px; }
+    .ec-leader-row .leader-bar-track { flex: 1; height: 16px; background: #f0f0f0; border-radius: 8px; overflow: hidden; position: relative; }
+    .ec-leader-row .leader-bar-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #69b1ff, #1677ff); }
+    .ec-leader-row .leader-count { font-size: var(--wc-font-small); color: var(--brand-blue); margin-left: 8px; min-width: 24px; font-weight: 600; }
+    .ec-leader-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .ec-leader-header .title { font-size: 13px; color: var(--wc-text-primary); }
+    .ec-leader-header .title .count { font-size: 16px; font-weight: 700; }
+
+    /* 展开的人员列表 */
+    .ec-duty-list {
+      display: none; margin-top: 8px; padding-top: 8px;
+      border-top: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .ec-duty-list.show { display: block; }
+    .ec-duty-list-item {
+      display: flex; align-items: center; padding: 6px 0;
+    }
+    .ec-duty-list-item .person-name { flex: 1; font-size: var(--wc-font-small); color: var(--wc-text-primary); }
+    .ec-duty-list-item .person-status {
+      width: 20px; height: 20px; border-radius: 4px; margin-left: 8px;
+    }
+    .ec-duty-list-item .person-status.green { background: var(--success); }
+    .ec-duty-list-item .person-status.yellow { background: var(--warning); }
+    .ec-duty-list-item .person-status.red { background: var(--danger); }
+
     /* QR码详情弹层 */
     .qr-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
@@ -124,11 +249,11 @@
             <div class="ec-card-icon-btn" title="定位">
               <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
             </div>
-            <div class="ec-card-icon-btn" onclick="parent.navigateTo('scan')" title="扫一扫">
+            <div class="ec-card-icon-btn" onclick="safeNavigate('scan')" title="扫一扫">
               <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><line x1="6.5" y1="6.5" x2="8" y2="6.5"/><line x1="6.5" y1="6.5" x2="6.5" y2="8"/><line x1="17.5" y1="6.5" x2="16" y2="6.5"/><line x1="17.5" y1="6.5" x2="17.5" y2="8"/><line x1="6.5" y1="17.5" x2="8" y2="17.5"/><line x1="6.5" y1="17.5" x2="6.5" y2="16"/><line x1="17.5" y1="17.5" x2="16" y2="17.5"/><line x1="17.5" y1="17.5" x2="17.5" y2="16"/></svg>
             </div>
           </div>
-          <div id="homeEntityName" style="font-size:var(--wc-font-title);font-weight:700;color:var(--wc-text-primary);text-align:left;margin-bottom:var(--wc-gap-xl);">创安电子科技有限公司</div>
+          <div id="homeEntityName" style="font-size:var(--wc-font-title);font-weight:700;color:var(--wc-text-primary);text-align:left;margin-bottom:var(--wc-gap-xl);">深圳市天道医药有限公司</div>
           <div class="ec-qr-wrap" onclick="showQrDetail()">
             <div class="code-qr-canvas"><svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" fill="#fff"/><rect x="2" y="2" width="26" height="26" fill="#52c41a" rx="3"/><rect x="6" y="6" width="18" height="18" fill="#fff" rx="2"/><rect x="10" y="10" width="10" height="10" fill="#52c41a" rx="1"/><rect x="72" y="2" width="26" height="26" fill="#52c41a" rx="3"/><rect x="76" y="6" width="18" height="18" fill="#fff" rx="2"/><rect x="80" y="10" width="10" height="10" fill="#52c41a" rx="1"/><rect x="2" y="72" width="26" height="26" fill="#52c41a" rx="3"/><rect x="6" y="76" width="18" height="18" fill="#fff" rx="2"/><rect x="10" y="80" width="10" height="10" fill="#52c41a" rx="1"/><rect x="35" y="5" width="5" height="5" fill="#52c41a"/><rect x="45" y="8" width="5" height="5" fill="#52c41a"/><rect x="55" y="5" width="5" height="5" fill="#52c41a"/><rect x="35" y="18" width="5" height="5" fill="#52c41a"/><rect x="50" y="15" width="5" height="5" fill="#52c41a"/><rect x="60" y="18" width="5" height="5" fill="#52c41a"/><rect x="8" y="35" width="5" height="5" fill="#52c41a"/><rect x="18" y="38" width="5" height="5" fill="#52c41a"/><rect x="28" y="35" width="5" height="5" fill="#52c41a"/><rect x="38" y="42" width="5" height="5" fill="#52c41a"/><rect x="48" y="35" width="5" height="5" fill="#52c41a"/><rect x="58" y="38" width="5" height="5" fill="#52c41a"/><rect x="68" y="35" width="5" height="5" fill="#52c41a"/><rect x="78" y="42" width="5" height="5" fill="#52c41a"/><rect x="88" y="35" width="5" height="5" fill="#52c41a"/><rect x="8" y="48" width="5" height="5" fill="#52c41a"/><rect x="22" y="45" width="5" height="5" fill="#52c41a"/><rect x="38" y="52" width="5" height="5" fill="#52c41a"/><rect x="52" y="48" width="5" height="5" fill="#52c41a"/><rect x="65" y="52" width="5" height="5" fill="#52c41a"/><rect x="75" y="45" width="5" height="5" fill="#52c41a"/><rect x="85" y="48" width="5" height="5" fill="#52c41a"/><rect x="8" y="58" width="5" height="5" fill="#52c41a"/><rect x="18" y="55" width="5" height="5" fill="#52c41a"/><rect x="32" y="58" width="5" height="5" fill="#52c41a"/><rect x="42" y="55" width="5" height="5" fill="#52c41a"/><rect x="55" y="58" width="5" height="5" fill="#52c41a"/><rect x="68" y="55" width="5" height="5" fill="#52c41a"/><rect x="78" y="58" width="5" height="5" fill="#52c41a"/><rect x="88" y="55" width="5" height="5" fill="#52c41a"/><rect x="35" y="72" width="5" height="5" fill="#52c41a"/><rect x="45" y="78" width="5" height="5" fill="#52c41a"/><rect x="55" y="72" width="5" height="5" fill="#52c41a"/><rect x="65" y="78" width="5" height="5" fill="#52c41a"/><rect x="75" y="72" width="5" height="5" fill="#52c41a"/><rect x="85" y="78" width="5" height="5" fill="#52c41a"/><rect x="35" y="88" width="5" height="5" fill="#52c41a"/><rect x="48" y="85" width="5" height="5" fill="#52c41a"/><rect x="60" y="90" width="5" height="5" fill="#52c41a"/><rect x="72" y="88" width="5" height="5" fill="#52c41a"/><rect x="82" y="90" width="5" height="5" fill="#52c41a"/><rect x="92" y="85" width="5" height="5" fill="#52c41a"/></svg></div>
           </div>
@@ -147,15 +272,15 @@
             <div class="ec-quick-icon blue">📊</div>
             <div class="ec-quick-label">基本信息</div>
           </div>
-          <div class="ec-quick-item" onclick="parent.navigateTo('check-list')">
+          <div class="ec-quick-item" onclick="safeNavigate('check-list')">
             <div class="ec-quick-icon orange">🔎</div>
             <div class="ec-quick-label">码上排查</div>
           </div>
-          <div class="ec-quick-item" onclick="parent.navigateTo('hazard-stats')">
+          <div class="ec-quick-item" onclick="safeNavigate('hazard-stats')">
             <div class="ec-quick-icon green">⚠️</div>
-            <div class="ec-quick-label">隐患记录</div>
+            <div class="ec-quick-label">隐患整改</div>
           </div>
-          <div class="ec-quick-item" onclick="parent.navigateTo('inspection-stats')">
+          <div class="ec-quick-item" onclick="safeNavigate('inspection-stats')">
             <div class="ec-quick-icon purple">📄</div>
             <div class="ec-quick-label">检查记录</div>
           </div>
@@ -166,34 +291,35 @@
     <!-- 主Tab卡片 -->
     <div class="ec-tab-card">
       <div class="ec-main-tabs">
-        <div class="ec-main-tab active" onclick="switchMainTab(this,0)"><span class="ec-main-tab-label">安全管控</span></div>
-        <div class="ec-main-tab" onclick="switchMainTab(this,1)"><span class="ec-main-tab-label">人员履职</span></div>
-        <div class="ec-main-tab" onclick="switchMainTab(this,2)"><span class="ec-main-tab-label">隐患统计</span></div>
+        <div class="ec-main-tab active" onclick="switchMainTab(this,0)">安全管控</div>
+        <div class="ec-main-tab" onclick="switchMainTab(this,1)">人员履职</div>
+        <div class="ec-main-tab" onclick="switchMainTab(this,2)">隐患统计</div>
       </div>
 
       <!-- 安全管控 -->
       <div class="ec-panel active" id="panel0">
         <div class="ec-panel-body">
-          <div id="homeStatsPanel">
-          <div class="stat-row" style="padding:0;margin-bottom:var(--wc-gap-xl);">
-            <div class="stat-item"><div class="stat-num">7</div><div class="stat-label">管控对象总数</div></div>
-            <div class="stat-item"><div class="stat-num" style="color:var(--success)">5</div><div class="stat-label">绿色</div></div>
-            <div class="stat-item"><div class="stat-num" style="color:var(--warning)">1</div><div class="stat-label">黄色</div></div>
-            <div class="stat-item"><div class="stat-num" style="color:var(--danger)">1</div><div class="stat-label">红色</div></div>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:var(--wc-page-padding);">
-            <div class="ring-chart" style="background:conic-gradient(var(--success) 0% 71%, var(--warning) 71% 86%, var(--danger) 86% 100%);">
-              <div class="ring-chart-inner">71%</div>
+          <!-- 月历 -->
+          <div class="ec-calendar" id="ecCalendar"></div>
+          <!-- 场所码 -->
+          <div class="ec-stat-row">
+            <div class="stat-label">场所码</div>
+            <div class="stat-num">45<span class="arrow" onclick="safeNavigate('place-code')"> ›</span></div>
+            <div class="stat-chart">
+              <div class="ring-container" id="placePieChart"></div>
+              <div class="ring-legend" id="placeLegend"></div>
             </div>
-            <div style="font-size:var(--wc-font-small);color:var(--wc-text-tertiary);line-height:2;">
-              <span style="color:var(--success)">●</span> 绿色 5个<br>
-              <span style="color:var(--warning)">●</span> 黄色 1个<br>
-              <span style="color:var(--danger)">●</span> 红色 1个
+            <div class="stat-rate green" id="placePieRate">绿码<br>71%</div>
+          </div>
+          <!-- 危险源码 -->
+          <div class="ec-stat-row">
+            <div class="stat-label">危险源码</div>
+            <div class="stat-num">125<span class="arrow" onclick="safeNavigate('hazard-code')"> ›</span></div>
+            <div class="stat-chart">
+              <div class="ring-container" id="hazardPieChart"></div>
+              <div class="ring-legend" id="hazardLegend"></div>
             </div>
-          </div>
-          <div style="text-align:right;margin-top:8px;">
-            <span style="font-size:var(--wc-font-small);color:var(--wc-blue);cursor:pointer;" onclick="parent.navigateTo('control-list')">查看详情 ›</span>
-          </div>
+            <div class="stat-rate yellow" id="hazardPieRate">黄码<br>11.2%</div>
           </div>
         </div>
       </div>
@@ -201,16 +327,50 @@
       <!-- 人员履职 -->
       <div class="ec-panel" id="panel1">
         <div class="ec-panel-body">
-          <div class="m-tabs ec-duty-tabs" style="margin:0 0 var(--wc-gap-xl);">
-            <div class="m-tab active" onclick="switchDutyTab(this,0)">主要负责人</div>
-            <div class="m-tab" onclick="switchDutyTab(this,1)">安全管理人员</div>
-            <div class="m-tab" onclick="switchDutyTab(this,2)">从业人员</div>
+          <!-- 时间选择器 -->
+          <div class="ec-time-select">
+            <select id="dutyTimeRange" onchange="switchDutyTimeRange(this.value)">
+              <option value="year">年度</option>
+              <option value="quarter">季度</option>
+              <option value="month" selected>月度</option>
+              <option value="week">本周</option>
+              <option value="custom">自定义</option>
+            </select>
           </div>
-          <div id="dutyContent">
-            <div class="duty-bar"><span class="duty-bar-label">绿色</span><div class="duty-bar-track"><div class="duty-bar-fill" style="width:75%;background:var(--success)"></div></div><span class="duty-bar-num">3人</span></div>
-            <div class="duty-bar"><span class="duty-bar-label">黄色</span><div class="duty-bar-track"><div class="duty-bar-fill" style="width:25%;background:var(--warning)"></div></div><span class="duty-bar-num">1人</span></div>
-            <div class="duty-bar"><span class="duty-bar-label">红色</span><div class="duty-bar-track"><div class="duty-bar-fill" style="width:0%;background:var(--danger)"></div></div><span class="duty-bar-num">0人</span></div>
-            <div style="font-size:var(--wc-font-small);color:var(--wc-text-placeholder);text-align:center;margin-top:var(--wc-gap-sm)">在册 4人</div>
+          <!-- 领导层 -->
+          <div class="ec-duty-level">
+            <div class="ec-leader-header">
+              <div class="title">领导层(<span class="count">4</span>人)</div>
+            </div>
+            <div class="ec-leader-bar" id="leaderBarChart"></div>
+          </div>
+          <!-- 管理层 -->
+          <div class="ec-duty-level">
+            <div class="ec-duty-level-header" onclick="toggleDutyLevel('management')">
+              <div class="ec-duty-level-name">管理层(<span class="count">28</span>人)<span class="arrow"> ›</span></div>
+              <div class="ec-duty-level-chart">
+                <div class="stat-chart">
+                  <div class="ring-container" id="managementRingChart"></div>
+                  <div class="ring-legend" id="mgmtLegend"></div>
+                </div>
+                <div class="rate-label green" id="mgmtRingRate">绿码<br>75%</div>
+              </div>
+            </div>
+            <div class="ec-duty-list" id="managementList"></div>
+          </div>
+          <!-- 员工层 -->
+          <div class="ec-duty-level">
+            <div class="ec-duty-level-header" onclick="toggleDutyLevel('employee')">
+              <div class="ec-duty-level-name">员工层(<span class="count">120</span>人)<span class="arrow"> ›</span></div>
+              <div class="ec-duty-level-chart">
+                <div class="stat-chart">
+                  <div class="ring-container" id="employeeRingChart"></div>
+                  <div class="ring-legend" id="empLegend"></div>
+                </div>
+                <div class="rate-label yellow" id="empRingRate">黄码<br>29.2%</div>
+              </div>
+            </div>
+            <div class="ec-duty-list" id="employeeList"></div>
           </div>
         </div>
       </div>
@@ -218,21 +378,45 @@
       <!-- 隐患统计 -->
       <div class="ec-panel" id="panel2">
         <div class="ec-panel-body">
-          <div class="stat-row" style="padding:0;margin-bottom:var(--wc-gap-xl);">
-            <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">隐患总数</div></div>
-            <div class="stat-item"><div class="stat-num" style="color:var(--danger)">2</div><div class="stat-label">待整改</div></div>
-            <div class="stat-item"><div class="stat-num" style="color:var(--warning)">3</div><div class="stat-label">整改中</div></div>
-            <div class="stat-item"><div class="stat-num" style="color:var(--success)">7</div><div class="stat-label">已整改</div></div>
+          <!-- 时间选择器 -->
+          <div class="ec-time-select">
+            <select id="hazardTimeRange" onchange="switchHazardTimeRange(this.value)">
+              <option value="year">年度</option>
+              <option value="quarter">季度</option>
+              <option value="month" selected>月度</option>
+              <option value="week">本周</option>
+              <option value="custom">自定义</option>
+            </select>
           </div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:var(--wc-page-padding);">
-            <div class="ring-chart" style="background:conic-gradient(var(--success) 0% 58%, var(--warning) 58% 83%, var(--danger) 83% 100%);">
-              <div class="ring-chart-inner">58%</div>
+          <!-- 隐患总数 -->
+          <div class="ec-stat-row">
+            <div class="stat-label">隐患总数</div>
+            <div class="stat-num">14<span class="arrow" onclick="safeNavigate('hazard-stats')"> ›</span></div>
+            <div class="stat-chart">
+              <div class="ring-container" id="hazardTotalPie"></div>
+              <div class="ring-legend" id="hazardTotalLegend"></div>
             </div>
-            <div style="font-size:var(--wc-font-small);color:var(--wc-text-tertiary);line-height:2;">
-              <span style="color:var(--success)">●</span> 已整改 7项<br>
-              <span style="color:var(--warning)">●</span> 整改中 3项<br>
-              <span style="color:var(--danger)">●</span> 待整改 2项
+            <div class="stat-rate green" id="hazardTotalRate">已整改<br>71.4%</div>
+          </div>
+          <!-- 企业自查 -->
+          <div class="ec-stat-row">
+            <div class="stat-label">企业自查</div>
+            <div class="stat-num">10<span class="arrow" onclick="safeNavigate('hazard-stats')"> ›</span></div>
+            <div class="stat-chart">
+              <div class="ring-container" id="hazardSelfPie"></div>
+              <div class="ring-legend" id="hazardSelfLegend"></div>
             </div>
+            <div class="stat-rate green" id="hazardSelfRate">已整改<br>60%</div>
+          </div>
+          <!-- 政府检查 -->
+          <div class="ec-stat-row">
+            <div class="stat-label">政府检查</div>
+            <div class="stat-num">4<span class="arrow" onclick="safeNavigate('hazard-stats')"> ›</span></div>
+            <div class="stat-chart">
+              <div class="ring-container" id="hazardGovPie"></div>
+              <div class="ring-legend" id="hazardGovLegend"></div>
+            </div>
+            <div class="stat-rate green" id="hazardGovRate">已整改<br>100%</div>
           </div>
         </div>
       </div>
@@ -246,7 +430,7 @@
     <div class="qr-detail-card" style="position:relative;">
       <div class="qr-detail-close" onclick="closeQrDetail()">✕</div>
       <div class="qr-detail-qr"><svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" fill="#fff"/><rect x="2" y="2" width="26" height="26" fill="#52c41a" rx="3"/><rect x="6" y="6" width="18" height="18" fill="#fff" rx="2"/><rect x="10" y="10" width="10" height="10" fill="#52c41a" rx="1"/><rect x="72" y="2" width="26" height="26" fill="#52c41a" rx="3"/><rect x="76" y="6" width="18" height="18" fill="#fff" rx="2"/><rect x="80" y="10" width="10" height="10" fill="#52c41a" rx="1"/><rect x="2" y="72" width="26" height="26" fill="#52c41a" rx="3"/><rect x="6" y="76" width="18" height="18" fill="#fff" rx="2"/><rect x="10" y="80" width="10" height="10" fill="#52c41a" rx="1"/><rect x="35" y="5" width="5" height="5" fill="#52c41a"/><rect x="45" y="8" width="5" height="5" fill="#52c41a"/><rect x="55" y="5" width="5" height="5" fill="#52c41a"/><rect x="35" y="18" width="5" height="5" fill="#52c41a"/><rect x="50" y="15" width="5" height="5" fill="#52c41a"/><rect x="60" y="18" width="5" height="5" fill="#52c41a"/><rect x="8" y="35" width="5" height="5" fill="#52c41a"/><rect x="18" y="38" width="5" height="5" fill="#52c41a"/><rect x="28" y="35" width="5" height="5" fill="#52c41a"/><rect x="38" y="42" width="5" height="5" fill="#52c41a"/><rect x="48" y="35" width="5" height="5" fill="#52c41a"/><rect x="58" y="38" width="5" height="5" fill="#52c41a"/><rect x="68" y="35" width="5" height="5" fill="#52c41a"/><rect x="78" y="42" width="5" height="5" fill="#52c41a"/><rect x="88" y="35" width="5" height="5" fill="#52c41a"/><rect x="8" y="48" width="5" height="5" fill="#52c41a"/><rect x="22" y="45" width="5" height="5" fill="#52c41a"/><rect x="38" y="52" width="5" height="5" fill="#52c41a"/><rect x="52" y="48" width="5" height="5" fill="#52c41a"/><rect x="65" y="52" width="5" height="5" fill="#52c41a"/><rect x="75" y="45" width="5" height="5" fill="#52c41a"/><rect x="85" y="48" width="5" height="5" fill="#52c41a"/><rect x="8" y="58" width="5" height="5" fill="#52c41a"/><rect x="18" y="55" width="5" height="5" fill="#52c41a"/><rect x="32" y="58" width="5" height="5" fill="#52c41a"/><rect x="42" y="55" width="5" height="5" fill="#52c41a"/><rect x="55" y="58" width="5" height="5" fill="#52c41a"/><rect x="68" y="55" width="5" height="5" fill="#52c41a"/><rect x="78" y="58" width="5" height="5" fill="#52c41a"/><rect x="88" y="55" width="5" height="5" fill="#52c41a"/><rect x="35" y="72" width="5" height="5" fill="#52c41a"/><rect x="45" y="78" width="5" height="5" fill="#52c41a"/><rect x="55" y="72" width="5" height="5" fill="#52c41a"/><rect x="65" y="78" width="5" height="5" fill="#52c41a"/><rect x="75" y="72" width="5" height="5" fill="#52c41a"/><rect x="85" y="78" width="5" height="5" fill="#52c41a"/><rect x="35" y="88" width="5" height="5" fill="#52c41a"/><rect x="48" y="85" width="5" height="5" fill="#52c41a"/><rect x="60" y="90" width="5" height="5" fill="#52c41a"/><rect x="72" y="88" width="5" height="5" fill="#52c41a"/><rect x="82" y="90" width="5" height="5" fill="#52c41a"/><rect x="92" y="85" width="5" height="5" fill="#52c41a"/></svg></div>
-      <div class="qr-detail-name">创安电子科技有限公司</div>
+      <div class="qr-detail-name">深圳市天道医药有限公司</div>
       <div class="qr-detail-time">更新时间：2025-01-15 08:00</div>
       <div class="qr-detail-actions">
         <button style="background:var(--primary);color:var(--wc-card-bg);border:none;" onclick="showToast('二维码已保存至相册')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>下载</button>
@@ -256,38 +440,317 @@
   </div>
 
   <script>
-    // 主Tab切换
+    // ========== Tab 切换 ==========
     function switchMainTab(el, idx) {
-      el.parentElement.querySelectorAll('.ec-main-tab').forEach(function(t){t.classList.remove('active');});
+      el.parentElement.querySelectorAll('.ec-main-tab').forEach(function(t){ t.classList.remove('active'); });
       el.classList.add('active');
-      document.querySelectorAll('.ec-panel').forEach(function(p){p.classList.remove('active');});
+      document.querySelectorAll('.ec-panel').forEach(function(p){ p.classList.remove('active'); });
       document.getElementById('panel' + idx).classList.add('active');
+      // 切换后初始化图表
+      if (idx === 0) initSecurityCharts();
+      if (idx === 1) initDutyCharts();
+      if (idx === 2) initHazardCharts();
     }
 
-    // 人员履职子Tab
-    var dutyData = [
-      { green:3, yellow:1, red:0, total:4 },
-      { green:6, yellow:2, red:1, total:9 },
-      { green:15, yellow:3, red:1, total:19 }
+    // ========== 月历 ==========
+    var _calYear, _calMonth;
+    (function(){ var now = new Date(); _calYear = now.getFullYear(); _calMonth = now.getMonth(); })();
+
+    // 模拟日历数据：每天码状态（0=无数据/未结算, 1=绿, 2=黄, 3=红）
+    var _calendarStatusData = [
+      1,1,1,2,1,1,3,1,1,1,1,2,1,1,1,1,1,2,1,2,3,1,1,1,1,1,1,1,1,1
     ];
-    function switchDutyTab(el, idx) {
-      el.parentElement.querySelectorAll('.m-tab').forEach(function(t){t.classList.remove('active');});
-      el.classList.add('active');
-      var d = dutyData[idx];
-      document.getElementById('dutyContent').innerHTML =
-        '<div class="duty-bar"><span class="duty-bar-label">绿色</span><div class="duty-bar-track"><div class="duty-bar-fill" style="width:'+Math.round(d.green/d.total*100)+'%;background:var(--success)"></div></div><span class="duty-bar-num">'+d.green+'人</span></div>'+
-        '<div class="duty-bar"><span class="duty-bar-label">黄色</span><div class="duty-bar-track"><div class="duty-bar-fill" style="width:'+Math.round(d.yellow/d.total*100)+'%;background:var(--warning)"></div></div><span class="duty-bar-num">'+d.yellow+'人</span></div>'+
-        '<div class="duty-bar"><span class="duty-bar-label">红色</span><div class="duty-bar-track"><div class="duty-bar-fill" style="width:'+Math.round(d.red/d.total*100)+'%;background:var(--danger)"></div></div><span class="duty-bar-num">'+d.red+'人</span></div>'+
-        '<div style="font-size:var(--wc-font-small);color:var(--wc-text-placeholder);text-align:center;margin-top:var(--wc-gap-sm)">在册 '+d.total+'人</div>';
+    var STATUS_COLORS = { 0: 'empty', 1: 'green', 2: 'yellow', 3: 'red' };
+
+    function renderCalendar() {
+      var now = new Date();
+      var year = _calYear, month = _calMonth;
+      var firstDay = new Date(year, month, 1).getDay();
+      var daysInMonth = new Date(year, month + 1, 0).getDate();
+      var today = now.getDate();
+      var isCurrentMonth = (year === now.getFullYear() && month === now.getMonth());
+      var isFutureMonth = (year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth()));
+      var isCurrentOrFutureMonth = (year > now.getFullYear()) || (year === now.getFullYear() && month >= now.getMonth());
+
+      var monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+      var html = '<div class="ec-calendar-header">';
+      // 禁止翻到未来月份：当月或未来月时，右箭头禁用
+      var canGoNext = !isCurrentOrFutureMonth;
+      html += '<div class="cal-nav" onclick="calNav(-1)">‹</div>';
+      html += '<div class="cal-title">' + year + '年' + monthNames[month] + '</div>';
+      html += '<div class="cal-nav' + (canGoNext ? '' : ' cal-nav-disabled') + '" onclick="' + (canGoNext ? 'calNav(1)' : 'void(0)') + '">›</div>';
+      html += '</div>';
+      html += '<table><tr><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr>';
+
+      var day = 1 - firstDay;
+      for (var row = 0; row < 6; row++) {
+        html += '<tr>';
+        for (var col = 0; col < 7; col++) {
+          var displayDay = day;
+          var isOtherMonth = (day < 1 || day > daysInMonth);
+          var isToday = (isCurrentMonth && day === today);
+          var isFutureDay = (year > now.getFullYear()) || (year === now.getFullYear() && month > now.getMonth()) || (isCurrentMonth && day > today);
+          var dataIdx = day - 1;
+          var status = (dataIdx >= 0 && dataIdx < _calendarStatusData.length) ? _calendarStatusData[dataIdx] : 0;
+          var dotClass = isOtherMonth ? 'empty' : STATUS_COLORS[status];
+          var cellClass = '';
+          if (isToday) cellClass = 'cal-today';
+          else if (isOtherMonth) cellClass = 'cal-other-month';
+          else if (isFutureDay) cellClass = 'cal-future';
+          html += '<td class="' + cellClass + '">';
+          if (isOtherMonth) {
+            if (day < 1) {
+              var prevMonthDays = new Date(year, month, 0).getDate();
+              html += '<span class="cal-dot empty">' + (prevMonthDays + day) + '</span>';
+            } else {
+              html += '<span class="cal-dot empty">' + (day - daysInMonth) + '</span>';
+            }
+          } else if (isFutureDay) {
+            html += '<span class="cal-dot" style="background:#e8e8e8;color:#bbb;">' + day + '</span>';
+          } else {
+            html += '<span class="cal-dot ' + dotClass + '">' + day + '</span>';
+          }
+          html += '</td>';
+          day++;
+        }
+        html += '</tr>';
+      }
+      html += '</table>';
+      document.getElementById('ecCalendar').innerHTML = html;
     }
 
-    // QR码弹层
-    function showQrDetail() {
-      document.getElementById('qrOverlay').classList.add('show');
+    function calNav(delta) {
+      var now = new Date();
+      if (delta > 0) {
+        // 禁止翻到未来月份
+        var nextMonth = _calMonth + delta;
+        var nextYear = _calYear;
+        if (nextMonth > 11) { nextMonth = 0; nextYear++; }
+        if (nextYear > now.getFullYear() || (nextYear === now.getFullYear() && nextMonth > now.getMonth())) return;
+      }
+      _calMonth += delta;
+      if (_calMonth < 0) { _calMonth = 11; _calYear--; }
+      else if (_calMonth > 11) { _calMonth = 0; _calYear++; }
+      renderCalendar();
     }
-    function closeQrDetail() {
-      document.getElementById('qrOverlay').classList.remove('show');
+
+    // ========== ECharts 交互环形图 ==========
+    var _charts = {};
+
+    /**
+     * 初始化可交互环形图：默认选中首项，点击色块切换，中心显示数量，右侧标注同步更新
+     * @param {string} chartId - 图表容器 ID
+     * @param {Array} data - [{name, value}]
+     * @param {string} rateId - 右侧标注元素 ID
+     * @param {number} total - 总数（用于计算占比）
+     * @param {string} legendId - 图例容器 ID（可选）
+     */
+    function initInteractiveRing(chartId, data, rateId, total, legendId) {
+      var container = document.getElementById(chartId);
+      if (!container || typeof echarts === 'undefined') return;
+      if (_charts[chartId]) return; // 只初始化一次
+
+      var UNIFIED_RADIUS = ['38%', '72%']; // 统一环形图半径
+      var colorMap = { '绿码': '#52c41a', '黄码': '#faad14', '红码': '#f5222d', '已整改': '#52c41a', '未整改': '#1677ff' };
+
+      var chart = echarts.init(container);
+      _charts[chartId] = { chart: chart, data: data, rateId: rateId, total: total, selected: 0 };
+
+      function getSeriesData() {
+        return data.map(function(d) {
+          return {
+            value: d.value,
+            name: d.name,
+            itemStyle: { color: colorMap[d.name] || '#999' }
+          };
+        });
+      }
+
+      function renderLegend() {
+        if (!legendId) return;
+        var el = document.getElementById(legendId);
+        if (!el) return;
+        var html = '';
+        data.forEach(function(d) {
+          html += '<div class="ring-legend-item"><div class="ring-legend-dot" style="background:' + (colorMap[d.name] || '#999') + '"></div>' + d.name + '</div>';
+        });
+        el.innerHTML = html;
+      }
+
+      function updateCenter(idx) {
+        chart.setOption({
+          series: [{ data: getSeriesData() }],
+          graphic: {
+            elements: [{
+              type: 'text',
+              left: 'center', top: 'center',
+              style: {
+                text: data[idx].value,
+                fontSize: 16, fontWeight: 700,
+                fill: colorMap[data[idx].name] || '#333'
+              }
+            }]
+          }
+        });
+      }
+
+      function updateRate(idx) {
+        var rateEl = document.getElementById(rateId);
+        if (!rateEl) return;
+        var pct = total > 0 ? (data[idx].value / total * 100).toFixed(1).replace(/\.0$/, '') : 0;
+        var colorClass = data[idx].name === '已整改' ? 'green' : 'blue';
+        rateEl.className = rateEl.className.replace(/green|yellow|red/g, '').trim() + ' ' + colorClass;
+        var prefix = data[idx].name.indexOf('整改') >= 0 ? '已整改' : data[idx].name;
+        rateEl.innerHTML = prefix + '<br>' + pct + '%';
+      }
+
+      // 初始渲染
+      chart.setOption({
+        series: [{
+          type: 'pie', radius: UNIFIED_RADIUS,
+          label: { show: false },
+          data: getSeriesData(),
+          emphasis: { scaleSize: 6, scale: true }
+        }],
+        graphic: {
+          elements: [{
+            type: 'text',
+            left: 'center', top: 'center',
+            style: {
+              text: data[0].value,
+              fontSize: 16, fontWeight: 700,
+              fill: colorMap[data[0].name] || '#333'
+            }
+          }]
+        }
+      });
+      updateRate(0);
+      renderLegend();
+
+      // 点击切换
+      chart.on('click', function(params) {
+        var idx = params.dataIndex;
+        if (idx === _charts[chartId].selected) return;
+        _charts[chartId].selected = idx;
+        updateCenter(idx);
+        updateRate(idx);
+      });
     }
+
+    function initSecurityCharts() {
+      initInteractiveRing('placePieChart', [
+        { name: '绿码', value: 32 }, { name: '黄码', value: 9 }, { name: '红码', value: 4 }
+      ], 'placePieRate', 45, 'placeLegend');
+
+      initInteractiveRing('hazardPieChart', [
+        { name: '绿码', value: 89 }, { name: '黄码', value: 14 }, { name: '红码', value: 22 }
+      ], 'hazardPieRate', 125, 'hazardLegend');
+    }
+
+    function initDutyCharts() {
+      // 领导层条图
+      var leaderData = [
+        { name: '黄蕾越', count: 5 },
+        { name: '李梓', count: 6 },
+        { name: '王成東', count: 12 },
+        { name: '林丽丽', count: 7 }
+      ];
+      var maxCount = 20;
+      var html = '';
+      leaderData.forEach(function(p) {
+        var pct = Math.round(p.count / maxCount * 100);
+        html += '<div class="ec-leader-row">'
+          + '<div class="leader-name">' + p.name + '</div>'
+          + '<div class="leader-bar-track"><div class="leader-bar-fill" style="width:' + pct + '%"></div></div>'
+          + '<div class="leader-count">' + p.count + '</div>'
+          + '</div>';
+      });
+      document.getElementById('leaderBarChart').innerHTML = html;
+
+      // 管理层环形图
+      initInteractiveRing('managementRingChart', [
+        { name: '绿码', value: 21 }, { name: '黄码', value: 5 }, { name: '红码', value: 2 }
+      ], 'mgmtRingRate', 28, 'mgmtLegend');
+
+      // 员工层环形图
+      initInteractiveRing('employeeRingChart', [
+        { name: '绿码', value: 84 }, { name: '黄码', value: 35 }, { name: '红码', value: 1 }
+      ], 'empRingRate', 120, 'empLegend');
+
+      // 生成管理层人员列表（28人模拟）
+      var mgmtNames = ['陈安全','张管理','李主管','王科长','赵主任','刘部长','孙经理','周组长','吴队长','郑干事',
+        '冯专员','褚助理','卫主管','蒋科长','沈主任','韩部长','杨经理','朱组长','秦队长','尤干事',
+        '何专员','吕助理','施主管','张科长','孔主任','曹部长','袁经理','邓组长'];
+      var mgmtStatuses = [];
+      for (var i = 0; i < 28; i++) {
+        if (i < 21) mgmtStatuses.push('green');
+        else if (i < 26) mgmtStatuses.push('yellow');
+        else mgmtStatuses.push('red');
+      }
+      var mgmtHtml = '';
+      mgmtNames.forEach(function(name, i) {
+        mgmtHtml += '<div class="ec-duty-list-item"><div class="person-name">' + name + '</div><div class="person-status ' + mgmtStatuses[i] + '"></div></div>';
+      });
+      document.getElementById('managementList').innerHTML = mgmtHtml;
+
+      // 生成员工层人员列表（120人模拟，只显示前20）
+      var empNames = [];
+      for (var i = 0; i < 20; i++) empNames.push('员工' + (i + 1));
+      var empStatuses = [];
+      for (var i = 0; i < 20; i++) {
+        if (i < 14) empStatuses.push('green');
+        else if (i < 18) empStatuses.push('yellow');
+        else empStatuses.push('red');
+      }
+      var empHtml = '';
+      empNames.forEach(function(name, i) {
+        empHtml += '<div class="ec-duty-list-item"><div class="person-name">' + name + '</div><div class="person-status ' + empStatuses[i] + '"></div></div>';
+      });
+      empHtml += '<div style="text-align:center;font-size:12px;color:var(--wc-text-disabled);padding:8px 0;">显示前20人，共120人</div>';
+      document.getElementById('employeeList').innerHTML = empHtml;
+    }
+
+    function initHazardCharts() {
+      initInteractiveRing('hazardTotalPie', [
+        { name: '已整改', value: 10 }, { name: '未整改', value: 4 }
+      ], 'hazardTotalRate', 14, 'hazardTotalLegend');
+
+      initInteractiveRing('hazardSelfPie', [
+        { name: '已整改', value: 6 }, { name: '未整改', value: 4 }
+      ], 'hazardSelfRate', 10, 'hazardSelfLegend');
+
+      initInteractiveRing('hazardGovPie', [
+        { name: '已整改', value: 4 }, { name: '未整改', value: 0 }
+      ], 'hazardGovRate', 4, 'hazardGovLegend');
+    }
+
+    // ========== 人员层级折叠/展开 ==========
+    function toggleDutyLevel(level) {
+      var listId = level === 'management' ? 'managementList' : 'employeeList';
+      var el = document.getElementById(listId);
+      el.classList.toggle('show');
+    }
+
+    // ========== 时间选择器 ==========
+    function switchDutyTimeRange(val) { /* TODO: 切换数据 */ }
+    function switchHazardTimeRange(val) { /* TODO: 切换数据 */ }
+
+    // ========== 安全导航（iframe/独立打开兼容） ==========
+    function safeNavigate(page) {
+      if (window.parent && window.parent !== window && typeof window.parent.navigateTo === 'function') {
+        window.parent.navigateTo(page);
+      } else {
+        // 独立打开时，直接跳转到同目录下的页面
+        var map = { 'scan':'scan.html','check-list':'check-list.html','hazard-stats':'hazard-stats.html',
+          'inspection-stats':'inspection-stats.html','control-list':'control-list.html',
+          'place-code':'place-code.html','hazard-code':'hazard-code.html' };
+        window.location.href = map[page] || (page + '.html');
+      }
+    }
+
+    // ========== QR码弹层 ==========
+    function showQrDetail() { document.getElementById('qrOverlay').classList.add('show'); }
+    function closeQrDetail() { document.getElementById('qrOverlay').classList.remove('show'); }
     function showToast(msg) {
       var t = document.createElement('div');
       t.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.78);color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;z-index:200;white-space:nowrap;';
@@ -296,85 +759,46 @@
       setTimeout(function(){ t.remove(); }, 2000);
     }
 
-    // ========== 页面初始化：根据 session 动态渲染 ==========
+    // ========== 页面初始化 ==========
     function initHomePage() {
-      if (typeof MobilePageConfig === 'undefined') return;
-      var config = MobilePageConfig.getHomeConfig();
-      if (!config || !config.portalType) return;
+      // 始终渲染日历（不依赖 MobilePageConfig）
+      renderCalendar();
 
-      // 更新企业名称
-      var nameEl = document.getElementById('homeEntityName');
-      if (nameEl) nameEl.textContent = config.entityName;
+      if (typeof MobilePageConfig !== 'undefined') {
+        var config = MobilePageConfig.getHomeConfig();
+        if (config && config.portalType) {
+          var nameEl = document.getElementById('homeEntityName');
+          if (nameEl) nameEl.textContent = config.entityName;
 
-      // 更新背景渐变
-      var mPage = document.querySelector('.m-page');
-      if (mPage) mPage.style.backgroundImage = config.gradient;
+          var mPage = document.querySelector('.m-page');
+          if (mPage) mPage.style.backgroundImage = config.gradient;
 
-      // 更新码边框颜色
-      var qrWrap = document.querySelector('.ec-qr-wrap');
-      if (qrWrap) qrWrap.style.borderColor = config.borderColor;
-
-      // 更新主Tab标签
-      var tabLabels = document.querySelectorAll('.ec-main-tab-label');
-      if (tabLabels.length >= 3) {
-        config.mainTabLabels.forEach(function(label, i) {
-          tabLabels[i].textContent = label;
-        });
+          var qrWrap = document.querySelector('.ec-qr-wrap');
+          if (qrWrap) qrWrap.style.borderColor = config.borderColor;
+        }
       }
 
-      // 更新安全管控统计
-      var statsPanel = document.getElementById('homeStatsPanel');
-      if (statsPanel) {
-        var s = config.stats;
-        var conicGrad = 'conic-gradient(var(--success) 0% ' + s.greenPct;
-        var yellowEnd = Math.round((s.green + s.yellow) / s.total * 100) + '%';
-        conicGrad += ', var(--warning) ' + s.greenPct + ' ' + yellowEnd;
-        conicGrad += ', var(--danger) ' + yellowEnd + ' 100%)';
-        statsPanel.innerHTML =
-          '<div class="stat-row" style="padding:0;margin-bottom:var(--wc-gap-xl);">' +
-          '  <div class="stat-item"><div class="stat-num">' + s.total + '</div><div class="stat-label">管控对象总数</div></div>' +
-          '  <div class="stat-item"><div class="stat-num" style="color:var(--success)">' + s.green + '</div><div class="stat-label">绿色</div></div>' +
-          '  <div class="stat-item"><div class="stat-num" style="color:var(--warning)">' + s.yellow + '</div><div class="stat-label">黄色</div></div>' +
-          '  <div class="stat-item"><div class="stat-num" style="color:var(--danger)">' + s.red + '</div><div class="stat-label">红色</div></div>' +
-          '</div>' +
-          '<div style="display:flex;align-items:center;justify-content:center;gap:var(--wc-page-padding);">' +
-          '  <div class="ring-chart" style="background:' + conicGrad + ';"><div class="ring-chart-inner">' + s.greenPct + '</div></div>' +
-          '  <div style="font-size:var(--wc-font-small);color:var(--wc-text-tertiary);line-height:2;">' +
-          '    <span style="color:var(--success)">●</span> 绿色 ' + s.green + '个<br>' +
-          '    <span style="color:var(--warning)">●</span> 黄色 ' + s.yellow + '个<br>' +
-          '    <span style="color:var(--danger)">●</span> 红色 ' + s.red + '个' +
-          '  </div>' +
-          '</div>' +
-          '<div style="text-align:right;margin-top:8px;">' +
-          '  <span style="font-size:var(--wc-font-small);color:var(--wc-blue);cursor:pointer;" onclick="parent.navigateTo(\'control-list\')">查看详情 ›</span>' +
-          '</div>';
-      }
-
-      // 更新快捷入口
-      var quickGrid = document.getElementById('homeQuickGrid');
-      if (quickGrid) {
-        var html = '';
-        config.quickActions.forEach(function(a) {
-          var onclick = a.nav ? ' onclick="parent.navigateTo(\'' + a.nav + '\')"' : '';
-          html += '<div class="ec-quick-item"' + onclick + '>' +
-            '<div class="ec-quick-icon ' + a.color + '">' + a.icon + '</div>' +
-            '<div class="ec-quick-label">' + a.label + '</div>' +
-            '</div>';
-        });
-        quickGrid.innerHTML = html;
-      }
-
-      // 政府端：更新码类型为"监管码"
-      // 企业端：更新码类型标签（企业码/项目码/场所码等）
-      // 此处通过 codeTypeLabel 可用于后续扩展，当前QR码区域已自适应
+      // 延迟初始化图表（等待 ECharts 加载 + DOM 渲染）
+      setTimeout(function() {
+        if (typeof echarts !== 'undefined') {
+          initSecurityCharts();
+        }
+      }, 500);
     }
+
+    // 窗口 resize 时重绘图表
+    window.addEventListener('resize', function() {
+      for (var key in _charts) {
+        if (_charts[key] && _charts[key].resize) _charts[key].resize();
+      }
+    });
 
     // initHomePage 将在外部脚本加载后调用
   </script>
-<script src="../../js/domain-data.js"></script>
-<script src="../../js/mobile-page-config.js"></script>
-<script src="../../js/mobile-session.js"></script>
-<script>initHomePage();</script>
-<script src="../../js/annotations.js"></script>
+  <script src="../../js/domain-data.js"></script>
+  <script src="../../js/mobile-page-config.js"></script>
+  <script src="../../js/mobile-session.js"></script>
+  <script>initHomePage();</script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

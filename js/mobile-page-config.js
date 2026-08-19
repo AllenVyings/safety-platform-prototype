@@ -32,6 +32,8 @@ var MobilePageConfig = (function() {
     var mode = null;
     if (portalType === 'ent') {
       identity = MobileSession.getActiveIdentity ? MobileSession.getActiveIdentity() : null;
+      // 原型演示：强制使用设计稿企业名称
+      if (identity) identity.entName = '深圳市天道医药有限公司';
       mode = identity ? identity.mode : null;
     } else if (portalType === 'gov') {
       mode = 'gov';

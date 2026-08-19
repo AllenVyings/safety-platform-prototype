@@ -485,7 +485,7 @@ const MENU_CONFIG = {
       name: '企业码首页',
       icon: '🏠',
       module: 'mobile/enterprise-code',
-      path: 'modules/mobile/enterprise-code.html',
+      path: 'modules/mobile/enterprise-code.html?v=20260818b',
       description: '企业码首页-安全态势总览',
       badge: null,
       disabled: false
