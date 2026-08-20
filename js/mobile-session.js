@@ -254,3 +254,48 @@ var MobileSession = (function() {
     getMode: getMode
   };
 })();
+
+/* ========== 全局工具方法（IIFE 外部，所有页面可用） ========== */
+
+/**
+ * 安全页面导航 — 替代直接调用 parent.navigateTo
+ * 防止 iframe 外独立打开时 parent.navigateTo 不存在导致崩溃 (H5)
+ * @param {string} page - 目标页面名称
+ */
+function navTo(page) {
+  try {
+    if (window.parent && window.parent !== window && typeof window.parent.navigateTo === 'function') {
+      window.parent.navigateTo(page);
+    }
+  } catch (e) { /* 静默失败 */ }
+}
+
+/**
+ * 全局 Toast 提示（统一实现，各页面不再重复定义）
+ * @param {string} msg - 提示文案
+ * @param {string} [type] - 类型：success / warning / error / info
+ * @param {number} [duration] - 显示时长（ms），默认 2000
+ */
+function showToast(msg, type, duration) {
+  type = type || 'info';
+  duration = duration || 2000;
+  var existing = document.getElementById('mGlobalToast');
+  if (existing) existing.remove();
+  var t = document.createElement('div');
+  t.id = 'mGlobalToast';
+  var bg = 'rgba(0,0,0,0.78)';
+  if (type === 'success') bg = 'var(--success, #52c41a)';
+  else if (type === 'warning') bg = 'var(--warning, #faad14)';
+  else if (type === 'error') bg = 'var(--danger, #ff4d4f)';
+  else if (type === 'info') bg = 'var(--primary, #1677ff)';
+  t.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);'
+    + 'background:' + bg + ';color:#fff;padding:10px 24px;border-radius:8px;'
+    + 'font-size:14px;z-index:9999;white-space:nowrap;opacity:1;'
+    + 'transition:opacity 0.3s;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() {
+    t.style.opacity = '0';
+    setTimeout(function() { t.remove(); }, 300);
+  }, duration);
+}

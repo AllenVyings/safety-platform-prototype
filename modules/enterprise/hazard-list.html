@@ -1,669 +1,735 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>安全管控对象列表 - 企业端</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>
-    /* ========== 页面背景 ========== */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>安全管控对象管理 - 企业端</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/framework.css">
+<style>
+.split-view{display:flex;gap:var(--spacing-lg);height:calc(100vh - 100px)}
+.tree-panel{width:400px;flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card)}
+.tree-header{padding:var(--spacing-md);border-bottom:1px solid var(--border-light);background:var(--bg-section)}
+.tree-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-sm);margin-top:var(--spacing-sm)}
+.tree-stat-card{padding:var(--spacing-sm);background:var(--bg-primary);border-radius:var(--radius-md);text-align:center;border:1px solid var(--border-light)}
+.tree-stat-value{font-size:var(--font-size-lg);font-weight:700;color:var(--text-primary)}
+.tree-stat-label{font-size:var(--font-size-xs);color:var(--text-secondary);margin-top:2px}
+.tree-search{padding:var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light)}
+.tree-search input{width:100%;padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box}
+.tree-search input:focus{border-color:var(--primary)}
+.tree-body{flex:1;overflow-y:auto;padding:var(--spacing-xs) 0}
 
-    /* ========== 页面标题栏 ========== */
+.tree-node{display:flex;align-items:center;padding:var(--spacing-xs) var(--spacing-sm);cursor:pointer;transition:all var(--duration-fast);gap:var(--spacing-xs)}
+.tree-node.level-1{padding-left:28px}
+.tree-node.level-2{padding-left:44px}
+.tree-node:hover{background:var(--primary-light)}
+.tree-node.active{background:var(--primary-light)}
+.tree-node-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);flex-shrink:0}
+.tree-node-label{flex:1;font-size:var(--font-size-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-node-type{font-size:var(--font-size-xs);color:var(--text-secondary);background:var(--bg-section-alt);padding:2px 6px;border-radius:var(--radius-sm);flex-shrink:0}
+.tree-node-actions{display:flex;gap:2px;opacity:0;transition:opacity var(--duration-fast);flex-shrink:0}
+.tree-node:hover .tree-node-actions{opacity:1}
+.tree-node-action{font-size:var(--font-size-xs);color:var(--primary);background:none;border:1px solid var(--primary);border-radius:var(--radius-sm);padding:1px 6px;cursor:pointer;white-space:nowrap;line-height:1.4}
+.tree-node-action:hover{background:var(--primary);color:var(--bg-primary)}
+.tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
 
-    /* ========== 分屏视图 ========== */
-    .split-view { display: flex; gap: var(--spacing-lg); height: calc(100vh - 180px); }
+.detail-panel{flex:1;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card)}
+.detail-header{padding:var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;background:var(--bg-section)}
+.detail-title{font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary)}
+.detail-body{flex:1;overflow-y:auto;padding:var(--spacing-lg)}
 
-    /* ========== 左侧树形面板 ========== */
-    .tree-panel {
-      width: 400px;
-      flex-shrink: 0;
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: var(--shadow-card);
-    }
-    .tree-header { padding: var(--spacing-md); border-bottom: 1px solid var(--border-light); background: var(--bg-section); }
-    .tree-stats { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }
-    .tree-stat { font-size: var(--font-size-xs); color: var(--text-secondary); }
-    .tree-stat-value { font-weight: 600; color: var(--text-primary); margin-left: var(--spacing-xs); }
-    .tree-body { flex: 1; overflow-y: auto; padding: var(--spacing-xs) 0; }
+.view-tabs{display:flex;gap:2px;background:var(--bg-section-alt);border-radius:var(--radius-md);padding:3px}
+.view-tab{padding:6px 14px;font-size:var(--font-size-xs);border-radius:var(--radius-sm);cursor:pointer;color:var(--text-secondary);background:transparent;border:none;transition:all var(--duration-normal);white-space:nowrap}
+.view-tab:hover{color:var(--text-primary);background:var(--bg-primary)}
+.view-tab.active{background:var(--primary);color:var(--bg-primary)}
 
-    /* ========== 右侧详情面板 ========== */
-    .detail-panel {
-      flex: 1;
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: var(--shadow-card);
-    }
+.info-section{margin-bottom:var(--spacing-xl)}
+.info-section-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom:var(--spacing-md);padding-bottom:var(--spacing-sm);border-bottom:1px solid var(--border-light)}
 
-    /* ========== 树形节点 ========== */
-    .tree-node { display: flex; align-items: center; padding: var(--spacing-xs) var(--spacing-sm); cursor: pointer; transition: all var(--duration-fast); }
-    .tree-node:hover { background: var(--primary-light); }
-    .tree-node.active { background: var(--primary-light); }
-    .tree-node-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-sm); font-size: var(--font-size-sm); }
-    .tree-node-label { flex: 1; font-size: var(--font-size-xs); }
-    .tree-node-type { font-size: var(--font-size-xs); color: var(--text-secondary); background: var(--bg-section-alt); padding: 2px 6px; border-radius: var(--radius-sm); margin-right: var(--spacing-xs); }
-    .tree-node-actions { display: flex; gap: 2px; opacity: 0; transition: opacity var(--duration-fast); flex-shrink: 0; }
-    .tree-node:hover .tree-node-actions { opacity: 1; }
-    .tree-node-action { font-size: var(--font-size-xs); color: var(--primary); background: none; border: 1px solid var(--primary); border-radius: var(--radius-sm); padding: 1px 6px; cursor: pointer; white-space: nowrap; line-height: 1.4; }
-    .tree-node-action:hover { background: var(--primary); color: var(--bg-primary); }
+.qr-section{display:flex;gap:var(--spacing-lg);align-items:flex-start;margin-bottom:var(--spacing-lg);padding:var(--spacing-md);background:var(--bg-section-alt);border-radius:var(--radius-md)}
+.qr-placeholder{width:96px;height:96px;background:linear-gradient(135deg,#eef2ff 0%,#e6f7ff 100%);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:var(--font-size-sm);flex-shrink:0;border:1px solid var(--border-light)}
+.qr-meta{flex:1}
 
-    .detail-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--bg-section); }
-    .detail-title { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
-    .detail-body { flex: 1; overflow-y: auto; padding: var(--spacing-lg); }
+.checklist-card{background:var(--bg-section);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:var(--spacing-md);margin-bottom:var(--spacing-sm)}
+.checklist-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-sm)}
+.checklist-card-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+.checklist-card-actions{display:flex;gap:var(--spacing-xs)}
+.checklist-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--spacing-sm)}
+.checklist-field-label{font-size:var(--font-size-xs);color:var(--text-secondary)}
+.checklist-field-value{font-size:var(--font-size-xs);color:var(--text-primary);font-weight:500}
 
-    /* ========== 视图切换Tab ========== */
-    .view-tabs {
-      display: flex;
-      gap: 2px;
-      background: var(--bg-section-alt);
-      border-radius: var(--radius-md);
-      padding: 3px;
-    }
-    .view-tab {
-      padding: 6px 14px;
-      font-size: var(--font-size-xs);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      color: var(--text-secondary);
-      background: transparent;
-      border: none;
-      transition: all var(--duration-normal);
-      white-space: nowrap;
-    }
-    .view-tab:hover { color: var(--text-primary); background: var(--bg-primary); }
-    .view-tab.active { background: var(--primary); color: var(--bg-primary); }
+.scan-config-table{width:100%;border-collapse:collapse;font-size:var(--font-size-xs)}
+.scan-config-table th{background:var(--bg-tertiary);padding:8px 10px;text-align:left;font-weight:600;border-bottom:1px solid var(--border-light)}
+.scan-config-table td{padding:8px 10px;border-bottom:1px solid var(--bg-secondary)}
+.scan-config-table .type-auto{color:var(--primary);background:var(--primary-light);padding:1px 6px;border-radius:3px}
+.scan-config-table .type-manual{color:var(--accent);background:var(--accent-light);padding:1px 6px;border-radius:3px}
 
-    /* ========== 信息板块 ========== */
-    .info-section { margin-bottom: var(--spacing-xl); }
+.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-xl);box-shadow:0 6px 30px rgba(0,0,0,.12);width:600px;max-height:80vh;display:flex;flex-direction:column}
+.modal-dialog.wide{width:900px}
+.form-row{display:flex;gap:var(--spacing-md);margin-bottom:var(--spacing-md)}
+.form-row .form-col{flex:1}
+.form-col label{display:block;font-size:var(--font-size-sm);font-weight:500;margin-bottom:6px;color:var(--text-primary)}
+.form-col label .req{color:var(--danger);margin-right:2px}
+.form-col input,.form-col select,.form-col textarea{width:100%;padding:var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box}
+.form-col input:focus,.form-col select:focus,.form-col textarea:focus{border-color:var(--primary)}
 
-    /* 模块标题样式 */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text-tertiary)}
+.empty-icon{font-size:48px;margin-bottom:var(--spacing-sm)}
 
-    .info-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md); }
-
-    /* ========== 卡片列表视图 ========== */
-    .card-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
-    .card-item {
-      display: flex;
-      align-items: center;
-      padding: var(--spacing-sm) var(--spacing-md);
-      background: var(--bg-section);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all var(--duration-fast);
-    }
-    .card-item:hover { border-color: var(--primary); background: var(--primary-light); }
-    .card-item-icon { margin-right: var(--spacing-sm); font-size: var(--font-size-lg); }
-    .card-item-info { flex: 1; min-width: 0; }
-    .card-item-name { font-size: var(--font-size-sm); font-weight: 500; color: var(--text-primary); }
-    .card-item-desc { font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 2px; }
-    .card-item-type { font-size: var(--font-size-xs); padding: 2px var(--spacing-sm); border-radius: var(--radius-sm); background: var(--bg-section-alt); color: var(--text-secondary); }
-
-    /* ========== 检查表配置卡片 ========== */
-    .checklist-card {
-      background: var(--bg-section);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-md);
-      margin-bottom: var(--spacing-sm);
-    }
-    .checklist-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--spacing-sm);
-    }
-    .checklist-card-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); }
-    .checklist-card-actions { display: flex; gap: var(--spacing-xs); }
-    .checklist-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-sm); }
-    .checklist-field { display: flex; flex-direction: column; gap: 2px; }
-    .checklist-field-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
-    .checklist-field-value { font-size: var(--font-size-xs); color: var(--text-primary); }
-
-    /* ========== 空状态 ========== */
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-tertiary); }
-    .empty-icon { font-size: 48px; margin-bottom: var(--spacing-sm); }
-
-    /* ========== 表单弹窗内样式 ========== */
-    .modal-dialog { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 600px; max-height: 80vh; overflow: auto; }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
-    .modal-head-title { font-size: var(--font-size-lg); font-weight: 600; }
-    .modal-head-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
-    .modal-content { padding: var(--spacing-lg); }
-    .form-row { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .form-row .form-col { flex: 1; }
-    .form-col label { display: block; font-size: var(--font-size-sm); font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
-    .form-col label .req { color: var(--danger); margin-right: 2px; }
-    .form-col input, .form-col select, .form-col textarea { width: 100%; padding: var(--spacing-sm) 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); outline: none; box-sizing: border-box; }
-    .form-col input:focus, .form-col select:focus, .form-col textarea:focus { border-color: var(--primary); }
-    .modal-foot { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
-    .modal-foot .btn-cancel { padding: 6px var(--spacing-md); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; background: var(--bg-primary); }
-    .modal-foot .btn-confirm { padding: 6px var(--spacing-md); border: 1px solid var(--primary); border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; background: var(--primary); color: var(--bg-primary); }
-  </style>
+#_toast{position:fixed;top:var(--spacing-lg);left:50%;transform:translateX(-50%);padding:var(--spacing-sm) var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius:var(--radius-md);font-size:var(--font-size-md);z-index:99999;opacity:0;transition:opacity var(--duration-normal);pointer-events:none}
+</style>
 </head>
 <body>
-  <!-- data-module=ent-hazard-list：管控对象（场所+危险源）列表页 -->
-  <div class="module-page page-container" data-module="enterprise/hazard-list">
-    <!-- 面包屑导航 -->
-    <div class="breadcrumb" id="breadcrumb">
-      <span class="breadcrumb-prefix">当前位置：</span>
-      <span class="breadcrumb-item">企业端</span>
-      <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">安全管控对象</span>
-    </div>
+<div class="module-page page-container" data-module="enterprise/hazard-list">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-prefix">当前位置：</span>
+    <span class="breadcrumb-item">企业端</span>
+    <span class="breadcrumb-separator">&gt;</span>
+    <span class="breadcrumb-item current">安全管控对象</span>
+  </div>
 
-    <div class="split-view">
-      <div class="tree-panel">
-        <div class="tree-header">
-          <div style="font-size: var(--font-size-md); font-weight: 600;">安全管控对象树</div>
-          <div class="tree-stats">
-            <span class="tree-stat">场所码<span class="tree-stat-value">5</span></span>
-            <span class="tree-stat">危险源码<span class="tree-stat-value">2</span></span>
+  <div class="split-view">
+    <!-- ===== 左侧面板 (400px) ===== -->
+    <div class="tree-panel">
+      <!-- 统计卡片 (PRD §6.3.5.3.1) -->
+      <div class="tree-header">
+        <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">安全管控对象</div>
+        <div class="tree-stats">
+          <div class="tree-stat-card">
+            <div class="tree-stat-value">1</div>
+            <div class="tree-stat-label">项目码</div>
           </div>
-        </div>
-        <div class="tree-body">
-          <div class="tree-node active"><span class="tree-node-icon">🏢</span><span class="tree-node-label">创安电子科技有限公司</span><span class="tree-node-actions"><button class="tree-node-action" onclick="event.stopPropagation();showToast('新增区域')">+区域</button><button class="tree-node-action" onclick="event.stopPropagation();showToast('新增场所')">+场所</button></span></div>
-          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">📍</span><span class="tree-node-label">1号生产车间</span><span class="tree-node-type">场所</span><span class="tree-node-actions"><button class="tree-node-action" onclick="event.stopPropagation();showToast('新增危险源')">+危险源</button></span></div>
-          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">📍</span><span class="tree-node-label">原料仓库</span><span class="tree-node-type">场所</span><span class="tree-node-actions"><button class="tree-node-action" onclick="event.stopPropagation();showToast('新增危险源')">+危险源</button></span></div>
-          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">📍</span><span class="tree-node-label">成品仓库</span><span class="tree-node-type">场所</span><span class="tree-node-actions"><button class="tree-node-action" onclick="event.stopPropagation();showToast('新增危险源')">+危险源</button></span></div>
-          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">⚡</span><span class="tree-node-label">电动车充电区</span><span class="tree-node-type">危险源</span></div>
-          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">⚡</span><span class="tree-node-label">危化品暂存间</span><span class="tree-node-type">危险源</span></div>
-          <div class="tree-node" style="padding-left: 28px;"><span class="tree-node-icon">🏭</span><span class="tree-node-label">重点场所</span><span class="tree-node-actions"><button class="tree-node-action" onclick="event.stopPropagation();showToast('新增区域')">+区域</button><button class="tree-node-action" onclick="event.stopPropagation();showToast('新增场所')">+场所</button></span></div>
-          <div class="tree-node" style="padding-left: 44px;"><span class="tree-node-icon">🔌</span><span class="tree-node-label">2号充换电站</span><span class="tree-node-type">重点</span><span class="tree-node-actions"><button class="tree-node-action" onclick="event.stopPropagation();showToast('新增危险源')">+危险源</button></span></div>
+          <div class="tree-stat-card">
+            <div class="tree-stat-value">3</div>
+            <div class="tree-stat-label">区域</div>
+          </div>
+          <div class="tree-stat-card">
+            <div class="tree-stat-value">5</div>
+            <div class="tree-stat-label">场所码</div>
+          </div>
+          <div class="tree-stat-card">
+            <div class="tree-stat-value">2</div>
+            <div class="tree-stat-label">危险源</div>
+          </div>
         </div>
       </div>
+      <!-- 搜索框 -->
+      <div class="tree-search">
+        <input type="text" placeholder="搜索对象名称..." id="treeSearchInput">
+      </div>
+      <!-- 对象树 (项目码→区域→场所/危险源) -->
+      <div class="tree-body">
+        <!-- 项目码 (根节点) -->
+        <div class="tree-node active" onclick="switchView('project')">
+          <span class="tree-toggle" onclick="event.stopPropagation()">▼</span>
+          <span class="tree-node-icon">🏗️</span>
+          <span class="tree-node-label">创安电子科技有限公司</span>
+          <span class="tree-node-actions">
+            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-area')">+区域</button>
+          </span>
+        </div>
+        <!-- A区 -->
+        <div class="tree-node level-1" onclick="switchView('area')">
+          <span class="tree-toggle" onclick="event.stopPropagation()">▼</span>
+          <span class="tree-node-icon">📁</span>
+          <span class="tree-node-label">A区 - 生产区</span>
+          <span class="tree-node-actions">
+            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
+            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
+          </span>
+        </div>
+        <!-- A区下的场所 -->
+        <div class="tree-node level-2" onclick="switchView('place')">
+          <span class="tree-toggle"></span>
+          <span class="tree-node-icon">🏢</span>
+          <span class="tree-node-label">1号生产车间</span>
+          <span class="tree-node-type">场所</span>
+        </div>
+        <div class="tree-node level-2" onclick="switchView('place')">
+          <span class="tree-toggle"></span>
+          <span class="tree-node-icon">🏢</span>
+          <span class="tree-node-label">2号生产车间</span>
+          <span class="tree-node-type">场所</span>
+        </div>
+        <!-- A区下的危险源 -->
+        <div class="tree-node level-2" onclick="switchView('hazard')">
+          <span class="tree-toggle"></span>
+          <span class="tree-node-icon">⚠️</span>
+          <span class="tree-node-label">电动车充电区</span>
+          <span class="tree-node-type">危险源</span>
+        </div>
+        <!-- B区 -->
+        <div class="tree-node level-1" onclick="switchView('area')">
+          <span class="tree-toggle" onclick="event.stopPropagation()">▶</span>
+          <span class="tree-node-icon">📁</span>
+          <span class="tree-node-label">B区 - 仓储区</span>
+          <span class="tree-node-actions">
+            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
+            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
+          </span>
+        </div>
+        <!-- C区 -->
+        <div class="tree-node level-1" onclick="switchView('area')">
+          <span class="tree-toggle" onclick="event.stopPropagation()">▶</span>
+          <span class="tree-node-icon">📁</span>
+          <span class="tree-node-label">C区 - 重点区域</span>
+          <span class="tree-node-actions">
+            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
+            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
+          </span>
+        </div>
+        <!-- 重点场所 (政府配置, 只读) -->
+        <div class="tree-node level-1" onclick="switchView('keyplace')">
+          <span class="tree-toggle"></span>
+          <span class="tree-node-icon">⭐</span>
+          <span class="tree-node-label">2号充换电站</span>
+          <span class="tree-node-type">重点</span>
+        </div>
+      </div>
+    </div>
 
-      <div class="detail-panel">
-        <div class="detail-header">
-          <span class="detail-title">1号生产车间</span>
-          <div class="view-tabs" id="viewTabs">
-            <button class="view-tab active" data-view="default" onclick="switchView('default')">默认视图</button>
-            <button class="view-tab" data-view="area" onclick="switchView('area')">区域视图</button>
-            <button class="view-tab" data-view="place" onclick="switchView('place')">场所视图</button>
-            <button class="view-tab" data-view="hazard" onclick="switchView('hazard')">危险源视图</button>
-            <button class="view-tab" data-view="key-place" onclick="switchView('key-place')">重点场所视图</button>
-            <button class="view-tab" data-view="add-form" onclick="switchView('add-form')">新增表单</button>
+    <!-- ===== 右侧详情面板 ===== -->
+    <div class="detail-panel">
+      <div class="detail-header">
+        <span class="detail-title" id="detailTitle">创安电子科技有限公司</span>
+        <div class="view-tabs" id="viewTabs">
+          <button class="view-tab active" data-view="project" onclick="switchView('project')">项目视图</button>
+          <button class="view-tab" data-view="area" onclick="switchView('area')">区域视图</button>
+          <button class="view-tab" data-view="place" onclick="switchView('place')">场所视图</button>
+          <button class="view-tab" data-view="hazard" onclick="switchView('hazard')">危险源视图</button>
+          <button class="view-tab" data-view="keyplace" onclick="switchView('keyplace')">重点场所</button>
+        </div>
+      </div>
+      <div class="detail-body">
+
+        <!-- ===== 项目视图 (§6.3.5.3.5) ===== -->
+        <div class="view-content" id="view-project">
+          <div class="qr-section">
+            <div class="qr-placeholder">项目二维码</div>
+            <div class="qr-meta">
+              <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">项目基本信息</div>
+              <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
+                <div class="info-item"><span class="info-label">项目名称</span><span class="info-value">创安电子科技有限公司</span></div>
+                <div class="info-item"><span class="info-label">项目编码</span><span class="info-value">PRJ-2026-001</span></div>
+                <div class="info-item"><span class="info-label">项目状态</span><span class="info-value"><span class="tag tag-green">在建</span></span></div>
+                <div class="info-item"><span class="info-label">注册日期</span><span class="info-value">2026-05-12</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <div class="info-section-title">四方责任体</div>
+            <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
+              <div class="info-item"><span class="info-label">企业主要负责人</span><span class="info-value">王建国</span></div>
+              <div class="info-item"><span class="info-label">安全管理员</span><span class="info-value">张三</span></div>
+              <div class="info-item"><span class="info-label">区域责任人</span><span class="info-value">李四</span></div>
+              <div class="info-item"><span class="info-label">整改责任人</span><span class="info-value">赵六</span></div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <div class="info-section-title">监管单位信息</div>
+            <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
+              <div class="info-item"><span class="info-label">行业监管单位</span><span class="info-value">南山区工信局</span></div>
+              <div class="info-item"><span class="info-label">专业监管单位</span><span class="info-value">南山区应急管理局</span></div>
+              <div class="info-item"><span class="info-label">属地监管单位</span><span class="info-value">南山区南山街道办</span></div>
+              <div class="info-item"><span class="info-label">主领域小类</span><span class="info-value">充换电设施</span></div>
+            </div>
           </div>
         </div>
-        <div class="detail-body">
 
-          <!-- ===== 默认视图 ===== -->
-          <div class="view-content" id="view-default">
-            <div class="info-section">
-              <div class="info-section-title">基本信息</div>
-              <div class="info-grid">
-                <div class="info-item"><span class="info-label">场所名称</span><span class="info-value">1号生产车间</span></div>
-                <div class="info-item"><span class="info-label">场所编码</span><span class="info-value">PS-2026-001</span></div>
+        <!-- ===== 区域视图 (§6.3.5.3.6) ===== -->
+        <div class="view-content" id="view-area" style="display:none">
+          <div class="info-section">
+            <div class="info-section-title">区域基本信息
+              <span style="float:right">
+                <button class="btn btn-sm btn-default" onclick="showToast('编辑区域')">编辑</button>
+                <button class="btn btn-sm btn-danger" onclick="showToast('删除区域：需先迁移下属对象')">删除</button>
+              </span>
+            </div>
+            <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--spacing-sm)">
+              <div class="info-item"><span class="info-label">区域名称</span><span class="info-value">A区 - 生产区</span></div>
+              <div class="info-item"><span class="info-label">排序号</span><span class="info-value">1</span></div>
+              <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <div class="info-section-title">下属对象列表</div>
+            <table class="table-basic" style="min-width:auto">
+              <thead>
+                <tr><th>对象名称</th><th>类型</th><th>状态</th><th>整改责任人</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1号生产车间</td><td><span class="tree-node-type">场所</span></td><td><span class="tag tag-green">启用</span></td><td>张三</td></tr>
+                <tr><td>2号生产车间</td><td><span class="tree-node-type">场所</span></td><td><span class="tag tag-green">启用</span></td><td>李四</td></tr>
+                <tr><td>电动车充电区</td><td><span class="tree-node-type" style="background:var(--warning-light);color:var(--warning)">危险源</span></td><td><span class="tag tag-green">启用</span></td><td>王五</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== 场所视图 (§6.3.5.3.7) ===== -->
+        <div class="view-content" id="view-place" style="display:none">
+          <!-- 基本信息 + 二维码 -->
+          <div class="qr-section">
+            <div class="qr-placeholder">场所二维码</div>
+            <div class="qr-meta">
+              <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">1号生产车间
+                <span style="float:right">
+                  <button class="btn btn-sm btn-default" onclick="showToast('编辑场所')">编辑</button>
+                  <button class="btn btn-sm btn-danger" onclick="showToast('删除场所')">删除</button>
+                </span>
+              </div>
+              <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
                 <div class="info-item"><span class="info-label">场所类型</span><span class="info-value">生产车间</span></div>
-                <div class="info-item"><span class="info-label">所属领域</span><span class="info-value">工业制造</span></div>
-                <div class="info-item"><span class="info-label">位置</span><span class="info-value">A区1栋1层</span></div>
-                <div class="info-item"><span class="info-label">面积</span><span class="info-value">2000 m²</span></div>
-              </div>
-            </div>
-
-            <div class="info-section">
-              <div class="info-section-title">扫码配置</div>
-              <div class="info-grid">
-                <div class="info-item"><span class="info-label">责任单位</span><span class="info-value">创安电子科技有限公司</span></div>
-                <div class="info-item"><span class="info-label">企业主要负责人</span><span class="info-value">王建国</span></div>
-                <div class="info-item"><span class="info-label">调度分拨员</span><span class="info-value">张三</span></div>
-                <div class="info-item"><span class="info-label">隐患复核责任人</span><span class="info-value">李四</span></div>
-                <div class="info-item"><span class="info-label">扫码责任人</span><span class="info-value">张三、李四</span></div>
-                <div class="info-item"><span class="info-label">检查频次</span><span class="info-value">每周1次</span></div>
-                <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">正常</span></span></div>
-              </div>
-            </div>
-
-            <div class="info-section">
-              <div class="info-section-title">检查表配置</div>
-              <div class="checklist-card">
-                <div class="checklist-card-header">
-                  <span class="checklist-card-title">生产车间日常安全检查表</span>
-                  <div class="checklist-card-actions">
-                    <button class="btn btn-sm btn-default" onclick="editChecklist('CL-001')">编辑</button>
-                    <button class="btn btn-sm btn-link danger" onclick="deleteChecklist('CL-001')">删除</button>
-                  </div>
-                </div>
-                <div class="checklist-grid">
-                  <div class="checklist-field"><span class="checklist-field-label">检查表名称</span><span class="checklist-field-value">生产车间日常安全检查表</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">检查频次</span><span class="checklist-field-value">每周1次</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">是否过滤节假日</span><span class="checklist-field-value">是</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">责任单位/部门</span><span class="checklist-field-value">安全部</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">扫码责任人</span><span class="checklist-field-value">张三</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">任务完成规则</span><span class="checklist-field-value">全部检查项完成即视为完成</span></div>
-                </div>
-              </div>
-              <div class="checklist-card">
-                <div class="checklist-card-header">
-                  <span class="checklist-card-title">消防安全专项检查表</span>
-                  <div class="checklist-card-actions">
-                    <button class="btn btn-sm btn-default" onclick="editChecklist('CL-002')">编辑</button>
-                    <button class="btn btn-sm btn-link danger" onclick="deleteChecklist('CL-002')">删除</button>
-                  </div>
-                </div>
-                <div class="checklist-grid">
-                  <div class="checklist-field"><span class="checklist-field-label">检查表名称</span><span class="checklist-field-value">消防安全专项检查表</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">检查频次</span><span class="checklist-field-value">每月1次</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">是否过滤节假日</span><span class="checklist-field-value">否</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">责任单位/部门</span><span class="checklist-field-value">安全部</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">扫码责任人</span><span class="checklist-field-value">王五</span></div>
-                  <div class="checklist-field"><span class="checklist-field-label">任务完成规则</span><span class="checklist-field-value">关键项全部通过即视为完成</span></div>
-                </div>
-              </div>
-              <div style="text-align: center; padding: var(--spacing-sm);">
-                <button class="btn btn-sm btn-primary" onclick="addChecklist()">+ 添加检查表</button>
-              </div>
-            </div>
-
-            <div class="info-section">
-              <div class="info-section-title">最近检查记录</div>
-              <table style="width: 100%; border-collapse: collapse;">
-                <thead><tr style="background: var(--bg-tertiary);"><th style="padding: var(--spacing-sm); text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">检查日期</th><th style="padding: var(--spacing-sm); text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">检查人</th><th style="padding: var(--spacing-sm); text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;">结果</th></tr></thead>
-                <tbody>
-                  <tr><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);">2026-04-01</td><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);">张三</td><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);"><span class="tag tag-green">正常</span></td></tr>
-                  <tr><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);">2026-03-25</td><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);">李四</td><td style="padding: var(--spacing-sm); border-bottom: 1px solid var(--bg-secondary);"><span class="tag tag-orange">异常</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- ===== 区域视图 ===== -->
-          <div class="view-content" id="view-area" style="display:none;">
-            <div class="info-section">
-              <div class="info-section-title">区域概览</div>
-              <div class="card-list">
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">📍</span>
-                  <div class="card-item-info"><div class="card-item-name">A区 - 生产区</div><div class="card-item-desc">包含 3 个场所、2 个危险源</div></div>
-                  <span class="card-item-type">3场所 2危险源</span>
-                </div>
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">📍</span>
-                  <div class="card-item-info"><div class="card-item-name">B区 - 仓储区</div><div class="card-item-desc">包含 2 个场所、1 个危险源</div></div>
-                  <span class="card-item-type">2场所 1危险源</span>
-                </div>
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">📍</span>
-                  <div class="card-item-info"><div class="card-item-name">C区 - 重点区域</div><div class="card-item-desc">包含 1 个重点场所</div></div>
-                  <span class="card-item-type">1重点场所</span>
-                </div>
+                <div class="info-item"><span class="info-label">所属区域</span><span class="info-value">A区 - 生产区</span></div>
+                <div class="info-item"><span class="info-label">整改责任人</span><span class="info-value">张三</span></div>
+                <div class="info-item"><span class="info-label">联系电话</span><span class="info-value">138****0001</span></div>
+                <div class="info-item"><span class="info-label">隐患整改复核人</span><span class="info-value">李四、王五</span></div>
+                <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
               </div>
             </div>
           </div>
 
-          <!-- ===== 场所视图 ===== -->
-          <div class="view-content" id="view-place" style="display:none;">
-            <div class="info-section">
-              <div class="info-section-title">场所列表</div>
-              <div class="card-list">
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">📍</span>
-                  <div class="card-item-info"><div class="card-item-name">1号生产车间</div><div class="card-item-desc">A区1栋1层 | 2000m² | 生产车间</div></div>
-                  <span class="card-item-type">场所</span>
-                </div>
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">📍</span>
-                  <div class="card-item-info"><div class="card-item-name">原料仓库</div><div class="card-item-desc">B区2栋1层 | 800m² | 仓库</div></div>
-                  <span class="card-item-type">场所</span>
-                </div>
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">📍</span>
-                  <div class="card-item-info"><div class="card-item-name">成品仓库</div><div class="card-item-desc">B区2栋2层 | 600m² | 仓库</div></div>
-                  <span class="card-item-type">场所</span>
+          <!-- 专属检查表 -->
+          <div class="info-section">
+            <div class="info-section-title">专属检查表</div>
+            <div class="checklist-card">
+              <div class="checklist-card-header">
+                <span class="checklist-card-title">生产车间日常安全检查表</span>
+                <div class="checklist-card-actions">
+                  <button class="btn btn-sm btn-default" onclick="showToast('编辑检查表')">编辑</button>
+                  <button class="btn btn-sm btn-link danger" onclick="showToast('删除检查表')">删除</button>
                 </div>
               </div>
+              <div class="checklist-grid">
+                <div><div class="checklist-field-label">检查表名称</div><div class="checklist-field-value">生产车间日常安全检查表</div></div>
+                <div><div class="checklist-field-label">检查项数</div><div class="checklist-field-value">15项</div></div>
+                <div><div class="checklist-field-label">跳过节假日</div><div class="checklist-field-value">是</div></div>
+              </div>
+            </div>
+            <div class="checklist-card">
+              <div class="checklist-card-header">
+                <span class="checklist-card-title">消防安全专项检查表</span>
+                <div class="checklist-card-actions">
+                  <button class="btn btn-sm btn-default" onclick="showToast('编辑检查表')">编辑</button>
+                  <button class="btn btn-sm btn-link danger" onclick="showToast('删除检查表')">删除</button>
+                </div>
+              </div>
+              <div class="checklist-grid">
+                <div><div class="checklist-field-label">检查表名称</div><div class="checklist-field-value">消防安全专项检查表</div></div>
+                <div><div class="checklist-field-label">检查项数</div><div class="checklist-field-value">10项</div></div>
+                <div><div class="checklist-field-label">跳过节假日</div><div class="checklist-field-value">否</div></div>
+              </div>
+            </div>
+            <div style="text-align:center;padding:var(--spacing-sm)">
+              <button class="btn btn-sm btn-primary" onclick="showToast('从检查库引用')">+ 引用检查表</button>
             </div>
           </div>
 
-          <!-- ===== 危险源视图 ===== -->
-          <div class="view-content" id="view-hazard" style="display:none;">
-            <div class="info-section">
-              <div class="info-section-title">危险源列表</div>
-              <div class="card-list">
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">⚡</span>
-                  <div class="card-item-info"><div class="card-item-name">电动车充电区</div><div class="card-item-desc">A区室外 | 风险等级：中</div></div>
-                  <span class="card-item-type" style="background:var(--warning-light);color:var(--warning);">危险源</span>
-                </div>
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">⚡</span>
-                  <div class="card-item-info"><div class="card-item-name">危化品暂存间</div><div class="card-item-desc">A区1栋负1层 | 风险等级：高</div></div>
-                  <span class="card-item-type" style="background:var(--danger-light);color:var(--danger);">危险源</span>
-                </div>
-              </div>
-            </div>
+          <!-- 扫码配置 (§6.3.5.3.3 表格) -->
+          <div class="info-section">
+            <div class="info-section-title">扫码配置</div>
+            <table class="scan-config-table">
+              <thead>
+                <tr>
+                  <th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th>
+                  <th>检查频次</th><th>跳过节假日</th><th>完成规则</th><th>配置类型</th><th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td><td>创安电子科技</td><td>日常安全检查表</td><td>张三</td>
+                  <td>每周1次</td><td>否</td><td>所有人完成</td>
+                  <td><span class="type-auto">自动</span></td><td>—</td>
+                </tr>
+                <tr>
+                  <td>2</td><td>创安电子科技</td><td>消防安全检查表</td><td>李四</td>
+                  <td>每月1次</td><td>是</td><td>任意一人完成</td>
+                  <td><span class="type-auto">自动</span></td><td>—</td>
+                </tr>
+                <tr>
+                  <td>3</td><td>创安电子科技</td><td>设备巡检表</td><td>王五</td>
+                  <td>每日1次</td><td>否</td><td>所有人完成</td>
+                  <td><span class="type-manual">手动</span></td>
+                  <td><button class="btn-link danger" onclick="showToast('删除配置')">删除</button></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-
-          <!-- ===== 重点场所视图 ===== -->
-          <div class="view-content" id="view-key-place" style="display:none;">
-            <div class="info-section">
-              <div class="info-section-title">重点场所列表</div>
-              <div class="card-list">
-                <div class="card-item" onclick="switchView('default')">
-                  <span class="card-item-icon">🔌</span>
-                  <div class="card-item-info"><div class="card-item-name">2号充换电站</div><div class="card-item-desc">C区3栋 | 充换电设施 | 风险等级：高</div></div>
-                  <span class="card-item-type" style="background:var(--bg-hover);color:var(--primary-active);">重点场所</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ===== 新增表单视图 ===== -->
-          <div class="view-content" id="view-add-form" style="display:none;">
-            <div class="info-section">
-              <div class="info-section-title">新增管控对象</div>
-              <div style="max-width: 600px;">
-                <div class="form-row">
-                  <div class="form-col">
-                    <label><span class="req">*</span> 对象类型</label>
-                    <select id="addObjectType">
-                      <option value="">请选择</option>
-                      <option value="place">场所</option>
-                      <option value="equipment">设备</option>
-                      <option value="hazard">危险源</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-col">
-                    <label><span class="req">*</span> 名称</label>
-                    <input type="text" placeholder="请输入名称" id="addObjectName">
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-col">
-                    <label>位置描述</label>
-                    <input type="text" placeholder="请输入位置描述" id="addObjectLocation">
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-col">
-                    <label><span class="req">*</span> 风险等级</label>
-                    <select id="addObjectRisk">
-                      <option value="">请选择</option>
-                      <option value="high">高</option>
-                      <option value="medium">中</option>
-                      <option value="low">低</option>
-                    </select>
-                  </div>
-                  <div class="form-col">
-                    <label><span class="req">*</span> 责任人</label>
-                    <input type="text" placeholder="请输入责任人" id="addObjectPerson">
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-col">
-                    <label>所属领域</label>
-                    <select id="addObjectField">
-                      <option value="">请选择</option>
-                      <option>工业制造</option>
-                      <option>充换电设施</option>
-                      <option>危险化学品</option>
-                      <option>建筑施工</option>
-                    </select>
-                  </div>
-                  <div class="form-col">
-                    <label>面积(m²)</label>
-                    <input type="number" placeholder="请输入面积" id="addObjectArea">
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-col">
-                    <label>描述信息</label>
-                    <textarea placeholder="请输入描述信息（选填）" id="addObjectDesc" style="min-height:60px;resize:vertical"></textarea>
-                  </div>
-                </div>
-                <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end; margin-top: var(--spacing-md);">
-                  <button class="btn btn-sm btn-default" onclick="switchView('default')">取消</button>
-                  <button class="btn btn-sm btn-primary" onclick="saveNewObject()">确认新增</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        <!-- ===== 危险源视图 (§6.3.5.3.8) ===== -->
+        <div class="view-content" id="view-hazard" style="display:none">
+          <div class="qr-section">
+            <div class="qr-placeholder" style="background:linear-gradient(135deg,#fff2f0 0%,#fffbe6 100%);color:var(--danger)">危险源二维码</div>
+            <div class="qr-meta">
+              <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">电动车充电区
+                <span style="float:right">
+                  <button class="btn btn-sm btn-default" onclick="showToast('编辑危险源')">编辑</button>
+                  <button class="btn btn-sm btn-danger" onclick="showToast('删除危险源')">删除</button>
+                </span>
+              </div>
+              <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
+                <div class="info-item"><span class="info-label">危险源类型</span><span class="info-value">临时用电</span></div>
+                <div class="info-item"><span class="info-label">所属区域</span><span class="info-value">A区 - 生产区</span></div>
+                <div class="info-item"><span class="info-label">整改责任人</span><span class="info-value">王五</span></div>
+                <div class="info-item"><span class="info-label">联系电话</span><span class="info-value">139****0002</span></div>
+                <div class="info-item"><span class="info-label">隐患整改复核人</span><span class="info-value">张三</span></div>
+                <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
+              </div>
+            </div>
+          </div>
+          <!-- 专属检查表 + 扫码配置 同场所视图结构 -->
+          <div class="info-section">
+            <div class="info-section-title">专属检查表</div>
+            <div class="checklist-card">
+              <div class="checklist-card-header">
+                <span class="checklist-card-title">充电设施安全巡检表</span>
+                <div class="checklist-card-actions">
+                  <button class="btn btn-sm btn-default">编辑</button>
+                  <button class="btn btn-sm btn-link danger">删除</button>
+                </div>
+              </div>
+              <div class="checklist-grid">
+                <div><div class="checklist-field-label">检查表名称</div><div class="checklist-field-value">充电设施安全巡检表</div></div>
+                <div><div class="checklist-field-label">检查项数</div><div class="checklist-field-value">8项</div></div>
+                <div><div class="checklist-field-label">跳过节假日</div><div class="checklist-field-value">否</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="info-section">
+            <div class="info-section-title">扫码配置</div>
+            <table class="scan-config-table">
+              <thead>
+                <tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>完成规则</th><th>配置类型</th><th>操作</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td><td>创安电子科技</td><td>充电设施安全巡检表</td><td>王五</td>
+                  <td>每周1次</td><td>所有人完成</td>
+                  <td><span class="type-auto">自动</span></td><td>—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== 重点场所视图 (§6.3.5.3.9 只读) ===== -->
+        <div class="view-content" id="view-keyplace" style="display:none">
+          <div class="qr-section">
+            <div class="qr-placeholder">场所二维码</div>
+            <div class="qr-meta">
+              <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">2号充换电站 <span class="tag tag-blue" style="margin-left:8px">政府配置 · 只读</span></div>
+              <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
+                <div class="info-item"><span class="info-label">场所类型</span><span class="info-value">充换电设施</span></div>
+                <div class="info-item"><span class="info-label">所属区域</span><span class="info-value">C区 - 重点区域</span></div>
+                <div class="info-item"><span class="info-label">整改责任人</span><span class="info-value">赵六</span></div>
+                <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="info-section">
+            <div class="info-section-title">扫码配置（只读）</div>
+            <table class="scan-config-table">
+              <thead><tr><th>序号</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>配置类型</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>充换电站安全检查表</td><td>赵六</td><td>每日1次</td><td><span class="type-auto">自动</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
+</div>
 
-  <!-- 编辑扫码配置弹窗 -->
-  <div class="modal-overlay" id="modal-scan-config">
-    <div class="modal-dialog">
-      <div class="modal-head">
-        <span class="modal-head-title">编辑扫码配置</span>
-        <button class="modal-head-close" onclick="closeHazardModal('modal-scan-config')">&times;</button>
-      </div>
-      <div class="modal-content">
-        <div class="form-row">
-          <div class="form-col"><label><span class="req">*</span> 责任单位</label><input type="text" value="创安电子科技有限公司" placeholder="请输入责任单位"></div>
-          <div class="form-col"><label><span class="req">*</span> 企业主要负责人</label><input type="text" value="王建国" placeholder="请输入企业主要负责人"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-col"><label>调度分拨员</label><input type="text" value="张三" placeholder="请输入调度分拨员"></div>
-          <div class="form-col"><label>隐患复核责任人</label><input type="text" value="李四" placeholder="请输入隐患复核责任人"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-col"><label>扫码责任人</label><input type="text" value="张三、李四" placeholder="请输入扫码责任人"></div>
-          <div class="form-col"><label>检查频次</label><select><option>每日1次</option><option selected>每周1次</option><option>每月1次</option><option>每季度1次</option></select></div>
+<!-- ===== 新增区域弹窗 (§6.3.5.3.2, 420px) ===== -->
+<div class="modal-overlay" id="addAreaModal">
+  <div class="modal-dialog" style="width:420px">
+    <div class="modal-header">
+      <span class="modal-title">新增区域</span>
+      <button class="modal-close" onclick="closeHazardModal('addAreaModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-col">
+          <label><span class="req">*</span> 区域名称</label>
+          <input type="text" placeholder="请输入区域名称">
         </div>
       </div>
-      <div class="modal-foot">
-        <button class="btn-cancel" onclick="closeHazardModal('modal-scan-config')">取消</button>
-        <button class="btn-confirm" onclick="saveScanConfig()">保存</button>
+      <div class="form-row">
+        <div class="form-col">
+          <label>排序号</label>
+          <input type="number" value="1" placeholder="默认1">
+        </div>
+        <div class="form-col">
+          <label><span class="req">*</span> 状态</label>
+          <select><option value="enabled" selected>启用</option><option value="disabled">停用</option></select>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- 添加/编辑检查表配置弹窗 -->
-  <div class="modal-overlay" id="modal-checklist-config">
-    <div class="modal-dialog">
-      <div class="modal-head">
-        <span class="modal-head-title" id="checklistModalTitle">添加检查表配置</span>
-        <button class="modal-head-close" onclick="closeHazardModal('modal-checklist-config')">&times;</button>
-      </div>
-      <div class="modal-content">
-        <div class="form-row">
-          <div class="form-col"><label><span class="req">*</span> 检查表名称</label><input type="text" id="clName" placeholder="请输入检查表名称"></div>
-          <div class="form-col"><label><span class="req">*</span> 检查频次</label><select id="clFreq"><option value="">请选择</option><option>每日1次</option><option>每周1次</option><option>每月1次</option><option>每季度1次</option></select></div>
-        </div>
-        <div class="form-row">
-          <div class="form-col"><label>是否过滤节假日</label><select id="clHoliday"><option value="yes">是</option><option value="no">否</option></select></div>
-          <div class="form-col"><label><span class="req">*</span> 责任单位/部门</label><input type="text" id="clDept" placeholder="请输入责任单位/部门"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-col"><label>扫码责任人</label><input type="text" id="clPerson" placeholder="请输入扫码责任人"></div>
-          <div class="form-col"><label>任务完成规则</label><select id="clRule"><option>全部检查项完成即视为完成</option><option>关键项全部通过即视为完成</option><option>检查项正常率≥80%即视为完成</option></select></div>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn-cancel" onclick="closeHazardModal('modal-checklist-config')">取消</button>
-        <button class="btn-confirm" onclick="saveChecklistConfig()">保存</button>
-      </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeHazardModal('addAreaModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeHazardModal('addAreaModal');showToast('区域已创建')">确定</button>
     </div>
   </div>
+</div>
 
-  <!-- 新增场所弹窗 -->
-  <div class="modal-overlay" id="addPlaceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:1000;justify-content:center;align-items:center">
-    <div style="background:var(--bg-primary);border-radius: var(--radius-xl);box-shadow:0 6px 30px rgba(0,0,0,0.12);width:560px;max-height:80vh;overflow:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light)"><span style="font-size: var(--font-size-lg);font-weight:600">新增场所</span><button onclick="closeHazardModal('addPlaceModal')" style="background:none;border:none;font-size: var(--font-size-xl);cursor:pointer;color:var(--text-tertiary)">&times;</button></div>
-      <div style="padding: var(--spacing-lg)">
-        <div style="margin-bottom:var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 场所名称</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入场所名称"></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 场所类型</label><select style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)"><option>请选择</option><option>工厂</option><option>仓库</option><option>施工现场</option><option>加油站</option><option>其他</option></select></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px">位置描述</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入位置描述"></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 风险等级</label><select style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)"><option>请选择</option><option>高</option><option>中</option><option>低</option></select></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 责任人</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入责任人姓名"></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px">描述信息</label><textarea style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);resize:vertical;min-height:60px" placeholder="请输入场所描述信息（选填）"></textarea></div>
+<!-- ===== 新增场所弹窗 (§6.3.5.3.3, 900px) ===== -->
+<div class="modal-overlay" id="addPlaceModal">
+  <div class="modal-dialog wide">
+    <div class="modal-header">
+      <span class="modal-title">新增场所</span>
+      <button class="modal-close" onclick="closeHazardModal('addPlaceModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- 基础信息 -->
+      <div class="info-section">
+        <div class="info-section-title">基础信息</div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 场所类型</label>
+            <select>
+              <option value="">请选择</option>
+              <option>办公区</option><option>生活区</option><option>材料堆放区</option>
+              <option>施工区</option><option>仓储区</option><option>生产车间</option><option>其他</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label><span class="req">*</span> 场所名称</label>
+            <input type="text" placeholder="同类对象内唯一">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 所属区域</label>
+            <select>
+              <option value="">请选择</option>
+              <option>A区 - 生产区</option>
+              <option>B区 - 仓储区</option>
+              <option>C区 - 重点区域</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label><span class="req">*</span> 状态</label>
+            <select><option selected>启用</option><option>停用</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label>场所图片</label>
+            <input type="text" placeholder="最多5张，单张≤5MB" readonly style="background:var(--bg-section-alt)">
+            <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px">支持 jpg/jpeg/png/bmp/gif/svg</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 整改责任人</label>
+            <select>
+              <option value="">请选择（自动带出联系电话）</option>
+              <option>张三（138****0001）</option>
+              <option>李四（139****0002）</option>
+              <option>王五（137****0003）</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label>联系电话（自动带出）</label>
+            <input type="text" readonly style="background:var(--bg-section-alt)" placeholder="选择责任人后自动填入">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 隐患整改复核人</label>
+            <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;padding:var(--spacing-sm) 0">
+              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 张三</label>
+              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 李四</label>
+              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 王五</label>
+              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 赵六</label>
+            </div>
+          </div>
+        </div>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap: var(--spacing-sm);padding: var(--spacing-md) var(--spacing-lg);border-top:1px solid var(--border-light)"><button onclick="closeHazardModal('addPlaceModal')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">取消</button><button onclick="savePlace()" style="padding: 6px var(--spacing-md);border:1px solid var(--primary);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--primary);color:var(--bg-primary)">确认添加</button></div>
+      <!-- 专属检查表区块 -->
+      <div class="info-section">
+        <div class="info-section-title">专属检查表</div>
+        <div style="padding:var(--spacing-md);text-align:center;color:var(--text-tertiary);background:var(--bg-section-alt);border-radius:var(--radius-md)">
+          保存场所后将自动根据职级生成扫码配置<br>
+          <span style="font-size:var(--font-size-xs)">领导层 = 每月1次 | 管理层 = 每周1次</span>
+        </div>
+        <div style="text-align:center;margin-top:var(--spacing-sm)">
+          <button class="btn btn-sm btn-primary" onclick="showToast('从检查库引用')">+ 引用检查表</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeHazardModal('addPlaceModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeHazardModal('addPlaceModal');showToast('场所已创建，扫码配置已自动生成')">保存</button>
     </div>
   </div>
+</div>
 
-  <!-- 新增危险源弹窗 -->
-  <div class="modal-overlay" id="addHazardModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:1000;justify-content:center;align-items:center">
-    <div style="background:var(--bg-primary);border-radius: var(--radius-xl);box-shadow:0 6px 30px rgba(0,0,0,0.12);width:560px;max-height:80vh;overflow:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light)"><span style="font-size: var(--font-size-lg);font-weight:600">新增危险源</span><button onclick="closeHazardModal('addHazardModal')" style="background:none;border:none;font-size: var(--font-size-xl);cursor:pointer;color:var(--text-tertiary)">&times;</button></div>
-      <div style="padding: var(--spacing-lg)">
-        <div style="margin-bottom:var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 危险源名称</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入危险源名称"></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 危险源类型</label><select style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)"><option>请选择</option><option>化学品</option><option>机械设备</option><option>电气设施</option><option>高处作业</option><option>其他</option></select></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 风险等级</label><select style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)"><option>请选择</option><option>高</option><option>中</option><option>低</option></select></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px">位置描述</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入位置描述"></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px"><span style="color:var(--danger)">*</span> 责任人</label><input style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm)" placeholder="请输入责任人姓名"></div>
-        <div style="margin-bottom: var(--spacing-md)"><label style="display:block;font-size: var(--font-size-sm);font-weight:500;margin-bottom: 6px">描述信息</label><textarea style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);min-height:60px" placeholder="请输入描述信息"></textarea></div>
+<!-- ===== 新增危险源弹窗 (§6.3.5.3.4, 900px) ===== -->
+<div class="modal-overlay" id="addHazardModal">
+  <div class="modal-dialog wide">
+    <div class="modal-header">
+      <span class="modal-title">新增危险源</span>
+      <button class="modal-close" onclick="closeHazardModal('addHazardModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-section">
+        <div class="info-section-title">基础信息</div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 危险源类型</label>
+            <select>
+              <option value="">请选择</option>
+              <option>高处作业</option><option>临时用电</option><option>有限空间</option>
+              <option>起重吊装</option><option>动火作业</option><option>深基坑</option><option>其他</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label><span class="req">*</span> 危险源名称</label>
+            <input type="text" placeholder="同类对象内唯一">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 所属区域</label>
+            <select>
+              <option value="">请选择</option>
+              <option>A区 - 生产区</option>
+              <option>B区 - 仓储区</option>
+              <option>C区 - 重点区域</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label><span class="req">*</span> 状态</label>
+            <select><option selected>启用</option><option>停用</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label>危险源图片</label>
+            <input type="text" placeholder="最多5张" readonly style="background:var(--bg-section-alt)">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 整改责任人</label>
+            <select>
+              <option value="">请选择</option>
+              <option>张三（138****0001）</option>
+              <option>李四（139****0002）</option>
+              <option>王五（137****0003）</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label>联系电话</label>
+            <input type="text" readonly style="background:var(--bg-section-alt)" placeholder="自动带出">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label><span class="req">*</span> 隐患整改复核人</label>
+            <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;padding:var(--spacing-sm) 0">
+              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 张三</label>
+              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 李四</label>
+              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 王五</label>
+            </div>
+          </div>
+        </div>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap: var(--spacing-sm);padding: var(--spacing-md) var(--spacing-lg);border-top:1px solid var(--border-light)"><button onclick="closeHazardModal('addHazardModal')" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">取消</button><button onclick="saveHazard()" style="padding: 6px var(--spacing-md);border:1px solid var(--primary);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--primary);color:var(--bg-primary)">确认添加</button></div>
+      <div class="info-section">
+        <div class="info-section-title">专属检查表</div>
+        <div style="padding:var(--spacing-md);text-align:center;color:var(--text-tertiary);background:var(--bg-section-alt);border-radius:var(--radius-md)">
+          保存后自动生成扫码配置（领导层=每月1次，管理层=每周1次）
+        </div>
+        <div style="text-align:center;margin-top:var(--spacing-sm)">
+          <button class="btn btn-sm btn-primary" onclick="showToast('从检查库引用')">+ 引用检查表</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeHazardModal('addHazardModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeHazardModal('addHazardModal');showToast('危险源已创建')">保存</button>
     </div>
   </div>
+</div>
 
-  <script>
-    (function() {
-      'use strict';
+<script>
+// 视图切换
+function switchView(view) {
+  var views = ['project', 'area', 'place', 'hazard', 'keyplace'];
+  var titles = {
+    'project': '创安电子科技有限公司',
+    'area': 'A区 - 生产区',
+    'place': '1号生产车间',
+    'hazard': '电动车充电区',
+    'keyplace': '2号充换电站',
+    'add-area': '新增区域',
+    'add-place': '新增场所',
+    'add-hazard': '新增危险源'
+  };
 
-      const CONFIG = {
-        moduleId: 'ent-hazard-list',
-        moduleName: '管控对象列表'
-      };
+  // 处理新增弹窗
+  if (view === 'add-area') { document.getElementById('addAreaModal').style.display = 'flex'; return; }
+  if (view === 'add-place') { document.getElementById('addPlaceModal').style.display = 'flex'; return; }
+  if (view === 'add-hazard') { document.getElementById('addHazardModal').style.display = 'flex'; return; }
 
-      let state = {
-        initialized: false,
-        currentView: 'default'
-      };
+  // 隐藏所有视图
+  views.forEach(function(v) {
+    var el = document.getElementById('view-' + v);
+    if (el) el.style.display = 'none';
+  });
 
-      function init() {
-        if (state.initialized) return;
-        console.log('[' + CONFIG.moduleId + '] 模块初始化');
-        state.initialized = true;
-      }
+  // 显示目标视图
+  var target = document.getElementById('view-' + view);
+  if (target) target.style.display = '';
 
-      // ===== 视图切换 =====
-      window.switchView = function(viewName) {
-        state.currentView = viewName;
-        // 更新tab状态
-        var tabs = document.querySelectorAll('#viewTabs .view-tab');
-        tabs.forEach(function(tab) {
-          tab.classList.toggle('active', tab.getAttribute('data-view') === viewName);
-        });
-        // 显示对应视图
-        var views = document.querySelectorAll('.view-content');
-        views.forEach(function(v) {
-          v.style.display = 'none';
-        });
-        var target = document.getElementById('view-' + viewName);
-        if (target) target.style.display = 'block';
-      };
+  // 更新标题
+  document.getElementById('detailTitle').textContent = titles[view] || '';
 
-      // ===== 扫码配置 =====
-      window.editScanConfig = function() {
-        document.getElementById('modal-scan-config').style.display = 'flex';
-      };
+  // 更新Tab高亮
+  var tabs = document.querySelectorAll('.view-tab');
+  tabs.forEach(function(tab) {
+    tab.classList.toggle('active', tab.getAttribute('data-view') === view);
+  });
+}
 
-      window.saveScanConfig = function() {
-        closeHazardModal('modal-scan-config');
-        showToast('扫码配置已保存');
-      };
+function closeHazardModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
 
-      // ===== 检查表配置 =====
-      window.addChecklist = function() {
-        document.getElementById('checklistModalTitle').textContent = '添加检查表配置';
-        document.getElementById('modal-checklist-config').style.display = 'flex';
-      };
+function showToast(msg) {
+  var el = document.getElementById('_toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = '_toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  setTimeout(function() { el.style.opacity = '0'; }, 2000);
+}
 
-      window.editChecklist = function(id) {
-        document.getElementById('checklistModalTitle').textContent = '编辑检查表配置';
-        document.getElementById('modal-checklist-config').style.display = 'flex';
-      };
-
-      window.deleteChecklist = function(id) {
-        if (confirm('确认删除该检查表配置？')) {
-          showToast('检查表配置已删除');
-        }
-      };
-
-      window.saveChecklistConfig = function() {
-        var name = document.getElementById('clName').value.trim();
-        if (!name) { showToast('请输入检查表名称'); return; }
-        closeHazardModal('modal-checklist-config');
-        showToast('检查表配置已保存');
-      };
-
-      // ===== 新增管控对象 =====
-      window.saveNewObject = function() {
-        var type = document.getElementById('addObjectType').value;
-        var name = document.getElementById('addObjectName').value.trim();
-        if (!type) { showToast('请选择对象类型'); return; }
-        if (!name) { showToast('请输入名称'); return; }
-        showToast('管控对象新增成功');
-        switchView('default');
-      };
-
-      window.addPlace = function() {
-        var modal = document.getElementById('addPlaceModal');
-        if (modal) modal.style.display = 'flex';
-      };
-      window.addHazard = function() {
-        var modal = document.getElementById('addHazardModal');
-        if (modal) modal.style.display = 'flex';
-      };
-
-      window.editPlace = function(id) {
-        console.log('编辑场所：' + id);
-        showToast('编辑场所：' + id);
-      };
-
-      window.configChecklist = function(id) {
-        console.log('配置检查表：' + id);
-        document.getElementById('checklistModalTitle').textContent = '编辑检查表配置';
-        document.getElementById('modal-checklist-config').style.display = 'flex';
-      };
-
-      window.deletePlace = function(id) {
-        console.log('删除场所：' + id);
-        if (confirm('确认删除该场所？')) {
-          showToast('删除成功：' + id);
-        }
-      };
-
-      window.closeHazardModal = function(id) {
-        var el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-      };
-
-      window.savePlace = function() {
-        closeHazardModal('addPlaceModal');
-        showToast('场所新增成功');
-      };
-
-      window.saveHazard = function() {
-        closeHazardModal('addHazardModal');
-        showToast('危险源新增成功');
-      };
-
-      function showToast(msg) {
-        var t = document.createElement('div');
-        t.textContent = msg;
-        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding: 'var(--spacing-sm) var(--spacing-lg)', background:'var(--primary)', color:'var(--bg-primary)', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px var(--spacing-sm) rgba(0,0,0,0.15)' });
-        document.body.appendChild(t);
-        setTimeout(function() { t.remove(); }, 2000);
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
-
-      window.destroyModule = function() {
-        console.log('[' + CONFIG.moduleId + '] 模块销毁');
-        state.initialized = false;
-      };
-    })();
-  </script>
+// 树搜索
+document.getElementById('treeSearchInput').addEventListener('input', function(e) {
+  var keyword = e.target.value.trim().toLowerCase();
+  var nodes = document.querySelectorAll('.tree-body .tree-node');
+  nodes.forEach(function(node) {
+    var label = node.querySelector('.tree-node-label');
+    if (!label) return;
+    var text = label.textContent.toLowerCase();
+    node.style.display = (!keyword || text.indexOf(keyword) !== -1) ? '' : 'none';
+  });
+});
+</script>
+<script>
+(function() { 'use strict'; var CONFIG = { moduleId: 'ent-hazard-list', moduleName: '安全管控对象管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

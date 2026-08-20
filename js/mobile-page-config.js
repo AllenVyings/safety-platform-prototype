@@ -32,8 +32,6 @@ var MobilePageConfig = (function() {
     var mode = null;
     if (portalType === 'ent') {
       identity = MobileSession.getActiveIdentity ? MobileSession.getActiveIdentity() : null;
-      // 原型演示：强制使用设计稿企业名称
-      if (identity) identity.entName = '深圳市天道医药有限公司';
       mode = identity ? identity.mode : null;
     } else if (portalType === 'gov') {
       mode = 'gov';
@@ -251,13 +249,24 @@ var MobilePageConfig = (function() {
       }
     }
 
+    // 筛选项动态计数（按 mode 差异化）
+    var filterCountsData = {
+      gov:     { place: { all: 156, red: 12, yellow: 24, green: 120 }, hazard: { all: 89, red: 5, yellow: 15, green: 69 } },
+      basic:   { place: { all: 1145, red: 5, yellow: 153, green: 987 }, hazard: { all: 465, red: 20, yellow: 88, green: 357 } },
+      project: { place: { all: 328, red: 8, yellow: 42, green: 278 }, hazard: { all: 156, red: 12, yellow: 28, green: 116 } },
+      special: { place: { all: 45, red: 2, yellow: 8, green: 35 }, hazard: { all: 22, red: 3, yellow: 5, green: 14 } },
+      other:   { place: { all: 78, red: 3, yellow: 10, green: 65 }, hazard: { all: 31, red: 1, yellow: 6, green: 24 } }
+    };
+    var filterCounts = filterCountsData[mode] || filterCountsData.basic;
+
     return {
       portalType: ctx.portalType,
       mode: mode,
       searchPlaceholder: searchPlaceholders[mode] || searchPlaceholders.basic,
       rootName: rootName,
       rootTypeLabel: rootTypeLabel,
-      rootTypeClass: rootTypeClass
+      rootTypeClass: rootTypeClass,
+      filterCounts: filterCounts
     };
   }
 
@@ -491,7 +500,7 @@ var MobilePageConfig = (function() {
           dept: '设备管理部', qrTime: '2025-01-15 09:00',
           quickActions: [
             { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
-            { icon: '️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
+            { icon: '📊', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
             { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
             { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
           ],
@@ -508,7 +517,7 @@ var MobilePageConfig = (function() {
           dept: '设施管理部', qrTime: '2025-01-15 08:00',
           quickActions: [
             { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
-            { icon: '️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
+            { icon: '📊', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
             { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
             { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
           ],

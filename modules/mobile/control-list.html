@@ -6,61 +6,126 @@
   <title>管控列表</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
-    .cl-gradient { display: none; }
     .m-page {
-      position: relative; overflow: hidden; background-color: var(--wc-page-bg);
-      background-image: linear-gradient(180deg, #1068ff 0%, #3d86ff 30%, #5a9aff 50%, #70a4fd 70%, #b8d4fe 85%, var(--wc-page-bg) 100%);
-      background-size: 100% 350px; background-repeat: no-repeat; background-position: top;
-    }
-    .m-page::before {
-      content: ''; position: absolute; top: 110px; right: -10px; width: 160px; height: 160px;
-      border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none;
-    }
-    .m-page::after {
-      content: ''; position: absolute; top: 220px; left: -20px; width: 100px; height: 100px;
-      border-radius: 50%; background: rgba(255,255,255,0.05); pointer-events: none;
+      position: relative; overflow-y: auto; background: var(--wc-page-bg);
     }
     .cl-header {
-      padding: 107px var(--wc-page-padding) var(--wc-page-padding);
+      padding: 8px var(--wc-page-padding) var(--wc-gap-md);
       display: flex; flex-direction: column;
     }
-    .cl-header-title { font-size: var(--wc-gap-lg); font-weight: 600; color: var(--wc-card-bg); margin-bottom: var(--wc-gap-xl); position: relative; z-index: 1; }
+    .cl-header-tabs {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; margin-bottom: 0;
+      background: #fff;
+      padding: 8px var(--wc-page-padding) 10px;
+    }
+    .cl-header > .cl-search { margin-top: 70px; }
+    .cl-header-tab { flex: 1; text-align: center; padding: 8px 0; font-size: 15px; color: #1a1a1a; cursor: pointer; position: relative; }
+    .cl-header-tab.active { color: var(--brand-blue); font-weight: 600; }
+    .cl-header-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: var(--brand-blue); border-radius: 1.5px; }
     .cl-search {
-      width: 100%; padding: 9px var(--wc-gap-xl) 9px 32px; border: none; border-radius: var(--wc-btn-radius);
-      background: rgba(255,255,255,0.9) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat var(--wc-gap-lg) center;
+      width: 100%; padding: 9px var(--wc-gap-xl) 9px 32px; border: 1px solid var(--wc-track-bg); border-radius: var(--wc-btn-radius);
+      background: var(--wc-card-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat var(--wc-gap-lg) center;
       font-size: var(--wc-font-caption); outline: none; box-sizing: border-box; color: var(--wc-text-primary);
     }
     .cl-search::placeholder { color: var(--wc-text-placeholder); }
 
-    .cl-tabs { display: flex; background: var(--wc-card-bg); border-bottom: 0.5px solid var(--wc-track-bg); border-radius: var(--wc-card-radius) var(--wc-card-radius) 0 0; overflow: hidden; }
-    .cl-tab { flex: 1; text-align: center; padding: 11px 0; font-size: var(--wc-font-caption); color: var(--wc-text-placeholder); cursor: pointer; position: relative; }
-    .cl-tab.active { color: var(--brand-blue); font-weight: 600; }
-    .cl-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: var(--brand-blue); border-radius: 1.5px; }
     .cl-sub-tab { flex: 1; text-align: center; padding: 9px 0; font-size: var(--wc-font-small); color: var(--wc-text-placeholder); cursor: pointer; position: relative; }
     .cl-sub-tab.active { color: var(--brand-blue); font-weight: 600; }
     .cl-sub-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 16px; height: 2px; background: var(--brand-blue); border-radius: 1px; }
 
-    .cl-list { background: var(--wc-card-bg); border-radius: 0 0 var(--wc-card-radius) var(--wc-card-radius); overflow: hidden; }
-    .tree-children { padding-left: 24px; background: #fafbfc; }
-    .tree-children.collapsed { display: none; }
-    .tree-node {
-      display: flex; align-items: center; padding: var(--wc-gap-xl) var(--wc-page-padding); cursor: pointer;
-      border-bottom: 0.5px solid #f5f5f5; background: var(--wc-card-bg);
+    /* ========== 筛选标签区 ========== */
+    .cl-filter-area {
+      padding: 12px var(--wc-page-padding);
+      display: flex; flex-direction: column; gap: 8px;
     }
-    .tree-node:active { background: var(--wc-page-bg); }
-    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: var(--wc-font-tiny); color: var(--wc-text-disabled); margin-right: var(--wc-gap-sm); flex-shrink: 0; }
-    .tree-name { flex: 1; font-size: var(--wc-font-caption); color: var(--wc-text-secondary); }
-    .tree-type { font-size: 10px; padding: 1px 5px; border-radius: 3px; margin-left: 6px; flex-shrink: 0; }
-    .tree-type.ent { background: #e6f4ff; color: #1890ff; }
-    .tree-type.place { background: #fff7e6; color: #fa8c16; }
-    .tree-type.hazard { background: var(--code-red-light); color: var(--code-red-dark); }
-    .tree-type.keyplace { background: #f9f0ff; color: #722ed1; }
-    .tree-code { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; flex-shrink: 0; }
-    .tree-code.green { background: var(--code-green); }
-    .tree-code.yellow { background: var(--code-yellow); }
-    .tree-code.red { background: var(--code-red); }
-    .tree-person { font-size: var(--wc-font-small); color: var(--wc-text-placeholder); margin-left: var(--wc-gap-md); }
+    .cl-filter-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .cl-filter-tag {
+      padding: 6px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      cursor: pointer;
+      border: 1px solid var(--brand-blue);
+      color: var(--brand-blue);
+      background: transparent;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cl-filter-tag.active { background: var(--brand-blue); color: #fff; }
+    .cl-filter-tag.category { font-weight: 600; font-size: 11px; }
 
+    /* ========== 分组卡片（场所码） ========== */
+    .group-card {
+      margin: 8px var(--wc-page-padding); border-radius: 12px; overflow: hidden;
+      background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%);
+    }
+    .group-header {
+      display: flex; align-items: center; padding: 14px var(--wc-gap-xl); cursor: pointer;
+    }
+    .group-header:active { opacity: 0.85; }
+    .group-icon { width: 22px; height: 22px; margin-right: 8px; flex-shrink: 0; }
+    .group-icon svg { width: 22px; height: 22px; stroke: var(--brand-blue); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .group-name { flex: 1; font-size: 15px; font-weight: 600; color: var(--wc-text-primary); }
+    .group-name .count { font-weight: 400; color: var(--wc-text-secondary); font-size: 13px; }
+    .group-person { font-size: 12px; color: var(--wc-text-placeholder); margin: 0 10px; display: flex; align-items: center; gap: 3px; }
+    .group-person svg { width: 14px; height: 14px; stroke: var(--wc-text-placeholder); fill: none; stroke-width: 1.5; }
+    .group-qr { width: 36px; height: 36px; flex-shrink: 0; margin-left: 4px; }
+    .group-qr svg { width: 36px; height: 36px; color: #52c41a; }
+    .group-chevron { width: 20px; height: 20px; margin-left: 6px; flex-shrink: 0; transition: transform 0.2s; }
+    .group-chevron svg { width: 20px; height: 20px; stroke: var(--wc-text-placeholder); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .group-card.expanded .group-chevron { transform: rotate(180deg); }
+    .group-qr.qr-yellow svg { color: #faad14; }
+    .group-qr.qr-red svg { color: #ff4d4f; }
+
+    /* ========== 子项卡片（危险源） ========== */
+    .group-children { padding: 0 12px 8px; }
+    .group-children.collapsed { display: none; }
+    /* 连接线 gutter 布局 */
+    .children-gutter { display: flex; gap: 0; }
+    .children-line-col { width: 20px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; position: relative; }
+    .children-line-col .v-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 1.5px; background: #d0d5dd; transform: translateX(-50%); }
+    .child-card {
+      flex: 1; display: flex; align-items: center; padding: 12px 14px;
+      background: var(--wc-card-bg); border-radius: 10px;
+      margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      position: relative;
+    }
+    .child-card:last-child { margin-bottom: 0; }
+    .child-card::before {
+      content: ''; position: absolute; right: 100%; top: 50%;
+      width: 12px; height: 1.5px; background: #d0d5dd;
+    }
+    .child-icon { width: 20px; height: 20px; margin-right: 8px; flex-shrink: 0; }
+    .child-icon svg { width: 20px; height: 20px; stroke: var(--brand-blue); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .child-info { flex: 1; }
+    .child-name { font-size: 14px; font-weight: 500; color: var(--wc-text-primary); }
+    .child-person { font-size: 11px; color: var(--wc-text-placeholder); margin-top: 2px; display: flex; align-items: center; gap: 3px; }
+    .child-person svg { width: 12px; height: 12px; stroke: var(--wc-text-placeholder); fill: none; stroke-width: 1.5; }
+    .child-qr { width: 32px; height: 32px; flex-shrink: 0; }
+    .child-qr svg { width: 32px; height: 32px; color: #52c41a; }
+
+    /* ========== 独立危险源卡片 ========== */
+    .hazard-card {
+      display: flex; align-items: center; padding: 14px var(--wc-gap-xl);
+      margin: 8px var(--wc-page-padding); border-radius: 12px;
+      background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%);
+    }
+    .hazard-card .group-icon { margin-right: 8px; }
+    .hazard-card .group-name { flex: 1; }
+    .hazard-card .group-person { margin: 0 10px; }
+    .hazard-card .group-qr { margin-left: 4px; }
+
+    /* ========== 人员列表 ========== */
     .person-card { display: flex; align-items: center; padding: var(--wc-gap-xl) var(--wc-page-padding); background: var(--wc-card-bg); border-radius: var(--wc-card-radius); margin: var(--wc-gap-md) var(--wc-page-padding); box-shadow: var(--wc-shadow-card); }
     .person-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: var(--wc-gap-xl); flex-shrink: 0; }
     .person-avatar svg { width: 20px; height: 20px; }
@@ -76,185 +141,233 @@
     .filter-tag { padding: var(--wc-gap-sm) var(--wc-gap-xl); border-radius: 14px; font-size: var(--wc-font-small); background: #f5f5f5; color: var(--wc-text-tertiary); cursor: pointer; display: flex; align-items: center; gap: var(--wc-gap-sm); transition: all 0.2s ease; }
     .filter-tag.active { background: var(--brand-blue); color: var(--wc-card-bg); }
     .filter-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
   </style>
 </head>
 <body>
   <div class="m-page with-tabbar">
+    <!-- 蓝色渐变头部：Tab + 搜索框 -->
     <div class="cl-header">
-      <input class="cl-search" id="listSearchInput" placeholder="搜索安全管控对象名称" style="position:relative;z-index:1;">
+      <div class="cl-header-tabs">
+        <div class="cl-header-tab active" onclick="switchPanel(0)">风险列表</div>
+        <div class="cl-header-tab" onclick="switchPanel(1)">企业人员</div>
+      </div>
+      <input class="cl-search" id="listSearchInput" placeholder="请输入场所码或危险源" style="position:relative;z-index:1;">
     </div>
 
-    <!-- 内容区：页签+列表合为一体 -->
-    <div style="position:relative;z-index:1;margin:0 var(--wc-page-padding);box-shadow:var(--wc-shadow-card);border-radius:var(--wc-card-radius);overflow:hidden;">
+    <!-- 白色内容区 -->
     <!-- 风险列表面板 -->
     <div id="panelRisk">
-      <div class="cl-tabs">
-        <div class="cl-tab active" onclick="switchPanel(0)">风险列表</div>
-        <div class="cl-tab" onclick="switchPanel(1)">人员列表</div>
+      <!-- 筛选标签区 -->
+      <div class="cl-filter-area" id="filterAreaRisk">
+        <div class="cl-filter-row">
+          <span class="cl-filter-tag category active" data-type="place" data-val="all">场所(1145)</span>
+          <span class="cl-filter-tag" data-type="place" data-val="red">红码(5)</span>
+          <span class="cl-filter-tag" data-type="place" data-val="yellow">黄码(153)</span>
+          <span class="cl-filter-tag" data-type="place" data-val="green">绿码(987)</span>
+        </div>
+        <div class="cl-filter-row">
+          <span class="cl-filter-tag category active" data-type="hazard" data-val="all">危险源(465)</span>
+          <span class="cl-filter-tag" data-type="hazard" data-val="red">红码(20)</span>
+          <span class="cl-filter-tag" data-type="hazard" data-val="yellow">黄码(88)</span>
+          <span class="cl-filter-tag" data-type="hazard" data-val="green">绿码(357)</span>
+        </div>
       </div>
-      <div class="cl-list">
-        <div class="tree-node" onclick="toggleTree(this)">
-          <span class="tree-toggle">▼</span>
-          <span class="tree-name" id="listRootName">创安电子科技有限公司</span>
-          <span class="tree-type ent" id="listRootType">企业码</span>
-          <span class="tree-code green"></span>
-          <span class="tree-person">张建国</span>
-        </div>
-        <div class="tree-children">
-          <div class="tree-node" onclick="toggleTree(this)">
-            <span class="tree-toggle">▶</span>
-            <span class="tree-name">A栋生产车间</span>
-            <span class="tree-type place">场所码</span>
-            <span class="tree-code green"></span>
-            <span class="tree-person">李安全</span>
+
+      <!-- 分组列表 -->
+      <div id="riskList">
+
+        <!-- 公用系统(3) - 场所码，展开 -->
+        <div class="group-card expanded">
+          <div class="group-header" onclick="toggleGroup(this)">
+            <span class="group-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg>
+            </span>
+            <span class="group-name">公用系统<span class="count">(3)</span></span>
+            <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+            <span class="group-qr"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
+            <span class="group-chevron"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
           </div>
-          <div class="tree-children collapsed">
-            <div class="tree-node">
-              <span class="tree-toggle" style="visibility:hidden">▼</span>
-              <span class="tree-name">危化品存储区</span>
-              <span class="tree-type hazard">危险源码</span>
-              <span class="tree-code yellow"></span>
-              <span class="tree-person">王操作</span>
+          <div class="group-children">
+            <div class="children-gutter">
+              <div class="children-line-col"><div class="v-line"></div></div>
+              <div style="flex:1;display:flex;flex-direction:column;">
+            <!-- 空压机 -->
+            <div class="child-card">
+              <span class="child-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+              <div class="child-info">
+                <div class="child-name">空压机</div>
+                <div class="child-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>邓天祥</div>
+              </div>
+              <span class="child-qr"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
+            </div>
+            <!-- 场所-危险源 -->
+            <div class="child-card">
+              <span class="child-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+              <div class="child-info">
+                <div class="child-name">场所-危险源</div>
+                <div class="child-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>王天源</div>
+              </div>
+              <span class="child-qr"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
+            </div>
+            <!-- 发电机 -->
+            <div class="child-card">
+              <span class="child-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+              <div class="child-info">
+                <div class="child-name">发电机</div>
+                <div class="child-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</div>
+              </div>
+              <span class="child-qr"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
+            </div>
+              </div>
             </div>
           </div>
-          <div class="tree-node" onclick="toggleTree(this)">
-            <span class="tree-toggle">▶</span>
-            <span class="tree-name">B栋仓库</span>
-            <span class="tree-type place">场所码</span>
-            <span class="tree-code green"></span>
-            <span class="tree-person">赵管理</span>
+        </div>
+
+        <!-- 危险源(15) - 独立危险源，黄色 -->
+        <div class="hazard-card">
+          <span class="group-icon">
+            <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </span>
+          <span class="group-name">危险源<span class="count">(15)</span></span>
+          <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+          <span class="group-qr qr-yellow"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
+        </div>
+
+        <!-- 危险源(3) - 独立危险源，绿色 -->
+        <div class="hazard-card">
+          <span class="group-icon">
+            <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </span>
+          <span class="group-name">危险源<span class="count">(3)</span></span>
+          <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+          <span class="group-qr"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
+        </div>
+
+        <!-- 储罐区(5) - 场所码，收起 -->
+        <div class="group-card">
+          <div class="group-header" onclick="toggleGroup(this)">
+            <span class="group-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg>
+            </span>
+            <span class="group-name">储罐区<span class="count">(5)</span></span>
+            <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+            <span class="group-qr"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
+            <span class="group-chevron"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
           </div>
-          <div class="tree-children collapsed">
-            <div class="tree-node">
-              <span class="tree-toggle" style="visibility:hidden">▼</span>
-              <span class="tree-name">配电房</span>
-              <span class="tree-type hazard">危险源码</span>
-              <span class="tree-code red"></span>
-              <span class="tree-person">孙电工</span>
-            </div>
-          </div>
-          <div class="tree-node">
-            <span class="tree-toggle" style="visibility:hidden">▼</span>
-            <span class="tree-name">C栋办公区（重点部位）</span>
-            <span class="tree-type keyplace">重点场所码</span>
-            <span class="tree-code green"></span>
-            <span class="tree-person">刘主任</span>
-          </div>
-          <div class="tree-node">
-            <span class="tree-toggle" style="visibility:hidden">▼</span>
-            <span class="tree-name">D栋实验室</span>
-            <span class="tree-type place">场所码</span>
-            <span class="tree-code green"></span>
-            <span class="tree-person">陈研发</span>
-          </div>
-          <div class="tree-node" style="border-bottom:none;">
-            <span class="tree-toggle" style="visibility:hidden">▼</span>
-            <span class="tree-name">食堂</span>
-            <span class="tree-type place">场所码</span>
-            <span class="tree-code green"></span>
-            <span class="tree-person">从业人员 · 食堂负责人</span>
+          <div class="group-children collapsed">
           </div>
         </div>
+
       </div>
     </div>
 
     <!-- 人员列表面板 -->
     <div id="panelPerson" style="display:none;">
-      <div class="cl-tabs">
-        <div class="cl-tab" onclick="switchPanel(0)">风险列表</div>
-        <div class="cl-tab active" onclick="switchPanel(1)">人员列表</div>
+      <!-- 人员筛选标签 -->
+      <div class="cl-filter-area" id="filterAreaPerson">
+        <div class="cl-filter-row">
+          <span class="cl-filter-tag category active" data-type="person" data-val="all">全部</span>
+          <span class="cl-filter-tag" data-type="person" data-val="green"><span class="filter-dot" style="background:var(--code-green);width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px;"></span>绿色</span>
+          <span class="cl-filter-tag" data-type="person" data-val="yellow"><span class="filter-dot" style="background:var(--code-yellow);width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px;"></span>黄色</span>
+          <span class="cl-filter-tag" data-type="person" data-val="red"><span class="filter-dot" style="background:var(--code-red);width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px;"></span>红色</span>
+        </div>
       </div>
+
       <div style="display:flex;background:var(--wc-card-bg);border-bottom:0.5px solid var(--wc-track-bg);">
         <div class="cl-sub-tab active" onclick="switchLevel(this,0)">主要负责人</div>
         <div class="cl-sub-tab" onclick="switchLevel(this,1)">安全管理人员</div>
         <div class="cl-sub-tab" onclick="switchLevel(this,2)">从业人员</div>
       </div>
 
-      <div class="filter-row">
-        <span class="filter-tag active" onclick="filterCode(this)">全部</span>
-        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:var(--code-green)"></span>绿色</span>
-        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:var(--code-yellow)"></span>黄色</span>
-        <span class="filter-tag" onclick="filterCode(this)"><span class="filter-dot" style="background:var(--code-red)"></span>红色</span>
-      </div>
-
       <div id="personList">
       <!-- 领导层 -->
-      <div class="person-card level-0" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-0" onclick="navTo('profile')">
         <div class="person-avatar green"><svg viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">张建国</div><div class="person-role">总经理 · 主要负责人</div></div>
         <span class="code-badge green">绿色</span>
       </div>
-      <div class="person-card level-0" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-0" onclick="navTo('profile')">
         <div class="person-avatar green"><svg viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">刘主任</div><div class="person-role">安全总监 · 主要负责人</div></div>
         <span class="code-badge green">绿色</span>
       </div>
-      <div class="person-card level-0" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-0" onclick="navTo('profile')">
         <div class="person-avatar yellow"><svg viewBox="0 0 24 24" fill="none" stroke="#faad14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">李安全</div><div class="person-role">安全负责人 · 主要负责人</div></div>
         <span class="code-badge yellow">黄色</span>
       </div>
-      <div class="person-card level-0" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-0" onclick="navTo('profile')">
         <div class="person-avatar green"><svg viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">赵管理</div><div class="person-role">部门经理 · 主要负责人</div></div>
         <span class="code-badge green">绿色</span>
       </div>
       <!-- 管理层 -->
-      <div class="person-card level-1" style="display:none;" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-1" style="display:none;" onclick="navTo('profile')">
         <div class="person-avatar green"><svg viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">王工</div><div class="person-role">安全工程师 · 安全管理人员</div></div>
         <span class="code-badge green">绿色</span>
       </div>
-      <div class="person-card level-1" style="display:none;" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-1" style="display:none;" onclick="navTo('profile')">
         <div class="person-avatar red"><svg viewBox="0 0 24 24" fill="none" stroke="#ff4d4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">陈主管</div><div class="person-role">生产主管 · 安全管理人员</div></div>
         <span class="code-badge red">红色</span>
       </div>
-      <div class="person-card level-1" style="display:none;" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-1" style="display:none;" onclick="navTo('profile')">
         <div class="person-avatar green"><svg viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">周技术</div><div class="person-role">技术主管 · 安全管理人员</div></div>
         <span class="code-badge green">绿色</span>
       </div>
       <!-- 员工层 -->
-      <div class="person-card level-2" style="display:none;" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-2" style="display:none;" onclick="navTo('profile')">
         <div class="person-avatar green"><svg viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">小张</div><div class="person-role">操作工 · 从业人员</div></div>
         <span class="code-badge green">绿色</span>
       </div>
-      <div class="person-card level-2" style="display:none;" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-2" style="display:none;" onclick="navTo('profile')">
         <div class="person-avatar yellow"><svg viewBox="0 0 24 24" fill="none" stroke="#faad14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">小李</div><div class="person-role">电工 · 从业人员</div></div>
         <span class="code-badge yellow">黄色</span>
       </div>
-      <div class="person-card level-2" style="display:none;" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-2" style="display:none;" onclick="navTo('profile')">
         <div class="person-avatar green"><svg viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">小王</div><div class="person-role">仓管员 · 从业人员</div></div>
         <span class="code-badge green">绿色</span>
       </div>
-      <div class="person-card level-2" style="display:none;" onclick="parent.navigateTo('profile')">
+      <div class="person-card level-2" style="display:none;" onclick="navTo('profile')">
         <div class="person-avatar green"><svg viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div class="person-info"><div class="person-name">小刘</div><div class="person-role">质检员 · 从业人员</div></div>
         <span class="code-badge green">绿色</span>
       </div>
       </div>
     </div>
-    </div><!-- end 内容区容器 -->
 
     <div style="height:32px;"></div>
   </div>
 
   <script>
-    function toggleTree(el) {
-      var children = el.nextElementSibling;
-      if (children && children.classList.contains('tree-children')) {
-        children.classList.toggle('collapsed');
-        var toggle = el.querySelector('.tree-toggle');
-        toggle.textContent = children.classList.contains('collapsed') ? '▶' : '▼';
-      }
+    /* ========== 分组展开/收起 ========== */
+    function toggleGroup(headerEl) {
+      var card = headerEl.closest('.group-card');
+      if (!card) return;
+      card.classList.toggle('expanded');
+      var children = card.querySelector('.group-children');
+      if (children) children.classList.toggle('collapsed');
     }
+
+    /* ========== Tab 切换 ========== */
     function switchPanel(idx) {
+      // 切换 Tab 高亮
+      document.querySelectorAll('.cl-header-tab').forEach(function(t){t.classList.remove('active');});
+      document.querySelectorAll('.cl-header-tab')[idx].classList.add('active');
+      // 切换面板
       document.getElementById('panelRisk').style.display = idx === 0 ? '' : 'none';
       document.getElementById('panelPerson').style.display = idx === 1 ? '' : 'none';
+      // 切换筛选标签区显示
+      var filterRisk = document.getElementById('filterAreaRisk');
+      var filterPerson = document.getElementById('filterAreaPerson');
+      if (filterRisk) filterRisk.style.display = idx === 0 ? '' : 'none';
+      if (filterPerson) filterPerson.style.display = idx === 1 ? '' : 'none';
     }
     function switchLevel(el, idx) {
       el.parentElement.querySelectorAll('.cl-sub-tab').forEach(function(t){t.classList.remove('active');});
@@ -263,51 +376,46 @@
         card.style.display = card.classList.contains('level-' + idx) ? '' : 'none';
       });
     }
-    function filterCode(el) {
-      el.parentElement.querySelectorAll('.filter-tag').forEach(function(t){t.classList.remove('active');});
-      el.classList.add('active');
-    }
-    // 叶节点点击跳转：场所名→place-code，危险源名→hazard-code
-    // 仅对无子节点的叶子节点绑定跳转，避免覆盖中间层节点的展开/收起功能
-    var leafTargets = {'A栋生产车间':'place-code','危化品存储区':'hazard-code','B栋仓库':'place-code','配电房':'hazard-code','C栋办公区（重点部位）':'place-code','D栋实验室':'place-code','食堂':'place-code'};
-    document.querySelectorAll('.tree-node').forEach(function(node){
-      var nameEl = node.querySelector('.tree-name');
-      if (!nameEl) return;
-      var target = leafTargets[nameEl.textContent.trim()];
-      if (!target) return;
-      // 判断是否为叶子节点：下一个兄弟元素不是 tree-children，或是空的 tree-children
-      var next = node.nextElementSibling;
-      var hasChildren = next && next.classList.contains('tree-children') && !next.classList.contains('collapsed') && next.children.length > 0;
-      if (!hasChildren) {
-        node.onclick = function(){ parent.navigateTo(target); };
-      }
+
+    /* ========== 筛选标签点击 ========== */
+    document.querySelectorAll('.cl-filter-tag').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        var type = this.getAttribute('data-type');
+        var val = this.getAttribute('data-val');
+        // 同类型内切换 active
+        document.querySelectorAll('.cl-filter-tag[data-type="' + type + '"]').forEach(function(t){
+          t.classList.remove('active');
+        });
+        this.classList.add('active');
+      });
     });
 
-    // ========== 页面初始化：根据 session 动态渲染 ==========
+    /* ========== 页面初始化 ========== */
     function initListPage() {
       if (typeof MobilePageConfig === 'undefined') return;
       var config = MobilePageConfig.getListConfig();
       if (!config || !config.portalType) return;
 
-      // 更新搜索占位符
       var searchInput = document.getElementById('listSearchInput');
-      if (searchInput) searchInput.placeholder = config.searchPlaceholder;
+      if (searchInput) searchInput.placeholder = config.searchPlaceholder || '请输入场所码或危险源';
 
-      // 更新根节点名称
-      var rootNameEl = document.getElementById('listRootName');
-      if (rootNameEl) rootNameEl.textContent = config.rootName;
-
-      // 更新根节点类型标签
-      var rootTypeEl = document.getElementById('listRootType');
-      if (rootTypeEl) {
-        rootTypeEl.textContent = config.rootTypeLabel;
-        rootTypeEl.className = 'tree-type ' + config.rootTypeClass;
-      }
-
-      // 政府端：更新页面标题
-      var headerTitle = document.querySelector('.cl-header-title');
-      if (headerTitle && config.portalType === 'gov') {
-        headerTitle.textContent = '辖区管控对象';
+      // 动态更新筛选标签计数（H3）
+      if (config.filterCounts) {
+        var fc = config.filterCounts;
+        var labelMap = { place: '场所', hazard: '危险源' };
+        var colorLabels = { red: '红码', yellow: '黄码', green: '绿码' };
+        ['place', 'hazard'].forEach(function(type) {
+          var counts = fc[type];
+          if (!counts) return;
+          document.querySelectorAll('#filterAreaRisk .cl-filter-tag[data-type="' + type + '"]').forEach(function(tag) {
+            var val = tag.getAttribute('data-val');
+            if (val === 'all') {
+              tag.textContent = (labelMap[type] || type) + '(' + (counts.all || 0) + ')';
+            } else if (colorLabels[val]) {
+              tag.textContent = colorLabels[val] + '(' + (counts[val] || 0) + ')';
+            }
+          });
+        });
       }
     }
 

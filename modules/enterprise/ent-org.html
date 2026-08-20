@@ -2,60 +2,53 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>企业组织架构管理 - 企业端</title>
-
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/framework.css">
 <style>
-/* .page-container 由 framework.css 提供 */
-.main-layout{display:flex;gap: var(--spacing-md);margin-top: var(--spacing-md)}
-
-/* 左侧树 */
-.tree-panel{width:260px;background:var(--bg-primary);border-radius: var(--radius-lg);box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden}
-.tree-header{padding: var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light);font-size: var(--font-size-md);font-weight:600;color:var(--text-primary)}
-.tree-search{padding: var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light)}
-.tree-search input{width:100%;padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none}
+.main-layout{display:flex;gap:var(--spacing-md)}
+.tree-panel{width:280px;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
+.tree-header{padding:var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light);font-size:var(--font-size-md);font-weight:600;color:var(--text-primary)}
+.tree-search{padding:var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light)}
+.tree-search input{width:100%;padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box}
 .tree-search input:focus{border-color:var(--primary)}
-.tree-body{flex:1;overflow-y:auto;padding: var(--spacing-sm) 0}
-.tree-node{display:flex;align-items:center;padding:var(--spacing-sm) var(--spacing-md);cursor:pointer;transition:background var(--duration-normal);gap: var(--spacing-xs);line-height:1.6}
+.tree-body{flex:1;overflow-y:auto;padding:var(--spacing-sm) 0}
+.tree-node{display:flex;align-items:center;padding:var(--spacing-sm) var(--spacing-md);cursor:pointer;transition:background var(--duration-normal);gap:var(--spacing-xs);line-height:1.6}
 .tree-node:hover{background:var(--bg-section-alt)}
 .tree-node.active{background:var(--primary-light);color:var(--primary)}
-.tree-toggle{width:var(--spacing-md);height:var(--spacing-md);display:flex;align-items:center;justify-content:center;font-size: var(--font-size-xs);color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
-.tree-node-label{font-size: var(--font-size-sm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tree-children{padding-left: var(--spacing-lg);display:block}
+.tree-toggle{width:var(--spacing-md);height:var(--spacing-md);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
+.tree-node-label{font-size:var(--font-size-sm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-children{padding-left:var(--spacing-lg);display:block}
 
-/* 右侧内容 */
-.content-panel{flex:1;background:var(--bg-primary);border-radius: var(--radius-lg);box-shadow:0 1px 3px rgba(0,0,0,.06);padding:var(--spacing-lg);overflow:auto}
-.content-header{display:flex;justify-content:space-between;align-items:center;margin-bottom: var(--spacing-lg)}
-.content-title{font-size: var(--font-size-lg);font-weight:600;color:var(--text-primary)}
+.content-panel{flex:1;display:flex;flex-direction:column;gap:var(--spacing-md);min-width:0}
+.stats-row{flex-shrink:0;display:flex;gap:var(--spacing-md)}
+.stat-card{flex:1;background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) var(--spacing-lg);box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:var(--spacing-md);position:relative;overflow:hidden}
+.stat-card-body{flex:1}
+.stat-label{font-size:var(--font-size-xs);color:var(--text-secondary)}
+.stat-value{font-size:24px;font-weight:700;color:var(--text-primary);margin-top:2px}
+.stat-indicator{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 2px 2px 0}
 
-/* 查询区 */
-.query-bar{display:flex;gap:var(--spacing-sm);margin-bottom: var(--spacing-md);flex-wrap:wrap}
-.query-bar input,.query-bar select{padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);outline:none}
+.query-bar{display:flex;gap:var(--spacing-sm);flex-wrap:wrap;align-items:center}
+.query-bar input,.query-bar select{padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none}
 .query-bar input:focus,.query-bar select:focus{border-color:var(--primary)}
 .query-bar input{min-width:180px}
 
-/* 表格 - .table-basic 由 framework.css 提供，仅添加页面特有样式 */
+.table-card{flex:1;display:flex;flex-direction:column;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:var(--spacing-lg);min-height:0}
+.table-scroll{flex:1;overflow:auto;min-height:0}
+.table-basic{width:100%;border-collapse:collapse;font-size:var(--font-size-sm);min-width:700px}
+.table-basic th{background:var(--bg-tertiary);padding:10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light);white-space:nowrap}
+.table-basic td{padding:10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary)}
+.table-basic tr:hover td{background:var(--bg-hover)}
 .ellipsis-col{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
 
-/* 分页 - .pagination 由 framework.css 提供 */
-
-/* 按钮 - .btn, .btn-primary, .btn-default, .btn-link, .btn-danger 由 framework.css 提供 */
-.btn-sm{padding:var(--spacing-xs) var(--spacing-sm);font-size: var(--font-size-xs)}
-
-/* 弹窗 - .modal-* 由 framework.css 提供 */
-.modal-dialog{background:var(--bg-primary);border-radius: var(--radius-lg);width:520px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 var(--spacing-sm) 24px rgba(0,0,0,.12)}
-
-/* 表单 - .form-group, .form-input 由 framework.css 提供 */
-.form-group label .required{color:var(--danger);margin-left: 2px}
-.duplicate-error{color:var(--danger);font-size: var(--font-size-xs);margin-top: var(--spacing-xs);display:none}
+.btn-sm{padding:var(--spacing-xs) var(--spacing-sm);font-size:var(--font-size-xs)}
+.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);width:520px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 var(--spacing-sm) 24px rgba(0,0,0,.12)}
+.form-group label .required{color:var(--danger);margin-left:2px}
+.duplicate-error{color:var(--danger);font-size:var(--font-size-xs);margin-top:var(--spacing-xs);display:none}
 .form-group.has-duplicate .duplicate-error{display:block}
 
-/* Toast */
-#_toast{position:fixed;top:var(--spacing-lg);left:50%;transform:translateX(-50%);padding:var(--spacing-sm) var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius: var(--radius-md);font-size: var(--font-size-md);z-index:99999;opacity:0;transition:opacity var(--duration-normal);pointer-events:none}
-
-/* 标签 - .tag, .tag-success, .tag-gray 由 framework.css 提供 */
+#_toast{position:fixed;top:var(--spacing-lg);left:50%;transform:translateX(-50%);padding:var(--spacing-sm) var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius:var(--radius-md);font-size:var(--font-size-md);z-index:99999;opacity:0;transition:opacity var(--duration-normal);pointer-events:none}
 </style>
 </head>
 <body>
@@ -68,7 +61,7 @@
   </div>
 
   <div class="main-layout">
-    <!-- 左侧部门树 -->
+    <!-- 左侧部门树 (280px, 用于导航) -->
     <div class="tree-panel">
       <div class="tree-header">🏢 企业组织架构</div>
       <div class="tree-search">
@@ -77,134 +70,170 @@
       <div class="tree-body" id="orgTree"></div>
     </div>
 
-    <!-- 右侧部门列表 -->
+    <!-- 右侧部门成员列表 -->
     <div class="content-panel">
-      <div class="content-header">
-        <div class="content-title">部门管理</div>
-        <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ 新增部门</button>
+      <!-- 统计卡片 -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">项目人员总数</div>
+            <div class="stat-value" id="statTotal">25</div>
+          </div>
+          <div class="stat-indicator" style="background:var(--primary)"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">正常账号</div>
+            <div class="stat-value" id="statNormal" style="color:var(--success)">22</div>
+          </div>
+          <div class="stat-indicator" style="background:var(--success)"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">停用账号</div>
+            <div class="stat-value" id="statDisabled" style="color:var(--danger)">3</div>
+          </div>
+          <div class="stat-indicator" style="background:var(--danger)"></div>
+        </div>
       </div>
 
-      <div class="query-bar">
-        <input type="text" placeholder="部门名称" id="searchName">
-        <select id="searchStatus">
-          <option value="">全部状态</option>
-          <option value="normal">正常</option>
-          <option value="disabled">停用</option>
-        </select>
-        <button class="btn btn-primary btn-sm" onclick="searchDept()">🔍 搜索</button>
-        <button class="btn btn-default btn-sm" onclick="showToast('重置')">重置</button>
-      </div>
+      <div class="table-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-md)">
+          <div class="query-bar">
+            <input type="text" placeholder="成员姓名" id="searchName">
+            <select id="searchStatus">
+              <option value="">全部状态</option>
+              <option value="normal">正常</option>
+              <option value="disabled">停用</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="searchMember()">搜索</button>
+            <button class="btn btn-default btn-sm" onclick="resetFilters()">重置</button>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ 新增成员</button>
+        </div>
 
-      <div class="table-scroll">
-        <table class="table-basic">
-          <thead>
-            <tr>
-              <th>部门名称</th>
-              <th>上级部门</th>
-              <th>负责人</th>
-              <th>人员数量</th>
-              <th>状态</th>
-              <th class="action-col">操作</th>
-            </tr>
-          </thead>
-          <tbody id="deptTableBody">
-            <tr>
-              <td>安全部</td>
-              <td>公司总部</td>
-              <td>王五</td>
-              <td><a class="btn-link" onclick="goToUserMgmt('安全部')">5</a></td>
-              <td><span class="tag tag-success">正常</span></td>
-              <td class="action-col">
-                <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link danger" onclick="deleteDept('dept-1','安全部')">删除</button>
-              </td>
-            </tr>
-            <tr>
-              <td>技术部</td>
-              <td>公司总部</td>
-              <td>李四</td>
-              <td><a class="btn-link" onclick="goToUserMgmt('技术部')">8</a></td>
-              <td><span class="tag tag-success">正常</span></td>
-              <td class="action-col">
-                <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link danger" onclick="deleteDept('dept-1','技术部')">删除</button>
-              </td>
-            </tr>
-            <tr>
-              <td>工程部</td>
-              <td>公司总部</td>
-              <td>赵六</td>
-              <td><a class="btn-link" onclick="goToUserMgmt('工程部')">12</a></td>
-              <td><span class="tag tag-gray">停用</span></td>
-              <td class="action-col">
-                <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link danger" onclick="deleteDept('dept-3','工程部')">删除</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <div class="table-scroll">
+          <table class="table-basic">
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>职务</th>
+                <th>手机号</th>
+                <th>所属部门</th>
+                <th>状态</th>
+                <th class="action-col">操作</th>
+              </tr>
+            </thead>
+            <tbody id="memberTableBody">
+              <tr>
+                <td>张三</td>
+                <td>部门经理</td>
+                <td>138****0001</td>
+                <td>安全部</td>
+                <td><span class="tag tag-success">正常</span></td>
+                <td class="action-col">
+                  <button class="btn-link" onclick="openEditModal('张三')">编辑</button>
+                  <button class="btn-link danger" onclick="deleteMember('张三')">删除</button>
+                </td>
+              </tr>
+              <tr>
+                <td>李四</td>
+                <td>安全主管</td>
+                <td>139****0002</td>
+                <td>安全部</td>
+                <td><span class="tag tag-success">正常</span></td>
+                <td class="action-col">
+                  <button class="btn-link" onclick="openEditModal('李四')">编辑</button>
+                  <button class="btn-link danger" onclick="deleteMember('李四')">删除</button>
+                </td>
+              </tr>
+              <tr>
+                <td>王五</td>
+                <td>技术总监</td>
+                <td>137****0003</td>
+                <td>技术部</td>
+                <td><span class="tag tag-success">正常</span></td>
+                <td class="action-col">
+                  <button class="btn-link" onclick="openEditModal('王五')">编辑</button>
+                  <button class="btn-link danger" onclick="deleteMember('王五')">删除</button>
+                </td>
+              </tr>
+              <tr>
+                <td>赵六</td>
+                <td>工程师</td>
+                <td>136****0004</td>
+                <td>工程部</td>
+                <td><span class="tag tag-gray">停用</span></td>
+                <td class="action-col">
+                  <button class="btn-link" onclick="openEditModal('赵六')">编辑</button>
+                  <button class="btn-link danger" onclick="deleteMember('赵六')">删除</button>
+                </td>
+              </tr>
+              <tr>
+                <td>孙七</td>
+                <td>技术员</td>
+                <td>135****0005</td>
+                <td>技术部</td>
+                <td><span class="tag tag-success">正常</span></td>
+                <td class="action-col">
+                  <button class="btn-link" onclick="openEditModal('孙七')">编辑</button>
+                  <button class="btn-link danger" onclick="deleteMember('孙七')">删除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <div class="pagination">
-        <span class="pg-info">共 3 条</span>
-        <select class="pg-size">
-          <option value="10" selected>10 条/页</option>
-          <option value="20">20 条/页</option>
-          <option value="50">50 条/页</option>
-        </select>
-        <button class="pg" disabled>上一页</button>
-        <button class="pg active">1</button>
-        <button class="pg" disabled>下一页</button>
-        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="1" value="1"> 页</span>
+        <div class="pagination" id="paginationBar"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 新增/编辑部门弹窗 -->
-<div class="modal-overlay" id="deptModal">
+<!-- 新增/编辑成员弹窗 -->
+<div class="modal-overlay" id="memberModal">
   <div class="modal-dialog">
     <div class="modal-header">
-      <span class="modal-title" id="modalTitle">新增部门</span>
-      <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
+      <span class="modal-title" id="modalTitle">新增成员</span>
+      <button class="modal-close" onclick="closeModal('memberModal')">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="form-group" id="fg-deptName">
-        <label>部门名称 <span class="required">*</span></label>
-        <input type="text" placeholder="请输入部门名称" id="deptName">
-        <div class="duplicate-error">该部门名称已存在</div>
+      <div class="form-group" id="fg-memberName">
+        <label>姓名 <span class="required">*</span></label>
+        <input type="text" placeholder="请输入成员姓名" id="memberName">
+        <div class="duplicate-error">该成员已存在</div>
       </div>
       <div class="form-group">
-        <label>上级部门</label>
-        <select id="parentDept">
-          <option value="">无（一级部门）</option>
-          <option value="1">安全部</option>
-          <option value="2">技术部</option>
-          <option value="3">工程部</option>
-        </select>
+        <label>手机号 <span class="required">*</span></label>
+        <input type="text" placeholder="请输入手机号（11位）" id="memberPhone" maxlength="11">
       </div>
       <div class="form-group">
-        <label>负责人</label>
-        <input type="text" placeholder="请输入负责人姓名">
+        <label>职务</label>
+        <input type="text" placeholder="请输入职务" id="memberPosition">
+      </div>
+      <div class="form-group">
+        <label>所属部门</label>
+        <div class="readonly-field" id="memberDeptDisplay" style="padding:var(--spacing-sm) 12px;background:var(--bg-section-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);color:var(--text-secondary);font-size:var(--font-size-md)">安全部</div>
       </div>
       <div class="form-group">
         <label>状态</label>
-        <select>
+        <select id="memberStatus">
           <option value="normal">正常</option>
           <option value="disabled">停用</option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeModal('deptModal')">取消</button>
-      <button class="btn btn-primary" onclick="checkDuplicateName();if(!document.getElementById('fg-deptName').classList.contains('has-duplicate')){showToast('保存成功');closeModal('deptModal')}">确定</button>
+      <button class="btn btn-default" onclick="closeModal('memberModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveMember()">确定</button>
     </div>
   </div>
 </div>
 
+<script src="../../js/pagination.js"></script>
 <script>
-// 模拟企业部门数据
-const deptData = [
+// 部门树数据
+var deptData = [
   {
     id: 'root',
     name: 'XX建筑工程有限公司',
@@ -212,59 +241,54 @@ const deptData = [
     expanded: true,
     children: [
       {
-        id: 'dept-1',
-        name: '安全部',
-        type: 'dept',
-        expanded: false,
+        id: 'dept-1', name: '安全部', type: 'dept', expanded: false,
         children: [
           { id: 'sub-1', name: '安全一组', type: 'sub-dept' },
           { id: 'sub-2', name: '安全二组', type: 'sub-dept' }
         ]
       },
       {
-        id: 'dept-2',
-        name: '技术部',
-        type: 'dept',
-        expanded: false,
+        id: 'dept-2', name: '技术部', type: 'dept', expanded: false,
         children: [
           { id: 'sub-3', name: '技术一组', type: 'sub-dept' }
         ]
       },
       {
-        id: 'dept-3',
-        name: '工程部',
-        type: 'dept',
-        expanded: false,
+        id: 'dept-3', name: '工程部', type: 'dept', expanded: false,
         children: []
       },
       {
-        id: 'dept-4',
-        name: '财务部',
-        type: 'dept',
-        expanded: false,
+        id: 'dept-4', name: '财务部', type: 'dept', expanded: false,
         children: []
       }
     ]
   }
 ];
 
-let selectedDeptId = 'root';
+var selectedDeptId = 'root';
+var selectedDeptName = '全部';
+
+// 部门ID→名称映射
+var deptNameMap = {
+  'root': '全部', 'dept-1': '安全部', 'dept-2': '技术部',
+  'dept-3': '工程部', 'dept-4': '财务部',
+  'sub-1': '安全一组', 'sub-2': '安全二组', 'sub-3': '技术一组'
+};
 
 function renderDeptTree() {
-  const container = document.getElementById('orgTree');
-  container.innerHTML = deptData.map(node => renderTreeNode(node, 0)).join('');
+  var container = document.getElementById('orgTree');
+  container.innerHTML = deptData.map(function(n) { return renderTreeNode(n, 0); }).join('');
 }
 
 function renderTreeNode(node, level) {
-  const isSelected = node.id === selectedDeptId;
-  const hasChildren = node.children && node.children.length > 0;
-  const indent = level * 16;
-  
-  let icon = '🏢';
+  var isSelected = node.id === selectedDeptId;
+  var hasChildren = node.children && node.children.length > 0;
+  var indent = level * 16;
+  var icon = '🏢';
   if (node.type === 'dept') icon = '📁';
   if (node.type === 'sub-dept') icon = '📂';
-  
-  let html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left' + (16 + indent) + 'px" onclick="selectDept(\'' + node.id + '\')">';
+
+  var html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left:' + (16 + indent) + 'px" onclick="selectDept(\'' + node.id + '\')">';
   if (hasChildren) {
     html += '<span class="tree-toggle" onclick="event.stopPropagation();toggleDept(\'' + node.id + '\')">' + (node.expanded ? '▼' : '▶') + '</span>';
   } else {
@@ -272,24 +296,20 @@ function renderTreeNode(node, level) {
   }
   html += '<span class="tree-node-label">' + icon + ' ' + node.name + '</span>';
   html += '</div>';
-  
+
   if (hasChildren && node.expanded) {
     html += '<div class="tree-children">';
-    html += node.children.map(child => renderTreeNode(child, level + 1)).join('');
+    html += node.children.map(function(c) { return renderTreeNode(c, level + 1); }).join('');
     html += '</div>';
   }
-  
   return html;
 }
 
 function toggleDept(nodeId) {
   function toggle(nodes) {
-    for (const node of nodes) {
-      if (node.id === nodeId) {
-        node.expanded = !node.expanded;
-        return true;
-      }
-      if (node.children && toggle(node.children)) return true;
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].id === nodeId) { nodes[i].expanded = !nodes[i].expanded; return true; }
+      if (nodes[i].children && toggle(nodes[i].children)) return true;
     }
     return false;
   }
@@ -299,22 +319,137 @@ function toggleDept(nodeId) {
 
 function selectDept(nodeId) {
   selectedDeptId = nodeId;
+  selectedDeptName = deptNameMap[nodeId] || '';
   renderDeptTree();
+  filterMembersByDept(selectedDeptName);
 }
 
+// 按选中部门筛选成员
+function filterMembersByDept(deptName) {
+  var rows = document.querySelectorAll('#memberTableBody tr');
+  var visibleCount = 0;
+  rows.forEach(function(row) {
+    if (!deptName || deptName === '全部') {
+      row.style.display = '';
+      visibleCount++;
+      return;
+    }
+    var rowDept = row.cells[3].textContent.trim();
+    if (rowDept === deptName) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  if (deptName && deptName !== '全部') {
+    showToast('筛选：' + deptName + '（' + visibleCount + ' 人）');
+  }
+}
+
+// 打开新增/编辑成员弹窗
 function openAddModal() {
-  document.getElementById('modalTitle').textContent = '新增部门';
-  document.getElementById('deptModal').style.display = 'flex';
+  document.getElementById('modalTitle').textContent = '新增成员';
+  document.getElementById('memberName').value = '';
+  document.getElementById('memberPhone').value = '';
+  document.getElementById('memberPosition').value = '';
+  document.getElementById('memberStatus').value = 'normal';
+  document.getElementById('memberDeptDisplay').textContent = selectedDeptName === '全部' ? '安全部' : selectedDeptName;
+  document.getElementById('memberModal').style.display = 'flex';
 }
 
-function openEditModal() {
-  document.getElementById('modalTitle').textContent = '编辑部门';
-  document.getElementById('deptModal').style.display = 'flex';
+function openEditModal(name) {
+  document.getElementById('modalTitle').textContent = '编辑成员 — ' + name;
+  document.getElementById('memberName').value = name;
+  document.getElementById('memberModal').style.display = 'flex';
 }
 
 function closeModal(id) {
   document.getElementById(id).style.display = 'none';
 }
+
+// 搜索成员（按姓名+状态）
+window.searchMember = function() {
+  var keyword = document.getElementById('searchName').value.trim().toLowerCase();
+  var status = document.getElementById('searchStatus').value;
+  var rows = document.querySelectorAll('#memberTableBody tr');
+  var visibleCount = 0;
+  rows.forEach(function(row) {
+    var name = row.cells[0].textContent.toLowerCase();
+    var statusText = row.cells[4].textContent.trim();
+    var statusMatch = !status || (status === 'normal' && statusText === '正常') || (status === 'disabled' && statusText === '停用');
+    var nameMatch = !keyword || name.indexOf(keyword) !== -1;
+    if (nameMatch && statusMatch) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  showToast('找到 ' + visibleCount + ' 名成员');
+};
+
+window.resetFilters = function() {
+  document.getElementById('searchName').value = '';
+  document.getElementById('searchStatus').value = '';
+  var rows = document.querySelectorAll('#memberTableBody tr');
+  rows.forEach(function(row) { row.style.display = ''; });
+  showToast('已重置筛选');
+};
+
+// 保存成员
+function saveMember() {
+  var name = document.getElementById('memberName').value.trim();
+  var phone = document.getElementById('memberPhone').value.trim();
+  if (!name) { showToast('请输入成员姓名'); return; }
+  if (!/^1\d{10}$/.test(phone)) { showToast('请输入正确的手机号（11位数字，1开头）'); return; }
+  showToast('保存成功');
+  closeModal('memberModal');
+}
+
+// 删除成员
+function deleteMember(name) {
+  if (confirm('确认删除成员"' + name + '"？')) {
+    showToast('成员"' + name + '"已删除');
+  }
+}
+
+// 树搜索
+document.getElementById('treeSearchInput').addEventListener('input', function(e) {
+  var keyword = e.target.value.trim().toLowerCase();
+  var allNodes = document.querySelectorAll('#orgTree .tree-node');
+  allNodes.forEach(function(node) {
+    var label = node.querySelector('.tree-node-label');
+    if (!label) return;
+    var text = label.textContent.toLowerCase();
+    if (!keyword) { node.style.display = ''; return; }
+    node.style.display = text.indexOf(keyword) !== -1 ? '' : 'none';
+  });
+  if (keyword) {
+    allNodes.forEach(function(node) {
+      if (node.style.display !== 'none') {
+        var parent = node.parentElement;
+        while (parent && parent.id !== 'orgTree') {
+          if (parent.classList && (parent.classList.contains('tree-node') || parent.classList.contains('tree-children'))) {
+            parent.style.display = '';
+          }
+          parent = parent.parentElement;
+        }
+      }
+    });
+  }
+});
+
+// 初始化
+renderDeptTree();
+
+// 分页
+var pg = new Pagination('paginationBar', {
+  total: 25,
+  size: 10,
+  sizeOptions: [10, 20, 50],
+  onChange: function(page, size) { }
+});
 
 function showToast(msg) {
   var el = document.getElementById('_toast');
@@ -325,122 +460,11 @@ function showToast(msg) {
   }
   el.textContent = msg;
   el.style.opacity = '1';
-  setTimeout(function() { el.style.opacity = '0'; }, 2500);
+  setTimeout(function() { el.style.opacity = '0'; }, 2000);
 }
-
-// 初始化
-renderDeptTree();
-
-// ===== 跳转用户管理 =====
-window.goToUserMgmt = function(deptName) {
-  console.log('跳转用户管理，部门：' + deptName);
-  showToast('跳转至用户管理 — ' + deptName);
-};
-
-// ===== 树搜索过滤 =====
-document.getElementById('treeSearchInput').addEventListener('input', function(e) {
-  var keyword = e.target.value.trim().toLowerCase();
-  var allNodes = document.querySelectorAll('#orgTree .tree-node');
-  allNodes.forEach(function(node) {
-    var label = node.querySelector('.tree-node-label');
-    if (!label) return;
-    var text = label.textContent.toLowerCase();
-    if (!keyword) {
-      node.style.display = '';
-    } else {
-      node.style.display = text.indexOf(keyword) !== -1 ? '' : 'none';
-    }
-  });
-  if (keyword) {
-    allNodes.forEach(function(node) {
-      if (node.style.display !== 'none') {
-        var parent = node.parentElement;
-        while (parent && parent.id !== 'orgTree') {
-          if (parent.classList && parent.classList.contains('tree-node')) {
-            parent.style.display = '';
-          }
-          if (parent.classList && parent.classList.contains('tree-children')) {
-            parent.style.display = '';
-          }
-          parent = parent.parentElement;
-        }
-      }
-    });
-  }
-});
-
-// ===== 同级重名校验 =====
-window.checkDuplicateName = function() {
-  var nameInput = document.getElementById('deptName');
-  var fg = document.getElementById('fg-deptName');
-  var name = nameInput.value.trim();
-  var parentSel = document.getElementById('parentDept');
-  var parentId = parentSel ? parentSel.value : '';
-
-  if (!name) { fg.classList.remove('has-duplicate'); return; }
-
-  function findSiblings(nodes, pid) {
-    for (var i = 0; i < nodes.length; i++) {
-      if (nodes[i].id === pid) return nodes[i].children || [];
-      if (nodes[i].children) {
-        var found = findSiblings(nodes[i].children, pid);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
-  var searchIn = parentId ? (findSiblings(deptData, parentId) || deptData[0].children) : deptData[0].children;
-  var duplicate = false;
-  if (searchIn) {
-    for (var j = 0; j < searchIn.length; j++) {
-      if (searchIn[j].name === name) { duplicate = true; break; }
-    }
-  }
-
-  if (duplicate) {
-    fg.classList.add('has-duplicate');
-  } else {
-    fg.classList.remove('has-duplicate');
-  }
-};
-
-document.getElementById('deptName').addEventListener('input', function() { checkDuplicateName(); });
-document.getElementById('parentDept').addEventListener('change', function() { checkDuplicateName(); });
-
-// ===== 删除前校验 =====
-window.deleteDept = function(deptId, deptName) {
-  function findNode(nodes, id) {
-    for (var i = 0; i < nodes.length; i++) {
-      if (nodes[i].id === id) return nodes[i];
-      if (nodes[i].children) {
-        var found = findNode(nodes[i].children, id);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
-  var node = findNode(deptData, deptId);
-  if (node && node.children && node.children.length > 0) {
-    showToast('该部门存在下级部门，不可删除');
-    return;
-  }
-
-  var userCounts = { 'dept-1': 5, 'dept-2': 8, 'dept-3': 12, 'dept-4': 3 };
-  var userCount = userCounts[deptId] || 0;
-  if (userCount > 0) {
-    showToast('该部门存在关联人员，请先转移人员');
-    return;
-  }
-
-  if (confirm('确认删除部门"' + deptName + '"？')) {
-    showToast('部门已删除');
-  }
-};
 </script>
 <script>
-(function() { 'use strict'; const CONFIG = { moduleId: 'ent-org', moduleName: '企业组织架构管理' }; let state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+(function() { 'use strict'; var CONFIG = { moduleId: 'ent-org', moduleName: '企业组织架构管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
 </script>
 <script src="../../js/annotations.js"></script>
 </body>

@@ -137,8 +137,8 @@
               <span class="info-label">企业图片</span>
               <span class="info-value">
                 <div class="image-upload-area" id="entImageArea" style="display:flex;flex-wrap:wrap;gap:var(--spacing-sm);">
-                  <div class="image-thumb" style="width:96px;height:96px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center;background-image:url('https://placehold.co/96x96/eef2ff/1677ff/png?text=图片1');"></div>
-                  <div class="image-thumb" style="width:96px;height:96px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center;background-image:url('https://placehold.co/96x96/eef2ff/1677ff/png?text=图片2');"></div>
+                  <div class="image-thumb" style="width:96px;height:96px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect fill='%23eef2ff' width='96' height='96'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%231677ff' font-size='14' font-family='sans-serif'%3E图片1%3C/text%3E%3C/svg%3E&quot;);"></div>
+                  <div class="image-thumb" style="width:96px;height:96px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect fill='%23eef2ff' width='96' height='96'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%231677ff' font-size='14' font-family='sans-serif'%3E图片2%3C/text%3E%3C/svg%3E&quot;);"></div>
                   <button class="image-add-btn" type="button" onclick="showToast('图片上传：最多 5 张，jpg/png，单张 ≤5MB')" style="width:96px;height:96px;border:1px dashed var(--border-figma);border-radius:var(--radius-sm);background:var(--bg-section-alt);color:var(--text-secondary);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;">+</button>
                 </div>
                 <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:var(--spacing-xs);">最多 5 张，jpg/png，单张 ≤5MB；编辑模式下可上传/删除</div>
@@ -359,12 +359,12 @@
     (function() {
       'use strict';
       
-      const CONFIG = {
+      var CONFIG = {
         moduleId: 'ent-info',
         moduleName: '企业基本信息'
       };
-      
-      let state = {
+
+      var state = {
         initialized: false,
         isEditing: false
       };
@@ -494,11 +494,16 @@
       // 关联领域小类由监管端维护，企业端只读展示（BR-ENT-02-04），不提供编辑功能
 
       function showToast(msg) {
-        var t = document.createElement('div');
-        t.textContent = msg;
-        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding: 'var(--spacing-sm) var(--spacing-lg)', background:'var(--primary)', color:'var(--bg-primary)', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px var(--spacing-sm) rgba(0,0,0,0.15)' });
-        document.body.appendChild(t);
-        setTimeout(function() { t.remove(); }, 2000);
+        var el = document.getElementById('_toast');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = '_toast';
+          el.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:var(--spacing-sm) var(--spacing-lg);background:var(--primary);color:var(--bg-primary);border-radius:6px;font-size:14px;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);opacity:0;transition:opacity var(--duration-normal);pointer-events:none';
+          document.body.appendChild(el);
+        }
+        el.textContent = msg;
+        el.style.opacity = '1';
+        setTimeout(function() { el.style.opacity = '0'; }, 2000);
       }
       
       if (document.readyState === 'loading') {

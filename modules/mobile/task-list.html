@@ -238,7 +238,7 @@
   </style>
 </head>
 <body>
-  <div class="m-page with-tabbar">
+  <div class="m-page with-tabbar m-gradient-header">
 
     <!-- 头部 -->
     <div class="tl-header">
@@ -673,12 +673,20 @@
       document.getElementById('drawerOverlay').classList.remove('show');
     }
 
+    // ===== Escape 键关闭抽屉（M4 无障碍） =====
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        var overlay = document.getElementById('drawerOverlay');
+        if (overlay && overlay.classList.contains('show')) {
+          overlay.classList.remove('show');
+        }
+      }
+    });
+
     // ===== 跳转业务页 =====
     function goTask(target) {
       document.getElementById('drawerOverlay').classList.remove('show');
-      if (parent && parent.navigateTo) {
-        parent.navigateTo(target);
-      }
+      navTo(target);
     }
 
     // ===== 点击空白关闭浮层 =====
