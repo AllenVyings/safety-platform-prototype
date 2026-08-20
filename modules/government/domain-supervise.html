@@ -25,7 +25,8 @@
     .tree-toggle { width: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-secondary); cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
     .tree-toggle.expanded { transform: rotate(90deg); }
     .tree-toggle.leaf { visibility: hidden; }
-    .tree-node-icon { margin: 0 6px; font-size: 14px; flex-shrink: 0; }
+    .tree-node-icon { margin: 0 6px; font-size: 14px; flex-shrink: 0; display: inline-flex; align-items: center; }
+    .tree-node-icon svg { display: block; }
     .tree-node-label { font-size: var(--font-size-sm); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .tree-tooltip { position: fixed; z-index: 9999; background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); max-width: 280px; word-wrap: break-word; white-space: normal; line-height: 1.5; pointer-events: none; opacity: 0; transition: opacity 0.15s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     .tree-tooltip.show { opacity: 1; }
@@ -233,7 +234,8 @@
     .shuttle-actions { display: flex; flex-direction: column; gap: var(--spacing-sm); padding: 20px 4px; flex-shrink: 0; }
     .shuttle-actions .btn { min-width: 70px; }
     .shuttle-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-tertiary); font-size: var(--font-size-xs); padding: 20px; }
-    .shuttle-empty-icon { font-size: 24px; margin-bottom: 4px; }
+    .shuttle-empty-icon { font-size: 24px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); }
+    .shuttle-empty-icon svg { display: block; }
 
     /* ========== 组织架构穿梭框（人员分配） ========== */
     .org-tree { padding: 4px 0; }
@@ -1365,7 +1367,7 @@
   function renderTree() {
     var html = '<div class="tree-node" data-id="root" style="padding-left:12px">';
     html += '<span class="tree-toggle expanded">▶</span>';
-    html += '<span class="tree-node-icon">🏢</span>';
+    html += '<span class="tree-node-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg></span>';
     html += '<span class="tree-node-label" data-tooltip="' + TREE_DATA.name.replace(/"/g, '&quot;') + '">' + TREE_DATA.name + '</span>';
     html += '</div>';
     html += '<div class="tree-children show" data-parent="root">';
@@ -1381,7 +1383,9 @@
     for (var i = 0; i < nodes.length; i++) {
       var n = nodes[i];
       var hasChildren = n.children && n.children.length > 0;
-      var icon = level === 0 ? '📂' : '🏷️';
+      var icon = level === 0
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>'
+        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
       html += '<div class="tree-node" data-id="' + n.id + '" style="padding-left:' + (12 + level * 16) + 'px">';
       html += '<span class="tree-toggle ' + (hasChildren ? '' : 'leaf') + '">▶</span>';
       html += '<span class="tree-node-icon">' + icon + '</span>';
@@ -2683,7 +2687,7 @@
     // 左侧：树形结构 南山区 → 街道 → 对象
     var leftHtml = '';
     if (all.length === 0) {
-      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">📦</div><div>暂无管控对象</div></div>';
+      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div>暂无管控对象</div></div>';
     } else {
       var allChecked = selected.length === all.length;
       var allIndeterminate = selected.length > 0 && selected.length < all.length;
@@ -2870,10 +2874,10 @@
       unitData.forEach(function(u) {
         var checked = selectedItems.indexOf(u.name) >= 0 ? ' checked' : '';
         var typeLabel = u.type === 'awb' ? '安委办' : u.type === 'commission' ? '委办局' : '街道';
-        leftHtml += '<div class="shuttle-item" style="display:flex;justify-content:space-between;align-items:center;"><span class="shuttle-item-label">' + u.name + '</span><span class="shuttle-item-tag">' + typeLabel + ' · ' + u.count + '人</span><label style="flex-shrink:0;"><input type="checkbox" class="person-shuttle-left-cb" data-name="' + u.name + '"' + checked + '></label></div>';
+        leftHtml += '<div class="shuttle-item" style="display:flex;justify-content:space-between;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:6px;"><path d="M3 21h18M5 21V7M19 21V7M9 21V11M15 21V11M3 7l9-4 9 4M3 7h18"/></svg><span class="shuttle-item-label">' + u.name + '</span><span class="shuttle-item-tag">' + typeLabel + ' · ' + u.count + '人</span><label style="flex-shrink:0;"><input type="checkbox" class="person-shuttle-left-cb" data-name="' + u.name + '"' + checked + '></label></div>';
       });
     } else {
-      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">🏢</div><div>全区暂无启用监管单位</div></div>';
+      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg></div><div>全区暂无启用监管单位</div></div>';
     }
     document.getElementById('personShuttleLeft').innerHTML = leftHtml;
 
@@ -2915,6 +2919,7 @@
       leftHtml += '<div class="shuttle-item" style="display:flex;justify-content:space-between;align-items:center;font-weight:700;background:var(--bg-section);padding:6px 12px;">';
       leftHtml += '<span style="cursor:pointer;" onclick="toggleDeptShuttle(\'__unit__\')">';
       leftHtml += '<span style="width:16px;font-size:var(--font-size-xs);color:var(--text-tertiary);display:inline-block;">' + unitArrow + '</span>';
+      leftHtml += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><path d="M3 21h18M5 21V7M19 21V7M9 21V11M15 21V11M3 7l9-4 9 4M3 7h18"/></svg>';
       leftHtml += '<span class="shuttle-item-label">' + unitName + '</span>';
       leftHtml += '<span class="shuttle-item-tag">' + allPersons.length + '人</span>';
       leftHtml += '</span>';
@@ -2952,7 +2957,7 @@
     });
 
     if (!leftHtml) {
-      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon">👤</div><div>该科室暂无人员</div></div>';
+      leftHtml = '<div class="shuttle-empty"><div class="shuttle-empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div>该科室暂无人员</div></div>';
     }
     document.getElementById('personShuttleLeft').innerHTML = leftHtml;
 

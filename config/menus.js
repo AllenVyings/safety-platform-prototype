@@ -19,7 +19,7 @@ const MENU_CONFIG = {
     {
       id: 'sa-gov-group',
       name: '政府单位管理',
-      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v4"/><path d="M5 17v-3h14v3"/><path d="M12 14v3"/></svg>',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7M19 21V7M9 21V11M15 21V11M3 7l9-4 9 4M3 7h18"/></svg>',
       children: [
         {
           id: 'sa-gov-org',
@@ -317,7 +317,7 @@ const MENU_CONFIG = {
     {
       id: 'gov-org-group',
       name: '政府单位管理',
-      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v4"/><path d="M5 17v-3h14v3"/><path d="M12 14v3"/></svg>',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7M19 21V7M9 21V11M15 21V11M3 7l9-4 9 4M3 7h18"/></svg>',
       children: [
         {
           id: 'gov-org-manage',
@@ -385,7 +385,7 @@ const MENU_CONFIG = {
     {
       id: 'gov-persuade',
       name: '劝导路口',
-      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 21"/><path d="M14 3L9 21"/><path d="M7 12h10"/><path d="M4 21h16"/></svg>',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="7" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg>',
       module: 'government/persuade',
       path: 'modules/government/persuade.html',
       description: '农村/社区交通安全劝导站管理',
