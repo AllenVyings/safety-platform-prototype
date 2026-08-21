@@ -609,6 +609,7 @@
 
 <script src="../../js/gov-user-data.js"></script>
 <script src="../../js/shared/district-data.js"></script>
+<script src="../../js/shared/industry-icons.js"></script>
 <script src="../../js/key-place-data.js"></script>
 <script src="../../js/domain-data.js"></script>
 <script src="../../js/pagination.js"></script>
@@ -1367,7 +1368,7 @@
   function renderTree() {
     var html = '<div class="tree-node" data-id="root" style="padding-left:12px">';
     html += '<span class="tree-toggle expanded">▶</span>';
-    html += '<span class="tree-node-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg></span>';
+    html += '<span class="tree-node-icon">' + DOMAIN_ICONS.FOLDER + '</span>';
     html += '<span class="tree-node-label" data-tooltip="' + TREE_DATA.name.replace(/"/g, '&quot;') + '">' + TREE_DATA.name + '</span>';
     html += '</div>';
     html += '<div class="tree-children show" data-parent="root">';
@@ -1383,9 +1384,15 @@
     for (var i = 0; i < nodes.length; i++) {
       var n = nodes[i];
       var hasChildren = n.children && n.children.length > 0;
-      var icon = level === 0
-        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>'
-        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
+      var icon;
+      if (level === 0) {
+        // 行业大类：从节点 ID 提取行业代码（如 'cat-IND' → 'IND'）
+        var industryCode = (n.id && n.id.indexOf('cat-') === 0) ? n.id.substring(4) : null;
+        icon = (industryCode && DOMAIN_ICONS[industryCode]) ? DOMAIN_ICONS[industryCode] : DOMAIN_ICONS.FOLDER;
+      } else {
+        // 领域小类：统一标签图标
+        icon = DOMAIN_ICONS.TAG;
+      }
       html += '<div class="tree-node" data-id="' + n.id + '" style="padding-left:' + (12 + level * 16) + 'px">';
       html += '<span class="tree-toggle ' + (hasChildren ? '' : 'leaf') + '">▶</span>';
       html += '<span class="tree-node-icon">' + icon + '</span>';

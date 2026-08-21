@@ -28,7 +28,8 @@
 .tree-node.active{background:var(--primary-light);color:var(--primary)}
 .tree-node .arrow{margin-right:var(--spacing-xs);font-size:10px;color:var(--text-tertiary);transition:transform .2s;width:12px;text-align:center}
 .tree-node .arrow.expanded{transform:rotate(90deg)}
-.tree-node .node-icon{margin-right:6px;font-size:var(--font-size-md)}
+.tree-node .node-icon{margin-right:6px;font-size:var(--font-size-md);display:inline-flex;align-items:center}
+.tree-node .node-icon svg{display:block}
 .tree-node .node-count{margin-left:auto;font-size:11px;color:var(--text-tertiary);background:var(--bg-secondary);padding:1px 6px;border-radius:10px}
 .tree-node.active .node-count{background:var(--primary);color:var(--bg-primary)}
 .tree-children{padding-left:20px;display:block}
@@ -136,6 +137,7 @@ tbody tr:hover td:nth-child(11){background:var(--bg-section)}
 </head>
 <body>
 <script src="../../js/shared/district-data.js"></script>
+<script src="../../js/shared/industry-icons.js"></script>
 <script src="../../js/pagination.js"></script>
 <script src="../../js/utils.js"></script>
 <div class="page-container" data-module="government/project-manage">
@@ -1040,27 +1042,27 @@ var selectedTreeNode = null;
 
 // 领域树数据
 var domainTreeData = [
-  {code: 'IND', name: '工业制造类', icon: '🏭', children: [
+  {code: 'IND', name: '工业制造类', icon: DOMAIN_ICONS.IND, children: [
     {code: 'IND-PROJ', name: '工业建设项目', count: 0}
   ]},
-  {code: 'CITY', name: '城市运行类', icon: '🏙️', children: [
+  {code: 'CITY', name: '城市运行类', icon: DOMAIN_ICONS.CITY, children: [
     {code: 'CITY-PROJ', name: '城市建设项目', count: 0}
   ]},
-  {code: 'CONS', name: '建设工程类', icon: '🏗️', children: [
+  {code: 'CONS', name: '建设工程类', icon: DOMAIN_ICONS.CONS, children: [
     {code: 'CONS-BUILD', name: '房屋建筑项目', count: 0},
     {code: 'CONS-CIVIL', name: '市政工程项目', count: 0},
     {code: 'CONS-TRANS', name: '交通工程项目', count: 0}
   ]},
-  {code: 'CHEM', name: '危险化学品类', icon: '☢️', children: [
+  {code: 'CHEM', name: '危险化学品类', icon: DOMAIN_ICONS.CHEM, children: [
     {code: 'CHEM-PROJ', name: '危化品建设项目', count: 0}
   ]},
-  {code: 'TRANS', name: '交通运输类', icon: '🚇', children: [
+  {code: 'TRANS', name: '交通运输类', icon: DOMAIN_ICONS.TRANS, children: [
     {code: 'TRANS-PROJ', name: '交通运输项目', count: 0}
   ]},
-  {code: 'COMM', name: '公共场所类', icon: '🏢', children: [
+  {code: 'COMM', name: '公共场所类', icon: DOMAIN_ICONS.COMM, children: [
     {code: 'COMM-PROJ', name: '公共场所项目', count: 0}
   ]},
-  {code: 'OTH', name: '其他类', icon: '📦', children: [
+  {code: 'OTH', name: '其他类', icon: DOMAIN_ICONS.OTH, children: [
     {code: 'OTH-PROJ', name: '其他项目', count: 0}
   ]}
 ];
@@ -1110,7 +1112,7 @@ function renderTree(nodes, level, parentExpanded){
     var isActive = selectedTreeNode && selectedTreeNode.code === node.code;
     html += '<div class="tree-node ' + (isActive ? 'active' : '') + '" onclick="onTreeNodeClick(\'' + node.code + '\', \'' + node.name + '\', ' + level + ', event)" data-code="' + node.code + '">';
     html += '<span class="arrow ' + (isExpanded ? 'expanded' : '') + '" style="' + (hasChildren ? '' : 'visibility:hidden') + '" onclick="toggleTreeNode(\'' + node.code + '\', event)">▶</span>';
-    html += '<span class="node-icon">' + (node.icon || (level === 0 ? '📁' : (level === 1 ? '📂' : (level === 2 ? '📄' : '📍')))) + '</span>';
+    html += '<span class="node-icon">' + (node.icon || (level === 0 ? DOMAIN_ICONS.FOLDER : (level === 1 ? DOMAIN_ICONS.FOLDER : (level === 2 ? DOMAIN_ICONS.TAG : DOMAIN_ICONS.TAG)))) + '</span>';
     html += '<span>' + node.name + '</span>';
     html += '<span class="node-count">' + node.count + '</span>';
     html += '</div>';

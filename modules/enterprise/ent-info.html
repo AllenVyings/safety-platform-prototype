@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -8,64 +8,53 @@
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
     /* ========== 页面背景 ========== */
-    
-    /* .page-header, .page-title 由 framework.css 提供 */
-    
-    /* ========== 信息卡片 ========== */
-    .info-card { 
-      background: var(--bg-primary); 
-      border-radius: var(--radius-lg); 
-      overflow: hidden; 
-      box-shadow: var(--shadow-card);
-    }
-    .info-header { 
-      padding: var(--spacing-md) var(--spacing-lg); 
-      border-bottom: 1px solid var(--border-light); 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      background: var(--bg-section);
-    }
-    .info-title { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
-    .info-body { padding: var(--spacing-lg); }
-    
-    /* ========== 信息板块 ========== */
-    /* .info-section, .info-section-title, .info-grid, .info-item, .info-label, .info-value 由 framework.css 提供 */
-    .info-section { margin-bottom: var(--spacing-xl); }
-    .info-section:last-child { margin-bottom: 0; }
-    
+    .module-page { background: var(--bg-page-solid); min-height: 100vh; padding: var(--spacing-lg); }
+    .breadcrumb { padding: 0; margin-bottom: var(--spacing-md); font-size: var(--font-size-sm); color: var(--text-secondary); }
+    .breadcrumb-item { color: var(--text-secondary); }
+    .breadcrumb-item.current { color: var(--text-primary); font-weight: 500; }
+
+    /* ========== 卡片容器 ========== */
+    .detail-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .detail-card:last-child { margin-bottom: 0; }
+    .detail-card.card-bg { background: url('images/ent-info-bg.png') center top / auto 200px no-repeat, var(--bg-primary); }
+
+    /* ========== 板块标题 ========== */
+    .section-title { display: flex; align-items: center; font-size: 16px; font-weight: 600; color: var(--text-primary); padding: 0 0 0 12px; border-left: 4px solid var(--primary); border-radius: 0 !important; border-bottom: none !important; background: transparent !important; margin: 0 0 16px 0 !important; gap: 8px; line-height: 1.6; }
+    .section-title::before { display: none !important; }
+
+    /* ========== 信息行 ========== */
+    .info-row { display: flex; align-items: flex-start; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-light); }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .info-label { width: 120px; flex-shrink: 0; font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 28px; }
+    .info-row .info-value { flex: 1; font-size: var(--font-size-md); color: var(--text-primary); line-height: 28px; min-width: 0; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+
+    /* ========== 地址行 ========== */
+    .address-row { display: flex; align-items: center; gap: var(--spacing-sm); flex: 1; min-width: 0; }
+    .address-row .address-text { flex: 1; min-width: 0; font-size: var(--font-size-md); color: var(--text-primary); line-height: 28px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .icon-btn { display: inline-flex; padding: 0; background: none; border: none; cursor: pointer; flex-shrink: 0; }
+    .icon-btn:hover svg { fill: #0958d9; }
+
+    /* ========== 标签 ========== */
     .tag-list { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
-    .tag-item { background: var(--info-light); color: var(--info); padding: var(--spacing-xs) 12px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); display: inline-flex; align-items: center; gap: var(--spacing-xs); }
-    /* 关联领域小类由监管端维护，企业端只读展示（BR-ENT-02-04） */
-    
-    .readonly-field { background: var(--bg-section-alt); padding: var(--spacing-sm) 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-secondary); }
-    .editable-field { background: var(--bg-primary); padding: var(--spacing-sm) 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-primary); outline: none; }
-    .editable-field.editing { border: 1px solid var(--border-figma); }
-    .editable-field.editing:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
-    .field-error { color: var(--danger); font-size: var(--font-size-xs); margin-top: var(--spacing-xs); display: none; }
-    .has-error .editable-field { border-color: var(--danger); }
-    .has-error .field-error { display: block; }
+    .scene-tag { padding: 4px 14px; border-radius: var(--radius-sm); font-size: var(--font-size-sm); display: inline-flex; align-items: center; gap: 4px; }
+    .scene-tag.basic { background: var(--info-light); color: var(--info); }
+    .scene-tag.special { background: #fff7e6; color: #d46b08; }
+    .scene-tag .primary-badge { background: var(--primary); color: #fff; font-size: 10px; padding: 0 4px; border-radius: 2px; line-height: 16px; }
+    .scene-tag .tag-remove { margin-left: 4px; cursor: pointer; opacity: 0.6; font-size: 12px; }
+    .scene-tag .tag-remove:hover { opacity: 1; }
 
-    /* ========== 安全码信息 ========== */
-    .safety-code-card { display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-md); background: var(--bg-section-alt); border-radius: var(--radius-md); border: 1px solid var(--border-light); }
-    .safety-code-qr { width: 96px; height: 96px; border-radius: var(--radius-sm); background: linear-gradient(135deg, #eef2ff 0%, #e6f7ff 100%); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0; }
-    .safety-code-meta { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--spacing-sm) var(--spacing-md); }
-    .safety-code-meta .info-item { display: flex; flex-direction: column; gap: 4px; }
-    .safety-code-meta .info-label { font-size: var(--font-size-xs); color: var(--text-tertiary); }
-    .safety-code-meta .info-value { font-size: var(--font-size-md); color: var(--text-primary); font-weight: 500; }
-    .code-cell{display:inline-flex;align-items:center;cursor:help}
-    .qrcode-icon{width:48px;height:48px;color:var(--primary)}
-    .code-cell.red .qrcode-icon{color:var(--danger)}
-    .code-cell.yellow .qrcode-icon{color:var(--warning)}
-    .code-cell.green .qrcode-icon{color:var(--success)}
+    /* ========== 图片/表格 ========== */
+    .image-thumb { width: 80px; height: 80px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background-size: cover; background-position: center; }
+    .supervisor-table { width: 100%; border-collapse: collapse; }
+    .supervisor-table th, .supervisor-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); }
+    .supervisor-table th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-secondary); font-size: var(--font-size-xs); }
+    .supervisor-table tr:last-child td { border-bottom: none; }
+    .account-row { display: flex; align-items: center; padding: var(--spacing-sm) 0; }
+    .account-row .info-label { width: 80px; flex-shrink: 0; font-size: var(--font-size-sm); color: var(--text-secondary); }
+    .account-row .info-value { font-size: var(--font-size-md); color: var(--text-primary); font-family: var(--font-family-code); font-weight: 500; }
 
-    /* ========== 审批记录表 ========== */
-    .audit-record-table { width: 100%; border-collapse: collapse; }
-    .audit-record-table th, .audit-record-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); }
-    .audit-record-table th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-secondary); }
-    .audit-record-table tr:last-child td { border-bottom: none; }
-
-    /* ========== 弹窗表单 ========== */
+    /* ========== 弹窗通用 ========== */
     .modal-form .form-group { margin-bottom: var(--spacing-md); }
     .modal-form .form-label { display: block; margin-bottom: 6px; font-size: var(--font-size-sm); color: var(--text-secondary); font-weight: 500; }
     .modal-form .form-label .required { color: var(--danger); margin-left: 4px; }
@@ -73,449 +62,640 @@
     .modal-form .form-input:focus,.modal-form .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
     .modal-form textarea.form-input { min-height: 80px; resize: vertical; font-family: inherit; }
     .modal-form .form-hint { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px; }
-    .modal-form .readonly-text { padding: var(--spacing-sm) 12px; background: var(--bg-section-alt); border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: var(--font-size-md); }
+    .modal-form .form-row { display: flex; gap: var(--spacing-md); }
+    .modal-form .form-row .form-group { flex: 1; }
+
+    /* ========== 编辑弹窗 ========== */
+    #modalEdit .modal-dialog { width: 760px; max-height: 85vh; display: flex; flex-direction: column; }
+    #modalEdit .modal-body { overflow-y: auto; flex: 1; }
+    .edit-section { margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
+    .edit-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .edit-section-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-md); padding-left: 10px; border-left: 3px solid var(--primary); }
+    .edit-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm) var(--spacing-md); }
+    .edit-field-grid .form-group.full-width { grid-column: 1 / -1; }
+    .form-input[disabled],.form-select[disabled] { background: var(--bg-tertiary); color: var(--text-tertiary); cursor: not-allowed; border-color: var(--border-light); }
+    .disabled-table { width: 100%; border-collapse: collapse; background: var(--bg-tertiary); border-radius: var(--radius-sm); overflow: hidden; }
+    .disabled-table td { padding: var(--spacing-sm) 12px; font-size: var(--font-size-sm); color: var(--text-tertiary); border-bottom: 1px solid var(--border-light); }
+    .disabled-table tr:last-child td { border-bottom: none; }
+    .disabled-table td:first-child { width: 120px; color: var(--text-secondary); font-weight: 500; }
+    .linked-hint { font-size: var(--font-size-xs); color: var(--primary); margin-top: 4px; display: none; }
+    .linked-hint.show { display: block; }
+
+    /* ========== 级联选择器（区划+领域共用模式） ========== */
+    .cascade-field { position: relative; }
+    .cascade-trigger { width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary); font-size: var(--font-size-sm); cursor: pointer; text-align: left; box-sizing: border-box; line-height: 30px; display: flex; justify-content: space-between; align-items: center; }
+    .cascade-trigger.placeholder { color: var(--text-tertiary); }
+    .cascade-trigger:hover { border-color: var(--primary); }
+    .cascade-trigger .arrow { color: var(--text-tertiary); font-size: 11px; }
+    .cascade-popover { position: absolute; z-index: 1100; left: 0; top: calc(100% + 4px); background: var(--bg-primary); border: 1px solid var(--border-figma); border-radius: var(--radius-md); box-shadow: 0 4px 16px rgba(0,0,0,0.12); padding: 12px; max-width: min(540px, 80vw); max-height: 360px; display: none; flex-direction: column; }
+    .cascade-popover.open { display: flex; }
+    .cascade-search { width: 100%; height: 30px; padding: 0 10px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); font-size: var(--font-size-sm); margin-bottom: 10px; box-sizing: border-box; }
+    .cascade-search:focus { outline: none; border-color: var(--primary); }
+    .cascade-cols { display: flex; gap: 6px; min-height: 200px; flex: 1; }
+    .cascade-col { flex: 1; min-width: 0; border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow-y: auto; max-height: 240px; }
+    .cascade-col-header { padding: 6px 10px; font-size: var(--font-size-xs); font-weight: 600; color: var(--text-secondary); background: var(--bg-tertiary); border-bottom: 1px solid var(--border-light); position: sticky; top: 0; }
+    .cascade-item { padding: 6px 10px; font-size: var(--font-size-sm); cursor: pointer; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px; }
+    .cascade-item:hover { background: var(--bg-section-alt); }
+    .cascade-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+    .cascade-item.selected { color: var(--primary); }
+    .cascade-item.matched { background: #fffbe6; }
+    .cascade-item .mode-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .cascade-item .mode-dot.basic { background: var(--info); }
+    .cascade-item .mode-dot.special { background: #d46b08; }
+
+    /* 已选标签区 */
+    .selected-tags-area { margin-top: var(--spacing-sm); }
+    .selected-tags-area:empty { display: none; }
+
+    /* ========== 开关组件 ========== */
+    .form-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; position: relative; }
+    .form-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .switch-track { width: 40px; height: 22px; border-radius: 999px; background: var(--border); position: relative; transition: background var(--duration-normal); }
+    .switch-track::after { content: ''; position: absolute; width: 18px; height: 18px; left: 2px; top: 2px; border-radius: 50%; background: #fff; transition: transform var(--duration-normal); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .form-switch input:checked + .switch-track { background: var(--primary); }
+    .form-switch input:checked + .switch-track::after { transform: translateX(18px); }
   </style>
 </head>
 <body>
   <div class="module-page page-container" data-module="enterprise/ent-info">
-    <!-- 面包屑导航 -->
-    <div class="breadcrumb" id="breadcrumb">
-      <span class="breadcrumb-prefix">当前位置：</span>
-      <span class="breadcrumb-item">企业端</span>
-      <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">企业基本信息</span>
-    </div>
-    
-    <!-- 页面标题栏已隐藏 -->
-    <div style="display: flex; justify-content: flex-end; margin-bottom: var(--spacing-md);">
-      <button class="btn btn-default" onclick="requestDisable()">停用申请</button>
-      <button class="btn btn-primary" id="editBtn" onclick="toggleEdit()">编辑</button>
-    </div>
-    
-    <div class="info-card">
-      <div class="info-header">
-        <span class="info-title">基础信息</span>
+    <div class="breadcrumb"><span class="breadcrumb-item">企业端</span><span class="breadcrumb-separator">&gt;</span><span class="breadcrumb-item current">企业基本信息</span></div>
+
+    <!-- 基础信息 -->
+    <div class="detail-card card-bg">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-lg);">
+        <div class="section-title">基础信息</div>
+        <div style="display:flex;gap:var(--spacing-sm);">
+          <button class="btn btn-default" onclick="requestDisable()">停用申请</button>
+          <button class="btn btn-primary" onclick="openEditModal()">编辑</button>
+        </div>
       </div>
-      <div class="info-body">
-        <div class="info-section">
-          <div class="info-section-title">基本信息</div>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">企业名称</span>
-              <span class="info-value"><input class="editable-field" data-field="entName" data-original="创安电子科技有限公司" value="创安电子科技有限公司" readonly style="width:100%;box-sizing:border-box;"></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">统一社会信用代码</span>
-              <span class="info-value readonly-field">91440300MA5DQ2XXXX</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">法定代表人</span>
-              <span class="info-value"><input class="editable-field" data-field="legalPerson" value="王建国" readonly style="width:100%;box-sizing:border-box;"></span>
-            </div>
-            <div class="info-item" id="fg-phone">
-              <span class="info-label">联系电话</span>
-              <span class="info-value"><input class="editable-field" data-field="phone" value="13800138000" readonly style="width:100%;box-sizing:border-box;"></span>
-              <div class="field-error">请输入正确的手机号（11位数字，1开头）</div>
-            </div>
-            <div class="info-item">
-              <span class="info-label">注册地址</span>
-              <span class="info-value"><input class="editable-field" data-field="regAddress" value="深圳市南山区科技园南区" readonly style="width:100%;box-sizing:border-box;"></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">经营地址</span>
-              <span class="info-value"><input class="editable-field" data-field="bizAddress" value="深圳市南山区科技园南区A栋" readonly style="width:100%;box-sizing:border-box;"></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">归属网格</span>
-              <span class="info-value readonly-field">南山区-南山街道-第12网格</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">监管单位</span>
-              <span class="info-value readonly-field">南山区应急管理局</span>
-            </div>
-            <div class="info-item" style="grid-column: 1 / -1;">
-              <span class="info-label">企业图片</span>
-              <span class="info-value">
-                <div class="image-upload-area" id="entImageArea" style="display:flex;flex-wrap:wrap;gap:var(--spacing-sm);">
-                  <div class="image-thumb" style="width:96px;height:96px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect fill='%23eef2ff' width='96' height='96'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%231677ff' font-size='14' font-family='sans-serif'%3E图片1%3C/text%3E%3C/svg%3E&quot;);"></div>
-                  <div class="image-thumb" style="width:96px;height:96px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect fill='%23eef2ff' width='96' height='96'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%231677ff' font-size='14' font-family='sans-serif'%3E图片2%3C/text%3E%3C/svg%3E&quot;);"></div>
-                  <button class="image-add-btn" type="button" onclick="showToast('图片上传：最多 5 张，jpg/png，单张 ≤5MB')" style="width:96px;height:96px;border:1px dashed var(--border-figma);border-radius:var(--radius-sm);background:var(--bg-section-alt);color:var(--text-secondary);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;">+</button>
+      <div class="info-grid">
+        <div class="info-row"><span class="info-label">企业名称</span><span class="info-value">深圳市天道医药有限公司南山分厂</span></div>
+        <div class="info-row"><span class="info-label">统一社会信用代码</span><span class="info-value">91440300MA5EGUXE2W</span></div>
+        <div class="info-row"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
+        <div class="info-row"><span class="info-label">法定代表人</span><span class="info-value">李锂</span></div>
+        <div class="info-row"><span class="info-label">联系电话</span><span class="info-value">0755-86142880</span></div>
+        <div class="info-row"><span class="info-label">注册地址</span><span class="info-value"><div class="address-row"><span class="address-text">南山区 粤海街道 麻岭社区 深圳市天道医药有限公司</span><button type="button" class="icon-btn" title="地图选点" onclick="openMapPicker('reg')"><svg width="16" height="16" viewBox="0 0 24 24" fill="#1677ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></button></div></span></div>
+        <div class="info-row"><span class="info-label">经营地址</span><span class="info-value"><div class="address-row"><span class="address-text">南山区 粤海街道 麻岭社区 深圳市天道医药有限公司</span><button type="button" class="icon-btn" title="地图选点" onclick="openMapPicker('biz')"><svg width="16" height="16" viewBox="0 0 24 24" fill="#1677ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></button></div></span></div>
+        <div class="info-row"><span class="info-label">归属网格</span><span class="info-value" id="dispGrid">南山区 / 粤海街道 / 麻岭社区 / 麻岭01</span></div>
+        <div class="info-row" style="grid-column: 1 / -1;"><span class="info-label">备注</span><span class="info-value">深圳市南山区重点医药企业，主营化学药品制剂和中药材加工。</span></div>
+        <div class="info-row" style="grid-column: 1 / -1;"><span class="info-label">企业图片</span><span class="info-value"><div class="image-thumb" style="background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23f0f2f5' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='12' font-family='sans-serif'%3E暂无图片%3C/text%3E%3C/svg%3E&quot;);"></div></span></div>
+      </div>
+    </div>
+
+    <!-- 企业管理员 -->
+    <div class="detail-card"><div class="section-title">企业管理员</div><div class="account-row"><span class="info-label">账号</span><span class="info-value">TDYY_2</span></div></div>
+
+    <!-- 安全场景标签库 -->
+    <div class="detail-card">
+      <div class="section-title">安全场景标签库</div>
+      <div class="tag-list" id="dispTags">
+        <span class="scene-tag basic"><span class="primary-badge">主</span>医药化工</span>
+        <span class="scene-tag basic">危险化学品</span>
+        <span class="scene-tag basic">仓储服务</span>
+        <span class="scene-tag special">危险化学品经营</span>
+        <span class="scene-tag special">化工仓储</span>
+      </div>
+      <div style="margin-top:var(--spacing-sm);font-size:var(--font-size-xs);color:var(--text-tertiary);">
+        <span style="display:inline-block;width:10px;height:10px;background:var(--info-light);border-radius:2px;vertical-align:middle;margin-right:4px;"></span>基础模式
+        <span style="display:inline-block;width:10px;height:10px;background:#fff7e6;border:1px solid #ffd591;border-radius:2px;vertical-align:middle;margin-left:12px;margin-right:4px;"></span>重点场所模式
+      </div>
+    </div>
+
+    <!-- 监管单位 -->
+    <div class="detail-card">
+      <div class="section-title">监管单位</div>
+      <table class="supervisor-table">
+        <thead><tr><th style="width:50%;">监管类型</th><th>监管单位名称</th></tr></thead>
+        <tbody>
+          <tr><td>行业监管单位</td><td id="dispIndustry">区应急管理局</td></tr>
+          <tr><td>专业监管单位</td><td id="dispProfessional">区消防救援局、市场监督管理局南山监管局、市生态环境局南山管理局</td></tr>
+          <tr><td>属地监管单位</td><td id="dispLocal">粤海街道办事处</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== 编辑弹窗（全量 4 板块） ========== -->
+  <div class="modal-overlay" id="modalEdit">
+    <div class="modal-dialog">
+      <div class="modal-header"><span class="modal-title">编辑企业信息</span><button class="modal-close" onclick="closeModal('modalEdit')">×</button></div>
+      <div class="modal-body"><div class="modal-form">
+
+        <!-- 板块 1：基础信息 -->
+        <div class="edit-section">
+          <div class="edit-section-title">基础信息</div>
+          <div class="edit-field-grid">
+            <div class="form-group"><label class="form-label">企业名称</label><input type="text" class="form-input" value="深圳市天道医药有限公司南山分厂" disabled><div class="form-hint">变更请通过"企业名称变更申请"操作</div></div>
+            <div class="form-group"><label class="form-label">统一社会信用代码</label><input type="text" class="form-input" value="91440300MA5EGUXE2W" disabled></div>
+            <div class="form-group"><label class="form-label">法定代表人</label><input type="text" class="form-input" id="editLegalPerson" value="李锂"></div>
+            <div class="form-group"><label class="form-label">联系电话</label><input type="text" class="form-input" id="editPhone" value="0755-86142880"><div class="form-hint" id="editPhoneError" style="color:var(--danger);display:none;">请输入正确的联系电话</div></div>
+            <div class="form-group"><label class="form-label">注册地址</label><div style="display:flex;gap:var(--spacing-sm);align-items:center;"><input type="text" class="form-input" id="editRegAddress" value="南山区 粤海街道 麻岭社区 深圳市天道医药有限公司" style="flex:1;"><button type="button" class="icon-btn" title="地图选点" onclick="openMapPicker('editReg')"><svg width="16" height="16" viewBox="0 0 24 24" fill="#1677ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></button></div></div>
+            <div class="form-group"><label class="form-label">经营地址</label><div style="display:flex;gap:var(--spacing-sm);align-items:center;"><input type="text" class="form-input" id="editBizAddress" value="南山区 粤海街道 麻岭社区 深圳市天道医药有限公司" style="flex:1;"><button type="button" class="icon-btn" title="地图选点" onclick="openMapPicker('editBiz')"><svg width="16" height="16" viewBox="0 0 24 24" fill="#1677ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></button></div></div>
+
+            <!-- 归属网格 — 四级级联选择器（复用超管端模式） -->
+            <div class="form-group full-width cascade-field">
+              <label class="form-label">归属网格<span class="required">*</span></label>
+              <button type="button" class="cascade-trigger" id="regionTrigger" onclick="toggleRegionPopover(event)"><span id="regionLabel">南山区 / 粤海街道 / 麻岭社区 / 麻岭01</span><span class="arrow">▼</span></button>
+              <div class="cascade-popover" id="regionPopover" style="width:540px;" onclick="event.stopPropagation()">
+                <input type="text" class="cascade-search" id="regionSearch" placeholder="搜索区/街道/社区/网格..." oninput="onRegionSearch()">
+                <div class="cascade-cols">
+                  <div class="cascade-col" id="regionColDistrict"><div class="cascade-col-header">区</div></div>
+                  <div class="cascade-col" id="regionColStreet"><div class="cascade-col-header">街道</div></div>
+                  <div class="cascade-col" id="regionColCommunity"><div class="cascade-col-header">社区</div></div>
+                  <div class="cascade-col" id="regionColGrid"><div class="cascade-col-header">网格</div></div>
                 </div>
-                <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:var(--spacing-xs);">最多 5 张，jpg/png，单张 ≤5MB；编辑模式下可上传/删除</div>
-              </span>
+              </div>
+              <input type="hidden" id="regionCode">
+              <div class="linked-hint" id="gridLinkedHint">📍 属地监管单位已根据新区划刷新</div>
             </div>
-            <div class="info-item">
-              <span class="info-label">企业状态</span>
-              <span class="info-value"><span class="tag tag-green">启用</span></span>
-            </div>
-            <div class="info-item" style="grid-column: 1 / -1;">
-              <span class="info-label">备注</span>
-              <span class="info-value"><input class="editable-field" data-field="remark" value="高新技术企业，主营电子元器件制造与销售" readonly style="width:100%;box-sizing:border-box;"></span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="info-section">
-          <div class="info-section-title">关联领域小类</div>
-          <div class="info-grid" style="margin-bottom: var(--spacing-md);">
-            <div class="info-item">
-              <span class="info-label">主领域小类</span>
-              <span class="info-value readonly-field">充换电设施</span>
-            </div>
-          </div>
-          <div class="tag-list" id="categoryTags">
-            <span class="tag-item">充换电设施</span>
-            <span class="tag-item">工业制造</span>
-            <span class="tag-item">危险化学品使用</span>
-          </div>
-        </div>
-        
-        <div class="info-section">
-          <div class="info-section-title">账号信息</div>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">登录账号</span>
-              <span class="info-value readonly-field">ca888</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">登录密码</span>
-              <span class="info-value readonly-field">••••••••</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">账号状态</span>
-              <span class="info-value"><span class="tag tag-green">启用</span></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- 安全码信息 -->
-    <div class="info-card" style="margin-top: var(--spacing-md);">
-      <div class="info-header">
-        <span class="info-title">安全码信息</span>
-      </div>
-      <div class="info-body">
-        <div class="safety-code-card">
-          <div class="safety-code-qr"><span class="code-cell green" id="entSafetyCodeIcon"></span></div>
-          <div class="safety-code-meta">
-            <div class="info-item">
-              <span class="info-label">安全码状态</span>
-              <span class="info-value"><span class="tag tag-green">正常</span></span>
+            <div class="form-group"><label class="form-label">状态</label><label class="form-switch" style="margin-top:6px"><input type="checkbox" id="editStatusSwitch" checked onchange="document.getElementById('editStatusLabel').textContent=this.checked?'启用':'停用'"><span class="switch-track"></span><span class="switch-label" id="editStatusLabel">启用</span></label></div>
+            <div class="form-group"><label class="form-label">企业图片</label><div style="position: relative; width: 80px; height: 80px; border: 2px dashed var(--border-figma); border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border-figma)'" onclick="this.querySelector('input[type=file]').click()"><input type="file" accept="image/*" style="position: absolute; inset: 0; opacity: 0; cursor: pointer;" onchange="showToast('图片已选择（原型演示）')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span style="font-size: 11px; color: var(--text-tertiary);">上传</span></div><div class="form-hint">支持 jpg/png/bmp/gif/svg/webp，单张≤5MB，最多 5 张</div></div>
+            <div class="form-group full-width"><label class="form-label">备注</label><textarea class="form-input" id="editRemark">深圳市南山区重点医药企业，主营化学药品制剂和中药材加工。</textarea></div>
+          </div>
+        </div>
+
+        <!-- 板块 2：企业管理员 -->
+        <div class="edit-section">
+          <div class="edit-section-title">企业管理员</div>
+          <div class="edit-field-grid"><div class="form-group"><label class="form-label">账号</label><input type="text" class="form-input" value="TDYY_2" disabled></div></div>
+        </div>
+
+        <!-- 板块 3：安全场景标签库 — 级联选择器 -->
+        <div class="edit-section">
+          <div class="edit-section-title">安全场景标签库</div>
+          <div class="form-group cascade-field" style="margin-bottom:0;">
+            <label class="form-label">选择领域小类（支持多选，左侧选行业大类，右侧选领域小类）</label>
+            <button type="button" class="cascade-trigger" id="domainTrigger" onclick="toggleCascade('domain')"><span id="domainLabel">请选择领域小类</span><span class="arrow">▼</span></button>
+            <div class="cascade-popover" id="domainPopover" style="width:480px;">
+              <input type="text" class="cascade-search" id="domainSearch" placeholder="搜索领域小类名称..." oninput="onDomainSearch()">
+              <div class="cascade-cols">
+                <div class="cascade-col" id="domainColIndustry"><div class="cascade-col-header">行业大类</div></div>
+                <div class="cascade-col" id="domainColDomain"><div class="cascade-col-header">领域小类</div></div>
+              </div>
             </div>
-            <div class="info-item">
-              <span class="info-label">安全码等级</span>
-              <span class="info-value"><span class="tag tag-blue">绿色（低风险）</span></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">最近生成时间</span>
-              <span class="info-value">2026-06-28 06:00</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">有效期至</span>
-              <span class="info-value">2026-07-28 06:00</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">最近扫码次数</span>
-              <span class="info-value">128 次</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">最近隐患数</span>
-              <span class="info-value">0 条</span>
+            <div class="selected-tags-area tag-list" id="editSelectedTags"></div>
+            <div class="linked-hint" id="tagLinkedHint">📍 行业/专业监管单位已根据标签变更刷新</div>
+            <div style="margin-top:var(--spacing-sm);font-size:var(--font-size-xs);color:var(--text-tertiary);">
+              <span style="display:inline-block;width:8px;height:8px;background:var(--info);border-radius:50%;vertical-align:middle;margin-right:4px;"></span>基础模式
+              <span style="display:inline-block;width:8px;height:8px;background:#d46b08;border-radius:50%;vertical-align:middle;margin-left:8px;margin-right:4px;"></span>重点场所模式
+              <span style="margin-left:12px;color:var(--primary);">首个基础模式标签自动为主领域小类</span>
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- 审批记录 -->
-    <div class="info-card" style="margin-top: var(--spacing-md);">
-      <div class="info-header">
-        <span class="info-title">审批记录</span>
-      </div>
-      <div class="info-body">
-        <div class="table-wrapper">
-          <table class="audit-record-table" id="auditRecordTable">
-            <thead>
-              <tr>
-                <th>申请类型</th>
-                <th>提交时间</th>
-                <th>审批单位</th>
-                <th>审批状态</th>
-                <th>操作时间</th>
-                <th>操作人</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>企业注册</td>
-                <td>2026-05-10 09:30</td>
-                <td>南山区南山街道办</td>
-                <td><span class="tag tag-green">通过</span></td>
-                <td>2026-05-12 14:20</td>
-                <td>李科员</td>
-              </tr>
-              <tr>
-                <td>企业名称变更</td>
-                <td>2026-06-15 11:00</td>
-                <td>南山区应急管理局</td>
-                <td><span class="tag tag-green">通过</span></td>
-                <td>2026-06-17 16:45</td>
-                <td>王科长</td>
-              </tr>
-              <tr>
-                <td>企业名称变更</td>
-                <td>2026-06-29 10:20</td>
-                <td>南山区应急管理局</td>
-                <td><span class="tag tag-orange">待审核</span></td>
-                <td>—</td>
-                <td>—</td>
-              </tr>
-            </tbody>
+        <!-- 板块 4：监管单位 -->
+        <div class="edit-section">
+          <div class="edit-section-title">监管单位</div>
+          <table class="disabled-table" id="editSupervisorTable">
+            <tr><td>行业监管单位</td><td id="editIndustry">区应急管理局</td></tr>
+            <tr><td>专业监管单位</td><td id="editProfessional">区消防救援局、市场监督管理局南山监管局、市生态环境局南山管理局</td></tr>
+            <tr><td>属地监管单位</td><td id="editLocal">粤海街道办事处</td></tr>
           </table>
+          <div class="form-hint" style="margin-top:8px;">监管单位由归属网格和安全场景标签库自动计算，不可手填</div>
         </div>
-      </div>
+
+      </div></div>
+      <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modalEdit')">取消</button><button class="btn btn-primary" onclick="submitEdit()">保存</button></div>
     </div>
   </div>
 
-  <!-- 企业名称变更申请弹窗 -->
-  <div class="modal-overlay" id="modalNameChange">
-    <div class="modal-dialog" style="width: 520px;">
-      <div class="modal-header">
-        <span class="modal-title">企业名称变更申请</span>
-        <button class="modal-close" onclick="closeModal('modalNameChange')">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-form">
-          <div class="form-group">
-            <label class="form-label">原企业名称</label>
-            <div class="readonly-text" id="ncOriginalName">创安电子科技有限公司</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">变更后企业名称<span class="required">*</span></label>
-            <input type="text" class="form-input" id="ncNewName" placeholder="请输入变更后的企业名称">
-            <div class="form-hint">企业名称变更需提交审批，审批通过后生效；驳回后保持原名称。</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">审批单位<span class="required">*</span></label>
-            <select class="form-select" id="ncApprover">
-              <option value="">请选择审批单位</option>
-              <option value="南山区南山街道办">南山区南山街道办（属地街道办）</option>
-              <option value="南山区应急管理局">南山区应急管理局（领域可管理单位）</option>
-            </select>
-            <div class="form-hint">系统按属地街道办与主领域小类可管理单位计算可选审批单位，请指定一个。</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">申请说明</label>
-            <textarea class="form-input" id="ncReason" placeholder="请简要说明变更原因"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modalNameChange')">取消</button>
-        <button class="btn btn-primary" onclick="submitNameChange()">提交申请</button>
-      </div>
-    </div>
-  </div>
+  <!-- 企业名称变更弹窗 -->
+  <div class="modal-overlay" id="modalNameChange"><div class="modal-dialog" style="width:520px;"><div class="modal-header"><span class="modal-title">企业名称变更申请</span><button class="modal-close" onclick="closeModal('modalNameChange')">×</button></div><div class="modal-body"><div class="modal-form"><div class="form-group"><label class="form-label">原企业名称</label><div class="readonly-text" style="padding:var(--spacing-sm) 12px;background:var(--bg-section-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);">深圳市天道医药有限公司南山分厂</div></div><div class="form-group"><label class="form-label">变更后企业名称<span class="required">*</span></label><input type="text" class="form-input" id="ncNewName" placeholder="请输入变更后的企业名称"></div><div class="form-group"><label class="form-label">审批单位<span class="required">*</span></label><select class="form-select" id="ncApprover"><option value="">请选择审批单位</option><option value="粤海街道办事处">粤海街道办事处（属地街道办）</option><option value="区应急管理局">区应急管理局（行业监管单位）</option></select></div><div class="form-group"><label class="form-label">申请说明</label><textarea class="form-input" id="ncReason" placeholder="请简要说明变更原因"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modalNameChange')">取消</button><button class="btn btn-primary" onclick="submitNameChange()">提交申请</button></div></div></div>
 
-  <!-- 企业停用申请弹窗 -->
-  <div class="modal-overlay" id="modalDisable">
-    <div class="modal-dialog" style="width: 480px;">
-      <div class="modal-header">
-        <span class="modal-title">企业停用申请</span>
-        <button class="modal-close" onclick="closeModal('modalDisable')">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-form">
-          <div class="form-group">
-            <label class="form-label">企业名称</label>
-            <div class="readonly-text">创安电子科技有限公司</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">审批单位<span class="required">*</span></label>
-            <select class="form-select" id="disApprover">
-              <option value="">请选择审批单位</option>
-              <option value="南山区南山街道办">南山区南山街道办（属地街道办）</option>
-              <option value="南山区应急管理局">南山区应急管理局（领域可管理单位）</option>
-            </select>
-            <div class="form-hint">企业停用需提交审批；通过后企业状态变为停用，历史检查、隐患、档案、安全码、审批记录均保留。</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">停用原因<span class="required">*</span></label>
-            <textarea class="form-input" id="disReason" placeholder="请说明停用原因"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modalDisable')">取消</button>
-        <button class="btn btn-primary" onclick="submitDisable()">提交申请</button>
-      </div>
-    </div>
-  </div>
-  
+  <!-- 停用申请弹窗 -->
+  <div class="modal-overlay" id="modalDisable"><div class="modal-dialog" style="width:480px;"><div class="modal-header"><span class="modal-title">企业停用申请</span><button class="modal-close" onclick="closeModal('modalDisable')">×</button></div><div class="modal-body"><div class="modal-form"><div class="form-group"><label class="form-label">审批单位<span class="required">*</span></label><select class="form-select" id="disApprover"><option value="">请选择审批单位</option><option value="粤海街道办事处">粤海街道办事处（属地街道办）</option><option value="区应急管理局">区应急管理局（行业监管单位）</option></select></div><div class="form-group"><label class="form-label">停用原因<span class="required">*</span></label><textarea class="form-input" id="disReason" placeholder="请说明停用原因"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modalDisable')">取消</button><button class="btn btn-primary" onclick="submitDisable()">提交申请</button></div></div></div>
+
+  <!-- 地图选点弹窗 -->
+  <div class="modal-overlay" id="modalMapPicker"><div class="modal-dialog" style="width:600px;"><div class="modal-header"><span class="modal-title" style="display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="#1677ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>地图选点</span><button class="modal-close" onclick="closeModal('modalMapPicker')">×</button></div><div class="modal-body" style="padding:0;"><div style="padding:12px 16px;"><input type="text" class="form-input" placeholder="输入地址搜索" style="width:100%;box-sizing:border-box;"></div><div style="position:relative;height:380px;background:#f0f2f5;margin:0 16px;border-radius:var(--radius-sm);overflow:hidden;"><div style="position:absolute;inset:0;background-image:linear-gradient(0deg,rgba(0,0,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.05) 1px,transparent 1px);background-size:30px 30px;"></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-100%;"><svg width="28" height="28" viewBox="0 0 24 24" fill="#ff4d4f" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></div></div><div style="padding:12px 16px;background:var(--bg-section-alt);display:flex;gap:var(--spacing-lg);font-size:var(--font-size-sm);color:var(--text-secondary);"><span>经度: <strong style="color:var(--text-primary);">113.9398</strong></span><span>纬度: <strong style="color:var(--text-primary);">22.5341</strong></span></div></div><div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modalMapPicker')">取消</button><button class="btn btn-primary" onclick="closeModal('modalMapPicker');showToast('地图选点完成')">确定</button></div></div></div>
+
+  <script src="../../js/shared/district-data.js"></script>
+  <script src="../../js/domain-data.js"></script>
   <script>
-    // 安全码图标 SVG（stroke-based，§4.23 标准）
-    var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
     (function() {
       'use strict';
-      
-      var CONFIG = {
-        moduleId: 'ent-info',
-        moduleName: '企业基本信息'
+      var CONFIG = { moduleId: 'ent-info', moduleName: '企业基本信息' };
+      var state = { initialized: false, pendingNameChange: false, pendingDisable: false };
+
+      /* ========== 级联选择器通用 ========== */
+      var activeCascade = null;
+
+      window.toggleCascade = function(type) {
+        var popover = document.getElementById(type + 'Popover');
+        if (activeCascade && activeCascade !== type) {
+          document.getElementById(activeCascade + 'Popover').classList.remove('open');
+        }
+        if (popover.classList.contains('open')) {
+          popover.classList.remove('open');
+          activeCascade = null;
+        } else {
+          popover.classList.add('open');
+          activeCascade = type;
+          if (type === 'domain') initDomainColumns();
+        }
       };
 
-      var state = {
-        initialized: false,
-        isEditing: false
+      document.addEventListener('click', function(e) {
+        if (!activeCascade) return;
+        var onItem = e.target.closest('.cascade-item');
+        var onTrigger = e.target.closest('.cascade-trigger');
+        var onSearch = e.target.closest('.cascade-search');
+        if (!onItem && !onTrigger && !onSearch) {
+          document.getElementById(activeCascade + 'Popover').classList.remove('open');
+          activeCascade = null;
+        }
+      });
+
+      /* ========== 区划级联（复用 district-data.js 的 buildDistrictTree） ========== */
+      var districtTree = (typeof buildDistrictTree === 'function') ? buildDistrictTree() : [];
+      var regionState = { district: (typeof REGION_ROOT !== 'undefined') ? REGION_ROOT.name : '南山区', street: '', streetCode: '', community: '', communityId: '', grid: '' };
+
+      window.toggleRegionPopover = function(ev) {
+        ev.stopPropagation();
+        var popover = document.getElementById('regionPopover');
+        if (popover.classList.contains('open')) {
+          popover.classList.remove('open');
+        } else {
+          popover.classList.add('open');
+          renderRegionPanel();
+        }
       };
-      
-      function init() {
-        if (state.initialized) return;
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
-        // 填充安全码图标
-        var iconEl = document.getElementById('entSafetyCodeIcon');
-        if (iconEl) iconEl.innerHTML = QR_ICON_SVG;
-        state.initialized = true;
+
+      // 点击外部关闭区划弹窗
+      document.addEventListener('click', function(e) {
+        var popover = document.getElementById('regionPopover');
+        var trigger = document.getElementById('regionTrigger');
+        if (popover && popover.classList.contains('open') && !popover.contains(e.target) && trigger && !trigger.contains(e.target)) {
+          popover.classList.remove('open');
+        }
+      });
+
+      function renderRegionPanel() {
+        if (!districtTree || !districtTree[0]) return;
+        var districtCol = document.getElementById('regionColDistrict');
+        var streetCol = document.getElementById('regionColStreet');
+        var communityCol = document.getElementById('regionColCommunity');
+        var gridCol = document.getElementById('regionColGrid');
+        var search = document.getElementById('regionSearch');
+        if (!districtCol || !streetCol || !communityCol || !gridCol) return;
+        var keyword = search ? search.value.trim() : '';
+
+        // 区列：固定显示根区（南山区）
+        districtCol.innerHTML = '<div class="cascade-col-header">区</div><div class="cascade-item active">' + regionState.district + '</div>';
+
+        // 街道列：按搜索过滤
+        var streets = districtTree[0].children || [];
+        if (keyword) {
+          streets = streets.filter(function(s) {
+            return s.name.indexOf(keyword) >= 0 || s.children.some(function(c) { return c.name.indexOf(keyword) >= 0; });
+          });
+        }
+        // 自动选中第一个
+        if (!regionState.streetCode || !streets.some(function(s) { return String(s.id) === String(regionState.streetCode); })) {
+          if (streets.length) { regionState.street = streets[0].name; regionState.streetCode = streets[0].id; regionState.community = ''; regionState.communityId = ''; regionState.grid = ''; }
+        }
+        streetCol.innerHTML = '<div class="cascade-col-header">街道</div>' + streets.map(function(s) {
+          var active = String(s.id) === String(regionState.streetCode);
+          return '<div class="cascade-item' + (active ? ' active' : '') + '" onclick="onRegionPickStreet(' + s.id + ',\'' + s.name.replace(/'/g, "\\'") + '\')">' + s.name + '</div>';
+        }).join('') || '<div class="cascade-item" style="color:var(--text-tertiary);">无匹配街道</div>';
+
+        // 社区列
+        var selectedStreet = districtTree[0].children.find(function(s) { return String(s.id) === String(regionState.streetCode); });
+        var communities = selectedStreet ? (selectedStreet.children || []) : [];
+        if (keyword) {
+          communities = communities.filter(function(c) { return c.name.indexOf(keyword) >= 0; });
+        }
+        communityCol.innerHTML = '<div class="cascade-col-header">社区</div>' + (regionState.streetCode ? communities.map(function(c) {
+          var active = String(c.id) === String(regionState.communityId);
+          return '<div class="cascade-item' + (active ? ' active' : '') + '" onclick="onRegionPickCommunity(' + c.id + ',\'' + c.name.replace(/'/g, "\\'") + '\')">' + c.name + '</div>';
+        }).join('') || '<div class="cascade-item" style="color:var(--text-tertiary);">无匹配社区</div>' : '<div class="cascade-item" style="color:var(--text-tertiary);">请先选街道</div>');
+
+        // 网格列
+        var commNode = selectedStreet ? (selectedStreet.children || []).find(function(c) { return String(c.id) === String(regionState.communityId); }) : null;
+        var grids = commNode ? (commNode.children || []) : [];
+        if (keyword) {
+          grids = grids.filter(function(g) { return g.name.indexOf(keyword) >= 0; });
+        }
+        gridCol.innerHTML = '<div class="cascade-col-header">网格</div>' + (regionState.communityId ? grids.map(function(g) {
+          var active = g.name === regionState.grid;
+          return '<div class="cascade-item' + (active ? ' active' : '') + '" onclick="onRegionPickGrid(\'' + g.name.replace(/'/g, "\\'") + '\')">' + g.name + '</div>';
+        }).join('') || '<div class="cascade-item" style="color:var(--text-tertiary);">无网格数据</div>' : '<div class="cascade-item" style="color:var(--text-tertiary);">请先选社区</div>');
       }
-      
-      window.toggleEdit = function() {
-        var btn = document.getElementById('editBtn');
-        var editableFields = document.querySelectorAll('.editable-field');
 
-        if (!state.isEditing) {
-          state.isEditing = true;
-          btn.textContent = '保存';
-          btn.className = 'btn btn-primary';
-          editableFields.forEach(function(f) {
-            f.removeAttribute('readonly');
-            f.classList.add('editing');
-          });
+      window.onRegionPickStreet = function(id, name) {
+        regionState.street = name; regionState.streetCode = id;
+        regionState.community = ''; regionState.communityId = ''; regionState.grid = '';
+        setRegionLabel(null);
+        renderRegionPanel();
+      };
+
+      window.onRegionPickCommunity = function(id, name) {
+        regionState.community = name; regionState.communityId = id; regionState.grid = '';
+        // 选社区即保存（网格非必填）
+        setRegionLabel({ street: regionState.street, community: name, grid: '' });
+        renderRegionPanel();
+        updateLocalSupervisor();
+      };
+
+      window.onRegionPickGrid = function(name) {
+        regionState.grid = name;
+        setRegionLabel({ street: regionState.street, community: regionState.community, grid: name });
+        // 选网格后关闭弹窗
+        document.getElementById('regionPopover').classList.remove('open');
+        updateLocalSupervisor();
+      };
+
+      function setRegionLabel(region) {
+        var label = document.getElementById('regionLabel');
+        var code = document.getElementById('regionCode');
+        if (!label) return;
+        if (!region || !region.street || !region.community) {
+          label.textContent = '请选择归属区划';
+          label.className = 'placeholder';
+          if (code) code.value = '';
           return;
         }
+        var parts = [regionState.district, region.street, region.community];
+        if (region.grid) parts.push(region.grid);
+        label.textContent = parts.join(' / ');
+        label.className = '';
+        if (code) code.value = parts.join('/');
+      }
 
-        var phoneField = document.querySelector('[data-field="phone"]');
-        var phoneFg = document.getElementById('fg-phone');
-        if (phoneField) {
-          var phone = phoneField.value.trim();
-          var phoneReg = /^1\d{10}$/;
-          if (!phoneReg.test(phone)) {
-            phoneFg.classList.add('has-error');
-            phoneField.focus();
-            return;
-          }
-          phoneFg.classList.remove('has-error');
-        }
+      function updateLocalSupervisor() {
+        var localSup = (typeof getLocalSupervisorByStreetName === 'function') ? getLocalSupervisorByStreetName(regionState.street) : null;
+        document.getElementById('editLocal').textContent = localSup ? localSup.name.replace('南山区', '') : '—';
+        showHint('gridLinkedHint');
+      }
 
-        var nameField = document.querySelector('[data-field="entName"]');
-        var newName = nameField ? nameField.value.trim() : '';
-        var nameChanged = nameField && newName !== nameField.dataset.original;
+      window.onRegionSearch = function() {
+        renderRegionPanel();
+      };
 
-        // 企业名称变更需走审批弹窗（BR-ENT-SELF-03），不能直接保存
-        if (nameChanged) {
-          // 先退出编辑态、恢复原名称，再打开名称变更弹窗
-          state.isEditing = false;
-          btn.textContent = '编辑';
-          btn.className = 'btn btn-default';
-          editableFields.forEach(function(f) {
-            f.setAttribute('readonly', 'readonly');
-            f.classList.remove('editing');
-          });
-          nameField.value = nameField.dataset.original;
-          openModal('modalNameChange');
-          var ncNewName = document.getElementById('ncNewName');
-          var ncOriginal = document.getElementById('ncOriginalName');
-          if (ncNewName) { ncNewName.value = newName; }
-          if (ncOriginal) { ncOriginal.textContent = nameField.dataset.original; }
-          return;
-        }
+      /* ========== 领域级联（读取 domain-data.js） ========== */
+      var domainState = { activeIndustry: null, selectedIds: ['CHEM_002','CHEM_001','COMM_002'] };
 
-        state.isEditing = false;
-        btn.textContent = '编辑';
-        btn.className = 'btn btn-default';
-        editableFields.forEach(function(f) {
-          f.setAttribute('readonly', 'readonly');
-          f.classList.remove('editing');
+      function initDomainColumns() {
+        if (typeof DOMAIN_INDUSTRY_MAP === 'undefined' || typeof DOMAIN_TABLE_DATA === 'undefined') return;
+        var col = document.getElementById('domainColIndustry');
+        var html = '<div class="cascade-col-header">行业大类</div>';
+        var codes = Object.keys(DOMAIN_INDUSTRY_MAP);
+        codes.forEach(function(code) {
+          var isActive = domainState.activeIndustry === code;
+          var count = DOMAIN_TABLE_DATA.filter(function(d) { return d.industry === code; }).length;
+          html += '<div class="cascade-item' + (isActive ? ' active' : '') + '" onclick="selectIndustry(\'' + code + '\')">' + DOMAIN_INDUSTRY_MAP[code] + '<span style="margin-left:auto;font-size:11px;color:var(--text-tertiary);font-weight:normal;">' + count + '</span></div>';
         });
+        col.innerHTML = html;
+        if (domainState.activeIndustry) renderDomainItems(domainState.activeIndustry);
+        else document.getElementById('domainColDomain').innerHTML = '<div class="cascade-col-header">领域小类</div><div style="padding:20px;text-align:center;color:var(--text-tertiary);font-size:var(--font-size-sm);">请先选择行业大类</div>';
+        renderSelectedTags();
+      }
+
+      window.selectIndustry = function(code) {
+        domainState.activeIndustry = code;
+        var items = document.querySelectorAll('#domainColIndustry .cascade-item');
+        items.forEach(function(el) { el.classList.remove('active'); });
+        var names = Object.values(DOMAIN_INDUSTRY_MAP);
+        var idx = Object.keys(DOMAIN_INDUSTRY_MAP).indexOf(code);
+        if (items[idx + 1]) items[idx + 1].classList.add('active');
+        renderDomainItems(code);
+      };
+
+      function renderDomainItems(industryCode, filter) {
+        var items = DOMAIN_TABLE_DATA.filter(function(d) { return d.industry === industryCode; });
+        if (filter) items = items.filter(function(d) { return d.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0; });
+        var col = document.getElementById('domainColDomain');
+        var html = '<div class="cascade-col-header">' + DOMAIN_INDUSTRY_MAP[industryCode] + ' (' + items.length + ')</div>';
+        items.forEach(function(d) {
+          var isSelected = domainState.selectedIds.indexOf(d.id) >= 0;
+          html += '<div class="cascade-item' + (isSelected ? ' selected' : '') + '" onclick="toggleDomainItem(\'' + d.id + '\', event)">';
+          html += '<input type="checkbox" style="pointer-events:none;margin:0;flex-shrink:0;"' + (isSelected ? ' checked' : '') + '>';
+          html += '<span class="mode-dot ' + d.mode + '"></span>' + d.name + '</div>';
+        });
+        col.innerHTML = html;
+      }
+
+      window.toggleDomainItem = function(id, event) {
+        if (event) event.stopPropagation();
+        var idx = domainState.selectedIds.indexOf(id);
+        if (idx >= 0) domainState.selectedIds.splice(idx, 1);
+        else domainState.selectedIds.push(id);
+        if (domainState.activeIndustry) renderDomainItems(domainState.activeIndustry);
+        renderSelectedTags();
+        updateSupervisorFromTags();
+      };
+
+      window.removeDomainTag = function(id) {
+        var idx = domainState.selectedIds.indexOf(id);
+        if (idx >= 0) domainState.selectedIds.splice(idx, 1);
+        if (domainState.activeIndustry) renderDomainItems(domainState.activeIndustry);
+        renderSelectedTags();
+        updateSupervisorFromTags();
+      };
+
+      function renderSelectedTags() {
+        var container = document.getElementById('editSelectedTags');
+        if (!container) return;
+        var html = '';
+        var firstBasic = true;
+        var sorted = domainState.selectedIds.map(function(id) { return DOMAIN_TABLE_DATA.find(function(d) { return d.id === id; }); }).filter(Boolean);
+        sorted.sort(function(a, b) {
+          if (a.mode === 'basic' && b.mode !== 'basic') return -1;
+          if (a.mode !== 'basic' && b.mode === 'basic') return 1;
+          return 0;
+        });
+        sorted.forEach(function(d) {
+          var cls = d.mode === 'basic' ? 'basic' : 'special';
+          html += '<span class="scene-tag ' + cls + '">';
+          if (d.mode === 'basic' && firstBasic) { html += '<span class="primary-badge">主</span>'; firstBasic = false; }
+          html += d.name + '<span class="tag-remove" onclick="removeDomainTag(\'' + d.id + '\')">✕</span></span>';
+        });
+        container.innerHTML = html;
+        var count = domainState.selectedIds.length;
+        document.getElementById('domainLabel').textContent = count > 0 ? '已选 ' + count + ' 个领域小类' : '请选择领域小类';
+        document.getElementById('domainLabel').className = count > 0 ? '' : 'placeholder';
+      }
+
+      window.onDomainSearch = function() {
+        var kw = document.getElementById('domainSearch').value.trim();
+        if (!kw) { if (domainState.activeIndustry) renderDomainItems(domainState.activeIndustry); return; }
+        var matched = DOMAIN_TABLE_DATA.filter(function(d) { return d.name.toLowerCase().indexOf(kw.toLowerCase()) >= 0; });
+        var col = document.getElementById('domainColDomain');
+        var html = '<div class="cascade-col-header">搜索结果 (' + matched.length + ')</div>';
+        matched.forEach(function(d) {
+          var isSelected = domainState.selectedIds.indexOf(d.id) >= 0;
+          html += '<div class="cascade-item' + (isSelected ? ' selected' : '') + '" onclick="toggleDomainItem(\'' + d.id + '\', event)">';
+          html += '<input type="checkbox" style="pointer-events:none;margin:0;flex-shrink:0;"' + (isSelected ? ' checked' : '') + '>';
+          html += '<span class="mode-dot ' + d.mode + '"></span>' + d.name + ' <span style="color:var(--text-tertiary);font-size:11px;">(' + d.industryName + ')</span></div>';
+        });
+        col.innerHTML = html;
+        document.getElementById('domainColIndustry').querySelectorAll('.cascade-item').forEach(function(el) { el.classList.remove('active'); });
+      };
+
+      /* ========== 监管单位联动 ========== */
+      function updateSupervisorFromTags() {
+        var industries = [], professionals = [];
+        domainState.selectedIds.forEach(function(id) {
+          var d = DOMAIN_TABLE_DATA.find(function(x) { return x.id === id; });
+          if (!d || !d.supervisors) return;
+          d.supervisors.forEach(function(s) {
+            if (s.type === 'industry' && industries.indexOf(s.name) === -1) industries.push(s.name);
+            if (s.type === 'professional' && professionals.indexOf(s.name) === -1) professionals.push(s.name);
+          });
+        });
+        document.getElementById('editIndustry').textContent = industries.length > 0 ? industries.join('、') : '—';
+        document.getElementById('editProfessional').textContent = professionals.length > 0 ? professionals.join('、') : '—';
+        showHint('tagLinkedHint');
+      }
+
+      function showHint(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('show');
+        setTimeout(function() { el.classList.remove('show'); }, 3000);
+      }
+
+      /* ========== 编辑弹窗 ========== */
+      window.openEditModal = function() {
+        openModal('modalEdit');
+        initDomainColumns();
+        initRegionState();
+      };
+
+      // 初始化区划状态（回显当前归属网格）
+      function initRegionState() {
+        if (!districtTree || !districtTree[0]) return;
+        // 当前企业的归属区划（从页面展示数据读取）
+        var currentStreet = '粤海街道';
+        var currentCommunity = '麻岭社区';
+        var currentGrid = '麻岭01';
+        // 从 tree 中查找对应 code
+        var streetNode = districtTree[0].children.find(function(s) { return s.name === currentStreet; });
+        if (streetNode) {
+          regionState.street = currentStreet;
+          regionState.streetCode = streetNode.id;
+          var commNode = (streetNode.children || []).find(function(c) { return c.name === currentCommunity; });
+          if (commNode) {
+            regionState.community = currentCommunity;
+            regionState.communityId = commNode.id;
+            regionState.grid = currentGrid;
+          }
+        }
+        // 更新标签
+        setRegionLabel({ street: regionState.street, community: regionState.community, grid: regionState.grid });
+      }
+
+      window.submitEdit = function() {
+        var phone = document.getElementById('editPhone').value.trim();
+        if (!/^[\d\-]{7,15}$/.test(phone)) { document.getElementById('editPhoneError').style.display = 'block'; return; }
+        document.getElementById('editPhoneError').style.display = 'none';
+
+        // 同步编辑值到详情页
+        syncEditToDetail();
+
+        closeModal('modalEdit');
         showToast('保存成功！');
       };
 
-      window.requestDisable = function() {
-        openModal('modalDisable');
-      };
+      // 把编辑弹窗的值回写到详情页
+      function syncEditToDetail() {
+        var infoRows = document.querySelectorAll('.detail-card.card-bg .info-row');
 
-      window.openModal = function(id) {
-        var m = document.getElementById(id);
-        if (m) { m.classList.add('show'); }
-      };
+        infoRows.forEach(function(row) {
+          var label = row.querySelector('.info-label');
+          var value = row.querySelector('.info-value');
+          if (!label || !value) return;
+          var fieldName = label.textContent.trim();
 
-      window.closeModal = function(id) {
-        var m = document.getElementById(id);
-        if (m) { m.classList.remove('show'); }
-      };
+          if (fieldName === '法定代表人') {
+            value.textContent = document.getElementById('editLegalPerson').value;
+          } else if (fieldName === '联系电话') {
+            value.textContent = document.getElementById('editPhone').value;
+          } else if (fieldName === '注册地址') {
+            var addrText = value.querySelector('.address-text');
+            if (addrText) addrText.textContent = document.getElementById('editRegAddress').value;
+          } else if (fieldName === '经营地址') {
+            var addrText = value.querySelector('.address-text');
+            if (addrText) addrText.textContent = document.getElementById('editBizAddress').value;
+          } else if (fieldName === '归属网格') {
+            var parts = [regionState.district];
+            if (regionState.street) parts.push(regionState.street);
+            if (regionState.community) parts.push(regionState.community);
+            if (regionState.grid) parts.push(regionState.grid);
+            value.textContent = parts.join(' / ');
+          } else if (fieldName === '备注') {
+            value.textContent = document.getElementById('editRemark').value;
+          }
+        });
 
-      window.submitNameChange = function() {
-        var newName = document.getElementById('ncNewName').value.trim();
-        var approver = document.getElementById('ncApprover').value;
-        if (!newName) { showToast('请填写变更后企业名称'); return; }
-        if (!approver) { showToast('请选择审批单位'); return; }
-        appendAuditRecord('企业名称变更', approver, '待审核');
-        closeModal('modalNameChange');
-        document.getElementById('ncNewName').value = '';
-        document.getElementById('ncApprover').value = '';
-        document.getElementById('ncReason').value = '';
-        showToast('企业名称变更申请已提交，待 ' + approver + ' 审批；页面继续显示当前已生效名称。');
-      };
+        // 同步监管单位
+        document.getElementById('dispIndustry').textContent = document.getElementById('editIndustry').textContent;
+        document.getElementById('dispProfessional').textContent = document.getElementById('editProfessional').textContent;
+        document.getElementById('dispLocal').textContent = document.getElementById('editLocal').textContent;
 
-      window.submitDisable = function() {
-        var approver = document.getElementById('disApprover').value;
-        var reason = document.getElementById('disReason').value.trim();
-        if (!approver) { showToast('请选择审批单位'); return; }
-        if (!reason) { showToast('请填写停用原因'); return; }
-        appendAuditRecord('企业停用', approver, '待审核');
-        closeModal('modalDisable');
-        document.getElementById('disApprover').value = '';
-        document.getElementById('disReason').value = '';
-        showToast('停用申请已提交，待 ' + approver + ' 审批。');
-      };
-
-      function appendAuditRecord(type, approver, status) {
-        var table = document.getElementById('auditRecordTable');
-        if (!table) return;
-        var tbody = table.querySelector('tbody');
-        var tr = document.createElement('tr');
-        var now = new Date();
-        var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
-        var ts = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
-        var tagClass = status === '待审核' ? 'tag-orange' : (status === '通过' ? 'tag-green' : 'tag-red');
-        tr.innerHTML = '<td>' + type + '</td><td>' + ts + '</td><td>' + approver + '</td><td><span class="tag ' + tagClass + '">' + status + '</span></td><td>—</td><td>—</td>';
-        tbody.insertBefore(tr, tbody.firstChild);
+        // 同步安全场景标签库
+        var dispTags = document.getElementById('dispTags');
+        if (dispTags) {
+          var html = '';
+          var firstBasic = true;
+          var sorted = domainState.selectedIds.map(function(id) { return DOMAIN_TABLE_DATA.find(function(d) { return d.id === id; }); }).filter(Boolean);
+          sorted.sort(function(a, b) { return (a.mode === 'basic' ? 0 : 1) - (b.mode === 'basic' ? 0 : 1); });
+          sorted.forEach(function(d) {
+            var cls = d.mode === 'basic' ? 'basic' : 'special';
+            html += '<span class="scene-tag ' + cls + '">';
+            if (d.mode === 'basic' && firstBasic) { html += '<span class="primary-badge">主</span>'; firstBasic = false; }
+            html += d.name + '</span>';
+          });
+          dispTags.innerHTML = html;
+        }
       }
 
-      // 关联领域小类由监管端维护，企业端只读展示（BR-ENT-02-04），不提供编辑功能
+      /* ========== 地图/名称变更/停用 ========== */
+      window.openMapPicker = function() { openModal('modalMapPicker'); };
+
+      window.submitNameChange = function() {
+        if (state.pendingNameChange) { showToast('已有待审核的名称变更申请'); return; }
+        var n = document.getElementById('ncNewName').value.trim(), a = document.getElementById('ncApprover').value;
+        if (!n) { showToast('请填写变更后企业名称'); return; }
+        if (!a) { showToast('请选择审批单位'); return; }
+        state.pendingNameChange = true;
+        closeModal('modalNameChange');
+        showToast('企业名称变更申请已提交，待 ' + a + ' 审批。');
+      };
+
+      window.requestDisable = function() { openModal('modalDisable'); };
+
+      window.submitDisable = function() {
+        if (state.pendingDisable) { showToast('已有待审核的停用申请'); return; }
+        var a = document.getElementById('disApprover').value, r = document.getElementById('disReason').value.trim();
+        if (!a) { showToast('请选择审批单位'); return; }
+        if (!r) { showToast('请填写停用原因'); return; }
+        state.pendingDisable = true;
+        closeModal('modalDisable');
+        showToast('停用申请已提交，待 ' + a + ' 审批。');
+      };
+
+      /* ========== 通用 ========== */
+      window.openModal = function(id) { var m = document.getElementById(id); if (m) m.classList.add('show'); };
+      window.closeModal = function(id) { var m = document.getElementById(id); if (m) m.classList.remove('show'); };
 
       function showToast(msg) {
         var el = document.getElementById('_toast');
-        if (!el) {
-          el = document.createElement('div');
-          el.id = '_toast';
-          el.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:var(--spacing-sm) var(--spacing-lg);background:var(--primary);color:var(--bg-primary);border-radius:6px;font-size:14px;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);opacity:0;transition:opacity var(--duration-normal);pointer-events:none';
-          document.body.appendChild(el);
-        }
-        el.textContent = msg;
-        el.style.opacity = '1';
-        setTimeout(function() { el.style.opacity = '0'; }, 2000);
+        if (!el) { el = document.createElement('div'); el.id = '_toast'; el.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:var(--spacing-sm) var(--spacing-lg);background:var(--primary);color:var(--bg-primary);border-radius:6px;font-size:14px;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);opacity:0;transition:opacity var(--duration-normal);pointer-events:none'; document.body.appendChild(el); }
+        el.textContent = msg; el.style.opacity = '1';
+        setTimeout(function() { el.style.opacity = '0'; }, 2500);
       }
-      
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
+
+      function init() {
+        if (state.initialized) return;
+        console.log('[' + CONFIG.moduleId + '] 模块初始化');
+        state.initialized = true;
+        renderSelectedTags();
       }
-      
-      window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
-        state.initialized = false;
-      };
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+      else init();
     })();
   </script>
 <script src="../../js/annotations.js"></script>
