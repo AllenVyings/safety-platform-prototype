@@ -118,12 +118,20 @@
     .hazard-card {
       display: flex; align-items: center; padding: 14px var(--wc-gap-xl);
       margin: 8px var(--wc-page-padding); border-radius: 12px;
-      background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%);
+      background: var(--wc-card-bg);
+      box-shadow: var(--wc-shadow-card);
     }
-    .hazard-card .group-icon { margin-right: 8px; }
-    .hazard-card .group-name { flex: 1; }
-    .hazard-card .group-person { margin: 0 10px; }
-    .hazard-card .group-qr { margin-left: 4px; }
+    .hazard-card .group-icon { margin-right: 8px; flex-shrink: 0; }
+    .hazard-card .independent-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .hazard-card .group-name { font-size: 15px; font-weight: 600; color: var(--wc-text-primary); }
+    .hazard-card .group-person { font-size: 12px; color: var(--wc-text-placeholder); display: flex; align-items: center; gap: 3px; }
+    .hazard-card .group-qr { margin-left: 4px; flex-shrink: 0; }
+
+    /* ========== 独立场所卡片（不可展开） ========== */
+    .group-card.independent .group-header { cursor: default; }
+    .group-card.independent .independent-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .group-card.independent .group-name { font-size: 15px; font-weight: 600; color: var(--wc-text-primary); }
+    .group-card.independent .group-person { font-size: 12px; color: var(--wc-text-placeholder); display: flex; align-items: center; gap: 3px; margin: 0; }
 
     /* ========== 人员列表 ========== */
     .person-card { display: flex; align-items: center; padding: var(--wc-gap-xl) var(--wc-page-padding); background: var(--wc-card-bg); border-radius: var(--wc-card-radius); margin: var(--wc-gap-md) var(--wc-page-padding); box-shadow: var(--wc-shadow-card); }
@@ -161,16 +169,16 @@
       <!-- 筛选标签区 -->
       <div class="cl-filter-area" id="filterAreaRisk">
         <div class="cl-filter-row">
-          <span class="cl-filter-tag category active" data-type="place" data-val="all">场所(1145)</span>
-          <span class="cl-filter-tag" data-type="place" data-val="red">红码(5)</span>
-          <span class="cl-filter-tag" data-type="place" data-val="yellow">黄码(153)</span>
-          <span class="cl-filter-tag" data-type="place" data-val="green">绿码(987)</span>
+          <span class="cl-filter-tag category active" data-type="place" data-val="all">场所</span>
+          <span class="cl-filter-tag" data-type="place" data-val="red">场所-红码</span>
+          <span class="cl-filter-tag" data-type="place" data-val="yellow">场所-黄码</span>
+          <span class="cl-filter-tag" data-type="place" data-val="green">场所-绿码</span>
         </div>
         <div class="cl-filter-row">
-          <span class="cl-filter-tag category active" data-type="hazard" data-val="all">危险源(465)</span>
-          <span class="cl-filter-tag" data-type="hazard" data-val="red">红码(20)</span>
-          <span class="cl-filter-tag" data-type="hazard" data-val="yellow">黄码(88)</span>
-          <span class="cl-filter-tag" data-type="hazard" data-val="green">绿码(357)</span>
+          <span class="cl-filter-tag category active" data-type="hazard" data-val="all">危险源</span>
+          <span class="cl-filter-tag" data-type="hazard" data-val="red">危险源-红码</span>
+          <span class="cl-filter-tag" data-type="hazard" data-val="yellow">危险源-黄码</span>
+          <span class="cl-filter-tag" data-type="hazard" data-val="green">危险源-绿码</span>
         </div>
       </div>
 
@@ -178,7 +186,7 @@
       <div id="riskList">
 
         <!-- 公用系统(3) - 场所码，展开 -->
-        <div class="group-card expanded">
+        <div class="group-card expanded" data-type="place" data-color="green">
           <div class="group-header" onclick="toggleGroup(this)">
             <span class="group-icon">
               <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg>
@@ -224,38 +232,41 @@
           </div>
         </div>
 
-        <!-- 危险源(15) - 独立危险源，黄色 -->
-        <div class="hazard-card">
+        <!-- 危险源 - 独立危险源，黄色 -->
+        <div class="hazard-card" data-type="hazard" data-color="yellow">
           <span class="group-icon">
             <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </span>
-          <span class="group-name">危险源<span class="count">(15)</span></span>
-          <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+          <div class="independent-info">
+            <span class="group-name">危险源</span>
+            <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+          </div>
           <span class="group-qr qr-yellow"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
         </div>
 
-        <!-- 危险源(3) - 独立危险源，绿色 -->
-        <div class="hazard-card">
+        <!-- 危险源 - 独立危险源，绿色 -->
+        <div class="hazard-card" data-type="hazard" data-color="green">
           <span class="group-icon">
             <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </span>
-          <span class="group-name">危险源<span class="count">(3)</span></span>
-          <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+          <div class="independent-info">
+            <span class="group-name">危险源</span>
+            <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+          </div>
           <span class="group-qr"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
         </div>
 
-        <!-- 储罐区(5) - 场所码，收起 -->
-        <div class="group-card">
-          <div class="group-header" onclick="toggleGroup(this)">
+        <!-- 储罐区 - 独立场所，浅蓝色 -->
+        <div class="group-card independent" data-type="place" data-color="green">
+          <div class="group-header">
             <span class="group-icon">
               <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg>
             </span>
-            <span class="group-name">储罐区<span class="count">(5)</span></span>
-            <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+            <div class="independent-info">
+              <span class="group-name">储罐区</span>
+              <span class="group-person"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>林伊伊</span>
+            </div>
             <span class="group-qr"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
-            <span class="group-chevron"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
-          </div>
-          <div class="group-children collapsed">
           </div>
         </div>
 
@@ -378,17 +389,73 @@
     }
 
     /* ========== 筛选标签点击 ========== */
-    document.querySelectorAll('.cl-filter-tag').forEach(function(tag) {
+    document.querySelectorAll('#filterAreaRisk .cl-filter-tag').forEach(function(tag) {
       tag.addEventListener('click', function() {
-        var type = this.getAttribute('data-type');
-        var val = this.getAttribute('data-val');
-        // 同类型内切换 active
-        document.querySelectorAll('.cl-filter-tag[data-type="' + type + '"]').forEach(function(t){
-          t.classList.remove('active');
-        });
-        this.classList.add('active');
+        // 每个标签独立切换 active 状态（支持多选）
+        this.classList.toggle('active');
+        // 执行筛选
+        applyRiskFilter();
       });
     });
+
+    /* ========== 风险列表筛选逻辑 ========== */
+    function applyRiskFilter() {
+      // 获取选中的筛选条件
+      var placeActive = document.querySelector('.cl-filter-tag[data-type="place"][data-val="all"]').classList.contains('active');
+      var hazardActive = document.querySelector('.cl-filter-tag[data-type="hazard"][data-val="all"]').classList.contains('active');
+
+      // 获取选中的颜色（支持多选）
+      var placeColors = [];
+      var hazardColors = [];
+      document.querySelectorAll('.cl-filter-tag[data-type="place"][data-val="red"]').forEach(function(t) {
+        if (t.classList.contains('active')) placeColors.push('red');
+      });
+      document.querySelectorAll('.cl-filter-tag[data-type="place"][data-val="yellow"]').forEach(function(t) {
+        if (t.classList.contains('active')) placeColors.push('yellow');
+      });
+      document.querySelectorAll('.cl-filter-tag[data-type="place"][data-val="green"]').forEach(function(t) {
+        if (t.classList.contains('active')) placeColors.push('green');
+      });
+      document.querySelectorAll('.cl-filter-tag[data-type="hazard"][data-val="red"]').forEach(function(t) {
+        if (t.classList.contains('active')) hazardColors.push('red');
+      });
+      document.querySelectorAll('.cl-filter-tag[data-type="hazard"][data-val="yellow"]').forEach(function(t) {
+        if (t.classList.contains('active')) hazardColors.push('yellow');
+      });
+      document.querySelectorAll('.cl-filter-tag[data-type="hazard"][data-val="green"]').forEach(function(t) {
+        if (t.classList.contains('active')) hazardColors.push('green');
+      });
+
+      // 筛选卡片
+      document.querySelectorAll('#riskList > .group-card, #riskList > .hazard-card').forEach(function(card) {
+        var type = card.getAttribute('data-type');
+        var color = card.getAttribute('data-color');
+
+        if (type === 'place') {
+          // 场所码筛选逻辑
+          if (!placeActive) {
+            card.style.display = 'none';
+          } else if (placeColors.length === 0) {
+            // 未选中颜色，显示所有
+            card.style.display = '';
+          } else {
+            // 按颜色筛选
+            card.style.display = placeColors.indexOf(color) >= 0 ? '' : 'none';
+          }
+        } else if (type === 'hazard') {
+          // 危险源筛选逻辑
+          if (!hazardActive) {
+            card.style.display = 'none';
+          } else if (hazardColors.length === 0) {
+            // 未选中颜色，显示所有
+            card.style.display = '';
+          } else {
+            // 按颜色筛选
+            card.style.display = hazardColors.indexOf(color) >= 0 ? '' : 'none';
+          }
+        }
+      });
+    }
 
     /* ========== 页面初始化 ========== */
     function initListPage() {
@@ -398,25 +465,6 @@
 
       var searchInput = document.getElementById('listSearchInput');
       if (searchInput) searchInput.placeholder = config.searchPlaceholder || '请输入场所码或危险源';
-
-      // 动态更新筛选标签计数（H3）
-      if (config.filterCounts) {
-        var fc = config.filterCounts;
-        var labelMap = { place: '场所', hazard: '危险源' };
-        var colorLabels = { red: '红码', yellow: '黄码', green: '绿码' };
-        ['place', 'hazard'].forEach(function(type) {
-          var counts = fc[type];
-          if (!counts) return;
-          document.querySelectorAll('#filterAreaRisk .cl-filter-tag[data-type="' + type + '"]').forEach(function(tag) {
-            var val = tag.getAttribute('data-val');
-            if (val === 'all') {
-              tag.textContent = (labelMap[type] || type) + '(' + (counts.all || 0) + ')';
-            } else if (colorLabels[val]) {
-              tag.textContent = colorLabels[val] + '(' + (counts[val] || 0) + ')';
-            }
-          });
-        });
-      }
     }
 
     // initListPage 将在外部脚本加载后调用
