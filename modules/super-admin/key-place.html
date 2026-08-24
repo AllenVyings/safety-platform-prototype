@@ -1187,6 +1187,9 @@
         <!-- ===== 隐患处置配置 ===== -->
         <div class="info-section" style="margin-bottom:var(--spacing-lg);">
           <div class="section-title">隐患处置配置</div>
+          <div style="background:var(--bg-info, #eef6ff); border-left:3px solid var(--primary); padding:8px 12px; border-radius:4px; margin-bottom:12px; font-size:12px; color:var(--text-secondary);">
+            💡 默认从「领域监管 · 隐患责任配置」继承，可在此覆盖修改
+          </div>
           <div class="kp-form-grid">
             <div class="kp-col">
               <div class="kp-field">
@@ -1201,6 +1204,7 @@
                     <option value="">请选择类型后选择具体人员</option>
                   </select>
                 </div>
+                <div id="handlerDomainHint" style="font-size:12px; color:var(--text-tertiary); margin-top:4px;"></div>
               </div>
             </div>
             <div class="kp-col">
@@ -1216,6 +1220,7 @@
                     <option value="">请选择类型后选择具体人员</option>
                   </select>
                 </div>
+                <div id="reviewerDomainHint" style="font-size:12px; color:var(--text-tertiary); margin-top:4px;"></div>
               </div>
             </div>
           </div>
@@ -1392,6 +1397,7 @@
   </div>
 
   <script src="../../js/domain-data.js"></script>
+  <script src="../../js/gov-user-data.js"></script>
   <script src="../../js/pagination.js"></script>
   <script src="../../js/shared/district-data.js"></script>
   <script src="../../js/key-place-data.js"></script>
@@ -1871,6 +1877,167 @@
       };
     }
 
+    // 从 localStorage 读取领域监管模块的隐患责任配置（跨模块数据共享）
+    // 若 localStorage 无数据（用户未访问过领域监管），则回退到领域主数据中的 hazardDefault
+    // 获取领域监管隐患责任配置（按监管单位维度）
+    // 新格式：{ domainId: { byUnit: { orgId: entry } } }
+    // 兼容旧格式：{ domainId: { handlerType, ... } }
+    function getSharedHazardConfig(domainId, orgId) {
+      try {
+        var stored = localStorage.getItem('sa_hazard_config');
+        if (stored) {
+          var all = JSON.parse(stored);
+          var domainEntry = all[domainId];
+          if (domainEntry) {
+            // 新格式：byUnit
+            if (domainEntry.byUnit) {
+              if (orgId && domainEntry.byUnit[orgId]) return domainEntry.byUnit[orgId];
+              // 无指定 orgId 时返回第一个有配置的单位
+              var keys = Object.keys(domainEntry.byUnit);
+              if (keys.length > 0) return domainEntry.byUnit[keys[0]];
+            }
+            // 兼容旧格式（有 handlerType 字段说明是旧数据）
+            if (domainEntry.handlerType !== undefined) return domainEntry;
+          }
+        }
+      } catch(e) {}
+      // 回退到领域主数据的默认值
+      var sourceData = (typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.length) ? DOMAIN_TABLE_DATA : domainData;
+      var domain = sourceData.find(function(d) { return d.id === domainId; });
+      if (domain && domain.hazardDefault) return domain.hazardDefault;
+      return null;
+    }
+
+    // 获取所有监管单位的隐患责任配置（用于显示领域配置参考）
+    // 返回 [{ orgId, orgName, config }] 数组
+    function getAllSharedHazardConfigsByUnit(domainId) {
+      var result = [];
+      try {
+        var stored = localStorage.getItem('sa_hazard_config');
+        if (stored) {
+          var all = JSON.parse(stored);
+          var domainEntry = all[domainId];
+          if (domainEntry && domainEntry.byUnit) {
+            // 获取监管单位名称映射
+            var sourceData = (typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.length) ? DOMAIN_TABLE_DATA : domainData;
+            var domain = sourceData.find(function(d) { return d.id === domainId; });
+            var supervisors = (domain && domain.supervisors) ? domain.supervisors : [];
+            Object.keys(domainEntry.byUnit).forEach(function(orgId) {
+              var sup = supervisors.find(function(s) { return s.orgId === orgId; });
+              var orgName = sup ? sup.name : orgId;
+              result.push({ orgId: orgId, orgName: orgName, config: domainEntry.byUnit[orgId] });
+            });
+            return result;
+          }
+        }
+      } catch(e) {}
+      // 兼容旧格式：返回单条
+      var singleConfig = getSharedHazardConfig(domainId);
+      if (singleConfig) {
+        var sourceData2 = (typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.length) ? DOMAIN_TABLE_DATA : domainData;
+        var domain2 = sourceData2.find(function(d) { return d.id === domainId; });
+        var sups = (domain2 && domain2.supervisors) ? domain2.supervisors : [];
+        var firstName = sups.length > 0 ? sups[0].name : '领域配置';
+        result.push({ orgId: null, orgName: firstName, config: singleConfig });
+      }
+      return result;
+    }
+
+    // 格式化人名列表为"张三等N人"显示
+    function formatPersonListDisplay(names) {
+      if (!names || !names.length) return '未指定';
+      if (names.length === 1) return names[0];
+      return names[0] + '等' + names.length + '人';
+    }
+
+    // 解析有效的隐患责任配置（优先行业监管单位）
+    // 返回最佳匹配的 config 对象，无配置时返回 null
+    function resolveEffectiveHazardConfig(domainId) {
+      var allConfigs = getAllSharedHazardConfigsByUnit(domainId);
+      var hazardConfig = null;
+      var sourceData = (typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.length) ? DOMAIN_TABLE_DATA : domainData;
+      var domain = sourceData.find(function(d) { return d.id === domainId; });
+      var supervisors = (domain && domain.supervisors) ? domain.supervisors : [];
+      // 优先找行业监管单位的配置
+      for (var s = 0; s < supervisors.length; s++) {
+        if (supervisors[s].type === 'industry') {
+          var found = allConfigs.find(function(c) { return c.orgId === supervisors[s].orgId; });
+          if (found) { hazardConfig = found.config; break; }
+        }
+      }
+      // 没有行业监管配置，取第一个有配置的单位
+      if (!hazardConfig && allConfigs.length > 0) {
+        hazardConfig = allConfigs[0].config;
+      }
+      // 仍然没有，回退到领域默认值
+      if (!hazardConfig) {
+        hazardConfig = getSharedHazardConfig(domainId);
+      }
+      return hazardConfig;
+    }
+
+    // 从领域监管隐患责任配置读取默认值，填充到隐患处置配置表单
+    // 继承逻辑：取第一个有配置的单位（优先行业监管）作为默认值
+    function applyDomainHazardDefaults() {
+      var hazardConfig = resolveEffectiveHazardConfig(currentDomainId);
+      if (!hazardConfig) return;
+
+      // 整改人
+      document.getElementById('fHandlerType').value = hazardConfig.handlerType || '';
+      renderHazardPersonOptions('handler');
+      if (hazardConfig.handlerType === 'government' && hazardConfig.handlerUserIds && hazardConfig.handlerUserIds.length > 0) {
+        var firstName = hazardConfig.handlerUserIds[0];
+        var handlerSelect = document.getElementById('fHandlerId');
+        var opts = handlerSelect.options;
+        for (var i = 0; i < opts.length; i++) {
+          if (opts[i].text === firstName) { handlerSelect.value = opts[i].value; break; }
+        }
+      }
+      updateHazardDomainHint('handler');
+
+      // 复核人
+      document.getElementById('fReviewerType').value = hazardConfig.reviewerType || '';
+      renderHazardPersonOptions('reviewer');
+      if (hazardConfig.reviewerType === 'government' && hazardConfig.reviewerUserIds && hazardConfig.reviewerUserIds.length > 0) {
+        var firstNameR = hazardConfig.reviewerUserIds[0];
+        var reviewerSelect = document.getElementById('fReviewerId');
+        var optsR = reviewerSelect.options;
+        for (var j = 0; j < optsR.length; j++) {
+          if (optsR[j].text === firstNameR) { reviewerSelect.value = optsR[j].value; break; }
+        }
+      }
+      updateHazardDomainHint('reviewer');
+    }
+
+    // 更新"领域配置参考"提示文字 — 显示全部监管单位的配置
+    function updateHazardDomainHint(role) {
+      var hintEl = document.getElementById(role === 'handler' ? 'handlerDomainHint' : 'reviewerDomainHint');
+      if (!hintEl) return;
+      // 只显示主管监管单位的配置（不显示全部单位）
+      var hazardConfig = resolveEffectiveHazardConfig(currentDomainId);
+      if (!hazardConfig) { hintEl.style.display = 'none'; return; }
+      // 获取主管单位名称
+      var sourceData = (typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.length) ? DOMAIN_TABLE_DATA : domainData;
+      var domain = sourceData.find(function(d) { return d.id === currentDomainId; });
+      var supervisors = (domain && domain.supervisors) ? domain.supervisors : [];
+      var primarySup = supervisors.find(function(s) { return s.type === 'industry'; });
+      if (!primarySup && supervisors.length > 0) primarySup = supervisors[0];
+      var unitName = primarySup ? primarySup.name : '领域配置';
+      var label = role === 'handler' ? '整改人' : '复核人';
+      var type = role === 'handler' ? (hazardConfig.handlerType || '') : (hazardConfig.reviewerType || '');
+      var names = role === 'handler' ? (hazardConfig.handlerUserIds || []) : (hazardConfig.reviewerUserIds || []);
+      var desc = '';
+      if (type === 'enterprise') {
+        desc = '企业方（按对象关联企业员工）';
+      } else if (type === 'government') {
+        desc = names.length > 0 ? ('政府方 — ' + formatPersonListDisplay(names)) : '政府方 全员';
+      } else {
+        hintEl.style.display = 'none'; return;
+      }
+      hintEl.style.display = '';
+      hintEl.innerHTML = '<span style="color:var(--text-tertiary);">📋 ' + label + '参考：' + escapeHtml(unitName) + ' — ' + escapeHtml(desc) + '</span>';
+    }
+
     function openAddModal() {
       editPlaceId = null;
       resetFormState();
@@ -1881,19 +2048,21 @@
       setRegionLabel(null);
       renderEnterpriseRows();
       renderScanConfigList();
-      renderHazardPersonOptions('handler');
-      renderHazardPersonOptions('reviewer');
       document.getElementById('fHandlerType').value = '';
       document.getElementById('fReviewerType').value = '';
-      renderImagesArea();
 
       // 新增时默认全选监管单位（属地监管除外，需选完区划后才显示）
+      // ⚠️ 必须在 applyDomainHazardDefaults 之前，因为 renderHazardPersonOptions 需要 supervisors
       const domain = domainData.find(d => d.id === currentDomainId);
       if (domain && domain.supervisors) {
         currentFormState.supervisors = domain.supervisors
           .filter(s => s.type !== 'local')
           .map(s => ({ type: s.type, orgId: s.orgId, name: s.name }));
       }
+
+      // 从领域监管隐患责任配置读取默认值（支持覆盖）
+      applyDomainHazardDefaults();
+      renderImagesArea();
       renderSupervisorGroups();
 
       const area = document.getElementById('dynamicFormArea');
@@ -1933,10 +2102,37 @@
       renderEnterpriseRows();
       renderScanConfigList();
 
-      document.getElementById('fHandlerType').value = p.hazard_handler_type || '';
-      renderHazardPersonOptions('handler', p.hazard_handler_id);
-      document.getElementById('fReviewerType').value = p.hazard_reviewer_type || '';
-      renderHazardPersonOptions('reviewer', p.hazard_reviewer_id);
+      // 隐患处置配置：优先使用场所自身配置，否则回退到领域监管配置
+      if (p.hazard_handler_type) {
+        document.getElementById('fHandlerType').value = p.hazard_handler_type;
+        renderHazardPersonOptions('handler', p.hazard_handler_id);
+      } else {
+        var dhcH = resolveEffectiveHazardConfig(currentDomainId);
+        if (dhcH) {
+          document.getElementById('fHandlerType').value = dhcH.handlerType || '';
+          renderHazardPersonOptions('handler');
+          if (dhcH.handlerType === 'government' && dhcH.handlerUserIds && dhcH.handlerUserIds.length > 0) {
+            var sel = document.getElementById('fHandlerId');
+            for (var hi = 0; hi < sel.options.length; hi++) { if (sel.options[hi].text === dhcH.handlerUserIds[0]) { sel.value = sel.options[hi].value; break; } }
+          }
+        }
+      }
+      if (p.hazard_reviewer_type) {
+        document.getElementById('fReviewerType').value = p.hazard_reviewer_type;
+        renderHazardPersonOptions('reviewer', p.hazard_reviewer_id);
+      } else {
+        var dhcR = resolveEffectiveHazardConfig(currentDomainId);
+        if (dhcR) {
+          document.getElementById('fReviewerType').value = dhcR.reviewerType || '';
+          renderHazardPersonOptions('reviewer');
+          if (dhcR.reviewerType === 'government' && dhcR.reviewerUserIds && dhcR.reviewerUserIds.length > 0) {
+            var selR = document.getElementById('fReviewerId');
+            for (var ri = 0; ri < selR.options.length; ri++) { if (selR.options[ri].text === dhcR.reviewerUserIds[0]) { selR.value = selR.options[ri].value; break; } }
+          }
+        }
+      }
+      updateHazardDomainHint('handler');
+      updateHazardDomainHint('reviewer');
 
       renderImagesArea(p.images || []);
       renderSupervisorGroups();
@@ -2282,6 +2478,59 @@
       renderHazardPersonOptions(role);
       renderEnterpriseRows(); // BR-DOM-KP-14: 刷新复选框disabled状态
     }
+
+    // ========== 政府人员动态取数（从领域监管配置的责任科室） ==========
+
+    /**
+     * 根据监管单位orgId和责任科室名称，返回该科室下启用的人员列表
+     * @param {string} orgId - 监管单位ID
+     * @param {string} deptName - 责任科室名称
+     * @returns {{id: string, name: string}[]}
+     */
+    function resolveGovDeptPersonnel(orgId, deptName) {
+      if (!orgId) return [];
+      if (typeof getPersonnelByOrgId !== 'function') return [];
+      return getPersonnelByOrgId(orgId)
+        .filter(function(u) {
+          return (!deptName || u.deptName === deptName) && u.status === '启用';
+        })
+        .map(function(u) {
+          return { id: u.id, name: u.name };
+        });
+    }
+
+    /**
+     * 获取当前场所的主管单位orgId（优先行业监管）
+     * @returns {string}
+     */
+    function getPrimarySupervisorOrgId() {
+      var supervisors = currentFormState.supervisors || [];
+      // 优先行业监管
+      var industry = supervisors.find(function(s) { return s.type === 'industry'; });
+      if (industry) return industry.orgId;
+      // 回退：第一个监管单位
+      return supervisors.length > 0 ? supervisors[0].orgId : '';
+    }
+
+    /**
+     * 从 localStorage 读取领域监管配置的责任科室
+     * @param {string} domainId - 领域ID
+     * @param {string} orgId - 监管单位ID
+     * @returns {string}
+     */
+    function getDeptForDomainAndOrg(domainId, orgId) {
+      try {
+        var stored = localStorage.getItem('sa_hazard_config');
+        if (!stored) return '';
+        var all = JSON.parse(stored);
+        var entry = all[domainId];
+        if (entry && entry.byUnit && entry.byUnit[orgId]) {
+          return entry.byUnit[orgId].dept || '';
+        }
+      } catch(e) {}
+      return '';
+    }
+
     function renderHazardPersonOptions(role, presetId) {
       const typeEl = document.getElementById(role === 'handler' ? 'fHandlerType' : 'fReviewerType');
       const personEl = document.getElementById(role === 'handler' ? 'fHandlerId' : 'fReviewerId');
@@ -2306,16 +2555,44 @@
           options = '<option value="">请先勾选关联企业的"' + (role === 'handler' ? '隐患责任人' : '隐患复核人') + '"</option>';
         }
       } else if (type === 'government') {
-        KEY_PLACE_GOV_DEPT_POOL.forEach(d => {
-          options += `<optgroup label="${d.name}">`;
-          d.persons.forEach(p => {
-            options += `<option value="${p.id}">${p.name}</option>`;
+        // 动态取数：从领域监管配置的责任科室获取人员
+        var orgId = getPrimarySupervisorOrgId();
+        var deptName = orgId ? getDeptForDomainAndOrg(currentDomainId, orgId) : '';
+        var persons = resolveGovDeptPersonnel(orgId, deptName);
+
+        if (persons.length > 0) {
+          var label = deptName || (getUnitNameById(orgId) || '监管单位');
+          options += '<optgroup label="' + label + '">';
+          persons.forEach(function(p) {
+            options += '<option value="' + p.id + '">' + p.name + '</option>';
           });
           options += '</optgroup>';
-        });
+        } else {
+          var hint = orgId ? '该监管单位' + (deptName ? '的"' + deptName + '"' : '') + '暂无启用人员' : '请先选择监管单位';
+          options = '<option value="">' + hint + '</option>';
+        }
       }
       personEl.innerHTML = options;
-      if (presetId) personEl.value = presetId;
+      // 编辑回显：优先按 ID 匹配，government 类型按 name 回退匹配
+      if (presetId) {
+        personEl.value = presetId;
+        if (type === 'government' && !personEl.value) {
+          // presetId 来自旧数据（gp_xxx），新下拉无匹配值，按 name 查找
+          var placeForEdit = (placeData[currentDomainId] || []).find(function(x) { return x.id === editPlaceId; });
+          if (placeForEdit) {
+            var personName = role === 'handler' ? placeForEdit.hazard_handler_name : placeForEdit.hazard_reviewer_name;
+            if (personName) {
+              var opts = personEl.options;
+              for (var i = 0; i < opts.length; i++) {
+                if (opts[i].text === personName) {
+                  personEl.value = opts[i].value;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
     }
     function findPersonName(type, id) {
       if (!id) return '';
@@ -2325,9 +2602,14 @@
           if (p) return p.name + '（' + e.name + '）';
         }
       } else {
-        for (const d of KEY_PLACE_GOV_DEPT_POOL) {
-          const p = d.persons.find(x => x.id === id);
-          if (p) return p.name + '（' + d.name + '）';
+        // 从 GOV_USER_DATA_ALL 动态查找（替换写死的 KEY_PLACE_GOV_DEPT_POOL）
+        if (typeof getUserById === 'function') {
+          var user = getUserById(id);
+          if (user) return user.name + '（' + (user.deptName || user.org || '') + '）';
+        }
+        if (typeof GOV_USER_DATA_ALL !== 'undefined') {
+          var found = GOV_USER_DATA_ALL.find(function(u) { return u.id === id; });
+          if (found) return found.name + '（' + (found.deptName || found.org || '') + '）';
         }
       }
       return '';

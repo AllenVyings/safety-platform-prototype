@@ -115,10 +115,10 @@ var domainSupRefWithChecklists = function(type, orgId, domainId) {
 /* ========== 领域小类主数据 ========== */
 var DOMAIN_TABLE_DATA = [
   // ===== 公共场所类 (COMM) 18项 =====
-  { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', supervisors: [domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 4 },
+  { id: 'COMM_001', name: '电动自行车充电场所', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '电动自行车集中充电场所安全管理', supervisors: [domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 4, hazardDefault: { handlerType: 'enterprise', handlerUserIds: [], reviewerType: 'government', reviewerUserIds: [] } },
   { id: 'COMM_002', name: '商业综合体', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '大型商业综合体安全管理', supervisors: [domainSupRef('industry', 'NS-COMMERCE'), domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 9 },
   { id: 'COMM_003', name: '物业小区', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '住宅物业小区安全管理', supervisors: [domainSupRef('professional', 'NS-HOUSING'), domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 10 },
-  { id: 'COMM_004', name: '超高层建筑', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '超高层建筑安全管理', supervisors: [domainSupRef('professional', 'NS-HOUSING'), domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-SHEKOU')], checklists: [], sortOrder: 5 },
+  { id: 'COMM_004', name: '超高层建筑', industry: 'COMM', industryName: '公共场所类', mode: 'special', status: '1', desc: '超高层建筑安全管理', supervisors: [domainSupRef('professional', 'NS-HOUSING'), domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-SHEKOU')], checklists: [], sortOrder: 5, hazardDefault: { handlerType: 'enterprise', handlerUserIds: [], reviewerType: 'government', reviewerUserIds: [] } },
   { id: 'COMM_005', name: '文明施工', industry: 'COMM', industryName: '公共场所类', mode: 'project', status: '1', desc: '文明施工安全管理', supervisors: [domainSupRef('industry', 'NS-HOUSING'), domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 11 },
   { id: 'COMM_006', name: '"三小"场所（小商店—商场、市场、商店等）', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '商场、市场、商店等小商店场所安全管理', supervisors: [domainSupRef('industry', 'NS-MARKET'), domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 12 },
   { id: 'COMM_007', name: '"三小"场所（小餐饮（燃气））', industry: 'COMM', industryName: '公共场所类', mode: 'basic', status: '1', desc: '使用燃气的小餐饮场所安全管理', supervisors: [domainSupRef('industry', 'NS-MARKET'), domainSupRef('professional', 'NS-HOUSING'), domainSupRef('professional', 'NS-AMB'), domainSupRef('local', 'NS-NANSHAN-STREET')], checklists: [], sortOrder: 13 },
@@ -175,7 +175,8 @@ var DOMAIN_TABLE_DATA = [
       { id: 'f_oth001_18', sectionId: 'sec_oth001_resp', fieldKey: 'tech_phone', fieldLabel: '联系电话', fieldType: 'text', required: false, placeholder: '如：138xxxxxxxx', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 6 },
       { id: 'f_oth001_19', sectionId: 'sec_oth001_resp', fieldKey: 'patrol_person', fieldLabel: '巡查负责人', fieldType: 'text', required: false, placeholder: '姓名', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 7 },
       { id: 'f_oth001_20', sectionId: 'sec_oth001_resp', fieldKey: 'patrol_phone', fieldLabel: '联系电话', fieldType: 'text', required: false, placeholder: '如：138xxxxxxxx', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 8 }
-    ]
+    ],
+    hazardDefault: { handlerType: 'government', handlerUserIds: [], reviewerType: 'government', reviewerUserIds: [] }
   },
   {
     id: 'OTH_002', name: '危险边坡（重点边坡）', industry: 'OTH', industryName: '其他类', mode: 'special', status: '1', desc: '危险边坡（重点边坡）安全管理',
@@ -211,7 +212,8 @@ var DOMAIN_TABLE_DATA = [
       { id: 'f_oth002_18', sectionId: 'sec_oth002_resp', fieldKey: 'tech_phone', fieldLabel: '联系电话', fieldType: 'text', required: false, placeholder: '如：138xxxxxxxx', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 6 },
       { id: 'f_oth002_19', sectionId: 'sec_oth002_resp', fieldKey: 'patrol_person', fieldLabel: '巡查负责人', fieldType: 'text', required: false, placeholder: '姓名', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 7 },
       { id: 'f_oth002_20', sectionId: 'sec_oth002_resp', fieldKey: 'patrol_phone', fieldLabel: '联系电话', fieldType: 'text', required: false, placeholder: '如：138xxxxxxxx', defaultValue: '', validationRules: '', options: '', fieldWidth: 'half', uniqueCheck: false, helpText: '', isLocked: false, sortOrder: 8 }
-    ]
+    ],
+    hazardDefault: { handlerType: 'government', handlerUserIds: [], reviewerType: 'government', reviewerUserIds: [] }
   }
 ];
 
