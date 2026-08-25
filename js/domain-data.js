@@ -308,3 +308,238 @@ var getUnitPersonnel = function(orgId) {
   if (typeof GOV_USER_DATA_ALL === 'undefined') return [];
   return GOV_USER_DATA_ALL.filter(function(u) { return u.orgId === orgId; });
 };
+
+/* ========== ID 映射：共享数据 ID（COMM_001 等）→ 政府端内部 ID（domain-charging 等） ========== */
+var DOMAIN_ID_MAP = {
+  'COMM_001': 'domain-charging', 'COMM_002': 'domain-commercial', 'COMM_003': 'domain-property',
+  'COMM_004': 'domain-highrise', 'COMM_005': 'domain-civilized',
+  'COMM_006': 'domain-small-shop', 'COMM_007': 'domain-small-gasfood', 'COMM_008': 'domain-small-beauty',
+  'COMM_009': 'domain-small-elecfood', 'COMM_010': 'domain-small-cybercafe', 'COMM_011': 'domain-small-store',
+  'COMM_012': 'domain-small-school', 'COMM_013': 'domain-small-multi', 'COMM_014': 'domain-small-clinic',
+  'COMM_015': 'domain-small-entertain', 'COMM_016': 'domain-small-produce', 'COMM_017': 'domain-small-hotel',
+  'COMM_018': 'domain-small-playground', 'CONS_001': 'domain-house-build',
+  'TRANS_001': 'domain-persuade', 'CHEM_001': 'domain-gas-station', 'CHEM_002': 'domain-pharma',
+  'OTH_001': 'domain-slope', 'OTH_002': 'domain-slope-key'
+};
+
+// 反向映射：内部 ID（domain-charging）→ 共享数据 ID（COMM_001）
+var RAW_DOMAIN_ID_MAP = {};
+Object.keys(DOMAIN_ID_MAP).forEach(function(rawId) {
+  RAW_DOMAIN_ID_MAP[DOMAIN_ID_MAP[rawId]] = rawId;
+});
+
+/* ========== 政府端领域监管检查表配置（共享数据源） ========== */
+/* 供 domain-supervise.html 和 task-manage.html 共同引用 */
+var GOV_CONFIG_DATA = {
+  'domain-charging': {
+    dept: '督导检查科',
+    checklists: [
+      { name: '消防安全日常检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '安全监管和执法科', enabled: true },
+      { name: '电气安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+      { name: '充电设施每日巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+      { name: '充电站周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '充电场所年度综合评估表', frequency: '每年检查1次', checklistType: 'custom', person: '陈敏', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-commercial': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '安全监管和执法科', enabled: true },
+      { name: '商户每日安全巡检表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+      { name: '商业综合体周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+      { name: '电梯及特种设备季度检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '商业综合体年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-property': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '安全监管和执法科', enabled: true },
+      { name: '电梯安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+      { name: '物业每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+      { name: '小区周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '物业年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-highrise': {
+    checklists: [
+      { name: '高层建筑消防检查表', frequency: '每月检查1次', checklistType: 'system', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '避难层安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '李娜', dept: '防灾减灾科', enabled: true },
+      { name: '高层建筑每日巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+      { name: '高层建筑周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '超高层建筑年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '陈敏', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-civilized': {
+    checklists: [
+      { name: '文明施工检查表', frequency: '每周检查1次', checklistType: 'system', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
+      { name: '扬尘治理检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '危化品监管和执法科', enabled: true },
+      { name: '工地每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+      { name: '文明施工季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
+      { name: '文明施工年度综合评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '危化品监管和执法科', enabled: true }
+    ]
+  },
+  'domain-small-shop': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '安全监管和执法科', enabled: true },
+      { name: '经营场所每日巡查表', frequency: '每日检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+      { name: '商场周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+      { name: '商户季度合规检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '商场年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-gasfood': {
+    checklists: [
+      { name: '燃气安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '安全监管和执法科', enabled: true },
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+      { name: '燃气设施每日巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+      { name: '餐饮场所周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '刘洋', dept: '督导检查科', enabled: true },
+      { name: '燃气安全年度检测表', frequency: '每年检查1次', checklistType: 'custom', person: '陈敏', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-beauty': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '安全监管和执法科', enabled: true },
+      { name: '场所每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+      { name: '美容场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+      { name: '卫生及设施季度检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '小美容休闲年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-elecfood': {
+    checklists: [
+      { name: '用电安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '安全监管和执法科', enabled: true },
+      { name: '餐饮场所每日用电巡检表', frequency: '每日检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+      { name: '餐饮用电周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+      { name: '电气线路季度检测表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '餐饮用电年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-cybercafe': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '刘洋', dept: '安全监管和执法科', enabled: true },
+      { name: '网吧每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+      { name: '网吧周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+      { name: '网络安全季度检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '网吧年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-store': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '安全监管和执法科', enabled: true },
+      { name: '门店每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+      { name: '门店周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+      { name: '门店季度合规检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '小门店年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-school': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '安全监管和执法科', enabled: true },
+      { name: '食品安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '校园每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+      { name: '学校周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '学校年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-multi': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '刘洋', dept: '督导检查科', enabled: true },
+      { name: '多业态场所每日巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+      { name: '多业态场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+      { name: '多业态季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '多业态场所年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-clinic': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '医疗废物处置检查表', frequency: '每季度检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+      { name: '医疗机构每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+      { name: '医疗场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '医疗机构年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-entertain': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+      { name: '应急疏散检查表', frequency: '每季度检查1次', checklistType: 'system', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '娱乐场所每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+      { name: '娱乐场所周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '娱乐场所年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-produce': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '刘洋', dept: '督导检查科', enabled: true },
+      { name: '生产安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '生产加工场所每日巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+      { name: '生产加工周安全检查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '督导检查科', enabled: true },
+      { name: '生产安全季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '综合协调科', enabled: true },
+      { name: '生产加工企业年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '区三防办', enabled: true }
+    ]
+  },
+  'domain-small-hotel': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '旅店每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '督导检查科', enabled: true },
+      { name: '旅店周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+      { name: '旅店季度卫生及消防检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '督导检查科', enabled: true },
+      { name: '旅店年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-small-playground': {
+    checklists: [
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '督导检查科', enabled: true },
+      { name: '设施安全检查表', frequency: '每季度检查1次', checklistType: 'system', person: '陈敏', dept: '防灾减灾科', enabled: true },
+      { name: '游乐设施每日安全检查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '综合协调科', enabled: true },
+      { name: '游乐场周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '督导检查科', enabled: true },
+      { name: '游乐场年度安全检测表', frequency: '每年检查1次', checklistType: 'custom', person: '李娜', dept: '防灾减灾科', enabled: true }
+    ]
+  },
+  'domain-house-build': {
+    checklists: [
+      { name: '建筑施工安全检查表', frequency: '每周检查1次', checklistType: 'system', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+      { name: '高处作业检查表', frequency: '每月检查1次', checklistType: 'system', person: '刘洋', dept: '危化品监管和执法科', enabled: true },
+      { name: '临时用电检查表', frequency: '每月检查1次', checklistType: 'custom', person: '王强', dept: '危化品监管和执法科', enabled: true },
+      { name: '施工现场每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '危化品监管和执法科', enabled: true },
+      { name: '建筑施工季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+      { name: '建筑工程年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '危化品监管和执法科', enabled: true }
+    ]
+  },
+  'domain-persuade': {
+    checklists: [
+      { name: '交通安全劝导检查表', frequency: '每周检查1次', checklistType: 'system', person: '刘洋', dept: '综合协调科', enabled: true },
+      { name: '劝导点位每日安全巡查表', frequency: '每日检查1次', checklistType: 'system', person: '张伟', dept: '综合协调科', enabled: true },
+      { name: '劝导路口月度安全检查表', frequency: '每月检查1次', checklistType: 'custom', person: '王强', dept: '综合协调科', enabled: true },
+      { name: '劝导路口季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '李娜', dept: '综合协调科', enabled: true },
+      { name: '交通安全劝导年度评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '综合协调科', enabled: true }
+    ]
+  },
+  'domain-gas-station': {
+    checklists: [
+      { name: '加油站安全检查表', frequency: '每周检查1次', checklistType: 'system', person: '张伟', dept: '危化品监管和执法科', enabled: true },
+      { name: '消防安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '李娜', dept: '危化品监管和执法科', enabled: true },
+      { name: '加油站每日安全巡检表', frequency: '每日检查1次', checklistType: 'custom', person: '王强', dept: '危化品监管和执法科', enabled: true },
+      { name: '加油站季度综合检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+      { name: '加油站年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '危化品监管和执法科', enabled: true }
+    ]
+  },
+  'domain-pharma': {
+    checklists: [
+      { name: '医药化工安全检查表', frequency: '每月检查1次', checklistType: 'system', person: '张伟', dept: '危化品监管和执法科', enabled: true },
+      { name: '医药化工每日安全巡检表', frequency: '每日检查1次', checklistType: 'system', person: '李娜', dept: '危化品监管和执法科', enabled: true },
+      { name: '医药化工周安全巡查表', frequency: '每周检查1次', checklistType: 'custom', person: '王强', dept: '危化品监管和执法科', enabled: true },
+      { name: '医药化工季度专项检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '陈敏', dept: '危化品监管和执法科', enabled: true },
+      { name: '医药化工年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '张伟', dept: '危化品监管和执法科', enabled: true }
+    ]
+  },
+  'domain-slope': {
+    dept: '防灾减灾科',
+    checklists: [
+      { name: '边坡安全巡查表', frequency: '每周检查1次', checklistType: 'system', person: '刘洋', dept: '综合协调科', enabled: true },
+      { name: '雨季专项检查表', frequency: '每月检查1次', checklistType: 'system', person: '王强', dept: '防灾减灾科', enabled: true },
+      { name: '边坡每日安全巡查表', frequency: '每日检查1次', checklistType: 'custom', person: '张伟', dept: '区三防办', enabled: true },
+      { name: '边坡季度地质灾害检查表', frequency: '每季度检查1次', checklistType: 'custom', person: '李娜', dept: '防灾减灾科', enabled: true },
+      { name: '边坡年度安全评估表', frequency: '每年检查1次', checklistType: 'custom', person: '刘洋', dept: '区三防办', enabled: true }
+    ]
+  }
+};

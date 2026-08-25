@@ -137,6 +137,7 @@ tbody tr:hover td:nth-child(11){background:var(--bg-section)}
 </head>
 <body>
 <script src="../../js/shared/district-data.js"></script>
+<script src="../../js/shared/project-data.js"></script>
 <script src="../../js/shared/industry-icons.js"></script>
 <script src="../../js/pagination.js"></script>
 <script src="../../js/utils.js"></script>
@@ -480,26 +481,7 @@ var communityGridData = {};
 // 街道编码：南山街道=001, 南头街道=002, 西丽街道=003, 沙河街道=004, 蛇口街道=005, 招商街道=006, 粤海街道=007, 桃源街道=008, 前海合作区=009
 
 // 模拟项目数据（南山区，编码对齐 STREETS）
-var allProjects = [
-  {id:_pidGen(),projectNo:'2024-001',projectName:'XX大厦建设工程',projectCategory:'1',domainId:'d1',domainCode:'CONS-BUILD',domainName:'房屋建设工程',projectType:'主体',projectStatus:'2',regionCode:'440305',regionName:'南山区',streetCode:'440305007',streetName:'粤海街道',communityCode:'440305007008',communityName:'科技园社区',gridCode:'440305007008001',gridName:'科技园01',address:'深圳市南山区科技园南路88号',supervisionGroupId:'1',supervisionGroupName:'第一督导组',description:'高层商业综合体建设项目',parties:[
-    {partyType:1,partyTypeName:'建设单位',partyName:'XX建设集团',creditCode:'91440300MA5EXAMPLE1',contactName:'张三',contactPhone:'13800138001'},
-    {partyType:2,partyTypeName:'施工单位',partyName:'XX建筑工程有限公司',creditCode:'91440300MA5EXAMPLE2',contactName:'李四',contactPhone:'13900139001'},
-    {partyType:3,partyTypeName:'监理单位',partyName:'XX监理咨询有限公司',creditCode:'91440300MA5EXAMPLE3',contactName:'王五',contactPhone:'13700137001'}
-  ],loginAccount:'project_001',safetyCode:'P202401001',codeColor:'green',createTime:'2024-01-15'},
-  {id:_pidGen(),projectNo:'2024-005',projectName:'XX商业广场装修工程',projectCategory:'1',domainId:'d1',domainCode:'CONS-BUILD',domainName:'房屋建设工程',projectType:'装饰装修',projectStatus:'4',regionCode:'440305',regionName:'南山区',streetCode:'440305002',streetName:'南头街道',communityCode:'440305002008',communityName:'南头城社区',gridCode:'440305002008001',gridName:'南头城01',address:'深圳市南山区海岸城购物中心',supervisionGroupId:'2',supervisionGroupName:'第二督导组',description:'商场内部整体装修升级',parties:[
-    {partyType:1,partyTypeName:'建设单位',partyName:'XX商业管理有限公司',creditCode:'91440300MA5EXAMPLE4',contactName:'刘十五',contactPhone:'13800138005'},
-    {partyType:2,partyTypeName:'施工单位',partyName:'XX装饰工程有限公司',creditCode:'91440300MA5EXAMPLE5',contactName:'陈十六',contactPhone:'13900139005'},
-    {partyType:3,partyTypeName:'监理单位',partyName:'XX装饰监理公司',creditCode:'91440300MA5EXAMPLE6',contactName:'杨十七',contactPhone:'13700137005'}
-  ],loginAccount:'project_005',safetyCode:'P202405001',codeColor:'yellow',createTime:'2024-05-12'},
-  {id:_pidGen(),projectNo:'2024-009',projectName:'XX河道整治工程',projectCategory:'1',domainId:'d4',domainCode:'CONS-CIVIL',domainName:'水利工程',projectType:'河道整治',projectStatus:'1',regionCode:'440305',regionName:'南山区',streetCode:'440305007',streetName:'粤海街道',communityCode:'440305007003',communityName:'大冲社区',gridCode:'440305007003001',gridName:'网格01',address:'深圳市南山区大沙河下游段',supervisionGroupId:'3',supervisionGroupName:'第三督导组',description:'河道清淤、护岸及生态修复',parties:[
-    {partyType:1,partyTypeName:'建设单位',partyName:'XX水务局',creditCode:'11440300MB5EXAMPLE1',contactName:'郭二十七',contactPhone:'13800138009'},
-    {partyType:2,partyTypeName:'施工单位',partyName:'XX河道工程有限公司',creditCode:'91440300MA5EXAMPLE7',contactName:'梁二十八',contactPhone:'13900139009'},
-    {partyType:3,partyTypeName:'监理单位',partyName:'XX水利监理公司',creditCode:'91440300MA5EXAMPLE8',contactName:'宋二十九',contactPhone:'13700137009'}
-  ],loginAccount:'project_009',safetyCode:'P202409001',codeColor:'red',createTime:'2024-09-15'},
-  {id:_pidGen(),projectNo:'2025-001',projectName:'XX购物中心运营项目',projectCategory:'2',domainId:'d1',domainCode:'COMM-PROJ',domainName:'房屋建设工程',projectType:'商业综合体',projectStatus:'1',regionCode:'440305',regionName:'南山区',streetCode:'440305007',streetName:'粤海街道',communityCode:'440305007008',communityName:'科技园社区',gridCode:'440305007008001',gridName:'科技园01',address:'深圳市南山区科技园南路88号',supervisionGroupId:'',supervisionGroupName:'',description:'大型商业综合体日常运营管理',parties:[
-    {partyType:5,partyTypeName:'运营单位',partyName:'XX商业运营有限公司',creditCode:'91440300MA5EXAMPLE9',contactName:'陈运营',contactPhone:'13800138013'}
-  ],loginAccount:'project_op_001',safetyCode:'P202501001',codeColor:'green',createTime:'2025-01-15'}
-];
+var allProjects = SHARED_PROJECT_DATA.map(function(p){ return Object.assign({}, p, {parties: p.parties.map(function(pp){ return Object.assign({}, pp); })}); });
 
 // 当前筛选后的项目列表
 var filteredProjects = allProjects.slice();
