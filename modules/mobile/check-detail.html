@@ -6,46 +6,113 @@
   <title>检查详情</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
+    /* ========== 基本信息区 ========== */
     .info-row { display: flex; justify-content: space-between; padding: var(--wc-gap-lg) 0; border-bottom: 0.5px solid var(--wc-divider); font-size: var(--wc-font-caption); }
     .info-row:last-child { border-bottom: none; }
     .info-label { color: var(--wc-text-placeholder); flex-shrink: 0; }
     .info-value { color: var(--wc-text-primary); font-weight: 500; text-align: right; flex: 1; min-width: 0; }
-    .result-badge { display: inline-block; padding: var(--wc-gap-sm) 14px; border-radius: 6px; font-size: var(--wc-font-caption); font-weight: 600; }
-    .result-badge.safe { background: var(--wc-code-bg-green); color: var(--code-green); }
-    .result-badge.hazard { background: var(--wc-code-bg-yellow); color: var(--code-yellow); }
-    .check-item { display: flex; align-items: flex-start; padding: var(--wc-gap-xl) 0; border-bottom: 0.5px solid var(--wc-divider); }
-    .check-item:last-child { border-bottom: none; }
-    .check-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--wc-font-small); font-weight: 700; flex-shrink: 0; margin-right: var(--wc-gap-lg); margin-top: 1px; }
-    .check-icon.safe { background: var(--wc-code-bg-green); color: var(--code-green); }
-    .check-icon.hazard { background: var(--wc-code-bg-red); color: var(--code-red); }
-    .check-icon.na { background: var(--wc-page-bg); color: var(--wc-text-placeholder); }
-    .check-info { flex: 1; }
-    .check-name { font-size: var(--wc-font-caption); color: var(--wc-text-primary); font-weight: 500; }
-    .check-result { font-size: var(--wc-font-small); margin-top: 2px; }
-    .check-result.safe { color: var(--code-green); }
-    .check-result.hazard { color: var(--code-red); }
-    .check-result.na { color: var(--wc-text-placeholder); }
-    .hazard-link { display: inline-flex; align-items: center; gap: var(--wc-gap-sm); margin-top: var(--wc-gap-sm); font-size: var(--wc-font-small); color: var(--brand-blue); cursor: pointer; }
-    .hazard-link:active { opacity: 0.7; }
     .sign-display { background: var(--wc-page-bg); border-radius: var(--wc-btn-radius); padding: var(--wc-page-padding); text-align: center; border: 0.5px solid var(--wc-divider); }
     .sign-display span { font-family: KaiTi, STKaiti, serif; font-size: 24px; color: var(--wc-text-secondary); }
-    .related-item { display: flex; align-items: center; padding: var(--wc-gap-lg) 0; border-bottom: 0.5px solid var(--wc-divider); cursor: pointer; }
-    .related-item:last-child { border-bottom: none; }
-    .related-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: var(--wc-gap-lg); flex-shrink: 0; }
-    .related-info { flex: 1; }
-    .related-title { font-size: var(--wc-font-caption); color: var(--wc-text-primary); }
-    .related-meta { font-size: var(--wc-font-small); color: var(--wc-text-placeholder); margin-top: 2px; }
-    .related-arrow { color: var(--wc-text-disabled); font-size: var(--wc-font-caption); }
+
+    /* ========== 页签栏 ========== */
+    .cd-tabs {
+      display: flex; background: var(--wc-track-bg); margin: var(--wc-gap-xl) var(--wc-page-padding); border-radius: var(--wc-card-radius);
+      padding: 3px; gap: 3px;
+    }
+    .cd-tab {
+      flex: 1; text-align: center; padding: 9px 0; font-size: var(--wc-font-caption); font-weight: 500;
+      color: var(--wc-text-placeholder); cursor: pointer; border-radius: var(--wc-btn-radius); transition: all 0.25s ease;
+    }
+    .cd-tab.active {
+      color: var(--brand-blue); background: var(--wc-card-bg); font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .cd-tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 16px; height: 16px; border-radius: 8px; background: var(--code-red);
+      color: var(--wc-card-bg); font-size: var(--wc-font-tiny); font-weight: 600; padding: 0 4px;
+      margin-left: 4px; vertical-align: middle;
+    }
+    .cd-tab-badge.hidden { display: none; }
+
+    /* ========== 检查项卡片（只读） ========== */
+    .cd-card {
+      background: var(--wc-card-bg); border-radius: var(--wc-card-radius); padding: 14px var(--wc-page-padding); margin: var(--wc-gap-md) var(--wc-page-padding);
+      box-shadow: var(--wc-shadow-card-sm);
+    }
+    .cd-item-header { display: flex; align-items: flex-start; margin-bottom: var(--wc-gap-md); }
+    .cd-item-no {
+      min-width: 22px; height: 22px; border-radius: 50%; background: var(--wc-track-bg); color: var(--wc-text-tertiary);
+      font-size: var(--wc-font-small); font-weight: 600; display: flex; align-items: center; justify-content: center;
+      margin-right: var(--wc-gap-md); flex-shrink: 0;
+    }
+    .cd-item-no.safe { background: var(--code-green); color: var(--wc-card-bg); }
+    .cd-item-no.hazard { background: var(--code-red); color: var(--wc-card-bg); }
+    .cd-item-no.na { background: var(--wc-text-placeholder); color: var(--wc-card-bg); }
+    .cd-item-name { font-size: 15px; font-weight: 600; color: var(--wc-text-primary); flex: 1; min-width: 0; line-height: 22px; }
+    .cd-sub-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: var(--wc-gap-lg); }
+    .cd-sub-tag {
+      font-size: 11px; color: var(--wc-text-muted); background: var(--wc-bg-gray); padding: 2px var(--wc-gap-md); border-radius: var(--wc-radius-sm);
+    }
+    .cd-judge-btns { display: flex; gap: var(--wc-gap-md); margin-bottom: var(--wc-gap-md); }
+    .cd-judge-btn {
+      flex: 1; padding: var(--wc-gap-md) 0; border: 2px solid var(--wc-divider); border-radius: var(--wc-btn-radius);
+      font-size: 13px; font-weight: 500; text-align: center;
+      background: var(--wc-card-bg); color: var(--wc-text-tertiary);
+    }
+    .cd-judge-btn.hazard.active { background: var(--danger-light); border-color: var(--code-red); color: var(--code-red); }
+    .cd-judge-btn.safe.active { background: var(--success-light); border-color: var(--code-green); color: var(--code-green); }
+    .cd-judge-btn.na.active { background: var(--wc-bg-gray); border-color: var(--wc-text-placeholder); color: var(--wc-text-tertiary); }
+    .cd-reg-tags { margin-top: var(--wc-gap-md); }
+    .cd-reg-tag {
+      display: inline-block; font-size: 11px; color: var(--wc-text-muted); background: var(--wc-bg-gray);
+      padding: 2px var(--wc-gap-md); border-radius: var(--wc-radius-sm); margin-right: 4px;
+    }
+
+    /* ========== 隐患列表面板 ========== */
+    .cd-hazard-panel { display: none; padding: var(--wc-gap-md) var(--wc-page-padding); }
+    .cd-hazard-panel.show { display: block; }
+    .cd-hazard-empty { text-align: center; padding: 60px var(--wc-page-padding); color: var(--wc-text-pending); }
+    .cd-hazard-empty-icon { font-size: 48px; margin-bottom: var(--wc-gap-xl); }
+    .cd-hazard-empty-text { font-size: var(--wc-font-caption); }
+    .cd-hazard-card {
+      background: var(--wc-card-bg); border-radius: var(--wc-card-radius); padding: 14px var(--wc-page-padding); margin-bottom: var(--wc-gap-md);
+      box-shadow: var(--wc-shadow-card-sm); position: relative;
+      cursor: pointer; transition: background var(--duration-fast);
+    }
+    .cd-hazard-card:active { background: #fafafa; }
+    .cd-hc-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; line-height: 1.6; padding: 6px 0;
+      border-bottom: 0.5px solid var(--wc-bg-gray);
+    }
+    .cd-hc-row:first-child { padding-top: 0; }
+    .cd-hc-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .cd-hc-label { color: var(--wc-text-muted); font-weight: 600; flex-shrink: 0; }
+    .cd-hc-val { color: var(--wc-text-dark); font-weight: 500; text-align: right; flex: 1; min-width: 0; }
+    .cd-hc-type-tag {
+      display: inline-block; font-size: var(--wc-font-small); font-weight: 600;
+      padding: 1px var(--wc-gap-md); border-radius: var(--wc-btn-radius);
+      color: var(--brand-blue); background: var(--primary-light);
+    }
+    .cd-hc-level-tag {
+      display: inline-block; font-size: var(--wc-font-small); font-weight: 600;
+      padding: 1px var(--wc-gap-md); border-radius: var(--wc-btn-radius); margin-left: 6px;
+    }
+    .cd-hc-level-tag.normal { color: var(--primary); background: var(--primary-light); }
+    .cd-hc-level-tag.major { color: var(--code-red); background: var(--danger-light); }
+    .cd-hc-source-tag {
+      font-size: 11px; padding: 2px var(--wc-gap-md); border-radius: var(--wc-gap-lg); display: inline-block;
+      font-weight: 600; margin-top: 6px;
+    }
+    .cd-hc-source-tag.manual { color: var(--wc-text-muted); background: var(--wc-bg-gray); border: 1px solid var(--wc-icon-btn-active); }
   </style>
 </head>
 <body>
   <div class="m-page">
     <!-- 基本信息 -->
     <div class="m-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div class="m-card-title" style="margin-bottom:0;">检查信息</div>
-        <span class="result-badge hazard">发现隐患</span>
-      </div>
+      <div class="m-card-title">检查信息</div>
       <div class="info-row">
         <span class="info-label">安全管控对象</span>
         <span class="info-value">A栋生产车间</span>
@@ -75,67 +142,166 @@
       </div>
     </div>
 
-    <!-- 检查明细 -->
-    <div class="m-card">
-      <div class="m-card-title">检查明细</div>
-
-      <div class="check-item">
-        <div class="check-icon safe">✓</div>
-        <div class="check-info">
-          <div class="check-name">消防设施检查</div>
-          <div class="check-result safe">正常</div>
-        </div>
-      </div>
-
-      <div class="check-item">
-        <div class="check-icon safe">✓</div>
-        <div class="check-info">
-          <div class="check-name">安全出口检查</div>
-          <div class="check-result safe">正常</div>
-        </div>
-      </div>
-
-      <div class="check-item">
-        <div class="check-icon hazard">✗</div>
-        <div class="check-info">
-          <div class="check-name">电气线路检查</div>
-          <div class="check-result hazard">异常</div>
-          <div class="hazard-link" onclick="navTo('hazard-detail')">⚠ 关联隐患: 电气线路绝缘层破损 ›</div>
-        </div>
-      </div>
-
-      <div class="check-item">
-        <div class="check-icon safe">✓</div>
-        <div class="check-info">
-          <div class="check-name">灭火器检查</div>
-          <div class="check-result safe">正常</div>
-        </div>
-      </div>
-
-      <div class="check-item">
-        <div class="check-icon na">—</div>
-        <div class="check-info">
-          <div class="check-name">安全标识检查</div>
-          <div class="check-result na">不涉及</div>
-        </div>
-      </div>
+    <!-- 页签栏 -->
+    <div class="cd-tabs">
+      <div class="cd-tab active" onclick="switchTab('items')">检查项</div>
+      <div class="cd-tab" onclick="switchTab('hazards')">隐患列表<span class="cd-tab-badge" id="hazardBadge">1</span></div>
     </div>
 
-    <!-- 关联隐患 -->
-    <div class="m-card">
-      <div class="m-card-title">关联隐患</div>
-      <div class="related-item" onclick="navTo('hazard-detail')">
-        <div class="related-dot" style="background:var(--code-yellow);"></div>
-        <div class="related-info">
-          <div class="related-title">电气线路绝缘层破损</div>
-          <div class="related-meta">一般隐患 · 待整改 · 期限 2025-01-25</div>
+    <!-- 检查项面板 -->
+    <div id="itemsPanel">
+      <!-- 检查项1: 消防设施检查 - 无隐患 -->
+      <div class="cd-card">
+        <div class="cd-item-header">
+          <div class="cd-item-no safe">1</div>
+          <div class="cd-item-name">消防设施检查</div>
         </div>
-        <span class="related-arrow">›</span>
+        <div class="cd-sub-tags">
+          <span class="cd-sub-tag">灭火器压力</span>
+          <span class="cd-sub-tag">消防通道畅通</span>
+          <span class="cd-sub-tag">消防栓出水</span>
+        </div>
+        <div class="cd-judge-btns">
+          <div class="cd-judge-btn hazard">有隐患</div>
+          <div class="cd-judge-btn safe active">无隐患</div>
+          <div class="cd-judge-btn na">不涉及</div>
+        </div>
+        <div class="cd-reg-tags">
+          <span class="cd-reg-tag">《消防法》第16条</span>
+          <span class="cd-reg-tag">《安全生产法》第36条</span>
+        </div>
       </div>
+
+      <!-- 检查项2: 安全出口检查 - 无隐患 -->
+      <div class="cd-card">
+        <div class="cd-item-header">
+          <div class="cd-item-no safe">2</div>
+          <div class="cd-item-name">安全出口检查</div>
+        </div>
+        <div class="cd-sub-tags">
+          <span class="cd-sub-tag">出口标识清晰</span>
+          <span class="cd-sub-tag">应急照明正常</span>
+        </div>
+        <div class="cd-judge-btns">
+          <div class="cd-judge-btn hazard">有隐患</div>
+          <div class="cd-judge-btn safe active">无隐患</div>
+          <div class="cd-judge-btn na">不涉及</div>
+        </div>
+        <div class="cd-reg-tags">
+          <span class="cd-reg-tag">《消防法》第28条</span>
+        </div>
+      </div>
+
+      <!-- 检查项3: 电气线路检查 - 有隐患 -->
+      <div class="cd-card">
+        <div class="cd-item-header">
+          <div class="cd-item-no hazard">3</div>
+          <div class="cd-item-name">电气线路检查</div>
+        </div>
+        <div class="cd-sub-tags">
+          <span class="cd-sub-tag">线路绝缘</span>
+          <span class="cd-sub-tag">接地保护</span>
+          <span class="cd-sub-tag">配电箱状态</span>
+        </div>
+        <div class="cd-judge-btns">
+          <div class="cd-judge-btn hazard active">有隐患</div>
+          <div class="cd-judge-btn safe">无隐患</div>
+          <div class="cd-judge-btn na">不涉及</div>
+        </div>
+        <div class="cd-reg-tags">
+          <span class="cd-reg-tag">《电气装置安装规范》GB 50303</span>
+          <span class="cd-reg-tag">《安全生产法》第36条</span>
+        </div>
+      </div>
+
+      <!-- 检查项4: 灭火器检查 - 无隐患 -->
+      <div class="cd-card">
+        <div class="cd-item-header">
+          <div class="cd-item-no safe">4</div>
+          <div class="cd-item-name">灭火器检查</div>
+        </div>
+        <div class="cd-sub-tags">
+          <span class="cd-sub-tag">灭火器有效期</span>
+          <span class="cd-sub-tag">压力指示</span>
+        </div>
+        <div class="cd-judge-btns">
+          <div class="cd-judge-btn hazard">有隐患</div>
+          <div class="cd-judge-btn safe active">无隐患</div>
+          <div class="cd-judge-btn na">不涉及</div>
+        </div>
+        <div class="cd-reg-tags">
+          <span class="cd-reg-tag">《消防法》第16条</span>
+          <span class="cd-reg-tag">《建筑灭火器配置规范》GB 50140</span>
+        </div>
+      </div>
+
+      <!-- 检查项5: 安全标识检查 - 不涉及 -->
+      <div class="cd-card">
+        <div class="cd-item-header">
+          <div class="cd-item-no na">5</div>
+          <div class="cd-item-name">安全标识检查</div>
+        </div>
+        <div class="cd-sub-tags">
+          <span class="cd-sub-tag">标识完整性</span>
+          <span class="cd-sub-tag">标识清晰度</span>
+        </div>
+        <div class="cd-judge-btns">
+          <div class="cd-judge-btn hazard">有隐患</div>
+          <div class="cd-judge-btn safe">无隐患</div>
+          <div class="cd-judge-btn na active">不涉及</div>
+        </div>
+        <div class="cd-reg-tags">
+          <span class="cd-reg-tag">《安全生产法》第35条</span>
+        </div>
+      </div>
+
+      <div style="height:20px;"></div>
     </div>
 
-    <div style="height:20px;"></div>
+    <!-- 隐患列表面板 -->
+    <div class="cd-hazard-panel" id="hazardsPanel">
+      <div class="cd-hazard-card" onclick="navTo('hazard-detail')">
+        <div class="cd-hc-row">
+          <span class="cd-hc-label">隐患类型</span>
+          <span class="cd-hc-val">
+            <span class="cd-hc-type-tag">电气线路</span>
+            <span class="cd-hc-level-tag normal">一般隐患</span>
+          </span>
+        </div>
+        <div class="cd-hc-row">
+          <span class="cd-hc-label">隐患描述</span>
+          <span class="cd-hc-val">电气线路绝缘层破损</span>
+        </div>
+        <div class="cd-hc-row">
+          <span class="cd-hc-label">整改方式</span>
+          <span class="cd-hc-val">限期10天（2025-01-25）</span>
+        </div>
+        <div class="cd-hc-row">
+          <span class="cd-hc-label">整改责任人</span>
+          <span class="cd-hc-val">王操作</span>
+        </div>
+        <div class="cd-hc-row">
+          <span class="cd-hc-label">发现时间</span>
+          <span class="cd-hc-val">2025-01-15</span>
+        </div>
+        <span class="cd-hc-source-tag manual">手动新增</span>
+      </div>
+      <div style="height:20px;"></div>
+    </div>
+
   </div>
+
+  <script>
+    function switchTab(tab) {
+      var tabs = document.querySelectorAll('.cd-tab');
+      tabs[0].classList.toggle('active', tab === 'items');
+      tabs[1].classList.toggle('active', tab === 'hazards');
+      document.getElementById('itemsPanel').style.display = tab === 'items' ? 'block' : 'none';
+      var hp = document.getElementById('hazardsPanel');
+      hp.classList.toggle('show', tab === 'hazards');
+      hp.style.display = tab === 'hazards' ? 'block' : 'none';
+    }
+  </script>
 <script src="../../js/mobile-session.js"></script>
 <script src="../../js/annotations.js"></script>
 </body>

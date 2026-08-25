@@ -376,11 +376,12 @@ var MobilePageConfig = (function() {
         parentName: null, qrTime: '2025-01-15 08:00',
         quickActions: [
           { icon: '📊', label: '场所信息', color: 'blue' },
-          { icon: '', label: '码上排查', color: 'orange', nav: 'check-list' },
+          { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
           { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
-          { icon: '', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
+          { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
         ],
         stats: { total: 3, green: 2, yellow: 1, red: 0 },
+        hazardStats: { total: 3, pending: 1, fixing: 1, done: 1 },
         dutyPersons: [
           { name: '李安全', pos: '区域责任人', dept: '安全管理部', progress: '2/3', progressPct: 67 },
           { name: '赵巡检', pos: '扫码责任人', dept: '安全管理部', progress: '2/2', progressPct: 100 }
@@ -397,6 +398,7 @@ var MobilePageConfig = (function() {
             { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
           ],
           stats: { total: 2, green: 1, yellow: 1, red: 0 },
+          hazardStats: { total: 2, pending: 1, fixing: 0, done: 1 },
           dutyPersons: [
             { name: '王施工', pos: '区域责任人', dept: '施工管理部', progress: '1/2', progressPct: 50 },
             { name: '张巡检', pos: '扫码责任人', dept: '安全管理部', progress: '2/2', progressPct: 100 }
@@ -405,11 +407,12 @@ var MobilePageConfig = (function() {
         { id: 'PLACE_P02', name: '2号塔吊', parentName: entName, qrTime: '2025-01-15 09:00',
           quickActions: [
             { icon: '📊', label: '场所信息', color: 'blue' },
-            { icon: '', label: '码上排查', color: 'orange', nav: 'check-list' },
+            { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
             { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
-            { icon: '', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
+            { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
           ],
           stats: { total: 1, green: 1, yellow: 0, red: 0 },
+          hazardStats: { total: 1, pending: 0, fixing: 0, done: 1 },
           dutyPersons: [
             { name: '刘机长', pos: '区域责任人', dept: '设备管理部', progress: '3/3', progressPct: 100 }
           ]
@@ -420,12 +423,13 @@ var MobilePageConfig = (function() {
     return [
       { id: 'PLACE_001', name: 'A栋生产车间', parentName: entName, qrTime: '2025-01-15 08:00',
         quickActions: [
-          { icon: '', label: '基本信息', color: 'blue' },
+          { icon: '📋', label: '基本信息', color: 'blue' },
           { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
           { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
           { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
         ],
         stats: { total: 3, green: 1, yellow: 1, red: 1 },
+        hazardStats: { total: 4, pending: 1, fixing: 1, done: 2 },
         dutyPersons: [
           { name: '李安全', pos: '区域责任人', dept: '安全管理部', progress: '2/3', progressPct: 67 },
           { name: '赵巡检', pos: '扫码责任人', dept: '安全管理部', progress: '2/2', progressPct: 100 }
@@ -434,11 +438,12 @@ var MobilePageConfig = (function() {
       { id: 'PLACE_002', name: 'B栋仓储区', parentName: entName, qrTime: '2025-01-15 09:00',
         quickActions: [
           { icon: '📊', label: '基本信息', color: 'blue' },
-          { icon: '', label: '码上排查', color: 'orange', nav: 'check-list' },
+          { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
           { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
           { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
         ],
         stats: { total: 2, green: 2, yellow: 0, red: 0 },
+        hazardStats: { total: 2, pending: 0, fixing: 1, done: 1 },
         dutyPersons: [
           { name: '陈仓管', pos: '区域责任人', dept: '仓储管理部', progress: '1/1', progressPct: 100 }
         ]
@@ -536,7 +541,7 @@ var MobilePageConfig = (function() {
           { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
           { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
           { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
-          { icon: '', label: '变码记录', color: 'blue', nav: 'code-change' }
+          { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
         ],
         hazardStats: { total: 5, pending: 2, fixing: 1, done: 2 },
         dutyPersons: [
@@ -550,7 +555,7 @@ var MobilePageConfig = (function() {
           { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
           { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
           { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
-          { icon: '', label: '变码记录', color: 'blue', nav: 'code-change' }
+          { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
         ],
         hazardStats: { total: 1, pending: 0, fixing: 0, done: 1 },
         dutyPersons: [
