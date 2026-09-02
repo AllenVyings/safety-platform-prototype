@@ -667,6 +667,49 @@
       gap: 6px;
     }
 
+    /* 分支式类型选择器（分段控制器样式） */
+    .kp-type-radio-label {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      margin: 0;
+    }
+    .kp-type-radio-label input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .kp-type-radio-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 20px;
+      border: 1px solid var(--border-section, #d9d9d9);
+      background: var(--bg-card, #fff);
+      color: var(--text-secondary, #666);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .kp-type-radio-label:first-child .kp-type-radio-box {
+      border-radius: var(--radius-md, 4px) 0 0 var(--radius-md, 4px);
+    }
+    .kp-type-radio-label:last-child .kp-type-radio-box {
+      border-radius: 0 var(--radius-md, 4px) var(--radius-md, 4px) 0;
+      border-left: none;
+    }
+    .kp-type-radio-label input[type="radio"]:checked + .kp-type-radio-box {
+      background: var(--primary, #1890ff);
+      color: #fff;
+      border-color: var(--primary, #1890ff);
+      font-weight: 500;
+    }
+    .kp-type-radio-label input[type="radio"]:disabled + .kp-type-radio-box {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     /* 上传缩略图（mock） */
     .kp-upload-area {
       display: flex;
@@ -979,6 +1022,7 @@
     .modal-close:hover { color: var(--text-secondary); }
   </style>
 </head>
+  <link rel="stylesheet" href="../../css/annotations.css">
 <body>
   <div class="module-page page-container" data-module="government/key-place">
 
@@ -1135,7 +1179,7 @@
 
   <!-- ========== 新增/编辑弹窗 V7.1.0 ========== -->
   <div class="modal-overlay" id="placeModal" style="display:none;">
-    <div class="modal-dialog" style="width:1100px; max-width:95vw; max-height:90vh; overflow-y:auto;">
+    <div class="modal-dialog" style="width:1100px; max-width:95vw;">
       <div class="modal-header">
         <span class="modal-title" id="placeModalTitle">新增重点场所</span>
         <button class="modal-close" onclick="closePlaceModal()">&times;</button>
@@ -1202,63 +1246,49 @@
           <div id="dynamicFormContent" style="padding:0;"></div>
         </div>
 
-        <!-- ===== 关联企业（N 对多 + 多角色） ===== -->
-        <div class="info-section" id="placeEnterpriseSection" style="margin-bottom:var(--spacing-lg);">
-          <div class="section-title">关联企业</div>
-          <table class="kp-inline-table">
-            <thead>
-              <tr>
-                <th style="width:110px;">企业类型</th>
-                <th>企业名称</th>
-                <th class="check-cell">扫码责任人</th>
-                <th class="check-cell">隐患责任人</th>
-                <th class="check-cell">隐患复核人</th>
-                <th style="width:60px;">操作</th>
-              </tr>
-            </thead>
-            <tbody id="fEnterpriseTbody"></tbody>
-          </table>
-          <button type="button" class="kp-add-row-btn" onclick="addEnterpriseRow()">+ 添加关联企业</button>
-        </div>
-
-        <!-- ===== 隐患处置配置 ===== -->
-        <div class="info-section" style="margin-bottom:var(--spacing-lg);">
-          <div class="section-title">隐患处置配置</div>
-          <div style="background:var(--bg-info, #eef6ff); border-left:3px solid var(--primary); padding:8px 12px; border-radius:4px; margin-bottom:12px; font-size:12px; color:var(--text-secondary);">
-            💡 默认从「领域监管 · 隐患责任配置」继承，可在此覆盖修改
-          </div>
-          <div class="kp-form-grid">
-            <div class="kp-col">
-              <div class="kp-field">
-                <label class="kp-field-label">隐患整改人</label>
-                <div class="kp-hazard-row">
-                  <select class="kp-field-select" id="fHandlerType" onchange="onHazardTypeChange('handler')">
-                    <option value="">类型</option>
-                    <option value="enterprise">企业人员</option>
-                    <option value="government">政府人员</option>
-                  </select>
-                  <select class="kp-field-select" id="fHandlerId">
-                    <option value="">请选择类型后选择具体人员</option>
-                  </select>
-                </div>
-                <div id="handlerDomainHint" style="font-size:12px; color:var(--text-tertiary); margin-top:4px;"></div>
-              </div>
+        <!-- ===== 责任主体配置（方案A：分支式统一配置） ===== -->
+        <div class="info-section" id="placeResponsibilitySection" style="margin-bottom:var(--spacing-lg); border:1px solid var(--border-section); border-radius:var(--radius-lg); overflow:hidden;">
+          <div class="section-title" style="margin:0; padding:12px 16px; background:var(--bg-section);">责任主体配置</div>
+          <div style="padding:16px;">
+            <!-- 提示说明 -->
+            <div style="background:var(--bg-info, #eef6ff); border-left:3px solid var(--primary); padding:8px 12px; border-radius:4px; margin-bottom:14px; font-size:12px; color:var(--text-secondary);">
+              💡 默认从「领域监管 · 隐患责任配置」继承，可在此覆盖修改<br>
+              💡 复核方按"谁提交谁复核"原则执行，无需配置
             </div>
-            <div class="kp-col">
-              <div class="kp-field">
-                <label class="kp-field-label">隐患复核人</label>
-                <div class="kp-hazard-row">
-                  <select class="kp-field-select" id="fReviewerType" onchange="onHazardTypeChange('reviewer')">
-                    <option value="">类型</option>
-                    <option value="enterprise">企业人员</option>
-                    <option value="government">政府人员</option>
-                  </select>
-                  <select class="kp-field-select" id="fReviewerId">
-                    <option value="">请选择类型后选择具体人员</option>
-                  </select>
-                </div>
-                <div id="reviewerDomainHint" style="font-size:12px; color:var(--text-tertiary); margin-top:4px;"></div>
-              </div>
+            <!-- 整改人类型：分支选择器 -->
+            <div class="kp-field-label" style="margin-bottom:8px;">隐患整改人类型</div>
+            <div style="display:flex; gap:0; margin-bottom:16px;">
+              <label class="kp-type-radio-label">
+                <input type="radio" name="handlerTypeRadio" value="enterprise" onchange="onHandlerTypeRadioChange('enterprise')">
+                <span class="kp-type-radio-box">企业方整改</span>
+              </label>
+              <label class="kp-type-radio-label">
+                <input type="radio" name="handlerTypeRadio" value="government" onchange="onHandlerTypeRadioChange('government')">
+                <span class="kp-type-radio-box">政府方整改</span>
+              </label>
+              <!-- 隐藏 select 保留原有数据通道，兼容 savePlace / editPlace 逻辑 -->
+              <select id="fHandlerType" style="display:none;" onchange="onHazardTypeChange('handler')">
+                <option value="">类型</option>
+                <option value="enterprise">企业人员</option>
+                <option value="government">政府人员</option>
+              </select>
+            </div>
+            <!-- 整改人选择器（位置随分支变化由 JS 控制插入点） -->
+            <div id="personSelectorArea" style="margin-bottom:16px;">
+              <div id="personSelectorLabel" class="kp-field-label" style="margin-bottom:6px;">整改人</div>
+              <select class="kp-field-select" id="fHandlerId" style="width:300px;">
+                <option value="">请先选择整改人类型</option>
+              </select>
+              <div id="handlerDomainHint" style="font-size:12px; color:var(--text-tertiary); margin-top:4px;"></div>
+            </div>
+            <!-- 关联企业区域 -->
+            <div id="placeEnterpriseSection">
+              <div class="section-title" style="margin:0 0:12px 0; padding:0; font-size:var(--font-size-sm);">关联企业</div>
+              <table class="kp-inline-table" id="fEnterpriseTable">
+                <thead id="fEnterpriseThead"></thead>
+                <tbody id="fEnterpriseTbody"></tbody>
+              </table>
+              <button type="button" class="kp-add-row-btn" onclick="addEnterpriseRow()">+ 添加关联企业</button>
             </div>
           </div>
         </div>
@@ -1281,7 +1311,7 @@
 
   <!-- ========== 详情弹窗 ========== -->
   <div class="modal-overlay" id="detailModal" style="display:none;">
-    <div class="modal-dialog" style="width:1100px; max-width:95vw; max-height:90vh; overflow-y:auto;">
+    <div class="modal-dialog" style="width:1100px; max-width:95vw;">
       <div class="modal-header">
         <span class="modal-title">重点场所详情</span>
         <button class="modal-close" onclick="closeDetailModal()">&times;</button>
@@ -1295,7 +1325,7 @@
 
   <!-- ========== 查看扫码配置弹窗（只读） ========== -->
   <div class="modal-overlay" id="viewScanConfigModal" style="display:none;">
-    <div class="modal-dialog" style="width:800px; max-width:95vw; max-height:90vh; overflow-y:auto;">
+    <div class="modal-dialog" style="width:800px; max-width:95vw;">
       <div class="modal-header">
         <span class="modal-title">扫码配置详情</span>
         <button class="modal-close" onclick="document.getElementById('viewScanConfigModal').style.display='none'">&times;</button>
@@ -1331,7 +1361,7 @@
 
   <!-- ========== 扫码配置弹窗 ========== -->
   <div class="modal-overlay" id="scanConfigModal" style="display:none;">
-    <div class="modal-dialog" style="width:900px; max-height:90vh; overflow-y:auto;">
+    <div class="modal-dialog" style="width:900px;">
       <div class="modal-header">
         <span class="modal-title" id="scanConfigModalTitle">添加扫码配置</span>
         <button class="modal-close" onclick="closeScanConfigModal()">&times;</button>
@@ -1417,7 +1447,7 @@
 
   <!-- ========== 推荐检查表弹窗 ========== -->
   <div class="modal-overlay" id="recommendClModal" style="display:none;">
-    <div class="modal-dialog" style="width:640px;max-height:80vh;overflow-y:auto;">
+    <div class="modal-dialog" style="width:640px;">
       <div class="modal-header">
         <span class="modal-title">推荐检查表</span>
         <button class="modal-close" onclick="closeRecommendClModal()">&times;</button>
@@ -2015,10 +2045,22 @@
     // 继承逻辑：取第一个有配置的单位（优先行业监管）作为默认值
     function applyDomainHazardDefaults() {
       var hazardConfig = resolveEffectiveHazardConfig(currentDomainId);
-      if (!hazardConfig) return;
+      if (!hazardConfig) {
+        // 即使无配置，也需同步 radio 和表格初始状态
+        var defaultType = document.getElementById('fHandlerType').value;
+        document.querySelectorAll('input[name="handlerTypeRadio"]').forEach(function(r) {
+          r.checked = (r.value === defaultType);
+        });
+        renderEnterpriseTable();
+        return;
+      }
 
       // 整改人
       document.getElementById('fHandlerType').value = hazardConfig.handlerType || '';
+      // 同步分支 radio 状态
+      document.querySelectorAll('input[name="handlerTypeRadio"]').forEach(function(r) {
+        r.checked = (r.value === hazardConfig.handlerType);
+      });
       renderHazardPersonOptions('handler');
       if (hazardConfig.handlerType === 'government' && hazardConfig.handlerUserIds && hazardConfig.handlerUserIds.length > 0) {
         var firstName = hazardConfig.handlerUserIds[0];
@@ -2029,19 +2071,11 @@
         }
       }
       updateHazardDomainHint('handler');
+      // 同步表格列结构（根据类型）
+      renderEnterpriseTable();
 
-      // 复核人
-      document.getElementById('fReviewerType').value = hazardConfig.reviewerType || '';
-      renderHazardPersonOptions('reviewer');
-      if (hazardConfig.reviewerType === 'government' && hazardConfig.reviewerUserIds && hazardConfig.reviewerUserIds.length > 0) {
-        var firstNameR = hazardConfig.reviewerUserIds[0];
-        var reviewerSelect = document.getElementById('fReviewerId');
-        var optsR = reviewerSelect.options;
-        for (var j = 0; j < optsR.length; j++) {
-          if (optsR[j].text === firstNameR) { reviewerSelect.value = optsR[j].value; break; }
-        }
-      }
-      updateHazardDomainHint('reviewer');
+      // 复核方：按"谁提交谁复核"原则自动确定，无需配置
+      // V7.0.55+ 起移除复核人配置区域
     }
 
     // 更新"领域配置参考"提示文字 — 显示全部监管单位的配置
@@ -2059,7 +2093,8 @@
       if (!primarySup && supervisors.length > 0) primarySup = supervisors[0];
       var unitName = primarySup ? primarySup.name : '领域配置';
       var label = role === 'handler' ? '整改人' : '复核人';
-      var type = role === 'handler' ? (hazardConfig.handlerType || '') : (hazardConfig.reviewerType || '');
+      // 复核人类型跟随整改人类型（who submits handles review），不再单独存储 reviewerType
+      var type = hazardConfig.handlerType || '';
       var names = role === 'handler' ? (hazardConfig.handlerUserIds || []) : (hazardConfig.reviewerUserIds || []);
       var desc = '';
       if (type === 'enterprise') {
@@ -2084,7 +2119,7 @@
       renderEnterpriseRows();
       renderScanConfigList();
       document.getElementById('fHandlerType').value = '';
-      document.getElementById('fReviewerType').value = '';
+      // fReviewerType 已移除，复核人跟随整改人类型
 
       // 新增时默认全选监管单位（属地监管除外，需选完区划后才显示）
       // ️ 必须在 applyDomainHazardDefaults 之前，因为 renderHazardPersonOptions 需要 supervisors
@@ -2152,22 +2187,16 @@
           }
         }
       }
-      if (p.hazard_reviewer_type) {
-        document.getElementById('fReviewerType').value = p.hazard_reviewer_type;
-        renderHazardPersonOptions('reviewer', p.hazard_reviewer_id);
-      } else {
-        var dhcR = resolveEffectiveHazardConfig(currentDomainId);
-        if (dhcR) {
-          document.getElementById('fReviewerType').value = dhcR.reviewerType || '';
-          renderHazardPersonOptions('reviewer');
-          if (dhcR.reviewerType === 'government' && dhcR.reviewerUserIds && dhcR.reviewerUserIds.length > 0) {
-            var selR = document.getElementById('fReviewerId');
-            for (var ri = 0; ri < selR.options.length; ri++) { if (selR.options[ri].text === dhcR.reviewerUserIds[0]) { selR.value = selR.options[ri].value; break; } }
-          }
-        }
-      }
+      // 同步分支 radio 状态
+      var editHandlerType = document.getElementById('fHandlerType').value;
+      document.querySelectorAll('input[name="handlerTypeRadio"]').forEach(function(r) {
+        r.checked = (r.value === editHandlerType);
+      });
+      // V7.0.55+ 起复核方按"谁提交谁复核"原则自动确定，无需配置
+      // 不再渲染复核人下拉，不再回显 reviewerId
       updateHazardDomainHint('handler');
-      updateHazardDomainHint('reviewer');
+      // 同步表格列结构
+      renderEnterpriseTable();
 
       renderImagesArea(p.images || []);
       renderSupervisorGroups();
@@ -2345,9 +2374,8 @@
       const extValues = collectDynamicFormData();
 
       const handlerName = handlerId ? findPersonName(handlerType, handlerId) : '';
-      const reviewerType = document.getElementById('fReviewerType').value;
-      const reviewerId = document.getElementById('fReviewerId').value;
-      const reviewerName = reviewerId ? findPersonName(reviewerType, reviewerId) : '';
+      // V7.0.55+ 起复核方按"谁提交谁复核"原则自动确定，无需配置
+      // reviewerId/reviewerName 不再读取，字段保留为空（向后兼容）
 
       if (editPlaceId) {
         const idx = places.findIndex(p => p.id === editPlaceId);
@@ -2366,9 +2394,10 @@
             hazard_handler_type: handlerType,
             hazard_handler_id: handlerId,
             hazard_handler_name: handlerName,
-            hazard_reviewer_type: reviewerType,
-            hazard_reviewer_id: reviewerId,
-            hazard_reviewer_name: reviewerName,
+            // hazard_reviewer_* 字段已弃用（V7.0.55+），保留空值向后兼容
+            hazard_reviewer_type: '',
+            hazard_reviewer_id: '',
+            hazard_reviewer_name: '',
             scan_configs: currentFormState.scanConfigs,
             checklists_custom: cloneCustomChecklists(currentFormState.checklistsCustom),
             status: status,
@@ -2396,9 +2425,10 @@
           hazard_handler_type: handlerType,
           hazard_handler_id: handlerId,
           hazard_handler_name: handlerName,
-          hazard_reviewer_type: reviewerType,
-          hazard_reviewer_id: reviewerId,
-          hazard_reviewer_name: reviewerName,
+          // hazard_reviewer_* 字段已弃用（V7.0.55+），保留空值向后兼容
+          hazard_reviewer_type: '',
+          hazard_reviewer_id: '',
+          hazard_reviewer_name: '',
           scan_configs: currentFormState.scanConfigs,
           checklists_custom: cloneCustomChecklists(currentFormState.checklistsCustom),
           status: status,
@@ -2431,7 +2461,7 @@
       currentFormState.enterprises.splice(idx, 1);
       renderEnterpriseRows();
       renderHazardPersonOptions('handler');
-      renderHazardPersonOptions('reviewer');
+      // V7.0.55+ 起不再调用 renderHazardPersonOptions('reviewer')
     }
     function onEnterpriseRowChange(idx, field, value) {
       const row = currentFormState.enterprises[idx];
@@ -2445,73 +2475,147 @@
         const e = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === value);
         row.ent_id = value;
         row.ent_name = e ? e.name : '';
-      } else if (field === 'is_hazard_handler' || field === 'is_hazard_reviewer') {
+      } else if (field === 'is_hazard_handler') {
         row[field] = value;
-        renderHazardPersonOptions(field === 'is_hazard_handler' ? 'handler' : 'reviewer');
+        renderHazardPersonOptions('handler');
       }
+      // V7.0.55+ 起不再处理 is_hazard_reviewer 字段变更
     }
-    function renderEnterpriseRows() {
-      const tbody = document.getElementById('fEnterpriseTbody');
-      const domain = domainData.find(d => d.id === currentDomainId);
-      const types = (domain && domain.enterprise_types) || [];
-      // BR-DOM-KP-14: 整改人类型=government时强制禁用隐患责任人复选框
-      const fHandlerTypeVal = document.getElementById('fHandlerType') ? document.getElementById('fHandlerType').value : '';
-      const fReviewerTypeVal = document.getElementById('fReviewerType') ? document.getElementById('fReviewerType').value : '';
+
+    // ========== 方案A：分支式统一配置 - 渲染关联企业表格（动态表头+行） ==========
+    function renderEnterpriseTable() {
+      var thead = document.getElementById('fEnterpriseThead');
+      var tbody = document.getElementById('fEnterpriseTbody');
+      var domain = domainData.find(function(d) { return d.id === currentDomainId; });
+      var types = (domain && domain.enterprise_types) || [];
+      var handlerType = document.getElementById('fHandlerType').value;
+      var isEnterprise = (handlerType === 'enterprise');
+
+      // 动态表头：enterprise → 4列（企业类型 | 企业名称 | 隐患责任人(radio) | 操作）
+      //           government → 4列（企业类型 | 企业名称 | 扫码权限 | 操作）
+      if (isEnterprise) {
+        thead.innerHTML = '<tr>' +
+          '<th style="width:110px;">企业类型</th>' +
+          '<th>企业名称</th>' +
+          '<th class="check-cell">隐患整改责任方</th>' +
+          '<th style="width:60px;">操作</th>' +
+          '</tr>';
+      } else {
+        thead.innerHTML = '<tr>' +
+          '<th style="width:110px;">企业类型</th>' +
+          '<th>企业名称</th>' +
+          '<th class="check-cell">扫码权限</th>' +
+          '<th style="width:60px;">操作</th>' +
+          '</tr>';
+      }
+
+      // 更新 personSelectorLabel 上下文文案
+      var labelEl = document.getElementById('personSelectorLabel');
+      if (labelEl) {
+        labelEl.textContent = isEnterprise ? '整改人（从责任方企业员工中选择）' : '整改人（从监管单位责任科室选择）';
+      }
+
+      // 更新 radio 选中状态（同步隐藏 select 的值）
+      var radios = document.querySelectorAll('input[name="handlerTypeRadio"]');
+      radios.forEach(function(r) { r.checked = (r.value === handlerType); });
+
+      // 空态处理
       if (!currentFormState.enterprises.length) {
-        // §6.1.9.3.3.4: 空态文案
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-tertiary);padding:16px;">未关联企业</td></tr>';
-        // BR-DOM-KP-25: 关联企业=0时整改人/复核人类型自动回退government
-        if (document.getElementById('fHandlerType') && document.getElementById('fHandlerType').value === 'enterprise') {
+        var colCount = 4;
+        tbody.innerHTML = '<tr><td colspan="' + colCount + '" style="text-align:center;color:var(--text-tertiary);padding:16px;">未关联企业</td></tr>';
+        // BR-DOM-KP-25: 关联企业=0 时强制 government，radio 同步
+        if (handlerType === 'enterprise') {
           document.getElementById('fHandlerType').value = 'government';
+          radios.forEach(function(r) { r.checked = (r.value === 'government'); });
           renderHazardPersonOptions('handler');
         }
-        if (document.getElementById('fReviewerType') && document.getElementById('fReviewerType').value === 'enterprise') {
-          document.getElementById('fReviewerType').value = 'government';
-          renderHazardPersonOptions('reviewer');
-        }
+        // enterprise radio 设为 disabled（tooltip 提示）
+        radios.forEach(function(r) {
+          if (r.value === 'enterprise') { r.disabled = true; r.parentElement.title = '请先添加关联企业'; }
+          else { r.disabled = false; r.parentElement.title = ''; }
+        });
         return;
       }
-      tbody.innerHTML = currentFormState.enterprises.map((row, idx) => {
-        const typeOpts = types.map(t => `<option value="${escapeHtml(t.code)}" ${row.type_code===t.code?'selected':''}>${escapeHtml(t.name)}</option>`).join('');
-        const entOpts = KEY_PLACE_ENTERPRISE_POOL.map(e => `<option value="${escapeHtml(e.id)}" ${row.ent_id===e.id?'selected':''}>${escapeHtml(e.name)}</option>`).join('');
-        // BR-DOM-KP-14: hazard_handler_type=government时，隐患责任人复选框disabled
-        const handlerDisabled = (fHandlerTypeVal === 'government');
-        const reviewerDisabled = (fReviewerTypeVal === 'government');
-        if (handlerDisabled && row.is_hazard_handler) { row.is_hazard_handler = false; }
-        if (reviewerDisabled && row.is_hazard_reviewer) { row.is_hazard_reviewer = false; }
-        return `
-          <tr>
-            <td>
-              <select onchange="onEnterpriseRowChange(${idx},'type_code',this.value)">
-                <option value="">请选择</option>${typeOpts}
-              </select>
-            </td>
-            <td>
-              <select onchange="onEnterpriseRowChange(${idx},'ent_id',this.value)">
-                <option value="">请选择企业</option>${entOpts}
-              </select>
-            </td>
-            <td class="check-cell">
-              <input type="checkbox" checked disabled title="关联企业默认拥有扫码权限，不可取消">
-            </td>
-            <td class="check-cell">
-              <input type="checkbox" ${row.is_hazard_handler?'checked':''} ${handlerDisabled?'disabled':''} onchange="onEnterpriseRowChange(${idx},'is_hazard_handler',this.checked)">
-            </td>
-            <td class="check-cell">
-              <input type="checkbox" ${row.is_hazard_reviewer?'checked':''} ${reviewerDisabled?'disabled':''} onchange="onEnterpriseRowChange(${idx},'is_hazard_reviewer',this.checked)">
-            </td>
-            <td style="text-align:center;">
-              <button type="button" class="kp-row-del" onclick="delEnterpriseRow(${idx})">删除</button>
-            </td>
-          </tr>
-        `;
+
+      // 有企业时，enterprise radio 恢复可用
+      radios.forEach(function(r) { r.disabled = false; r.parentElement.title = ''; });
+
+      // 渲染行
+      tbody.innerHTML = currentFormState.enterprises.map(function(row, idx) {
+        var typeOpts = types.map(function(t) {
+          return '<option value="' + escapeHtml(t.code) + '" ' + (row.type_code === t.code ? 'selected' : '') + '>' + escapeHtml(t.name) + '</option>';
+        }).join('');
+        var entOpts = KEY_PLACE_ENTERPRISE_POOL.map(function(e) {
+          return '<option value="' + escapeHtml(e.id) + '" ' + (row.ent_id === e.id ? 'selected' : '') + '>' + escapeHtml(e.name) + '</option>';
+        }).join('');
+
+        var cell3Html;
+        if (isEnterprise) {
+          // 隐患整改责任方：radio（单选，BR-DOM-KP-14 须且仅须 1 家）
+          cell3Html = '<td class="check-cell">' +
+            '<input type="radio" name="hazardHandlerRadio" value="' + idx + '" ' +
+            (row.is_hazard_handler ? 'checked' : '') +
+            ' onchange="onHazardHandlerRadioChange(' + idx + ')">' +
+            '</td>';
+        } else {
+          // 扫码权限：只读 ✓（BR-DOM-KP-13 不可取消）
+          // government 模式清空 is_hazard_handler
+          if (row.is_hazard_handler) { row.is_hazard_handler = false; }
+          cell3Html = '<td class="check-cell">' +
+            '<input type="checkbox" checked disabled title="关联企业默认拥有扫码权限，不可取消">' +
+            '</td>';
+        }
+
+        return '<tr>' +
+          '<td><select onchange="onEnterpriseRowChange(' + idx + ',\'type_code\',this.value)">' +
+          '<option value="">请选择</option>' + typeOpts + '</select></td>' +
+          '<td><select onchange="onEnterpriseRowChange(' + idx + ',\'ent_id\',this.value)">' +
+          '<option value="">请选择企业</option>' + entOpts + '</select></td>' +
+          cell3Html +
+          '<td style="text-align:center;">' +
+          '<button type="button" class="kp-row-del" onclick="delEnterpriseRow(' + idx + ')">删除</button>' +
+          '</td></tr>';
       }).join('');
     }
 
-    // ========== 隐患整改/复核人下拉 ==========
+    // 保留旧名兼容，外部调用统一走 renderEnterpriseTable
+    function renderEnterpriseRows() { renderEnterpriseTable(); }
+
+    // ========== 分支式类型选择器变更（radio → 隐藏 select → 刷新表格+人员） ==========
+    function onHandlerTypeRadioChange(value) {
+      document.getElementById('fHandlerType').value = value;
+      // 切换到企业方时，如果没有企业被勾选为"隐患整改责任方"，自动勾选第一家已关联的企业
+      // 避免整改人下拉框显示为空（只有提示文字）
+      if (value === 'enterprise' && currentFormState.enterprises.length > 0) {
+        var hasHandler = currentFormState.enterprises.some(function(e) { return e.is_hazard_handler && e.ent_id; });
+        if (!hasHandler) {
+          // 找第一家已关联的企业（ent_id 不为空）
+          var firstIdx = currentFormState.enterprises.findIndex(function(e) { return !!e.ent_id; });
+          if (firstIdx >= 0) {
+            currentFormState.enterprises.forEach(function(e, i) {
+              e.is_hazard_handler = (i === firstIdx);
+            });
+          }
+        }
+      }
+      onHazardTypeChange('handler');
+    }
+
+    // 企业分支：单选"隐患整改责任方"时，确保只有 1 家企业标记为 is_hazard_handler
+    function onHazardHandlerRadioChange(checkedIdx) {
+      currentFormState.enterprises.forEach(function(e, i) {
+        e.is_hazard_handler = (i === checkedIdx);
+      });
+      renderHazardPersonOptions('handler');
+    }
+
+    // ========== 隐患整改人下拉（类型变更时调用） ==========
     function onHazardTypeChange(role) {
-      renderHazardPersonOptions(role);
-      renderEnterpriseRows(); // BR-DOM-KP-14: 刷新复选框disabled状态
+      // V7.0.55+ 起只处理整改人，复核方按"谁提交谁复核"原则自动确定
+      if (role === 'handler') {
+        renderHazardPersonOptions('handler');
+      }
+      renderEnterpriseTable(); // 刷新表头+行（列结构随类型变化）
     }
 
     // ========== 政府人员动态取数（从领域监管配置的责任科室） ==========
@@ -2567,14 +2671,15 @@
     }
 
     function renderHazardPersonOptions(role, presetId) {
-      const typeEl = document.getElementById(role === 'handler' ? 'fHandlerType' : 'fReviewerType');
-      const personEl = document.getElementById(role === 'handler' ? 'fHandlerId' : 'fReviewerId');
-      const type = typeEl.value;
-      let options = '<option value="">请选择类型后选择具体人员</option>';
+      // V7.0.55+ 起只处理整改人，复核方按"谁提交谁复核"原则自动确定
+      if (role !== 'handler') return;
+      const personEl = document.getElementById('fHandlerId');
+      const type = document.getElementById('fHandlerType').value || '';
+      let options = '<option value="">请先选择整改人类型</option>';
 
       if (type === 'enterprise') {
-        // BR-16/17：整改人强约束，仅勾 is_hazard_handler 的企业；复核人弱约束（同主体或自由选择）
-        const flagField = role === 'handler' ? 'is_hazard_handler' : 'is_hazard_reviewer';
+        // BR-16/17：整改人强约束，仅勾 is_hazard_handler 的企业
+        const flagField = 'is_hazard_handler';
         const eligibleEnts = currentFormState.enterprises.filter(e => e[flagField] && e.ent_id);
         eligibleEnts.forEach(e => {
           const ent = KEY_PLACE_ENTERPRISE_POOL.find(x => x.id === e.ent_id);
@@ -2587,7 +2692,7 @@
           }
         });
         if (eligibleEnts.length === 0) {
-          options = '<option value="">请先勾选关联企业的"' + (role === 'handler' ? '隐患责任人' : '隐患复核人') + '"</option>';
+          options = '<option value="">请先勾选关联企业的"隐患责任人"</option>';
         }
       } else if (type === 'government') {
         // 动态取数：从领域监管配置的责任科室获取人员
@@ -2615,7 +2720,7 @@
           // presetId 来自旧数据（gp_xxx），新下拉无匹配值，按 name 查找
           var placeForEdit = (placeData[currentDomainId] || []).find(function(x) { return x.id === editPlaceId; });
           if (placeForEdit) {
-            var personName = role === 'handler' ? placeForEdit.hazard_handler_name : placeForEdit.hazard_reviewer_name;
+            var personName = placeForEdit.hazard_handler_name;
             if (personName) {
               var opts = personEl.options;
               for (var i = 0; i < opts.length; i++) {
@@ -3561,7 +3666,7 @@
       const longitudeTxt = escapeHtml(p.longitude || '—');
       const latitudeTxt = escapeHtml(p.latitude || '—');
       const handlerNameTxt = escapeHtml(p.hazard_handler_name || '—');
-      const reviewerNameTxt = escapeHtml(p.hazard_reviewer_name || '—');
+      // V7.0.55+ 起不再显示 reviewerNameTxt（复核方按"谁提交谁复核"原则自动确定）
 
       // 监管单位按类型分组显示（复用编辑页 supervisor-group / supervisor-tag 样式）
       const supervisorsByType = {};
@@ -3583,15 +3688,23 @@
           }).filter(Boolean).join('')
         : '<div style="color:var(--text-tertiary);font-size:12px;">未配置监管单位</div>';
 
+      const handlerTypeText = p.hazard_handler_type === 'enterprise' ? '企业方' : '政府方';
+      const isDetailEnterprise = (p.hazard_handler_type === 'enterprise');
+      const entTableHeaderCols = isDetailEnterprise
+        ? '<th>企业类型</th><th>企业名称</th><th class="check-cell">隐患整改责任方</th>'
+        : '<th>企业类型</th><th>企业名称</th><th class="check-cell">扫码权限</th>';
       const enterprisesHtml = (p.enterprises || []).length
-        ? `<table class="kp-inline-table"><thead><tr><th>企业类型</th><th>企业名称</th><th class="check-cell">扫码</th><th class="check-cell">隐患责任</th><th class="check-cell">隐患复核</th></tr></thead><tbody>` +
-          p.enterprises.map(e => `<tr>
-            <td>${escapeHtml(e.type_name || '—')}</td>
-            <td>${escapeHtml(e.ent_name || '—')}</td>
-            <td class="check-cell">${e.is_scanner?'✓':'—'}</td>
-            <td class="check-cell">${e.is_hazard_handler?'✓':'—'}</td>
-            <td class="check-cell">${e.is_hazard_reviewer?'✓':'—'}</td>
-          </tr>`).join('') +
+        ? `<table class="kp-inline-table"><thead><tr>${entTableHeaderCols}</tr></thead><tbody>` +
+          p.enterprises.map(e => {
+            const cell3 = isDetailEnterprise
+              ? `<td class="check-cell">${e.is_hazard_handler ? '✓' : '—'}</td>`
+              : `<td class="check-cell">✓</td>`;
+            return `<tr>
+              <td>${escapeHtml(e.type_name || '—')}</td>
+              <td>${escapeHtml(e.ent_name || '—')}</td>
+              ${cell3}
+            </tr>`;
+          }).join('') +
           `</tbody></table>`
         : '<div style="color:var(--text-tertiary);font-size:12px;">未关联企业</div>';
 
@@ -3699,19 +3812,20 @@
           ${supervisorsHtml}
         </div>
         ${dynamicSectionsHtml}
-        <div class="info-section" style="margin-bottom:var(--spacing-lg);">
-          <div class="section-title">关联企业</div>
-          ${enterprisesHtml}
-        </div>
-        <div class="info-section" style="margin-bottom:var(--spacing-lg);">
-          <div class="section-title">隐患处置配置</div>
-          <div class="kp-form-grid">
-            <div class="kp-col">
-              <div class="kp-field"><div class="kp-field-label">隐患整改人</div><div class="kp-field-readonly">${handlerNameTxt}</div></div>
+        <div class="info-section" style="margin-bottom:var(--spacing-lg); border:1px solid var(--border-section); border-radius:var(--radius-lg); overflow:hidden;">
+          <div class="section-title" style="margin:0; padding:12px 16px; background:var(--bg-section);">责任主体配置</div>
+          <div style="padding:16px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+              <span class="kp-field-label" style="margin:0;">整改人类型</span>
+              <span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px;${isDetailEnterprise ? 'background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff;' : 'background:#f0f5ff;color:#2f54eb;border:1px solid #adc6ff;'}">${handlerTypeText}</span>
+              <span class="kp-field-label" style="margin:0 0 0 12px;">整改人</span>
+              <span style="color:var(--text-primary, #333);">${handlerNameTxt}</span>
             </div>
-            <div class="kp-col">
-              <div class="kp-field"><div class="kp-field-label">隐患复核人</div><div class="kp-field-readonly">${reviewerNameTxt}</div></div>
+            <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:14px;">
+              💡 复核方按"谁提交谁复核"原则执行
             </div>
+            <div class="kp-field-label" style="margin-bottom:8px;">关联企业</div>
+            ${enterprisesHtml}
           </div>
         </div>
         <div class="info-section">

@@ -733,6 +733,10 @@
     // 在恢复 ORIGINAL 之后、merge 循环之前执行，避免 fallback 被后续系统检查表覆盖
     if (CONFIG_DATA['domain-slope'] && !CONFIG_DATA_ORIGINAL['domain-slope-key']) {
       CONFIG_DATA['domain-slope-key'] = deepClone(CONFIG_DATA['domain-slope']);
+      // 重点边坡对象数不同，清除 assignedObjects 让后续逻辑重新计算
+      (CONFIG_DATA['domain-slope-key'].checklists || []).forEach(function(c) {
+        delete c.assignedObjects;
+      });
     }
 
     var isAwb = isAwbUnit(currentPerspectiveId);
@@ -786,6 +790,8 @@
         CONFIG_DATA[internalId].checklists = systemCLs;
       }
     });
+    // fallback 可能创建了 domain-slope-key 等新 key，需要重新归一化
+    normalizeConfigData();
   }
 
   // 行业大类排序
@@ -988,7 +994,8 @@
   var CONFIG_DATA = JSON.parse(JSON.stringify(GOV_CONFIG_DATA));
 
   // scope → assignedObjects 归一化（BR-GOV-DS-04：检查表配置下沉到管控对象级别，无"全部/指定"概念）
-  (function normalizeConfigData() {
+  // 注意：必须作为函数而非 IIFE，因为 domain-slope-key 由 fallback 延迟创建，IIFE 执行时 CONFIG_DATA 尚无该 key
+  function normalizeConfigData() {
     Object.keys(CONFIG_DATA).forEach(function(domainId) {
       var d = DOMAIN_SUMMARY.find(function(x) { return x.id === domainId; });
       if (!d) return;
@@ -1005,7 +1012,7 @@
         delete c.scope;
       });
     });
-  })();
+  }
 
   // 隐患责任配置迁移：hazard → byUnit（按监管单位维度存储）
   // 旧结构每个领域一份配置，新结构每个监管单位一份独立配置
@@ -4606,21 +4613,24 @@
     var html = '';
     var unitName = GOV_ORG.name || '当前单位';
 
-    // 按当前视角单位读取隐患责任配置，无配置时取 hazardDefault 默认值并初始化
+    // 获取领域主数据（含业态模式）
+    var domainData = DOMAIN_TABLE_DATA.find(function(dd) { return (DOMAIN_ID_MAP[dd.id] || dd.id) === d.id; });
+    var domainMode = domainData ? domainData.mode : 'basic';
+
+    // 按当前视角单位读取隐患责任配置，无配置时取默认值并初始化
     var unitHazard = cfg && cfg.byUnit ? cfg.byUnit[currentPerspectiveId] : null;
     if (!unitHazard) {
-      // 从领域主数据获取默认值
-      var domainData = DOMAIN_TABLE_DATA.find(function(dd) { return (DOMAIN_ID_MAP[dd.id] || dd.id) === d.id; });
+      // 默认值：基础/项目模式=企业方，重点场所模式=政府方，其他模式=企业方
+      var defaultHandlerType = (domainMode === 'special') ? 'government' : 'enterprise';
       var defaults = domainData && domainData.hazardDefault
         ? domainData.hazardDefault
-        : { handlerType: 'enterprise', handlerUserIds: [], reviewerType: 'government', reviewerUserIds: [] };
+        : { handlerType: defaultHandlerType, handlerUserIds: [], reviewerUserIds: [] };
       // 初始化 byUnit 默认值（不自动保存，用户修改时才保存）
       if (cfg) {
         if (!cfg.byUnit) cfg.byUnit = {};
         cfg.byUnit[currentPerspectiveId] = {
-          handlerType: defaults.handlerType,
+          handlerType: defaults.handlerType || defaultHandlerType,
           handlerUserIds: defaults.handlerUserIds ? defaults.handlerUserIds.slice() : [],
-          reviewerType: defaults.reviewerType,
           reviewerUserIds: defaults.reviewerUserIds ? defaults.reviewerUserIds.slice() : []
         };
       }
@@ -4633,35 +4643,80 @@
     html += '</div>';
 
     var h = unitHazard;
-    var handlerType = h.handlerType || 'enterprise';
+    var handlerType = h.handlerType || ((domainMode === 'special') ? 'government' : 'enterprise');
     var handlerUserIds = h.handlerUserIds || [];
-    var reviewerType = h.reviewerType || 'government';
+    var reviewerUserIds = h.reviewerUserIds || [];
     var deptName = (cfg && cfg.dept) || '';
 
+    // 判断当前单位是否有该领域的新增权限（重点场所模式用）
+    // 优先使用 createPermissionOrgIds 字段，若未定义则回退到 supervisors
+    var hasCreatePermission = false;
+    if (domainData) {
+      if (domainData.createPermissionOrgIds) {
+        // 显式定义了有新增权限的单位列表
+        hasCreatePermission = domainData.createPermissionOrgIds.indexOf(currentPerspectiveId) >= 0;
+      } else if (domainData.supervisors) {
+        // 向后兼容：未定义 createPermissionOrgIds 时，默认所有 supervisors 都有权限
+        hasCreatePermission = domainData.supervisors.some(function(s) {
+          return s.orgId === currentPerspectiveId;
+        });
+      }
+    }
+
     html += '<div style="padding: 4px 0;">';
-    // 整改人配置
+
+    // 整改人类型配置（仅重点场所模式且当前单位有新增权限时显示）
+    if (domainMode === 'special' && hasCreatePermission) {
+      html += '<div style="margin-bottom: 16px;">';
+      html += '<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">';
+      html += '<span style="font-size: var(--font-size-sm); color: var(--text-secondary); min-width: 80px;">整改人类型：</span>';
+      html += '<label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="radio" name="handlerType-' + d.id + '" value="enterprise"' + (handlerType === 'enterprise' ? ' checked' : '') + ' onchange="updateHazardConfig(\'' + d.id + '\')"> 企业方（按对象关联企业员工）</label>';
+      html += '<label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="radio" name="handlerType-' + d.id + '" value="government"' + (handlerType === 'government' ? ' checked' : '') + ' onchange="updateHazardConfig(\'' + d.id + '\')"> 政府方（责任科室/指定人员）</label>';
+      html += '</div>';
+      // 整改人选择（仅政府方时显示）
+      html += '<div id="handlerPersonSelect-' + d.id + '" style="margin-left: 88px;' + (handlerType === 'government' ? '' : ' display: none;') + '">';
+      html += renderCascadeSelector(d.id, handlerUserIds, 'handler', deptName);
+      html += '</div>';
+      html += '</div>';
+    } else if (domainMode === 'basic' || domainMode === 'project') {
+      // 基础/项目模式：固定企业方，不显示配置项
+      html += '<div style="margin-bottom: 16px;">';
+      html += '<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">';
+      html += '<span style="font-size: var(--font-size-sm); color: var(--text-secondary); min-width: 80px;">整改人：</span>';
+      html += '<span style="font-size: var(--font-size-sm); color: var(--text-tertiary);">企业方（按对象关联企业员工，不可配置）</span>';
+      html += '</div>';
+      html += '</div>';
+    } else if (domainMode === 'special' && !hasCreatePermission) {
+      // 重点场所模式但无新增权限：显示只读状态
+      html += '<div style="margin-bottom: 16px;">';
+      html += '<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">';
+      html += '<span style="font-size: var(--font-size-sm); color: var(--text-secondary); min-width: 80px;">整改人类型：</span>';
+      html += '<span style="font-size: var(--font-size-sm); color: var(--text-tertiary);">本单位无新增权限，整改人类型由对象自身配置决定</span>';
+      html += '</div>';
+      html += '</div>';
+    } else {
+      // 其他模式：显示整改人类型配置
+      html += '<div style="margin-bottom: 16px;">';
+      html += '<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">';
+      html += '<span style="font-size: var(--font-size-sm); color: var(--text-secondary); min-width: 80px;">整改人类型：</span>';
+      html += '<label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="radio" name="handlerType-' + d.id + '" value="enterprise"' + (handlerType === 'enterprise' ? ' checked' : '') + ' onchange="updateHazardConfig(\'' + d.id + '\')"> 企业方（按对象关联企业员工）</label>';
+      html += '<label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="radio" name="handlerType-' + d.id + '" value="government"' + (handlerType === 'government' ? ' checked' : '') + ' onchange="updateHazardConfig(\'' + d.id + '\')"> 政府方（责任科室/指定人员）</label>';
+      html += '</div>';
+      html += '<div id="handlerPersonSelect-' + d.id + '" style="margin-left: 88px;' + (handlerType === 'government' ? '' : ' display: none;') + '">';
+      html += renderCascadeSelector(d.id, handlerUserIds, 'handler', deptName);
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // 复核人配置（无类型选择，仅人员选择）
     html += '<div style="margin-bottom: 16px;">';
-    html += '<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">';
-    html += '<span style="font-size: var(--font-size-sm); color: var(--text-secondary); min-width: 60px;">整改人：</span>';
-    html += '<label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="radio" name="handlerType-' + d.id + '" value="enterprise"' + (handlerType === 'enterprise' ? ' checked' : '') + ' onchange="updateHazardConfig(\'' + d.id + '\')"> 企业方（按对象关联企业员工）</label>';
-    html += '<label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="radio" name="handlerType-' + d.id + '" value="government"' + (handlerType === 'government' ? ' checked' : '') + ' onchange="updateHazardConfig(\'' + d.id + '\')"> 政府方（责任科室/指定人员）</label>';
+    html += '<div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px;">';
+    html += '<span style="font-size: var(--font-size-sm); color: var(--text-secondary); min-width: 80px; line-height: 32px;">复核人：</span>';
+    html += '<div>' + renderCascadeSelector(d.id, reviewerUserIds, 'reviewer', deptName) + '</div>';
     html += '</div>';
-    html += '<div id="handlerPersonSelect-' + d.id + '" style="margin-left: 72px;' + (handlerType === 'government' ? '' : ' display: none;') + '">';
-    html += renderCascadeSelector(d.id, handlerUserIds, 'handler', deptName);
+    html += '<div style="margin-left: 88px; font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">💡 谁提交隐患，谁执行复核；配置到人则只有该人能复核，配置到科室则科室下所有人都能复核</div>';
     html += '</div>';
-    html += '</div>';
-    // 复核方配置
-    html += '<div style="margin-bottom: 16px;">';
-    html += '<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">';
-    html += '<span style="font-size: var(--font-size-sm); color: var(--text-secondary); min-width: 60px;">复核方：</span>';
-    html += '<label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="radio" name="reviewerType-' + d.id + '" value="enterprise"' + (reviewerType === 'enterprise' ? ' checked' : '') + ' onchange="updateHazardConfig(\'' + d.id + '\')"> 企业方（按对象关联企业员工）</label>';
-    html += '<label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="radio" name="reviewerType-' + d.id + '" value="government"' + (reviewerType === 'government' ? ' checked' : '') + ' onchange="updateHazardConfig(\'' + d.id + '\')"> 政府方（责任科室/指定人员）</label>';
-    html += '</div>';
-    html += '<div id="reviewerPersonSelect-' + d.id + '" style="margin-left: 72px;' + (reviewerType === 'government' ? '' : ' display: none;') + '">';
-    var reviewerUserIds = h.reviewerUserIds || [];
-    html += renderCascadeSelector(d.id, reviewerUserIds, 'reviewer', deptName);
-    html += '</div>';
-    html += '</div>';
+
     html += '</div>';
 
     document.getElementById('configHazardBlock').innerHTML = html;
@@ -4996,67 +5051,53 @@
     if (!config.byUnit[orgId]) config.byUnit[orgId] = {};
     var unitConfig = config.byUnit[orgId];
 
-    // 整改人类型
+    // 整改人类型（仅当有单选框时才处理）
     var handlerTypeRadio = document.querySelector('input[name="handlerType-' + domainId + '"]:checked');
-    var handlerType = handlerTypeRadio ? handlerTypeRadio.value : 'enterprise';
-    unitConfig.handlerType = handlerType;
+    if (handlerTypeRadio) {
+      var handlerType = handlerTypeRadio.value;
+      unitConfig.handlerType = handlerType;
 
-    // 政府方时显示级联选择框
-    var handlerSelectDiv = document.getElementById('handlerPersonSelect-' + domainId);
-    if (handlerSelectDiv) {
-      handlerSelectDiv.style.display = handlerType === 'government' ? '' : 'none';
-    }
+      // 政府方时显示级联选择框
+      var handlerSelectDiv = document.getElementById('handlerPersonSelect-' + domainId);
+      if (handlerSelectDiv) {
+        handlerSelectDiv.style.display = handlerType === 'government' ? '' : 'none';
+      }
 
-    // 收集整改人级联选择框中选中的用户
-    if (handlerType === 'government') {
-      var selectedPersons = [];
-      var personCbs = document.querySelectorAll('.cascade-handler-person-cb[data-domain="' + domainId + '"]');
-      personCbs.forEach(function(pcb) {
-        if (pcb.checked) {
-          var personName = pcb.getAttribute('data-person');
-          if (selectedPersons.indexOf(personName) < 0) {
-            selectedPersons.push(personName);
+      // 收集整改人级联选择框中选中的用户
+      if (handlerType === 'government') {
+        var selectedPersons = [];
+        var personCbs = document.querySelectorAll('.cascade-handler-person-cb[data-domain="' + domainId + '"]');
+        personCbs.forEach(function(pcb) {
+          if (pcb.checked) {
+            var personName = pcb.getAttribute('data-person');
+            if (selectedPersons.indexOf(personName) < 0) {
+              selectedPersons.push(personName);
+            }
           }
+        });
+        unitConfig.handlerUserIds = selectedPersons;
+
+        // 更新统计信息
+        updateCascadeStats(domainId, 'handler');
+      } else {
+        unitConfig.handlerUserIds = [];
+      }
+    }
+
+    // 复核人（始终收集，无类型选择）
+    var selectedReviewerPersons = [];
+    var reviewerPersonCbs = document.querySelectorAll('.cascade-reviewer-person-cb[data-domain="' + domainId + '"]');
+    reviewerPersonCbs.forEach(function(pcb) {
+      if (pcb.checked) {
+        var personName = pcb.getAttribute('data-person');
+        if (selectedReviewerPersons.indexOf(personName) < 0) {
+          selectedReviewerPersons.push(personName);
         }
-      });
-      unitConfig.handlerUserIds = selectedPersons;
-
-      // 更新统计信息
-      updateCascadeStats(domainId, 'handler');
-    } else {
-      unitConfig.handlerUserIds = [];
-    }
-
-    // 复核方
-    var reviewerTypeRadio = document.querySelector('input[name="reviewerType-' + domainId + '"]:checked');
-    var reviewerType = reviewerTypeRadio ? reviewerTypeRadio.value : 'government';
-    unitConfig.reviewerType = reviewerType;
-
-    // 政府方时显示级联选择框
-    var reviewerSelectDiv = document.getElementById('reviewerPersonSelect-' + domainId);
-    if (reviewerSelectDiv) {
-      reviewerSelectDiv.style.display = reviewerType === 'government' ? '' : 'none';
-    }
-
-    // 收集复核方级联选择框中选中的用户
-    if (reviewerType === 'government') {
-      var selectedReviewerPersons = [];
-      var reviewerPersonCbs = document.querySelectorAll('.cascade-reviewer-person-cb[data-domain="' + domainId + '"]');
-      reviewerPersonCbs.forEach(function(pcb) {
-        if (pcb.checked) {
-          var personName = pcb.getAttribute('data-person');
-          if (selectedReviewerPersons.indexOf(personName) < 0) {
-            selectedReviewerPersons.push(personName);
-          }
-        }
-      });
-      unitConfig.reviewerUserIds = selectedReviewerPersons;
-
-      // 更新统计信息
-      updateCascadeStats(domainId, 'reviewer');
-    } else {
-      unitConfig.reviewerUserIds = [];
-    }
+      }
+    });
+    unitConfig.reviewerUserIds = selectedReviewerPersons;
+    // 更新统计信息
+    updateCascadeStats(domainId, 'reviewer');
 
     // 同步到 localStorage，供重点场所模块读取（跨模块数据共享）
     saveHazardConfigToStorage(domainId);
@@ -5064,6 +5105,7 @@
 
   // 将隐患责任配置写入 localStorage，供重点场所管理模块读取（跨模块数据共享）
   // 新格式：{ domainId: { byUnit: { orgId: entry } } }，同时写入内部 ID 和共享 ID
+  // 注意：reviewerType 已移除，复核方按"谁提交谁复核"原则执行
   function saveHazardConfigToStorage(domainId) {
     try {
       var allConfigs = {};
@@ -5077,7 +5119,6 @@
           byUnit[orgId] = {
             handlerType: h.handlerType || 'enterprise',
             handlerUserIds: h.handlerUserIds || [],
-            reviewerType: h.reviewerType || 'government',
             reviewerUserIds: h.reviewerUserIds || [],
             dept: CONFIG_DATA[domainId].dept || ''
           };
@@ -5096,6 +5137,7 @@
   }
 
   // 页面初始化时一次性同步所有领域的隐患责任配置到 localStorage（按监管单位维度）
+  // 注意：reviewerType 已移除，复核方按"谁提交谁复核"原则执行
   function syncAllHazardConfigsToStorage() {
     try {
       var allConfigs = {};
@@ -5108,7 +5150,6 @@
             byUnit[orgId] = {
               handlerType: h.handlerType || 'enterprise',
               handlerUserIds: h.handlerUserIds || [],
-              reviewerType: h.reviewerType || 'government',
               reviewerUserIds: h.reviewerUserIds || [],
               dept: config.dept || ''
             };

@@ -299,6 +299,114 @@ var ANNOTATIONS_CONFIG = {
     }
   ],
 
+  // ========== 超管端 - 区域管理 ==========
+  'super-admin/area-manage': [
+    {
+      id: 'sa-am-001',
+      selector: '.page-container',
+      position: 'top-right',
+      title: '区域管理页面布局',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '左右分栏布局：左侧区划树（280px）+ 右侧列表区。页面容器 padding 20px 四周统一。区划树 4 级结构（区→街道→社区→网格），默认展开到街道。',
+      prdRef: '§6.1.10.9 区域管理'
+    },
+    {
+      id: 'sa-am-002',
+      selector: '#areaTree',
+      position: 'top-right',
+      title: '区划树与数据共享',
+      category: '数据约束',
+      categoryColor: 'success',
+      description: '区划树数据从 district-data.js 的 STREETS 构建（南山区→9街道→111社区→网格）。层级标签彩色区分：区=蓝色、街道=绿色、社区=橙色、网格=紫色。支持搜索、展开/折叠。',
+      prdRef: '§6.1.10.9.3.2 区划树'
+    },
+    {
+      id: 'sa-am-003',
+      selector: '.table-wrap',
+      position: 'top-right',
+      title: '区划列表表格',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '8 列表格：区划名称/编码/层级/全路径/排序/状态/创建时间/操作。表头和单元格左对齐（覆盖 framework.css 默认 center）。操作列：编辑/删除。',
+      prdRef: '§6.1.10.9.3.3 列表'
+    },
+    {
+      id: 'sa-am-004',
+      selector: '#areaModal .modal-dialog',
+      position: 'top-right',
+      title: '新增/编辑区划弹窗',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '弹窗宽度 520px。6 个字段：上级区划（只读）、区划名称（必填）、编码（自动生成）、层级（下拉）、排序号、备注。编码规则：区=REGION_ROOT.code+序号，街道=区code+序号，社区=街道code+序号，网格=社区code+序号。',
+      prdRef: '§6.1.10.9.3.5 弹窗'
+    },
+    {
+      id: 'sa-am-005',
+      selector: '.tree-node-label',
+      position: 'top-right',
+      title: '右键菜单动态文案',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '右键菜单根据层级动态显示：区/街道/社区级显示"新增子节点"，网格级显示"新增同级"（网格无子级）。菜单项：新增子节点/新增同级、编辑、停用/启用、删除。',
+      prdRef: '§6.1.10.9.3.4 右键菜单'
+    }
+  ],
+
+  // ========== 超管端 - 企业用户管理 ==========
+  'super-admin/ent-user': [
+    {
+      id: 'sa-eu-001',
+      selector: '#orgTree',
+      position: 'top-right',
+      title: '区划树与数据共享',
+      category: '数据约束',
+      categoryColor: 'success',
+      description: '区划树从 district-data.js 的 STREETS 构建（南山区→9街道→111社区→企业）。默认展开到街道级别（level 0=区, level 1=街道）。节点用户数从 allUsers 动态递归统计（computeNodeCounts）。',
+      prdRef: '§6.1.3 企业用户管理'
+    },
+    {
+      id: 'sa-eu-002',
+      selector: '.stat-cards',
+      position: 'top-right',
+      title: '统计卡区',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '展示用户总数、启用、停用、待审批等关键指标。统计口径仅当前用户权限范围内的企业用户。',
+      prdRef: '§6.1.3.3 统计卡'
+    },
+    {
+      id: 'sa-eu-003',
+      selector: '.filter-card',
+      position: 'top-right',
+      title: '筛选区',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '按关键字、所属企业、角色、状态筛选。查询控件宽度 240px、高度 32px。默认提供查询+重置按钮。',
+      prdRef: '§6.1.3.3 筛选区'
+    },
+    {
+      id: 'sa-eu-004',
+      selector: '#editModal',
+      position: 'top-right',
+      title: '新增/编辑用户弹窗',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '弹窗宽度 600px。字段：姓名、手机号、所属企业（下拉）、角色（主要负责人/安全管理人员/从业人员）、状态。手机号唯一性校验。',
+      prdRef: '§6.1.3.4 新增/编辑'
+    },
+    {
+      id: 'sa-eu-005',
+      selector: '.table-wrap',
+      position: 'top-right',
+      title: '用户列表',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '列：序号/姓名/手机号/所属企业/角色/状态/创建时间/操作。操作：编辑/详情/重置密码/停用/启用/删除。删除前校验用户是否有待办任务。',
+      prdRef: '§6.1.3.3 列表'
+    }
+  ],
+
   // ========== 超管端 - 重点场所管理 ==========
   'super-admin/key-place': [
     {
@@ -308,28 +416,38 @@ var ANNOTATIONS_CONFIG = {
       title: '新增/编辑重点场所弹窗',
       category: '交互说明',
       categoryColor: 'info',
-      description: '弹窗宽度 1100px，按基础信息、关联企业、隐患处置配置、扫码配置、扩展信息分区。各业务区块使用蓝灰层级底与页面背景区分，表格和输入内容保持白底以保证可读性。',
-      prdRef: '6.1.9.3.3 新增/编辑场所弹窗'
+      description: '弹窗宽度 1100px，按基础信息、责任主体配置、扫码配置、扩展信息分区。各业务区块使用蓝灰层级底与页面背景区分，表格和输入内容保持白底以保证可读性。',
+      prdRef: '§6.1.4.3 新增/编辑场所弹窗'
     },
     {
       id: 'sa-kp-002',
+      selector: '#fRegionTrigger',
+      position: 'top-right',
+      title: '四级级联区划选择器',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '区划选择器支持 4 级级联（区→街道→社区→网格）。选社区后弹窗不关闭，显示网格列；选网格后弹窗关闭，标签显示完整路径（如"南山区 / 南山街道 / 北头社区 / 北头01"）。数据从 district-data.js 共享。',
+      prdRef: '§6.1.4.3.7.2 区划选择'
+    },
+    {
+      id: 'sa-kp-003',
+      selector: '#placeResponsibilitySection',
+      position: 'top-right',
+      title: '责任主体配置（分支式设计）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '顶部为分段选择器（企业方/政府方），内容区随类型切换。企业方：表格第三列=radio（单选隐患整改责任方），人员下拉=该企业员工。政府方：表格第三列=✓（扫码权限），人员下拉=区划监管单位责任科室全员。关联企业=0 时企业方 disabled。',
+      prdRef: '§6.1.4.3.3.4 责任主体配置'
+    },
+    {
+      id: 'sa-kp-004',
       selector: '#placeBasicSection',
       position: 'top-right',
       title: '基础信息区块层级',
       category: '验收标准',
       categoryColor: 'danger',
       description: '基础信息区为弹窗首个区块，场所名称为首项；区块不得使用与弹窗背景冲突的纯白底，需通过浅蓝灰底、边框和标题色条体现层级。',
-      prdRef: '6.1.9.3.3.1 区域一：基础信息'
-    },
-    {
-      id: 'sa-kp-003',
-      selector: '#placeEnterpriseSection',
-      position: 'top-right',
-      title: '关联企业行内编辑',
-      category: '业务规则',
-      categoryColor: 'warning',
-      description: '关联企业为行内编辑列表，每行维护企业类型、企业名称和扫码/隐患角色复选。外层区块为蓝灰底，表格内容保持白底，避免与背景色冲突同时保障录入可读性。',
-      prdRef: '6.1.9.3.3.1.1 关联企业行内编辑'
+      prdRef: '§6.1.4.3.3.1 区域一：基础信息'
     }
   ],
 
@@ -343,27 +461,37 @@ var ANNOTATIONS_CONFIG = {
       category: '交互说明',
       categoryColor: 'info',
       description: '政府端继承超管端重点场所新增/编辑交互。弹窗业务区块使用蓝灰层级底与页面背景区分，表格和输入内容保持白底以保证可读性。',
-      prdRef: '6.2.13 / 6.1.9.3.3 重点场所新增/编辑'
+      prdRef: '§6.2.4.3 / §6.1.4.3 重点场所新增/编辑'
     },
     {
       id: 'gov-kp-002',
+      selector: '#fRegionTrigger',
+      position: 'top-right',
+      title: '四级级联区划选择器',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '区划选择器支持 4 级级联（区→街道→社区→网格）。选社区后弹窗不关闭，显示网格列；选网格后弹窗关闭。数据从 district-data.js 共享，与超管端一致。',
+      prdRef: '§6.2.4.3.7.2 区划选择'
+    },
+    {
+      id: 'gov-kp-003',
+      selector: '#placeResponsibilitySection',
+      position: 'top-right',
+      title: '责任主体配置（分支式设计）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '分支式统一配置设计：顶部类型选择器（企业方/政府方），内容区动态切换。政府方整改时，整改人从区划监管单位责任科室全员中选择。企业方整改时，从关联企业中单选责任方。',
+      prdRef: '§6.2.4.3.3.4 责任主体配置'
+    },
+    {
+      id: 'gov-kp-004',
       selector: '#placeBasicSection',
       position: 'top-right',
       title: '基础信息区块层级',
       category: '验收标准',
       categoryColor: 'danger',
       description: '基础信息区为弹窗首个区块，场所名称为首项；区块不得使用与弹窗背景冲突的纯白底，需通过浅蓝灰底、边框和标题色条体现层级。',
-      prdRef: '6.1.9.3.3.1 区域一：基础信息'
-    },
-    {
-      id: 'gov-kp-003',
-      selector: '#placeEnterpriseSection',
-      position: 'top-right',
-      title: '关联企业行内编辑',
-      category: '业务规则',
-      categoryColor: 'warning',
-      description: '关联企业为行内编辑列表，每行维护企业类型、企业名称和扫码/隐患角色复选。外层区块为蓝灰底，表格内容保持白底，避免与背景色冲突同时保障录入可读性。',
-      prdRef: '6.1.9.3.3.1.1 关联企业行内编辑'
+      prdRef: '§6.1.4.3.3.1 区域一：基础信息'
     }
   ],
 

@@ -310,6 +310,14 @@
       return;
     }
 
+    // 重新渲染标注（弹窗打开后调用）
+    if (event.data.type === 'annotations-rerender') {
+      if (initialized) {
+        renderMarkers();
+      }
+      return;
+    }
+
     // 导航到标注
     if (event.data.type === 'navigate-to-annotation') {
       var selector = event.data.selector || '';

@@ -186,6 +186,9 @@ var DOMAIN_TABLE_DATA = [
       domainSupRefWithChecklists('professional', 'NS-AMB', 'OTH_002'),
       domainSupRefWithChecklists('local', 'NS-NANSHAN-STREET', 'OTH_002')
     ],
+    // 原型演示：新增权限单位列表（不包含 NS-AMB），使默认视角单位无新增权限，展示只读状态
+    // 若未定义此字段，则默认所有 supervisors 都有新增权限
+    createPermissionOrgIds: ['NS-URBAN', 'NS-EDU', 'NS-HOUSING', 'NS-CULTURE', 'NS-CONSTRUCTION'],
     checklists: [], dynamicFormEnabled: true, sortOrder: 8,
     formSections: [
       { id: 'sec_oth002_special', name: '专项信息', type: 'custom', sortOrder: 1 },
