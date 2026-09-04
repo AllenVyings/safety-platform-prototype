@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目基本信息 - 项目端</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* ========== 页面背景 ========== */
+    .module-page { background: var(--bg-page-solid); min-height: 100vh; padding: var(--spacing-lg); }
+    .breadcrumb { padding: 0; margin-bottom: var(--spacing-md); font-size: var(--font-size-sm); color: var(--text-secondary); }
+    .breadcrumb-item { color: var(--text-secondary); }
+    .breadcrumb-item.current { color: var(--text-primary); font-weight: 500; }
+
+    /* ========== 卡片容器 ========== */
+    .detail-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .detail-card:last-child { margin-bottom: 0; }
+    .detail-card.card-bg { background: url('images/ent-info-bg.png') center top / auto 200px no-repeat, var(--bg-primary); }
+
+    /* ========== 板块标题 ========== */
+    .section-title { display: flex; align-items: center; font-size: 16px; font-weight: 600; color: var(--text-primary); padding: 0 0 0 12px; border-left: 4px solid var(--primary); border-radius: 0 !important; border-bottom: none !important; background: transparent !important; margin: 0 0 16px 0 !important; gap: 8px; line-height: 1.6; }
+    .section-title::before { display: none !important; }
+
+    /* ========== 信息行 ========== */
+    .info-row { display: flex; align-items: flex-start; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-light); }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .info-label { width: 120px; flex-shrink: 0; font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 28px; }
+    .info-row .info-value { flex: 1; font-size: var(--font-size-md); color: var(--text-primary); line-height: 28px; min-width: 0; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+
+    /* ========== 地址行 ========== */
+    .address-row { display: flex; align-items: center; gap: var(--spacing-sm); flex: 1; min-width: 0; }
+    .address-row .address-text { flex: 1; min-width: 0; font-size: var(--font-size-md); color: var(--text-primary); line-height: 28px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .icon-btn { display: inline-flex; padding: 0; background: none; border: none; cursor: pointer; flex-shrink: 0; }
+    .icon-btn:hover svg { fill: #0958d9; }
+
+    /* ========== 标签 ========== */
+    .tag-list { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .scene-tag { padding: 4px 14px; border-radius: var(--radius-sm); font-size: var(--font-size-sm); display: inline-flex; align-items: center; gap: 4px; }
+    .scene-tag.category { background: var(--success-light); color: var(--success); }
+    .scene-tag.status { background: var(--info-light); color: var(--info); }
+    .scene-tag.status-warning { background: var(--warning-light); color: var(--warning); }
+    .scene-tag.status-info { background: var(--primary-light); color: var(--primary); }
+    .scene-tag.status-default { background: var(--bg-secondary); color: var(--text-tertiary); }
+
+    /* ========== 图片/表格 ========== */
+    .party-table { width: 100%; border-collapse: collapse; }
+    .party-table th, .party-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); }
+    .party-table th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-secondary); font-size: var(--font-size-xs); }
+    .party-table tr:last-child td { border-bottom: none; }
+    .party-type-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
+    .party-type-tag.build { background: var(--primary-light); color: var(--primary); }
+    .party-type-tag.construct { background: var(--success-light); color: var(--success); }
+    .party-type-tag.supervise { background: var(--warning-light); color: var(--warning); }
+    .party-type-tag.subcontract { background: var(--info-light); color: var(--info); }
+    .supervisor-table { width: 100%; border-collapse: collapse; }
+    .supervisor-table th, .supervisor-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); }
+    .supervisor-table th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-secondary); font-size: var(--font-size-xs); }
+    .supervisor-table tr:last-child td { border-bottom: none; }
+    .account-row { display: flex; align-items: center; padding: var(--spacing-sm) 0; }
+    .account-row .info-label { width: 80px; flex-shrink: 0; font-size: var(--font-size-sm); color: var(--text-secondary); }
+    .account-row .info-value { font-size: var(--font-size-md); color: var(--text-primary); font-family: var(--font-family-code); font-weight: 500; }
+
+    /* ========== 弹窗通用 ========== */
+    .modal-form .form-group { margin-bottom: var(--spacing-md); }
+    .modal-form .form-label { display: block; margin-bottom: 6px; font-size: var(--font-size-sm); color: var(--text-secondary); font-weight: 500; }
+    .modal-form .form-label .required { color: var(--danger); margin-left: 4px; }
+    .modal-form .form-input,.modal-form .form-select { width: 100%; box-sizing: border-box; padding: var(--spacing-sm) 12px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); font-size: var(--font-size-md); background: var(--bg-primary); }
+    .modal-form .form-input:focus,.modal-form .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .modal-form textarea.form-input { min-height: 80px; resize: vertical; font-family: inherit; }
+    .modal-form .form-hint { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px; }
+    .modal-form .form-row { display: flex; gap: var(--spacing-md); }
+    .modal-form .form-row .form-group { flex: 1; }
+
+    /* ========== 编辑弹窗 ========== */
+    #modalEdit .modal-dialog { width: 760px; max-height: 85vh; display: flex; flex-direction: column; }
+    #modalEdit .modal-body { overflow-y: auto; flex: 1; }
+    .edit-section { margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
+    .edit-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .edit-section-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-md); padding-left: 10px; border-left: 3px solid var(--primary); }
+    .edit-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm) var(--spacing-md); }
+    .edit-field-grid .form-group.full-width { grid-column: 1 / -1; }
+    .form-input[disabled],.form-select[disabled] { background: var(--bg-tertiary); color: var(--text-tertiary); cursor: not-allowed; border-color: var(--border-light); }
+    .disabled-table { width: 100%; border-collapse: collapse; background: var(--bg-tertiary); border-radius: var(--radius-sm); overflow: hidden; }
+    .disabled-table td { padding: var(--spacing-sm) 12px; font-size: var(--font-size-sm); color: var(--text-tertiary); border-bottom: 1px solid var(--border-light); }
+    .disabled-table tr:last-child td { border-bottom: none; }
+    .disabled-table td:first-child { width: 120px; color: var(--text-secondary); font-weight: 500; }
+
+    /* ========== 级联选择器 ========== */
+    .cascade-field { position: relative; }
+    .cascade-trigger { width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary); font-size: var(--font-size-sm); cursor: pointer; text-align: left; box-sizing: border-box; line-height: 30px; display: flex; justify-content: space-between; align-items: center; }
+    .cascade-trigger.placeholder { color: var(--text-tertiary); }
+    .cascade-trigger:hover { border-color: var(--primary); }
+    .cascade-trigger .arrow { color: var(--text-tertiary); font-size: 11px; }
+    .cascade-popover { position: absolute; z-index: 1100; left: 0; top: calc(100% + 4px); background: var(--bg-primary); border: 1px solid var(--border-figma); border-radius: var(--radius-md); box-shadow: 0 4px 16px rgba(0,0,0,0.12); padding: 12px; max-width: min(540px, 80vw); max-height: 360px; display: none; flex-direction: column; }
+    .cascade-popover.open { display: flex; }
+    .cascade-search { width: 100%; height: 30px; padding: 0 10px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); font-size: var(--font-size-sm); margin-bottom: 10px; box-sizing: border-box; }
+    .cascade-search:focus { outline: none; border-color: var(--primary); }
+    .cascade-cols { display: flex; gap: 6px; min-height: 200px; flex: 1; }
+    .cascade-col { flex: 1; min-width: 0; border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow-y: auto; max-height: 240px; }
+    .cascade-col-header { padding: 6px 10px; font-size: var(--font-size-xs); font-weight: 600; color: var(--text-secondary); background: var(--bg-tertiary); border-bottom: 1px solid var(--border-light); position: sticky; top: 0; }
+    .cascade-item { padding: 6px 10px; font-size: var(--font-size-sm); cursor: pointer; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px; }
+    .cascade-item:hover { background: var(--bg-section-alt); }
+    .cascade-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+
+    /* ========== Toast ========== */
+    #_toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); padding: var(--spacing-sm) var(--spacing-lg); background: var(--primary); color: var(--bg-primary); border-radius: 6px; font-size: 14px; z-index: 9999; box-shadow: 0 2px 8px rgba(0,0,0,0.15); opacity: 0; transition: opacity var(--duration-normal); pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div class="module-page page-container" data-module="project/project-info">
+    <div class="breadcrumb"><span class="breadcrumb-item">项目端</span><span class="breadcrumb-separator">&gt;</span><span class="breadcrumb-item current">项目基本信息</span></div>
+
+    <!-- 基础信息 -->
+    <div class="detail-card card-bg">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-lg);">
+        <div class="section-title">基础信息</div>
+        <div style="display:flex;gap:var(--spacing-sm);align-items:center;">
+          <button class="btn btn-default btn-sm" onclick="toggleProjectMode()" id="btnToggleMode" title="切换项目模式演示">🔄 切换为运营项目</button>
+          <button class="btn btn-primary" onclick="openEditModal()">编辑</button>
+        </div>
+      </div>
+      <div class="info-grid">
+        <div class="info-row"><span class="info-label">项目类别</span><span class="info-value"><span class="scene-tag category" id="projectCategoryTag">在建项目</span></span></div>
+        <div class="info-row"><span class="info-label">项目名称</span><span class="info-value">南山科技园二期建设项目</span></div>
+        <div class="info-row field-construction"><span class="info-label">项目小类</span><span class="info-value">主体工程</span></div>
+        <div class="info-row"><span class="info-label">项目状态</span><span class="info-value"><span class="scene-tag status" id="projectStatusTag">在建</span></span></div>
+        <div class="info-row field-construction"><span class="info-label">所属区</span><span class="info-value">南山区</span></div>
+        <div class="info-row field-construction"><span class="info-label">所属街道</span><span class="info-value">粤海街道</span></div>
+        <div class="info-row field-construction"><span class="info-label">所属社区</span><span class="info-value">科技园社区</span></div>
+        <div class="info-row field-construction"><span class="info-label">所属网格</span><span class="info-value">第一网格</span></div>
+        <div class="info-row"><span class="info-label">详细地址</span><span class="info-value"><div class="address-row"><span class="address-text">深圳市南山区科技园南区科苑路15号</span><button type="button" class="icon-btn" title="地图选点" onclick="openMapPicker()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#1677ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></button></div></span></div>
+        <div class="info-row field-construction"><span class="info-label">所属督导组</span><span class="info-value">南山区第一督导组</span></div>
+        <!-- 运营项目专属字段 -->
+        <div class="info-row field-operation" style="display:none;"><span class="info-label">运营单位</span><span class="info-value">深圳南山运营管理有限公司</span></div>
+        <div class="info-row field-operation" style="display:none;"><span class="info-label">运营状态</span><span class="info-value"><span class="scene-tag status">运营中</span></span></div>
+        <div class="info-row" style="grid-column: 1 / -1;"><span class="info-label">项目描述</span><span class="info-value">南山区科技园二期建设项目，总建筑面积约10万平方米，包含办公楼、研发中心等配套设施。</span></div>
+      </div>
+    </div>
+
+    <!-- 安全场景标签库 -->
+    <div class="detail-card">
+      <div class="section-title">安全场景标签库</div>
+      <div class="info-grid">
+        <div class="info-row"><span class="info-label">安全场景标签库</span><span class="info-value">
+          <div class="tag-list">
+            <span class="scene-tag category">房屋建设工程 - 主体工程</span>
+            <span class="scene-tag status-info">边坡工程</span>
+          </div>
+        </span></div>
+        <div class="info-row"><span class="info-label">主领域小类</span><span class="info-value">房屋建设工程 - 主体工程</span></div>
+      </div>
+    </div>
+
+    <!-- 四方责任体 -->
+    <div class="detail-card">
+      <div class="section-title">四方责任体</div>
+      <table class="party-table">
+        <thead><tr><th style="width:15%;">责任方类型</th><th>单位名称</th><th>统一社会信用代码</th><th>主要负责人</th><th>联系电话</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="party-type-tag build">建设单位</span></td>
+            <td>XX建设集团</td>
+            <td>91110000123456789X</td>
+            <td>张三</td>
+            <td>13800138001</td>
+          </tr>
+          <tr>
+            <td><span class="party-type-tag construct">施工单位</span></td>
+            <td>XX建筑工程有限公司</td>
+            <td>91110000987654321Y</td>
+            <td>李四</td>
+            <td>13900139001</td>
+          </tr>
+          <tr>
+            <td><span class="party-type-tag supervise">监理单位</span></td>
+            <td>XX监理咨询有限公司</td>
+            <td>91110000567890123Z</td>
+            <td>王五</td>
+            <td>13700137001</td>
+          </tr>
+          <tr>
+            <td><span class="party-type-tag subcontract">分包单位</span></td>
+            <td>XX装饰工程有限公司</td>
+            <td>91110000345678901A</td>
+            <td>赵六</td>
+            <td>13800138002</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 监管单位 -->
+    <div class="detail-card">
+      <div class="section-title">监管单位</div>
+      <table class="supervisor-table">
+        <thead><tr><th style="width:50%;">监管类型</th><th>监管单位名称</th></tr></thead>
+        <tbody>
+          <tr><td>行业监管</td><td><span class="scene-tag status-info">住建局</span></td></tr>
+          <tr><td>专业监管</td><td><span class="scene-tag status">质量安全监督站</span></td></tr>
+          <tr><td>属地监管</td><td><span class="scene-tag status-warning">粤海街道安监办</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 账号信息 -->
+    <div class="detail-card">
+      <div class="section-title">账号信息</div>
+      <div class="account-row"><span class="info-label">项目账号</span><span class="info-value">proj_2024001</span></div>
+      <div class="account-row"><span class="info-label">密码状态</span><span class="info-value">已设置</span></div>
+      <div style="margin-top:var(--spacing-sm);">
+        <button class="btn btn-default btn-sm" onclick="openResetPasswordModal()">🔑 重置密码</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 编辑弹窗 ========== -->
+  <div class="modal-overlay" id="modalEdit">
+    <div class="modal-dialog">
+      <div class="modal-header"><span class="modal-title">编辑项目信息</span><button class="modal-close" onclick="closeModal('modalEdit')">×</button></div>
+      <div class="modal-body"><div class="modal-form">
+
+        <!-- 板块 1：基础信息 -->
+        <div class="edit-section">
+          <div class="edit-section-title">基础信息</div>
+          <div class="edit-field-grid">
+            <div class="form-group"><label class="form-label">项目类别<span class="required">*</span></label><select class="form-select" id="editProjectCategory" onchange="onCategoryChange()"><option value="在建项目" selected>在建项目</option><option value="运营项目">运营项目</option></select></div>
+            <div class="form-group"><label class="form-label">项目名称<span class="required">*</span></label><input type="text" class="form-input" id="editProjectName" value="南山科技园二期建设项目" disabled title="项目名称变更需审批，功能开发中"></div>
+            <div class="form-group field-construction"><label class="form-label">项目小类<span class="required">*</span></label><select class="form-select" id="editProjectSubType"><option value="主体工程" selected>主体工程</option><option value="桩基础工程">桩基础工程</option><option value="总包工程">总包工程</option></select></div>
+            <div class="form-group"><label class="form-label">项目状态<span class="required">*</span></label><select class="form-select" id="editProjectStatus"><option value="未开工">未开工</option><option value="在建" selected>在建</option><option value="停工">停工</option><option value="竣工">竣工</option></select></div>
+
+            <!-- 区划级联选择器 -->
+            <div class="form-group full-width cascade-field">
+              <label class="form-label">所属区划<span class="required">*</span></label>
+              <button type="button" class="cascade-trigger" id="regionTrigger" onclick="toggleRegionPopover(event)"><span id="regionLabel">南山区 / 粤海街道 / 科技园社区 / 第一网格</span><span class="arrow">▼</span></button>
+              <div class="cascade-popover" id="regionPopover" style="width:540px;" onclick="event.stopPropagation()">
+                <input type="text" class="cascade-search" id="regionSearch" placeholder="搜索区/街道/社区/网格..." oninput="onRegionSearch()">
+                <div class="cascade-cols">
+                  <div class="cascade-col" id="regionColDistrict"><div class="cascade-col-header">区</div></div>
+                  <div class="cascade-col" id="regionColStreet"><div class="cascade-col-header">街道</div></div>
+                  <div class="cascade-col" id="regionColCommunity"><div class="cascade-col-header">社区</div></div>
+                  <div class="cascade-col" id="regionColGrid"><div class="cascade-col-header">网格</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group full-width"><label class="form-label">详细地址<span class="required">*</span></label><div style="display:flex;gap:var(--spacing-sm);align-items:center;"><input type="text" class="form-input" id="editAddress" value="深圳市南山区科技园南区科苑路15号" style="flex:1;"><button type="button" class="icon-btn" title="地图选点" onclick="openMapPicker()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#1677ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></button></div></div>
+            <div class="form-group field-construction"><label class="form-label">所属督导组</label><select class="form-select" id="editSupervisionGroup"><option value="南山区第一督导组" selected>南山区第一督导组</option><option value="南山区第二督导组">南山区第二督导组</option><option value="福田区督导组">福田区督导组</option><option value="罗湖区督导组">罗湖区督导组</option></select></div>
+            <div class="form-group full-width"><label class="form-label">项目描述</label><textarea class="form-input" id="editDescription">南山区科技园二期建设项目，总建筑面积约10万平方米，包含办公楼、研发中心等配套设施。</textarea></div>
+          </div>
+        </div>
+
+        <!-- 板块 2：安全场景标签库 -->
+        <div class="edit-section">
+          <div class="edit-section-title">安全场景标签库</div>
+          <div class="form-group">
+            <label class="form-label">安全场景标签库<span class="required">*</span></label>
+            <div style="display:flex;flex-wrap:wrap;gap:var(--spacing-sm);padding:var(--spacing-sm);border:1px solid var(--border-figma);border-radius:var(--radius-sm);min-height:40px;background:var(--bg-primary);">
+              <span class="scene-tag category" style="display:inline-flex;align-items:center;gap:4px;">房屋建设工程 - 主体工程 <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;font-size:14px;">×</button></span>
+              <span class="scene-tag status-info" style="display:inline-flex;align-items:center;gap:4px;">边坡工程 <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;font-size:14px;">×</button></span>
+              <button type="button" class="btn btn-default btn-sm" onclick="showToast('打开领域小类选择器')" style="height:28px;">+ 添加</button>
+            </div>
+            <div class="form-hint">支持多选，首个项目模式领域小类自动为主领域小类</div>
+          </div>
+        </div>
+
+        <!-- 板块 3：四方责任体 -->
+        <div class="edit-section">
+          <div class="edit-section-title">四方责任体</div>
+          <table class="party-table" id="editPartyTable">
+            <thead><tr><th style="width:15%;">责任方类型</th><th>单位名称</th><th>统一社会信用代码</th><th>主要负责人</th><th>联系电话</th><th style="width:60px;">操作</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="party-type-tag build">建设单位</span></td>
+                <td><input type="text" class="form-input" value="XX建设集团" style="padding:4px 8px;"></td>
+                <td><input type="text" class="form-input" value="91110000123456789X" style="padding:4px 8px;"></td>
+                <td><input type="text" class="form-input" value="张三" style="padding:4px 8px;width:80px;"></td>
+                <td><input type="text" class="form-input" value="13800138001" style="padding:4px 8px;width:120px;"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="party-type-tag construct">施工单位</span></td>
+                <td><input type="text" class="form-input" value="XX建筑工程有限公司" style="padding:4px 8px;"></td>
+                <td><input type="text" class="form-input" value="91110000987654321Y" style="padding:4px 8px;"></td>
+                <td><input type="text" class="form-input" value="李四" style="padding:4px 8px;width:80px;"></td>
+                <td><input type="text" class="form-input" value="13900139001" style="padding:4px 8px;width:120px;"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="party-type-tag supervise">监理单位</span></td>
+                <td><input type="text" class="form-input" value="XX监理咨询有限公司" style="padding:4px 8px;"></td>
+                <td><input type="text" class="form-input" value="91110000567890123Z" style="padding:4px 8px;"></td>
+                <td><input type="text" class="form-input" value="王五" style="padding:4px 8px;width:80px;"></td>
+                <td><input type="text" class="form-input" value="13700137001" style="padding:4px 8px;width:120px;"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="party-type-tag subcontract">分包单位</span></td>
+                <td><input type="text" class="form-input" value="XX装饰工程有限公司" style="padding:4px 8px;"></td>
+                <td><input type="text" class="form-input" value="91110000345678901A" style="padding:4px 8px;"></td>
+                <td><input type="text" class="form-input" value="赵六" style="padding:4px 8px;width:80px;"></td>
+                <td><input type="text" class="form-input" value="13800138002" style="padding:4px 8px;width:120px;"></td>
+                <td><button type="button" class="icon-btn" title="删除" onclick="this.closest('tr').remove()"><svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d4f"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></td>
+              </tr>
+            </tbody>
+          </table>
+          <button type="button" class="btn btn-default btn-sm" onclick="addSubcontractor()" style="margin-top:var(--spacing-sm);">+ 添加分包单位</button>
+        </div>
+
+      </div></div>
+      <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modalEdit')">取消</button><button class="btn btn-primary" onclick="submitEdit()">保存</button></div>
+    </div>
+  </div>
+
+  <!-- 重置密码弹窗 -->
+  <div class="modal-overlay" id="modalResetPassword">
+    <div class="modal-dialog" style="width:420px;">
+      <div class="modal-header"><span class="modal-title">重置密码确认</span><button class="modal-close" onclick="closeModal('modalResetPassword')">×</button></div>
+      <div class="modal-body" style="padding:var(--spacing-lg) 20px;">
+        <p style="font-size:var(--font-size-md);color:var(--text-primary);margin:0 0 12px;">确定要重置该项目的登录密码吗？</p>
+        <p style="font-size:var(--font-size-sm);color:var(--warning);margin:0;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:15px;">⚠️</span>密码将重置为默认密码：<strong style="color:var(--primary);">Abc@123456</strong>
+        </p>
+      </div>
+      <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modalResetPassword')">取消</button><button class="btn btn-danger" onclick="confirmResetPassword()">确认重置</button></div>
+    </div>
+  </div>
+
+  <!-- 地图选点弹窗 -->
+  <div class="modal-overlay" id="modalMapPicker">
+    <div class="modal-dialog" style="width:600px;">
+      <div class="modal-header">
+        <span class="modal-title" style="display:flex;align-items:center;gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#1677ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+          地图选点
+        </span>
+        <button class="modal-close" onclick="closeModal('modalMapPicker')">×</button>
+      </div>
+      <div class="modal-body" style="padding:0;">
+        <div style="padding:12px 16px;"><input type="text" class="form-input" placeholder="输入地址搜索" style="width:100%;box-sizing:border-box;"></div>
+        <div style="position:relative;height:380px;background:#f0f2f5;margin:0 16px;border-radius:var(--radius-sm);overflow:hidden;">
+          <div style="position:absolute;inset:0;background-image:linear-gradient(0deg,rgba(0,0,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.05) 1px,transparent 1px);background-size:30px 30px;"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#ff4d4f" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+          </div>
+        </div>
+        <div style="padding:12px 16px;background:var(--bg-section-alt);display:flex;gap:var(--spacing-lg);font-size:var(--font-size-sm);color:var(--text-secondary);">
+          <span>经度: <strong style="color:var(--text-primary);">113.9398</strong></span>
+          <span>纬度: <strong style="color:var(--text-primary);">22.5341</strong></span>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modalMapPicker')">取消</button><button class="btn btn-primary" onclick="closeModal('modalMapPicker');showToast('地图选点完成')">确定</button></div>
+    </div>
+  </div>
+
+  <script src="../../js/shared/district-data.js"></script>
+  <script>
+    (function() {
+      'use strict';
+      var CONFIG = { moduleId: 'project/project-info', moduleName: '项目基本信息' };
+      var state = { initialized: false };
+
+      /* ========== 级联选择器 ========== */
+      var activeCascade = null;
+
+      window.toggleRegionPopover = function(ev) {
+        ev.stopPropagation();
+        var popover = document.getElementById('regionPopover');
+        if (popover.classList.contains('open')) {
+          popover.classList.remove('open');
+        } else {
+          popover.classList.add('open');
+          renderRegionPanel();
+        }
+      };
+
+      document.addEventListener('click', function(e) {
+        var popover = document.getElementById('regionPopover');
+        var trigger = document.getElementById('regionTrigger');
+        if (popover && popover.classList.contains('open') && !popover.contains(e.target) && trigger && !trigger.contains(e.target)) {
+          popover.classList.remove('open');
+        }
+      });
+
+      var regionState = { district: '南山区', street: '粤海街道', streetCode: '2', community: '科技园社区', communityId: '201', grid: '第一网格' };
+
+      function renderRegionPanel() {
+        var districtTree = (typeof buildDistrictTree === 'function') ? buildDistrictTree() : [];
+        if (!districtTree || !districtTree[0]) return;
+
+        var districtCol = document.getElementById('regionColDistrict');
+        var streetCol = document.getElementById('regionColStreet');
+        var communityCol = document.getElementById('regionColCommunity');
+        var gridCol = document.getElementById('regionColGrid');
+        var search = document.getElementById('regionSearch');
+        if (!districtCol || !streetCol || !communityCol || !gridCol) return;
+
+        var keyword = search ? search.value.trim() : '';
+
+        // 区列
+        districtCol.innerHTML = '<div class="cascade-col-header">区</div><div class="cascade-item active">' + regionState.district + '</div>';
+
+        // 街道列
+        var streets = districtTree[0].children || [];
+        if (keyword) {
+          streets = streets.filter(function(s) {
+            return s.name.indexOf(keyword) >= 0 || s.children.some(function(c) { return c.name.indexOf(keyword) >= 0; });
+          });
+        }
+        streetCol.innerHTML = '<div class="cascade-col-header">街道</div>' + streets.map(function(s) {
+          var active = s.name === regionState.street;
+          return '<div class="cascade-item' + (active ? ' active' : '') + '" onclick="onRegionPickStreet(' + s.id + ',\'' + s.name.replace(/'/g, "\\'") + '\')">' + s.name + '</div>';
+        }).join('');
+
+        // 社区列
+        var selectedStreet = districtTree[0].children.find(function(s) { return s.name === regionState.street; });
+        var communities = selectedStreet ? (selectedStreet.children || []) : [];
+        if (keyword) {
+          communities = communities.filter(function(c) { return c.name.indexOf(keyword) >= 0; });
+        }
+        communityCol.innerHTML = '<div class="cascade-col-header">社区</div>' + (regionState.street ? communities.map(function(c) {
+          var active = c.name === regionState.community;
+          return '<div class="cascade-item' + (active ? ' active' : '') + '" onclick="onRegionPickCommunity(' + c.id + ',\'' + c.name.replace(/'/g, "\\'") + '\')">' + c.name + '</div>';
+        }).join('') : '<div style="padding:20px;text-align:center;color:var(--text-tertiary);font-size:var(--font-size-sm);">请先选街道</div>');
+
+        // 网格列
+        var commNode = selectedStreet ? (selectedStreet.children || []).find(function(c) { return c.name === regionState.community; }) : null;
+        var grids = commNode ? (commNode.children || []) : [];
+        if (keyword) {
+          grids = grids.filter(function(g) { return g.name.indexOf(keyword) >= 0; });
+        }
+        gridCol.innerHTML = '<div class="cascade-col-header">网格</div>' + (regionState.community ? grids.map(function(g) {
+          var active = g.name === regionState.grid;
+          return '<div class="cascade-item' + (active ? ' active' : '') + '" onclick="onRegionPickGrid(\'' + g.name.replace(/'/g, "\\'") + '\')">' + g.name + '</div>';
+        }).join('') : '<div style="padding:20px;text-align:center;color:var(--text-tertiary);font-size:var(--font-size-sm);">请先选社区</div>');
+      }
+
+      window.onRegionPickStreet = function(id, name) {
+        regionState.street = name;
+        regionState.streetCode = id;
+        regionState.community = '';
+        regionState.communityId = '';
+        regionState.grid = '';
+        setRegionLabel();
+        renderRegionPanel();
+      };
+
+      window.onRegionPickCommunity = function(id, name) {
+        regionState.community = name;
+        regionState.communityId = id;
+        regionState.grid = '';
+        setRegionLabel();
+        renderRegionPanel();
+      };
+
+      window.onRegionPickGrid = function(name) {
+        regionState.grid = name;
+        setRegionLabel();
+        document.getElementById('regionPopover').classList.remove('open');
+        // TODO: 调用监管单位重算API，根据新区划自动刷新属地监管单位
+        showToast('区划已变更，监管单位将自动刷新');
+      };
+
+      function setRegionLabel() {
+        var label = document.getElementById('regionLabel');
+        if (!label) return;
+        var parts = [regionState.district];
+        if (regionState.street) parts.push(regionState.street);
+        if (regionState.community) parts.push(regionState.community);
+        if (regionState.grid) parts.push(regionState.grid);
+        label.textContent = parts.join(' / ');
+        label.className = parts.length > 1 ? '' : 'placeholder';
+      }
+
+      window.onRegionSearch = function() {
+        renderRegionPanel();
+      };
+
+      /* ========== 弹窗控制 ========== */
+      window.openEditModal = function() {
+        openModal('modalEdit');
+      };
+
+      window.openResetPasswordModal = function() {
+        openModal('modalResetPassword');
+      };
+
+      window.confirmResetPassword = function() {
+        closeModal('modalResetPassword');
+        showToast('密码已重置为 Abc@123456');
+      };
+
+      window.openMapPicker = function() {
+        openModal('modalMapPicker');
+      };
+
+      window.submitEdit = function() {
+        closeModal('modalEdit');
+        showToast('保存成功！');
+      };
+
+      /* ========== 项目模式切换（演示用） ========== */
+      var isOperationMode = false;
+      var statusIndex = 0;
+      var statusList = [
+        { text: '在建', className: 'scene-tag status', color: 'success' },
+        { text: '停工', className: 'scene-tag status-warning', color: 'warning' },
+        { text: '竣工', className: 'scene-tag status-info', color: 'info' }
+      ];
+
+      window.toggleProjectMode = function() {
+        isOperationMode = !isOperationMode;
+        var constructionFields = document.querySelectorAll('.field-construction');
+        var operationFields = document.querySelectorAll('.field-operation');
+        var btnToggle = document.getElementById('btnToggleMode');
+        var categoryTag = document.getElementById('projectCategoryTag');
+        var statusTag = document.getElementById('projectStatusTag');
+
+        constructionFields.forEach(function(el) {
+          el.style.display = isOperationMode ? 'none' : '';
+        });
+        operationFields.forEach(function(el) {
+          el.style.display = isOperationMode ? '' : 'none';
+        });
+
+        if (isOperationMode) {
+          btnToggle.textContent = '🔄 切换为在建项目';
+          categoryTag.textContent = '运营项目';
+          categoryTag.className = 'scene-tag category';
+          statusTag.textContent = '运营中';
+          statusTag.className = 'scene-tag status';
+        } else {
+          // 循环切换在建/停工/竣工状态
+          statusIndex = (statusIndex + 1) % statusList.length;
+          var currentStatus = statusList[statusIndex];
+          btnToggle.textContent = '🔄 切换为运营项目';
+          categoryTag.textContent = '在建项目';
+          categoryTag.className = 'scene-tag category';
+          statusTag.textContent = currentStatus.text;
+          statusTag.className = currentStatus.className;
+        }
+        showToast('已切换为' + (isOperationMode ? '运营项目' : (statusList[statusIndex].text + '项目')) + '模式');
+      };
+
+      /* ========== 项目类别切换联动 ========== */
+      window.onCategoryChange = function() {
+        var category = document.getElementById('editProjectCategory').value;
+        var statusSelect = document.getElementById('editProjectStatus');
+        var constructionFields = document.querySelectorAll('.edit-section .field-construction');
+
+        if (category === '运营项目') {
+          // 运营项目状态选项
+          statusSelect.innerHTML = '<option value="正常运营">正常运营</option><option value="暂停运营">暂停运营</option><option value="关闭">关闭</option>';
+          // 隐藏在建项目专属字段
+          constructionFields.forEach(function(el) {
+            el.style.display = 'none';
+          });
+        } else {
+          // 在建项目状态选项
+          statusSelect.innerHTML = '<option value="未开工">未开工</option><option value="在建" selected>在建</option><option value="停工">停工</option><option value="竣工">竣工</option>';
+          // 显示在建项目专属字段
+          constructionFields.forEach(function(el) {
+            el.style.display = '';
+          });
+        }
+      };
+
+      /* ========== 添加分包单位 ========== */
+      window.addSubcontractor = function() {
+        var tbody = document.querySelector('#editPartyTable tbody');
+        var newRow = document.createElement('tr');
+        newRow.innerHTML = '<td><span class="party-type-tag subcontract">分包单位</span></td>' +
+          '<td><input type="text" class="form-input" placeholder="单位名称" style="padding:4px 8px;"></td>' +
+          '<td><input type="text" class="form-input" placeholder="信用代码" style="padding:4px 8px;"></td>' +
+          '<td><input type="text" class="form-input" placeholder="负责人" style="padding:4px 8px;width:80px;"></td>' +
+          '<td><input type="text" class="form-input" placeholder="联系电话" style="padding:4px 8px;width:120px;"></td>' +
+          '<td><button type="button" class="icon-btn" title="删除" onclick="this.closest(\'tr\').remove()"><svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4d4f"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></td>';
+        tbody.appendChild(newRow);
+      };
+
+      /* ========== 通用 ========== */
+      window.openModal = function(id) { var m = document.getElementById(id); if (m) m.classList.add('show'); };
+      window.closeModal = function(id) { var m = document.getElementById(id); if (m) m.classList.remove('show'); };
+
+      function showToast(msg) {
+        var el = document.getElementById('_toast');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = '_toast';
+          document.body.appendChild(el);
+        }
+        el.textContent = msg;
+        el.style.opacity = '1';
+        setTimeout(function() { el.style.opacity = '0'; }, 2500);
+      }
+
+      function init() {
+        if (state.initialized) return;
+        console.log('[' + CONFIG.moduleId + '] 模块初始化');
+        state.initialized = true;
+      }
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+      else init();
+    })();
+  </script>
+<script src="../../js/annotations.js"></script>
+</body>
+</html>

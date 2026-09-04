@@ -7,7 +7,8 @@
 <link rel="stylesheet" href="../../css/variables.css">
 <link rel="stylesheet" href="../../css/framework.css">
 <style>
-.split-view{display:flex;gap:var(--spacing-lg);height:calc(100vh - 100px)}
+.page-container{padding:20px}
+.split-view{display:flex;gap:var(--spacing-lg);height:calc(100vh - 100px);overflow:hidden}
 .tree-panel{width:400px;flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card)}
 .tree-header{padding:var(--spacing-md);border-bottom:1px solid var(--border-light);background:var(--bg-section)}
 .tree-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-sm);margin-top:var(--spacing-sm)}
@@ -33,7 +34,7 @@
 .tree-node-action:hover{background:var(--primary);color:var(--bg-primary)}
 .tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
 
-.detail-panel{flex:1;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card)}
+.detail-panel{flex:1;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card);position:relative}
 .detail-header{padding:var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;background:var(--bg-section)}
 .detail-title{font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary)}
 .detail-body{flex:1;overflow-y:auto;padding:var(--spacing-lg)}
@@ -44,10 +45,10 @@
 .view-tab.active{background:var(--primary);color:var(--bg-primary)}
 
 .info-section{margin-bottom:var(--spacing-xl)}
-.info-section-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom:var(--spacing-md);padding-bottom:var(--spacing-sm);border-bottom:1px solid var(--border-light)}
+.info-section-title{display:flex;align-items:center;font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding:0 0 0 12px;border-left:4px solid var(--primary);margin:0 0 var(--spacing-md) 0;gap:8px;line-height:1.6}
 
 .qr-section{display:flex;gap:var(--spacing-lg);align-items:flex-start;margin-bottom:var(--spacing-lg);padding:var(--spacing-md);background:var(--bg-section-alt);border-radius:var(--radius-md)}
-.qr-placeholder{width:96px;height:96px;background:linear-gradient(135deg,#eef2ff 0%,#e6f7ff 100%);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:var(--font-size-sm);flex-shrink:0;border:1px solid var(--border-light)}
+.qr-placeholder{width:96px;height:96px;background:linear-gradient(135deg,var(--primary-light) 0%,var(--info-light) 100%);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:var(--font-size-sm);flex-shrink:0;border:1px solid var(--border-light)}
 .qr-meta{flex:1}
 
 .checklist-card{background:var(--bg-section);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:var(--spacing-md);margin-bottom:var(--spacing-sm)}
@@ -76,17 +77,47 @@
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text-tertiary)}
 .empty-icon{font-size:48px;margin-bottom:var(--spacing-sm)}
 
+.person-selector-trigger{width:100%;height:32px;display:flex;justify-content:space-between;align-items:center;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);font-size:var(--font-size-sm)}
+.person-selector-trigger:hover{border-color:var(--primary)}
+.person-selector-placeholder{color:var(--text-placeholder)}
+.person-selector-popover{position:absolute;z-index:1100;width:400px;max-height:300px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);display:none;margin-top:4px}
+.person-selector-popover.open{display:block}
+.person-selector-cols{display:flex;height:260px}
+.person-selector-col{flex:1;overflow-y:auto;border-right:1px solid var(--border-light)}
+.person-selector-col:last-child{border-right:none}
+.person-selector-col-title{padding:8px 10px;font-size:var(--font-size-xs);font-weight:600;color:var(--text-secondary);background:var(--bg-section);border-bottom:1px solid var(--border-light)}
+.person-tree-node{display:flex;align-items:center;gap:6px;padding:8px 10px;cursor:pointer;font-size:var(--font-size-sm)}
+.person-tree-node:hover{background:var(--bg-section)}
+.person-tree-node .tree-toggle{font-size:10px;color:var(--text-tertiary);width:12px}
+.person-selector-item{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;font-size:var(--font-size-sm)}
+.person-selector-item:hover{background:var(--primary-light);color:var(--primary)}
+.person-selector-item .person-phone{margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+
+.upload-area{border:2px dashed var(--border);border-radius:var(--radius-lg);padding:var(--spacing-lg);text-align:center;cursor:pointer;transition:border-color var(--duration-fast)}
+.upload-area:hover{border-color:var(--primary)}
+.upload-placeholder{color:var(--text-tertiary)}
+.upload-placeholder p{margin:var(--spacing-sm) 0;font-size:var(--font-size-sm)}
+.upload-hint{font-size:var(--font-size-xs);color:var(--text-placeholder)}
+
+.tree-toolbar{display:flex;justify-content:flex-end;gap:var(--spacing-sm);padding:var(--spacing-xs) var(--spacing-md);border-bottom:1px solid var(--border-light)}
+.tree-toolbar .btn-sm{font-size:var(--font-size-xs);padding:2px 8px}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:300px;color:var(--text-tertiary);text-align:center;padding:var(--spacing-xl)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:var(--spacing-md);opacity:.6}
+.empty-state .empty-title{font-size:var(--font-size-md);font-weight:500;color:var(--text-secondary);margin-bottom:var(--spacing-sm)}
+.empty-state .empty-desc{font-size:var(--font-size-sm);color:var(--text-tertiary);max-width:300px}
+
+.loading-overlay{position:absolute;inset:0;background:rgba(255,255,255,.8);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:var(--spacing-sm)}
+.loading-overlay.show{display:flex}
+.loading-spinner{width:32px;height:32px;border:3px solid var(--border-light);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+.loading-text{font-size:var(--font-size-sm);color:var(--text-secondary)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 #_toast{position:fixed;top:var(--spacing-lg);left:50%;transform:translateX(-50%);padding:var(--spacing-sm) var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius:var(--radius-md);font-size:var(--font-size-md);z-index:99999;opacity:0;transition:opacity var(--duration-normal);pointer-events:none}
 </style>
 </head>
 <body>
 <div class="module-page page-container" data-module="enterprise/hazard-list">
-  <div class="breadcrumb" id="breadcrumb">
-    <span class="breadcrumb-prefix">当前位置：</span>
-    <span class="breadcrumb-item">企业端</span>
-    <span class="breadcrumb-separator">&gt;</span>
-    <span class="breadcrumb-item current">安全管控对象</span>
-  </div>
 
   <div class="split-view">
     <!-- ===== 左侧面板 (400px) ===== -->
@@ -115,73 +146,78 @@
       </div>
       <!-- 搜索框 -->
       <div class="tree-search">
-        <input type="text" placeholder="搜索对象名称..." id="treeSearchInput">
+        <input type="text" placeholder="搜索对象名称/编码..." id="treeSearchInput">
+      </div>
+      <!-- 工具栏 -->
+      <div class="tree-toolbar">
+        <button class="btn btn-link btn-sm" onclick="expandAllTree()">展开全部</button>
+        <button class="btn btn-link btn-sm" onclick="collapseAllTree()">收起全部</button>
       </div>
       <!-- 对象树 (项目码→区域→场所/危险源) -->
       <div class="tree-body">
         <!-- 项目码 (根节点) -->
         <div class="tree-node active" onclick="switchView('project')">
           <span class="tree-toggle" onclick="event.stopPropagation()">▼</span>
-          <span class="tree-node-icon">🏗️</span>
+          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M12 2L2 10h20L12 2z"/><rect x="8" y="14" width="3" height="3"/><rect x="13" y="14" width="3" height="3"/></svg></span>
           <span class="tree-node-label">创安电子科技有限公司</span>
           <span class="tree-node-actions">
-            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-area')">+区域</button>
+            <button class="tree-node-action" title="新增子区域" onclick="event.stopPropagation();switchView('add-area')">+区域</button>
           </span>
         </div>
         <!-- A区 -->
         <div class="tree-node level-1" onclick="switchView('area')">
           <span class="tree-toggle" onclick="event.stopPropagation()">▼</span>
-          <span class="tree-node-icon">📁</span>
+          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
           <span class="tree-node-label">A区 - 生产区</span>
           <span class="tree-node-actions">
-            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
-            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
+            <button class="tree-node-action" title="新增场所" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
+            <button class="tree-node-action" title="新增危险源" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
           </span>
         </div>
         <!-- A区下的场所 -->
         <div class="tree-node level-2" onclick="switchView('place')">
           <span class="tree-toggle"></span>
-          <span class="tree-node-icon">🏢</span>
+          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4"/><rect x="8" y="6" width="3" height="3"/><rect x="13" y="6" width="3" height="3"/><rect x="8" y="11" width="3" height="3"/><rect x="13" y="11" width="3" height="3"/></svg></span>
           <span class="tree-node-label">1号生产车间</span>
           <span class="tree-node-type">场所</span>
         </div>
         <div class="tree-node level-2" onclick="switchView('place')">
           <span class="tree-toggle"></span>
-          <span class="tree-node-icon">🏢</span>
+          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4"/><rect x="8" y="6" width="3" height="3"/><rect x="13" y="6" width="3" height="3"/><rect x="8" y="11" width="3" height="3"/><rect x="13" y="11" width="3" height="3"/></svg></span>
           <span class="tree-node-label">2号生产车间</span>
           <span class="tree-node-type">场所</span>
         </div>
         <!-- A区下的危险源 -->
         <div class="tree-node level-2" onclick="switchView('hazard')">
           <span class="tree-toggle"></span>
-          <span class="tree-node-icon">⚠️</span>
+          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
           <span class="tree-node-label">电动车充电区</span>
           <span class="tree-node-type">危险源</span>
         </div>
         <!-- B区 -->
         <div class="tree-node level-1" onclick="switchView('area')">
           <span class="tree-toggle" onclick="event.stopPropagation()">▶</span>
-          <span class="tree-node-icon">📁</span>
+          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
           <span class="tree-node-label">B区 - 仓储区</span>
           <span class="tree-node-actions">
-            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
-            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
+            <button class="tree-node-action" title="新增场所" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
+            <button class="tree-node-action" title="新增危险源" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
           </span>
         </div>
         <!-- C区 -->
         <div class="tree-node level-1" onclick="switchView('area')">
           <span class="tree-toggle" onclick="event.stopPropagation()">▶</span>
-          <span class="tree-node-icon">📁</span>
+          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
           <span class="tree-node-label">C区 - 重点区域</span>
           <span class="tree-node-actions">
-            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
-            <button class="tree-node-action" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
+            <button class="tree-node-action" title="新增场所" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
+            <button class="tree-node-action" title="新增危险源" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
           </span>
         </div>
         <!-- 重点场所 (政府配置, 只读) -->
         <div class="tree-node level-1" onclick="switchView('keyplace')">
           <span class="tree-toggle"></span>
-          <span class="tree-node-icon">⭐</span>
+          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
           <span class="tree-node-label">2号充换电站</span>
           <span class="tree-node-type">重点</span>
         </div>
@@ -190,6 +226,11 @@
 
     <!-- ===== 右侧详情面板 ===== -->
     <div class="detail-panel">
+      <!-- 加载状态遮罩 -->
+      <div class="loading-overlay" id="detailLoading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">加载中...</div>
+      </div>
       <div class="detail-header">
         <span class="detail-title" id="detailTitle">创安电子科技有限公司</span>
         <div class="view-tabs" id="viewTabs">
@@ -202,8 +243,15 @@
       </div>
       <div class="detail-body">
 
+        <!-- ===== 空状态（默认显示） ===== -->
+        <div class="view-content empty-state" id="view-empty">
+          <div class="empty-icon">👈</div>
+          <div class="empty-title">请从左侧选择对象</div>
+          <div class="empty-desc">选择项目、区域、场所或危险源后，可在此处查看详细信息</div>
+        </div>
+
         <!-- ===== 项目视图 (§6.3.5.3.5) ===== -->
-        <div class="view-content" id="view-project">
+        <div class="view-content" id="view-project" style="display:none">
           <div class="qr-section">
             <div class="qr-placeholder">项目二维码</div>
             <div class="qr-meta">
@@ -244,7 +292,7 @@
             <div class="info-section-title">区域基本信息
               <span style="float:right">
                 <button class="btn btn-sm btn-default" onclick="showToast('编辑区域')">编辑</button>
-                <button class="btn btn-sm btn-danger" onclick="showToast('删除区域：需先迁移下属对象')">删除</button>
+                <button class="btn btn-sm btn-danger" onclick="openMigrateModal()">删除</button>
               </span>
             </div>
             <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--spacing-sm)">
@@ -363,7 +411,7 @@
         <!-- ===== 危险源视图 (§6.3.5.3.8) ===== -->
         <div class="view-content" id="view-hazard" style="display:none">
           <div class="qr-section">
-            <div class="qr-placeholder" style="background:linear-gradient(135deg,#fff2f0 0%,#fffbe6 100%);color:var(--danger)">危险源二维码</div>
+            <div class="qr-placeholder" style="background:linear-gradient(135deg,var(--danger-light) 0%,var(--warning-light) 100%);color:var(--danger)">危险源二维码</div>
             <div class="qr-meta">
               <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">电动车充电区
                 <span style="float:right">
@@ -403,12 +451,12 @@
             <div class="info-section-title">扫码配置</div>
             <table class="scan-config-table">
               <thead>
-                <tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>完成规则</th><th>配置类型</th><th>操作</th></tr>
+                <tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>跳过节假日</th><th>完成规则</th><th>配置类型</th><th>操作</th></tr>
               </thead>
               <tbody>
                 <tr>
                   <td>1</td><td>创安电子科技</td><td>充电设施安全巡检表</td><td>王五</td>
-                  <td>每周1次</td><td>所有人完成</td>
+                  <td>每周1次</td><td>否</td><td>所有人完成</td>
                   <td><span class="type-auto">自动</span></td><td>—</td>
                 </tr>
               </tbody>
@@ -441,39 +489,34 @@
           </div>
         </div>
 
-      </div>
-    </div>
-  </div>
-</div>
+        <!-- ===== 新增区域内嵌表单 (§6.3.5.3.2) ===== -->
+        <div class="view-content" id="view-add-area" style="display:none">
+          <div class="info-section">
+            <div class="info-section-title">新增区域</div>
+            <div class="form-row">
+              <div class="form-col">
+                <label><span class="req">*</span> 区域名称</label>
+                <input type="text" placeholder="请输入区域名称">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-col">
+                <label>排序号</label>
+                <input type="number" value="1" placeholder="默认1">
+              </div>
+              <div class="form-col">
+                <label><span class="req">*</span> 状态</label>
+                <select><option value="enabled" selected>启用</option><option value="disabled">停用</option></select>
+              </div>
+            </div>
+            <div style="margin-top:var(--spacing-lg);display:flex;gap:var(--spacing-sm);justify-content:flex-end">
+              <button class="btn btn-default" onclick="switchView('project')">取消</button>
+              <button class="btn btn-primary" onclick="switchView('project');showToast('区域已创建')">保存</button>
+            </div>
+          </div>
+        </div>
 
-<!-- ===== 新增区域弹窗 (§6.3.5.3.2, 420px) ===== -->
-<div class="modal-overlay" id="addAreaModal">
-  <div class="modal-dialog" style="width:420px">
-    <div class="modal-header">
-      <span class="modal-title">新增区域</span>
-      <button class="modal-close" onclick="closeHazardModal('addAreaModal')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <div class="form-col">
-          <label><span class="req">*</span> 区域名称</label>
-          <input type="text" placeholder="请输入区域名称">
-        </div>
       </div>
-      <div class="form-row">
-        <div class="form-col">
-          <label>排序号</label>
-          <input type="number" value="1" placeholder="默认1">
-        </div>
-        <div class="form-col">
-          <label><span class="req">*</span> 状态</label>
-          <select><option value="enabled" selected>启用</option><option value="disabled">停用</option></select>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeHazardModal('addAreaModal')">取消</button>
-      <button class="btn btn-primary" onclick="closeHazardModal('addAreaModal');showToast('区域已创建')">确定</button>
     </div>
   </div>
 </div>
@@ -483,7 +526,7 @@
   <div class="modal-dialog wide">
     <div class="modal-header">
       <span class="modal-title">新增场所</span>
-      <button class="modal-close" onclick="closeHazardModal('addPlaceModal')">&times;</button>
+      <button class="modal-close" aria-label="关闭弹窗" onclick="closeModal('addPlaceModal')">&times;</button>
     </div>
     <div class="modal-body">
       <!-- 基础信息 -->
@@ -495,7 +538,7 @@
             <select>
               <option value="">请选择</option>
               <option>办公区</option><option>生活区</option><option>材料堆放区</option>
-              <option>施工区</option><option>仓储区</option><option>生产车间</option><option>其他</option>
+              <option>施工区</option><option>仓储区</option><option>其他</option>
             </select>
           </div>
           <div class="form-col">
@@ -521,23 +564,60 @@
         <div class="form-row">
           <div class="form-col">
             <label>场所图片</label>
-            <input type="text" placeholder="最多5张，单张≤5MB" readonly style="background:var(--bg-section-alt)">
-            <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px">支持 jpg/jpeg/png/bmp/gif/svg</div>
+            <div class="upload-area" onclick="showToast('图片上传功能演示')">
+              <div class="upload-placeholder">
+                <span style="font-size:24px">📁</span>
+                <p>点击或拖拽文件至此处上传</p>
+                <span class="upload-hint">支持 jpg/jpeg/png/bmp/gif/svg，最多5张，单张≤5MB</span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="form-row">
           <div class="form-col">
             <label><span class="req">*</span> 整改责任人</label>
-            <select>
-              <option value="">请选择（自动带出联系电话）</option>
-              <option>张三（138****0001）</option>
-              <option>李四（139****0002）</option>
-              <option>王五（137****0003）</option>
-            </select>
+            <div class="person-selector-trigger" onclick="togglePersonSelector('responsibilitySelector')" id="responsibilityTrigger">
+              <span class="person-selector-placeholder">请选择责任人</span>
+              <span class="arrow">▼</span>
+            </div>
+            <div class="person-selector-popover" id="responsibilitySelector">
+              <div class="person-selector-cols">
+                <div class="person-selector-col">
+                  <div class="person-selector-col-title">组织架构</div>
+                  <div class="person-tree-node" onclick="selectDept(this, 'safetyDept')">
+                    <span class="tree-toggle">▶</span>
+                    <span>📁</span>
+                    <span>安全管理部</span>
+                  </div>
+                  <div class="person-tree-node" onclick="selectDept(this, 'projectDept')">
+                    <span class="tree-toggle">▶</span>
+                    <span>📁</span>
+                    <span>工程项目部</span>
+                  </div>
+                  <div class="person-tree-node" onclick="selectDept(this, 'maintainDept')">
+                    <span class="tree-toggle">▶</span>
+                    <span>📁</span>
+                    <span>设备维护部</span>
+                  </div>
+                </div>
+                <div class="person-selector-col">
+                  <div class="person-selector-col-title">人员列表</div>
+                  <div class="person-selector-item" onclick="selectPerson('responsibility', '张三', '138****0001')">
+                    <span>👤</span> 张三 <span class="person-phone">138****0001</span>
+                  </div>
+                  <div class="person-selector-item" onclick="selectPerson('responsibility', '李四', '139****0002')">
+                    <span>👤</span> 李四 <span class="person-phone">139****0002</span>
+                  </div>
+                  <div class="person-selector-item" onclick="selectPerson('responsibility', '王五', '137****0003')">
+                    <span>👤</span> 王五 <span class="person-phone">137****0003</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="form-col">
             <label>联系电话（自动带出）</label>
-            <input type="text" readonly style="background:var(--bg-section-alt)" placeholder="选择责任人后自动填入">
+            <input type="text" readonly style="background:var(--bg-section-alt)" placeholder="选择责任人后自动填入" id="responsibilityPhone">
           </div>
         </div>
         <div class="form-row">
@@ -565,8 +645,8 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeHazardModal('addPlaceModal')">取消</button>
-      <button class="btn btn-primary" onclick="closeHazardModal('addPlaceModal');showToast('场所已创建，扫码配置已自动生成')">保存</button>
+      <button class="btn btn-default" onclick="closeModal('addPlaceModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('addPlaceModal');showToast('场所已创建，扫码配置已自动生成')">保存</button>
     </div>
   </div>
 </div>
@@ -576,7 +656,7 @@
   <div class="modal-dialog wide">
     <div class="modal-header">
       <span class="modal-title">新增危险源</span>
-      <button class="modal-close" onclick="closeHazardModal('addHazardModal')">&times;</button>
+      <button class="modal-close" aria-label="关闭弹窗" onclick="closeModal('addHazardModal')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="info-section">
@@ -613,22 +693,60 @@
         <div class="form-row">
           <div class="form-col">
             <label>危险源图片</label>
-            <input type="text" placeholder="最多5张" readonly style="background:var(--bg-section-alt)">
+            <div class="upload-area" onclick="showToast('图片上传功能演示')">
+              <div class="upload-placeholder">
+                <span style="font-size:24px">📁</span>
+                <p>点击或拖拽文件至此处上传</p>
+                <span class="upload-hint">支持 jpg/jpeg/png，最多5张，单张≤5MB</span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="form-row">
           <div class="form-col">
             <label><span class="req">*</span> 整改责任人</label>
-            <select>
-              <option value="">请选择</option>
-              <option>张三（138****0001）</option>
-              <option>李四（139****0002）</option>
-              <option>王五（137****0003）</option>
-            </select>
+            <div class="person-selector-trigger" onclick="togglePersonSelector('hazardResponsibilitySelector')" id="hazardResponsibilityTrigger">
+              <span class="person-selector-placeholder">请选择责任人</span>
+              <span class="arrow">▼</span>
+            </div>
+            <div class="person-selector-popover" id="hazardResponsibilitySelector">
+              <div class="person-selector-cols">
+                <div class="person-selector-col">
+                  <div class="person-selector-col-title">组织架构</div>
+                  <div class="person-tree-node" onclick="selectDept(this, 'safetyDept')">
+                    <span class="tree-toggle">▶</span>
+                    <span>📁</span>
+                    <span>安全管理部</span>
+                  </div>
+                  <div class="person-tree-node" onclick="selectDept(this, 'projectDept')">
+                    <span class="tree-toggle">▶</span>
+                    <span>📁</span>
+                    <span>工程项目部</span>
+                  </div>
+                  <div class="person-tree-node" onclick="selectDept(this, 'maintainDept')">
+                    <span class="tree-toggle">▶</span>
+                    <span>📁</span>
+                    <span>设备维护部</span>
+                  </div>
+                </div>
+                <div class="person-selector-col">
+                  <div class="person-selector-col-title">人员列表</div>
+                  <div class="person-selector-item" onclick="selectPerson('hazardResponsibility', '张三', '138****0001')">
+                    <span>👤</span> 张三 <span class="person-phone">138****0001</span>
+                  </div>
+                  <div class="person-selector-item" onclick="selectPerson('hazardResponsibility', '李四', '139****0002')">
+                    <span>👤</span> 李四 <span class="person-phone">139****0002</span>
+                  </div>
+                  <div class="person-selector-item" onclick="selectPerson('hazardResponsibility', '王五', '137****0003')">
+                    <span>👤</span> 王五 <span class="person-phone">137****0003</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="form-col">
             <label>联系电话</label>
-            <input type="text" readonly style="background:var(--bg-section-alt)" placeholder="自动带出">
+            <input type="text" readonly style="background:var(--bg-section-alt)" placeholder="选择责任人后自动填入" id="hazardResponsibilityPhone">
           </div>
         </div>
         <div class="form-row">
@@ -653,8 +771,51 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeHazardModal('addHazardModal')">取消</button>
-      <button class="btn btn-primary" onclick="closeHazardModal('addHazardModal');showToast('危险源已创建')">保存</button>
+      <button class="btn btn-default" onclick="closeModal('addHazardModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('addHazardModal');showToast('危险源已创建')">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 删除区域迁移弹窗 (§6.3.5.3.4, 600px) ===== -->
+<div class="modal-overlay" id="migrateAreaModal">
+  <div class="modal-dialog" style="width:600px">
+    <div class="modal-header">
+      <span class="modal-title">删除区域 - 迁移下属对象</span>
+      <button class="modal-close" aria-label="关闭弹窗" onclick="closeModal('migrateAreaModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:var(--spacing-sm) 0 var(--spacing-md);color:var(--text-secondary);font-size:var(--font-size-sm)">
+        删除区域「<strong style="color:var(--text-primary)">A区 - 生产区</strong>」前，需将以下对象迁移至其他区域或项目直属。
+      </div>
+      <div class="info-section" style="margin-bottom:var(--spacing-md)">
+        <div class="info-section-title" style="font-size:var(--font-size-sm);margin-bottom:var(--spacing-sm)">待迁移对象（3个）</div>
+        <table class="scan-config-table" style="font-size:var(--font-size-xs)">
+          <thead>
+            <tr><th>对象名称</th><th>类型</th><th>状态</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1号生产车间</td><td><span class="tree-node-type">场所</span></td><td><span class="tag tag-green">启用</span></td></tr>
+            <tr><td>2号生产车间</td><td><span class="tree-node-type">场所</span></td><td><span class="tag tag-green">启用</span></td></tr>
+            <tr><td>电动车充电区</td><td><span class="tree-node-type" style="background:var(--warning-light);color:var(--warning)">危险源</span></td><td><span class="tag tag-green">启用</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="form-row">
+        <div class="form-col">
+          <label><span class="req">*</span> 迁移目标</label>
+          <select>
+            <option value="">请选择目标区域</option>
+            <option>项目直属（无区域）</option>
+            <option>B区 - 仓储区</option>
+            <option>C区 - 重点区域</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('migrateAreaModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('migrateAreaModal');showToast('区域已删除，对象已迁移')">确认迁移并删除</button>
     </div>
   </div>
 </div>
@@ -662,7 +823,7 @@
 <script>
 // 视图切换
 function switchView(view) {
-  var views = ['project', 'area', 'place', 'hazard', 'keyplace'];
+  var views = ['project', 'area', 'place', 'hazard', 'keyplace', 'add-area', 'empty'];
   var titles = {
     'project': '创安电子科技有限公司',
     'area': 'A区 - 生产区',
@@ -674,8 +835,7 @@ function switchView(view) {
     'add-hazard': '新增危险源'
   };
 
-  // 处理新增弹窗
-  if (view === 'add-area') { document.getElementById('addAreaModal').style.display = 'flex'; return; }
+  // 处理新增弹窗（场所/危险源用弹窗，区域用内嵌表单）
   if (view === 'add-place') { document.getElementById('addPlaceModal').style.display = 'flex'; return; }
   if (view === 'add-hazard') { document.getElementById('addHazardModal').style.display = 'flex'; return; }
 
@@ -699,8 +859,78 @@ function switchView(view) {
   });
 }
 
-function closeHazardModal(id) {
+function closeModal(id) {
   document.getElementById(id).style.display = 'none';
+}
+
+function showLoading() {
+  document.getElementById('detailLoading').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('detailLoading').classList.remove('show');
+}
+
+function openMigrateModal() {
+  document.getElementById('migrateAreaModal').style.display = 'flex';
+}
+
+function togglePersonSelector(id) {
+  var popover = document.getElementById(id);
+  popover.classList.toggle('open');
+}
+
+function selectDept(el, deptId) {
+  // Toggle tree node expand/collapse
+  var toggle = el.querySelector('.tree-toggle');
+  if (toggle.textContent === '▶') {
+    toggle.textContent = '▼';
+  } else {
+    toggle.textContent = '▶';
+  }
+}
+
+function selectPerson(type, name, phone) {
+  if (type === 'responsibility') {
+    document.getElementById('responsibilityTrigger').innerHTML = '<span>' + name + '</span><span class="arrow">▼</span>';
+    document.getElementById('responsibilityPhone').value = phone;
+    document.getElementById('responsibilitySelector').classList.remove('open');
+  } else if (type === 'hazardResponsibility') {
+    document.getElementById('hazardResponsibilityTrigger').innerHTML = '<span>' + name + '</span><span class="arrow">▼</span>';
+    document.getElementById('hazardResponsibilityPhone').value = phone;
+    document.getElementById('hazardResponsibilitySelector').classList.remove('open');
+  }
+}
+
+// Close person selector when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.person-selector-trigger') && !e.target.closest('.person-selector-popover')) {
+    document.querySelectorAll('.person-selector-popover').forEach(function(p) {
+      p.classList.remove('open');
+    });
+  }
+});
+
+function expandAllTree() {
+  document.querySelectorAll('.tree-toggle').forEach(function(toggle) {
+    if (toggle.textContent === '▶') {
+      toggle.textContent = '▼';
+    }
+  });
+  document.querySelectorAll('.tree-node.level-1, .tree-node.level-2').forEach(function(node) {
+    node.style.display = '';
+  });
+}
+
+function collapseAllTree() {
+  document.querySelectorAll('.tree-toggle').forEach(function(toggle) {
+    if (toggle.textContent === '▼') {
+      toggle.textContent = '▶';
+    }
+  });
+  document.querySelectorAll('.tree-node.level-1, .tree-node.level-2').forEach(function(node) {
+    node.style.display = 'none';
+  });
 }
 
 function showToast(msg) {
