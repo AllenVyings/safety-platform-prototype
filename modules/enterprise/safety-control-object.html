@@ -8,6 +8,7 @@
 <title>安全管控对象管理 - 项目端</title>
 <style>
 *{margin: 0;padding: 0;box-sizing:border-box}
+.page-container{padding:20px}
 .hidden{display:none}
 .detail-view{min-height:100%}
 /* 面包屑由 framework.css 提供，无需额外样式 */
@@ -34,9 +35,9 @@ body{font-family:var(--font-family);font-size:var(--font-size-md);color:var(--te
 .tree-children{margin-left:12px}
 .quick-actions{padding:var(--spacing-sm) 0;border-top:1px solid var(--border-light);display:flex;gap: var(--spacing-sm)}
 .btn-sm{padding: var(--spacing-xs) var(--spacing-sm);font-size:var(--font-size-xs)}
-.right-panel{flex:1;overflow-y:auto;padding: 0 12px 12px 12px;min-height:0}
+.right-panel{flex:1;overflow-x:hidden;overflow-y:auto;padding: 0 12px 12px 12px;min-height:0}
 .page-actions{display:flex;gap: 6px}
-.info-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding: 12px;margin-bottom: 12px;box-shadow:var(--shadow-sm);border:1px solid var(--border-light)}
+.detail-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom: 12px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light)}
 .card-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary)}
 .card-body{font-size:var(--font-size-sm)}
@@ -55,7 +56,9 @@ tr:hover td{background:var(--bg-section-alt)}
 .modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);max-height:90vh;overflow-y:auto}
 .form-label .required{color:var(--danger)}
 .form-input:focus,.form-select:focus{border-color:var(--primary)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap: 10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row-single{grid-template-columns:1fr}
+.form-row-flex{display:flex;gap:12px;margin-bottom:12px}
 .person-selector{display:flex;flex-wrap:wrap;gap: 6px;align-items:center}
 .person-tag{display:inline-flex;align-items:center;padding: 3px var(--spacing-sm);background:var(--primary-light);color:var(--primary);border-radius:var(--radius-sm);font-size:var(--font-size-xs)}
 .person-tag .remove{margin-left: var(--spacing-xs);cursor:pointer;color:var(--primary);font-size:var(--font-size-md)}
@@ -124,6 +127,10 @@ tr:hover td{background:var(--bg-section-alt)}
   .checklist-card-empty{display:flex;flex-direction:column;align-items:center;gap: var(--spacing-sm);padding: var(--spacing-xs) 0}
   .checklist-card-empty-icon{font-size: var(--font-size-xxxl);opacity:.5}
   .checklist-card-empty-text{font-size: var(--font-size-sm);color:var(--text-tertiary)}
+/* 弹窗内分区标题（§4.22.1 标准版变体） */
+.modal-section-title{display:flex;align-items:center;gap:8px;font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding:0 0 12px 12px;margin-bottom:12px;border-bottom:1px solid var(--border-section);position:relative}
+.modal-section-title::before{content:'';position:absolute;left:0;top:2px;width:3px;height:14px;background:var(--primary);border-radius:2px}
+.modal-section-title .section-hint{font-weight:400;font-size:var(--font-size-xs);color:var(--text-tertiary);margin-left:var(--spacing-sm)}
 </style>
 </head>
 <body>
@@ -141,48 +148,48 @@ tr:hover td{background:var(--bg-section-alt)}
 <div style="padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light)">
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap: var(--spacing-sm)">
 <div style="padding:6px var(--spacing-xs);border:1px solid var(--border-light);border-radius:var(--radius-md);text-align:center;background:var(--bg-primary);min-width:0">
-<div style="font-size:var(--font-size-md);margin-bottom: 2px">🏗️</div>
+<div style="font-size:var(--font-size-md);margin-bottom: 2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></div>
 <div style="font-size:var(--font-size-md);font-weight:600;color:var(--primary)">1</div>
 <div style="font-size:var(--font-size-xs);color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">项目码</div>
 </div>
 <div style="padding: 6px var(--spacing-xs);border:1px solid var(--border-light);border-radius:var(--radius-md);text-align:center;background:var(--bg-primary);min-width:0">
-<div style="font-size:var(--font-size-md);margin-bottom: 2px">📁</div>
+<div style="font-size:var(--font-size-md);margin-bottom: 2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
 <div style="font-size:var(--font-size-md);font-weight:600;color:var(--primary)">2</div>
 <div style="font-size:var(--font-size-xs);color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">区域</div>
 </div>
 <div style="padding: 6px var(--spacing-xs);border:1px solid var(--border-light);border-radius:var(--radius-md);text-align:center;background:var(--bg-primary);min-width:0">
-<div style="font-size:var(--font-size-md);margin-bottom: 2px">🏢</div>
+<div style="font-size:var(--font-size-md);margin-bottom: 2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></div>
 <div style="font-size:var(--font-size-md);font-weight:600;color:var(--primary)">6</div>
 <div style="font-size:var(--font-size-xs);color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">场所码</div>
 </div>
 <div style="padding: 6px var(--spacing-xs);border:1px solid var(--border-light);border-radius:var(--radius-md);text-align:center;background:var(--bg-primary);min-width:0">
-<div style="font-size:var(--font-size-md);margin-bottom: 2px">⚠️</div>
+<div style="font-size:var(--font-size-md);margin-bottom: 2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
 <div style="font-size:var(--font-size-md);font-weight:600;color:var(--primary)">1</div>
 <div style="font-size:var(--font-size-xs);color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">危险源</div>
 </div>
 </div>
 </div>
-<div class="search-box" style="padding: var(--spacing-sm) 0;border-bottom:1px solid var(--border-light);position:relative"><span class="search-icon">🔍</span><input type="text" id="treeSearchInput" placeholder="搜索管控对象..." style="background:var(--bg-section-alt);padding-right: 28px" oninput="filterTree(this.value)"><span id="treeSearchClear" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text-tertiary);font-size: var(--font-size-md);line-height:1" onclick="clearTreeSearch()">×</span></div>
+<div class="search-box" style="padding: var(--spacing-sm) 0;border-bottom:1px solid var(--border-light);position:relative"><span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span><input type="text" id="treeSearchInput" placeholder="搜索管控对象..." style="background:var(--bg-section-alt);padding-right: 28px" oninput="filterTree(this.value)"><span id="treeSearchClear" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text-tertiary);font-size: var(--font-size-md);line-height:1" onclick="clearTreeSearch()">×</span></div>
 <div class="tree-container">
-<div class="tree-item active" data-id="1" onclick="selectNode('project',1,this)"><span class="arrow expanded" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon">🏗️</span><span class="label" title="项目码-深圳市安全项目">项目码-深圳市安全项目</span><span class="actions"><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('region',this)">+区域</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('place',this)" style="margin-left: var(--spacing-xs)">+场所</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('hazard',this)" style="margin-left: var(--spacing-xs)">+危险源</button></span></div>
+<div class="tree-item active" data-id="1" onclick="selectNode('project',1,this)"><span class="arrow expanded" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></span><span class="label" title="项目码-深圳市安全项目">项目码-深圳市安全项目</span><span class="actions"><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('region',this)">+区域</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('place',this)" style="margin-left: var(--spacing-xs)">+场所</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('hazard',this)" style="margin-left: var(--spacing-xs)">+危险源</button></span></div>
 <div class="tree-children expanded" id="tree-children-root">
-<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1005,this)" data-id="1005"><span class="icon">🏢</span><span class="label" title="场所码-项目总指挥部">场所码-项目总指挥部</span></div>
-<div class="tree-item" style="padding-left:12px" onclick="selectNode('hazard',2002,this)" data-id="2002"><span class="icon">⚠️</span><span class="label" title="危险源码-项目整体危险源">危险源码-项目整体危险源</span></div>
-<div class="tree-item" style="padding-left:12px" data-id="101" onclick="selectNode('region',101,this)"><span class="arrow expanded" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon">📁</span><span class="label" title="区域-办公生活区">区域-办公生活区</span><span class="actions"><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('place',this)">+场所</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('hazard',this)" style="margin-left: var(--spacing-xs)">+危险源</button></span></div>
+<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1005,this)" data-id="1005"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span><span class="label" title="场所码-项目总指挥部">场所码-项目总指挥部</span></div>
+<div class="tree-item" style="padding-left:12px" onclick="selectNode('hazard',2002,this)" data-id="2002"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="label" title="危险源码-项目整体危险源">危险源码-项目整体危险源</span></div>
+<div class="tree-item" style="padding-left:12px" data-id="101" onclick="selectNode('region',101,this)"><span class="arrow expanded" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span class="label" title="区域-办公生活区">区域-办公生活区</span><span class="actions"><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('place',this)">+场所</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('hazard',this)" style="margin-left: var(--spacing-xs)">+危险源</button></span></div>
 <div class="tree-children expanded">
-<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1001,this)" data-id="1001"><span class="icon">🏢</span><span class="label" title="场所码-办公室">场所码-办公室</span></div>
-<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1002,this)" data-id="1002"><span class="icon">🏢</span><span class="label" title="场所码-宿舍">场所码-宿舍</span></div>
+<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1001,this)" data-id="1001"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span><span class="label" title="场所码-办公室">场所码-办公室</span></div>
+<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1002,this)" data-id="1002"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span><span class="label" title="场所码-宿舍">场所码-宿舍</span></div>
 </div>
-<div class="tree-item" style="padding-left:12px" data-id="102" onclick="selectNode('region',102,this)"><span class="arrow expanded" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon">📁</span><span class="label" title="区域-施工区域">区域-施工区域</span><span class="actions"><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('place',this)">+场所</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('hazard',this)" style="margin-left: var(--spacing-xs)">+危险源</button></span></div>
+<div class="tree-item" style="padding-left:12px" data-id="102" onclick="selectNode('region',102,this)"><span class="arrow expanded" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span class="label" title="区域-施工区域">区域-施工区域</span><span class="actions"><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('place',this)">+场所</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm('hazard',this)" style="margin-left: var(--spacing-xs)">+危险源</button></span></div>
 <div class="tree-children expanded">
-<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1003,this)" data-id="1003"><span class="icon">🏢</span><span class="label" title="场所码-1号施工区域">场所码-1号施工区域</span></div>
-<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1004,this)" data-id="1004"><span class="icon">🏢</span><span class="label" title="场所码-材料堆放区">场所码-材料堆放区</span></div>
-<div class="tree-item" style="padding-left:12px" onclick="selectNode('hazard',2001,this)" data-id="2001"><span class="icon">⚠️</span><span class="label" title="危险源码-塔吊作业区">危险源码-塔吊作业区</span></div>
+<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1003,this)" data-id="1003"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span><span class="label" title="场所码-1号施工区域">场所码-1号施工区域</span></div>
+<div class="tree-item" style="padding-left:12px" onclick="selectNode('place',1004,this)" data-id="1004"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span><span class="label" title="场所码-材料堆放区">场所码-材料堆放区</span></div>
+<div class="tree-item" style="padding-left:12px" onclick="selectNode('hazard',2001,this)" data-id="2001"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="label" title="危险源码-塔吊作业区">危险源码-塔吊作业区</span></div>
 </div>
-<div class="tree-item" style="padding-left:12px" data-id="3001" onclick="selectNode('keyPlace',3001,this)"><span class="arrow expanded" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon">⭐</span><span class="label" title="重点场所">重点场所</span></div>
+<div class="tree-item" style="padding-left:12px" data-id="3001" onclick="selectNode('keyPlace',3001,this)"><span class="arrow expanded" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><span class="label" title="重点场所">重点场所</span></div>
 <div class="tree-children expanded">
-<div class="tree-item" style="padding-left: 12px" data-id="3002" onclick="selectNode('keyPlaceDetail',3002,this)"><span class="icon">🏢</span><span class="label" title="重点场所-配电房">重点场所-配电房</span></div>
-<div class="tree-item" style="padding-left:12px" data-id="3003" onclick="selectNode('keyPlaceDetail',3003,this)"><span class="icon">🏢</span><span class="label" title="重点场所-消防控制室">重点场所-消防控制室</span></div>
+<div class="tree-item" style="padding-left: 12px" data-id="3002" onclick="selectNode('keyPlaceDetail',3002,this)"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span><span class="label" title="重点场所-配电房">重点场所-配电房</span></div>
+<div class="tree-item" style="padding-left:12px" data-id="3003" onclick="selectNode('keyPlaceDetail',3003,this)"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span><span class="label" title="重点场所-消防控制室">重点场所-消防控制室</span></div>
 </div>
 </div>
 </div>
@@ -190,8 +197,8 @@ tr:hover td{background:var(--bg-section-alt)}
 
 <div class="right-panel">
 <div id="view-add-region" class="detail-view hidden">
-<div class="info-card">
-<div class="card-header"><div class="card-title">📍 新增区域</div></div>
+<div class="detail-card">
+<div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>新增区域</div></div>
 <div class="card-body">
 <div class="form-row">
 <div class="form-group"><label class="form-label">区域名称 <span class="required">*</span></label><input type="text" class="form-input" id="addRegionName" placeholder="请输入区域名称"></div>
@@ -206,10 +213,10 @@ tr:hover td{background:var(--bg-section-alt)}
 </div>
 
 <div id="view-add-place" class="detail-view hidden">
-<div class="info-card">
-<div class="card-header"><div class="card-title">🏢 新增场所</div></div>
+<div class="detail-card">
+<div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>新增场所</div></div>
 <div class="card-body">
-<div style="margin-bottom:10px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)">📋 基础信息</h5>
+<div style="margin-bottom:10px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>基础信息</h5>
 <div class="form-row">
 <div class="form-group"><label class="form-label">场所类型 <span class="required">*</span></label><select class="form-select" id="addPlaceType"><option value="">请选择</option><option>办公区</option><option>生活区</option><option>材料堆放区</option><option>施工区</option><option>仓储区</option><option>其他</option></select></div>
 <div class="form-group"><label class="form-label">场所名称 <span class="required">*</span></label><input type="text" class="form-input" id="addPlaceName" placeholder="请输入场所名称"></div>
@@ -218,23 +225,23 @@ tr:hover td{background:var(--bg-section-alt)}
 <div class="form-group"><label class="form-label">所属区域 <span class="required">*</span></label><select class="form-select" id="addPlaceRegion"><option value="">请选择所属区域</option></select></div>
 <div class="form-group"><label class="form-label">状态 <span class="required">*</span></label><div style="display:flex;align-items:center;gap: var(--spacing-md);height:32px"><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="addPlaceStatus" value="enabled" checked style="width:16px;height:16px;cursor:pointer"><span>启用</span></label><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="addPlaceStatus" value="disabled" style="width:16px;height:16px;cursor:pointer"><span>停用</span></label></div></div>
 </div>
-<div class="form-row" style="grid-template-columns:1fr">
+<div class="form-row form-row-single">
 <div class="form-group"><label class="form-label">场所图片</label><div style="display:flex;gap: var(--spacing-sm);align-items:center"><div style="width:80px;height:80px;border:1px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--bg-tertiary)" onclick="showToast('打开图片上传', 'info')">📷<br><span style="font-size:var(--font-size-xs);color:var(--text-tertiary)">上传图片</span></div><div class="text-muted" style="font-size:var(--font-size-xs);color:var(--text-tertiary)">支持jpg、png格式，建议尺寸800×600，最多9张</div></div></div>
 </div>
 <div class="form-row">
 <div class="form-group"><label class="form-label">整改责任人 <span class="required">*</span></label><div class="tree-select-cascader" id="rectifyPersonCascader" style="position:relative"><div class="tree-select-trigger" onclick="toggleRectifyCascader()" style="display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);min-height:36px"><span class="tree-select-value" id="rectifyPersonValue" style="flex:1;color:var(--text-secondary);font-size: var(--font-size-sm)">请选择责任人</span><span class="tree-select-arrow" style="color:var(--text-tertiary);font-size: var(--font-size-xs)">▼</span></div><div class="tree-select-dropdown" id="rectifyCascaderDropdown" style="display:none;position:absolute;top:100%;left:0;width:480px;margin-top: var(--spacing-xs);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:200;overflow:hidden"></div></div></div>
 <div class="form-group"><label class="form-label">联系电话</label><input type="text" class="form-input" id="addPlaceRectifyPhone" placeholder="由整改责任人自动带出" readonly style="background:var(--bg-secondary);color:var(--text-tertiary)"></div>
 </div>
-<div class="form-row" style="grid-template-columns:1fr">
+<div class="form-row form-row-single">
 <div class="form-group"><label class="form-label">隐患整改复核人 <span class="required">*</span></label><div class="tree-select-cascader" id="reviewerCascader" style="position:relative"><div class="tree-select-trigger" onclick="toggleReviewerCascader()" style="display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);min-height:36px"><span class="tree-select-value" id="reviewerValue" style="flex:1;color:var(--text-secondary);font-size: var(--font-size-sm)">请选择复核人</span><span class="tree-select-arrow" style="color:var(--text-tertiary);font-size: var(--font-size-xs)">▼</span></div><div class="tree-select-dropdown" id="reviewerCascaderDropdown" style="display:none;position:absolute;top:100%;left:0;width:480px;margin-top: var(--spacing-xs);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:200;overflow:hidden"></div></div></div>
 </div>
 </div>
-<div style="margin-top: 10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)">📋 专属检查表 <span class="required" style="color:var(--danger)">*</span></h5>
+<div style="margin-top: 10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>专属检查表 <span class="required" style="color:var(--danger)">*</span></h5>
 <div id="exclusiveChecklistContent" style="display:flex;align-items:center;gap: var(--spacing-sm);flex-wrap:wrap;min-height:32px"></div>
 <div id="exclusiveChecklistEmpty" style="color:var(--text-tertiary);font-size: var(--font-size-sm);margin-top: 2px">未配置</div>
 </div>
-<div style="margin-top:10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm);display:flex;justify-content:space-between;align-items:center">📱 扫码配置<button class="btn btn-primary btn-sm" onclick="openScanConfigModal()">+ 新增检查表</button></h5>
-<div class="table-container"><table><thead><tr><th style="font-weight:600">序号</th><th style="font-weight:600">责任单位</th><th style="font-weight:600">检查表名称</th><th style="font-weight:600">扫码责任人</th><th style="font-weight:600">检查频次</th><th style="font-weight:600">是否跳过节假日</th><th style="font-weight:600">完成规则</th><th style="font-weight:600" class="action-col">操作</th></tr></thead><tbody id="scanConfigTableBody">
+<div style="margin-top:10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm);display:flex;justify-content:space-between;align-items:center"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>扫码配置</span><button class="btn btn-primary btn-sm" onclick="openScanConfigModal()">+ 新增检查表</button></h5>
+<div class="table-container table-wrap"><table><thead><tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>是否跳过节假日</th><th>完成规则</th><th class="action-col">操作</th></tr></thead><tbody id="scanConfigTableBody">
 <tr><td colspan="8" style="padding: var(--spacing-xl);text-align:center;color:var(--text-tertiary)">暂无扫码配置，点击"新增检查表"添加（专属检查表保存后将自动生成）</td></tr>
 </tbody></table></div>
 <div style="display:flex;justify-content:flex-end;gap: var(--spacing-sm);margin-top: 12px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)">
@@ -246,10 +253,10 @@ tr:hover td{background:var(--bg-section-alt)}
 </div>
 
 <div id="view-add-hazard" class="detail-view hidden">
-<div class="info-card">
-<div class="card-header"><div class="card-title">⚠️ 新增危险源</div></div>
+<div class="detail-card">
+<div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>新增危险源</div></div>
 <div class="card-body">
-<div style="margin-bottom: 10px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)">📋 基础信息</h5>
+<div style="margin-bottom: 10px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>基础信息</h5>
 <div class="form-row">
 <div class="form-group"><label class="form-label">危险源类型 <span class="required">*</span></label><select class="form-select" id="addHazardTypeFlat"><option value="">请选择</option><option>高处作业</option><option>临时用电</option><option>有限空间</option><option>起重吊装</option><option>动火作业</option><option>深基坑</option><option>其他</option></select></div>
 <div class="form-group"><label class="form-label">危险源名称 <span class="required">*</span></label><input type="text" class="form-input" id="addHazardNameFlat" placeholder="请输入危险源名称"></div>
@@ -258,23 +265,23 @@ tr:hover td{background:var(--bg-section-alt)}
 <div class="form-group"><label class="form-label">所属区域 <span class="required">*</span></label><select class="form-select" id="addHazardRegionFlat"><option value="">请选择所属区域</option></select></div>
 <div class="form-group"><label class="form-label">状态 <span class="required">*</span></label><div style="display:flex;align-items:center;gap: var(--spacing-md);height:32px"><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="addHazardStatus" value="enabled" checked style="width:16px;height:16px;cursor:pointer"><span>启用</span></label><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="addHazardStatus" value="disabled" style="width:16px;height:16px;cursor:pointer"><span>停用</span></label></div></div>
 </div>
-<div class="form-row" style="grid-template-columns:1fr">
+<div class="form-row form-row-single">
 <div class="form-group"><label class="form-label">危险源图片</label><div style="display:flex;gap: var(--spacing-sm);align-items:center"><div style="width:80px;height:80px;border:1px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--bg-tertiary)" onclick="showToast('打开图片上传', 'info')">📷<br><span style="font-size:var(--font-size-xs);color:var(--text-tertiary)">上传图片</span></div><div class="text-muted" style="font-size:var(--font-size-xs);color:var(--text-tertiary)">支持jpg、png格式，建议尺寸800×600，最多5张</div></div></div>
 </div>
 <div class="form-row">
 <div class="form-group"><label class="form-label">整改责任人 <span class="required">*</span></label><div class="tree-select-cascader" id="hazardRectifyCascader" style="position:relative"><div class="tree-select-trigger" onclick="toggleHazardRectifyCascader()" style="display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);min-height:36px"><span class="tree-select-value" id="hazardRectifyPersonValue" style="flex:1;color:var(--text-secondary);font-size: var(--font-size-sm)">请选择责任人</span><span class="tree-select-arrow" style="color:var(--text-tertiary);font-size: var(--font-size-xs)">▼</span></div><div class="tree-select-dropdown" id="hazardRectifyCascaderDropdown" style="display:none;position:absolute;top:100%;left:0;width:480px;margin-top: var(--spacing-xs);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:200;overflow:hidden"></div></div></div>
 <div class="form-group"><label class="form-label">联系电话</label><input type="text" class="form-input" id="addHazardRectifyPhone" placeholder="由整改责任人自动带出" readonly style="background:var(--bg-secondary);color:var(--text-tertiary)"></div>
 </div>
-<div class="form-row" style="grid-template-columns:1fr">
+<div class="form-row form-row-single">
 <div class="form-group"><label class="form-label">隐患整改复核人 <span class="required">*</span></label><div class="tree-select-cascader" id="hazardReviewerCascader" style="position:relative"><div class="tree-select-trigger" onclick="toggleHazardReviewerCascader()" style="display:flex;align-items:center;justify-content:space-between;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);min-height:36px"><span class="tree-select-value" id="hazardReviewerValue" style="flex:1;color:var(--text-secondary);font-size: var(--font-size-sm)">请选择复核人</span><span class="tree-select-arrow" style="color:var(--text-tertiary);font-size: var(--font-size-xs)">▼</span></div><div class="tree-select-dropdown" id="hazardReviewerCascaderDropdown" style="display:none;position:absolute;top:100%;left:0;width:480px;margin-top: var(--spacing-xs);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:200;overflow:hidden"></div></div></div>
 </div>
 </div>
-<div style="margin-top: 10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)">📋 专属检查表 <span class="required" style="color:var(--danger)">*</span></h5>
+<div style="margin-top: 10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>专属检查表 <span class="required" style="color:var(--danger)">*</span></h5>
 <div id="hazardChecklistContent" style="display:flex;align-items:center;gap: var(--spacing-sm);flex-wrap:wrap;min-height:32px"></div>
 <div id="hazardChecklistEmpty" style="color:var(--text-tertiary);font-size: var(--font-size-sm);margin-top: 2px">未配置</div>
 </div>
-<div style="margin-top:10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm);display:flex;justify-content:space-between;align-items:center">📱 扫码配置<button class="btn btn-primary btn-sm" onclick="openScanConfigModal()">+ 新增检查表</button></h5>
-<div class="table-container"><table><thead><tr><th style="font-weight:600">序号</th><th style="font-weight:600">责任单位</th><th style="font-weight:600">检查表名称</th><th style="font-weight:600">扫码责任人</th><th style="font-weight:600">检查频次</th><th style="font-weight:600">是否跳过节假日</th><th style="font-weight:600">完成规则</th><th style="font-weight:600" class="action-col">操作</th></tr></thead><tbody id="hazardScanConfigTableBody">
+<div style="margin-top:10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm);display:flex;justify-content:space-between;align-items:center"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>扫码配置</span><button class="btn btn-primary btn-sm" onclick="openScanConfigModal()">+ 新增检查表</button></h5>
+<div class="table-container"><table><thead><tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>是否跳过节假日</th><th>完成规则</th></tr></thead><tbody id="hazardScanConfigTableBody">
 <tr><td colspan="8" style="padding: var(--spacing-xl);text-align:center;color:var(--text-tertiary)">暂无扫码配置，点击"新增检查表"添加（专属检查表保存后将自动生成）</td></tr>
 </tbody>
 </table>
@@ -288,8 +295,8 @@ tr:hover td{background:var(--bg-section-alt)}
 </div>
 
 <div id="view-project" class="detail-view">
-<div class="info-card">
-<div class="card-header"><div class="card-title">📋 项目基本信息</div></div>
+<div class="detail-card">
+<div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>项目基本信息</div></div>
 <div class="card-body" style="display:flex;justify-content:space-between;gap: var(--spacing-md)">
 <div style="flex:1">
 <div class="info-grid">
@@ -319,8 +326,8 @@ tr:hover td{background:var(--bg-section-alt)}
 <div style="display:flex;gap: var(--spacing-xs);justify-content:center"><button class="btn btn-primary btn-sm" style="font-size: var(--font-size-xs)">下载</button><button class="btn btn-default btn-sm" style="font-size: var(--font-size-xs)">打印</button></div>
 </div>
 </div></div>
-<div class="info-card">
-<div class="card-header"><div class="card-title">👥 四方责任体</div></div>
+<div class="detail-card">
+<div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>四方责任体</div></div>
 <div class="card-body">
 <table class="party-table" style="width:100%;border-collapse:collapse;font-size:var(--font-size-sm)">
 <thead><tr><th style="background:var(--bg-tertiary);padding: 10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light)">责任方类型</th><th style="background:var(--bg-tertiary);padding: 10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light)">单位名称</th><th style="background:var(--bg-tertiary);padding: 10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light)">统一社会信用代码</th><th style="background:var(--bg-tertiary);padding: 10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light)">主要负责人</th><th style="background:var(--bg-tertiary);padding: 10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light)">联系电话</th></tr></thead>
@@ -332,8 +339,8 @@ tr:hover td{background:var(--bg-section-alt)}
 </tbody>
 </table>
 </div></div>
-<div class="info-card">
-<div class="card-header"><div class="card-title">🏛️ 监管单位信息</div></div>
+<div class="detail-card">
+<div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>监管单位信息</div></div>
 <div class="card-body">
 <div class="info-grid">
 <div class="info-row"><div class="info-label">行业监管</div><div class="info-value"><span class="tag tag-info">住建局</span></div></div>
@@ -344,8 +351,8 @@ tr:hover td{background:var(--bg-section-alt)}
 </div>
 
 <div id="view-region" class="detail-view hidden">
-<div class="info-card"><div class="card-header"><div class="card-title">🏢 办公生活区</div><div class="page-actions"><button class="btn btn-primary btn-sm" onclick="showModal('region')">编辑</button><button class="btn btn-danger btn-sm" onclick="showModal('deleteRegion')">删除</button></div></div>
-<div class="info-card">
+<div class="detail-card"><div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>办公生活区</div><div class="page-actions"><button class="btn btn-primary btn-sm" onclick="showModal('region')">编辑</button><button class="btn btn-danger btn-sm" onclick="showModal('deleteRegion')">删除</button></div></div>
+<div class="detail-card">
 <div class="card-header"><div class="card-title">基本信息</div></div>
 <div class="card-body">
 <div class="info-row"><div class="info-label">区域编码</div><div class="info-value">XM2024001-R01</div></div>
@@ -353,18 +360,18 @@ tr:hover td{background:var(--bg-section-alt)}
 <div class="info-row"><div class="info-label">排序号</div><div class="info-value">1</div></div>
 <div class="info-row"><div class="info-label">状态</div><div class="info-value"><span class="tag tag-success">启用</span></div></div>
 </div></div>
-<div class="info-card">
+<div class="detail-card">
 <div class="card-header"><div class="card-title">对象列表（2个）</div><div style="display:flex;gap: 6px"><button class="btn btn-primary btn-sm" onclick="showAddForm('place')">+新增场所</button><button class="btn btn-primary btn-sm" onclick="showAddForm('hazard')">+新增危险源</button></div></div>
-<div class="table-container"><table><thead><tr><th style="font-weight:600">编码</th><th style="font-weight:600">名称</th><th style="font-weight:600">类型</th><th style="font-weight:600">负责人</th><th style="font-weight:600">状态</th><th style="font-weight:600" class="action-col">操作</th></tr></thead><tbody>
+<div class="table-container table-wrap"><table><thead><tr><th>编码</th><th>名称</th><th>类型</th><th>负责人</th><th>状态</th><th class="action-col">操作</th></tr></thead><tbody>
 <tr><td title="XM2024001-R01-P01">XM2024001-R01-P01</td><td title="办公室">办公室</td><td><span class="tag tag-info">场所</span></td><td>张三</td><td><span class="tag tag-success">启用</span></td><td><div class="table-actions"><button class="btn btn-primary btn-sm" onclick="selectNode('place',1001)">查看</button><button class="btn btn-default btn-sm" onclick="showModal('scanConfig')">配置</button></div></td></tr>
 <tr><td title="XM2024001-R01-P02">XM2024001-R01-P02</td><td title="宿舍">宿舍</td><td><span class="tag tag-info">场所</span></td><td>李四</td><td><span class="tag tag-success">启用</span></td><td><div class="table-actions"><button class="btn btn-primary btn-sm" onclick="selectNode('place',1002)">查看</button><button class="btn btn-default btn-sm" onclick="showModal('scanConfig')">配置</button></div></td></tr>
 </tbody></table></div></div></div>
 </div>
 
 <div id="view-place" class="detail-view hidden">
-<div class="info-card" style="position:relative"><div class="card-header"><div class="card-title">🏢 办公室</div><div class="page-actions"><button class="btn btn-primary btn-sm" onclick="openEditPlaceModal()">编辑</button><button class="btn btn-danger btn-sm" onclick="confirmDelete()">删除</button></div></div>
+<div class="detail-card" style="position:relative"><div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>办公室</div><div class="page-actions"><button class="btn btn-primary btn-sm" onclick="openEditPlaceModal()">编辑</button><button class="btn btn-danger btn-sm" onclick="confirmDelete()">删除</button></div></div>
 <div class="card-body">
-<div style="margin-bottom:10px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;gap: var(--spacing-md)"><div style="flex:1"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)">📋 基础信息</h5>
+<div style="margin-bottom:10px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;gap: var(--spacing-md)"><div style="flex:1"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>基础信息</h5>
 <div class="form-row">
 <div class="form-group"><label class="form-label">所属区域</label><div class="info-value" data-field="region">办公生活区</div></div>
 <div class="form-group"><label class="form-label">场所类型</label><div class="info-value" data-field="placeType"><span class="tag tag-info">办公区</span></div></div>
@@ -374,13 +381,13 @@ tr:hover td{background:var(--bg-section-alt)}
 <div class="form-group"><label class="form-label">状态</label><div class="info-value" data-field="status"><span class="tag tag-success">启用</span></div></div>
 </div>
 <div class="form-row">
-<div class="form-group"><label class="form-label">场所图片</label><div style="display:flex;gap: var(--spacing-sm)"><div style="width:80px;height:80px;border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center">🖼️</div></div></div>
+<div class="form-group"><label class="form-label">场所图片</label><div style="display:flex;gap: var(--spacing-sm)"><div style="width:80px;height:80px;border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div></div></div>
 </div>
 <div class="form-row">
 <div class="form-group"><label class="form-label">整改责任人</label><div class="info-value" data-field="rectifyPerson">张三</div></div>
 <div class="form-group"><label class="form-label">联系电话</label><div class="info-value" data-field="rectifyPhone">13800138000</div></div>
 </div>
-<div class="form-row" style="grid-template-columns:1fr">
+<div class="form-row form-row-single">
 <div class="form-group"><label class="form-label">隐患整改复核人</label><div class="info-value" data-field="reviewers">李四、王五</div></div>
 </div>
 </div>
@@ -396,18 +403,18 @@ tr:hover td{background:var(--bg-section-alt)}
 <div style="display:flex;gap: var(--spacing-xs);justify-content:center"><button class="btn btn-primary btn-sm" style="font-size: var(--font-size-xs)">下载</button><button class="btn btn-default btn-sm" style="font-size: var(--font-size-xs)">打印</button></div>
 </div>
 </div>
-<div style="margin-top: 10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)">📋 专属检查表</h5>
+<div style="margin-top: 10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>专属检查表</h5>
 <div id="placeDetailChecklist"></div></div>
 </div></div>
-<div class="info-card">
-<div class="card-header"><div class="card-title">📱 扫码配置</div></div>
-<div class="table-container"><table><thead><tr><th style="font-weight:600">序号</th><th style="font-weight:600">责任单位</th><th style="font-weight:600">检查表名称</th><th style="font-weight:600">扫码责任人</th><th style="font-weight:600">检查频次</th><th style="font-weight:600">是否跳过节假日</th><th style="font-weight:600">完成规则</th></tr></thead><tbody id="placeScanConfigBody"></tbody></table></div></div>
+<div class="detail-card">
+<div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>扫码配置</div></div>
+<div class="table-container"><table><thead><tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>是否跳过节假日</th><th>完成规则</th></tr></thead><tbody id="placeScanConfigBody"></tbody></table></div></div>
 </div>
 
 <div id="view-hazard" class="detail-view hidden">
-<div class="info-card" style="position:relative"><div class="card-header"><div class="card-title">⚠️ 塔吊作业区</div><div class="page-actions"><button class="btn btn-primary btn-sm" onclick="openEditHazardModal()">编辑</button><button class="btn btn-danger btn-sm" onclick="confirmDelete()">删除</button></div></div>
+<div class="detail-card" style="position:relative"><div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>塔吊作业区</div><div class="page-actions"><button class="btn btn-primary btn-sm" onclick="openEditHazardModal()">编辑</button><button class="btn btn-danger btn-sm" onclick="confirmDelete()">删除</button></div></div>
 <div class="card-body">
-<div style="margin-bottom:10px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;gap: var(--spacing-md)"><div style="flex:1"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)">📋 基础信息</h5>
+<div style="margin-bottom:10px;padding-bottom: var(--spacing-sm);border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;gap: var(--spacing-md)"><div style="flex:1"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>基础信息</h5>
 <div class="form-row">
 <div class="form-group"><label class="form-label">危险源类型</label><div class="info-value" data-field="hazardType"><span class="tag tag-warning">起重吊装</span></div></div>
 <div class="form-group"><label class="form-label">危险源名称</label><div class="info-value" data-field="name">塔吊作业区</div></div>
@@ -417,13 +424,13 @@ tr:hover td{background:var(--bg-section-alt)}
 <div class="form-group"><label class="form-label">状态</label><div class="info-value" data-field="status"><span class="tag tag-success">启用</span></div></div>
 </div>
 <div class="form-row">
-<div class="form-group"><label class="form-label">危险源图片</label><div style="display:flex;gap: var(--spacing-sm)"><div style="width:80px;height:80px;border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center">🖼️</div></div></div>
+<div class="form-group"><label class="form-label">危险源图片</label><div style="display:flex;gap: var(--spacing-sm)"><div style="width:80px;height:80px;border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div></div></div>
 </div>
 <div class="form-row">
 <div class="form-group"><label class="form-label">整改责任人</label><div class="info-value" data-field="rectifyPerson">王五</div></div>
 <div class="form-group"><label class="form-label">联系电话</label><div class="info-value" data-field="rectifyPhone">13700137000</div></div>
 </div>
-<div class="form-row" style="grid-template-columns:1fr">
+<div class="form-row form-row-single">
 <div class="form-group"><label class="form-label">隐患整改复核人</label><div class="info-value" data-field="reviewers">赵六、张三</div></div>
 </div>
 </div>
@@ -439,27 +446,27 @@ tr:hover td{background:var(--bg-section-alt)}
 <div style="display:flex;gap: var(--spacing-xs);justify-content:center"><button class="btn btn-primary btn-sm" style="font-size: var(--font-size-xs)">下载</button><button class="btn btn-default btn-sm" style="font-size: var(--font-size-xs)">打印</button></div>
 </div>
 </div>
-<div style="margin-top: 10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)">📋 专属检查表</h5>
+<div style="margin-top: 10px;padding-top: var(--spacing-sm);border-top:1px solid var(--border-light)"><h5 style="font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: var(--spacing-sm)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>专属检查表</h5>
 <div id="hazardDetailChecklist"></div></div>
 </div></div>
-<div class="info-card">
-<div class="card-header"><div class="card-title">📱 扫码配置</div></div>
-<div class="table-container"><table><thead><tr><th style="font-weight:600">序号</th><th style="font-weight:600">责任单位</th><th style="font-weight:600">检查表名称</th><th style="font-weight:600">扫码责任人</th><th style="font-weight:600">检查频次</th><th style="font-weight:600">是否跳过节假日</th><th style="font-weight:600">完成规则</th></tr></thead><tbody id="hazardScanConfigBody"></tbody></table></div></div>
+<div class="detail-card">
+<div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>扫码配置</div></div>
+<div class="table-container"><table><thead><tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>是否跳过节假日</th><th>完成规则</th></tr></thead><tbody id="hazardScanConfigBody"></tbody></table></div></div>
 </div>
 
 <div id="view-keyPlace" class="detail-view hidden">
-<div class="info-card"><div class="card-header"><div class="card-title">⭐ 重点场所管理</div><div class="page-actions"><span class="tag tag-info ml-8">政府配置，只读</span></div></div>
-<div class="info-card">
+<div class="detail-card"><div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>重点场所管理</div><div class="page-actions"><span class="tag tag-info ml-8">政府配置，只读</span></div></div>
+<div class="detail-card">
 <div class="card-header"><div class="card-title">重点场所列表（2个）</div></div>
-<div class="table-container"><table><thead><tr><th style="font-weight:600">编码</th><th style="font-weight:600">名称</th><th style="font-weight:600">检查表</th><th style="font-weight:600">频次</th><th style="font-weight:600">负责人</th><th style="font-weight:600" class="action-col">操作</th></tr></thead><tbody>
+<div class="table-container table-wrap"><table><thead><tr><th>编码</th><th>名称</th><th>检查表</th><th>频次</th><th>负责人</th><th class="action-col">操作</th></tr></thead><tbody>
 <tr><td title="XM2024001-K01">XM2024001-K01</td><td title="配电房">配电房</td><td>配电设施检查表</td><td>每日</td><td>赵六</td><td><div class="table-actions"><button class="btn btn-primary btn-sm" onclick="selectNode('keyPlaceDetail',3002,this)">查看</button><button class="btn btn-default btn-sm" onclick="showModal('qrcode')" style="margin-left:var(--spacing-xs)">查看二维码</button></div></td></tr>
 <tr><td title="XM2024001-K02">XM2024001-K02</td><td title="消防控制室">消防控制室</td><td>消防设施检查表</td><td>每日</td><td>钱七</td><td><div class="table-actions"><button class="btn btn-primary btn-sm" onclick="selectNode('keyPlaceDetail',3003,this)">查看</button><button class="btn btn-default btn-sm" onclick="showModal('qrcode')" style="margin-left:var(--spacing-xs)">查看二维码</button></div></td></tr>
 </tbody></table></div></div></div>
 </div>
 
 <div id="view-keyPlaceDetail" class="detail-view hidden">
-<div class="info-card" style="position:relative"><div class="card-header"><div class="card-title">⭐ 配电房 <span class="tag tag-info" style="font-size:var(--font-size-xs)">重点场所</span></div><div class="page-actions"><span class="tag tag-info">政府配置 · 只读</span></div></div>
-<div class="info-card" style="position:relative">
+<div class="detail-card" style="position:relative"><div class="card-header"><div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>配电房 <span class="tag tag-info" style="font-size:var(--font-size-xs)">重点场所</span></div><div class="page-actions"><span class="tag tag-info">政府配置 · 只读</span></div></div>
+<div class="detail-card" style="position:relative">
 <div class="card-header"><div class="card-title">基本信息</div></div>
 <div class="card-body" style="display:flex;justify-content:space-between;gap: var(--spacing-md)">
 <div style="flex:1">
@@ -480,14 +487,14 @@ tr:hover td{background:var(--bg-section-alt)}
 <div style="display:flex;gap: var(--spacing-xs);justify-content:center"><button class="btn btn-default btn-sm" style="font-size: var(--font-size-xs)" disabled>仅查看</button></div>
 </div>
 </div></div>
-<div class="info-card">
+<div class="detail-card">
 <div class="card-header"><div class="card-title">扫码配置</div></div>
-<div class="table-container"><table><thead><tr><th style="font-weight:600">序号</th><th style="font-weight:600">责任单位</th><th style="font-weight:600">检查表名称</th><th style="font-weight:600">扫码责任人</th><th style="font-weight:600">检查频次</th><th style="font-weight:600">是否跳过节假日</th><th style="font-weight:600">完成规则</th></tr></thead><tbody>
+<div class="table-container"><table><thead><tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>是否跳过节假日</th><th>完成规则</th></tr></thead><tbody>
 <tr><td>1</td><td>分包单位</td><td>配电设施检查表</td><td>赵六</td><td>每日1次</td><td>是</td><td>任意一人完成</td></tr>
 </tbody></table></div></div>
 </div></div>
 
-<div id="modal-qrcode" class="modal-overlay hidden" onclick="hideModal('qrcode')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:400px"><div class="modal-header"><div class="modal-title">场所二维码</div><span class="modal-close" onclick="hideModal('qrcode')">&times;</span></div><div class="modal-body"><div class="qrcode-container"><div class="qrcode-placeholder">📱 二维码占位<br><span style="font-size:var(--font-size-xs)">200×200</span></div><div class="qrcode-info"><p><strong>场所名称：</strong>办公室</p><p><strong>场所编码：</strong>XM2024001-R01-P01</p><p><strong>所属区域：</strong>办公生活区</p></div><div class="qrcode-actions"><button class="btn btn-primary btn-sm">下载二维码</button><button class="btn btn-default btn-sm">打印二维码</button></div></div></div></div></div>
+<div id="modal-qrcode" class="modal-overlay hidden" onclick="hideModal('qrcode')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:400px"><div class="modal-header"><div class="modal-title">场所二维码</div><span class="modal-close" onclick="hideModal('qrcode')">&times;</span></div><div class="modal-body"><div class="qrcode-container"><div class="qrcode-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg><br>二维码占位<br><span style="font-size:var(--font-size-xs)">200×200</span></div><div class="qrcode-info"><p><strong>场所名称：</strong>办公室</p><p><strong>场所编码：</strong>XM2024001-R01-P01</p><p><strong>所属区域：</strong>办公生活区</p></div><div class="qrcode-actions"><button class="btn btn-primary btn-sm">下载二维码</button><button class="btn btn-default btn-sm">打印二维码</button></div></div></div></div></div>
 
 <div id="modal-region" class="modal-overlay hidden" onclick="hideModal('region')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:420px"><div class="modal-header"><div class="modal-title">编辑区域</div><span class="modal-close" onclick="hideModal('region')">&times;</span></div><div class="modal-body"><div class="form-group"><label class="form-label">区域名称 <span class="required">*</span></label><input type="text" class="form-input" placeholder="请输入区域名称"></div><div class="form-group"><label class="form-label">排序号</label><input type="number" class="form-input" value="1"></div><div class="form-group"><label class="form-label">状态 <span class="required">*</span></label><div style="display:flex;gap: var(--spacing-md);align-items:center"><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="editRegionStatus" value="enabled" checked> 启用</label><label style="display:flex;align-items:center;gap: var(--spacing-xs);cursor:pointer"><input type="radio" name="editRegionStatus" value="disabled"> 停用</label></div></div></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('region')">取消</button><button class="btn btn-primary">确定</button></div></div></div>
 
@@ -501,12 +508,8 @@ tr:hover td{background:var(--bg-section-alt)}
 <div class="modal-body" style="overflow-y:auto;max-height:calc(90vh - 120px);padding: var(--spacing-lg)">
   <!-- 责任配置 -->
   <div class="form-section" style="margin-bottom: var(--spacing-lg)">
-    <div class="section-title" style="font-size: var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: 12px;padding-left: 10px;position:relative;border-bottom:1px solid var(--border-section);padding-bottom: var(--spacing-sm)">
-      责任配置
-      <span style="position:absolute;left:0;top:2px;width:3px;height:14px;background:var(--primary);border-radius:2px;display:inline-block"></span>
-      <span style="color:var(--text-tertiary);font-size: var(--font-size-xs);font-weight:normal;margin-left: var(--spacing-sm)">（政府侧配置，项目端只读）</span>
-    </div>
-    <div class="form-row" style="display:flex;gap: 12px;margin-bottom: 12px">
+    <div class="modal-section-title">责任配置<span class="section-hint">（政府侧配置，项目端只读）</span></div>
+    <div class="form-row form-row-flex">
       <div class="form-item" style="flex:1">
         <label class="form-label" style="display:block;font-size: var(--font-size-sm);color:var(--text-primary);margin-bottom: 6px">企业主要负责人 <span class="required" style="color:var(--danger)">*</span></label>
         <select class="form-select" disabled style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box;background:var(--bg-secondary)">
@@ -518,7 +521,7 @@ tr:hover td{background:var(--bg-section-alt)}
         <input type="text" class="form-input" value="13800138000" disabled style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box;background:var(--bg-secondary)">
       </div>
     </div>
-    <div class="form-row" style="display:flex;gap: 12px;margin-bottom: 12px">
+    <div class="form-row form-row-flex">
       <div class="form-item" style="flex:1">
         <label class="form-label" style="display:block;font-size: var(--font-size-sm);color:var(--text-primary);margin-bottom: 6px">调度分拨员 <span class="required" style="color:var(--danger)">*</span></label>
         <select class="form-select" disabled style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box;background:var(--bg-secondary)">
@@ -530,7 +533,7 @@ tr:hover td{background:var(--bg-section-alt)}
         <input type="text" class="form-input" value="13900139000" disabled style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box;background:var(--bg-secondary)">
       </div>
     </div>
-    <div class="form-row" style="display:flex;gap: 12px;margin-bottom: 12px">
+    <div class="form-row form-row-flex">
       <div class="form-item" style="flex:1">
         <label class="form-label" style="display:block;font-size: var(--font-size-sm);color:var(--text-primary);margin-bottom: 6px">隐患复核责任人 <span class="required" style="color:var(--danger)">*</span></label>
         <select class="form-select" disabled style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box;background:var(--bg-secondary)">
@@ -547,10 +550,7 @@ tr:hover td{background:var(--bg-section-alt)}
   <!-- 检查表配置 -->
   <div class="form-section">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom: 12px">
-      <div class="section-title" style="font-size: var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom: 0;padding-left: 10px;position:relative">
-        检查表配置
-        <span style="position:absolute;left:0;top:2px;width:3px;height:14px;background:var(--primary);border-radius:2px;display:inline-block"></span>
-      </div>
+      <div class="modal-section-title" style="margin-bottom:0">检查表配置</div>
       <button class="btn btn-primary btn-sm" onclick="addCheckTable()">+ 新增检查表</button>
     </div>
 
@@ -632,22 +632,20 @@ tr:hover td{background:var(--bg-section-alt)}
 </div>
 </div>
 
-<div id="modal-deleteRegion" class="modal-overlay hidden" onclick="hideModal('deleteRegion')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:600px"><div class="modal-header"><div class="modal-title">删除区域 - 施工区域</div><span class="modal-close" onclick="hideModal('deleteRegion')">&times;</span></div><div class="modal-body" style="text-align:left"><div class="alert-warning mb-12"><p style="color:var(--warning-hover);font-weight:500">⚠️ 该区域下还有 3 个对象，请先迁移到其他位置</p><p style="color:var(--text-secondary);font-size:var(--font-size-sm)">删除区域前，必须将区域下的对象迁移至其他区域或项目直属</p></div><h5 style="font-size:var(--font-size-md);font-weight:600;margin-bottom: var(--spacing-sm)">待迁移对象</h5><div style="margin-bottom:var(--spacing-sm)"><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>🏢</span><span>1号施工区域</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option>项目直属</option><option>办公生活区</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>🏢</span><span>材料堆放区</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option selected>项目直属</option><option>办公生活区</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><span>⚠️</span><span>塔吊作业区</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option>项目直属</option><option selected>办公生活区</option></select></div></div><p class="text-muted">迁移后，对象编码保持不变，仅 parent_id 更新</p></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('deleteRegion')">取消</button><button class="btn btn-primary">确认删除并迁移</button></div></div></div>
+<div id="modal-deleteRegion" class="modal-overlay hidden" onclick="hideModal('deleteRegion')"><div class="modal-dialog" onclick="event.stopPropagation()" style="width:600px"><div class="modal-header"><div class="modal-title">删除区域 - 施工区域</div><span class="modal-close" onclick="hideModal('deleteRegion')">&times;</span></div><div class="modal-body" style="text-align:left"><div class="alert-warning mb-12"><p style="color:var(--warning-hover);font-weight:500"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>该区域下还有 3 个对象，请先迁移到其他位置</p><p style="color:var(--text-secondary);font-size:var(--font-size-sm)">删除区域前，必须将区域下的对象迁移至其他区域或项目直属</p></div><h5 style="font-size:var(--font-size-md);font-weight:600;margin-bottom: var(--spacing-sm)">待迁移对象</h5><div style="margin-bottom:var(--spacing-sm)"><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>1号施工区域</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option>项目直属</option><option>办公生活区</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>材料堆放区</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option selected>项目直属</option><option>办公生活区</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;padding: var(--spacing-sm);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom: var(--spacing-sm)"><div style="display:flex;align-items:center;gap: var(--spacing-sm)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>塔吊作业区</span></div><select class="form-select" style="width:180px"><option>迁移至...</option><option>项目直属</option><option selected>办公生活区</option></select></div></div><p class="text-muted">迁移后，对象编码保持不变，仅 parent_id 更新</p></div><div class="modal-footer"><button class="btn btn-default" onclick="hideModal('deleteRegion')">取消</button><button class="btn btn-primary">确认删除并迁移</button></div></div></div>
 
 <!-- 专属检查表弹窗 (与新增检查表结构一致，去掉扫码责任人、检查频次、完成规则) -->
 <div id="modal-exclusiveChecklist" class="modal-overlay hidden" onclick="hideModal('exclusiveChecklist')">
 <div class="modal-dialog" onclick="event.stopPropagation()" style="width:800px;max-height:90vh;overflow:visible">
 <div class="modal-header">
-  <div class="modal-title">📋 配置专属检查表</div>
+  <div class="modal-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>配置专属检查表</div>
   <span class="modal-close" onclick="hideModal('exclusiveChecklist')">&times;</span>
 </div>
 <div class="modal-body" style="overflow-y:auto;max-height:calc(90vh - 120px);padding: var(--spacing-lg)">
   <!-- 基础信息 -->
   <div class="form-section" style="margin-bottom: var(--spacing-lg)">
-    <div class="section-title">
-      基础信息
-    </div>
-    <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap: 12px;margin-bottom: 12px">
+    <div class="modal-section-title">基础信息</div>
+    <div class="form-row">
       <div class="form-item">
         <label class="form-label" style="display:block;font-size: var(--font-size-sm);color:var(--text-primary);margin-bottom: 6px">检查表名称 <span class="required" style="color:var(--danger)">*</span></label>
         <input type="text" class="form-input" id="exclusiveCheckTable" placeholder="如：配电设施日常检查表" style="width:100%;padding: var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size: var(--font-size-sm);box-sizing:border-box">
@@ -669,9 +667,7 @@ tr:hover td{background:var(--bg-section-alt)}
   <!-- 检查内容 -->
   <div class="form-section">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom: 12px">
-      <div class="section-title">
-        检查内容
-      </div>
+      <div class="modal-section-title" style="margin-bottom:0">检查内容</div>
       <div style="display:flex;gap: var(--spacing-sm)">
         <button class="btn btn-default btn-sm" onclick="showExclusiveCheckLibModal()">检查库引用</button>
         <button class="btn btn-primary btn-sm" onclick="addExclusiveCheckItem()">+ 新增检查项</button>
@@ -684,7 +680,7 @@ tr:hover td{background:var(--bg-section-alt)}
 
     <!-- 空状态 -->
     <div id="exclusiveCheckItemEmpty" style="text-align:center;padding: 40px 20px;color:var(--text-tertiary);border:1px solid var(--border-section);border-radius: var(--radius-lg)">
-      <div style="font-size:36px;margin-bottom: var(--spacing-sm)">📋</div>
+      <div style="margin-bottom: var(--spacing-sm)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>
       <div style="font-size: var(--font-size-sm)">暂无检查内容，请点击"检查库引用"或"+ 新增检查项"添加</div>
     </div>
   </div>
@@ -705,9 +701,7 @@ tr:hover td{background:var(--bg-section-alt)}
 <div class="modal-body" style="overflow-y:auto;max-height:calc(90vh - 120px);padding: var(--spacing-lg)">
   <!-- 基础信息 -->
   <div class="form-section" style="margin-bottom: var(--spacing-lg)">
-    <div class="section-title">
-      基础信息
-    </div>
+    <div class="modal-section-title">基础信息</div>
     <!-- 第一行：检查表名称、扫码责任人 -->
     <div style="display:grid;grid-template-columns:1fr 2fr;gap: 12px;margin-bottom: 12px">
       <div class="form-item">
@@ -726,12 +720,12 @@ tr:hover td{background:var(--bg-section-alt)}
               <div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">
                 <div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectTreeNode(this,'project')">
                   <span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span>
-                  <span>🏢 深圳市安全项目</span>
+                  <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>深圳市安全项目</span>
                 </div>
                 <div class="tree-children" id="tree-children-project" style="display:none;padding-left: var(--spacing-md)">
                   <div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectTreeNode(this,'construction')">
                     <span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span>
-                    <span>🏗️ 建设单位</span>
+                    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>建设单位</span>
                   </div>
                   <div class="tree-children" id="tree-children-construction" style="display:none;padding-left: var(--spacing-md)">
                     <div class="tree-node-wrapper" data-id="construction-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectTreeNode(this,'construction-unit')">
@@ -741,7 +735,7 @@ tr:hover td{background:var(--bg-section-alt)}
                   </div>
                   <div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectTreeNode(this,'contractor')">
                     <span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span>
-                    <span>🔨 施工单位</span>
+                    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>施工单位</span>
                   </div>
                   <div class="tree-children" id="tree-children-contractor" style="display:none;padding-left: var(--spacing-md)">
                     <div class="tree-node-wrapper" data-id="contractor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectTreeNode(this,'contractor-unit')">
@@ -751,7 +745,7 @@ tr:hover td{background:var(--bg-section-alt)}
                   </div>
                   <div class="tree-node-wrapper" data-id="supervision" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectTreeNode(this,'supervision')">
                     <span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span>
-                    <span>📋 监理单位</span>
+                    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>监理单位</span>
                   </div>
                   <div class="tree-children" id="tree-children-supervision" style="display:none;padding-left: var(--spacing-md)">
                     <div class="tree-node-wrapper" data-id="supervision-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectTreeNode(this,'supervision-unit')">
@@ -761,7 +755,7 @@ tr:hover td{background:var(--bg-section-alt)}
                   </div>
                   <div class="tree-node-wrapper" data-id="subcontractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectTreeNode(this,'subcontractor')">
                     <span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span>
-                    <span>🔧 分包单位</span>
+                    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>分包单位</span>
                   </div>
                   <div class="tree-children" id="tree-children-subcontractor" style="display:none;padding-left: var(--spacing-md)">
                     <div class="tree-node-wrapper" data-id="subcontractor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectTreeNode(this,'subcontractor-unit')">
@@ -838,9 +832,7 @@ tr:hover td{background:var(--bg-section-alt)}
   <!-- 检查内容 -->
   <div class="form-section">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom: 12px">
-      <div class="section-title">
-        检查内容
-      </div>
+      <div class="modal-section-title" style="margin-bottom:0">检查内容</div>
       <div style="display:flex;gap: var(--spacing-sm)">
         <button class="btn btn-default btn-sm" onclick="showScanCheckLibModal()">检查库引用</button>
         <button class="btn btn-primary btn-sm" onclick="addScanCheckItem()">+ 新增检查项</button>
@@ -853,7 +845,7 @@ tr:hover td{background:var(--bg-section-alt)}
 
     <!-- 空状态 -->
     <div id="scanCheckItemEmpty" style="text-align:center;padding: 40px 20px;color:var(--text-tertiary);border:1px solid var(--border-section);border-radius: var(--radius-lg)">
-      <div style="font-size:36px;margin-bottom: var(--spacing-sm)">📋</div>
+      <div style="margin-bottom: var(--spacing-sm)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>
       <div style="font-size: var(--font-size-sm)">暂无检查内容，请点击"检查库引用"或"+ 新增检查项"添加</div>
     </div>
   </div>
@@ -882,7 +874,7 @@ tr:hover td{background:var(--bg-section-alt)}
   </div>
   <div id="scanLibListContainer" style="max-height:400px;overflow-y:auto;border:1px solid var(--border-section);border-radius:var(--radius-md)">
     <div style="padding: 60px 20px;text-align:center;color:var(--text-tertiary)">
-      <div style="font-size:36px;margin-bottom: var(--spacing-sm)">📋</div>
+      <div style="margin-bottom: var(--spacing-sm)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>
       <div style="font-size: var(--font-size-sm)">加载中...</div>
     </div>
   </div>
@@ -903,25 +895,31 @@ tr:hover td{background:var(--bg-section-alt)}
 
 // 安全码图标 SVG（stroke-based，§4.23 标准）
 var QR_ICON_SVG='<svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg>';
+// 卡片标题图标 SVG（stroke-based，§7.4.2）
+var ICON_CLIPBOARD='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
+var ICON_USERS='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+var ICON_BUILDING='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>';
+var ICON_STAR='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+var ICON_MAP_PIN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+var ICON_WARNING='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+var ICON_PHONE='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>';
+var ICON_FOLDER='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
 
 function showToast(msg, type) {
   type = type || 'info';
-  var container = document.getElementById('toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toast-container';
-    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
-    document.body.appendChild(container);
+  var el = document.getElementById('_toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = '_toast';
+    el.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:var(--radius-lg);font-size:var(--font-size-md);z-index:2000;transition:opacity .3s;';
+    document.body.appendChild(el);
   }
-  var toast = document.createElement('div');
-  toast.className = 'toast toast-' + type;
-  toast.style.cssText = 'padding: 10px 20px;margin-bottom: var(--spacing-sm);border-radius: var(--radius-sm);background:var(--primary);color:var(--bg-primary);font-size: var(--font-size-md);box-shadow:0 2px 8px rgba(0,0,0,0.15);';
-  if (type === 'success') toast.style.background = 'var(--success)';
-  if (type === 'warning') toast.style.background = 'var(--warning)';
-  if (type === 'error') toast.style.background = 'var(--danger)';
-  toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(function() { toast.remove(); }, 3000);
+  var bgMap = { success: 'var(--success)', warning: 'var(--warning)', error: 'var(--danger)', info: 'var(--primary)' };
+  el.style.background = bgMap[type] || bgMap.info;
+  el.style.color = '#fff';
+  el.textContent = msg;
+  el.style.opacity = '1';
+  setTimeout(function() { el.style.opacity = '0'; }, 2000);
 }
 function moveTreeNode(nodeEl, newRegion){
   // newRegion: 'project:xxx' = 项目直属, 'region:xxx' = 某区域, '' = 项目直属
@@ -970,7 +968,7 @@ function updateBreadcrumb(viewName,nodeName){var bc=document.querySelector('.bre
       var data=objectData[id];
       if(data){
         var title=e.querySelector('.card-title');
-        if(title)title.innerHTML='🏢 '+data.name;
+        if(title)title.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/></svg>'+data.name;
         // 使用 data-field 填充场所详情
         var fields=e.querySelectorAll('[data-field]');
         fields.forEach(function(f){
@@ -997,7 +995,7 @@ function updateBreadcrumb(viewName,nodeName){var bc=document.querySelector('.bre
       var data=objectData[id];
       if(data){
         var title=e.querySelector('.card-title');
-        if(title)title.innerHTML='⚠️ '+data.name;
+        if(title)title.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'+data.name;
         var fields=e.querySelectorAll('[data-field]');
         fields.forEach(function(f){
           var field=f.getAttribute('data-field');
@@ -1044,7 +1042,7 @@ function showAddForm(type, btnEl){
   if(type==='place'){
     // 重置标题为新增模式
     var placeTitle=document.querySelector('#view-add-place .card-title');
-    if(placeTitle)placeTitle.textContent='🏢 新增场所';
+    if(placeTitle)placeTitle.textContent='新增场所';
     editingObjectId=null;
     populateRegionOptions('addPlaceRegion',node.name);
     document.getElementById('addPlaceName').value='';
@@ -1062,7 +1060,7 @@ function showAddForm(type, btnEl){
   }else if(type==='hazard'){
     // 重置标题为新增模式
     var hazardTitle=document.querySelector('#view-add-hazard .card-title');
-    if(hazardTitle)hazardTitle.textContent='⚠️ 新增危险源';
+    if(hazardTitle)hazardTitle.textContent='新增危险源';
     editingObjectId=null;
     populateRegionOptions('addHazardRegionFlat',node.name);
     document.getElementById('addHazardTypeFlat').value='';
@@ -1344,7 +1342,7 @@ function renderExclusiveChecklistTags(){
   var empty=document.getElementById('exclusiveChecklistEmpty');
   if(!exclusiveChecklistData){
     if(content){
-      content.innerHTML='<div class="checklist-card checklist-card-placeholder"><div class="checklist-card-empty"><div class="checklist-card-empty-icon">📋</div><div class="checklist-card-empty-text">尚未配置专属检查表</div><button class="btn btn-primary btn-sm" onclick="openExclusiveChecklistModal()">+ 配置检查表</button></div></div>';
+      content.innerHTML='<div class="checklist-card checklist-card-placeholder"><div class="checklist-card-empty"><div class="checklist-card-empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div><div class="checklist-card-empty-text">尚未配置专属检查表</div><button class="btn btn-primary btn-sm" onclick="openExclusiveChecklistModal()">+ 配置检查表</button></div></div>';
     }
     if(empty)empty.style.display='none';
     return;
@@ -1354,7 +1352,7 @@ function renderExclusiveChecklistTags(){
     var itemsCount=exclusiveChecklistData.items?exclusiveChecklistData.items.length:0;
     var holidayText=exclusiveChecklistData.skipHoliday?'是':'否';
     content.innerHTML='<div class="checklist-card">'+
-      '<div class="checklist-card-left"><span class="checklist-card-icon">📋</span><span class="checklist-card-name" onclick="editExclusiveChecklist()" title="点击编辑">'+exclusiveChecklistData.name+'</span></div>'+
+      '<div class="checklist-card-left"><span class="checklist-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span><span class="checklist-card-name" onclick="editExclusiveChecklist()" title="点击编辑">'+exclusiveChecklistData.name+'</span></div>'+
       '<div class="checklist-card-meta"><span class="checklist-card-badge primary">'+itemsCount+'项</span><span class="checklist-card-badge">是否跳过节假日:'+holidayText+'</span></div>'+
       '<span class="checklist-card-divider"></span>'+
       '<div class="checklist-card-actions">'+
@@ -1369,7 +1367,7 @@ function renderHazardChecklistTags(){
   var empty=document.getElementById('hazardChecklistEmpty');
   if(!hazardChecklistData){
     if(content){
-      content.innerHTML='<div class="checklist-card checklist-card-placeholder"><div class="checklist-card-empty"><div class="checklist-card-empty-icon">📋</div><div class="checklist-card-empty-text">尚未配置专属检查表</div><button class="btn btn-primary btn-sm" onclick="openExclusiveChecklistModal()">+ 配置检查表</button></div></div>';
+      content.innerHTML='<div class="checklist-card checklist-card-placeholder"><div class="checklist-card-empty"><div class="checklist-card-empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div><div class="checklist-card-empty-text">尚未配置专属检查表</div><button class="btn btn-primary btn-sm" onclick="openExclusiveChecklistModal()">+ 配置检查表</button></div></div>';
     }
     if(empty)empty.style.display='none';
     return;
@@ -1379,7 +1377,7 @@ function renderHazardChecklistTags(){
     var itemsCount=hazardChecklistData.items?hazardChecklistData.items.length:0;
     var holidayText=hazardChecklistData.skipHoliday?'是':'否';
     content.innerHTML='<div class="checklist-card">'+
-      '<div class="checklist-card-left"><span class="checklist-card-icon">📋</span><span class="checklist-card-name" onclick="editHazardChecklist()" title="点击编辑">'+hazardChecklistData.name+'</span></div>'+
+      '<div class="checklist-card-left"><span class="checklist-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span><span class="checklist-card-name" onclick="editHazardChecklist()" title="点击编辑">'+hazardChecklistData.name+'</span></div>'+
       '<div class="checklist-card-meta"><span class="checklist-card-badge primary">'+itemsCount+'项</span><span class="checklist-card-badge">是否跳过节假日:'+holidayText+'</span></div>'+
       '<span class="checklist-card-divider"></span>'+
       '<div class="checklist-card-actions">'+
@@ -1456,7 +1454,7 @@ function renderDetailScanConfig(type,data){
   tbody.innerHTML=html;
 }
 
-function saveRegion(){var n=document.getElementById('addRegionName').value;if(!n){showToast('请输入区域名称', 'warning');return}var sort=document.getElementById('addRegionSort').value||'1';var status=document.querySelector('input[name="addRegionStatus"]:checked').value;var id='region_'+Date.now();var treeContainer=document.querySelector('.tree-container');if(treeContainer){var rootChildren=treeContainer.querySelector('#tree-children-root');if(rootChildren){var newNode=document.createElement('div');newNode.innerHTML='<div class="tree-item" style="padding-left: 12px" onclick="selectNode(\'region\','+id+')" data-id="'+id+'"><span class="arrow" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon">📁</span><span class="label" title="区域-'+n+'">区域-'+n+'</span><span class="actions"><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm(\'place\')">+场所</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm(\'hazard\')" style="margin-left: var(--spacing-xs)">+危险源</button></span></div><div class="tree-children"></div>';rootChildren.appendChild(newNode.firstChild);rootChildren.appendChild(newNode.lastChild);}}showToast('保存区域：'+n, 'success');showView('project', 'info')}
+function saveRegion(){var n=document.getElementById('addRegionName').value;if(!n){showToast('请输入区域名称', 'warning');return}var sort=document.getElementById('addRegionSort').value||'1';var status=document.querySelector('input[name="addRegionStatus"]:checked').value;var id='region_'+Date.now();var treeContainer=document.querySelector('.tree-container');if(treeContainer){var rootChildren=treeContainer.querySelector('#tree-children-root');if(rootChildren){var newNode=document.createElement('div');newNode.innerHTML='<div class="tree-item" style="padding-left: 12px" onclick="selectNode(\'region\','+id+')" data-id="'+id+'"><span class="arrow" onclick="event.stopPropagation();toggleExpand(this)">▶</span><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span class="label" title="区域-'+n+'">区域-'+n+'</span><span class="actions"><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm(\'place\')">+场所</button><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();showAddForm(\'hazard\')" style="margin-left: var(--spacing-xs)">+危险源</button></span></div><div class="tree-children"></div>';rootChildren.appendChild(newNode.firstChild);rootChildren.appendChild(newNode.lastChild);}}showToast('保存区域：'+n, 'success');showView('project', 'info')}
 function savePlace(){
   var n=document.getElementById("addPlaceName").value;
   var type=document.getElementById("addPlaceType").value;
@@ -1524,7 +1522,7 @@ function savePlace(){
     }
     if(!targetParent){targetParent=treeContainer.querySelector("#tree-children-root");}
     if(targetParent){
-      newNode=document.createElement("div");newNode.className="tree-item";newNode.style.paddingLeft=isProjectDirect?"12px":"24px";newNode.setAttribute("onclick","selectNode('place','"+id+"',this)");newNode.setAttribute("data-id",id);newNode.innerHTML='<span class="icon">🏢</span><span class="label" title="场所码-'+n+'">场所码-'+n+"</span>";targetParent.appendChild(newNode);
+      newNode=document.createElement("div");newNode.className="tree-item";newNode.style.paddingLeft=isProjectDirect?"12px":"24px";newNode.setAttribute("onclick","selectNode('place','"+id+"',this)");newNode.setAttribute("data-id",id);newNode.innerHTML='<span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span><span class="label" title="场所码-'+n+'">场所码-'+n+"</span>";targetParent.appendChild(newNode);
     }
   }
   var regionDisplay=isProjectDirect?'项目直属':region;
@@ -1602,7 +1600,7 @@ function saveHazard(){
     }
     if(!targetParent){targetParent=treeContainer.querySelector('#tree-children-root');}
     if(targetParent){
-      newNode=document.createElement('div');newNode.className='tree-item';newNode.style.paddingLeft=isProjectDirect?'12px':'24px';newNode.setAttribute('onclick',"selectNode('hazard','"+id+"',this)", "info");newNode.setAttribute('data-id',id);newNode.innerHTML='<span class="icon">⚠️</span><span class="label" title="危险源码-'+n+'">危险源码-'+n+'</span>';targetParent.appendChild(newNode);
+      newNode=document.createElement('div');newNode.className='tree-item';newNode.style.paddingLeft=isProjectDirect?'12px':'24px';newNode.setAttribute('onclick',"selectNode('hazard','"+id+"',this)", "info");newNode.setAttribute('data-id',id);newNode.innerHTML='<span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="label" title="危险源码-'+n+'">危险源码-'+n+'</span>';targetParent.appendChild(newNode);
     }
   }
   var regionDisplay=isProjectDirect?'项目直属':region;
@@ -1625,7 +1623,7 @@ function openEditPlaceModal(){
   editingObjectType='place';
   // 切换标题为编辑模式
   var titleEl=document.querySelector('#view-add-place .card-title');
-  if(titleEl)titleEl.textContent='🏢 编辑场所';
+  if(titleEl)titleEl.textContent='编辑场所';
   document.getElementById('addPlaceName').value=data.name||'';
   document.getElementById('addPlaceType').value=data.placeType||'';
   if(data.status){document.querySelector('input[name="addPlaceStatus"][value="'+data.status+'"]').checked=true;}
@@ -1666,7 +1664,7 @@ function openEditHazardModal(){
   editingObjectType='hazard';
   // 切换标题为编辑模式
   var titleEl=document.querySelector('#view-add-hazard .card-title');
-  if(titleEl)titleEl.textContent='⚠️ 编辑危险源';
+  if(titleEl)titleEl.textContent='编辑危险源';
   document.getElementById('addHazardTypeFlat').value=data.hazardType||'';
   document.getElementById('addHazardNameFlat').value=data.name||'';
   if(data.status){document.querySelector('input[name="addHazardStatus"][value="'+data.status+'"]').checked=true;}
@@ -2109,7 +2107,7 @@ function removeScanUser(event, userId){
 var selectedRectifyPerson=null;
 
 function getCascaderTreeHTML(){
-  var treeHTML='';'<div class="tree-node-wrapper" data-id="project" style="padding: 6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>';
+  var treeHTML='';'<div class="tree-node-wrapper" data-id="project" style="padding: 6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>深圳市安全项目</span></div>';
   return treeHTML;
 }
 
@@ -2118,15 +2116,15 @@ function renderRectifyDropdown(){
   if(dd.children.length>0)return;
   dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
     '<div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectRectifyNode(this,\'project\')">'+
-      '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>'+
+      '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>深圳市安全项目</span></div>'+
     '<div class="tree-children" id="rectify-tree-project" style="display:none;padding-left: var(--spacing-md)">'+
-      '<div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'construction\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏗️ 建设单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'construction\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>建设单位</span></div>'+
       '<div class="tree-children" id="rectify-tree-construction" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="construction-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'construction-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX建设集团</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'contractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🔨 施工单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'contractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>施工单位</span></div>'+
       '<div class="tree-children" id="rectify-tree-contractor" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="contractor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'contractor-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX建筑工程</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="supervision" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'supervision\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>📋 监理单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="supervision" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'supervision\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>监理单位</span></div>'+
       '<div class="tree-children" id="rectify-tree-supervision" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="supervision-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'supervision-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX监理咨询</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="subcontractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'subcontractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🔧 分包单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="subcontractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'subcontractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>分包单位</span></div>'+
       '<div class="tree-children" id="rectify-tree-subcontractor" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="subcontractor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectRectifyNode(this,\'subcontractor-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX装饰工程</span></div></div>'+
     '</div></div>'+
     '<div class="user-panel" style="flex:1;overflow-y:auto;padding: var(--spacing-sm) 12px"><div id="rectifyUserList" style="font-size: var(--font-size-sm);color:var(--text-tertiary);text-align:center;padding: 40px 0">请选择左侧节点查看用户</div></div></div>'+
@@ -2227,13 +2225,13 @@ function renderHazardRectifyDropdown(){
   if(dd.children.length>0)return;
   dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
     '<div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'project\')">'+
-      '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>'+
+      '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>深圳市安全项目</span></div>'+
     '<div class="tree-children" id="hazard-rectify-tree-project" style="display:none;padding-left: var(--spacing-md)">'+
-      '<div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'construction\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏗️ 建设单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'construction\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>建设单位</span></div>'+
       '<div class="tree-children" id="hazard-rectify-tree-construction" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="construction-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'construction-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX建设集团</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'contractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🔨 施工单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'contractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>施工单位</span></div>'+
       '<div class="tree-children" id="hazard-rectify-tree-contractor" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="contractor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'contractor-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX建筑工程</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="supervisor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'supervisor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>📋 监理单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="supervisor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'supervisor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>监理单位</span></div>'+
       '<div class="tree-children" id="hazard-rectify-tree-supervisor" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="supervisor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardRectifyNode(this,\'supervisor-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX监理公司</span></div></div>'+
     '</div></div>'+
     '<div class="user-panel" style="flex:1;overflow-y:auto;padding: var(--spacing-sm) 12px"><div id="hazardRectifyUserList" style="font-size: var(--font-size-sm);color:var(--text-tertiary);text-align:center;padding: 40px 0">请选择左侧节点查看用户</div></div></div>'+
@@ -2310,13 +2308,13 @@ function renderHazardReviewerDropdown(){
   if(dd.children.length>0)return;
   dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
     '<div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'project\')">'+
-      '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>'+
+      '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>深圳市安全项目</span></div>'+
     '<div class="tree-children" id="hazard-reviewer-tree-project" style="display:none;padding-left: var(--spacing-md)">'+
-      '<div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'construction\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏗️ 建设单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'construction\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>建设单位</span></div>'+
       '<div class="tree-children" id="hazard-reviewer-tree-construction" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="construction-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'construction-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX建设集团</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'contractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🔨 施工单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'contractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>施工单位</span></div>'+
       '<div class="tree-children" id="hazard-reviewer-tree-contractor" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="contractor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'contractor-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX建筑工程</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="supervisor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'supervisor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>📋 监理单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="supervisor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'supervisor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>监理单位</span></div>'+
       '<div class="tree-children" id="hazard-reviewer-tree-supervisor" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="supervisor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectHazardReviewerNode(this,\'supervisor-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX监理公司</span></div></div>'+
     '</div></div>'+
     '<div class="user-panel" style="flex:1;overflow-y:auto;padding: var(--spacing-sm) 12px"><div id="hazardReviewerUserList" style="font-size: var(--font-size-sm);color:var(--text-tertiary);text-align:center;padding: 40px 0">请选择左侧节点查看用户</div></div></div>'+
@@ -2394,15 +2392,15 @@ function renderReviewerDropdown(){
   if(dd.children.length>0)return;
   dd.innerHTML='<div style="display:flex;height:280px"><div class="tree-panel" style="width:260px;border-right:1px solid var(--border-light);overflow-y:auto;padding: var(--spacing-sm) 0">'+
     '<div class="tree-node-wrapper" data-id="project" style="padding:6px 12px;cursor:pointer;font-weight:500;color:var(--text-primary)" onclick="selectReviewerNode(this,\'project\')">'+
-      '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏢 深圳市安全项目</span></div>'+
+      '<span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>深圳市安全项目</span></div>'+
     '<div class="tree-children" id="reviewer-tree-project" style="display:none;padding-left: var(--spacing-md)">'+
-      '<div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'construction\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🏗️ 建设单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="construction" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'construction\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>建设单位</span></div>'+
       '<div class="tree-children" id="reviewer-tree-construction" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="construction-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'construction-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX建设集团</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'contractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🔨 施工单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="contractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'contractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>施工单位</span></div>'+
       '<div class="tree-children" id="reviewer-tree-contractor" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="contractor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'contractor-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX建筑工程</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="supervision" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'supervision\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>📋 监理单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="supervision" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'supervision\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>监理单位</span></div>'+
       '<div class="tree-children" id="reviewer-tree-supervision" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="supervision-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'supervision-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX监理咨询</span></div></div>'+
-      '<div class="tree-node-wrapper" data-id="subcontractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'subcontractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span>🔧 分包单位</span></div>'+
+      '<div class="tree-node-wrapper" data-id="subcontractor" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'subcontractor\')"><span class="tree-node-arrow" style="display:inline-block;width:12px;margin-right: var(--spacing-xs);font-size: var(--font-size-xs);transition:transform var(--duration-normal)">▶</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>分包单位</span></div>'+
       '<div class="tree-children" id="reviewer-tree-subcontractor" style="display:none;padding-left: var(--spacing-md)"><div class="tree-node-wrapper" data-id="subcontractor-unit" style="padding:6px 12px;cursor:pointer;color:var(--text-primary)" onclick="selectReviewerNode(this,\'subcontractor-unit\')"><span style="display:inline-block;width:12px;margin-right: var(--spacing-xs)"></span><span>XX装饰工程</span></div></div>'+
     '</div></div>'+
     '<div class="user-panel" style="flex:1;overflow-y:auto;padding: var(--spacing-sm) 12px"><div id="reviewerUserList" style="font-size: var(--font-size-sm);color:var(--text-tertiary);text-align:center;padding: 40px 0">请选择左侧节点查看用户</div></div></div>'+
@@ -3082,7 +3080,7 @@ function filterTree(keyword){
     if(!emptyEl){
       emptyEl=document.createElement('div');emptyEl.id='treeSearchEmpty';
       emptyEl.style.cssText='text-align:center;padding: 40px 20px;color:var(--text-tertiary)';
-      emptyEl.innerHTML='<div style="font-size:36px;margin-bottom: var(--spacing-sm)">🔍</div><div style="font-size: var(--font-size-sm);margin-bottom: 12px">暂无匹配结果</div><button class="btn btn-default btn-sm" onclick="clearTreeSearch()">清空搜索</button>';
+      emptyEl.innerHTML='<div style="font-size:36px;margin-bottom: var(--spacing-sm)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div><div style="font-size: var(--font-size-sm);margin-bottom: 12px">暂无匹配结果</div><button class="btn btn-default btn-sm" onclick="clearTreeSearch()">清空搜索</button>';
       container.appendChild(emptyEl);
     }
     emptyEl.style.display='';
