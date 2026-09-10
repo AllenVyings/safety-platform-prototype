@@ -7,7 +7,10 @@
 <link rel="stylesheet" href="../../css/variables.css">
 <link rel="stylesheet" href="../../css/framework.css">
 <style>
-.main-layout{display:flex;gap:var(--spacing-md)}
+html,body{height:100%;margin:0;overflow:hidden}
+.page-container{padding:var(--spacing-lg);height:100%;box-sizing:border-box;display:flex;flex-direction:column}
+.breadcrumb{flex-shrink:0;margin-bottom:var(--spacing-md)}
+.main-layout{display:flex;gap:var(--spacing-md);flex:1;min-height:0;overflow:hidden}
 .tree-panel{width:280px;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
 .tree-header{padding:var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light);font-size:var(--font-size-md);font-weight:600;color:var(--text-primary)}
 .tree-search{padding:var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light)}
@@ -21,7 +24,7 @@
 .tree-node-label{font-size:var(--font-size-sm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tree-children{padding-left:var(--spacing-lg);display:block}
 
-.content-panel{flex:1;display:flex;flex-direction:column;gap:var(--spacing-md);min-width:0}
+.content-panel{flex:1;display:flex;flex-direction:column;gap:var(--spacing-md);min-width:0;overflow:hidden}
 .stats-row{flex-shrink:0;display:flex;gap:var(--spacing-md)}
 .stat-card{flex:1;background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) var(--spacing-lg);box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:var(--spacing-md);position:relative;overflow:hidden}
 .stat-card-body{flex:1}
@@ -43,7 +46,37 @@
 .ellipsis-col{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
 
 .btn-sm{padding:var(--spacing-xs) var(--spacing-sm);font-size:var(--font-size-xs)}
-.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);width:520px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 var(--spacing-sm) 24px rgba(0,0,0,.12)}
+.table-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-md)}
+
+/* 节点详情面板 */
+.dept-detail-card{flex:1;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:var(--spacing-lg);min-height:200px}
+.dept-detail-card .detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-lg);padding-bottom:var(--spacing-md);border-bottom:1px solid var(--border-light)}
+.dept-detail-card .detail-title{font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:var(--spacing-sm)}
+.dept-detail-card .detail-actions{display:flex;gap:var(--spacing-sm)}
+.dept-detail-card .detail-body{display:flex;flex-direction:column;gap:var(--spacing-lg)}
+.dept-detail-card .info-table{width:100%;border-collapse:collapse;font-size:var(--font-size-md)}
+.dept-detail-card .info-table th,.dept-detail-card .info-table td{padding:var(--spacing-sm) var(--spacing-md);border:1px solid var(--border-light);vertical-align:middle}
+.dept-detail-card .info-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;white-space:nowrap;width:120px}
+.dept-detail-card .info-table td{color:var(--text-primary)}
+.dept-detail-card .sub-dept-section{margin-top:var(--spacing-md)}
+.dept-detail-card .sub-dept-section .section-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin:0 0 var(--spacing-md) 0}
+.dept-detail-card .empty-state{text-align:center;padding:var(--spacing-xl) var(--spacing-md);color:var(--text-tertiary);font-size:var(--font-size-sm)}
+
+/* 搜索高亮样式 */
+.tree-node.search-match .tree-node-label{background:rgba(255,230,0,0.3);border-radius:var(--radius-sm);padding:0 var(--spacing-xs)}
+
+/* 拖拽排序样式 */
+.drag-col{width:30px;padding:0!important}
+.drag-handle{cursor:grab;display:inline-flex;align-items:center;padding:0 var(--spacing-xs);color:var(--text-tertiary);transition:color var(--duration-fast)}
+.drag-handle:hover{color:var(--text-primary)}
+.drag-handle:active{cursor:grabbing}
+.dragging{opacity:0.5;background:var(--primary-light)}
+.drag-placeholder{height:40px;background:var(--bg-section-alt);border:2px dashed var(--primary);border-radius:var(--radius-md);margin:var(--spacing-xs) 0}
+
+.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);width:520px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.tree-toolbar{display:flex;gap:var(--spacing-xs);padding:var(--spacing-xs) var(--spacing-md);border-bottom:1px solid var(--border-light)}
+.tree-toolbar button{padding:var(--spacing-xs) var(--spacing-sm);font-size:var(--font-size-xs);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-primary);cursor:pointer;transition:all var(--duration-fast)}
+.tree-toolbar button:hover{background:var(--bg-section-alt);border-color:var(--primary)}
 .form-group label .required{color:var(--danger);margin-left:2px}
 .duplicate-error{color:var(--danger);font-size:var(--font-size-xs);margin-top:var(--spacing-xs);display:none}
 .form-group.has-duplicate .duplicate-error{display:block}
@@ -63,7 +96,14 @@
   <div class="main-layout">
     <!-- 左侧部门树 (280px, 用于导航) -->
     <div class="tree-panel">
-      <div class="tree-header">🏢 企业组织架构</div>
+      <div class="tree-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v4"/><path d="M5 17v-3h14v3"/><path d="M12 14v3"/></svg>
+        企业组织架构
+      </div>
+      <div class="tree-toolbar">
+        <button onclick="expandAllDepts()" title="展开全部">全部展开</button>
+        <button onclick="collapseAllDepts()" title="收起全部">全部收起</button>
+      </div>
       <div class="tree-search">
         <input type="text" placeholder="搜索部门..." id="treeSearchInput">
       </div>
@@ -76,189 +116,227 @@
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-card-body">
-            <div class="stat-label">项目人员总数</div>
-            <div class="stat-value" id="statTotal">25</div>
+            <div class="stat-label">总部门数</div>
+            <div class="stat-value" id="statTotal">0</div>
           </div>
           <div class="stat-indicator" style="background:var(--primary)"></div>
         </div>
         <div class="stat-card">
           <div class="stat-card-body">
-            <div class="stat-label">正常账号</div>
-            <div class="stat-value" id="statNormal" style="color:var(--success)">22</div>
+            <div class="stat-label">启用部门</div>
+            <div class="stat-value" id="statActive" style="color:var(--success)">0</div>
           </div>
           <div class="stat-indicator" style="background:var(--success)"></div>
         </div>
         <div class="stat-card">
           <div class="stat-card-body">
-            <div class="stat-label">停用账号</div>
-            <div class="stat-value" id="statDisabled" style="color:var(--danger)">3</div>
+            <div class="stat-label">停用部门</div>
+            <div class="stat-value" id="statInactive" style="color:var(--danger)">0</div>
           </div>
           <div class="stat-indicator" style="background:var(--danger)"></div>
         </div>
       </div>
 
-      <div class="table-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-md)">
-          <div class="query-bar">
-            <input type="text" placeholder="成员姓名" id="searchName">
-            <select id="searchStatus">
-              <option value="">全部状态</option>
-              <option value="normal">正常</option>
-              <option value="disabled">停用</option>
-            </select>
-            <button class="btn btn-primary btn-sm" onclick="searchMember()">搜索</button>
-            <button class="btn btn-default btn-sm" onclick="resetFilters()">重置</button>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ 新增成员</button>
-        </div>
-
-        <div class="table-scroll">
-          <table class="table-basic">
-            <thead>
-              <tr>
-                <th>姓名</th>
-                <th>职务</th>
-                <th>手机号</th>
-                <th>所属部门</th>
-                <th>状态</th>
-                <th class="action-col">操作</th>
-              </tr>
-            </thead>
-            <tbody id="memberTableBody">
-              <tr>
-                <td>张三</td>
-                <td>部门经理</td>
-                <td>138****0001</td>
-                <td>安全部</td>
-                <td><span class="tag tag-success">正常</span></td>
-                <td class="action-col">
-                  <button class="btn-link" onclick="openEditModal('张三')">编辑</button>
-                  <button class="btn-link danger" onclick="deleteMember('张三')">删除</button>
-                </td>
-              </tr>
-              <tr>
-                <td>李四</td>
-                <td>安全主管</td>
-                <td>139****0002</td>
-                <td>安全部</td>
-                <td><span class="tag tag-success">正常</span></td>
-                <td class="action-col">
-                  <button class="btn-link" onclick="openEditModal('李四')">编辑</button>
-                  <button class="btn-link danger" onclick="deleteMember('李四')">删除</button>
-                </td>
-              </tr>
-              <tr>
-                <td>王五</td>
-                <td>技术总监</td>
-                <td>137****0003</td>
-                <td>技术部</td>
-                <td><span class="tag tag-success">正常</span></td>
-                <td class="action-col">
-                  <button class="btn-link" onclick="openEditModal('王五')">编辑</button>
-                  <button class="btn-link danger" onclick="deleteMember('王五')">删除</button>
-                </td>
-              </tr>
-              <tr>
-                <td>赵六</td>
-                <td>工程师</td>
-                <td>136****0004</td>
-                <td>工程部</td>
-                <td><span class="tag tag-gray">停用</span></td>
-                <td class="action-col">
-                  <button class="btn-link" onclick="openEditModal('赵六')">编辑</button>
-                  <button class="btn-link danger" onclick="deleteMember('赵六')">删除</button>
-                </td>
-              </tr>
-              <tr>
-                <td>孙七</td>
-                <td>技术员</td>
-                <td>135****0005</td>
-                <td>技术部</td>
-                <td><span class="tag tag-success">正常</span></td>
-                <td class="action-col">
-                  <button class="btn-link" onclick="openEditModal('孙七')">编辑</button>
-                  <button class="btn-link danger" onclick="deleteMember('孙七')">删除</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="pagination" id="paginationBar"></div>
+      <!-- 节点详情面板（批次2） -->
+      <div class="dept-detail-card" id="deptDetailCard">
+        <!-- 由 renderDeptDetail(nodeId) 动态渲染 -->
       </div>
     </div>
   </div>
 </div>
 
-<!-- 新增/编辑成员弹窗 -->
-<div class="modal-overlay" id="memberModal">
-  <div class="modal-dialog">
+<!-- 新增/编辑节点弹窗 -->
+<div class="modal-overlay" id="deptModal">
+  <div class="modal-dialog" style="width:480px">
     <div class="modal-header">
-      <span class="modal-title" id="modalTitle">新增成员</span>
-      <button class="modal-close" onclick="closeModal('memberModal')">&times;</button>
+      <span class="modal-title" id="deptModalTitle">新增节点</span>
+      <button class="modal-close" onclick="closeDeptModal()" aria-label="关闭弹窗">&times;</button>
     </div>
-    <div class="modal-body">
-      <div class="form-group" id="fg-memberName">
-        <label>姓名 <span class="required">*</span></label>
-        <input type="text" placeholder="请输入成员姓名" id="memberName">
-        <div class="duplicate-error">该成员已存在</div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:var(--spacing-md)">
+      <div class="form-group">
+        <label>节点名称 <span class="required">*</span></label>
+        <input type="text" placeholder="请输入节点名称" id="deptNameInput" style="width:100%;padding:var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:var(--font-size-md);outline:none;box-sizing:border-box">
+        <div class="duplicate-error" id="duplicateError" style="color:var(--danger);font-size:var(--font-size-xs);margin-top:var(--spacing-xs);display:none">同级下已存在相同名称的节点</div>
+      </div>
+      <div class="form-row" style="display:flex;gap:var(--spacing-md)">
+        <div class="form-group" style="flex:1">
+          <label>节点类型 <span class="required">*</span></label>
+          <select id="deptTypeInput" style="width:100%;padding:var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:var(--font-size-md);outline:none;box-sizing:border-box;background:var(--bg-primary)">
+            <option value="unit">单位</option>
+            <option value="dept">部门</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label>状态 <span class="required">*</span></label>
+          <select id="deptStatusInput" style="width:100%;padding:var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:var(--font-size-md);outline:none;box-sizing:border-box;background:var(--bg-primary)">
+            <option value="1">正常</option>
+            <option value="2">停用</option>
+          </select>
+        </div>
       </div>
       <div class="form-group">
-        <label>手机号 <span class="required">*</span></label>
-        <input type="text" placeholder="请输入手机号（11位）" id="memberPhone" maxlength="11">
-      </div>
-      <div class="form-group">
-        <label>职务</label>
-        <input type="text" placeholder="请输入职务" id="memberPosition">
-      </div>
-      <div class="form-group">
-        <label>所属部门</label>
-        <div class="readonly-field" id="memberDeptDisplay" style="padding:var(--spacing-sm) 12px;background:var(--bg-section-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);color:var(--text-secondary);font-size:var(--font-size-md)">安全部</div>
-      </div>
-      <div class="form-group">
-        <label>状态</label>
-        <select id="memberStatus">
-          <option value="normal">正常</option>
-          <option value="disabled">停用</option>
+        <label>上级节点 <span class="required">*</span></label>
+        <select id="deptParentInput" style="width:100%;padding:var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:var(--font-size-md);outline:none;box-sizing:border-box;background:var(--bg-primary)">
+          <!-- 动态生成选项 -->
         </select>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeModal('memberModal')">取消</button>
-      <button class="btn btn-primary" onclick="saveMember()">确定</button>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:var(--spacing-sm);padding:var(--spacing-md) var(--spacing-lg);border-top:1px solid var(--border-light)">
+      <button class="btn btn-default" onclick="closeDeptModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveDept()">确定</button>
     </div>
   </div>
 </div>
 
 <script src="../../js/pagination.js"></script>
 <script>
-// 部门树数据
+// 部门树数据（5 字段：id/name/type/parent_id/status/sort_order/expanded/children）
+// 节点类型：company(企业) / unit(单位) / dept(部门)
+// 层级规则：企业→单位/部门 | 单位→单位/部门 | 部门→只能子部门
+// PRD 要求最多 5 级嵌套
 var deptData = [
   {
     id: 'root',
-    name: 'XX建筑工程有限公司',
-    type: 'company',
+    name: '深圳港湾建筑工程有限公司',
+    type: 'company',           // 企业（根节点，1个）
+    parent_id: null,
+    status: 1,                 // 1=正常, 2=停用
+    sort_order: 0,
     expanded: true,
     children: [
       {
-        id: 'dept-1', name: '安全部', type: 'dept', expanded: false,
+        id: 'unit-1',
+        name: '安全生产部',
+        type: 'unit',          // 单位（可挂企业/单位下）
+        parent_id: 'root',
+        status: 1,
+        sort_order: 1,
+        expanded: false,
         children: [
-          { id: 'sub-1', name: '安全一组', type: 'sub-dept' },
-          { id: 'sub-2', name: '安全二组', type: 'sub-dept' }
+          {
+            id: 'dept-1',
+            name: '安全管理一组',
+            type: 'dept',      // 部门（只能挂企业/单位/部门下，子节点只能是部门）
+            parent_id: 'unit-1',
+            status: 1,
+            sort_order: 1,
+            expanded: false,
+            children: [
+              {
+                id: 'dept-1-1',
+                name: '安全巡查小组',
+                type: 'dept',
+                parent_id: 'dept-1',
+                status: 1,
+                sort_order: 1,
+                expanded: false,
+                children: [
+                  {
+                    id: 'dept-1-1-1',
+                    name: '日间巡查组',
+                    type: 'dept',
+                    parent_id: 'dept-1-1',
+                    status: 1,
+                    sort_order: 1,
+                    expanded: false,
+                    children: []
+                  }
+                ]
+              },
+              {
+                id: 'dept-1-2',
+                name: '隐患整改小组',
+                type: 'dept',
+                parent_id: 'dept-1',
+                status: 1,
+                sort_order: 2,
+                expanded: false,
+                children: []
+              }
+            ]
+          },
+          {
+            id: 'dept-2',
+            name: '安全管理二组',
+            type: 'dept',
+            parent_id: 'unit-1',
+            status: 1,
+            sort_order: 2,
+            expanded: false,
+            children: []
+          }
         ]
       },
       {
-        id: 'dept-2', name: '技术部', type: 'dept', expanded: false,
+        id: 'unit-2',
+        name: '技术质量部',
+        type: 'unit',
+        parent_id: 'root',
+        status: 1,
+        sort_order: 2,
+        expanded: false,
         children: [
-          { id: 'sub-3', name: '技术一组', type: 'sub-dept' }
+          {
+            id: 'dept-3',
+            name: '工程技术组',
+            type: 'dept',
+            parent_id: 'unit-2',
+            status: 1,
+            sort_order: 1,
+            expanded: false,
+            children: []
+          },
+          {
+            id: 'dept-4',
+            name: '质量检测组',
+            type: 'dept',
+            parent_id: 'unit-2',
+            status: 2,         // 停用
+            sort_order: 2,
+            expanded: false,
+            children: []
+          }
         ]
       },
       {
-        id: 'dept-3', name: '工程部', type: 'dept', expanded: false,
-        children: []
+        id: 'dept-5',
+        name: '综合管理部',
+        type: 'dept',
+        parent_id: 'root',
+        status: 1,
+        sort_order: 3,
+        expanded: false,
+        children: [
+          {
+            id: 'dept-5-1',
+            name: '行政管理组',
+            type: 'dept',
+            parent_id: 'dept-5',
+            status: 1,
+            sort_order: 1,
+            expanded: false,
+            children: []
+          },
+          {
+            id: 'dept-5-2',
+            name: '后勤保障组',
+            type: 'dept',
+            parent_id: 'dept-5',
+            status: 2,         // 停用
+            sort_order: 2,
+            expanded: false,
+            children: []
+          }
+        ]
       },
       {
-        id: 'dept-4', name: '财务部', type: 'dept', expanded: false,
+        id: 'dept-6',
+        name: '财务部',
+        type: 'dept',
+        parent_id: 'root',
+        status: 1,
+        sort_order: 4,
+        expanded: false,
         children: []
       }
     ]
@@ -266,14 +344,77 @@ var deptData = [
 ];
 
 var selectedDeptId = 'root';
-var selectedDeptName = '全部';
 
-// 部门ID→名称映射
-var deptNameMap = {
-  'root': '全部', 'dept-1': '安全部', 'dept-2': '技术部',
-  'dept-3': '工程部', 'dept-4': '财务部',
-  'sub-1': '安全一组', 'sub-2': '安全二组', 'sub-3': '技术一组'
-};
+// ID→节点映射（快速查找）
+var deptMap = {};
+
+// 构建映射（每次数据变更后调用）
+function buildDeptMap() {
+  deptMap = {};
+  function walk(nodes) {
+    nodes.forEach(function(n) {
+      deptMap[n.id] = n;
+      if (n.children) walk(n.children);
+    });
+  }
+  walk(deptData);
+}
+
+// 检查同级重名（BR-ENT-ORG-01）
+function checkDuplicateName(parentId, name, excludeId) {
+  var parent = deptMap[parentId];
+  if (!parent || !parent.children) return false;
+  return parent.children.some(function(n) {
+    return n.name === name && n.id !== excludeId;
+  });
+}
+
+// 获取节点层级（根节点=0，一级=1，...，五级=5）
+function getDeptLevel(nodeId) {
+  var level = 0;
+  var current = deptMap[nodeId];
+  while (current && current.parent_id) {
+    level++;
+    current = deptMap[current.parent_id];
+  }
+  return level;
+}
+
+// 获取节点路径（面包屑用）
+function getDeptPath(nodeId) {
+  var path = [];
+  var current = deptMap[nodeId];
+  while (current) {
+    path.unshift({ id: current.id, name: current.name });
+    current = current.parent_id ? deptMap[current.parent_id] : null;
+  }
+  return path;
+}
+
+// 统计部门数量（不含根节点企业）
+function countDepts() {
+  var total = 0, active = 0, inactive = 0;
+  function walk(nodes) {
+    nodes.forEach(function(n) {
+      if (n.type !== 'company') {
+        total++;
+        if (n.status === 1) active++;
+        else inactive++;
+      }
+      if (n.children) walk(n.children);
+    });
+  }
+  walk(deptData);
+  return { total: total, active: active, inactive: inactive };
+}
+
+// 更新统计卡片
+function updateStats() {
+  var stats = countDepts();
+  document.getElementById('statTotal').textContent = stats.total;
+  document.getElementById('statActive').textContent = stats.active;
+  document.getElementById('statInactive').textContent = stats.inactive;
+}
 
 function renderDeptTree() {
   var container = document.getElementById('orgTree');
@@ -284,9 +425,19 @@ function renderTreeNode(node, level) {
   var isSelected = node.id === selectedDeptId;
   var hasChildren = node.children && node.children.length > 0;
   var indent = level * 16;
-  var icon = '🏢';
-  if (node.type === 'dept') icon = '📁';
-  if (node.type === 'sub-dept') icon = '📂';
+
+  // 3 种节点类型用不同图标
+  var icon = '';
+  if (node.type === 'company') {
+    // 企业：建筑群 SVG（主楼+副楼+窗户）
+    icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/></svg>';
+  } else if (node.type === 'unit') {
+    // 单位：政府大楼 SVG（与政府单位管理菜单图标统一）
+    icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M3 21h18"/><path d="M5 21V7"/><path d="M19 21V7"/><path d="M9 21V11"/><path d="M15 21V11"/><path d="M3 7l9-4 9 4"/><path d="M3 7h18"/></svg>';
+  } else {
+    // 部门：网格/矩阵 SVG
+    icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>';
+  }
 
   var html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left:' + (16 + indent) + 'px" onclick="selectDept(\'' + node.id + '\')">';
   if (hasChildren) {
@@ -319,112 +470,351 @@ function toggleDept(nodeId) {
 
 function selectDept(nodeId) {
   selectedDeptId = nodeId;
-  selectedDeptName = deptNameMap[nodeId] || '';
   renderDeptTree();
-  filterMembersByDept(selectedDeptName);
+  renderDeptDetail(nodeId);
 }
 
-// 按选中部门筛选成员
-function filterMembersByDept(deptName) {
-  var rows = document.querySelectorAll('#memberTableBody tr');
-  var visibleCount = 0;
-  rows.forEach(function(row) {
-    if (!deptName || deptName === '全部') {
-      row.style.display = '';
-      visibleCount++;
-      return;
-    }
-    var rowDept = row.cells[3].textContent.trim();
-    if (rowDept === deptName) {
-      row.style.display = '';
-      visibleCount++;
-    } else {
-      row.style.display = 'none';
-    }
-  });
-  if (deptName && deptName !== '全部') {
-    showToast('筛选：' + deptName + '（' + visibleCount + ' 人）');
+// 渲染节点详情面板
+function renderDeptDetail(nodeId) {
+  var node = deptMap[nodeId];
+  if (!node) return;
+
+  var card = document.getElementById('deptDetailCard');
+  var typeLabel = node.type === 'company' ? '企业' : (node.type === 'unit' ? '单位' : '部门');
+  var typeTagClass = node.type === 'company' ? 'tag-blue' : (node.type === 'unit' ? 'tag-orange' : 'tag-green');
+  var statusLabel = node.status === 1 ? '正常' : '停用';
+  var statusTagClass = node.status === 1 ? 'tag-green' : 'tag-gray';
+  var parentName = node.parent_id ? (deptMap[node.parent_id] ? deptMap[node.parent_id].name : '-') : '无';
+
+  var html = '<div class="detail-header">';
+  html += '<h3 class="detail-title">' + getNodeIcon(node.type) + ' ' + node.name + '</h3>';
+  html += '<div class="detail-actions">';
+  // 层级限制：超过5级禁用新增按钮（BR-ENT-ORG-04/05）
+  var canAdd = getDeptLevel(node.id) < 5;
+  html += '<button class="btn btn-primary btn-sm" onclick="openAddDeptModal()" title="新增子节点" ' + (canAdd ? '' : 'disabled style="opacity:0.5;cursor:not-allowed"') + '>+ 新增子节点</button>';
+  if (node.type !== 'company') {
+    html += '<button class="btn btn-default btn-sm" onclick="openEditDeptModal()" title="编辑节点">编辑</button>';
+    html += '<button class="btn btn-danger btn-sm" onclick="deleteDept()" title="删除节点">删除</button>';
+  }
+  html += '</div></div>';
+
+  html += '<div class="detail-body">';
+  html += '<table class="info-table">';
+  html += '<tr><th>节点类型</th><td><span class="tag ' + typeTagClass + '">' + typeLabel + '</span></td><th>上级节点</th><td>' + parentName + '</td></tr>';
+  html += '<tr><th>状态</th><td><span class="tag ' + statusTagClass + '">' + statusLabel + '</span></td><th>排序</th><td>' + node.sort_order + '</td></tr>';
+  html += '</table>';
+
+  // 子节点列表
+  html += '<div class="sub-dept-section">';
+  html += '<h4 class="section-title">下级节点（' + (node.children ? node.children.length : 0) + '）</h4>';
+  if (node.children && node.children.length > 0) {
+    html += '<div class="table-wrap"><table class="table-basic">';
+    html += '<thead><tr><th class="drag-col"></th><th>名称</th><th>类型</th><th>状态</th><th>排序</th><th class="action-col">操作</th></tr></thead>';
+    html += '<tbody id="childNodeList">';
+    node.children.forEach(function(child) {
+      var childTypeLabel = child.type === 'unit' ? '单位' : '部门';
+      var childTypeTagClass = child.type === 'unit' ? 'tag-orange' : 'tag-green';
+      var childStatusLabel = child.status === 1 ? '正常' : '停用';
+      var childStatusTagClass = child.status === 1 ? 'tag-green' : 'tag-gray';
+      html += '<tr data-id="' + child.id + '" onclick="selectDept(\'' + child.id + '\')" style="cursor:pointer">';
+      html += '<td class="drag-col"><span class="drag-handle" draggable="true" data-id="' + child.id + '" title="拖拽排序"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="18" r="2"/></svg></span></td>';
+      html += '<td>' + getNodeIcon(child.type) + ' ' + child.name + '</td>';
+      html += '<td><span class="tag ' + childTypeTagClass + '">' + childTypeLabel + '</span></td>';
+      html += '<td><span class="tag ' + childStatusTagClass + '">' + childStatusLabel + '</span></td>';
+      html += '<td>' + child.sort_order + '</td>';
+      html += '<td class="action-col">';
+      if (child.type !== 'company') {
+        html += '<button class="btn-link" onclick="event.stopPropagation();openEditDeptModal(\'' + child.id + '\')" title="编辑">编辑</button>';
+        html += '<button class="btn-link danger" onclick="event.stopPropagation();deleteDept(\'' + child.id + '\')" title="删除">删除</button>';
+      }
+      html += '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  } else {
+    html += '<div class="empty-state">暂无下级节点</div>';
+  }
+  html += '</div></div>';
+
+  card.innerHTML = html;
+
+  // 绑定拖拽事件（批次4）
+  bindDragEvents(nodeId);
+}
+
+// 获取节点图标 SVG
+function getNodeIcon(type) {
+  if (type === 'company') {
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/></svg>';
+  } else if (type === 'unit') {
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M3 21h18"/><path d="M5 21V7"/><path d="M19 21V7"/><path d="M9 21V11"/><path d="M15 21V11"/><path d="M3 7l9-4 9 4"/><path d="M3 7h18"/></svg>';
+  } else {
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>';
   }
 }
 
-// 打开新增/编辑成员弹窗
-function openAddModal() {
-  document.getElementById('modalTitle').textContent = '新增成员';
-  document.getElementById('memberName').value = '';
-  document.getElementById('memberPhone').value = '';
-  document.getElementById('memberPosition').value = '';
-  document.getElementById('memberStatus').value = 'normal';
-  document.getElementById('memberDeptDisplay').textContent = selectedDeptName === '全部' ? '安全部' : selectedDeptName;
-  document.getElementById('memberModal').style.display = 'flex';
-}
-
-function openEditModal(name) {
-  document.getElementById('modalTitle').textContent = '编辑成员 — ' + name;
-  document.getElementById('memberName').value = name;
-  document.getElementById('memberModal').style.display = 'flex';
-}
-
-function closeModal(id) {
-  document.getElementById(id).style.display = 'none';
-}
-
-// 搜索成员（按姓名+状态）
-window.searchMember = function() {
-  var keyword = document.getElementById('searchName').value.trim().toLowerCase();
-  var status = document.getElementById('searchStatus').value;
-  var rows = document.querySelectorAll('#memberTableBody tr');
-  var visibleCount = 0;
-  rows.forEach(function(row) {
-    var name = row.cells[0].textContent.toLowerCase();
-    var statusText = row.cells[4].textContent.trim();
-    var statusMatch = !status || (status === 'normal' && statusText === '正常') || (status === 'disabled' && statusText === '停用');
-    var nameMatch = !keyword || name.indexOf(keyword) !== -1;
-    if (nameMatch && statusMatch) {
-      row.style.display = '';
-      visibleCount++;
-    } else {
-      row.style.display = 'none';
+// 填充上级节点下拉框
+function populateParentSelect(defaultValue) {
+  var select = document.getElementById('deptParentInput');
+  select.innerHTML = '';
+  // 根节点始终可选
+  var root = deptData[0];
+  if (root) {
+    var option = document.createElement('option');
+    option.value = root.id;
+    option.textContent = root.name + '（企业）';
+    if (root.id === defaultValue) option.selected = true;
+    select.appendChild(option);
+  }
+  // 递归添加所有单位/部门节点
+  function walk(nodes, level) {
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (n.type !== 'company') {
+        var option = document.createElement('option');
+        option.value = n.id;
+        var prefix = '';
+        for (var j = 0; j < level; j++) prefix += '　';
+        var typeLabel = n.type === 'unit' ? '（单位）' : '（部门）';
+        option.textContent = prefix + n.name + typeLabel;
+        if (n.id === defaultValue) option.selected = true;
+        select.appendChild(option);
+      }
+      if (n.children && n.children.length > 0) walk(n.children, level + 1);
     }
-  });
-  showToast('找到 ' + visibleCount + ' 名成员');
-};
-
-window.resetFilters = function() {
-  document.getElementById('searchName').value = '';
-  document.getElementById('searchStatus').value = '';
-  var rows = document.querySelectorAll('#memberTableBody tr');
-  rows.forEach(function(row) { row.style.display = ''; });
-  showToast('已重置筛选');
-};
-
-// 保存成员
-function saveMember() {
-  var name = document.getElementById('memberName').value.trim();
-  var phone = document.getElementById('memberPhone').value.trim();
-  if (!name) { showToast('请输入成员姓名'); return; }
-  if (!/^1\d{10}$/.test(phone)) { showToast('请输入正确的手机号（11位数字，1开头）'); return; }
-  showToast('保存成功');
-  closeModal('memberModal');
+  }
+  walk(deptData, 0);
 }
 
-// 删除成员
-function deleteMember(name) {
-  if (confirm('确认删除成员"' + name + '"？')) {
-    showToast('成员"' + name + '"已删除');
+// 更新节点类型下拉框选项（根据父节点类型过滤）
+function updateTypeOptions(parentId) {
+  var select = document.getElementById('deptTypeInput');
+  var parentNode = deptMap[parentId];
+  select.innerHTML = '';
+  if (parentNode && parentNode.type === 'dept') {
+    // 部门下只能挂部门
+    var option = document.createElement('option');
+    option.value = 'dept';
+    option.textContent = '部门';
+    select.appendChild(option);
+  } else {
+    // 企业/单位下可挂单位或部门
+    var optUnit = document.createElement('option');
+    optUnit.value = 'unit';
+    optUnit.textContent = '单位';
+    select.appendChild(optUnit);
+    var optDept = document.createElement('option');
+    optDept.value = 'dept';
+    optDept.textContent = '部门';
+    select.appendChild(optDept);
   }
 }
 
-// 树搜索
+// 打开新增子节点弹窗
+function openAddDeptModal() {
+  var parentNode = deptMap[selectedDeptId];
+  if (!parentNode) { showToast('请先选择父节点'); return; }
+  if (getDeptLevel(selectedDeptId) >= 5) {
+    showToast('已达最大层级（5级），无法新增子节点');
+    return;
+  }
+
+  document.getElementById('deptModalTitle').textContent = '新增子节点';
+  document.getElementById('deptNameInput').value = '';
+  document.getElementById('deptStatusInput').value = '1';
+  document.getElementById('duplicateError').style.display = 'none';
+  delete document.getElementById('deptModal').dataset.editId;
+
+  // 填充上级节点下拉框（默认选中当前节点）
+  populateParentSelect(selectedDeptId);
+  // 根据父节点类型设置节点类型选项
+  updateTypeOptions(selectedDeptId);
+  document.getElementById('deptTypeInput').value = 'dept'; // 默认选部门
+
+  document.getElementById('deptModal').style.display = 'flex';
+}
+
+// 打开编辑节点弹窗
+function openEditDeptModal(nodeId) {
+  var node = deptMap[nodeId || selectedDeptId];
+  if (!node) { showToast('节点不存在'); return; }
+  if (node.type === 'company') { showToast('根节点不可编辑'); return; }
+
+  document.getElementById('deptModalTitle').textContent = '编辑节点 — ' + node.name;
+  document.getElementById('deptNameInput').value = node.name;
+  document.getElementById('deptStatusInput').value = node.status;
+  document.getElementById('duplicateError').style.display = 'none';
+  document.getElementById('deptModal').dataset.editId = node.id;
+
+  // 填充上级节点下拉框（默认选中当前父节点）
+  populateParentSelect(node.parent_id);
+  // 设置节点类型（编辑时不可更改类型，但显示当前类型）
+  updateTypeOptions(node.parent_id || 'root');
+  document.getElementById('deptTypeInput').value = node.type;
+  document.getElementById('deptTypeInput').disabled = true; // 编辑时禁止改类型
+
+  document.getElementById('deptModal').style.display = 'flex';
+}
+
+// 关闭节点弹窗
+function closeDeptModal() {
+  document.getElementById('deptModal').style.display = 'none';
+  document.getElementById('deptTypeInput').disabled = false; // 重置类型下拉框
+  delete document.getElementById('deptModal').dataset.editId;
+}
+
+// ESC 关闭弹窗
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var modal = document.getElementById('deptModal');
+    if (modal && modal.style.display === 'flex') {
+      closeDeptModal();
+    }
+  }
+});
+
+// 保存节点（新增/编辑）— 含同级重名校验
+function saveDept() {
+  var name = document.getElementById('deptNameInput').value.trim();
+  if (!name) { showToast('请输入节点名称'); return; }
+
+  var editId = document.getElementById('deptModal').dataset.editId;
+  var status = parseInt(document.getElementById('deptStatusInput').value);
+  var type = document.getElementById('deptTypeInput').value;
+  var parentId = document.getElementById('deptParentInput').value;
+
+  // 同级重名校验（BR-ENT-ORG-01）
+  if (checkDuplicateName(parentId, name, editId)) {
+    document.getElementById('duplicateError').style.display = 'block';
+    return;
+  } else {
+    document.getElementById('duplicateError').style.display = 'none';
+  }
+
+  if (editId) {
+    // 编辑模式
+    var node = deptMap[editId];
+    if (node) {
+      // 如果父节点变更，需要移动节点
+      if (node.parent_id !== parentId) {
+        var oldParent = deptMap[node.parent_id];
+        if (oldParent && oldParent.children) {
+          oldParent.children = oldParent.children.filter(function(c) { return c.id !== editId; });
+        }
+        node.parent_id = parentId;
+      }
+      node.name = name;
+      node.type = type;
+      node.status = status;
+      showToast('节点已更新');
+    }
+  } else {
+    // 新增模式
+    var parentNode = deptMap[parentId];
+    if (!parentNode) { showToast('请选择上级节点'); return; }
+    var newId = 'dept-' + Date.now();
+    var newNode = {
+      id: newId,
+      name: name,
+      type: type,
+      parent_id: parentId,
+      status: status,
+      sort_order: (parentNode.children ? parentNode.children.length : 0) + 1,
+      expanded: false,
+      children: []
+    };
+    if (!parentNode.children) parentNode.children = [];
+    parentNode.children.push(newNode);
+    parentNode.expanded = true;
+    showToast('节点已添加');
+  }
+
+  buildDeptMap();
+  updateStats();
+  renderDeptTree();
+  renderDeptDetail(selectedDeptId);
+  closeDeptModal();
+}
+
+// 删除节点 — 批次3完善删除保护逻辑
+function deleteDept(nodeId) {
+  var node = deptMap[nodeId || selectedDeptId];
+  if (!node) { showToast('节点不存在'); return; }
+  if (node.type === 'company') { showToast('根节点不可删除'); return; }
+
+  if (node.children && node.children.length > 0) {
+    showToast('该节点下有 ' + node.children.length + ' 个子节点，请先删除子节点');
+    return;
+  }
+
+  if (confirm('确认删除节点"' + node.name + '"？')) {
+    var parentNode = deptMap[node.parent_id];
+    if (parentNode && parentNode.children) {
+      parentNode.children = parentNode.children.filter(function(c) { return c.id !== node.id; });
+    }
+    if (selectedDeptId === node.id) {
+      selectedDeptId = node.parent_id || 'root';
+    }
+    buildDeptMap();
+    updateStats();
+    renderDeptTree();
+    renderDeptDetail(selectedDeptId);
+    showToast('节点已删除');
+  }
+}
+
+// 展开全部部门
+function expandAllDepts() {
+  function expand(nodes) {
+    nodes.forEach(function(n) {
+      n.expanded = true;
+      if (n.children) expand(n.children);
+    });
+  }
+  expand(deptData);
+  renderDeptTree();
+  showToast('已展开全部');
+}
+
+// 收起全部部门
+function collapseAllDepts() {
+  function collapse(nodes) {
+    nodes.forEach(function(n) {
+      if (n.id !== 'root') n.expanded = false;
+      if (n.children) collapse(n.children);
+    });
+  }
+  collapse(deptData);
+  renderDeptTree();
+  showToast('已收起全部');
+}
+
+// 树搜索（带高亮）
 document.getElementById('treeSearchInput').addEventListener('input', function(e) {
   var keyword = e.target.value.trim().toLowerCase();
   var allNodes = document.querySelectorAll('#orgTree .tree-node');
+
+  // 清除所有高亮
+  for (var i = 0; i < allNodes.length; i++) {
+    allNodes[i].classList.remove('search-match');
+  }
+
+  // 过滤节点
   allNodes.forEach(function(node) {
     var label = node.querySelector('.tree-node-label');
     if (!label) return;
     var text = label.textContent.toLowerCase();
     if (!keyword) { node.style.display = ''; return; }
-    node.style.display = text.indexOf(keyword) !== -1 ? '' : 'none';
+
+    // 匹配节点显示并高亮
+    if (text.indexOf(keyword) !== -1) {
+      node.style.display = '';
+      node.classList.add('search-match');
+    } else {
+      node.style.display = 'none';
+    }
   });
+
+  // 展开匹配节点的父级路径
   if (keyword) {
     allNodes.forEach(function(node) {
       if (node.style.display !== 'none') {
@@ -441,15 +831,10 @@ document.getElementById('treeSearchInput').addEventListener('input', function(e)
 });
 
 // 初始化
+buildDeptMap();
+updateStats();
 renderDeptTree();
-
-// 分页
-var pg = new Pagination('paginationBar', {
-  total: 25,
-  size: 10,
-  sizeOptions: [10, 20, 50],
-  onChange: function(page, size) { }
-});
+renderDeptDetail(selectedDeptId);
 
 function showToast(msg) {
   var el = document.getElementById('_toast');
@@ -461,6 +846,91 @@ function showToast(msg) {
   el.textContent = msg;
   el.style.opacity = '1';
   setTimeout(function() { el.style.opacity = '0'; }, 2000);
+}
+
+// ==================== 拖拽排序（批次4）====================
+var dragSrcId = null;
+
+function bindDragEvents(parentNodeId) {
+  var tbody = document.getElementById('childNodeList');
+  if (!tbody) return;
+
+  var handles = tbody.querySelectorAll('.drag-handle');
+  for (var i = 0; i < handles.length; i++) {
+    handles[i].addEventListener('dragstart', function(e) {
+      dragSrcId = this.dataset.id;
+      this.closest('tr').classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', this.dataset.id);
+    });
+    handles[i].addEventListener('dragend', function() {
+      var dragging = document.querySelectorAll('.dragging');
+      for (var j = 0; j < dragging.length; j++) dragging[j].classList.remove('dragging');
+      var placeholders = document.querySelectorAll('.drag-placeholder');
+      for (var j = 0; j < placeholders.length; j++) placeholders[j].remove();
+      dragSrcId = null;
+    });
+  }
+
+  tbody.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!dragSrcId) return;
+    var afterEl = getDragAfterElement(this, e.clientY);
+    var placeholder = document.querySelector('.drag-placeholder');
+    if (!placeholder) {
+      placeholder = document.createElement('tr');
+      placeholder.className = 'drag-placeholder';
+      placeholder.innerHTML = '<td colspan="6"></td>';
+    }
+    if (afterEl) this.insertBefore(placeholder, afterEl); else this.appendChild(placeholder);
+  });
+
+  tbody.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!dragSrcId) return;
+    var parentNode = deptMap[parentNodeId];
+    if (!parentNode || !parentNode.children) return;
+
+    var siblings = parentNode.children;
+    var srcIndex = -1;
+    for (var j = 0; j < siblings.length; j++) {
+      if (siblings[j].id === dragSrcId) { srcIndex = j; break; }
+    }
+    if (srcIndex === -1) return;
+
+    var moved = siblings.splice(srcIndex, 1)[0];
+    var targetIndex = siblings.length;
+    var afterEl = getDragAfterElement(this, e.clientY);
+    if (afterEl) {
+      var afterId = afterEl.closest('tr').dataset.id;
+      for (var j = 0; j < siblings.length; j++) {
+        if (siblings[j].id === afterId) { targetIndex = j; break; }
+      }
+      if (targetIndex === -1) targetIndex = siblings.length;
+    }
+    siblings.splice(targetIndex, 0, moved);
+
+    // 更新 sort_order
+    for (var j = 0; j < siblings.length; j++) {
+      siblings[j].sort_order = j + 1;
+    }
+
+    buildDeptMap();
+    renderDeptTree();
+    renderDeptDetail(parentNodeId);
+    showToast('排序已更新');
+  });
+}
+
+function getDragAfterElement(container, y) {
+  var draggableElements = Array.prototype.slice.call(container.querySelectorAll('tr:not(.dragging):not(.drag-placeholder)'));
+  var closest = null, closestOffset = Number.NEGATIVE_INFINITY;
+  for (var i = 0; i < draggableElements.length; i++) {
+    var box = draggableElements[i].getBoundingClientRect();
+    var offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closestOffset) { closestOffset = offset; closest = draggableElements[i]; }
+  }
+  return closest;
 }
 </script>
 <script>
