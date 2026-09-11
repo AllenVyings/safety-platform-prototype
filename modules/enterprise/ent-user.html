@@ -7,55 +7,114 @@
 <link rel="stylesheet" href="../../css/variables.css">
 <link rel="stylesheet" href="../../css/framework.css">
 <style>
-.main-layout{display:flex;gap:var(--spacing-md)}
+/* ===== 批次2: 页面布局填满可视区域（参考 ent-org） ===== */
+html,body{height:100%;margin:0;overflow:hidden}
+.page-container{padding:var(--spacing-lg);height:100%;box-sizing:border-box;display:flex;flex-direction:column}
+.breadcrumb{flex-shrink:0;margin-bottom:var(--spacing-md)}
+.main-layout{display:flex;gap:var(--spacing-md);flex:1;min-height:0;overflow:hidden}
+
+/* ===== 树面板 ===== */
 .tree-panel{width:280px;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
-.tree-header{padding:14px var(--spacing-md);border-bottom:1px solid var(--border-light);font-size:var(--font-size-md);font-weight:600;color:var(--text-primary)}
+.tree-header{padding:var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light);font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:var(--spacing-xs)}
+/* 批次2: 树搜索框提取inline style */
+.tree-search-bar{padding:10px 14px;border-bottom:1px solid var(--border-light)}
+.tree-search-input{width:100%;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box}
+.tree-search-input:focus{border-color:var(--primary)}
 .tree-body{flex:1;overflow-y:auto;padding:var(--spacing-sm) 0}
 .tree-node{display:flex;align-items:center;padding:7px var(--spacing-md);cursor:pointer;transition:background var(--duration-normal);gap:6px}
 .tree-node:hover{background:var(--bg-section-alt)}
 .tree-node.active{background:var(--primary-light);color:var(--primary)}
 .tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:var(--font-size-xs);color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
-.tree-node-label{font-size:var(--font-size-sm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-node-label{font-size:var(--font-size-sm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
 .tree-children{padding-left:var(--spacing-lg);display:block}
+/* 批次2: 树节点缩进CSS类替代inline style */
+.tree-node-level-0{padding-left:16px}
+.tree-node-level-1{padding-left:32px}
+.tree-node-level-2{padding-left:48px}
+.tree-node-level-3{padding-left:64px}
+/* 批次4: 搜索高亮（参考 ent-org） */
+.tree-node.search-match .tree-node-label{background:rgba(255,230,0,0.3);border-radius:var(--radius-sm);padding:0 var(--spacing-xs)}
 
-.content-panel{flex:1;display:flex;flex-direction:column;gap:var(--spacing-md);min-width:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:var(--spacing-lg);overflow:auto}
+/* ===== 内容面板 ===== */
+.content-panel{flex:1;display:flex;flex-direction:column;gap:var(--spacing-md);min-width:0;overflow:hidden}
+/* ===== 表格卡片（独立） ===== */
+.table-card{flex:1;display:flex;flex-direction:column;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:var(--spacing-lg);min-height:0}
 
+/* ===== 统计卡片 ===== */
 .stats-row{display:flex;gap:var(--spacing-md);flex-shrink:0}
 .stat-card{flex:1;background:var(--bg-section-alt);border-radius:var(--radius-lg);padding:var(--spacing-md) var(--spacing-lg);position:relative;overflow:hidden;display:flex;align-items:center;gap:var(--spacing-md)}
 .stat-card-body{flex:1}
 .stat-label{font-size:var(--font-size-xs);color:var(--text-secondary)}
 .stat-value{font-size:24px;font-weight:700;color:var(--text-primary);margin-top:2px}
 .stat-indicator{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 2px 2px 0}
+/* 批次2: 统计卡色条提取inline style */
+.stat-indicator-primary{background:var(--primary)}
+.stat-indicator-success{background:var(--success)}
+.stat-indicator-danger{background:var(--danger)}
+/* 批次2: 统计卡数字颜色提取inline style */
+.stat-value-success{color:var(--success)}
+.stat-value-danger{color:var(--danger)}
 
-.filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);flex-shrink:0}
-.filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
+/* ===== 查询区 ===== */
+.filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;flex-shrink:0}
+.filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent;border:none;padding:0;margin-bottom:0}
 .filter-card .filter-item{display:flex;align-items:center;gap:6px}
 .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
 
+/* ===== 表格 ===== */
 .table-toolbar{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.table-toolbar-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+.table-toolbar-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:var(--spacing-xs)}
+/* 批次2: 工具栏操作区提取inline style */
+.toolbar-actions{display:flex;gap:8px}
+/* 批次6: 批量操作栏 */
+.batch-actions-bar{display:none;align-items:center;gap:var(--spacing-sm);padding:var(--spacing-sm) var(--spacing-md);background:var(--primary-light);border-radius:var(--radius-md);font-size:var(--font-size-sm);color:var(--primary)}
+.batch-actions-bar.visible{display:flex}
+.batch-actions-bar .batch-count{font-weight:600}
 .table-scroll{overflow-x:auto;flex:1;min-height:0}
-.table-basic{width:100%;border-collapse:collapse;font-size:var(--font-size-sm);min-width:900px}
+.table-basic{width:100%;border-collapse:collapse;font-size:var(--font-size-sm);min-width:960px}
 .table-basic th{background:var(--bg-tertiary);padding:10px 12px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border-light);white-space:nowrap}
 .table-basic td{padding:10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary)}
 .table-basic tr:hover td{background:var(--bg-hover)}
+/* 批次6: checkbox列 */
+.col-checkbox{width:40px;text-align:center}
+.col-checkbox input[type="checkbox"]{width:16px;height:16px;cursor:pointer}
 
 .btn-sm{padding:var(--spacing-xs) 10px;font-size:var(--font-size-xs)}
 
-/* 弹窗 */
-.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);width:900px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.form-row{display:flex;gap:12px;margin-bottom:12px}
-.form-row .form-col{flex:1}
-.form-group label .required{color:var(--danger);margin-left:2px}
+/* ===== 安全码列（二维码 SVG 图标） ===== */
+.code-cell{display:inline-flex;align-items:center;cursor:help}
+.code-cell .qrcode-icon{width:20px;height:20px;color:var(--text-secondary)}
+.code-cell.green .qrcode-icon{color:var(--success)}
+.code-cell.yellow .qrcode-icon{color:var(--warning)}
+.code-cell.red .qrcode-icon{color:var(--danger)}
 
-/* 安全码圆形色块 */
-.safety-code-cell{display:inline-flex;align-items:center;gap:4px}
-.safety-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
-.safety-dot.green{background:var(--success)}
-.safety-dot.yellow{background:var(--warning)}
-.safety-dot.red{background:var(--danger)}
+/* ===== 批次4: Toggle Switch ===== */
+.form-switch{position:relative;display:inline-block;width:36px;height:20px;cursor:pointer}
+.form-switch input{opacity:0;width:0;height:0}
+.form-switch .slider{position:absolute;inset:0;background:var(--border);border-radius:10px;transition:background var(--duration-normal)}
+.form-switch .slider::before{content:'';position:absolute;width:16px;height:16px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:transform var(--duration-normal)}
+.form-switch input:checked + .slider{background:var(--success)}
+.form-switch input:checked + .slider::before{transform:translateX(16px)}
 
-/* 责任范围配置 */
+/* ===== 弹窗 ===== */
+.modal-dialog{background:var(--bg-primary);border-radius:var(--radius-lg);width:900px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:row;align-items:center;flex:1;min-width:0;max-width:calc(50% - 6px)}
+.form-group.full-width{max-width:100%;flex-basis:100%}
+.form-label{flex-shrink:0;width:80px;margin-right:10px;text-align:right;font-size:var(--font-size-sm);color:var(--text-primary);font-weight:500}
+.form-label .required{color:var(--danger);margin-right:2px}
+.form-input,.form-select{flex:1;height:36px;padding:var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;transition:border-color .2s;width:100%;box-sizing:border-box}
+.form-input:focus,.form-select:focus{border-color:var(--primary)}
+/* 批次2: checkbox标签 */
+.checkbox-group{display:flex;gap:var(--spacing-sm);flex-wrap:wrap;padding:var(--spacing-sm) 0}
+.checkbox-group label{display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm);cursor:pointer}
+/* 批次2: 提示文字 */
+.form-hint{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px}
+.form-error{color:var(--danger);font-size:var(--font-size-xs);margin-top:3px;display:none}
+.form-group.has-error .form-input,.form-group.has-error .form-select{border-color:var(--danger)}
+.form-group.has-error .form-error{display:block}
+
+/* ===== 责任范围配置 ===== */
 .scope-section{border-top:1px solid var(--border-light);padding-top:var(--spacing-md);margin-top:var(--spacing-md)}
 .scope-stats{display:flex;gap:var(--spacing-md);margin-bottom:var(--spacing-md)}
 .scope-stat{padding:var(--spacing-sm) var(--spacing-md);background:var(--bg-section-alt);border-radius:var(--radius-md);font-size:var(--font-size-sm);color:var(--text-secondary)}
@@ -65,23 +124,45 @@
 .scope-table td{padding:8px;border-bottom:1px solid var(--bg-secondary)}
 .scope-table .type-auto{color:var(--primary);background:var(--primary-light);padding:1px 6px;border-radius:3px;font-size:var(--font-size-xs)}
 .scope-table .type-manual{color:var(--accent);background:var(--accent-light);padding:1px 6px;border-radius:3px;font-size:var(--font-size-xs)}
+/* 批次2: 责任范围说明提取inline style */
+.scope-note{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:var(--spacing-sm)}
 
-/* 详情弹窗 */
+/* ===== 详情弹窗 ===== */
 #modal-user-detail .modal-dialog{width:800px}
 .detail-section{margin-bottom:var(--spacing-lg)}
-.detail-section-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom:var(--spacing-md);padding-bottom:var(--spacing-sm);border-bottom:1px solid var(--border-light)}
+.detail-section-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary);padding:0 0 10px;margin-bottom:10px;border-bottom:2px solid var(--primary)}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm) var(--spacing-md)}
 .detail-field{padding:var(--spacing-xs) 0;font-size:var(--font-size-sm);color:var(--text-primary)}
 .detail-field-label{color:var(--text-secondary);font-size:var(--font-size-xs);margin-bottom:2px}
 
-/* 确认弹窗 */
+/* ===== 确认弹窗 ===== */
 .confirm-modal .modal-dialog{width:420px}
 .confirm-modal .confirm-content{font-size:var(--font-size-md);color:var(--text-primary);line-height:1.8;padding:var(--spacing-sm) 0}
 .confirm-modal .confirm-content .highlight{color:var(--danger);font-weight:600}
 
-.form-error{color:var(--danger);font-size:var(--font-size-xs);margin-top:3px;display:none}
-.form-group.has-error .form-error{display:block}
+/* 批次7: 新增手动配置按钮容器 */
+.scope-add-btn{margin-top:var(--spacing-sm)}
+/* 批次7: 弹窗内表单组 */
+.modal-form-group{margin-bottom:12px}
+/* 多选下拉框样式（对齐超管端） */
+.multi-select{position:relative;flex:1;min-width:0}
+.multi-select-input{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);transition:border-color .2s}
+.multi-select-input:hover{border-color:var(--primary)}
+.multi-select-placeholder{color:var(--text-tertiary);font-size:var(--font-size-sm)}
+.multi-select-arrow{width:0;height:0;border-left:var(--spacing-xs) solid transparent;border-right:var(--spacing-xs) solid transparent;border-top:var(--spacing-xs) solid var(--text-tertiary);margin-left:var(--spacing-sm)}
+.multi-select-dropdown{display:none;position:absolute;top:100%;left:0;right:0;margin-top:var(--spacing-xs);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:100;max-height:200px;overflow-y:auto}
+.multi-select-dropdown.show{display:block}
+.multi-select-actions{display:flex;justify-content:space-between;padding:var(--spacing-sm) 12px;border-bottom:1px solid var(--border-light);font-size:var(--font-size-xs);color:var(--primary);cursor:pointer}
+.multi-select-actions span:hover{color:var(--primary-hover)}
+.multi-select-options{padding:var(--spacing-xs) 0}
+.multi-select-option{padding:6px 12px;cursor:pointer;font-size:var(--font-size-sm);display:flex;align-items:center}
+.multi-select-option:hover{background:var(--bg-secondary)}
+.multi-select-option input{margin-right:var(--spacing-sm)}
+.multi-select-tag{display:inline-flex;align-items:center;background:var(--primary-light);color:var(--primary);border-radius:var(--radius-sm);padding:1px 6px;font-size:var(--font-size-xs);margin:2px}
+.multi-select-tag-close{cursor:pointer;margin-left:4px;font-size:12px}
+.multi-select-tags{display:flex;flex-wrap:wrap;gap:2px}
 
+/* ===== 批次8: Toast静态元素 ===== */
 #_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius:var(--radius-md);font-size:var(--font-size-md);z-index:99999;opacity:0;transition:opacity var(--duration-normal);pointer-events:none}
 </style>
 </head>
@@ -97,9 +178,14 @@
   <div class="main-layout">
     <!-- 左侧部门树 (280px) -->
     <div class="tree-panel">
-      <div class="tree-header">🏢 组织架构</div>
-      <div style="padding:10px 14px;border-bottom:1px solid var(--border-light)">
-        <input type="text" placeholder="搜索部门..." id="treeSearchInput" style="width:100%;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box">
+      <!-- 批次3: emoji替换为建筑群SVG -->
+      <div class="tree-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v4"/><path d="M5 17v-3h14v3"/><path d="M12 14v3"/></svg>
+        组织架构
+      </div>
+      <!-- 批次2: 树搜索框提取inline style -->
+      <div class="tree-search-bar">
+        <input type="text" class="tree-search-input" placeholder="搜索部门..." id="treeSearchInput">
       </div>
       <div class="tree-body" id="orgTree"></div>
     </div>
@@ -113,21 +199,21 @@
             <div class="stat-label">项目人员总数</div>
             <div class="stat-value" id="statTotal">25</div>
           </div>
-          <div class="stat-indicator" style="background:var(--primary)"></div>
+          <div class="stat-indicator stat-indicator-primary"></div>
         </div>
         <div class="stat-card">
           <div class="stat-card-body">
             <div class="stat-label">正常账号</div>
-            <div class="stat-value" id="statNormal" style="color:var(--success)">22</div>
+            <div class="stat-value stat-value-success" id="statNormal">22</div>
           </div>
-          <div class="stat-indicator" style="background:var(--success)"></div>
+          <div class="stat-indicator stat-indicator-success"></div>
         </div>
         <div class="stat-card">
           <div class="stat-card-body">
             <div class="stat-label">停用账号</div>
-            <div class="stat-value" id="statDisabled" style="color:var(--danger)">3</div>
+            <div class="stat-value stat-value-danger" id="statDisabled">3</div>
           </div>
-          <div class="stat-indicator" style="background:var(--danger)"></div>
+          <div class="stat-indicator stat-indicator-danger"></div>
         </div>
       </div>
 
@@ -137,14 +223,32 @@
           <div class="filter-item"><label>关键词：</label><input type="text" placeholder="姓名/手机号" id="searchName"></div>
           <div class="filter-item"><label>部门：</label><select id="searchDept"><option value="">全部部门</option><option value="1">安全部</option><option value="2">技术部</option><option value="3">工程部</option></select></div>
           <div class="filter-item"><label>启用状态：</label><select id="searchStatus"><option value="">全部</option><option value="enabled">启用</option><option value="disabled">停用</option></select></div>
-          <button class="btn btn-primary" onclick="showToast('搜索')">查询</button>
-          <button class="btn btn-default" onclick="showToast('重置')">重置</button>
+          <!-- 批次4: 新增安全码筛选 -->
+          <div class="filter-item"><label>安全码：</label><select id="searchSafetyCode"><option value="">全部</option><option value="green">绿码</option><option value="yellow">黄码</option><option value="red">红码</option></select></div>
+          <!-- 批次4: 新增管控层级筛选 -->
+          <div class="filter-item"><label>管控层级：</label><select id="searchLevel"><option value="">全部</option><option value="leader">领导层</option><option value="manager">管理层</option><option value="employee">员工层</option></select></div>
+          <button class="btn btn-primary" onclick="filterUsers()">查询</button>
+          <button class="btn btn-default" onclick="resetFilters()">重置</button>
         </div>
       </div>
 
+      <!-- 列表卡片 -->
+      <div class="table-card">
+        <!-- 批次6: 批量操作栏 -->
+        <div class="batch-actions-bar" id="batchActionsBar">
+          <span>已选 <span class="batch-count" id="batchCount">0</span> 项</span>
+          <button class="btn btn-sm btn-primary" onclick="batchAction('enable')">批量启用</button>
+          <button class="btn btn-sm btn-default" onclick="batchAction('disable')">批量停用</button>
+          <button class="btn btn-sm btn-danger" onclick="batchAction('delete')">批量删除</button>
+        </div>
+
       <div class="table-toolbar">
-        <span class="table-toolbar-title">用户列表</span>
-        <div style="display:flex;gap:8px">
+        <!-- 批次3: 工具栏标题添加用户管理SVG图标 -->
+        <span class="table-toolbar-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          用户列表
+        </span>
+        <div class="toolbar-actions">
           <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
         </div>
       </div>
@@ -154,6 +258,9 @@
         <table class="table-basic">
           <thead>
             <tr>
+              <!-- 批次6: checkbox列 -->
+              <th class="col-checkbox"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" title="全选"></th>
+              <th style="width:50px">序号</th>
               <th>姓名</th>
               <th>联系电话</th>
               <th>所属部门</th>
@@ -165,46 +272,56 @@
             </tr>
           </thead>
           <tbody id="userTableBody">
-            <tr>
+            <tr data-id="u1" data-safety="green" data-level="manager" data-dept="技术部" data-status="enabled">
+              <td class="col-checkbox"><input type="checkbox" class="row-checkbox" onchange="updateBatchBar()"></td>
+              <td style="text-align:center">1</td>
               <td>李四</td>
               <td>139****9001</td>
               <td>技术部</td>
               <td>技术经理</td>
               <td>管理层</td>
-              <td><span class="safety-code-cell"><span class="safety-dot green"></span>绿码</span></td>
-              <td><span class="tag tag-success">启用</span></td>
+              <td><span class="code-cell green" title="绿码"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span></td>
+              <!-- 批次4: Toggle Switch替代tag -->
+              <td><label class="form-switch" title="切换启用状态"><input type="checkbox" checked onchange="toggleUserStatus(this, '李四')"><span class="slider"></span></label></td>
               <td class="action-col">
-                <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link danger" onclick="showToast('删除')">删除</button>
+                <button class="btn-link" onclick="openEditModal('u1')">编辑</button>
+                <button class="btn-link danger" onclick="confirmDeleteUser('u1', '李四')">删除</button>
                 <button class="btn-link" onclick="openDetailModal()">详情</button>
                 <button class="btn-link" onclick="openResetPwdModal()">重置密码</button>
               </td>
             </tr>
-            <tr>
+            <tr data-id="u2" data-safety="yellow" data-level="manager" data-dept="安全部" data-status="enabled">
+              <td class="col-checkbox"><input type="checkbox" class="row-checkbox" onchange="updateBatchBar()"></td>
+              <td style="text-align:center">2</td>
               <td>王五</td>
               <td>139****9002</td>
               <td>安全部</td>
               <td>安全主管</td>
               <td>管理层</td>
-              <td><span class="safety-code-cell"><span class="safety-dot yellow"></span>黄码</span></td>
-              <td><span class="tag tag-success">启用</span></td>
+              <td><span class="code-cell yellow" title="黄码"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span></td>
+              <td><label class="form-switch" title="切换启用状态"><input type="checkbox" checked onchange="toggleUserStatus(this, '王五')"><span class="slider"></span></label></td>
               <td class="action-col">
-                <button class="btn-link" onclick="openEditModal()">编辑</button>
-                <button class="btn-link danger" onclick="showToast('删除')">删除</button>
+                <button class="btn-link" onclick="openEditModal('u2')">编辑</button>
+                <button class="btn-link danger" onclick="confirmDeleteUser('u2', '王五')">删除</button>
                 <button class="btn-link" onclick="openDetailModal()">详情</button>
                 <button class="btn-link" onclick="openResetPwdModal()">重置密码</button>
               </td>
             </tr>
-            <tr>
+            <tr data-id="u3" data-safety="red" data-level="employee" data-dept="工程部" data-status="disabled">
+              <td class="col-checkbox"><input type="checkbox" class="row-checkbox" onchange="updateBatchBar()"></td>
+              <td style="text-align:center">3</td>
               <td>赵六</td>
               <td>138****8002</td>
               <td>工程部</td>
               <td>工程师</td>
               <td>员工层</td>
-              <td><span class="safety-code-cell"><span class="safety-dot red"></span>红码</span></td>
-              <td><span class="tag tag-gray">停用</span></td>
+              <td><span class="code-cell red" title="红码"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span></td>
+              <td><label class="form-switch" title="切换启用状态"><input type="checkbox" onchange="toggleUserStatus(this, '赵六')"><span class="slider"></span></label></td>
               <td class="action-col">
-                <button class="btn-link" onclick="openEditModal()">编辑</button>
+                <button class="btn-link" onclick="openEditModal('u3')">编辑</button>
+                <button class="btn-link danger" onclick="confirmDeleteUser('u3', '赵六')">删除</button>
+                <button class="btn-link" onclick="openDetailModal()">详情</button>
+                <button class="btn-link" onclick="openResetPwdModal()">重置密码</button>
               </td>
             </tr>
           </tbody>
@@ -213,37 +330,39 @@
 
       <!-- 分页 -->
       <div class="pagination" id="paginationBar"></div>
+      </div><!-- /.table-card -->
     </div>
   </div>
 </div>
 
 <!-- 新增/编辑用户弹窗 (900px, 三模块) -->
-<div class="modal-overlay" id="userModal">
+<!-- 批次1: ARIA属性 -->
+<div class="modal-overlay" id="userModal" role="dialog" aria-modal="true" aria-label="用户信息弹窗" onclick="handleOverlayClick(event, 'userModal')">
   <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle">新增用户</span>
-      <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+      <button class="modal-close" onclick="closeModal('userModal')" aria-label="关闭弹窗">&times;</button>
     </div>
     <div class="modal-body">
       <!-- 模块一：基本信息 -->
       <div class="detail-section">
         <div class="detail-section-title">基本信息</div>
         <div class="form-row">
-          <div class="form-col form-group" id="fg-name">
-            <label>用户姓名 <span class="required">*</span></label>
-            <input type="text" id="formName" placeholder="2-20字符">
+          <div class="form-group" id="fg-name">
+            <span class="form-label"><span class="required">*</span>用户姓名</span>
+            <input type="text" class="form-input" id="formName" placeholder="2-20字符">
             <div class="form-error">请输入用户姓名</div>
           </div>
-          <div class="form-col form-group" id="fg-phone">
-            <label>联系电话 <span class="required">*</span></label>
-            <input type="text" id="formPhone" placeholder="11位手机号，唯一" maxlength="11">
+          <div class="form-group" id="fg-phone">
+            <span class="form-label"><span class="required">*</span>联系电话</span>
+            <input type="text" class="form-input" id="formPhone" placeholder="11位手机号，唯一" maxlength="11">
             <div class="form-error">请输入正确的手机号</div>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-col form-group" id="fg-dept">
-            <label>所属部门 <span class="required">*</span></label>
-            <select id="formDept">
+          <div class="form-group" id="fg-dept">
+            <span class="form-label"><span class="required">*</span>所属部门</span>
+            <select class="form-select" id="formDept">
               <option value="">请选择</option>
               <option value="1">安全部</option>
               <option value="2">技术部</option>
@@ -251,30 +370,32 @@
             </select>
             <div class="form-error">请选择所属部门</div>
           </div>
-          <div class="form-col form-group">
-            <label>职务 <span class="required">*</span></label>
-            <select id="formPosition">
+          <div class="form-group" id="fg-position">
+            <span class="form-label"><span class="required">*</span>职务</span>
+            <select class="form-select" id="formPosition">
               <option value="">请选择</option>
               <option>部门经理</option>
               <option>主管</option>
               <option>工程师</option>
               <option>技术员</option>
             </select>
+            <div class="form-error">请选择职务</div>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-col form-group">
-            <label>管控层级 <span class="required">*</span></label>
-            <select id="formLevel">
+          <div class="form-group" id="fg-level">
+            <span class="form-label"><span class="required">*</span>管控层级</span>
+            <select class="form-select" id="formLevel">
               <option value="">请选择</option>
               <option value="leader">领导层</option>
               <option value="manager">管理层</option>
               <option value="employee">员工层</option>
             </select>
+            <div class="form-error">请选择管控层级</div>
           </div>
-          <div class="form-col form-group">
-            <label>分管领导</label>
-            <select id="formSuperior">
+          <div class="form-group">
+            <span class="form-label">分管领导</span>
+            <select class="form-select" id="formSuperior">
               <option value="">请选择（限本单位领导层/管理层）</option>
               <option value="u1">李四（技术经理）</option>
               <option value="u2">王五（安全主管）</option>
@@ -282,27 +403,34 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="form-col form-group">
-            <label>管辖部门</label>
-            <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;padding:var(--spacing-sm) 0">
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox" value="1"> 安全部</label>
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox" value="2"> 技术部</label>
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox" value="3"> 工程部</label>
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox" value="4"> 财务部</label>
+          <div class="form-group full-width">
+            <span class="form-label">管辖部门</span>
+            <div class="multi-select" id="manageDeptsWrap">
+              <div class="multi-select-input" onclick="toggleMultiDropdown()">
+                <span class="multi-select-placeholder" id="manageDeptsText">请选择管辖部门</span>
+                <span class="multi-select-arrow"></span>
+              </div>
+              <div class="multi-select-dropdown" id="manageDeptsDropdown">
+                <div class="multi-select-actions">
+                  <span onclick="selectAllManageDepts()">✓ 全选</span>
+                  <span onclick="clearManageDepts()"> 清空</span>
+                </div>
+                <div class="multi-select-options" id="manageDeptsOptions"></div>
+              </div>
             </div>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-col form-group">
-            <label>启用状态 <span class="required">*</span></label>
-            <select id="formStatus">
+          <div class="form-group">
+            <span class="form-label"><span class="required">*</span>启用状态</span>
+            <select class="form-select" id="formStatus">
               <option value="enabled">启用</option>
               <option value="disabled">停用</option>
             </select>
           </div>
-          <div class="form-col form-group">
-            <label>备注</label>
-            <input type="text" placeholder="200字内" maxlength="200">
+          <div class="form-group">
+            <span class="form-label">备注</span>
+            <input type="text" class="form-input" placeholder="200字内" maxlength="200">
           </div>
         </div>
       </div>
@@ -311,15 +439,15 @@
       <div class="detail-section">
         <div class="detail-section-title">账号信息</div>
         <div class="form-row">
-          <div class="form-col form-group" id="fg-account">
-            <label>登录账号 <span class="required">*</span></label>
-            <input type="text" id="formAccount" placeholder="4-20位字母+数字+下划线，唯一">
+          <div class="form-group" id="fg-account">
+            <span class="form-label"><span class="required">*</span>登录账号</span>
+            <input type="text" class="form-input" id="formAccount" placeholder="4-20位字母+数字+下划线，唯一">
             <div class="form-error">请输入登录账号</div>
           </div>
-          <div class="form-col form-group">
-            <label>初始密码 <span class="required">*</span></label>
-            <input type="text" value="Abc@123456" readonly style="background:var(--bg-section-alt);color:var(--text-secondary)">
-            <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px">新增时必填，编辑时隐藏</div>
+          <div class="form-group">
+            <span class="form-label"><span class="required">*</span>初始密码</span>
+            <input type="text" class="form-input" value="Abc@123456" readonly style="background:var(--bg-section-alt);color:var(--text-secondary)">
+            <div class="form-hint">新增时必填，编辑时隐藏</div>
           </div>
         </div>
       </div>
@@ -331,7 +459,7 @@
           <div class="scope-stat">自动配置数：<span class="scope-stat-value">3</span></div>
           <div class="scope-stat">手动配置数：<span class="scope-stat-value">1</span></div>
         </div>
-        <table class="scope-table">
+        <table class="scope-table" id="scopeTable">
           <thead>
             <tr>
               <th>序号</th>
@@ -344,7 +472,7 @@
               <th>操作</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="scopeTableBody">
             <tr>
               <td>1</td>
               <td>1号生产车间</td>
@@ -375,7 +503,7 @@
               <td><span class="type-auto">自动</span></td>
               <td>—</td>
             </tr>
-            <tr>
+            <tr data-type="manual">
               <td>4</td>
               <td>电动车充电区</td>
               <td>充电设施巡检表</td>
@@ -383,28 +511,34 @@
               <td>8次</td>
               <td>否</td>
               <td><span class="type-manual">手动</span></td>
-              <td><button class="btn-link danger" onclick="showToast('删除配置')">删除</button></td>
+              <td><button class="btn-link danger" onclick="deleteScopeConfig(this)">删除</button></td>
             </tr>
           </tbody>
         </table>
-        <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:var(--spacing-sm)">
+        <!-- 批次7: 新增手动配置按钮 -->
+        <div class="scope-add-btn">
+          <button class="btn btn-sm btn-default" onclick="openAddScopeModal()">+ 新增手动配置</button>
+        </div>
+        <!-- 批次2: 说明文字提取inline style -->
+        <div class="scope-note">
           说明：管控层级变更时，自动配置将根据职级重新生成（领导层=每月1次，管理层=每周1次），手动配置保留不变。
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" onclick="closeModal('userModal')">取消</button>
-      <button class="btn btn-primary" onclick="saveUser()">确定</button>
+      <button class="btn btn-primary" onclick="saveUser()">保存</button>
     </div>
   </div>
 </div>
 
 <!-- 重置密码确认弹窗 -->
-<div class="modal-overlay confirm-modal" id="resetPwdModal">
+<!-- 批次1: ARIA属性 -->
+<div class="modal-overlay confirm-modal" id="resetPwdModal" role="dialog" aria-modal="true" aria-label="重置密码确认弹窗" onclick="handleOverlayClick(event, 'resetPwdModal')">
   <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title">重置密码确认</span>
-      <button class="modal-close" onclick="closeModal('resetPwdModal')">&times;</button>
+      <button class="modal-close" onclick="closeModal('resetPwdModal')" aria-label="关闭弹窗">&times;</button>
     </div>
     <div class="modal-body">
       <div class="confirm-content">
@@ -418,12 +552,140 @@
   </div>
 </div>
 
+<!-- 批次1: 删除确认弹窗（新增） -->
+<div class="modal-overlay confirm-modal" id="deleteConfirmModal" role="dialog" aria-modal="true" aria-label="删除确认弹窗" onclick="handleOverlayClick(event, 'deleteConfirmModal')">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <span class="modal-title">删除确认</span>
+      <button class="modal-close" onclick="closeModal('deleteConfirmModal')" aria-label="关闭弹窗">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-content" id="deleteConfirmContent">
+        确认删除用户「<span class="highlight" id="deleteUserName"></span>」吗？删除后不可恢复。
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('deleteConfirmModal')">取消</button>
+      <button class="btn btn-danger" onclick="executeDeleteUser()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 批次4: 停用确认弹窗（新增） -->
+<div class="modal-overlay confirm-modal" id="statusConfirmModal" role="dialog" aria-modal="true" aria-label="状态变更确认弹窗" onclick="handleOverlayClick(event, 'statusConfirmModal')">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <span class="modal-title" id="statusConfirmTitle">确认操作</span>
+      <button class="modal-close" onclick="closeModal('statusConfirmModal')" aria-label="关闭弹窗">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-content" id="statusConfirmContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('statusConfirmModal')">取消</button>
+      <button class="btn btn-primary" id="statusConfirmBtn" onclick="executeToggleStatus()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- 批次5: 层级变更确认弹窗（新增） -->
+<div class="modal-overlay confirm-modal" id="levelChangeModal" role="dialog" aria-modal="true" aria-label="层级变更确认弹窗" onclick="handleOverlayClick(event, 'levelChangeModal')">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <span class="modal-title">管控层级变更</span>
+      <button class="modal-close" onclick="closeModal('levelChangeModal')" aria-label="关闭弹窗">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-content">
+        管控层级变更将<span class="highlight">重新生成自动配置</span>（根据新层级职级），手动配置保留不变。确认变更？
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('levelChangeModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmLevelChange()">确认变更</button>
+    </div>
+  </div>
+</div>
+
+<!-- 批次6: 批量操作确认弹窗（新增） -->
+<div class="modal-overlay confirm-modal" id="batchConfirmModal" role="dialog" aria-modal="true" aria-label="批量操作确认弹窗" onclick="handleOverlayClick(event, 'batchConfirmModal')">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <span class="modal-title" id="batchConfirmTitle">批量操作确认</span>
+      <button class="modal-close" onclick="closeModal('batchConfirmModal')" aria-label="关闭弹窗">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-content" id="batchConfirmContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('batchConfirmModal')">取消</button>
+      <button class="btn btn-primary" id="batchConfirmBtn" onclick="executeBatchAction()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- 批次7: 手动配置弹窗（新增） -->
+<div class="modal-overlay" id="addScopeModal" role="dialog" aria-modal="true" aria-label="新增手动配置弹窗" onclick="handleOverlayClick(event, 'addScopeModal')">
+  <div class="modal-dialog" style="width:520px">
+    <div class="modal-header">
+      <span class="modal-title">新增手动配置</span>
+      <button class="modal-close" onclick="closeModal('addScopeModal')" aria-label="关闭弹窗">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group modal-form-group">
+        <span class="form-label"><span class="required">*</span>所属对象</span>
+        <select class="form-select" id="scopeObject">
+          <option value="">请选择</option>
+          <option value="1号生产车间">1号生产车间</option>
+          <option value="原料仓库">原料仓库</option>
+          <option value="危化品暂存间">危化品暂存间</option>
+          <option value="电动车充电区">电动车充电区</option>
+        </select>
+      </div>
+      <div class="form-group modal-form-group">
+        <span class="form-label"><span class="required">*</span>检查表</span>
+        <select class="form-select" id="scopeChecklist">
+          <option value="">请选择</option>
+          <option value="日常安全检查表">日常安全检查表</option>
+          <option value="消防安全检查表">消防安全检查表</option>
+          <option value="危化品专项检查表">危化品专项检查表</option>
+          <option value="充电设施巡检表">充电设施巡检表</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <span class="form-label"><span class="required">*</span>检查频次</span>
+          <select class="form-select" id="scopeFrequency">
+            <option value="">请选择</option>
+            <option value="每日1次">每日1次</option>
+            <option value="每周1次">每周1次</option>
+            <option value="每周2次">每周2次</option>
+            <option value="每月1次">每月1次</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <span class="form-label">跳过节假日</span>
+          <select class="form-select" id="scopeSkipHoliday">
+            <option value="否">否</option>
+            <option value="是">是</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('addScopeModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveScopeConfig()">确定</button>
+    </div>
+  </div>
+</div>
+
 <!-- 用户详情弹窗 (800px) -->
-<div class="modal-overlay" id="modal-user-detail">
+<!-- 批次1: ARIA属性 -->
+<div class="modal-overlay" id="modal-user-detail" role="dialog" aria-modal="true" aria-label="用户详情弹窗" onclick="handleOverlayClick(event, 'modal-user-detail')">
   <div class="modal-dialog">
     <div class="modal-header">
       <span class="modal-title">用户详情</span>
-      <button class="modal-close" onclick="closeModal('modal-user-detail')">&times;</button>
+      <button class="modal-close" onclick="closeModal('modal-user-detail')" aria-label="关闭弹窗">&times;</button>
     </div>
     <div class="modal-body">
       <!-- 基础信息 -->
@@ -438,7 +700,12 @@
           <div class="detail-field"><div class="detail-field-label">分管领导</div>王建国（总经理）</div>
           <div class="detail-field"><div class="detail-field-label">管辖部门</div>技术部、工程部</div>
           <div class="detail-field"><div class="detail-field-label">启用状态</div><span class="tag tag-success">启用</span></div>
-          <div class="detail-field"><div class="detail-field-label">安全码</div><span class="safety-code-cell"><span class="safety-dot green"></span>绿码</span></div>
+          <div class="detail-field">
+            <div class="detail-field-label">安全码</div>
+            <span class="code-cell green"><svg class="qrcode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="14"/><line x1="14" y1="21" x2="14" y2="21"/><line x1="21" y1="21" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="17" x2="20" y2="20"/></svg></span>
+            <span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">SAFETY2024001</span>
+            <span style="margin-left:8px;color:var(--success);">（绿码）</span>
+          </div>
           <div class="detail-field"><div class="detail-field-label">备注</div>负责技术部全面工作</div>
         </div>
       </div>
@@ -476,9 +743,12 @@
   </div>
 </div>
 
+<!-- 批次8: Toast静态元素 -->
+<div id="_toast"></div>
+
 <script src="../../js/pagination.js"></script>
 <script>
-// 部门树数据
+// ===== 部门树数据 =====
 var deptTreeData = [
   {
     id: 'root', name: 'XX建筑工程有限公司', type: 'company', expanded: true,
@@ -503,6 +773,115 @@ var deptNameMap = {
   'sub-1': '安全一组', 'sub-2': '安全二组', 'sub-3': '技术一组'
 };
 
+// ===== 多选下拉：管辖部门 =====
+var selectedManageDepts = [];
+var manageDeptsData = [
+  { id: '1', name: '安全部' },
+  { id: '2', name: '技术部' },
+  { id: '3', name: '工程部' },
+  { id: '4', name: '财务部' }
+];
+
+function toggleMultiDropdown() {
+  var dropdown = document.getElementById('manageDeptsDropdown');
+  dropdown.classList.toggle('show');
+  if (dropdown.classList.contains('show')) {
+    renderManageDeptsOptions();
+  }
+}
+
+function renderManageDeptsOptions() {
+  var container = document.getElementById('manageDeptsOptions');
+  container.innerHTML = manageDeptsData.map(function(dept) {
+    var checked = selectedManageDepts.indexOf(dept.name) !== -1 ? 'checked' : '';
+    return '<div class="multi-select-option" onclick="toggleManageDept(\'' + dept.name + '\')">' +
+      '<input type="checkbox" ' + checked + ' onclick="event.stopPropagation()"> ' + dept.name + '</div>';
+  }).join('');
+}
+
+function toggleManageDept(deptName) {
+  var idx = selectedManageDepts.indexOf(deptName);
+  if (idx > -1) { selectedManageDepts.splice(idx, 1); }
+  else { selectedManageDepts.push(deptName); }
+  updateManageDeptsDisplay();
+  // 只更新 checkbox 状态，不重建 DOM（避免下拉被意外关闭）
+  var options = document.querySelectorAll('#manageDeptsOptions .multi-select-option');
+  options.forEach(function(opt) {
+    var cb = opt.querySelector('input[type="checkbox"]');
+    if (cb) {
+      var name = opt.textContent.trim();
+      cb.checked = selectedManageDepts.indexOf(name) !== -1;
+    }
+  });
+}
+
+function selectAllManageDepts() {
+  selectedManageDepts = manageDeptsData.map(function(d) { return d.name; });
+  updateManageDeptsDisplay();
+  syncCheckboxes();
+}
+
+function clearManageDepts() {
+  selectedManageDepts = [];
+  updateManageDeptsDisplay();
+  syncCheckboxes();
+}
+
+function syncCheckboxes() {
+  var options = document.querySelectorAll('#manageDeptsOptions .multi-select-option');
+  options.forEach(function(opt) {
+    var cb = opt.querySelector('input[type="checkbox"]');
+    if (cb) {
+      var name = opt.textContent.trim();
+      cb.checked = selectedManageDepts.indexOf(name) !== -1;
+    }
+  });
+}
+
+function removeManageDept(deptName) {
+  var idx = selectedManageDepts.indexOf(deptName);
+  if (idx > -1) { selectedManageDepts.splice(idx, 1); }
+  updateManageDeptsDisplay();
+  syncCheckboxes();
+}
+
+function updateManageDeptsDisplay() {
+  var textEl = document.getElementById('manageDeptsText');
+  if (selectedManageDepts.length === 0) {
+    textEl.textContent = '请选择管辖部门';
+    textEl.className = 'multi-select-placeholder';
+  } else {
+    textEl.innerHTML = selectedManageDepts.map(function(d) {
+      return '<span class="multi-select-tag">' + d + '<span class="multi-select-tag-close" onclick="event.stopPropagation();removeManageDept(\'' + d + '\')">&times;</span></span>';
+    }).join('');
+    textEl.className = 'multi-select-tags';
+  }
+}
+
+// 点击外部关闭多选下拉
+document.addEventListener('click', function(e) {
+  var wrap = document.getElementById('manageDeptsWrap');
+  var dropdown = document.getElementById('manageDeptsDropdown');
+  if (wrap && dropdown && !wrap.contains(e.target)) {
+    dropdown.classList.remove('show');
+  }
+});
+
+// ===== 安全码 QR 图标（stroke-based，颜色由 .code-cell 父级控制） =====
+var QR_ICON_SVG="<svg class='qrcode-icon' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7'/><rect x='14' y='3' width='7' height='7'/><rect x='3' y='14' width='7' height='7'/><line x1='14' y1='14' x2='14' y2='14'/><line x1='21' y1='14' x2='21' y2='14'/><line x1='14' y1='21' x2='14' y2='21'/><line x1='21' y1='21' x2='21' y2='21'/><line x1='17' y1='14' x2='17' y2='17'/><line x1='14' y1='17' x2='17' y2='17'/><line x1='17' y1='20' x2='20' y2='20'/><line x1='20' y1='17' x2='20' y2='20'/></svg>";
+function getCodeLabel(code){return code==='red'?'红码':code==='yellow'?'黄码':'绿码';}
+
+// ===== 批次3: SVG图标函数（参考 ent-org） =====
+function getNodeIcon(type) {
+  if (type === 'company') {
+    // 企业：建筑群 SVG（主楼+副楼+窗户）
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/></svg>';
+  } else {
+    // 部门/子部门：网格/矩阵 SVG（统一图标）
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>';
+  }
+}
+
 function renderOrgTree() {
   var container = document.getElementById('orgTree');
   container.innerHTML = deptTreeData.map(function(n) { return renderTreeNode(n, 0); }).join('');
@@ -511,12 +890,10 @@ function renderOrgTree() {
 function renderTreeNode(node, level) {
   var isSelected = node.id === selectedTreeId;
   var hasChildren = node.children && node.children.length > 0;
-  var indent = level * 16;
-  var icon = '🏢';
-  if (node.type === 'dept') icon = '📁';
-  if (node.type === 'sub-dept') icon = '📂';
+  var icon = getNodeIcon(node.type);
+  var levelClass = 'tree-node-level-' + Math.min(level, 3);
 
-  var html = '<div class="tree-node ' + (isSelected ? 'active' : '') + '" style="padding-left:' + (16 + indent) + 'px" onclick="selectTreeNode(\'' + node.id + '\')">';
+  var html = '<div class="tree-node ' + levelClass + ' ' + (isSelected ? 'active' : '') + '" onclick="selectTreeNode(\'' + node.id + '\')">';
   if (hasChildren) {
     html += '<span class="tree-toggle" onclick="event.stopPropagation();toggleTreeNode(\'' + node.id + '\')">' + (node.expanded ? '▼' : '▶') + '</span>';
   } else {
@@ -557,21 +934,63 @@ function filterUsersByDept(deptId) {
   var visibleCount = 0;
   rows.forEach(function(row) {
     if (!deptName) { row.style.display = ''; visibleCount++; return; }
-    var rowDept = row.cells[2].textContent.trim();
+    var rowDept = row.getAttribute('data-dept') || row.cells[3].textContent.trim();
     if (rowDept === deptName) { row.style.display = ''; visibleCount++; }
     else { row.style.display = 'none'; }
   });
   if (deptName) showToast('筛选：' + deptName + '（' + visibleCount + ' 人）');
 }
 
-// 弹窗操作
+// ===== 批次4: 树搜索 + 高亮 =====
+document.getElementById('treeSearchInput').addEventListener('input', function(e) {
+  var keyword = e.target.value.trim().toLowerCase();
+  var allNodes = document.querySelectorAll('#orgTree .tree-node');
+
+  // 先清除所有高亮
+  allNodes.forEach(function(node) {
+    node.classList.remove('search-match');
+  });
+
+  if (!keyword) {
+    // 清空搜索：显示所有节点
+    allNodes.forEach(function(node) { node.style.display = ''; });
+    document.querySelectorAll('#orgTree .tree-children').forEach(function(c) { c.style.display = ''; });
+    return;
+  }
+
+  // 搜索：匹配节点高亮，非匹配隐藏，父级展开
+  allNodes.forEach(function(node) {
+    var label = node.querySelector('.tree-node-label');
+    if (!label) return;
+    var text = label.textContent.toLowerCase();
+    if (text.indexOf(keyword) !== -1) {
+      node.classList.add('search-match');
+      node.style.display = '';
+      // 展开父级
+      var parent = node.parentElement;
+      while (parent && parent.id !== 'orgTree') {
+        if (parent.classList && parent.classList.contains('tree-children')) {
+          parent.style.display = '';
+        }
+        if (parent.classList && parent.classList.contains('tree-node')) {
+          parent.style.display = '';
+        }
+        parent = parent.parentElement;
+      }
+    } else {
+      node.style.display = 'none';
+    }
+  });
+});
+
+// ===== 弹窗操作 =====
 function openAddModal() {
   document.getElementById('modalTitle').textContent = '新增用户';
   document.getElementById('scopeSection').style.display = 'none';
   document.getElementById('userModal').style.display = 'flex';
 }
 
-function openEditModal() {
+function openEditModal(userId) {
   document.getElementById('modalTitle').textContent = '编辑用户';
   document.getElementById('scopeSection').style.display = '';
   document.getElementById('userModal').style.display = 'flex';
@@ -594,25 +1013,309 @@ function openDetailModal() {
   document.getElementById('modal-user-detail').style.display = 'flex';
 }
 
-// 表单校验
+// ===== 批次1: ESC关闭所有弹窗 =====
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var modals = ['userModal', 'resetPwdModal', 'deleteConfirmModal', 'statusConfirmModal', 'levelChangeModal', 'batchConfirmModal', 'addScopeModal', 'modal-user-detail'];
+    for (var i = 0; i < modals.length; i++) {
+      var modal = document.getElementById(modals[i]);
+      if (modal && modal.style.display === 'flex') {
+        closeModal(modals[i]);
+        return;
+      }
+    }
+  }
+});
+
+// ===== 批次1: 点击遮罩层关闭 =====
+function handleOverlayClick(event, modalId) {
+  if (event.target === document.getElementById(modalId)) {
+    closeModal(modalId);
+  }
+}
+
+// ===== 批次1: 删除确认流程 =====
+var pendingDeleteId = null;
+var pendingDeleteName = null;
+
+function confirmDeleteUser(userId, userName) {
+  // 批次5: BR-05 检查是否有关联扫码配置
+  var configCount = getUserConfigCount(userId);
+  if (configCount > 0) {
+    showToast('该用户有 ' + configCount + ' 条扫码配置，不可删除');
+    return;
+  }
+  pendingDeleteId = userId;
+  pendingDeleteName = userName;
+  document.getElementById('deleteUserName').textContent = userName;
+  document.getElementById('deleteConfirmModal').style.display = 'flex';
+}
+
+function executeDeleteUser() {
+  if (!pendingDeleteId) return;
+  // 从表格中移除该行
+  var row = document.querySelector('#userTableBody tr[data-id="' + pendingDeleteId + '"]');
+  if (row) row.remove();
+  closeModal('deleteConfirmModal');
+  showToast('删除成功');
+  updateStats();
+  pendingDeleteId = null;
+  pendingDeleteName = null;
+}
+
+// ===== 批次4: Toggle Switch状态切换 =====
+var pendingToggleEl = null;
+var pendingToggleName = null;
+var pendingToggleTargetState = null;
+
+function toggleUserStatus(checkbox, userName) {
+  var row = checkbox.closest('tr');
+  var userId = row ? row.getAttribute('data-id') : null;
+  var willEnable = checkbox.checked;
+
+  // 批次5: BR-04 停用前检查是否为唯一扫码责任人
+  if (!willEnable) {
+    var isOnlyScanner = checkUniqueScanner(userId);
+    if (isOnlyScanner) {
+      checkbox.checked = true; // 回滚
+      showToast('该用户是「' + isOnlyScanner + '」唯一扫码责任人，不可停用');
+      return;
+    }
+  }
+
+  pendingToggleEl = checkbox;
+  pendingToggleName = userName;
+  pendingToggleTargetState = willEnable;
+
+  var action = willEnable ? '启用' : '停用';
+  document.getElementById('statusConfirmTitle').textContent = '确认' + action;
+  document.getElementById('statusConfirmContent').innerHTML = '确认' + action + '用户「<span class="highlight">' + userName + '</span>」？';
+  document.getElementById('statusConfirmModal').style.display = 'flex';
+}
+
+function executeToggleStatus() {
+  if (!pendingToggleEl) return;
+  // 先关闭弹窗
+  closeModal('statusConfirmModal');
+  // 更新data-status
+  var row = pendingToggleEl.closest('tr');
+  if (row) {
+    row.setAttribute('data-status', pendingToggleTargetState ? 'enabled' : 'disabled');
+  }
+  showToast(pendingToggleTargetState ? '已启用' : '已停用');
+  updateStats();
+  pendingToggleEl = null;
+  pendingToggleName = null;
+}
+
+// ===== 批次5: 业务规则辅助函数 =====
+function checkUniqueScanner(userId) {
+  // 原型模拟：王五是危化品暂存间唯一扫码责任人
+  if (userId === 'u2') return '危化品暂存间';
+  return null;
+}
+
+function getUserConfigCount(userId) {
+  // 原型模拟：李四有3条配置，王五有3条，赵六有0条
+  var counts = { 'u1': 3, 'u2': 3, 'u3': 0 };
+  return counts[userId] || 0;
+}
+
+// ===== 批次5: BR-06 管控层级变更 =====
+var pendingLevelChange = false;
+document.getElementById('formLevel').addEventListener('change', function() {
+  var editTitle = document.getElementById('modalTitle').textContent;
+  if (editTitle === '编辑用户' && this.value) {
+    document.getElementById('levelChangeModal').style.display = 'flex';
+    pendingLevelChange = true;
+  }
+});
+
+function confirmLevelChange() {
+  closeModal('levelChangeModal');
+  showToast('自动配置将根据新层级重新生成');
+  pendingLevelChange = false;
+}
+
+// ===== 批次4: 筛选功能 =====
+function filterUsers() {
+  var keyword = document.getElementById('searchName').value.trim().toLowerCase();
+  var dept = document.getElementById('searchDept').value;
+  var status = document.getElementById('searchStatus').value;
+  var safetyCode = document.getElementById('searchSafetyCode').value;
+  var level = document.getElementById('searchLevel').value;
+
+  var deptMap = { '1': '安全部', '2': '技术部', '3': '工程部' };
+  var levelMap = { 'leader': '领导层', 'manager': '管理层', 'employee': '员工层' };
+
+  var rows = document.querySelectorAll('#userTableBody tr');
+  var visibleCount = 0;
+
+  rows.forEach(function(row) {
+    var name = row.cells[1].textContent.trim().toLowerCase();
+    var phone = row.cells[2].textContent.trim();
+    var rowDept = row.getAttribute('data-dept') || row.cells[3].textContent.trim();
+    var rowLevel = row.getAttribute('data-level') || '';
+    var rowSafety = row.getAttribute('data-safety') || '';
+    var rowStatus = row.getAttribute('data-status') || '';
+
+    var match = true;
+    if (keyword && name.indexOf(keyword) === -1 && phone.indexOf(keyword) === -1) match = false;
+    if (dept && rowDept !== deptMap[dept]) match = false;
+    if (status && rowStatus !== status) match = false;
+    if (safetyCode && rowSafety !== safetyCode) match = false;
+    if (level && rowLevel !== level) match = false;
+
+    row.style.display = match ? '' : 'none';
+    if (match) visibleCount++;
+  });
+
+  showToast('查询结果：' + visibleCount + ' 条记录');
+}
+
+function resetFilters() {
+  document.getElementById('searchName').value = '';
+  document.getElementById('searchDept').value = '';
+  document.getElementById('searchStatus').value = '';
+  document.getElementById('searchSafetyCode').value = '';
+  document.getElementById('searchLevel').value = '';
+  var rows = document.querySelectorAll('#userTableBody tr');
+  rows.forEach(function(row) { row.style.display = ''; });
+  showToast('已重置筛选条件');
+}
+
+// ===== 批次6: 批量操作 =====
+var pendingBatchAction = null;
+
+function toggleSelectAll(masterCheckbox) {
+  var checkboxes = document.querySelectorAll('.row-checkbox');
+  checkboxes.forEach(function(cb) { cb.checked = masterCheckbox.checked; });
+  updateBatchBar();
+}
+
+function updateBatchBar() {
+  var checked = document.querySelectorAll('.row-checkbox:checked');
+  var bar = document.getElementById('batchActionsBar');
+  var count = document.getElementById('batchCount');
+  if (checked.length > 0) {
+    bar.classList.add('visible');
+    count.textContent = checked.length;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function batchAction(action) {
+  var checked = document.querySelectorAll('.row-checkbox:checked');
+  if (checked.length === 0) { showToast('请先选择用户'); return; }
+
+  var actionMap = { 'enable': '启用', 'disable': '停用', 'delete': '删除' };
+  pendingBatchAction = action;
+  document.getElementById('batchConfirmTitle').textContent = '批量' + actionMap[action] + '确认';
+  document.getElementById('batchConfirmContent').innerHTML = '确认' + actionMap[action] + '选中的 <span class="highlight">' + checked.length + '</span> 个用户？';
+
+  // 批量删除按钮用danger样式
+  var btn = document.getElementById('batchConfirmBtn');
+  btn.className = action === 'delete' ? 'btn btn-danger' : 'btn btn-primary';
+  btn.textContent = '确认' + actionMap[action];
+
+  document.getElementById('batchConfirmModal').style.display = 'flex';
+}
+
+function executeBatchAction() {
+  var checked = document.querySelectorAll('.row-checkbox:checked');
+  closeModal('batchConfirmModal');
+
+  if (pendingBatchAction === 'delete') {
+    checked.forEach(function(cb) {
+      var row = cb.closest('tr');
+      if (row) row.remove();
+    });
+    showToast('批量删除成功');
+  } else {
+    var isEnabled = pendingBatchAction === 'enable';
+    checked.forEach(function(cb) {
+      var row = cb.closest('tr');
+      if (row) {
+        var toggle = row.querySelector('.form-switch input');
+        if (toggle) toggle.checked = isEnabled;
+        row.setAttribute('data-status', isEnabled ? 'enabled' : 'disabled');
+        cb.checked = false;
+      }
+    });
+    showToast('批量' + (isEnabled ? '启用' : '停用') + '成功');
+  }
+
+  document.getElementById('selectAll').checked = false;
+  updateBatchBar();
+  updateStats();
+  pendingBatchAction = null;
+}
+
+// ===== 批次7: 手动配置 =====
+function openAddScopeModal() {
+  document.getElementById('addScopeModal').style.display = 'flex';
+}
+
+function saveScopeConfig() {
+  var obj = document.getElementById('scopeObject').value;
+  var checklist = document.getElementById('scopeChecklist').value;
+  var freq = document.getElementById('scopeFrequency').value;
+  var skip = document.getElementById('scopeSkipHoliday').value;
+
+  if (!obj || !checklist || !freq) {
+    showToast('请填写必填项');
+    return;
+  }
+
+  var tbody = document.getElementById('scopeTableBody');
+  var rowCount = tbody.rows.length + 1;
+  var tr = document.createElement('tr');
+  tr.setAttribute('data-type', 'manual');
+  tr.innerHTML = '<td>' + rowCount + '</td><td>' + obj + '</td><td>' + checklist + '</td><td>' + freq + '</td><td>0次</td><td>' + skip + '</td><td><span class="type-manual">手动</span></td><td><button class="btn-link danger" onclick="deleteScopeConfig(this)">删除</button></td>';
+  tbody.appendChild(tr);
+
+  closeModal('addScopeModal');
+  showToast('手动配置添加成功');
+
+  // 重置表单
+  document.getElementById('scopeObject').value = '';
+  document.getElementById('scopeChecklist').value = '';
+  document.getElementById('scopeFrequency').value = '';
+  document.getElementById('scopeSkipHoliday').value = '否';
+}
+
+function deleteScopeConfig(btn) {
+  var tr = btn.closest('tr');
+  if (tr && tr.getAttribute('data-type') === 'manual') {
+    tr.remove();
+    showToast('手动配置已删除');
+  }
+}
+
+// ===== 表单校验 =====
 function saveUser() {
   var name = document.getElementById('formName').value.trim();
   var phone = document.getElementById('formPhone').value.trim();
   var dept = document.getElementById('formDept').value;
+  var position = document.getElementById('formPosition').value;
+  var level = document.getElementById('formLevel').value;
   var account = document.getElementById('formAccount').value.trim();
 
   var valid = true;
+
+  // 清空之前的错误
+  ['fg-name','fg-phone','fg-dept','fg-position','fg-level','fg-account'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('has-error');
+  });
+
   if (!name) { document.getElementById('fg-name').classList.add('has-error'); valid = false; }
-  else { document.getElementById('fg-name').classList.remove('has-error'); }
-
   if (!/^1\d{10}$/.test(phone)) { document.getElementById('fg-phone').classList.add('has-error'); valid = false; }
-  else { document.getElementById('fg-phone').classList.remove('has-error'); }
-
   if (!dept) { document.getElementById('fg-dept').classList.add('has-error'); valid = false; }
-  else { document.getElementById('fg-dept').classList.remove('has-error'); }
-
+  if (!position) { document.getElementById('fg-position').classList.add('has-error'); valid = false; }
+  if (!level) { document.getElementById('fg-level').classList.add('has-error'); valid = false; }
   if (!account) { document.getElementById('fg-account').classList.add('has-error'); valid = false; }
-  else { document.getElementById('fg-account').classList.remove('has-error'); }
 
   // 账号唯一性校验
   var existingAccounts = ['tech_mgr', 'safe_mgr', 'eng_001'];
@@ -637,44 +1340,28 @@ function saveUser() {
   closeModal('userModal');
 }
 
-// 树搜索
-document.getElementById('treeSearchInput').addEventListener('input', function(e) {
-  var keyword = e.target.value.trim().toLowerCase();
-  var allNodes = document.querySelectorAll('#orgTree .tree-node');
-  allNodes.forEach(function(node) {
-    var label = node.querySelector('.tree-node-label');
-    if (!label) return;
-    var text = label.textContent.toLowerCase();
-    node.style.display = (!keyword || text.indexOf(keyword) !== -1) ? '' : 'none';
-  });
-  if (keyword) {
-    allNodes.forEach(function(node) {
-      if (node.style.display !== 'none') {
-        var parent = node.parentElement;
-        while (parent && parent.id !== 'orgTree') {
-          if (parent.classList && (parent.classList.contains('tree-node') || parent.classList.contains('tree-children'))) {
-            parent.style.display = '';
-          }
-          parent = parent.parentElement;
-        }
-      }
-    });
-  }
-});
-
+// ===== 批次8: Toast（静态元素复用） =====
 function showToast(msg) {
   var el = document.getElementById('_toast');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = '_toast';
-    document.body.appendChild(el);
-  }
   el.textContent = msg;
   el.style.opacity = '1';
   setTimeout(function() { el.style.opacity = '0'; }, 2000);
 }
 
-// 初始化
+// ===== 统计数字更新 =====
+function updateStats() {
+  var rows = document.querySelectorAll('#userTableBody tr');
+  var total = rows.length;
+  var enabled = 0;
+  rows.forEach(function(row) {
+    if (row.getAttribute('data-status') === 'enabled') enabled++;
+  });
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statNormal').textContent = enabled;
+  document.getElementById('statDisabled').textContent = total - enabled;
+}
+
+// ===== 初始化 =====
 renderOrgTree();
 
 // 分页
@@ -682,7 +1369,9 @@ var pg = new Pagination('paginationBar', {
   total: 25,
   size: 10,
   sizeOptions: [10, 20, 50],
-  onChange: function(page, size) { }
+  onChange: function(page, size) {
+    showToast('第 ' + page + ' 页，每页 ' + size + ' 条');
+  }
 });
 </script>
 <script>
