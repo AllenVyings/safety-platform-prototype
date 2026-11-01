@@ -1,311 +1,744 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>检查记录管理 - 企业端</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>
-    /* ========== 页面背景 ========== */
-    
-    /* ========== 页面标题栏 ========== */
-    
-    /* ========== 统计卡片 ========== */
-    
-    /* ========== 筛选栏 ========== */
-    .filter-item select, .filter-item input { 
-      padding: 6px 10px; 
-      border: 1px solid var(--border-figma); 
-      border-radius: var(--radius-sm); 
-      font-size: var(--font-size-sm); 
-      background: var(--bg-primary);
-    }
-    .filter-item select:focus, .filter-item input:focus {
-      border-color: var(--primary);
-      outline: none;
-    }
-    
-    /* ========== 表格容器 ========== */
-    .table-scroll { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 900px; }
-    thead tr { background: var(--bg-section-alt); }
-    th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap; }
-    td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
-    .ellipsis-col { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    tbody tr:nth-child(even) { background: var(--bg-section-alt); }
-    tbody tr:hover td { background: var(--bg-hover); }
-
-    /* 分页 - .pagination 由 framework.css 提供 */
-
-    /* ========== 标签样式 ========== */
-
-    /* ========== 弹窗 ========== */
-    .modal-dialog { background: var(--bg-primary); border-radius: var(--radius-xl); box-shadow: 0 6px 30px rgba(0,0,0,.12); width: 680px; max-height: 80vh; overflow: auto; }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
-    .modal-head-title { font-size: var(--font-size-lg); font-weight: 600; }
-    .modal-head-close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--text-tertiary); }
-    .modal-head-close:hover { color: var(--text-primary); }
-    .modal-foot { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
-    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .detail-item { display: flex; flex-direction: column; gap: var(--spacing-xs); }
-    .detail-label { font-size: var(--font-size-xs); color: var(--text-tertiary); }
-    .detail-value { font-size: var(--font-size-md); color: var(--text-primary); }
-    .detail-section { margin-bottom: var(--spacing-md); }
-    .detail-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm); padding-bottom: 6px; border-bottom: 1px solid var(--border-light); }
-    .detail-check-item { display: flex; align-items: center; gap: var(--spacing-sm); padding: 6px 0; font-size: var(--font-size-sm); color: var(--text-primary); }
-    .detail-check-icon { font-size: var(--font-size-md); }
-    .detail-check-list { width: 100%; }
-    .detail-check-row { display: grid; grid-template-columns: 40px 1fr 80px 1fr; gap: var(--spacing-sm); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); align-items: center; }
-    .detail-check-row:last-child { border-bottom: none; }
-    .detail-check-row .check-num { color: var(--text-tertiary); text-align: center; }
-    .detail-check-row .check-content { color: var(--text-primary); }
-    .detail-check-row .check-result { font-weight: 500; }
-    .detail-check-row .check-remark { color: var(--text-tertiary); font-size: var(--font-size-xs); }
-    .detail-check-row.header { font-weight: 600; color: var(--text-secondary); background: var(--bg-tertiary); padding: var(--spacing-sm); border-radius: var(--radius-sm); border-bottom: none; }
-
-    /* 筛选栏卡片 */
-    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section)}
-    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
-    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
-    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
-    /* 表格工具栏 */
-    .table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md);flex-shrink:0}
-    .table-toolbar-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
-    .table-toolbar-actions{display:flex;gap:8px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>检查记录管理 - 企业端</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/framework.css">
+<style>
+html,body{height:100%;margin:0;overflow:hidden}
+.module-page.page-container{height:100%;min-height:0;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;overflow:hidden}
+.split-view{display:flex;gap:12px;flex:1;min-height:0;overflow:hidden}
+.tree-panel{width:280px;flex-shrink:0;align-self:stretch;min-height:0;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card);padding:12px}
+.tree-header{padding:0 0 12px;border-bottom:1px solid var(--border-light)}
+.tree-header-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding-left:12px;border-left:4px solid var(--primary);line-height:1.6}
+.tree-search{position:relative;padding:var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)}
+.tree-search .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);display:flex;pointer-events:none}
+.tree-search input{width:100%;height:32px;padding:0 12px 0 32px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box;background:var(--bg-section-alt)}
+.tree-search input:focus{border-color:var(--primary)}
+.tree-body{flex:1;overflow-y:auto;padding:var(--spacing-sm) 0}
+.tree-node{display:flex;align-items:center;padding:6px var(--spacing-sm);cursor:pointer;border-radius:var(--radius-md);margin:0 0 2px}
+.tree-node:hover{background:var(--bg-section-alt)}
+.tree-node.active{background:var(--primary-light);color:var(--primary)}
+.tree-node-icon{width:14px;height:14px;display:flex;align-items:center;justify-content:center;margin-right:var(--spacing-sm);flex-shrink:0}
+.tree-node-icon svg{width:14px;height:14px}
+.tree-node-label{flex:1;min-width:0;font-size:var(--font-size-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-toggle,.tree-pad{width:12px;margin-right:var(--spacing-xs);flex-shrink:0;display:inline-block;text-align:center;color:var(--text-tertiary);font-size:var(--font-size-xs)}
+.tree-toggle{cursor:pointer;transition:transform var(--duration-normal)}
+.tree-toggle.expanded{transform:rotate(90deg)}
+.tree-children{display:none;margin-left:16px}
+.tree-children.expanded{display:block}
+.right-column{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.filter-card{flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:16px 20px}
+.filter-card .filter-bar{display:grid;grid-template-columns:max-content max-content max-content;column-gap:32px;row-gap:12px;align-items:center;margin:0;padding:0;background:transparent;border:none;border-radius:0}
+.filter-card .filter-item{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.filter-card .filter-item-time{grid-column:1 / -1;justify-self:start}
+.filter-card .filter-item-time #btnQuery{margin-left:16px}
+.filter-card .filter-item label{flex:0 0 98px;width:98px;text-align:right;white-space:nowrap;font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+.filter-card .filter-bar select,.filter-card .filter-bar input[type="text"],.filter-card .filter-bar input[type="date"]{width:240px;flex:0 0 240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box;background:var(--bg-primary)}
+.filter-to{color:var(--text-secondary);font-size:var(--font-size-sm);padding:0 2px}
+.list-panel{position:relative;flex:1;min-width:0;min-height:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:16px 20px;display:flex;flex-direction:column;overflow:hidden}
+.list-export{position:absolute;top:30px;right:20px;z-index:2}
+.list-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding-left:12px;border-left:4px solid var(--primary);line-height:1.6;margin:0 0 8px}
+.list-sub{font-size:var(--font-size-sm);color:var(--text-secondary);margin-bottom:12px}
+.list-panel .table-wrap{flex:0 0 auto;min-height:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.list-panel .table-wrap.can-scroll-y{flex:0 1 auto;overflow-y:auto}
+.list-panel .table-wrap::-webkit-scrollbar{width:0;height:0}
+.list-panel .table-wrap::-webkit-scrollbar-track{background:transparent}
+.list-panel .table-wrap::-webkit-scrollbar-thumb{background:transparent;border-radius:4px}
+.list-panel .table-wrap:hover{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent}
+.list-panel .table-wrap:hover::-webkit-scrollbar{width:8px;height:8px}
+.list-panel .table-wrap:hover::-webkit-scrollbar-thumb{background:rgba(0,0,0,.28)}
+.list-panel .table-wrap table{width:max-content;border-collapse:separate;border-spacing:0}
+.list-panel .table-wrap th,
+.list-panel .table-wrap td{box-sizing:border-box;height:48px;padding:0 20px;vertical-align:middle}
+.list-panel .table-wrap td{white-space:nowrap}
+.list-panel .table-wrap thead th{position:sticky;top:0;z-index:12;background:var(--bg-table-header)}
+.list-panel .table-wrap thead th.col-index,
+.list-panel .table-wrap thead th.operation-col{z-index:14}
+.list-panel .table-wrap th.col-index,
+.list-panel .table-wrap td.col-index{left:0;width:64px;min-width:64px;max-width:64px;padding:0 12px}
+.list-panel .table-wrap th.col-name,
+.list-panel .table-wrap td.col-name{width:240px;min-width:240px;max-width:240px}
+.list-panel .table-wrap td.col-name .cell-clip{display:block;width:200px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list-panel .table-wrap th.operation-col,
+.list-panel .table-wrap td.operation-col{min-width:120px;padding:0 28px}
+.list-panel .table-wrap tbody td.operation-col{max-width:none;overflow:visible}
+.list-panel .table-wrap td.empty-row{height:auto;max-width:none;text-align:center;color:var(--text-tertiary);padding:40px 12px}
+.list-panel .pagination{flex-shrink:0;margin-top:auto;padding:16px 0 0;background:transparent;border-top:none}
+.tag-gov{background:#f3eeff;color:var(--purple)}
+.tag-place{background:#e6f8f5;color:#2EC9AD}
+.tag-hazard{background:#e5fafb;color:#27D5E0}
+.tag-project{background:#fff3e0;color:#e65100}
+.tag-otype{box-sizing:border-box;width:72px;padding:2px 0;text-align:center;white-space:nowrap}
+.name-bubble{position:fixed;z-index:40;display:none;max-width:360px;padding:8px 12px;background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);font-size:var(--font-size-sm);line-height:1.5;word-break:break-all;pointer-events:none}
+.name-bubble.show{display:block}
+.modal-dialog.detail-dialog{width:960px;max-width:calc(100vw - 48px);max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light);flex-shrink:0}
+.modal-head-title{font-size:var(--font-size-lg);font-weight:600}
+.modal-head-close{background:none;border:none;font-size:var(--font-size-xl);cursor:pointer;color:var(--text-tertiary);line-height:1}
+.detail-dialog .modal-body{padding:16px 20px 20px;overflow:auto;flex:1;min-height:0}
+.detail-section+.detail-section{margin-top:20px}
+.detail-section-title{display:flex;align-items:center;gap:8px;font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding-left:12px;border-left:4px solid var(--primary);line-height:1.6;margin:0 0 12px}
+.detail-example{font-size:var(--font-size-xs);font-weight:400;color:var(--text-tertiary)}
+.info-sheet{width:100%;border-collapse:collapse;table-layout:fixed;font-size:var(--font-size-sm)}
+.info-sheet th{width:120px;padding:10px 12px;background:var(--bg-section);color:var(--text-secondary);font-weight:400;text-align:left;border:1px solid var(--border-light);white-space:nowrap}
+.info-sheet td{padding:10px 12px;background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-light);text-align:left}
+.detail-table-wrap{overflow:auto;max-height:280px;border:1px solid var(--border-light)}
+.detail-table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm)}
+.detail-table th{position:sticky;top:0;z-index:1;padding:10px 12px;background:var(--bg-table-header);color:var(--text-secondary);font-weight:600;text-align:center;border:1px solid var(--border-light);white-space:nowrap}
+.detail-table td{padding:10px 12px;border:1px solid var(--border-light);text-align:center;color:var(--text-primary);background:var(--bg-primary)}
+.detail-table td.align-left{text-align:left}
+.detail-table .cell-clip{display:block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.result-tag{display:inline-block;padding:0 8px;height:22px;line-height:20px;border-radius:var(--radius-sm);font-size:var(--font-size-xs);background:var(--bg-primary)}
+.result-ok{color:var(--success);border:1px solid #b7eb8f;background:#f6ffed}
+</style>
 </head>
 <body>
-  <div class="module-page page-container" data-module="enterprise/check-records">
-    <!-- 面包屑导航 -->
-    <div class="breadcrumb" id="breadcrumb">
-      <span class="breadcrumb-prefix">当前位置：</span>
-      <span class="breadcrumb-item">企业端</span>
-      <span class="breadcrumb-separator">&gt;</span>
-      <span class="breadcrumb-item current">检查记录</span>
-    </div>
-    
-    <!-- 页面标题栏已隐藏 -->
-    
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">检查总次数</div><div class="stat-value" id="statTotal">68</div></div><div class="stat-indicator" style="background: var(--info);"></div></div>
-      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">自查次数</div><div class="stat-value" id="statSelf">52</div></div><div class="stat-indicator" style="background: var(--success);"></div></div>
-      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">政府检查</div><div class="stat-value" id="statGov">16</div></div><div class="stat-indicator" style="background: var(--warning);"></div></div>
-      <div class="stat-card"><div class="stat-card-body"><div class="stat-label">正常率</div><div class="stat-value" id="statRate">95%</div></div><div class="stat-indicator" style="background: var(--success);"></div></div>
-    </div>
-    
-    <div class="filter-card">
-      <div class="filter-bar">
-        <div class="filter-item"><label>检查类型：</label><select><option>全部</option><option>日常自查</option><option>政府检查</option><option>专项检查</option></select></div>
-        <div class="filter-item"><label>检查结果：</label><select><option>全部</option><option>正常</option><option>异常</option><option>不适用</option></select></div>
-        <div class="filter-item"><label>时间范围：</label><input type="date" id="filterDateStart"> <span style="color:var(--text-secondary)">至</span> <input type="date" id="filterDateEnd"></div>
-        <button class="btn btn-primary" onclick="renderTable()">查询</button>
-        <button class="btn btn-default" onclick="resetFilters()">重置</button>
+<div class="module-page page-container" data-module="enterprise/check-records">
+  <div class="split-view">
+    <div class="tree-panel">
+      <div class="tree-header">
+        <div class="tree-header-title">安全管控对象</div>
       </div>
-    </div>
-
-    <div class="table-toolbar">
-      <span class="table-toolbar-title">检查记录</span>
-      <div class="table-toolbar-actions">
-        <button class="btn btn-primary" onclick="openAddModal()">+ 新增自查</button>
+      <div class="tree-search">
+        <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <input type="text" id="treeSearchInput" placeholder="搜索管控对象...">
       </div>
+      <div class="tree-body" id="objectTree"></div>
     </div>
-
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>检查编号</th>
-              <th>检查类型</th>
-              <th>检查对象</th>
-              <th>检查日期</th>
-              <th>检查人</th>
-              <th>检查项数</th>
-              <th>结果</th>
-              <th class="action-col">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>QC2026040201</td>
-              <td>日常自查</td>
-              <td class="ellipsis-col" title="1号生产车间">1号生产车间</td>
-              <td>2026-04-02</td>
-              <td>张三</td>
-              <td>15</td>
-              <td><span class="tag tag-green">正常</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewDetail('QC2026040201')">查看详情</button></td>
-            </tr>
-            <tr>
-              <td>QC2026040101</td>
-              <td>政府检查</td>
-              <td class="ellipsis-col" title="电动车充电区">电动车充电区</td>
-              <td>2026-04-01</td>
-              <td>南山区应急管理局</td>
-              <td>20</td>
-              <td><span class="tag tag-orange">异常</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewDetail('QC2026040101')">查看详情</button><button class="btn-link" onclick="rectify('QC2026040101')">整改</button></td>
-            </tr>
-            <tr>
-              <td>QC2026032801</td>
-              <td>日常自查</td>
-              <td class="ellipsis-col" title="原料仓库">原料仓库</td>
-              <td>2026-03-28</td>
-              <td>李四</td>
-              <td>12</td>
-              <td><span class="tag tag-green">正常</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewDetail('QC2026032801')">查看详情</button></td>
-            </tr>
-            <tr>
-              <td>QC2026032501</td>
-              <td>专项检查</td>
-              <td class="ellipsis-col" title="危化品暂存间">危化品暂存间</td>
-              <td>2026-03-25</td>
-              <td>深圳市应急管理局</td>
-              <td>25</td>
-              <td><span class="tag tag-green">正常</span></td>
-              <td class="action-col"><button class="btn-link" onclick="viewDetail('QC2026032501')">查看详情</button></td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="right-column">
+      <div class="filter-card">
+        <div class="filter-bar">
+          <div class="filter-item">
+            <label>检查表名称：</label>
+            <input type="text" id="filterForm" placeholder="搜索检查表名称">
+          </div>
+          <div class="filter-item">
+            <label>管控对象：</label>
+            <input type="text" id="filterObject" placeholder="搜索管控对象名称">
+          </div>
+          <div class="filter-item">
+            <label>管控对象类型：</label>
+            <select id="filterObjectType">
+              <option value="">全部</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>检查人：</label>
+            <input type="text" id="filterChecker" placeholder="搜索检查人">
+          </div>
+          <div class="filter-item">
+            <label>检查类型：</label>
+            <select id="filterCheckType">
+              <option value="">全部</option>
+              <option value="企业自查">企业自查</option>
+              <option value="政府巡查">政府巡查</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>是否有隐患：</label>
+            <select id="filterHazard">
+              <option value="">全部</option>
+              <option value="yes">有隐患</option>
+              <option value="no">无隐患</option>
+            </select>
+          </div>
+          <div class="filter-item filter-item-time">
+            <label>检查时间：</label>
+            <input type="date" id="filterStart">
+            <span class="filter-to">至</span>
+            <input type="date" id="filterEnd">
+            <button class="btn btn-primary" id="btnQuery" type="button">查询</button>
+            <button class="btn btn-default" id="btnReset" type="button">重置</button>
+          </div>
+        </div>
       </div>
-      <div class="pagination">
-        <span class="pg-info">共 25 条</span>
-        <select class="pg-size">
-          <option value="10" selected>10 条/页</option>
-          <option value="20">20 条/页</option>
-          <option value="50">50 条/页</option>
-        </select>
-        <button class="pg" disabled>上一页</button>
-        <button class="pg active">1</button>
-        <button class="pg">2</button>
-        <button class="pg">3</button>
-        <button class="pg">下一页</button>
-        <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="3" value="1"> 页</span>
+      <div class="list-panel table-card">
+        <button class="btn btn-default list-export" id="btnExport" type="button">批量导出</button>
+        <div class="list-title">检查记录</div>
+        <div class="list-sub" id="currentNode"></div>
+        <div class="table-wrap" id="recordTable"></div>
+        <div class="pagination" id="pager"></div>
       </div>
     </div>
   </div>
+</div>
+<div class="name-bubble" id="nameBubble"></div>
 
-  <!-- 检查详情弹窗 -->
-  <div class="modal-overlay" id="modal-check-detail">
-    <div class="modal-dialog">
-      <div class="modal-head">
-        <span class="modal-head-title">检查记录详情</span>
-        <button class="modal-head-close" onclick="closeCheckDetail()">&times;</button>
+<div class="modal-overlay" id="modal-check-detail">
+  <div class="modal-dialog detail-dialog">
+    <div class="modal-head">
+      <span class="modal-head-title">检查记录详情</span>
+      <button class="modal-head-close" id="btnCloseDetail" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-section">
+        <div class="detail-section-title">基础信息</div>
+        <div id="detailGrid"></div>
       </div>
-      <div class="modal-body">
-        <div class="detail-section">
-          <div class="detail-section-title">基本信息</div>
-          <div class="detail-grid">
-            <div class="detail-item"><span class="detail-label">检查编号</span><span class="detail-value" id="detailCheckId">QC2026040201</span></div>
-            <div class="detail-item"><span class="detail-label">检查类型</span><span class="detail-value" id="detailCheckType">日常自查</span></div>
-            <div class="detail-item"><span class="detail-label">检查对象</span><span class="detail-value" id="detailCheckObj">1号生产车间</span></div>
-            <div class="detail-item"><span class="detail-label">检查日期</span><span class="detail-value" id="detailCheckDate">2026-04-02</span></div>
-            <div class="detail-item"><span class="detail-label">检查人</span><span class="detail-value" id="detailChecker">张三</span></div>
-            <div class="detail-item"><span class="detail-label">检查项数</span><span class="detail-value" id="detailCheckCount">15</span></div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <div class="detail-section-title">检查项列表</div>
-          <div class="detail-check-list" id="detailCheckList">
-            <div class="detail-check-row header">
-              <span>序号</span><span>检查内容</span><span>结果</span><span>备注</span>
-            </div>
-            <div class="detail-check-row">
-              <span class="check-num">1</span><span class="check-content">消防器材是否在有效期内</span><span class="check-result" style="color:var(--success)">正常</span><span class="check-remark">—</span>
-            </div>
-            <div class="detail-check-row">
-              <span class="check-num">2</span><span class="check-content">安全通道是否畅通</span><span class="check-result" style="color:var(--success)">正常</span><span class="check-remark">—</span>
-            </div>
-            <div class="detail-check-row">
-              <span class="check-num">3</span><span class="check-content">设备防护装置是否完好</span><span class="check-result" style="color:var(--success)">正常</span><span class="check-remark">—</span>
-            </div>
-            <div class="detail-check-row">
-              <span class="check-num">4</span><span class="check-content">危化品存储是否规范</span><span class="check-result" style="color:var(--success)">正常</span><span class="check-remark">—</span>
-            </div>
-            <div class="detail-check-row">
-              <span class="check-num">5</span><span class="check-content">电气线路是否正常</span><span class="check-result" style="color:var(--success)">正常</span><span class="check-remark">—</span>
-            </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <div class="detail-section-title">检查结论</div>
-          <div style="padding: var(--spacing-sm) 12px;background:var(--success-light);border-radius: var(--radius-md);font-size: var(--font-size-sm);color:var(--success);font-weight:500;">
-            本次检查全部正常，无发现隐患。
-          </div>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn btn-default" onclick="closeCheckDetail()" style="padding: 6px var(--spacing-md);border:1px solid var(--border);border-radius: var(--radius-md);font-size: var(--font-size-sm);cursor:pointer;background:var(--bg-primary)">关闭</button>
+      <div class="detail-section">
+        <div class="detail-section-title">检查项明细<span class="detail-example">示例，待接入</span></div>
+        <div class="detail-table-wrap" id="detailItems"></div>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    (function() {
-      'use strict';
-      
-      const CONFIG = {
-        moduleId: 'ent-check-records',
-        moduleName: '检查记录管理'
-      };
-      
-      let state = {
-        initialized: false
-      };
-      
-      function init() {
-        if (state.initialized) return;
-        console.log(`[${CONFIG.moduleId}] 模块初始化`);
-        state.initialized = true;
+<script src="../../js/enterprise-profile.js"></script>
+<script src="../../js/domain-data.js"></script>
+<script src="../../js/shared/district-data.js"></script>
+<script src="../../js/key-place-data.js?v=20261029-2"></script>
+<script src="../../js/pagination.js"></script>
+<script>
+(function() {
+  var ICON = {
+    enterprise: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/></svg>',
+    place: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/></svg>',
+    hazard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    project: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><rect x="7" y="11" width="3" height="3" rx="0.5"/><path d="M12 12.5h5"/><rect x="7" y="16" width="3" height="3" rx="0.5"/><path d="M12 17.5h5"/></svg>',
+    region: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg>'
+  };
+  var PREFIX = { enterprise: '当前企业', project: '当前项目', region: '当前区域', place: '当前场所', hazard: '当前危险源', domain: '当前领域', keyplace: '当前重点场所' };
+  var SAMPLE_CHECKS = [
+    { content: '配电应急设备配置绝缘胶垫是否完好', hazardType: '现场环境', desc: '示例', level: '一般隐患' },
+    { content: '现场放置的气瓶是否封好', hazardType: '设备设施', desc: '示例', level: '一般隐患' },
+    { content: '雨棚内是否有积水未能及时清理', hazardType: '现场环境', desc: '示例', level: '一般隐患' },
+    { content: '废气喷淋系统是否有破损漏气', hazardType: '设备设施', desc: '示例', level: '一般隐患' },
+    { content: '人员是否严格执行粉尘清理', hazardType: '人员行为', desc: '示例', level: '一般隐患' }
+  ];
+
+  function detectProjectMode() {
+    try {
+      var query = new URLSearchParams(location.search);
+      var mode = query.get('mode');
+      if (mode === 'project') return true;
+      if (mode === 'basic') return false;
+      if (query.get('portal') === 'enterprise-project') return true;
+    } catch (err) {}
+    try {
+      if (window.parent && window.parent !== window) {
+        var tab = window.parent.document.querySelector('.portal-tab.active');
+        if (tab && tab.getAttribute('data-portal') === 'enterprise-project') return true;
       }
-      
-      window.viewDetail = function(id) {
-        console.log('查看详情：' + id);
-        document.getElementById('detailCheckId').textContent = id;
-        document.getElementById('modal-check-detail').style.display = 'flex';
-      };
+    } catch (err) {}
+    return false;
+  }
 
-      window.closeCheckDetail = function() {
-        document.getElementById('modal-check-detail').style.display = 'none';
-      };
+  var projectMode = detectProjectMode();
+  var basicRoot = {
+    id: 'enterprise',
+    type: 'enterprise',
+    name: '深圳市天道医药有限公司南山分厂',
+    children: [
+      { id: 'place-1', type: 'place', name: '1号生产车间', children: [
+        { id: 'hazard-1', type: 'hazard', name: '电动车充电区' }
+      ]},
+      { id: 'place-2', type: 'place', name: '2号生产车间' },
+      { id: 'place-3', type: 'place', name: '材料仓库' },
+      { id: 'place-4', type: 'place', name: '办公楼' },
+      { id: 'place-5', type: 'place', name: '配电室' },
+      { id: 'hazard-2', type: 'hazard', name: '危化品存储柜' }
+    ]
+  };
+  var projectRoot = {
+    id: 'project',
+    type: 'project',
+    name: '南山科技园二期建设项目',
+    children: [
+      { id: 'p-place-hq', type: 'place', name: '项目总指挥部' },
+      { id: 'p-hazard-all', type: 'hazard', name: '项目整体危险源' },
+      { id: 'region-office', type: 'region', name: '办公生活区', children: [
+        { id: 'p-place-office', type: 'place', name: '办公室' },
+        { id: 'p-place-dorm', type: 'place', name: '宿舍' }
+      ]},
+      { id: 'region-work', type: 'region', name: '施工区域', children: [
+        { id: 'p-place-work', type: 'place', name: '1号施工区域' },
+        { id: 'p-place-store', type: 'place', name: '材料堆放区' },
+        { id: 'p-hazard-crane', type: 'hazard', name: '塔吊作业区' }
+      ]},
+      { id: 'domain-highrise', type: 'domain', name: '超高层建筑', domainId: 'highrise', children: [
+        { id: 'p-kp-power', type: 'keyplace', name: '配电房', domainId: 'highrise' },
+        { id: 'p-kp-fire', type: 'keyplace', name: '消防控制室', domainId: 'highrise' }
+      ]}
+    ]
+  };
+  var basicRecords = [
+    { id: 'r1', objectId: 'enterprise', objectType: 'enterprise', objectName: '', formName: '企业综合安全检查表', checkType: '企业自查', checker: '王五', time: '2026-10-28 09:20:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'r2', objectId: 'enterprise', objectType: 'enterprise', objectName: '', formName: '企业综合安全检查表（含消防、用电、危化品暂存）', checkType: '政府巡查', checker: '李四', time: '2026-10-08 14:10:00', hazardTotal: 2, hazardFixed: 1 },
+    { id: 'r3', objectId: 'enterprise', objectType: 'enterprise', objectName: '', formName: '生产车间安全巡查表', checkType: '政府巡查', checker: 'caos', time: '2026-10-13 10:00:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'r4', objectId: 'enterprise', objectType: 'enterprise', objectName: '', formName: '生产车间安全巡查表', checkType: '政府巡查', checker: 'caos', time: '2026-09-22 09:30:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'r5', objectId: 'place-1', objectType: 'place', objectName: '1号生产车间', formName: '生产车间安全巡查表', checkType: '企业自查', checker: '王五', time: '2026-10-20 16:00:00', hazardTotal: 2, hazardFixed: 1 },
+    { id: 'r6', objectId: 'hazard-1', objectType: 'hazard', objectName: '电动车充电区', formName: '充电区安全检查表', checkType: '企业自查', checker: '李四', time: '2026-10-18 11:00:00', hazardTotal: 1, hazardFixed: 0 },
+    { id: 'r7', objectId: 'place-3', objectType: 'place', objectName: '材料仓库', formName: '仓库专项检查表', checkType: '企业自查', checker: '王五', time: '2026-10-11 15:20:00', hazardTotal: 3, hazardFixed: 3 },
+    { id: 'r8', objectId: 'enterprise', objectType: 'enterprise', objectName: '', formName: '危化品存储检查表', checkType: '政府巡查', checker: '李四', time: '2026-10-06 09:40:00', hazardTotal: 1, hazardFixed: 0 },
+    { id: 'r9', objectId: 'place-5', objectType: 'place', objectName: '配电室', formName: '配电室日常巡查表', checkType: '企业自查', checker: '王五', time: '2026-09-30 08:50:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'r10', objectId: 'place-2', objectType: 'place', objectName: '2号生产车间', formName: '2号车间安全巡查表', checkType: '企业自查', checker: '李四', time: '2026-10-15 13:10:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'r11', objectId: 'place-4', objectType: 'place', objectName: '办公楼', formName: '办公楼消防检查表', checkType: '企业自查', checker: '王五', time: '2026-10-02 10:30:00', hazardTotal: 1, hazardFixed: 1 }
+  ];
+  var projectRecords = [
+    { id: 'pr1', objectId: 'project', objectType: 'project', objectName: '南山科技园二期建设项目', formName: '项目综合安全检查表', checkType: '企业自查', checker: '王五', time: '2026-10-28 09:20:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'pr2', objectId: 'project', objectType: 'project', objectName: '南山科技园二期建设项目', formName: '项目综合安全检查表（含消防、用电、危化品暂存）', checkType: '政府巡查', checker: '李四', time: '2026-10-08 14:10:00', hazardTotal: 2, hazardFixed: 1 },
+    { id: 'pr3', objectId: 'project', objectType: 'project', objectName: '南山科技园二期建设项目', formName: '施工安全巡查表', checkType: '政府巡查', checker: 'caos', time: '2026-10-13 10:00:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'pr4', objectId: 'p-place-hq', objectType: 'place', objectName: '项目总指挥部', formName: '指挥部安全检查表', checkType: '企业自查', checker: '王五', time: '2026-10-25 09:00:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'pr5', objectId: 'p-hazard-all', objectType: 'hazard', objectName: '项目整体危险源', formName: '项目危险源检查表', checkType: '企业自查', checker: '李四', time: '2026-10-19 14:20:00', hazardTotal: 2, hazardFixed: 1 },
+    { id: 'pr6', objectId: 'p-place-office', objectType: 'place', objectName: '办公室', formName: '办公室消防检查表', checkType: '企业自查', checker: '王五', time: '2026-10-20 16:00:00', hazardTotal: 1, hazardFixed: 1 },
+    { id: 'pr7', objectId: 'p-place-dorm', objectType: 'place', objectName: '宿舍', formName: '宿舍安全检查表', checkType: '企业自查', checker: '李四', time: '2026-10-15 13:10:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'pr8', objectId: 'p-place-work', objectType: 'place', objectName: '1号施工区域', formName: '施工区安全巡查表', checkType: '企业自查', checker: '王五', time: '2026-10-18 11:00:00', hazardTotal: 2, hazardFixed: 0 },
+    { id: 'pr9', objectId: 'p-place-store', objectType: 'place', objectName: '材料堆放区', formName: '材料堆放检查表', checkType: '企业自查', checker: '李四', time: '2026-10-11 15:20:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'pr10', objectId: 'p-hazard-crane', objectType: 'hazard', objectName: '塔吊作业区', formName: '塔吊作业检查表', checkType: '企业自查', checker: '王五', time: '2026-10-16 08:40:00', hazardTotal: 3, hazardFixed: 1 },
+    { id: 'pr11', objectId: 'p-kp-power', objectType: 'keyplace', domainId: 'highrise', objectName: '配电房', formName: '配电房安全检查表', checkType: '企业自查', checker: '李四', time: '2026-10-22 10:30:00', hazardTotal: 0, hazardFixed: 0 },
+    { id: 'pr12', objectId: 'p-kp-fire', objectType: 'keyplace', domainId: 'highrise', objectName: '消防控制室', formName: '消防控制室检查表', checkType: '企业自查', checker: '王五', time: '2026-10-09 09:10:00', hazardTotal: 1, hazardFixed: 0 },
+    { id: 'pr13', objectId: 'project', objectType: 'project', objectName: '南山科技园二期建设项目', formName: '危化品存储检查表', checkType: '政府巡查', checker: '李四', time: '2026-10-06 09:40:00', hazardTotal: 1, hazardFixed: 0 }
+  ];
+  var root = projectMode ? projectRoot : basicRoot;
+  var records = projectMode ? projectRecords : basicRecords;
 
-      window.rectify = function(id) {
-        console.log('整改：' + id);
-        showToast('进入整改流程：' + id);
-      };
+  var state = {
+    selectedId: projectMode ? 'project' : 'enterprise',
+    page: 1,
+    pageSize: 10,
+    keyword: '',
+    applied: { form: '', objectName: '', objectType: '', checkType: '', checker: '', hazard: '', start: '', end: '' }
+  };
+  var pager = null;
+  var nodeMap = {};
 
-      window.resetFilters = function() {
-        console.log('重置筛选');
-        showToast('筛选条件已重置');
-      };
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 
-      window.openAddModal = function() {
-        console.log('新增自查');
-        showToast('打开新增自查弹窗');
-      };
+  function indexNodes(node) {
+    nodeMap[node.id] = node;
+    (node.children || []).forEach(indexNodes);
+  }
 
-      function showToast(msg) {
-        var t = document.createElement('div');
-        t.textContent = msg;
-        Object.assign(t.style, { position:'fixed', top:'24px', left:'50%', transform:'translateX(-50%)', padding: 'var(--spacing-sm) var(--spacing-lg)', background:'var(--primary)', color:'var(--bg-primary)', borderRadius:'6px', fontSize:'14px', zIndex:'9999', boxShadow:'0 2px var(--spacing-sm) rgba(0,0,0,0.15)' });
-        document.body.appendChild(t);
-        setTimeout(function() { t.remove(); }, 2000);
+  function labelOf(node) {
+    if (node.type === 'enterprise') return '企业码-' + node.name;
+    if (node.type === 'project') return '项目码-' + node.name;
+    if (node.type === 'region') return '区域-' + node.name;
+    if (node.type === 'place') return '场所码-' + node.name;
+    if (node.type === 'hazard') return '危险源码-' + node.name;
+    if (node.type === 'keyplace') return '重点场所码-' + node.name;
+    return node.name;
+  }
+
+  function iconOf(node) {
+    if (node.type === 'domain' || node.type === 'keyplace') return ICON.star;
+    return ICON[node.type] || '';
+  }
+
+  function branchHit(node, kw) {
+    if (!kw) return true;
+    if (labelOf(node).indexOf(kw) >= 0) return true;
+    return (node.children || []).some(function(child) { return branchHit(child, kw); });
+  }
+
+  function renderBranch(nodes, kw, parentHit) {
+    var html = '';
+    nodes.forEach(function(node) {
+      var selfHit = !kw || labelOf(node).indexOf(kw) >= 0;
+      var childHit = (node.children || []).some(function(child) { return branchHit(child, kw); });
+      if (kw && !parentHit && !selfHit && !childHit) return;
+      var kids = node.children || [];
+      var open = !!(kw || node.open !== false);
+      html += '<div class="tree-node' + (node.id === state.selectedId ? ' active' : '') + '" data-id="' + esc(node.id) + '">';
+      if (kids.length) html += '<span class="tree-toggle' + (open ? ' expanded' : '') + '" data-toggle="' + esc(node.id) + '">▶</span>';
+      else html += '<span class="tree-pad"></span>';
+      html += '<span class="tree-node-icon">' + iconOf(node) + '</span>';
+      html += '<span class="tree-node-label" title="' + esc(labelOf(node)) + '">' + esc(labelOf(node)) + '</span></div>';
+      if (kids.length) {
+        html += '<div class="tree-children' + (open ? ' expanded' : '') + '">';
+        html += renderBranch(kids, kw, parentHit || selfHit);
+        html += '</div>';
       }
-      
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
+    });
+    return html;
+  }
+
+  function renderTree() {
+    document.getElementById('objectTree').innerHTML = renderBranch([root], state.keyword.trim(), false);
+  }
+
+  function findNode(id) {
+    return nodeMap[id] || root;
+  }
+
+  function collectIds(node, bag) {
+    bag[node.id] = true;
+    (node.children || []).forEach(function(child) { collectIds(child, bag); });
+  }
+
+  function inScope(record, node) {
+    if (!node || node.type === 'enterprise' || node.type === 'project') return true;
+    if (node.type === 'domain') return record.objectType === 'keyplace' && record.domainId === node.domainId;
+    if (node.type === 'region') {
+      var bag = {};
+      (node.children || []).forEach(function(child) { collectIds(child, bag); });
+      return !!bag[record.objectId];
+    }
+    return record.objectId === node.id;
+  }
+
+  function matched() {
+    var node = findNode(state.selectedId);
+    var applied = state.applied;
+    return records.filter(function(record) {
+      if (!inScope(record, node)) return false;
+      if (applied.form && record.formName.indexOf(applied.form) < 0) return false;
+      if (applied.objectName && record.objectName.indexOf(applied.objectName) < 0) return false;
+      if (applied.objectType && record.objectType !== applied.objectType) return false;
+      if (applied.checkType && record.checkType !== applied.checkType) return false;
+      if (applied.checker && record.checker.indexOf(applied.checker) < 0) return false;
+      var hasHazard = record.hazardTotal > 0;
+      if (applied.hazard === 'yes' && !hasHazard) return false;
+      if (applied.hazard === 'no' && hasHazard) return false;
+      var day = record.time.slice(0, 10);
+      if (applied.start && day < applied.start) return false;
+      if (applied.end && day > applied.end) return false;
+      return true;
+    }).sort(function(a, b) {
+      if (a.time === b.time) return 0;
+      return a.time < b.time ? 1 : -1;
+    });
+  }
+
+  function syncPager(total) {
+    if (!pager) {
+      pager = new Pagination('pager', {
+        total: total,
+        size: state.pageSize,
+        current: state.page,
+        onChange: function(page, size) {
+          state.page = page;
+          state.pageSize = size;
+          renderList();
+        }
+      });
+    } else if (pager.page !== state.page) {
+      pager.setPage(state.page);
+    }
+    pager.setTotal(total);
+    state.page = pager.page;
+    state.pageSize = pager.size;
+  }
+
+  var OBJECT_TYPE_TAG = {
+    enterprise: { text: '企业', cls: 'tag-blue' },
+    project: { text: '项目', cls: 'tag-project' },
+    place: { text: '场所', cls: 'tag-place' },
+    hazard: { text: '危险源', cls: 'tag-hazard' },
+    keyplace: { text: '重点场所', cls: 'tag-green' }
+  };
+
+  function typeTag(type) {
+    return '<span class="tag ' + (type === '政府巡查' ? 'tag-gov' : 'tag-blue') + '">' + esc(type) + '</span>';
+  }
+
+  function objectTypeTag(type) {
+    var item = OBJECT_TYPE_TAG[type] || { text: type || '', cls: 'tag-gray' };
+    return '<span class="tag tag-otype ' + item.cls + '">' + esc(item.text) + '</span>';
+  }
+
+  function renderList() {
+    var node = findNode(state.selectedId);
+    document.getElementById('currentNode').textContent = PREFIX[node.type] + '：' + node.name;
+    var rows = matched();
+    syncPager(rows.length);
+    var start = (state.page - 1) * state.pageSize;
+    var pageRows = rows.slice(start, start + state.pageSize);
+    var html = '<table><thead><tr><th class="col-index">序号</th><th class="col-name">检查表名称</th><th class="col-name">管控对象</th><th>管控对象类型</th><th>检查类型</th><th>检查人</th><th>检查时间</th><th>是否有隐患</th><th>已整改/隐患总数</th><th class="operation-col">操作</th></tr></thead><tbody>';
+    if (!pageRows.length) {
+      html += '<tr><td class="empty-row" colspan="10">暂无检查记录</td></tr>';
+    } else {
+      pageRows.forEach(function(record, index) {
+        var hasHazard = record.hazardTotal > 0;
+        html += '<tr>';
+        html += '<td class="col-index">' + (start + index + 1) + '</td>';
+        html += '<td class="col-name"><span class="cell-clip">' + esc(record.formName) + '</span></td>';
+        html += '<td class="col-name"><span class="cell-clip">' + esc(record.objectName) + '</span></td>';
+        html += '<td>' + objectTypeTag(record.objectType) + '</td>';
+        html += '<td>' + typeTag(record.checkType) + '</td>';
+        html += '<td title="' + esc(record.checker) + '">' + esc(record.checker) + '</td>';
+        html += '<td>' + esc(record.time) + '</td>';
+        html += '<td>' + (hasHazard ? '<span class="tag tag-red">有隐患</span>' : '<span class="tag tag-green">无隐患</span>') + '</td>';
+        html += '<td>' + record.hazardFixed + '/' + record.hazardTotal + '</td>';
+        html += '<td class="operation-col"><div class="table-action-group"><button class="btn-link" type="button" data-view="' + esc(record.id) + '">查看</button></div></td>';
+        html += '</tr>';
+      });
+    }
+    html += '</tbody></table>';
+    document.getElementById('recordTable').innerHTML = html;
+    syncTableScroll();
+  }
+
+  function syncTableScroll() {
+    var wrap = document.getElementById('recordTable');
+    var table = wrap.querySelector('table');
+    if (!table) return;
+    wrap.classList.remove('can-scroll-y');
+    var panel = wrap.parentElement;
+    var pagerEl = document.getElementById('pager');
+    var title = panel.querySelector('.list-title');
+    var sub = panel.querySelector('.list-sub');
+    var panelStyle = getComputedStyle(panel);
+    var available = panel.clientHeight
+      - parseFloat(panelStyle.paddingTop) - parseFloat(panelStyle.paddingBottom)
+      - title.offsetHeight - sub.offsetHeight - pagerEl.offsetHeight
+      - 8 - 12;
+    if (table.offsetHeight > available + 1) wrap.classList.add('can-scroll-y');
+  }
+
+  function showToast(msg) {
+    var el = document.getElementById('checkToast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'checkToast';
+      el.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:8px;background:var(--primary);color:#fff;font-size:var(--font-size-sm);z-index:2000;';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() { el.remove(); }, 2000);
+  }
+
+  function exportRecords() {
+    var total = matched().length;
+    if (!total) {
+      showToast('暂无可导出的检查记录');
+      return;
+    }
+    showToast('已导出当前筛选结果 ' + total + ' 条');
+  }
+
+  function applyQuery() {
+    state.applied = {
+      form: document.getElementById('filterForm').value.trim(),
+      objectName: document.getElementById('filterObject').value.trim(),
+      objectType: document.getElementById('filterObjectType').value,
+      checkType: document.getElementById('filterCheckType').value,
+      checker: document.getElementById('filterChecker').value.trim(),
+      hazard: document.getElementById('filterHazard').value,
+      start: document.getElementById('filterStart').value,
+      end: document.getElementById('filterEnd').value
+    };
+    state.page = 1;
+    renderList();
+  }
+
+  function resetQuery() {
+    document.getElementById('filterForm').value = '';
+    document.getElementById('filterObject').value = '';
+    document.getElementById('filterObjectType').value = '';
+    document.getElementById('filterCheckType').value = '';
+    document.getElementById('filterChecker').value = '';
+    document.getElementById('filterHazard').value = '';
+    document.getElementById('filterStart').value = '';
+    document.getElementById('filterEnd').value = '';
+    applyQuery();
+  }
+
+  function openDetail(id) {
+    var record = records.filter(function(item) { return item.id === id; })[0];
+    if (!record) return;
+    var hasHazard = record.hazardTotal > 0;
+    var hazardTag = hasHazard ? '<span class="tag tag-red">有隐患</span>' : '<span class="result-tag result-ok">无隐患</span>';
+    function pair(label, value, span) {
+      return '<th>' + esc(label) + '</th><td' + (span ? ' colspan="' + span + '"' : '') + '>' + value + '</td>';
+    }
+    var sheet = '<table class="info-sheet"><tbody>';
+    sheet += '<tr>' + pair('检查表名称', esc(record.formName)) + pair('检查类型', typeTag(record.checkType)) + '</tr>';
+    sheet += '<tr>' + pair('检查时间', esc(record.time)) + pair('检查人', esc(record.checker)) + '</tr>';
+    sheet += '<tr>' + pair('管控对象', esc(record.objectName)) + pair('是否有隐患', hazardTag) + '</tr>';
+    sheet += '<tr>' + pair('已整改/隐患总数', esc(record.hazardFixed + '/' + record.hazardTotal), 3) + '</tr>';
+    sheet += '</tbody></table>';
+    document.getElementById('detailGrid').innerHTML = sheet;
+    var itemHtml = '<table class="detail-table"><thead><tr><th>序号</th><th>检查项</th><th>检查内容</th><th>结果</th><th>隐患类型</th><th>隐患描述</th><th>隐患等级</th></tr></thead><tbody>';
+    SAMPLE_CHECKS.forEach(function(row, index) {
+      var bad = index < record.hazardTotal;
+      itemHtml += '<tr>';
+      itemHtml += '<td>' + (index + 1) + '</td>';
+      itemHtml += '<td></td>';
+      itemHtml += '<td class="align-left"><span class="cell-clip">' + esc(row.content) + '</span></td>';
+      itemHtml += '<td>' + (bad ? '<span class="tag tag-red">有隐患</span>' : '<span class="result-tag result-ok">无隐患</span>') + '</td>';
+      itemHtml += '<td>' + (bad ? esc(row.hazardType) : '') + '</td>';
+      itemHtml += '<td>' + (bad ? esc(row.desc) : '') + '</td>';
+      itemHtml += '<td>' + (bad ? esc(row.level) : '') + '</td>';
+      itemHtml += '</tr>';
+    });
+    itemHtml += '</tbody></table>';
+    document.getElementById('detailItems').innerHTML = itemHtml;
+    document.getElementById('modal-check-detail').classList.add('show');
+  }
+
+  function closeDetail() {
+    document.getElementById('modal-check-detail').classList.remove('show');
+  }
+
+  function keyplaceDomains() {
+    var list = [];
+    try {
+      var stored = localStorage.getItem('sa_domain_data');
+      if (stored) list = JSON.parse(stored);
+    } catch (err) {}
+    if (!list.length && typeof DOMAIN_TABLE_DATA !== 'undefined') list = DOMAIN_TABLE_DATA;
+    return (list || []).filter(function(domain) { return domain.mode === 'special' && String(domain.status) === '1'; });
+  }
+
+  function attachKeyplaces() {
+    if (typeof loadKeyPlaceData !== 'function' || typeof keyPlaceMatchesEnterprise !== 'function') return;
+    var list = [];
+    try {
+      var stored = localStorage.getItem('sa_domain_data');
+      if (stored) list = JSON.parse(stored);
+    } catch (err) {}
+    if (!list.length && typeof DOMAIN_TABLE_DATA !== 'undefined') list = DOMAIN_TABLE_DATA;
+    var store = loadKeyPlaceData(list);
+    var entName = root.name;
+    var times = ['2026-10-25 09:00:00', '2026-10-19 14:20:00', '2026-10-04 11:10:00', '2026-09-18 16:40:00'];
+    var seq = 0;
+    keyplaceDomains().forEach(function(domain) {
+      var places = (store[domain.id] || []).filter(function(place) {
+        return keyPlaceMatchesEnterprise(place, entName);
+      });
+      if (!places.length) return;
+      var group = { id: 'domain-' + domain.id, type: 'domain', name: domain.name, domainId: domain.id, children: [] };
+      places.forEach(function(place) {
+        group.children.push({ id: place.id, type: 'keyplace', name: place.place_name, domainId: domain.id });
+        var total = seq % 3 === 0 ? 0 : 2;
+        records.push({
+          id: 'kp-' + place.id,
+          objectId: place.id,
+          objectType: 'keyplace',
+          domainId: domain.id,
+          objectName: place.place_name,
+          formName: place.place_name + '安全检查表',
+          checkType: '企业自查',
+          checker: seq % 2 ? '李四' : '王五',
+          time: times[seq % times.length],
+          hazardTotal: total,
+          hazardFixed: total ? 1 : 0
+        });
+        seq += 1;
+      });
+      root.children.push(group);
+    });
+  }
+
+  function bind() {
+    document.getElementById('objectTree').addEventListener('click', function(event) {
+      var toggle = event.target.closest('[data-toggle]');
+      if (toggle) {
+        event.stopPropagation();
+        var toggled = findNode(toggle.getAttribute('data-toggle'));
+        toggled.open = toggled.open === false;
+        renderTree();
+        return;
       }
-      
-      window.destroyModule = function() {
-        console.log(`[${CONFIG.moduleId}] 模块销毁`);
-        state.initialized = false;
-      };
-    })();
-  </script>
+      var nodeEl = event.target.closest('.tree-node');
+      if (!nodeEl) return;
+      state.selectedId = nodeEl.getAttribute('data-id');
+      state.page = 1;
+      renderTree();
+      renderList();
+    });
+    document.getElementById('treeSearchInput').addEventListener('input', function(event) {
+      state.keyword = event.target.value;
+      renderTree();
+    });
+    document.getElementById('btnQuery').addEventListener('click', applyQuery);
+    document.getElementById('btnReset').addEventListener('click', resetQuery);
+    document.getElementById('btnExport').addEventListener('click', exportRecords);
+    document.getElementById('recordTable').addEventListener('click', function(event) {
+      var button = event.target.closest('[data-view]');
+      if (button) openDetail(button.getAttribute('data-view'));
+    });
+    var nameBubble = document.getElementById('nameBubble');
+    var recordTable = document.getElementById('recordTable');
+    function hideNameBubble() { nameBubble.classList.remove('show'); }
+    function placeNameBubble(cell) {
+      nameBubble.textContent = cell.textContent;
+      nameBubble.classList.add('show');
+      var rect = cell.getBoundingClientRect();
+      nameBubble.style.left = rect.left + 'px';
+      nameBubble.style.top = (rect.bottom + 6) + 'px';
+      var bubbleRect = nameBubble.getBoundingClientRect();
+      if (bubbleRect.right > window.innerWidth - 8) {
+        nameBubble.style.left = Math.max(8, window.innerWidth - bubbleRect.width - 8) + 'px';
+      }
+      if (bubbleRect.bottom > window.innerHeight - 8) {
+        nameBubble.style.top = Math.max(8, rect.top - bubbleRect.height - 6) + 'px';
+      }
+    }
+    function bindClipBubble(root) {
+      root.addEventListener('mouseover', function(event) {
+        var clip = event.target.closest('.cell-clip');
+        if (!clip || clip.scrollWidth <= clip.clientWidth + 1) {
+          hideNameBubble();
+          return;
+        }
+        placeNameBubble(clip);
+      });
+      root.addEventListener('mouseout', function(event) {
+        var clip = event.target.closest('.cell-clip');
+        if (!clip) return;
+        var next = event.relatedTarget && event.relatedTarget.closest ? event.relatedTarget.closest('.cell-clip') : null;
+        if (next !== clip) hideNameBubble();
+      });
+      root.addEventListener('scroll', hideNameBubble);
+    }
+    bindClipBubble(recordTable);
+    bindClipBubble(document.getElementById('detailItems'));
+    document.getElementById('btnCloseDetail').addEventListener('click', closeDetail);
+    document.getElementById('modal-check-detail').addEventListener('click', function(event) {
+      if (event.target.id === 'modal-check-detail') closeDetail();
+    });
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') closeDetail();
+    });
+    window.addEventListener('resize', syncTableScroll);
+  }
+
+  function fillObjectTypeOptions() {
+    var select = document.getElementById('filterObjectType');
+    var options = projectMode
+      ? [['project', '项目'], ['place', '场所'], ['hazard', '危险源'], ['keyplace', '重点场所']]
+      : [['enterprise', '企业'], ['place', '场所'], ['hazard', '危险源'], ['keyplace', '重点场所']];
+    options.forEach(function(pair) {
+      var option = document.createElement('option');
+      option.value = pair[0];
+      option.textContent = pair[1];
+      select.appendChild(option);
+    });
+  }
+
+  function init() {
+    if (!projectMode) {
+      var profile = window.getEnterpriseProfile ? getEnterpriseProfile() : null;
+      if (profile && profile.name) root.name = profile.name;
+      records.forEach(function(record) {
+        if (record.objectId === 'enterprise') record.objectName = root.name;
+      });
+      attachKeyplaces();
+    }
+    fillObjectTypeOptions();
+    indexNodes(root);
+    bind();
+    renderTree();
+    renderList();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+<script src="../../config/annotations.js?v=20261101-cro"></script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

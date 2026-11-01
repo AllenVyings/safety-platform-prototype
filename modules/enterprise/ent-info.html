@@ -6,6 +6,8 @@
   <title>企业基本信息 - 企业端</title>
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
+  <script src="../../js/enterprise-profile.js?v=7094"></script>
+  <script src="../../js/enterprise-org.js?v=7094"></script>
   <style>
     /* ========== 页面背景 ========== */
     .module-page { background: var(--bg-page-solid); min-height: 100vh; padding: var(--spacing-lg); }
@@ -14,9 +16,9 @@
     .breadcrumb-item.current { color: var(--text-primary); font-weight: 500; }
 
     /* ========== 卡片容器 ========== */
-    .detail-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .detail-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-lg); margin-bottom: 12px; }
     .detail-card:last-child { margin-bottom: 0; }
-    .detail-card.card-bg { background: url('images/ent-info-bg.png') center top / auto 200px no-repeat, var(--bg-primary); }
+    .detail-card.card-bg { background: url('images/ent-info-bg.png') center top / 100% 200px no-repeat, var(--bg-primary); }
 
     /* ========== 板块标题 ========== */
     .section-title { display: flex; align-items: center; font-size: 16px; font-weight: 600; color: var(--text-primary); padding: 0 0 0 12px; border-left: 4px solid var(--primary); border-radius: 0 !important; border-bottom: none !important; background: transparent !important; margin: 0 0 16px 0 !important; gap: 8px; line-height: 1.6; }
@@ -634,6 +636,10 @@
         document.getElementById('dispProfessional').textContent = document.getElementById('editProfessional').textContent;
         document.getElementById('dispLocal').textContent = document.getElementById('editLocal').textContent;
 
+        var savedProfile = collectEnterpriseProfile();
+        if (window.saveEnterpriseProfile) saveEnterpriseProfile(savedProfile);
+        if (window.syncEnterpriseOrgRoot) syncEnterpriseOrgRoot(savedProfile);
+
         // 同步安全场景标签库
         var dispTags = document.getElementById('dispTags');
         if (dispTags) {
@@ -687,10 +693,97 @@
         setTimeout(function() { el.style.opacity = '0'; }, 2500);
       }
 
+      function detailField(fieldName) {
+        var rows = document.querySelectorAll('.detail-card.card-bg .info-row');
+        for (var i = 0; i < rows.length; i++) {
+          var label = rows[i].querySelector('.info-label');
+          if (!label || label.textContent.trim() !== fieldName) continue;
+          var value = rows[i].querySelector('.info-value');
+          if (!value) return '';
+          var addr = value.querySelector('.address-text');
+          return (addr ? addr.textContent : value.textContent).trim();
+        }
+        return '';
+      }
+
+      function setDetailField(fieldName, text) {
+        var rows = document.querySelectorAll('.detail-card.card-bg .info-row');
+        for (var i = 0; i < rows.length; i++) {
+          var label = rows[i].querySelector('.info-label');
+          if (!label || label.textContent.trim() !== fieldName) continue;
+          var value = rows[i].querySelector('.info-value');
+          if (!value) return;
+          if (fieldName === '注册地址' || fieldName === '经营地址') {
+            var addr = value.querySelector('.address-text');
+            if (addr) addr.textContent = text || '';
+            return;
+          }
+          if (fieldName === '状态') {
+            var tag = value.querySelector('.tag');
+            if (tag) {
+              tag.textContent = text || '启用';
+              tag.className = 'tag ' + (text === '停用' ? 'tag-red' : 'tag-green');
+            }
+            return;
+          }
+          value.textContent = text || '';
+          return;
+        }
+      }
+
+      function collectEnterpriseProfile() {
+        return {
+          name: detailField('企业名称'),
+          creditCode: detailField('统一社会信用代码'),
+          status: detailField('状态'),
+          legalPerson: detailField('法定代表人'),
+          phone: detailField('联系电话'),
+          regAddress: detailField('注册地址'),
+          bizAddress: detailField('经营地址'),
+          grid: detailField('归属网格'),
+          remark: detailField('备注'),
+          industry: ((document.getElementById('dispIndustry') || {}).textContent || '').trim(),
+          professional: ((document.getElementById('dispProfessional') || {}).textContent || '').trim(),
+          localOrg: ((document.getElementById('dispLocal') || {}).textContent || '').trim()
+        };
+      }
+
+      function applyEnterpriseProfile(profile) {
+        if (!profile) return;
+        setDetailField('企业名称', profile.name);
+        setDetailField('统一社会信用代码', profile.creditCode);
+        setDetailField('状态', profile.status);
+        setDetailField('法定代表人', profile.legalPerson);
+        setDetailField('联系电话', profile.phone);
+        setDetailField('注册地址', profile.regAddress);
+        setDetailField('经营地址', profile.bizAddress);
+        setDetailField('归属网格', profile.grid);
+        setDetailField('备注', profile.remark);
+        var industry = document.getElementById('dispIndustry');
+        var professional = document.getElementById('dispProfessional');
+        var localOrg = document.getElementById('dispLocal');
+        if (industry) industry.textContent = (profile.industry || '').trim() || '—';
+        if (professional) professional.textContent = (profile.professional || '').trim() || '—';
+        if (localOrg) localOrg.textContent = (profile.localOrg || '').trim() || '—';
+        var legal = document.getElementById('editLegalPerson');
+        var phone = document.getElementById('editPhone');
+        var reg = document.getElementById('editRegAddress');
+        var biz = document.getElementById('editBizAddress');
+        var remark = document.getElementById('editRemark');
+        var regionLabel = document.getElementById('regionLabel');
+        if (legal) legal.value = profile.legalPerson || '';
+        if (phone) phone.value = profile.phone || '';
+        if (reg) reg.value = profile.regAddress || '';
+        if (biz) biz.value = profile.bizAddress || '';
+        if (remark) remark.value = profile.remark || '';
+        if (regionLabel && profile.grid) regionLabel.textContent = profile.grid;
+      }
+
       function init() {
         if (state.initialized) return;
         console.log('[' + CONFIG.moduleId + '] 模块初始化');
         state.initialized = true;
+        if (window.getEnterpriseProfile) applyEnterpriseProfile(getEnterpriseProfile());
         renderSelectedTags();
       }
 

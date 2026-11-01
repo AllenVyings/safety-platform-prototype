@@ -8,54 +8,60 @@
 <title>项目信息管理 - 政府端</title>
 
 <style>
-.drill-body{display:flex;gap:var(--spacing-md);align-items:stretch}
-.drill-main{flex:1;min-width:0;overflow:hidden;display:flex;flex-direction:column;gap:var(--spacing-md)}
-.drill-main .table-card{flex:1;display:flex;flex-direction:column;min-height:0}
-.drill-main .table-container{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
-.drill-main .table-container .table-wrap{flex:1;overflow-x:auto;min-height:0}
-.tree-panel{width:280px;flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
-.tree-search{position:relative;padding:12px;border-bottom:1px solid var(--border-light)}
-.tree-search input{width:100%;height:32px;padding:var(--spacing-sm) 28px var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box}
-.tree-search input:focus{border-color:var(--primary)}
-.tree-search .search-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:var(--font-size-md);color:var(--text-tertiary);pointer-events:none}
-.tree-tabs{display:flex;border-bottom:1px solid var(--border-light)}
-.tree-tab{flex:1;padding:10px 0;text-align:center;font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;background:none;border:none}
+html,body{height:100%;overflow:hidden}
+.page-container{height:100%;min-height:0;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;overflow:hidden}
+#pdPage{flex:1;min-height:0;overflow:auto}
+.drill-body{flex:1;min-height:0;display:flex;gap:12px;align-items:stretch;overflow:hidden}
+.drill-main{flex:1;min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:12px}
+.drill-main .stats-row{flex-shrink:0}
+.tree-panel{width:280px;flex-shrink:0;align-self:stretch;min-height:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);display:flex;flex-direction:column;overflow:hidden;padding:12px}
+.tree-search{position:relative;padding:0 0 12px;border-bottom:1px solid var(--border-light)}
+.tree-search input{width:100%;height:32px;padding:0 12px 0 32px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box;background:var(--bg-section-alt)}
+.tree-search input:focus{border-color:var(--primary);background:var(--bg-primary)}
+.tree-search .search-icon{position:absolute;left:10px;top:16px;transform:translateY(-50%);color:var(--text-tertiary);display:flex;pointer-events:none}
+.tree-tabs{display:flex;gap:4px;padding:8px 0 0;border-bottom:1px solid var(--border-light)}
+.tree-tab{flex:1;padding:6px 0;text-align:center;font-size:var(--font-size-sm);color:var(--text-secondary);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;border-radius:var(--radius-md) var(--radius-md) 0 0}
 .tree-tab:hover{color:var(--primary)}
-.tree-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:500}
-.tree-content{flex:1;overflow-y:auto;padding:12px}
-.tree-node{display:flex;align-items:center;padding:6px var(--spacing-sm);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;font-size:var(--font-size-sm);color:var(--text-primary)}
-.tree-node:hover{background:var(--bg-page-solid)}
+.tree-tab.active{color:var(--primary);border-bottom-color:var(--primary);background:var(--primary-light);font-weight:600}
+.tree-content{flex:1;overflow-y:auto;padding:8px 0 0;min-height:0}
+.tree-node{display:flex;align-items:center;padding:6px 8px;margin-bottom:2px;border-radius:var(--radius-md);cursor:pointer;font-size:var(--font-size-sm);color:var(--text-primary)}
+.tree-node:hover{background:var(--bg-section-alt)}
 .tree-node.active{background:var(--primary-light);color:var(--primary)}
-.tree-node .arrow{margin-right:var(--spacing-xs);font-size:10px;color:var(--text-tertiary);transition:transform .2s;width:12px;text-align:center}
+.tree-node .arrow{margin-right:4px;font-size:10px;color:var(--text-tertiary);transition:transform .2s;width:12px;text-align:center;display:inline-block;flex-shrink:0}
 .tree-node .arrow.expanded{transform:rotate(90deg)}
-.tree-node .node-icon{margin-right:6px;font-size:var(--font-size-md);display:inline-flex;align-items:center}
-.tree-node .node-icon svg{display:block}
-.tree-node .node-count{margin-left:auto;font-size:11px;color:var(--text-tertiary);background:var(--bg-secondary);padding:1px 6px;border-radius:10px}
-.tree-node.active .node-count{background:var(--primary);color:var(--bg-primary)}
-.tree-children{padding-left:20px;display:block}
+.tree-node.active .arrow{color:var(--primary)}
+.tree-node .node-icon{margin-right:8px;display:inline-flex;align-items:center;flex-shrink:0}
+.tree-node .node-icon svg{display:block;width:14px;height:14px}
+.tree-node .node-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree-node .node-count{margin-left:8px;font-size:12px;color:var(--text-tertiary);flex-shrink:0;background:none;padding:0}
+.tree-node.active .node-count{color:var(--primary);background:none}
+.tree-children{margin-left:12px;padding-left:0;display:block}
+.tree-children.tree-root{margin-left:0}
 .stats-row{grid-template-columns:repeat(5,1fr)}
 
-/* 筛选栏 */
-.filter-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:var(--spacing-md) var(--spacing-lg);box-shadow:var(--shadow-sm);flex-shrink:0}
-.filter-card .filter-bar{margin-bottom:0;background:transparent;padding:0;border:none;border-radius:0;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
-.filter-item{display:flex;align-items:center;gap:6px}
-.filter-item label{font-size:var(--font-size-sm);color:var(--text-secondary);white-space:nowrap}
-.filter-bar select,.filter-bar input[type="text"]{height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);background:var(--bg-primary);color:var(--text-primary);outline:none;transition:border-color var(--duration-fast)}
-.filter-bar select:focus,.filter-bar input[type="text"]:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(22,119,255,0.1)}
-.filter-bar select{width:240px;padding-right:24px}
-.filter-bar input[type="text"]{width:240px}
-.filter-actions{display:flex;gap:20px}
-
-/* 表格工具栏 */
-.table-toolbar{display:flex;align-items:center;justify-content:flex-end;margin-bottom:var(--spacing-md)}
-.table-toolbar-actions{display:flex;gap:8px}
-
+.filter-card{flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:16px 20px}
+.filter-card .filter-bar{display:grid;grid-template-columns:max-content max-content max-content;column-gap:32px;row-gap:12px;align-items:center;margin:0;padding:0;background:transparent;border:none;border-radius:0}
+.filter-card .filter-item{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.filter-card .filter-tail{grid-column:1 / -1;display:flex;align-items:center;gap:32px;justify-self:start}
+.filter-card .filter-item label{flex:0 0 98px;width:98px;text-align:right;white-space:nowrap;font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+.filter-card .filter-bar select,.filter-card .filter-bar input[type="text"]{width:240px;flex:0 0 240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box;background:var(--bg-primary);color:var(--text-primary);outline:none}
+.filter-card .filter-bar select:focus,.filter-card .filter-bar input[type="text"]:focus{border-color:var(--primary)}
+.filter-card .filter-item .filter-query{margin-left:16px}
+.list-panel{position:relative;flex:1;min-width:0;min-height:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:16px 20px;display:flex;flex-direction:column;overflow:hidden}
+.list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;min-height:32px}
+.list-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.list-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding-left:12px;border-left:4px solid var(--primary);line-height:1.6;margin:0}
+.list-panel .table-wrap{flex:0 0 auto;min-height:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.list-panel .table-wrap.can-scroll-y{flex:0 1 auto;overflow-y:auto}
+.list-panel .table-wrap::-webkit-scrollbar{width:0;height:0}
+.list-panel .table-wrap:hover{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent}
+.list-panel .table-wrap:hover::-webkit-scrollbar{width:8px;height:8px}
+.list-panel .table-wrap:hover::-webkit-scrollbar-thumb{background:rgba(0,0,0,.28)}
+.list-panel .pagination{flex-shrink:0;margin-top:auto;padding:16px 0 0;background:transparent;border-top:none}
 .btn-link.btn-sm{font-size:var(--font-size-xs);padding:1px var(--spacing-xs)}
-.table-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md);flex:1;overflow:hidden}
-.table-container{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm);min-width:1100px}
-thead th{background:var(--bg-tertiary);padding:10px 12px;text-align:left;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;position:relative}
-tbody td{padding:10px 12px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary);max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--font-size-sm);min-width:1100px}
+thead th{background:var(--bg-table-header);padding:0 20px;height:48px;text-align:left;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;position:sticky;top:0;z-index:2;box-sizing:border-box}
+tbody td{padding:0 20px;height:48px;border-bottom:1px solid var(--bg-secondary);color:var(--text-primary);max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-sizing:border-box;vertical-align:middle}
 tbody tr:hover{background:var(--bg-section)}
 tbody tr:last-child td{border-bottom:none}
 /* 列宽固定 */
@@ -69,7 +75,8 @@ thead th:nth-child(7),tbody td:nth-child(7){width:100px;max-width:100px;text-ali
 thead th:nth-child(8),tbody td:nth-child(8){width:240px;max-width:240px}
 thead th:nth-child(9),tbody td:nth-child(9){width:80px;max-width:80px;text-align:center}
 thead th:nth-child(10),tbody td:nth-child(10){width:120px;max-width:120px}
-thead th:nth-child(11),tbody td:nth-child(11){width:260px;min-width:260px;max-width:none;overflow:visible;position:sticky;right:0;background:var(--bg-tertiary);z-index:1;box-shadow:-2px 0 4px rgba(0,0,0,0.06)}
+thead th:nth-child(11),tbody td:nth-child(11){width:260px;min-width:260px;max-width:none;overflow:visible;position:sticky;top:0;right:0;z-index:3;box-shadow:-2px 0 4px rgba(0,0,0,0.06)}
+thead th:nth-child(11){z-index:4;background:var(--bg-table-header)}
 tbody td:nth-child(11){background:var(--bg-primary)}
 tbody tr:hover td:nth-child(11){background:var(--bg-section)}
 
@@ -137,6 +144,9 @@ tbody tr:hover td:nth-child(11){background:var(--bg-section)}
 </head>
 <body>
 <script src="../../js/shared/district-data.js"></script>
+<script src="../../js/domain-data.js"></script>
+<script src="../../js/shared/project-edit-dialog.js?v=20261101-pe10"></script>
+<script src="../../js/shared/project-detail-view.js?v=20261101-pd1"></script>
 <script src="../../js/shared/project-data.js"></script>
 <script src="../../js/shared/industry-icons.js"></script>
 <script src="../../js/pagination.js"></script>
@@ -150,16 +160,17 @@ tbody tr:hover td:nth-child(11){background:var(--bg-section)}
     <span class="region-tag">辖区：南山区</span>
     <span class="region-tag" style="margin-left:8px;background:var(--info-light,#e8f4fd);color:var(--info,var(--primary))">角色：<select id="roleSwitch" onchange="switchRole(this.value)" style="border:none;background:transparent;font-size:12px;color:inherit;cursor:pointer"><option value="领导">领导</option><option value="监管人员">监管人员</option></select></span>
   </div>
+  <div id="pdPage" style="display:none"></div>
   <div class="drill-body">
     <!-- 左侧树形区域 -->
     <div class="tree-panel">
       <div class="tree-search">
-        <input type="text" id="treeSearchInput" placeholder="搜索街道/领域" onkeyup="filterTree()">
-        <span class="search-icon">&#128269;</span>
+        <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <input type="text" id="treeSearchInput" placeholder="搜索街道、社区、领域" onkeyup="filterTree()">
       </div>
       <div class="tree-tabs">
-        <button class="tree-tab active" id="tabStreet" onclick="switchTreeTab('street')">按街道筛选</button>
-        <button class="tree-tab" id="tabDomain" onclick="switchTreeTab('domain')">按领域筛选</button>
+        <button class="tree-tab active" id="tabStreet" onclick="switchTreeTab('street')">区划</button>
+        <button class="tree-tab" id="tabDomain" onclick="switchTreeTab('domain')">领域</button>
       </div>
       <div class="tree-content" id="treeContent">
         <!-- 树形内容由JS渲染 -->
@@ -187,25 +198,25 @@ tbody tr:hover td:nth-child(11){background:var(--bg-section)}
         <div class="filter-item"><label>领域小类：</label>
           <select id="filterDomain"><option value="">全部</option></select>
         </div>
-        <div class="filter-item"><label>关键词：</label>
-          <input id="filterKeyword" type="text" placeholder="搜索项目名称/编号...">
-        </div>
-        <div class="filter-actions">
-          <button class="btn btn-primary" onclick="renderTable()">查询</button>
-          <button class="btn btn-default" onclick="resetFilters()">重置</button>
+        <div class="filter-tail">
+          <div class="filter-item"><label>关键词：</label>
+            <input id="filterKeyword" type="text" placeholder="搜索项目名称/编号...">
+            <button class="btn btn-primary filter-query" type="button" onclick="renderTable()">查询</button>
+            <button class="btn btn-default" type="button" onclick="resetFilters()">重置</button>
+          </div>
         </div>
       </div>
     </div>
     <!-- 项目列表 -->
-    <div class="table-card">
-      <div class="table-toolbar">
-        <div class="table-toolbar-actions">
-          <button class="btn btn-default btn-sm" style="position:relative" onclick="openApprovalList()">📋 审批列表<span style="position:absolute;top:-6px;right:-8px;background:#fa8c16;color:#fff;font-size:11px;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center;line-height:14px;">2</span></button>
-          <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ 新增项目</button>
+    <div class="table-card list-panel">
+      <div class="list-head">
+        <div class="list-title">项目列表</div>
+        <div class="list-actions">
+          <button class="btn btn-default" type="button" style="position:relative" onclick="openApprovalList()">审批列表<span style="position:absolute;top:-6px;right:-8px;background:#fa8c16;color:#fff;font-size:11px;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center;line-height:14px;">2</span></button>
+          <button class="btn btn-primary" type="button" onclick="openAddModal()">+ 新增项目</button>
         </div>
       </div>
-      <div class="table-container">
-        <div class="table-wrap">
+      <div class="table-wrap" id="projectTableWrap">
         <table>
           <thead><tr>
             <th class="col-check"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)"></th>
@@ -215,7 +226,6 @@ tbody tr:hover td:nth-child(11){background:var(--bg-section)}
           </tr></thead>
           <tbody id="projectTableBody"><tr><td colspan="11" class="no-data">加载中...</td></tr></tbody>
         </table>
-        </div>
       </div>
       <div class="pagination" id="paginationBar"></div>
     </div>
@@ -571,6 +581,7 @@ function renderTable(){
   if(pageRows.length === 0){
     tbody.innerHTML = '<tr><td colspan="11" class="no-data">暂无数据</td></tr>';
     pg.setTotal(rows.length);
+    syncTableScroll();
     return;
   }
   tbody.innerHTML = pageRows.map(function(p, idx){
@@ -599,7 +610,26 @@ function renderTable(){
       '</tr>';
   }).join('');
   pg.setTotal(rows.length);
+  syncTableScroll();
 }
+
+function syncTableScroll(){
+  var wrap = document.getElementById('projectTableWrap');
+  var table = wrap && wrap.querySelector('table');
+  if(!table) return;
+  wrap.classList.remove('can-scroll-y');
+  var panel = wrap.parentElement;
+  var pagerEl = document.getElementById('paginationBar');
+  var head = panel.querySelector('.list-head');
+  var headStyle = head ? getComputedStyle(head) : null;
+  var panelStyle = getComputedStyle(panel);
+  var available = panel.clientHeight
+    - parseFloat(panelStyle.paddingTop) - parseFloat(panelStyle.paddingBottom)
+    - (head ? head.offsetHeight + parseFloat(headStyle.marginBottom) : 0)
+    - (pagerEl ? pagerEl.offsetHeight : 0);
+  if(table.offsetHeight > available + 1) wrap.classList.add('can-scroll-y');
+}
+window.addEventListener('resize', syncTableScroll);
 
 // ==================== 全选/反选 — SKILL.md §4.3.2 ====================
 function toggleSelectAll(checked) {
@@ -624,11 +654,7 @@ function resetFilters(){
   document.getElementById('filterStatus').value = '';
   document.getElementById('filterDomain').value = '';
   document.getElementById('filterKeyword').value = '';
-  selectedTreeNode = null;
-  refreshTree();
-  filteredProjects = allProjects.slice();
-  pg.setPage(1);
-  renderTable();
+  applyTreeFilter();
 }
 
 // ==================== 新增/编辑弹窗 ====================
@@ -636,6 +662,13 @@ var currentEditProject = null;
 var _subcontractCount = 0;
 
 function openAddModal(){
+  ProjectEditDialog.open({
+    role: 'gov',
+    mode: 'create',
+    projects: allProjects,
+    onSaved: function () { updateStats(); renderTable(); }
+  });
+  return;
   currentEditProject = null;
   _subcontractCount = 0;
   document.getElementById('modalTitle').textContent = '新增项目';
@@ -667,6 +700,14 @@ function openAddModal(){
 function openEditModal(id){
   var p = allProjects.find(function(x){return x.id === id;});
   if(!p) return;
+  ProjectEditDialog.open({
+    role: 'gov',
+    mode: 'edit',
+    record: p,
+    projects: allProjects,
+    onSaved: function () { updateStats(); renderTable(); refreshProjectDetail(); }
+  });
+  return;
   currentEditProject = p;
   _subcontractCount = 0;
   document.getElementById('modalTitle').textContent = '编辑项目';
@@ -940,50 +981,31 @@ function confirmDelete(){
 }
 
 // ==================== 项目详情 ====================
+var _detailId = null;
 function viewDetail(id){
   var p = allProjects.find(function(x){return x.id === id;});
   if(!p) return;
-  var statusCls, statusName;
-  if(p.projectCategory === '2'){
-    statusCls = operationStatusTagMap[p.projectStatus] || 'tag-default';
-    statusName = operationStatusMap[p.projectStatus] || '—';
-  }else{
-    statusCls = statusTagMap[p.projectStatus] || 'tag-default';
-    statusName = statusMap[p.projectStatus] || '—';
-  }
-  var categoryName = p.projectCategory === '2' ? '运营项目' : '在建项目';
-  var areaText = p.regionName + (p.streetName ? ' / ' + p.streetName : '') + (p.communityName ? ' / ' + p.communityName : '');
-  var html = '<div class="detail-section">';
-  html += '<div class="detail-section-title">基础信息</div>';
-  html += '<div class="detail-row"><div class="detail-label">项目类别</div><div class="detail-value">' + categoryName + '</div></div>';
-  html += '<div class="detail-row"><div class="detail-label">项目编号</div><div class="detail-value">' + p.projectNo + '</div></div>';
-  html += '<div class="detail-row"><div class="detail-label">项目名称</div><div class="detail-value">' + p.projectName + '</div></div>';
-  html += '<div class="detail-row"><div class="detail-label">领域小类</div><div class="detail-value">' + (p.domainName||'—') + '</div></div>';
-  if(p.projectCategory !== '2'){
-    html += '<div class="detail-row"><div class="detail-label">项目小类</div><div class="detail-value">' + (p.projectType||'—') + '</div></div>';
-  }
-  html += '<div class="detail-row"><div class="detail-label">项目状态</div><div class="detail-value"><span class="tag ' + statusCls + '">' + statusName + '</span></div></div>';
-  html += '<div class="detail-row"><div class="detail-label">所属区域</div><div class="detail-value">' + areaText + '</div></div>';
-  html += '<div class="detail-row"><div class="detail-label">详细地址</div><div class="detail-value">' + (p.address||'—') + '</div></div>';
-  if(p.projectCategory !== '2'){
-    html += '<div class="detail-row"><div class="detail-label">所属督导组</div><div class="detail-value">' + (p.supervisionGroupName||'—') + '</div></div>';
-  }
-  html += '<div class="detail-row"><div class="detail-label">项目描述</div><div class="detail-value">' + (p.description||'—') + '</div></div>';
-  html += '</div>';
-  html += '<div class="detail-section">';
-  html += '<div class="detail-section-title">' + (p.projectCategory === '2' ? '运营单位' : '四方责任体') + '</div>';
-  (p.parties||[]).forEach(function(pt){
-    html += '<div class="detail-row"><div class="detail-label">' + pt.partyTypeName + '</div><div class="detail-value">' + (pt.partyName||'') + (pt.creditCode ? '（' + pt.creditCode + '）' : '') + ' / ' + (pt.contactName||'') + ' / ' + (pt.contactPhone||'') + '</div></div>';
+  _detailId = id;
+  document.querySelector('.drill-body').style.display = 'none';
+  ProjectDetailView.show(document.getElementById('pdPage'), p, {
+    onBack: closeProjectDetail,
+    onEdit: function(){ openEditModal(id); }
   });
-  html += '</div>';
-  html += '<div class="detail-section">';
-  html += '<div class="detail-section-title">账号信息</div>';
-  html += '<div class="detail-row"><div class="detail-label">登录账号</div><div class="detail-value">' + (p.loginAccount||'—') + '</div></div>';
-  html += '<div class="detail-row"><div class="detail-label">安全码</div><div class="detail-value"><span class="code-cell ' + (p.codeColor||'green') + '">' + QR_ICON_SVG + '</span><span style="margin-left:6px;font-family:Consolas,monospace;font-size:12px;">' + (p.safetyCode||'—') + '</span><span style="margin-left:8px;color:' + (p.codeColor==='red'?'var(--danger)':p.codeColor==='yellow'?'var(--warning)':'var(--success)') + ';">（' + (p.codeColor==='red'?'红码':p.codeColor==='yellow'?'黄码':'绿码') + '）</span></div></div>';
-  html += '<div class="detail-row"><div class="detail-label">创建时间</div><div class="detail-value">' + (p.createTime||'—') + '</div></div>';
-  html += '</div>';
-  document.getElementById('detailBody').innerHTML = html;
-  document.getElementById('modal-detail').classList.add('show');
+  window.scrollTo(0, 0);
+}
+function closeProjectDetail(){
+  _detailId = null;
+  ProjectDetailView.hide(document.getElementById('pdPage'));
+  document.querySelector('.drill-body').style.display = '';
+}
+function refreshProjectDetail(){
+  if(!_detailId) return;
+  var p = allProjects.find(function(x){return x.id === _detailId;});
+  if(!p){ closeProjectDetail(); return; }
+  ProjectDetailView.show(document.getElementById('pdPage'), p, {
+    onBack: closeProjectDetail,
+    onEdit: function(){ openEditModal(_detailId); }
+  });
 }
 
 // ==================== 重置密码 ====================
@@ -1022,47 +1044,47 @@ function openApprovalList(){
 var currentTreeTab = 'street';
 var selectedTreeNode = null;
 
-// 领域树数据
-var domainTreeData = [
-  {code: 'IND', name: '工业制造类', icon: DOMAIN_ICONS.IND, children: [
-    {code: 'IND-PROJ', name: '工业建设项目', count: 0}
-  ]},
-  {code: 'CITY', name: '城市运行类', icon: DOMAIN_ICONS.CITY, children: [
-    {code: 'CITY-PROJ', name: '城市建设项目', count: 0}
-  ]},
-  {code: 'CONS', name: '建设工程类', icon: DOMAIN_ICONS.CONS, children: [
-    {code: 'CONS-BUILD', name: '房屋建筑项目', count: 0},
-    {code: 'CONS-CIVIL', name: '市政工程项目', count: 0},
-    {code: 'CONS-TRANS', name: '交通工程项目', count: 0}
-  ]},
-  {code: 'CHEM', name: '危险化学品类', icon: DOMAIN_ICONS.CHEM, children: [
-    {code: 'CHEM-PROJ', name: '危化品建设项目', count: 0}
-  ]},
-  {code: 'TRANS', name: '交通运输类', icon: DOMAIN_ICONS.TRANS, children: [
-    {code: 'TRANS-PROJ', name: '交通运输项目', count: 0}
-  ]},
-  {code: 'COMM', name: '公共场所类', icon: DOMAIN_ICONS.COMM, children: [
-    {code: 'COMM-PROJ', name: '公共场所项目', count: 0}
-  ]},
-  {code: 'OTH', name: '其他类', icon: DOMAIN_ICONS.OTH, children: [
-    {code: 'OTH-PROJ', name: '其他项目', count: 0}
-  ]}
-];
+function buildDomainTree(){
+  var list = (typeof DOMAIN_TABLE_DATA !== 'undefined' ? DOMAIN_TABLE_DATA : []).filter(function(d){
+    return d.status === '1' && d.mode === 'project';
+  }).map(function(d){
+    return { id: d.id, name: d.name, industry: d.industry || 'OTH', industryName: d.industryName || '其他类' };
+  });
+  [
+    { id: 'd2', name: '市政工程', industry: 'CONS', industryName: '建设工程类' },
+    { id: 'd3', name: '公路工程', industry: 'CONS', industryName: '建设工程类' },
+    { id: 'd4', name: '水利工程', industry: 'CONS', industryName: '建设工程类' }
+  ].forEach(function(ex){
+    if(!list.some(function(d){ return d.name === ex.name; })) list.push(ex);
+  });
+  var groups = [];
+  list.forEach(function(d){
+    var group = null;
+    groups.forEach(function(g){ if(g.code === d.industry) group = g; });
+    if(!group){
+      group = { code: d.industry, name: d.industryName, icon: DOMAIN_ICONS[d.industry] || DOMAIN_ICONS.OTH, expanded: true, children: [] };
+      groups.push(group);
+    }
+    group.children.push({ code: d.id, name: d.name, icon: DOMAIN_ICONS.TAG, count: 0 });
+  });
+  return groups;
+}
+var domainTreeData = buildDomainTree();
 
 // 街道树数据（从 STREETS 动态构建）
 function buildStreetTreeData() {
-  var rootNode = { code: DISTRICT_CODE, name: DISTRICT_NAME, count: 0, expanded: true, children: [] };
+  var rootNode = { code: DISTRICT_CODE, name: DISTRICT_NAME, level: 0, count: 0, expanded: true, icon: DOMAIN_ICONS.FOLDER, children: [] };
   var streetIdx = 1;
   STREETS.forEach(function(st) {
     var streetCode = DISTRICT_CODE + String(streetIdx).padStart(3, '0');
-    var streetNode = { code: streetCode, name: st.name, count: 0, children: [] };
+    var streetNode = { code: streetCode, name: st.name, level: 1, street: st.name, count: 0, icon: DOMAIN_ICONS.FOLDER, children: [] };
     var commIdx = 1;
     st.communities.forEach(function(comm) {
       var commCode = streetCode + String(commIdx).padStart(3, '0');
-      var commNode = { code: commCode, name: comm.name, count: 0, children: [] };
+      var commNode = { code: commCode, name: comm.name, level: 2, street: st.name, community: comm.name, count: 0, icon: DOMAIN_ICONS.FOLDER, children: [] };
       comm.grids.forEach(function(gridName, gi) {
         var gridCode = commCode + String(gi + 1).padStart(3, '0');
-        commNode.children.push({ code: gridCode, name: gridName, count: 0 });
+        commNode.children.push({ code: gridCode, name: gridName, level: 3, street: st.name, community: comm.name, count: 0, icon: DOMAIN_ICONS.TAG });
       });
       streetNode.children.push(commNode);
       commIdx++;
@@ -1074,28 +1096,40 @@ function buildStreetTreeData() {
 }
 var streetTreeData = buildStreetTreeData();
 
-function calcTreeCounts(data, getCount){
-  data.forEach(function(node){
-    if(node.children && node.children.length > 0){
-      calcTreeCounts(node.children, getCount);
-      node.count = node.children.reduce(function(sum, child){return sum + child.count;}, 0);
-    }else if(getCount){
-      node.count = getCount(node.code);
-    }
+function projectHasDomain(p, name){
+  if(p.domainName === name) return true;
+  return (p.domainTags || []).some(function(t){ return t.name === name; });
+}
+function projectInDistrictNode(p, node){
+  if(node.level === 0) return p.regionName === node.name;
+  if(node.level === 1) return p.streetName === node.name;
+  if(node.level === 2) return p.streetName === node.street && p.communityName === node.name;
+  return p.streetName === node.street && p.communityName === node.community && p.gridName === node.name;
+}
+function projectInDomainNode(p, node){
+  var names = node.children ? node.children.map(function(c){ return c.name; }) : [node.name];
+  return names.some(function(name){ return projectHasDomain(p, name); });
+}
+function fillTreeCounts(nodes, kind){
+  nodes.forEach(function(node){
+    node.count = allProjects.filter(function(p){
+      return kind === 'street' ? projectInDistrictNode(p, node) : projectInDomainNode(p, node);
+    }).length;
+    if(node.children) fillTreeCounts(node.children, kind);
   });
 }
 
 function renderTree(nodes, level, parentExpanded){
   if(!parentExpanded && level > 0) return '';
-  var html = '<div class="tree-children" style="' + (level === 0 ? '' : 'padding-left:var(--spacing-md)') + '">';
+  var html = '<div class="tree-children' + (level === 0 ? ' tree-root' : '') + '">';
   nodes.forEach(function(node){
     var hasChildren = node.children && node.children.length > 0;
     var isExpanded = node.expanded || false;
     var isActive = selectedTreeNode && selectedTreeNode.code === node.code;
     html += '<div class="tree-node ' + (isActive ? 'active' : '') + '" onclick="onTreeNodeClick(\'' + node.code + '\', \'' + node.name + '\', ' + level + ', event)" data-code="' + node.code + '">';
     html += '<span class="arrow ' + (isExpanded ? 'expanded' : '') + '" style="' + (hasChildren ? '' : 'visibility:hidden') + '" onclick="toggleTreeNode(\'' + node.code + '\', event)">▶</span>';
-    html += '<span class="node-icon">' + (node.icon || (level === 0 ? DOMAIN_ICONS.FOLDER : (level === 1 ? DOMAIN_ICONS.FOLDER : (level === 2 ? DOMAIN_ICONS.TAG : DOMAIN_ICONS.TAG)))) + '</span>';
-    html += '<span>' + node.name + '</span>';
+    html += '<span class="node-icon">' + (node.icon || DOMAIN_ICONS.TAG) + '</span>';
+    html += '<span class="node-label">' + node.name + '</span>';
     html += '<span class="node-count">' + node.count + '</span>';
     html += '</div>';
     if(hasChildren){
@@ -1135,17 +1169,13 @@ function onTreeNodeClick(code, name, level, event){
 }
 
 function applyTreeFilter(){
-  if(!selectedTreeNode){
+  var node = selectedTreeNode ? findTreeNode(selectedTreeNode.type === 'street' ? streetTreeData : domainTreeData, selectedTreeNode.code) : null;
+  if(!node){
     filteredProjects = allProjects.slice();
   }else if(selectedTreeNode.type === 'street'){
-    var codes = getTreeNodeDescendants(streetTreeData, selectedTreeNode.code);
-    filteredProjects = allProjects.filter(function(p){
-      return codes.indexOf(p.regionCode) >= 0 || codes.indexOf(p.streetCode) >= 0 || codes.indexOf(p.communityCode) >= 0 || codes.indexOf(p.gridCode) >= 0;
-    });
+    filteredProjects = allProjects.filter(function(p){ return projectInDistrictNode(p, node); });
   }else{
-    filteredProjects = allProjects.filter(function(p){
-      return p.domainCode === selectedTreeNode.code || (p.domainCode && p.domainCode.indexOf(selectedTreeNode.code) === 0);
-    });
+    filteredProjects = allProjects.filter(function(p){ return projectInDomainNode(p, node); });
   }
   pg.setPage(1);
   updateStats();
@@ -1199,6 +1229,7 @@ function filterTreeData(nodes, keyword){
       if(filteredChildren.length > 0){
         match = true;
         node.children = filteredChildren;
+        node.expanded = true;
       }
     }
     if(match){
@@ -1210,12 +1241,9 @@ function filterTreeData(nodes, keyword){
 
 function initTree(){
   streetTreeData = buildStreetTreeData();
-  calcTreeCounts(streetTreeData, function(code){
-    return allProjects.filter(function(p){return p.regionCode === code || p.streetCode === code || p.communityCode === code || p.gridCode === code;}).length;
-  });
-  calcTreeCounts(domainTreeData, function(code){
-    return allProjects.filter(function(p){return p.domainCode === code || (p.domainCode && p.domainCode.indexOf(code) === 0);}).length;
-  });
+  domainTreeData = buildDomainTree();
+  fillTreeCounts(streetTreeData, 'street');
+  fillTreeCounts(domainTreeData, 'domain');
   refreshTree();
 }
 

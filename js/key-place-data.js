@@ -1,7 +1,8 @@
 /**
  * 重点场所管理 — 共享数据源
- * 供超管端 key-place.html、政府端 key-place.html、政府端 domain-supervise.html 共同引用
- * 单一数据源，确保三端重点场所数据一致
+ * 供超管端 key-place.html、政府端 key-place.html、政府端 domain-supervise.html、
+ * 企业端安全管控对象 hazard-list.html 共同引用。
+ * 单一数据源（localStorage sa_key_place_data），企业端不另造场所。
  */
 
 'use strict';
@@ -19,8 +20,43 @@ var KEY_PLACE_ENTERPRISE_POOL = [
   { id: 'ent_5', name: '腾讯科技（深圳）有限公司', persons: [{id:'ep_5_1',name:'冯涛'},{id:'ep_5_2',name:'褚琳'}] },
   { id: 'ent_6', name: '招商蛇口产业园开发有限公司', persons: [{id:'ep_6_1',name:'卫军'},{id:'ep_6_2',name:'蒋玲'}] },
   { id: 'ent_7', name: '前海控股有限公司', persons: [{id:'ep_7_1',name:'沈艳'},{id:'ep_7_2',name:'韩斌'}] },
-  { id: 'ent_8', name: '深圳市西丽建设投资有限公司', persons: [{id:'ep_8_1',name:'杨柳'},{id:'ep_8_2',name:'朱锋'}] }
+  { id: 'ent_8', name: '深圳市西丽建设投资有限公司', persons: [{id:'ep_8_1',name:'杨柳'},{id:'ep_8_2',name:'朱锋'}] },
+  { id: 'ent_tiandao', name: '深圳市天道医药有限公司南山分厂', persons: [{id:'ep_td_1',name:'王五'},{id:'ep_td_2',name:'李四'}] }
 ];
+
+var KEY_PLACE_STORAGE_KEY = 'sa_key_place_data';
+var KEY_PLACE_DATA_VERSION = '2';
+/* 测试数据只让这两个领域小类关联当前企业，企业端只回显这两类 */
+var KEY_PLACE_TEST_DOMAIN_IDS = ['COMM_001', 'COMM_004'];
+var KEY_PLACE_TEST_PLACE_COUNT = 2;
+
+function loadKeyPlaceData(domainDataList) {
+  try {
+    var ver = localStorage.getItem(KEY_PLACE_STORAGE_KEY + '_version');
+    var raw = localStorage.getItem(KEY_PLACE_STORAGE_KEY);
+    if (ver === KEY_PLACE_DATA_VERSION && raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object' && Object.keys(parsed).length) return parsed;
+    }
+  } catch (e) {}
+  var data = initKeyPlaceData(domainDataList || []);
+  saveKeyPlaceData(data);
+  return data;
+}
+
+function saveKeyPlaceData(placeData) {
+  try {
+    localStorage.setItem(KEY_PLACE_STORAGE_KEY, JSON.stringify(placeData));
+    localStorage.setItem(KEY_PLACE_STORAGE_KEY + '_version', KEY_PLACE_DATA_VERSION);
+  } catch (e) {}
+}
+
+function keyPlaceMatchesEnterprise(place, enterpriseName) {
+  var name = enterpriseName || '';
+  return (place.enterprises || []).some(function(ent) {
+    return ent.ent_id === 'ent_tiandao' || (name && ent.ent_name === name);
+  });
+}
 
 /* ========== 政府部门 mock 池 ========== */
 var KEY_PLACE_GOV_DEPT_POOL = [
@@ -160,7 +196,8 @@ function initKeyPlaceData(domainDataList) {
     '招商街道': 11, '粤海街道': 16, '桃源街道': 12, '西丽街道': 17, '前海合作区': 1
   };
   var REGION_TREE = KEY_PLACE_REGION_TREE;
-  var ENTERPRISE_POOL = KEY_PLACE_ENTERPRISE_POOL;
+  var testEnt = KEY_PLACE_ENTERPRISE_POOL.filter(function(ent) { return ent.id === 'ent_tiandao'; })[0];
+  var ENTERPRISE_POOL = KEY_PLACE_ENTERPRISE_POOL.filter(function(ent) { return ent.id !== 'ent_tiandao'; });
   var GOV_DEPT_POOL = KEY_PLACE_GOV_DEPT_POOL;
   var CHECKLIST_LIB = KEY_PLACE_CHECKLIST_LIB;
   var placeData = {};
@@ -183,6 +220,8 @@ function initKeyPlaceData(domainDataList) {
         var ent1 = ENTERPRISE_POOL[(seq * 3) % ENTERPRISE_POOL.length];
         var ent2 = ENTERPRISE_POOL[(seq * 3 + 2) % ENTERPRISE_POOL.length];
         var isSlopeDomain = (domain.id === 'OTH_001' || domain.id === 'OTH_002');
+        var linkTestEnt = !isSlopeDomain && KEY_PLACE_TEST_DOMAIN_IDS.indexOf(domain.id) !== -1 && seq <= KEY_PLACE_TEST_PLACE_COUNT;
+        if (linkTestEnt && testEnt) ent1 = testEnt;
         var enterprises = isSlopeDomain ? [] : [
           { type_code: eTypes[0].code, type_name: eTypes[0].name, ent_id: ent1.id, ent_name: ent1.name, is_scanner: true, is_hazard_handler: true, is_hazard_reviewer: false },
           { type_code: (eTypes[1] || eTypes[0]).code, type_name: (eTypes[1] || eTypes[0]).name, ent_id: ent2.id, ent_name: ent2.name, is_scanner: true, is_hazard_handler: false, is_hazard_reviewer: true }
@@ -191,6 +230,10 @@ function initKeyPlaceData(domainDataList) {
         // 隐患整改/复核人（边坡类无企业，强制走政府人员）
         var handler_type = isSlopeDomain ? 'government' : ((seq % 2 === 0) ? 'enterprise' : 'government');
         var handler = handler_type === 'enterprise' ? ent1.persons[0] : GOV_DEPT_POOL[0].persons[0];
+        if (linkTestEnt && testEnt) {
+          handler_type = 'enterprise';
+          handler = testEnt.persons[0];
+        }
         var reviewer_type = isSlopeDomain ? 'government' : ((seq % 3 === 0) ? 'government' : 'enterprise');
         var reviewer = reviewer_type === 'enterprise' ? ent2.persons[0] : GOV_DEPT_POOL[1].persons[0];
 

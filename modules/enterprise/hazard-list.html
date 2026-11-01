@@ -7,50 +7,204 @@
 <link rel="stylesheet" href="../../css/variables.css">
 <link rel="stylesheet" href="../../css/framework.css">
 <style>
-.page-container{padding:20px}
-.split-view{display:flex;gap:var(--spacing-lg);height:calc(100vh - 100px);overflow:hidden}
-.tree-panel{width:400px;flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card)}
-.tree-header{padding:var(--spacing-md);border-bottom:1px solid var(--border-light);background:var(--bg-section)}
-.tree-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-sm);margin-top:var(--spacing-sm)}
-.tree-stat-card{padding:var(--spacing-sm);background:var(--bg-primary);border-radius:var(--radius-md);text-align:center;border:1px solid var(--border-light)}
-.tree-stat-value{font-size:var(--font-size-lg);font-weight:700;color:var(--text-primary)}
-.tree-stat-label{font-size:var(--font-size-xs);color:var(--text-secondary);margin-top:2px}
-.tree-search{padding:var(--spacing-sm) var(--spacing-md);border-bottom:1px solid var(--border-light)}
-.tree-search input{width:100%;padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+.module-page.page-container{height:100%;min-height:0;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;overflow:hidden}
+.split-view{display:flex;gap:12px;flex:1;min-height:0;overflow:hidden}
+.tree-panel{width:400px;flex-shrink:0;align-self:stretch;min-height:0;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card);padding:12px}
+.tree-header{padding:0 0 12px;border-bottom:1px solid var(--border-light);background:transparent}
+.tree-header-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);margin-bottom:12px;padding-left:12px;border-left:4px solid var(--primary);line-height:1.6}
+.tree-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--spacing-sm)}
+.tree-stat-card{padding:6px var(--spacing-xs);background:var(--bg-primary);border-radius:var(--radius-md);text-align:center;border:1px solid var(--border-light);min-width:0}
+.tree-stat-icon{display:flex;justify-content:center;margin-bottom:2px;color:var(--text-primary)}
+.tree-stat-value{font-size:var(--font-size-md);font-weight:600;color:var(--primary)}
+.tree-stat-label{font-size:var(--font-size-xs);color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-search{position:relative;padding:var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)}
+.tree-search .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);display:flex;pointer-events:none}
+.tree-search input{width:100%;padding:var(--spacing-sm) 12px var(--spacing-sm) 32px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box;background:var(--bg-section-alt)}
 .tree-search input:focus{border-color:var(--primary)}
-.tree-body{flex:1;overflow-y:auto;padding:var(--spacing-xs) 0}
+.tree-body{flex:1;overflow-y:auto;padding:var(--spacing-sm) 0}
+.tree-node{display:flex;align-items:center;padding:6px var(--spacing-sm);cursor:pointer;border-radius:var(--radius-md);transition:all var(--duration-normal);margin:0 0 2px}
+.tree-node:hover{background:var(--bg-section-alt)}
+.tree-node.active{background:var(--primary-light);color:var(--primary)}
+.tree-node-icon{width:14px;height:14px;display:flex;align-items:center;justify-content:center;margin-right:var(--spacing-sm);flex-shrink:0}
+.tree-node-icon svg{width:14px;height:14px}
+.tree-node-label{flex:1;min-width:0;font-size:var(--font-size-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-node-actions{display:flex;gap:0;opacity:1;flex-shrink:0;margin-left:var(--spacing-sm)}
+.tree-node-actions .btn{margin-left:var(--spacing-xs)}
+.tree-node-actions .btn:first-child{margin-left:0}
+.tree-node-actions .btn-sm{padding:1px 6px;font-size:var(--font-size-xs);line-height:1.6}
+.tree-toggle{width:12px;margin-right:var(--spacing-xs);font-size:var(--font-size-xs);color:var(--text-tertiary);cursor:pointer;flex-shrink:0;display:inline-block;text-align:center;transition:transform var(--duration-normal)}
+.tree-toggle.expanded{transform:rotate(90deg)}
+.tree-children{display:none;margin-left:16px}
+.tree-children.expanded{display:block}
 
-.tree-node{display:flex;align-items:center;padding:var(--spacing-xs) var(--spacing-sm);cursor:pointer;transition:all var(--duration-fast);gap:var(--spacing-xs)}
-.tree-node.level-1{padding-left:28px}
-.tree-node.level-2{padding-left:44px}
-.tree-node:hover{background:var(--primary-light)}
-.tree-node.active{background:var(--primary-light)}
-.tree-node-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);flex-shrink:0}
-.tree-node-label{flex:1;font-size:var(--font-size-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tree-node-type{font-size:var(--font-size-xs);color:var(--text-secondary);background:var(--bg-section-alt);padding:2px 6px;border-radius:var(--radius-sm);flex-shrink:0}
-.tree-node-actions{display:flex;gap:2px;opacity:0;transition:opacity var(--duration-fast);flex-shrink:0}
-.tree-node:hover .tree-node-actions{opacity:1}
-.tree-node-action{font-size:var(--font-size-xs);color:var(--primary);background:none;border:1px solid var(--primary);border-radius:var(--radius-sm);padding:1px 6px;cursor:pointer;white-space:nowrap;line-height:1.4}
-.tree-node-action:hover{background:var(--primary);color:var(--bg-primary)}
-.tree-toggle{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
+/* 右侧详情区不再包一层白卡，内容卡片直接浮在页面底色上（对齐 ent-info 企业基本信息页）
+   右侧无标题栏/视图 Tab，内容由左侧对象树选中驱动 */
+.detail-panel{flex:1;min-width:0;overflow:hidden;display:flex;flex-direction:column;position:relative;background:transparent;border-radius:0;box-shadow:none}
+.detail-body{flex:1;overflow-y:auto;padding:0;min-height:0;display:flex;flex-direction:column;scrollbar-gutter:stable}
+.detail-body>.view-content{flex:0 0 auto}
+/* 重点场所：浮动三卡；末卡（扫码配置）拉高与左侧树底对齐 */
+#view-keyplace{flex:1;min-height:0;display:flex;flex-direction:column}
+#view-keyplace>.detail-card{flex:0 0 auto}
+/* 直接锚定 #keyplaceScanCard：标注层可能插在末尾，:last-child 会失效 */
+#view-keyplace>#keyplaceScanCard{flex:1;min-height:0;display:flex;flex-direction:column;margin-bottom:0}
+#view-keyplace .keyplace-scan-body{flex:1;min-height:0;overflow:auto}
+/* 扫码卡是 column flex，子项默认 stretch；新增按钮按内容宽靠左 */
+#view-keyplace #keyplaceScanAddBtn{margin:0 0 12px;align-self:flex-start;width:auto;flex:0 0 auto}
+/* 编辑态：整页 is-editing；基础信息始终只读；隐患+扫码可编 */
+#view-keyplace:not(.is-editing) .keyplace-edit-only{display:none!important}
+#view-keyplace.is-editing .keyplace-view-only{display:none!important}
+#view-keyplace:not(.is-editing) .keyplace-scan-ops-edit{display:none}
+#view-keyplace.is-editing .keyplace-scan-ops-view{display:none}
+#view-keyplace .keyplace-edit-actions{display:flex;justify-content:center;gap:12px;margin-top:16px;flex-shrink:0}
+#view-keyplace .keyplace-hazard-edit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 24px;align-items:end}
+#view-keyplace .keyplace-hazard-edit .form-col{min-width:0}
+/* 选人面板要盖住下方扫码卡；左对齐避免向左伸出被裁切 */
+#view-keyplace>#keyplaceHazardCard{position:relative;z-index:3;overflow:visible}
+#view-keyplace>#keyplaceScanCard{position:relative;z-index:1}
+#view-keyplace .check-person-panel{left:0;right:auto;width:520px}
+#view-keyplace .keyplace-hazard-edit>.form-col>label{display:flex;align-items:center;gap:4px;margin-bottom:8px;font-size:var(--font-size-sm);color:var(--text-secondary);font-weight:400}
+/* 与场所新增页同一覆盖：避免 form-col input{width:100%} 把面板内搜索框和勾选框拉满 */
+#view-keyplace .form-col .check-person-search{width:calc(100% - 16px);height:30px;padding:0 10px}
+#view-keyplace .form-col .check-person-user input{width:16px;height:16px;padding:0}
+/* 场所/危险源详情：通高白底；内边距与企业码一致（24px）；底纹 100% 200px */
+#view-place,#view-hazard{flex:1;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;position:relative;background:url('images/ent-info-bg.png') center top / 100% 200px no-repeat,var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--spacing-lg);overflow:hidden}
+#view-place>.detail-card,#view-hazard>.detail-card{flex:0 0 auto;height:auto;min-height:0;width:100%;box-sizing:border-box;position:relative;z-index:1;background:transparent;box-shadow:none;padding:0;margin-bottom:20px}
+#view-place>.detail-card.card-bg,#view-hazard>.detail-card.card-bg{background:none}
+#view-place>.detail-card:last-child,#view-hazard>.detail-card:last-child{margin-bottom:0}
+/* 滚动条平时隐藏，滚动时显示，停止 600ms 后隐藏（标准属性 + webkit 双保险） */
+.scrollbar-auto{scrollbar-width:thin;scrollbar-color:transparent transparent}
+.scrollbar-auto.scrollbar-on{scrollbar-color:rgba(0,0,0,.2) transparent}
+.scrollbar-auto::-webkit-scrollbar{width:8px}
+.scrollbar-auto::-webkit-scrollbar-track{background:transparent}
+.scrollbar-auto::-webkit-scrollbar-thumb{background:transparent;border-radius:4px}
+.scrollbar-auto.scrollbar-on::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2)}
+.view-content>.detail-card:not(:has(~.detail-card)):not(:has(~.info-section)):not(:has(~.qr-section)),
+.view-content>.info-section:not(:has(~.detail-card)):not(:has(~.info-section)):not(:has(~.qr-section)),
+.view-content>.qr-section:not(:has(~.detail-card)):not(:has(~.info-section)):not(:has(~.qr-section)){margin-bottom:0}
 
-.detail-panel{flex:1;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card);position:relative}
-.detail-header{padding:var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;background:var(--bg-section)}
-.detail-title{font-size:var(--font-size-lg);font-weight:600;color:var(--text-primary)}
-.detail-body{flex:1;overflow-y:auto;padding:var(--spacing-lg)}
-
-.view-tabs{display:flex;gap:2px;background:var(--bg-section-alt);border-radius:var(--radius-md);padding:3px}
-.view-tab{padding:6px 14px;font-size:var(--font-size-xs);border-radius:var(--radius-sm);cursor:pointer;color:var(--text-secondary);background:transparent;border:none;transition:all var(--duration-normal);white-space:nowrap}
-.view-tab:hover{color:var(--text-primary);background:var(--bg-primary)}
-.view-tab.active{background:var(--primary);color:var(--bg-primary)}
-
-.info-section{margin-bottom:var(--spacing-xl)}
+.info-section{margin-bottom:12px;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--spacing-lg)}
 .info-section-title{display:flex;align-items:center;font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding:0 0 0 12px;border-left:4px solid var(--primary);margin:0 0 var(--spacing-md) 0;gap:8px;line-height:1.6}
 
-.qr-section{display:flex;gap:var(--spacing-lg);align-items:flex-start;margin-bottom:var(--spacing-lg);padding:var(--spacing-md);background:var(--bg-section-alt);border-radius:var(--radius-md)}
+.qr-section{display:flex;gap:var(--spacing-lg);align-items:flex-start;margin-bottom:12px;padding:var(--spacing-lg);background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
 .qr-placeholder{width:96px;height:96px;background:linear-gradient(135deg,var(--primary-light) 0%,var(--info-light) 100%);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:var(--font-size-sm);flex-shrink:0;border:1px solid var(--border-light)}
 .qr-meta{flex:1}
 
+/* ===== 企业视图：复用 ent-info「企业基本信息」卡片设计 ===== */
+.detail-card{background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--spacing-lg);margin-bottom:12px}
+.detail-card:last-child{margin-bottom:0}
+.detail-card.card-bg{background:url('images/ent-info-bg.png') center top / 100% 200px no-repeat,var(--bg-primary)}
+.ev-section-title{display:flex;align-items:center;font-size:16px;font-weight:600;color:var(--text-primary);padding:0 0 0 12px;border-left:4px solid var(--primary);border-radius:0!important;border-bottom:none!important;background:transparent!important;margin:0 0 16px 0!important;gap:8px;line-height:1.6}
+.ev-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.ev-info-grid>.info-row{min-width:0}
+.ev-info-grid .info-value{overflow:hidden}
+.scan-role-grid .info-label{width:148px}
+.scan-role-grid .info-row:nth-last-child(-n+2){border-bottom:none}
+.scan-edit-line{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:12px;align-items:end;margin-bottom:12px}
+.scan-edit-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.scan-edit-field label{font-size:var(--font-size-sm);color:var(--text-primary);line-height:22px;white-space:nowrap}
+.scan-edit-field label .req{color:var(--danger);margin-right:2px}
+.scan-edit-field select,.scan-edit-field input{width:100%;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);background:var(--bg-primary);box-sizing:border-box}
+.scan-edit-field input[readonly]{background:var(--bg-section);color:var(--text-primary)}
+.scan-edit-slot{display:flex;justify-content:flex-start;gap:8px;padding-bottom:1px;min-width:64px}
+.scan-edit-actions{display:flex;justify-content:center;gap:12px;margin-top:16px}
+.scan-edit-table .col-action{white-space:nowrap}
+.check-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px 32px}
+.check-field{display:flex;align-items:center;gap:16px;min-width:0}
+.check-field>label{flex:0 0 108px;text-align:right;font-size:var(--font-size-md);color:var(--text-primary);line-height:32px}
+.check-field>label .req{color:var(--danger);margin-right:2px}
+.check-control{flex:1;min-width:0;position:relative}
+.check-control>input,.check-control>select{width:100%;height:32px;padding:0 28px 0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);background:var(--bg-primary);box-sizing:border-box}
+.check-combo-btn{position:absolute;right:0;top:0;width:28px;height:32px;border:none;background:transparent;color:var(--text-tertiary);cursor:pointer}
+.check-name-menu{display:none;position:absolute;left:0;right:0;top:34px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-card);z-index:5;max-height:180px;overflow:auto}
+.check-name-option{display:block;width:100%;text-align:left;border:none;background:#fff;padding:8px 12px;font-size:var(--font-size-sm);cursor:pointer}
+.check-name-option:hover{background:var(--bg-section)}
+.check-field-wide{grid-column:1 / -1}
+.check-freq,.check-radios{display:flex;align-items:center;gap:12px;min-height:32px;font-size:var(--font-size-md)}
+.check-freq{flex-wrap:nowrap}
+.check-freq input[type=number]{width:72px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-md);box-sizing:border-box}
+.check-freq select{width:72px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-primary)}
+.check-radio{display:inline-flex;align-items:center;gap:6px;font-size:var(--font-size-md);color:var(--text-primary);cursor:pointer}
+.check-radio input{accent-color:var(--primary)}
+.check-radio:has(input:checked) span{color:var(--primary)}
+.check-config-actions{display:flex;gap:12px;margin-top:24px}
+.check-item-box{margin-top:16px;border:1px solid var(--border-light);border-radius:var(--radius-md);min-height:280px;padding:8px 0}
+.check-item-row{display:flex;align-items:center;gap:12px;padding:12px 16px}
+.check-content-row{padding-left:36px}
+.check-item-row input{flex:1;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
+.check-drag{width:18px;color:var(--text-tertiary);cursor:grab;letter-spacing:-2px;user-select:none}
+.check-recommend-list{display:flex;flex-direction:column;gap:12px}
+.check-recommend-card{border:1px solid var(--border-light);border-radius:var(--radius-md)}
+.check-recommend-card-head{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-section)}
+.check-recommend-card-name{flex:1;font-weight:600;font-size:var(--font-size-md);cursor:pointer;user-select:none;min-width:0}
+.check-recommend-all{display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:var(--font-size-xs);color:var(--text-secondary);flex-shrink:0}
+.check-recommend-all input,.check-recommend-item-row input,.check-recommend-content input{accent-color:var(--primary)}
+.check-recommend-item-row{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:var(--font-size-sm);cursor:pointer;border-top:1px solid var(--border-light)}
+.check-recommend-item-row:hover{background:var(--bg-section)}
+.check-recommend-content{display:flex;align-items:center;gap:8px;padding:6px 16px 6px 44px;font-size:var(--font-size-xs);color:var(--text-secondary);cursor:pointer;border-top:1px dashed var(--border-light)}
+.check-recommend-content:hover{color:var(--text-primary)}
+.check-recommend-summary{margin-right:auto;font-size:var(--font-size-sm);color:var(--text-secondary)}
+#checkConfigModal .modal-dialog{width:920px;max-width:calc(100vw - 48px)}
+#checkConfigModal .modal-footer{justify-content:center}
+.check-person-select{position:relative}
+.check-person-trigger{height:32px;display:flex;align-items:center;gap:8px;padding:2px 8px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);font-size:var(--font-size-sm)}
+.check-person-trigger:hover{border-color:var(--primary)}
+.check-person-placeholder{color:var(--text-placeholder)}
+.check-person-caret{color:var(--text-tertiary);font-size:12px;flex-shrink:0}
+.check-person-tags{display:flex;flex-wrap:nowrap;gap:4px;flex:1;min-width:0;overflow:hidden}
+.check-person-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--radius-sm);font-size:var(--font-size-xs);background:var(--primary-light);color:var(--primary);flex-shrink:0;max-width:120px;overflow:hidden;white-space:nowrap}
+.check-person-tag .tag-x{cursor:pointer;font-weight:700}
+.check-person-tag .tag-x:hover{color:var(--danger)}
+.check-person-more{display:none;flex-shrink:0;padding:2px 8px;border-radius:var(--radius-sm);font-size:var(--font-size-xs);background:var(--bg-section);color:var(--text-secondary);white-space:nowrap}
+.check-person-panel{display:none;position:absolute;right:0;top:calc(100% + 4px);width:520px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:1200}
+.check-person-panel.open{display:block}
+.check-person-cols{display:flex;height:280px}
+.check-person-left{width:220px;flex-shrink:0;border-right:1px solid var(--border-light);display:flex;flex-direction:column}
+.check-person-search{margin:8px;padding:0 10px;height:30px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-xs);outline:none;box-sizing:border-box}
+.check-person-tree{flex:1;overflow-y:auto;padding:4px 0}
+.check-person-dept{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:var(--font-size-sm)}
+.check-person-dept:hover{background:var(--bg-section)}
+.check-person-dept.active{background:var(--primary-light);color:var(--primary)}
+.check-person-dept.disabled{color:var(--text-tertiary);cursor:default}
+.check-person-dept.disabled:hover{background:none}
+.check-person-dept .dept-count{margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+.check-person-dept input,.check-person-user input,.check-person-all input{accent-color:var(--primary);flex-shrink:0}
+.check-person-right{flex:1;display:flex;flex-direction:column;min-width:0}
+.check-person-right-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border-light);font-size:var(--font-size-sm)}
+.check-person-right-title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.check-person-all{display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:var(--font-size-xs);color:var(--text-secondary);flex-shrink:0}
+.check-person-users{flex:1;overflow-y:auto}
+.check-person-user{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:var(--font-size-sm);cursor:pointer}
+.check-person-user:hover{background:var(--bg-section)}
+.check-person-user.disabled{color:var(--text-tertiary);cursor:default}
+.check-person-user.disabled:hover{background:none}
+.check-person-user .user-phone{margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+#checkRecommendModal{z-index:1100}
+#checkRecommendModal .modal-dialog{width:720px;max-width:calc(100vw - 48px)}
+.role-tip{position:relative;display:inline-flex;align-items:center;margin-left:4px;vertical-align:-2px}
+.role-tip-icon{width:16px;height:16px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;font-weight:700;line-height:16px;text-align:center;cursor:default}
+.role-tip-pop{display:none;position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:168px;padding:8px 10px;background:#fff;color:var(--text-primary);font-size:12px;font-weight:400;line-height:1.5;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,.12);z-index:30;text-align:left;white-space:normal}
+.role-tip-pop:after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-top-color:#fff;border-bottom:0}
+.role-tip:hover .role-tip-pop,.role-tip:focus .role-tip-pop,.role-tip:focus-within .role-tip-pop{display:block}
+/* 说明气泡向上弹出。姓名格 overflow:hidden 会把气泡裁成一条白块；悬停时抬到相邻行之上 */
+.ev-info-grid .info-value:has(.role-tip){overflow:visible}
+.role-tip:hover,.role-tip:focus,.role-tip:focus-within{z-index:40}
+.info-row:has(.role-tip:hover),.info-row:has(.role-tip:focus),.info-row:has(.role-tip:focus-within),
+.place-person-row:has(.role-tip:hover),.place-person-row:has(.role-tip:focus),.place-person-row:has(.role-tip:focus-within),
+.scan-edit-field:has(.role-tip:hover),.scan-edit-field:has(.role-tip:focus),.scan-edit-field:has(.role-tip:focus-within){position:relative;z-index:6}
+.info-row{display:flex;align-items:flex-start;padding:var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)}
+.info-row:last-child{border-bottom:none}
+.info-row .info-label{width:120px;flex-shrink:0;font-size:var(--font-size-sm);color:var(--text-secondary);line-height:28px}
+.info-row .info-value{flex:1;font-size:var(--font-size-md);color:var(--text-primary);line-height:28px;min-width:0}
+.address-row{display:flex;align-items:center;gap:var(--spacing-sm);flex:1;min-width:0}
+.address-row .address-text{flex:1;min-width:0;font-size:var(--font-size-md);color:var(--text-primary);line-height:28px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{display:inline-flex;padding:0;background:none;border:none;cursor:pointer;flex-shrink:0}
+.icon-btn:hover svg{fill:#0958d9}
+.image-thumb{width:80px;height:80px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background-size:cover;background-position:center}
+.supervisor-table{width:100%;border-collapse:collapse}
+.supervisor-table th,.supervisor-table td{padding:var(--spacing-sm) var(--spacing-md);text-align:left;border-bottom:1px solid var(--border-light);font-size:var(--font-size-sm)}
+.supervisor-table th{background:var(--bg-tertiary);font-weight:600;color:var(--text-secondary);font-size:var(--font-size-xs)}
+.supervisor-table tr:last-child td{border-bottom:none}
 .checklist-card{background:var(--bg-section);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:var(--spacing-md);margin-bottom:var(--spacing-sm)}
 .checklist-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-sm)}
 .checklist-card-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
@@ -62,6 +216,8 @@
 .scan-config-table{width:100%;border-collapse:collapse;font-size:var(--font-size-xs)}
 .scan-config-table th{background:var(--bg-tertiary);padding:8px 10px;text-align:left;font-weight:600;border-bottom:1px solid var(--border-light)}
 .scan-config-table td{padding:8px 10px;border-bottom:1px solid var(--bg-secondary)}
+#enterpriseScanCard .scan-config-table{font-size:var(--font-size-md);margin-top:var(--spacing-lg)}
+#enterpriseScanCard .scan-config-table th,#enterpriseScanCard .scan-config-table td{padding:12px 16px;font-size:var(--font-size-md)}
 .scan-config-table .type-auto{color:var(--primary);background:var(--primary-light);padding:1px 6px;border-radius:3px}
 .scan-config-table .type-manual{color:var(--accent);background:var(--accent-light);padding:1px 6px;border-radius:3px}
 
@@ -73,8 +229,41 @@
 .form-col label .req{color:var(--danger);margin-right:2px}
 .form-col input,.form-col select,.form-col textarea{width:100%;padding:var(--spacing-sm) 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box}
 .form-col input:focus,.form-col select:focus,.form-col textarea:focus{border-color:var(--primary)}
-
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text-tertiary)}
+/* 选人面板在 form-col 内时，label/input 默认样式会把人员行压成一块。对齐新增检查表「扫码责任人」：姓名居左、手机号居右 */
+.form-col label.check-person-user{display:flex;align-items:center;gap:8px;margin-bottom:0;padding:8px 12px;font-weight:400;font-size:var(--font-size-sm);color:var(--text-primary);cursor:pointer}
+.form-col label.check-person-user input{width:16px;height:16px;padding:0;margin:0;border:none;border-radius:0;flex:0 0 16px}
+.form-col label.check-person-user>span:not(.user-phone){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.form-col label.check-person-user .user-phone{margin-left:auto;flex-shrink:0;font-size:var(--font-size-xs);font-weight:400;color:var(--text-tertiary)}
+.form-col .check-person-search{width:calc(100% - 16px);height:30px;padding:0 10px}
+#view-add-place .form-col input:not([type="checkbox"]),#view-add-place .form-col select,
+#view-add-hazard .form-col input:not([type="checkbox"]),#view-add-hazard .form-col select{height:32px;background:var(--bg-primary)}
+#view-add-place .add-place-top,#view-add-hazard .add-place-top{display:grid;grid-template-columns:1fr 1fr;gap:16px 48px}
+#view-add-place .add-place-upload,#view-add-hazard .add-place-upload{width:148px;height:148px;border:1px dashed var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--text-tertiary);background:var(--bg-primary);cursor:pointer}
+#view-add-place .add-place-upload:hover,#view-add-hazard .add-place-upload:hover{border-color:var(--primary);color:var(--primary)}
+#view-add-place .add-place-hint,#view-add-hazard .add-place-hint{margin-top:8px;font-size:12px;color:var(--text-tertiary);line-height:1.7}
+#view-add-place .add-place-radios,#view-add-hazard .add-place-radios{display:flex;align-items:center;gap:16px;height:32px}
+#view-add-place .add-place-radios label,#view-add-hazard .add-place-radios label{display:inline-flex;align-items:center;gap:6px;font-weight:400;margin:0;cursor:pointer}
+#view-add-place .add-place-radios input,#view-add-hazard .add-place-radios input{width:16px;height:16px;accent-color:var(--primary)}
+#view-add-place .add-place-person-row,#view-add-hazard .add-place-person-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:12px 24px;align-items:end;margin-top:16px}
+#view-add-place .add-place-row-actions,#view-add-hazard .add-place-row-actions{display:flex;gap:8px;min-height:32px;align-items:center}
+#view-add-place .add-place-scan-btn,#view-add-hazard .add-place-scan-btn{margin:0 0 12px}
+#view-add-place .add-place-empty,#view-add-hazard .add-place-empty,#view-hazard .place-empty{text-align:center;color:var(--text-tertiary);padding:16px 12px}
+#view-add-place .check-person-panel,#view-add-hazard .check-person-panel{left:0;right:auto;width:480px}
+#view-add-place .form-col .check-person-search,#view-add-hazard .form-col .check-person-search{width:calc(100% - 16px);height:30px;padding:0 10px}
+#view-add-place .form-col .check-person-user input,#view-add-hazard .form-col .check-person-user input{width:16px;height:16px;padding:0}
+#view-add-place .add-place-footer,#view-add-hazard .add-place-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+#view-add-hazard .add-hazard-place-wrap{margin-top:16px}
+#view-place .btn-place-delete,#view-hazard .btn-place-delete{background:var(--danger-light);border-color:var(--danger-light);color:var(--danger)}
+#view-place .btn-place-delete:hover,#view-hazard .btn-place-delete:hover{background:#ffccc7;border-color:#ffccc7;color:var(--danger)}
+#view-place .place-person-name,#view-hazard .place-person-name,#view-keyplace .place-person-name{display:inline-flex;align-items:center;gap:6px}
+#view-place .place-basic-grid .info-row,#view-hazard .place-basic-grid .info-row,#view-keyplace .place-basic-grid .info-row{border-bottom:none;padding:10px 0}
+#view-place .place-basic-grid .info-label,#view-hazard .place-basic-grid .info-label,#view-keyplace .place-basic-grid .info-label{color:var(--text-secondary);width:112px}
+#view-place .place-person-row,#view-hazard .place-person-row,#view-keyplace .place-person-row{grid-column:1/-1;display:grid;grid-template-columns:112px minmax(0,1fr) 112px minmax(0,1fr);gap:0 16px;align-items:center;padding:10px 0}
+#view-place .place-person-row .info-label,#view-hazard .place-person-row .info-label,#view-keyplace .place-person-row .info-label{width:auto;line-height:28px}
+#view-place .place-person-row .info-value,#view-hazard .place-person-row .info-value,#view-keyplace .place-person-row .info-value{line-height:28px;font-size:var(--font-size-md);color:var(--text-primary);min-width:0}
+#view-place .place-empty,#view-keyplace .place-empty{text-align:center;color:var(--text-tertiary);padding:16px 12px}
+#view-keyplace .keyplace-thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text-tertiary);background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
 .empty-icon{font-size:48px;margin-bottom:var(--spacing-sm)}
 
 .person-selector-trigger{width:100%;height:32px;display:flex;justify-content:space-between;align-items:center;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);font-size:var(--font-size-sm)}
@@ -99,9 +288,6 @@
 .upload-placeholder p{margin:var(--spacing-sm) 0;font-size:var(--font-size-sm)}
 .upload-hint{font-size:var(--font-size-xs);color:var(--text-placeholder)}
 
-.tree-toolbar{display:flex;justify-content:flex-end;gap:var(--spacing-sm);padding:var(--spacing-xs) var(--spacing-md);border-bottom:1px solid var(--border-light)}
-.tree-toolbar .btn-sm{font-size:var(--font-size-xs);padding:2px 8px}
-
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:300px;color:var(--text-tertiary);text-align:center;padding:var(--spacing-xl)}
 .empty-state .empty-icon{font-size:48px;margin-bottom:var(--spacing-md);opacity:.6}
 .empty-state .empty-title{font-size:var(--font-size-md);font-weight:500;color:var(--text-secondary);margin-bottom:var(--spacing-sm)}
@@ -114,6 +300,7 @@
 @keyframes spin{to{transform:rotate(360deg)}}
 
 #_toast{position:fixed;top:var(--spacing-lg);left:50%;transform:translateX(-50%);padding:var(--spacing-sm) var(--spacing-lg);background:var(--text-primary);color:var(--bg-primary);border-radius:var(--radius-md);font-size:var(--font-size-md);z-index:99999;opacity:0;transition:opacity var(--duration-normal);pointer-events:none}
+.checklist-source-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:var(--spacing-sm) 0}
 </style>
 </head>
 <body>
@@ -122,104 +309,89 @@
   <div class="split-view">
     <!-- ===== 左侧面板 (400px) ===== -->
     <div class="tree-panel">
-      <!-- 统计卡片 (PRD §6.3.5.3.1) -->
+      <!-- 统计卡片 (PRD §6.3.5.3.1 · 基础模式取 3 张：企业码/场所码/危险源码) -->
       <div class="tree-header">
-        <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">安全管控对象</div>
+        <div class="tree-header-title">安全管控对象</div>
         <div class="tree-stats">
           <div class="tree-stat-card">
+            <div class="tree-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/></svg></div>
             <div class="tree-stat-value">1</div>
-            <div class="tree-stat-label">项目码</div>
+            <div class="tree-stat-label">企业码</div>
           </div>
           <div class="tree-stat-card">
-            <div class="tree-stat-value">3</div>
-            <div class="tree-stat-label">区域</div>
-          </div>
-          <div class="tree-stat-card">
+            <div class="tree-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/></svg></div>
             <div class="tree-stat-value">5</div>
             <div class="tree-stat-label">场所码</div>
           </div>
           <div class="tree-stat-card">
+            <div class="tree-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
             <div class="tree-stat-value">2</div>
-            <div class="tree-stat-label">危险源</div>
+            <div class="tree-stat-label">危险源码</div>
           </div>
         </div>
       </div>
-      <!-- 搜索框 -->
       <div class="tree-search">
-        <input type="text" placeholder="搜索对象名称/编码..." id="treeSearchInput">
+        <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <input type="text" placeholder="搜索管控对象..." id="treeSearchInput">
       </div>
-      <!-- 工具栏 -->
-      <div class="tree-toolbar">
-        <button class="btn btn-link btn-sm" onclick="expandAllTree()">展开全部</button>
-        <button class="btn btn-link btn-sm" onclick="collapseAllTree()">收起全部</button>
-      </div>
-      <!-- 对象树 (项目码→区域→场所/危险源) -->
-      <div class="tree-body">
-        <!-- 项目码 (根节点) -->
-        <div class="tree-node active" onclick="switchView('project')">
-          <span class="tree-toggle" onclick="event.stopPropagation()">▼</span>
-          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M12 2L2 10h20L12 2z"/><rect x="8" y="14" width="3" height="3"/><rect x="13" y="14" width="3" height="3"/></svg></span>
-          <span class="tree-node-label">创安电子科技有限公司</span>
+      <div class="tree-body scrollbar-auto">
+        <div class="tree-node active" onclick="switchView('enterprise')">
+          <span class="tree-toggle expanded" onclick="toggleObjectTree(this)">▶</span>
+          <span class="tree-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/></svg></span>
+          <span class="tree-node-label" id="enterpriseRootLabel" title="企业码-深圳市天道医药有限公司南山分厂">企业码-深圳市天道医药有限公司南山分厂</span>
           <span class="tree-node-actions">
-            <button class="tree-node-action" title="新增子区域" onclick="event.stopPropagation();switchView('add-area')">+区域</button>
+            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openAddPlace()">+场所</button>
+            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openAddHazard()">+危险源</button>
           </span>
         </div>
-        <!-- A区 -->
-        <div class="tree-node level-1" onclick="switchView('area')">
-          <span class="tree-toggle" onclick="event.stopPropagation()">▼</span>
-          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="tree-node-label">A区 - 生产区</span>
-          <span class="tree-node-actions">
-            <button class="tree-node-action" title="新增场所" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
-            <button class="tree-node-action" title="新增危险源" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
-          </span>
-        </div>
-        <!-- A区下的场所 -->
-        <div class="tree-node level-2" onclick="switchView('place')">
-          <span class="tree-toggle"></span>
-          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4"/><rect x="8" y="6" width="3" height="3"/><rect x="13" y="6" width="3" height="3"/><rect x="8" y="11" width="3" height="3"/><rect x="13" y="11" width="3" height="3"/></svg></span>
-          <span class="tree-node-label">1号生产车间</span>
-          <span class="tree-node-type">场所</span>
-        </div>
-        <div class="tree-node level-2" onclick="switchView('place')">
-          <span class="tree-toggle"></span>
-          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4"/><rect x="8" y="6" width="3" height="3"/><rect x="13" y="6" width="3" height="3"/><rect x="8" y="11" width="3" height="3"/><rect x="13" y="11" width="3" height="3"/></svg></span>
-          <span class="tree-node-label">2号生产车间</span>
-          <span class="tree-node-type">场所</span>
-        </div>
-        <!-- A区下的危险源 -->
-        <div class="tree-node level-2" onclick="switchView('hazard')">
-          <span class="tree-toggle"></span>
-          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-          <span class="tree-node-label">电动车充电区</span>
-          <span class="tree-node-type">危险源</span>
-        </div>
-        <!-- B区 -->
-        <div class="tree-node level-1" onclick="switchView('area')">
-          <span class="tree-toggle" onclick="event.stopPropagation()">▶</span>
-          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="tree-node-label">B区 - 仓储区</span>
-          <span class="tree-node-actions">
-            <button class="tree-node-action" title="新增场所" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
-            <button class="tree-node-action" title="新增危险源" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
-          </span>
-        </div>
-        <!-- C区 -->
-        <div class="tree-node level-1" onclick="switchView('area')">
-          <span class="tree-toggle" onclick="event.stopPropagation()">▶</span>
-          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="tree-node-label">C区 - 重点区域</span>
-          <span class="tree-node-actions">
-            <button class="tree-node-action" title="新增场所" onclick="event.stopPropagation();switchView('add-place')">+场所</button>
-            <button class="tree-node-action" title="新增危险源" onclick="event.stopPropagation();switchView('add-hazard')">+危险源</button>
-          </span>
-        </div>
-        <!-- 重点场所 (政府配置, 只读) -->
-        <div class="tree-node level-1" onclick="switchView('keyplace')">
-          <span class="tree-toggle"></span>
-          <span class="tree-node-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-          <span class="tree-node-label">2号充换电站</span>
-          <span class="tree-node-type">重点</span>
+        <div class="tree-children expanded">
+          <div class="tree-node" onclick="switchView('place','place-1')">
+            <span class="tree-toggle" onclick="toggleObjectTree(this)">▶</span>
+            <span class="tree-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/></svg></span>
+            <span class="tree-node-label" title="场所码-1号生产车间">场所码-1号生产车间</span>
+            <span class="tree-node-actions">
+              <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openAddHazard('place-1')">+危险源</button>
+            </span>
+          </div>
+          <div class="tree-children">
+            <div class="tree-node" onclick="switchView('hazard','hazard-1')">
+              <span class="tree-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+              <span class="tree-node-label" title="危险源码-电动车充电区">危险源码-电动车充电区</span>
+            </div>
+          </div>
+          <div class="tree-node" onclick="switchView('place','place-2')">
+            <span class="tree-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/></svg></span>
+            <span class="tree-node-label" title="场所码-2号生产车间">场所码-2号生产车间</span>
+            <span class="tree-node-actions">
+              <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openAddHazard('place-2')">+危险源</button>
+            </span>
+          </div>
+          <div class="tree-node" onclick="switchView('place','place-3')">
+            <span class="tree-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/></svg></span>
+            <span class="tree-node-label" title="场所码-材料仓库">场所码-材料仓库</span>
+            <span class="tree-node-actions">
+              <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openAddHazard('place-3')">+危险源</button>
+            </span>
+          </div>
+          <div class="tree-node" onclick="switchView('place','place-4')">
+            <span class="tree-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/></svg></span>
+            <span class="tree-node-label" title="场所码-办公楼">场所码-办公楼</span>
+            <span class="tree-node-actions">
+              <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openAddHazard('place-4')">+危险源</button>
+            </span>
+          </div>
+          <div class="tree-node" onclick="switchView('place','place-5')">
+            <span class="tree-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/></svg></span>
+            <span class="tree-node-label" title="场所码-配电室">场所码-配电室</span>
+            <span class="tree-node-actions">
+              <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openAddHazard('place-5')">+危险源</button>
+            </span>
+          </div>
+          <div class="tree-node" onclick="switchView('hazard','hazard-2')">
+            <span class="tree-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+            <span class="tree-node-label" title="危险源码-危化品存储柜">危险源码-危化品存储柜</span>
+          </div>
+          <div id="keyplaceTreeMount"></div>
         </div>
       </div>
     </div>
@@ -231,290 +403,345 @@
         <div class="loading-spinner"></div>
         <div class="loading-text">加载中...</div>
       </div>
-      <div class="detail-header">
-        <span class="detail-title" id="detailTitle">创安电子科技有限公司</span>
-        <div class="view-tabs" id="viewTabs">
-          <button class="view-tab active" data-view="project" onclick="switchView('project')">项目视图</button>
-          <button class="view-tab" data-view="area" onclick="switchView('area')">区域视图</button>
-          <button class="view-tab" data-view="place" onclick="switchView('place')">场所视图</button>
-          <button class="view-tab" data-view="hazard" onclick="switchView('hazard')">危险源视图</button>
-          <button class="view-tab" data-view="keyplace" onclick="switchView('keyplace')">重点场所</button>
-        </div>
-      </div>
-      <div class="detail-body">
+      <!-- 右侧不设标题栏/视图 Tab，全部由左侧对象树的选中状态驱动 -->
+      <div class="detail-body scrollbar-auto">
 
-        <!-- ===== 空状态（默认显示） ===== -->
-        <div class="view-content empty-state" id="view-empty">
+        <!-- ===== 空状态（兜底，企业码根节点默认选中故不展示） ===== -->
+        <div class="view-content empty-state" id="view-empty" style="display:none">
           <div class="empty-icon">👈</div>
           <div class="empty-title">请从左侧选择对象</div>
-          <div class="empty-desc">选择项目、区域、场所或危险源后，可在此处查看详细信息</div>
+          <div class="empty-desc">选择企业码、场所码或危险源码后，可在此处查看详细信息</div>
         </div>
 
-        <!-- ===== 项目视图 (§6.3.5.3.5) ===== -->
-        <div class="view-content" id="view-project" style="display:none">
-          <div class="qr-section">
-            <div class="qr-placeholder">项目二维码</div>
-            <div class="qr-meta">
-              <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">项目基本信息</div>
-              <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
-                <div class="info-item"><span class="info-label">项目名称</span><span class="info-value">创安电子科技有限公司</span></div>
-                <div class="info-item"><span class="info-label">项目编码</span><span class="info-value">PRJ-2026-001</span></div>
-                <div class="info-item"><span class="info-label">项目状态</span><span class="info-value"><span class="tag tag-green">在建</span></span></div>
-                <div class="info-item"><span class="info-label">注册日期</span><span class="info-value">2026-05-12</span></div>
+        <!-- ===== 企业视图 (§6.3.5.3.7.1 基础模式-企业视图)：复用 ent-info 基础信息卡片。企业码为根节点，载入即选中 ===== -->
+        <div class="view-content" id="view-enterprise">
+
+          <!-- 基础信息 -->
+          <div class="detail-card card-bg">
+            <div class="ev-section-title">基础信息</div>
+            <div class="ev-info-grid">
+              <div class="info-row"><span class="info-label">企业名称</span><span class="info-value" id="entProfileName"></span></div>
+              <div class="info-row"><span class="info-label">统一社会信用代码</span><span class="info-value" id="entProfileCredit"></span></div>
+              <div class="info-row"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green" id="entProfileStatus">启用</span></span></div>
+              <div class="info-row"><span class="info-label">法定代表人</span><span class="info-value" id="entProfileLegal"></span></div>
+              <div class="info-row"><span class="info-label">联系电话</span><span class="info-value" id="entProfilePhone"></span></div>
+              <div class="info-row"><span class="info-label">归属网格</span><span class="info-value" id="entProfileGrid"></span></div>
+              <div class="info-row"><span class="info-label">注册地址</span><span class="info-value"><div class="address-row"><span class="address-text" id="entProfileReg"></span></div></span></div>
+              <div class="info-row"><span class="info-label">经营地址</span><span class="info-value"><div class="address-row"><span class="address-text" id="entProfileBiz"></span></div></span></div>
+              <div class="info-row" style="grid-column:1/-1"><span class="info-label">备注</span><span class="info-value" id="entProfileRemark"></span></div>
+              <div class="info-row" style="grid-column:1/-1"><span class="info-label">企业图片</span><span class="info-value"><div class="image-thumb" style="background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23f0f2f5' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='12' font-family='sans-serif'%3E暂无图片%3C/text%3E%3C/svg%3E&quot;);"></div></span></div>
+            </div>
+          </div>
+
+          <!-- 监管单位 -->
+          <div class="detail-card">
+            <div class="ev-section-title">监管单位</div>
+            <table class="supervisor-table">
+              <thead><tr><th style="width:50%">监管类型</th><th>监管单位名称</th></tr></thead>
+              <tbody>
+                <tr><td>行业监管单位</td><td id="entProfileIndustry"></td></tr>
+                <tr><td>专业监管单位</td><td id="entProfileProfessional"></td></tr>
+                <tr><td>属地监管单位</td><td id="entProfileLocal"></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 扫码配置：只读态由脚本按已保存数据渲染。点编辑进入编辑态 -->
+          <div class="detail-card" id="enterpriseScanCard">
+            <div class="ev-section-title">扫码配置
+              <button class="btn btn-sm btn-primary" id="enterpriseScanEditBtn" style="margin-left:auto" onclick="openEnterpriseScanEdit()">编辑</button>
+            </div>
+            <div id="enterpriseScanView">
+              <div class="ev-info-grid scan-role-grid" id="enterpriseScanRoleView"></div>
+              <table class="scan-config-table">
+                <thead>
+                  <tr>
+                    <th>序号</th><th>责任类型</th><th>扫码责任人</th><th>检查频次</th><th>检查表名称</th><th>是否过滤节假日</th>
+                  </tr>
+                </thead>
+                <tbody id="enterpriseScanCheckView"></tbody>
+              </table>
+            </div>
+            <div id="enterpriseScanEdit" style="display:none">
+              <div id="enterpriseScanRoleEdit"></div>
+              <button class="btn btn-sm btn-primary" style="margin-top:4px" onclick="openCheckConfig(-1)">+ 新增检查表</button>
+              <table class="scan-config-table scan-edit-table">
+                <thead>
+                  <tr>
+                    <th>序号</th><th>责任类型</th><th>扫码责任人</th><th>检查频次</th><th>检查表名称</th><th>是否过滤节假日</th><th class="col-action">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="enterpriseScanCheckEdit"></tbody>
+              </table>
+              <div class="scan-edit-actions">
+                <button class="btn btn-primary" type="button" onclick="confirmEnterpriseScan()">确认</button>
+                <button class="btn btn-default" type="button" onclick="closeEnterpriseScan()">关闭</button>
               </div>
             </div>
           </div>
 
-          <div class="info-section">
-            <div class="info-section-title">四方责任体</div>
-            <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
-              <div class="info-item"><span class="info-label">企业主要负责人</span><span class="info-value">王建国</span></div>
-              <div class="info-item"><span class="info-label">安全管理员</span><span class="info-value">张三</span></div>
-              <div class="info-item"><span class="info-label">区域责任人</span><span class="info-value">李四</span></div>
-              <div class="info-item"><span class="info-label">整改责任人</span><span class="info-value">赵六</span></div>
-            </div>
-          </div>
-
-          <div class="info-section">
-            <div class="info-section-title">监管单位信息</div>
-            <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
-              <div class="info-item"><span class="info-label">行业监管单位</span><span class="info-value">南山区工信局</span></div>
-              <div class="info-item"><span class="info-label">专业监管单位</span><span class="info-value">南山区应急管理局</span></div>
-              <div class="info-item"><span class="info-label">属地监管单位</span><span class="info-value">南山区南山街道办</span></div>
-              <div class="info-item"><span class="info-label">主领域小类</span><span class="info-value">充换电设施</span></div>
-            </div>
-          </div>
         </div>
 
-        <!-- ===== 区域视图 (§6.3.5.3.6) ===== -->
-        <div class="view-content" id="view-area" style="display:none">
-          <div class="info-section">
-            <div class="info-section-title">区域基本信息
-              <span style="float:right">
-                <button class="btn btn-sm btn-default" onclick="showToast('编辑区域')">编辑</button>
-                <button class="btn btn-sm btn-danger" onclick="openMigrateModal()">删除</button>
+        <!-- ===== 场所视图：按样例「标签：值」详情（基础信息 + 扫码配置） ===== -->
+        <div class="view-content" id="view-place" style="display:none">
+          <div class="detail-card card-bg">
+            <div class="ev-section-title">基础信息
+              <span style="margin-left:auto;display:inline-flex;gap:8px">
+                <button class="btn btn-sm btn-primary" type="button" onclick="editPlace()">编辑</button>
+                <button class="btn btn-sm btn-place-delete" type="button" onclick="showToast('删除场所')">删除</button>
               </span>
             </div>
-            <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--spacing-sm)">
-              <div class="info-item"><span class="info-label">区域名称</span><span class="info-value">A区 - 生产区</span></div>
-              <div class="info-item"><span class="info-label">排序号</span><span class="info-value">1</span></div>
-              <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
-            </div>
+            <div class="ev-info-grid place-basic-grid" id="placeBasicGrid"></div>
           </div>
-
-          <div class="info-section">
-            <div class="info-section-title">下属对象列表</div>
-            <table class="table-basic" style="min-width:auto">
-              <thead>
-                <tr><th>对象名称</th><th>类型</th><th>状态</th><th>整改责任人</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>1号生产车间</td><td><span class="tree-node-type">场所</span></td><td><span class="tag tag-green">启用</span></td><td>张三</td></tr>
-                <tr><td>2号生产车间</td><td><span class="tree-node-type">场所</span></td><td><span class="tag tag-green">启用</span></td><td>李四</td></tr>
-                <tr><td>电动车充电区</td><td><span class="tree-node-type" style="background:var(--warning-light);color:var(--warning)">危险源</span></td><td><span class="tag tag-green">启用</span></td><td>王五</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ===== 场所视图 (§6.3.5.3.7) ===== -->
-        <div class="view-content" id="view-place" style="display:none">
-          <!-- 基本信息 + 二维码 -->
-          <div class="qr-section">
-            <div class="qr-placeholder">场所二维码</div>
-            <div class="qr-meta">
-              <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">1号生产车间
-                <span style="float:right">
-                  <button class="btn btn-sm btn-default" onclick="showToast('编辑场所')">编辑</button>
-                  <button class="btn btn-sm btn-danger" onclick="showToast('删除场所')">删除</button>
-                </span>
-              </div>
-              <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
-                <div class="info-item"><span class="info-label">场所类型</span><span class="info-value">生产车间</span></div>
-                <div class="info-item"><span class="info-label">所属区域</span><span class="info-value">A区 - 生产区</span></div>
-                <div class="info-item"><span class="info-label">整改责任人</span><span class="info-value">张三</span></div>
-                <div class="info-item"><span class="info-label">联系电话</span><span class="info-value">138****0001</span></div>
-                <div class="info-item"><span class="info-label">隐患整改复核人</span><span class="info-value">李四、王五</span></div>
-                <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 专属检查表 -->
-          <div class="info-section">
-            <div class="info-section-title">专属检查表</div>
-            <div class="checklist-card">
-              <div class="checklist-card-header">
-                <span class="checklist-card-title">生产车间日常安全检查表</span>
-                <div class="checklist-card-actions">
-                  <button class="btn btn-sm btn-default" onclick="showToast('编辑检查表')">编辑</button>
-                  <button class="btn btn-sm btn-link danger" onclick="showToast('删除检查表')">删除</button>
-                </div>
-              </div>
-              <div class="checklist-grid">
-                <div><div class="checklist-field-label">检查表名称</div><div class="checklist-field-value">生产车间日常安全检查表</div></div>
-                <div><div class="checklist-field-label">检查项数</div><div class="checklist-field-value">15项</div></div>
-                <div><div class="checklist-field-label">跳过节假日</div><div class="checklist-field-value">是</div></div>
-              </div>
-            </div>
-            <div class="checklist-card">
-              <div class="checklist-card-header">
-                <span class="checklist-card-title">消防安全专项检查表</span>
-                <div class="checklist-card-actions">
-                  <button class="btn btn-sm btn-default" onclick="showToast('编辑检查表')">编辑</button>
-                  <button class="btn btn-sm btn-link danger" onclick="showToast('删除检查表')">删除</button>
-                </div>
-              </div>
-              <div class="checklist-grid">
-                <div><div class="checklist-field-label">检查表名称</div><div class="checklist-field-value">消防安全专项检查表</div></div>
-                <div><div class="checklist-field-label">检查项数</div><div class="checklist-field-value">10项</div></div>
-                <div><div class="checklist-field-label">跳过节假日</div><div class="checklist-field-value">否</div></div>
-              </div>
-            </div>
-            <div style="text-align:center;padding:var(--spacing-sm)">
-              <button class="btn btn-sm btn-primary" onclick="showToast('从检查库引用')">+ 引用检查表</button>
-            </div>
-          </div>
-
-          <!-- 扫码配置 (§6.3.5.3.3 表格) -->
-          <div class="info-section">
-            <div class="info-section-title">扫码配置</div>
+          <div class="detail-card">
+            <div class="ev-section-title">扫码配置</div>
             <table class="scan-config-table">
               <thead>
                 <tr>
-                  <th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th>
-                  <th>检查频次</th><th>跳过节假日</th><th>完成规则</th><th>配置类型</th><th>操作</th>
+                  <th>序号</th><th>责任类型</th><th>扫码责任人</th><th>检查频次</th><th>检查表名称</th><th>是否过滤节假日</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>1</td><td>创安电子科技</td><td>日常安全检查表</td><td>张三</td>
-                  <td>每周1次</td><td>否</td><td>所有人完成</td>
-                  <td><span class="type-auto">自动</span></td><td>—</td>
-                </tr>
-                <tr>
-                  <td>2</td><td>创安电子科技</td><td>消防安全检查表</td><td>李四</td>
-                  <td>每月1次</td><td>是</td><td>任意一人完成</td>
-                  <td><span class="type-auto">自动</span></td><td>—</td>
-                </tr>
-                <tr>
-                  <td>3</td><td>创安电子科技</td><td>设备巡检表</td><td>王五</td>
-                  <td>每日1次</td><td>否</td><td>所有人完成</td>
-                  <td><span class="type-manual">手动</span></td>
-                  <td><button class="btn-link danger" onclick="showToast('删除配置')">删除</button></td>
-                </tr>
-              </tbody>
+              <tbody id="placeScanBody"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- ===== 危险源视图 (§6.3.5.3.8) ===== -->
+        <!-- ===== 危险源详情：与新增同构（基础信息 + 扫码配置） ===== -->
         <div class="view-content" id="view-hazard" style="display:none">
-          <div class="qr-section">
-            <div class="qr-placeholder" style="background:linear-gradient(135deg,var(--danger-light) 0%,var(--warning-light) 100%);color:var(--danger)">危险源二维码</div>
-            <div class="qr-meta">
-              <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">电动车充电区
-                <span style="float:right">
-                  <button class="btn btn-sm btn-default" onclick="showToast('编辑危险源')">编辑</button>
-                  <button class="btn btn-sm btn-danger" onclick="showToast('删除危险源')">删除</button>
-                </span>
-              </div>
-              <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
-                <div class="info-item"><span class="info-label">危险源类型</span><span class="info-value">临时用电</span></div>
-                <div class="info-item"><span class="info-label">所属区域</span><span class="info-value">A区 - 生产区</span></div>
-                <div class="info-item"><span class="info-label">整改责任人</span><span class="info-value">王五</span></div>
-                <div class="info-item"><span class="info-label">联系电话</span><span class="info-value">139****0002</span></div>
-                <div class="info-item"><span class="info-label">隐患整改复核人</span><span class="info-value">张三</span></div>
-                <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
-              </div>
+          <div class="detail-card card-bg">
+            <div class="ev-section-title">基础信息
+              <span style="margin-left:auto;display:inline-flex;gap:8px">
+                <button class="btn btn-sm btn-primary" type="button" onclick="editHazard()">编辑</button>
+                <button class="btn btn-sm btn-place-delete" type="button" onclick="showToast('删除危险源')">删除</button>
+              </span>
             </div>
+            <div class="ev-info-grid place-basic-grid" id="hazardBasicGrid"></div>
           </div>
-          <!-- 专属检查表 + 扫码配置 同场所视图结构 -->
-          <div class="info-section">
-            <div class="info-section-title">专属检查表</div>
-            <div class="checklist-card">
-              <div class="checklist-card-header">
-                <span class="checklist-card-title">充电设施安全巡检表</span>
-                <div class="checklist-card-actions">
-                  <button class="btn btn-sm btn-default">编辑</button>
-                  <button class="btn btn-sm btn-link danger">删除</button>
-                </div>
-              </div>
-              <div class="checklist-grid">
-                <div><div class="checklist-field-label">检查表名称</div><div class="checklist-field-value">充电设施安全巡检表</div></div>
-                <div><div class="checklist-field-label">检查项数</div><div class="checklist-field-value">8项</div></div>
-                <div><div class="checklist-field-label">跳过节假日</div><div class="checklist-field-value">否</div></div>
-              </div>
-            </div>
-          </div>
-          <div class="info-section">
-            <div class="info-section-title">扫码配置</div>
+          <div class="detail-card">
+            <div class="ev-section-title">扫码配置</div>
             <table class="scan-config-table">
               <thead>
-                <tr><th>序号</th><th>责任单位</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>跳过节假日</th><th>完成规则</th><th>配置类型</th><th>操作</th></tr>
-              </thead>
-              <tbody>
                 <tr>
-                  <td>1</td><td>创安电子科技</td><td>充电设施安全巡检表</td><td>王五</td>
-                  <td>每周1次</td><td>否</td><td>所有人完成</td>
-                  <td><span class="type-auto">自动</span></td><td>—</td>
+                  <th>序号</th><th>责任类型</th><th>扫码责任人</th><th>检查频次</th><th>检查表名称</th><th>是否过滤节假日</th>
                 </tr>
-              </tbody>
+              </thead>
+              <tbody id="hazardScanBody"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- ===== 重点场所视图 (§6.3.5.3.9 只读) ===== -->
+        <!-- ===== 重点场所详情：浮动三卡（基础信息只读 + 隐患配置 + 扫码配置） ===== -->
         <div class="view-content" id="view-keyplace" style="display:none">
-          <div class="qr-section">
-            <div class="qr-placeholder">场所二维码</div>
-            <div class="qr-meta">
-              <div style="font-size:var(--font-size-md);font-weight:600;margin-bottom:var(--spacing-sm)">2号充换电站 <span class="tag tag-blue" style="margin-left:8px">政府配置 · 只读</span></div>
-              <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-sm)">
-                <div class="info-item"><span class="info-label">场所类型</span><span class="info-value">充换电设施</span></div>
-                <div class="info-item"><span class="info-label">所属区域</span><span class="info-value">C区 - 重点区域</span></div>
-                <div class="info-item"><span class="info-label">整改责任人</span><span class="info-value">赵六</span></div>
-                <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="tag tag-green">启用</span></span></div>
+          <div class="detail-card card-bg">
+            <div class="ev-section-title">基础信息
+              <span class="keyplace-view-only" style="margin-left:auto;display:inline-flex;gap:8px">
+                <button class="btn btn-sm btn-primary" type="button" onclick="openKeyplaceEdit()">编辑</button>
+              </span>
+            </div>
+            <div class="ev-info-grid place-basic-grid">
+              <div class="info-row"><span class="info-label">场所名称</span><span class="info-value" id="keyplaceName"></span></div>
+              <div class="info-row"><span class="info-label">重点类型</span><span class="info-value" id="keyplaceDomain"></span></div>
+              <div class="info-row"><span class="info-label">场所类型</span><span class="info-value" id="keyplaceType"></span></div>
+              <div class="info-row"><span class="info-label">状态</span><span class="info-value" id="keyplaceStatus"></span></div>
+              <div class="info-row" id="keyplaceImageRow" style="grid-column:1/-1"><span class="info-label">场所图片</span><span class="info-value"><div class="keyplace-thumbs" id="keyplaceImages"></div></span></div>
+            </div>
+          </div>
+          <div class="detail-card" id="keyplaceHazardCard">
+            <div class="ev-section-title">隐患配置</div>
+            <div class="ev-info-grid place-basic-grid keyplace-view-only">
+              <div class="place-person-row"><span class="info-label">隐患整改人</span><span class="info-value"><span class="place-person-name" id="keyplaceOwnerView">王五<span class="role-tip" tabindex="0"><span class="role-tip-icon">i</span><span class="role-tip-pop">负责重点场所隐患整改闭环</span></span></span></span><span class="info-label">联系电话</span><span class="info-value" id="keyplacePhoneView">139****9002</span></div>
+            </div>
+            <div class="keyplace-hazard-edit keyplace-edit-only">
+              <div class="form-col">
+                <label>隐患整改人<span class="role-tip" tabindex="0"><span class="role-tip-icon">i</span><span class="role-tip-pop">负责重点场所隐患整改闭环</span></span></label>
+                <div class="check-person-select">
+                  <div class="check-person-trigger" onclick="toggleRolePicker(event, 'keyplace-owner')">
+                    <div class="check-person-tags" id="roleTags-keyplace-owner"></div>
+                    <span class="check-person-caret">&#9662;</span>
+                  </div>
+                  <div class="check-person-panel role-person-panel" id="rolePanel-keyplace-owner" onclick="event.stopPropagation()"></div>
+                </div>
+              </div>
+              <div class="form-col">
+                <label>联系电话</label>
+                <input id="keyplaceOwnerPhone" type="text" readonly placeholder="请输入">
               </div>
             </div>
           </div>
-          <div class="info-section">
-            <div class="info-section-title">扫码配置（只读）</div>
-            <table class="scan-config-table">
-              <thead><tr><th>序号</th><th>检查表名称</th><th>扫码责任人</th><th>检查频次</th><th>配置类型</th></tr></thead>
-              <tbody>
-                <tr><td>1</td><td>充换电站安全检查表</td><td>赵六</td><td>每日1次</td><td><span class="type-auto">自动</span></td></tr>
-              </tbody>
-            </table>
+          <div class="detail-card" id="keyplaceScanCard">
+            <div class="ev-section-title">扫码配置</div>
+            <button class="btn btn-sm btn-primary keyplace-edit-only" id="keyplaceScanAddBtn" type="button" onclick="showToast('新增检查表，弹窗字段待 PRD 补充')">+ 新增检查表</button>
+            <div class="keyplace-scan-body">
+              <table class="scan-config-table">
+                <thead>
+                  <tr>
+                    <th>序号</th><th>责任类型</th><th>扫码责任人</th><th>检查频次</th><th>检查表名称</th><th>是否过滤节假日</th><th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="keyplaceScanBody"></tbody>
+              </table>
+            </div>
+            <div class="keyplace-edit-actions keyplace-edit-only">
+              <button class="btn btn-primary" type="button" onclick="confirmKeyplaceEdit()">确认</button>
+              <button class="btn btn-default" type="button" onclick="closeKeyplaceEdit()">关闭</button>
+            </div>
           </div>
         </div>
 
-        <!-- ===== 新增区域内嵌表单 (§6.3.5.3.2) ===== -->
-        <div class="view-content" id="view-add-area" style="display:none">
-          <div class="info-section">
-            <div class="info-section-title">新增区域</div>
-            <div class="form-row">
-              <div class="form-col">
-                <label><span class="req">*</span> 区域名称</label>
-                <input type="text" placeholder="请输入区域名称">
+        <!-- 新增场所：右侧整页，基础模式不含专属检查表、不含监管单位 -->
+        <div class="view-content" id="view-add-place" style="display:none">
+          <div class="detail-card">
+            <div class="ev-section-title">基础信息</div>
+            <div class="add-place-top">
+              <div>
+                <div class="form-col">
+                  <label><span class="req">*</span> 场所类型</label>
+                  <select id="addPlaceType">
+                    <option value="">企业选择的企业类型下的场所类型，仅单选</option>
+                    <option>生产车间</option><option>办公区</option><option>生活区</option><option>材料堆放区</option>
+                    <option>施工区</option><option>仓储区</option><option>其他</option>
+                  </select>
+                </div>
+                <div class="form-col" style="margin-top:16px">
+                  <label>场所图片</label>
+                  <div class="add-place-upload" onclick="showToast('图片上传功能演示')">+</div>
+                  <div class="add-place-hint">请上传大小不超过 5MB、最多 5 张的文件<br>jpg/jpeg/png/bmp/gif/svg</div>
+                </div>
+              </div>
+              <div>
+                <div class="form-col">
+                  <label><span class="req">*</span> 场所名称</label>
+                  <input id="addPlaceName" type="text" placeholder="请输入">
+                </div>
+                <div class="form-col" style="margin-top:16px">
+                  <label><span class="req">*</span> 状态</label>
+                  <div class="add-place-radios">
+                    <label><input type="radio" name="addPlaceStatus" value="启用" checked> 启用</label>
+                    <label><input type="radio" name="addPlaceStatus" value="停用"> 停用</label>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="form-row">
+            <div class="add-place-person-row">
               <div class="form-col">
-                <label>排序号</label>
-                <input type="number" value="1" placeholder="默认1">
+                <label><span class="req">*</span> 整改责任人</label>
+                <div class="check-person-select" id="addPlaceOwnerPicker">
+                  <div class="check-person-trigger" onclick="toggleRolePicker(event, 'owner')">
+                    <div class="check-person-tags" id="roleTags-owner"><span class="check-person-placeholder">请选择</span></div>
+                    <span class="check-person-caret">&#9662;</span>
+                  </div>
+                  <div class="check-person-panel role-person-panel" id="rolePanel-owner" onclick="event.stopPropagation()"></div>
+                </div>
               </div>
               <div class="form-col">
-                <label><span class="req">*</span> 状态</label>
-                <select><option value="enabled" selected>启用</option><option value="disabled">停用</option></select>
+                <label>联系电话</label>
+                <input id="addPlaceOwnerPhone" type="text" readonly placeholder="请输入">
               </div>
+              <div class="add-place-row-actions"></div>
             </div>
-            <div style="margin-top:var(--spacing-lg);display:flex;gap:var(--spacing-sm);justify-content:flex-end">
-              <button class="btn btn-default" onclick="switchView('project')">取消</button>
-              <button class="btn btn-primary" onclick="switchView('project');showToast('区域已创建')">保存</button>
+            <div id="addPlaceReviewerRows"></div>
+          </div>
+          <div class="detail-card">
+            <div class="ev-section-title">扫码配置</div>
+            <button class="btn btn-sm btn-primary add-place-scan-btn" type="button" onclick="openCheckConfig(-1, 'add-place')">+ 新增检查表</button>
+            <table class="scan-config-table">
+              <thead>
+                <tr>
+                  <th>序号</th><th>责任类型</th><th>扫码责任人</th><th>检查频次</th><th>检查表名称</th><th>是否过滤节假日</th><th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="addPlaceScanBody"></tbody>
+            </table>
+            <div class="add-place-footer">
+              <button class="btn btn-default" type="button" onclick="cancelAddPlace()">取消</button>
+              <button class="btn btn-primary" type="button" onclick="saveAddPlace()">保存</button>
             </div>
           </div>
         </div>
+
+        <!-- ===== 新增/编辑危险源：右侧表单（对齐新增场所） ===== -->
+        <div class="view-content" id="view-add-hazard" style="display:none">
+          <div class="detail-card">
+            <div class="ev-section-title">基础信息</div>
+            <div class="add-place-top">
+              <div>
+                <div class="form-col">
+                  <label><span class="req">*</span> 危险源类型</label>
+                  <select id="addHazardType">
+                    <option value="">请选择</option>
+                    <option>高处作业</option><option>临时用电</option><option>有限空间</option>
+                    <option>起重吊装</option><option>动火作业</option><option>深基坑</option><option>其他</option>
+                  </select>
+                </div>
+                <div class="form-col" style="margin-top:16px">
+                  <label><span class="req">*</span> 是否关联场所</label>
+                  <div class="add-place-radios">
+                    <label><input type="radio" name="addHazardLinkPlace" value="是" checked onchange="toggleHazardPlaceField()"> 是</label>
+                    <label><input type="radio" name="addHazardLinkPlace" value="否" onchange="toggleHazardPlaceField()"> 否</label>
+                  </div>
+                </div>
+                <div class="form-col add-hazard-place-wrap" id="addHazardPlaceWrap">
+                  <label><span class="req">*</span> 所属场所</label>
+                  <select id="addHazardPlace"></select>
+                </div>
+                <div class="form-col" style="margin-top:16px">
+                  <label>危险源图片</label>
+                  <div class="add-place-upload" onclick="showToast('图片上传功能演示')">+</div>
+                  <div class="add-place-hint">请上传大小不超过 5MB、最多 5 张的文件<br>jpg/jpeg/png/bmp/gif/svg</div>
+                </div>
+              </div>
+              <div>
+                <div class="form-col">
+                  <label><span class="req">*</span> 危险源名称</label>
+                  <input id="addHazardName" type="text" placeholder="请输入">
+                </div>
+                <div class="form-col" style="margin-top:16px">
+                  <label><span class="req">*</span> 状态</label>
+                  <div class="add-place-radios">
+                    <label><input type="radio" name="addHazardStatus" value="启用" checked> 启用</label>
+                    <label><input type="radio" name="addHazardStatus" value="停用"> 停用</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="add-place-person-row">
+              <div class="form-col">
+                <label><span class="req">*</span> 整改责任人</label>
+                <div class="check-person-select" id="addHazardOwnerPicker">
+                  <div class="check-person-trigger" onclick="toggleRolePicker(event, 'hazard-owner')">
+                    <div class="check-person-tags" id="roleTags-hazard-owner"><span class="check-person-placeholder">请选择</span></div>
+                    <span class="check-person-caret">&#9662;</span>
+                  </div>
+                  <div class="check-person-panel role-person-panel" id="rolePanel-hazard-owner" onclick="event.stopPropagation()"></div>
+                </div>
+              </div>
+              <div class="form-col">
+                <label>联系电话</label>
+                <input id="addHazardOwnerPhone" type="text" readonly placeholder="请输入">
+              </div>
+              <div class="add-place-row-actions"></div>
+            </div>
+            <div id="addHazardReviewerRows"></div>
+          </div>
+          <div class="detail-card">
+            <div class="ev-section-title">扫码配置</div>
+            <button class="btn btn-sm btn-primary add-place-scan-btn" type="button" onclick="openCheckConfig(-1, 'add-hazard')">+ 新增检查表</button>
+            <table class="scan-config-table">
+              <thead>
+                <tr>
+                  <th>序号</th><th>责任类型</th><th>扫码责任人</th><th>检查频次</th><th>检查表名称</th><th>是否过滤节假日</th><th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="addHazardScanBody"></tbody>
+            </table>
+            <div class="add-place-footer">
+              <button class="btn btn-default" type="button" onclick="cancelAddHazard()">取消</button>
+              <button class="btn btn-primary" type="button" onclick="saveAddHazard()">保存</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 基础模式无「区域」层，原「新增区域」内嵌表单已按 PRD V7.0.64 移除 -->
 
       </div>
     </div>
@@ -522,6 +749,106 @@
 </div>
 
 <!-- ===== 新增场所弹窗 (§6.3.5.3.3, 900px) ===== -->
+<div class="modal-overlay" id="checkConfigModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <span class="modal-title">自定义配置</span>
+      <button class="modal-close" type="button" aria-label="关闭弹窗" onclick="closeCheckConfig()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="check-form-grid">
+        <div class="check-field">
+          <label><span class="req">*</span>检查表名称</label>
+          <div class="check-control">
+            <input id="checkFormName" type="text" placeholder="请选择或者输入检查表名称" autocomplete="off">
+            <button class="check-combo-btn" type="button" aria-label="展开检查表名称" onclick="toggleCheckNameMenu(event)">&#9662;</button>
+            <div class="check-name-menu" id="checkNameMenu"></div>
+          </div>
+        </div>
+        <div class="check-field">
+          <label><span class="req">*</span>扫码责任人</label>
+          <div class="check-control check-person-select">
+            <div class="check-person-trigger" id="checkPersonTrigger" onclick="toggleCheckPersonPanel(event)">
+              <div class="check-person-tags" id="checkPersonTags"></div>
+              <span class="check-person-caret">&#9662;</span>
+            </div>
+            <div class="check-person-panel" id="checkPersonPanel" onclick="event.stopPropagation()">
+              <div class="check-person-cols">
+                <div class="check-person-left">
+                  <input class="check-person-search" id="checkPersonDeptSearch" type="text" placeholder="搜索部门" oninput="renderCheckPersonTree()">
+                  <div class="check-person-tree" id="checkPersonTree"></div>
+                </div>
+                <div class="check-person-right">
+                  <div class="check-person-right-head">
+                    <span class="check-person-right-title" id="checkPersonDeptLabel"></span>
+                    <label class="check-person-all"><input type="checkbox" id="checkPersonAll" onchange="toggleCheckPersonAll(this.checked)"> 全选</label>
+                  </div>
+                  <div class="check-person-users" id="checkPersonUsers"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="check-field check-field-wide">
+          <label><span class="req">*</span>检查频次</label>
+          <div class="check-freq">
+            <span>每</span>
+            <input id="checkEvery" type="number" min="1" step="1" value="1">
+            <select id="checkUnit">
+              <option value="日">日</option>
+              <option value="周">周</option>
+              <option value="月">月</option>
+              <option value="季">季</option>
+              <option value="年">年</option>
+            </select>
+            <span>检查</span>
+            <input id="checkTimes" type="number" min="1" step="1" value="1">
+            <span>次</span>
+          </div>
+        </div>
+        <div class="check-field">
+          <label><span class="req">*</span>完成条件</label>
+          <div class="check-radios" id="checkCompleteGroup">
+            <label class="check-radio"><input type="radio" name="checkComplete" value="所有人都要完成"><span>所有人都要完成</span></label>
+            <label class="check-radio"><input type="radio" name="checkComplete" value="任意一人完成"><span>任意一人完成</span></label>
+          </div>
+        </div>
+        <div class="check-field">
+          <label><span class="req">*</span>过滤节假日</label>
+          <div class="check-radios" id="checkHolidayGroup">
+            <label class="check-radio"><input type="radio" name="checkHoliday" value="是"><span>是</span></label>
+            <label class="check-radio"><input type="radio" name="checkHoliday" value="否"><span>否</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="check-config-actions">
+        <button class="btn btn-primary" type="button" onclick="openCheckRecommend()">+ 推荐检查表</button>
+        <button class="btn btn-primary" type="button" onclick="addCheckItem()">+ 新增检查项</button>
+      </div>
+      <div class="check-item-box" id="checkItemList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" type="button" onclick="closeCheckConfig()">取消</button>
+      <button class="btn btn-primary" type="button" onclick="confirmCheckConfig()">确定</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="checkRecommendModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <span class="modal-title">推荐检查表</span>
+      <button class="modal-close" type="button" aria-label="关闭弹窗" onclick="closeCheckRecommend()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="check-recommend-list" id="checkRecommendList"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="check-recommend-summary">已选 <b id="checkRecommendCount">0</b> 项</span>
+      <button class="btn btn-default" type="button" onclick="closeCheckRecommend()">取消</button>
+      <button class="btn btn-primary" type="button" onclick="applyCheckTemplateSelection()">选用</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="addPlaceModal">
   <div class="modal-dialog wide">
     <div class="modal-header">
@@ -546,16 +873,8 @@
             <input type="text" placeholder="同类对象内唯一">
           </div>
         </div>
+        <!-- 基础模式无「区域」层，故不展示「所属区域」字段（PRD V7.0.64） -->
         <div class="form-row">
-          <div class="form-col">
-            <label><span class="req">*</span> 所属区域</label>
-            <select>
-              <option value="">请选择</option>
-              <option>A区 - 生产区</option>
-              <option>B区 - 仓储区</option>
-              <option>C区 - 重点区域</option>
-            </select>
-          </div>
           <div class="form-col">
             <label><span class="req">*</span> 状态</label>
             <select><option selected>启用</option><option>停用</option></select>
@@ -602,14 +921,11 @@
                 </div>
                 <div class="person-selector-col">
                   <div class="person-selector-col-title">人员列表</div>
-                  <div class="person-selector-item" onclick="selectPerson('responsibility', '张三', '138****0001')">
-                    <span>👤</span> 张三 <span class="person-phone">138****0001</span>
+                  <div class="person-selector-item" onclick="selectPerson('responsibility', '李四', '139****9001')">
+                    <span>👤</span> 李四 <span class="person-phone">139****9001</span>
                   </div>
-                  <div class="person-selector-item" onclick="selectPerson('responsibility', '李四', '139****0002')">
-                    <span>👤</span> 李四 <span class="person-phone">139****0002</span>
-                  </div>
-                  <div class="person-selector-item" onclick="selectPerson('responsibility', '王五', '137****0003')">
-                    <span>👤</span> 王五 <span class="person-phone">137****0003</span>
+                  <div class="person-selector-item" onclick="selectPerson('responsibility', '王五', '139****9002')">
+                    <span>👤</span> 王五 <span class="person-phone">139****9002</span>
                   </div>
                 </div>
               </div>
@@ -624,10 +940,8 @@
           <div class="form-col">
             <label><span class="req">*</span> 隐患整改复核人</label>
             <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;padding:var(--spacing-sm) 0">
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 张三</label>
               <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 李四</label>
               <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 王五</label>
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 赵六</label>
             </div>
           </div>
         </div>
@@ -639,8 +953,10 @@
           保存场所后将自动根据职级生成扫码配置<br>
           <span style="font-size:var(--font-size-xs)">领导层 = 每月1次 | 管理层 = 每周1次</span>
         </div>
-        <div style="text-align:center;margin-top:var(--spacing-sm)">
-          <button class="btn btn-sm btn-primary" onclick="showToast('从检查库引用')">+ 引用检查表</button>
+        <div class="checklist-source-actions">
+          <button class="btn btn-sm btn-default" onclick="showToast('从检查库选择，弹窗字段待 PRD 补充')">从检查库选择</button>
+          <button class="btn btn-sm btn-default" onclick="showToast('引用推荐检查表，弹窗字段待 PRD 补充')">引用推荐检查表</button>
+          <button class="btn btn-sm btn-primary" onclick="showToast('手动新增检查表，弹窗字段待 PRD 补充')">手动新增</button>
         </div>
       </div>
     </div>
@@ -651,216 +967,1006 @@
   </div>
 </div>
 
-<!-- ===== 新增危险源弹窗 (§6.3.5.3.4, 900px) ===== -->
-<div class="modal-overlay" id="addHazardModal">
-  <div class="modal-dialog wide">
-    <div class="modal-header">
-      <span class="modal-title">新增危险源</span>
-      <button class="modal-close" aria-label="关闭弹窗" onclick="closeModal('addHazardModal')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="info-section">
-        <div class="info-section-title">基础信息</div>
-        <div class="form-row">
-          <div class="form-col">
-            <label><span class="req">*</span> 危险源类型</label>
-            <select>
-              <option value="">请选择</option>
-              <option>高处作业</option><option>临时用电</option><option>有限空间</option>
-              <option>起重吊装</option><option>动火作业</option><option>深基坑</option><option>其他</option>
-            </select>
-          </div>
-          <div class="form-col">
-            <label><span class="req">*</span> 危险源名称</label>
-            <input type="text" placeholder="同类对象内唯一">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label><span class="req">*</span> 所属区域</label>
-            <select>
-              <option value="">请选择</option>
-              <option>A区 - 生产区</option>
-              <option>B区 - 仓储区</option>
-              <option>C区 - 重点区域</option>
-            </select>
-          </div>
-          <div class="form-col">
-            <label><span class="req">*</span> 状态</label>
-            <select><option selected>启用</option><option>停用</option></select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label>危险源图片</label>
-            <div class="upload-area" onclick="showToast('图片上传功能演示')">
-              <div class="upload-placeholder">
-                <span style="font-size:24px">📁</span>
-                <p>点击或拖拽文件至此处上传</p>
-                <span class="upload-hint">支持 jpg/jpeg/png，最多5张，单张≤5MB</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label><span class="req">*</span> 整改责任人</label>
-            <div class="person-selector-trigger" onclick="togglePersonSelector('hazardResponsibilitySelector')" id="hazardResponsibilityTrigger">
-              <span class="person-selector-placeholder">请选择责任人</span>
-              <span class="arrow">▼</span>
-            </div>
-            <div class="person-selector-popover" id="hazardResponsibilitySelector">
-              <div class="person-selector-cols">
-                <div class="person-selector-col">
-                  <div class="person-selector-col-title">组织架构</div>
-                  <div class="person-tree-node" onclick="selectDept(this, 'safetyDept')">
-                    <span class="tree-toggle">▶</span>
-                    <span>📁</span>
-                    <span>安全管理部</span>
-                  </div>
-                  <div class="person-tree-node" onclick="selectDept(this, 'projectDept')">
-                    <span class="tree-toggle">▶</span>
-                    <span>📁</span>
-                    <span>工程项目部</span>
-                  </div>
-                  <div class="person-tree-node" onclick="selectDept(this, 'maintainDept')">
-                    <span class="tree-toggle">▶</span>
-                    <span>📁</span>
-                    <span>设备维护部</span>
-                  </div>
-                </div>
-                <div class="person-selector-col">
-                  <div class="person-selector-col-title">人员列表</div>
-                  <div class="person-selector-item" onclick="selectPerson('hazardResponsibility', '张三', '138****0001')">
-                    <span>👤</span> 张三 <span class="person-phone">138****0001</span>
-                  </div>
-                  <div class="person-selector-item" onclick="selectPerson('hazardResponsibility', '李四', '139****0002')">
-                    <span>👤</span> 李四 <span class="person-phone">139****0002</span>
-                  </div>
-                  <div class="person-selector-item" onclick="selectPerson('hazardResponsibility', '王五', '137****0003')">
-                    <span>👤</span> 王五 <span class="person-phone">137****0003</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="form-col">
-            <label>联系电话</label>
-            <input type="text" readonly style="background:var(--bg-section-alt)" placeholder="选择责任人后自动填入" id="hazardResponsibilityPhone">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label><span class="req">*</span> 隐患整改复核人</label>
-            <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;padding:var(--spacing-sm) 0">
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 张三</label>
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 李四</label>
-              <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:var(--font-size-sm)"><input type="checkbox"> 王五</label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="info-section">
-        <div class="info-section-title">专属检查表</div>
-        <div style="padding:var(--spacing-md);text-align:center;color:var(--text-tertiary);background:var(--bg-section-alt);border-radius:var(--radius-md)">
-          保存后自动生成扫码配置（领导层=每月1次，管理层=每周1次）
-        </div>
-        <div style="text-align:center;margin-top:var(--spacing-sm)">
-          <button class="btn btn-sm btn-primary" onclick="showToast('从检查库引用')">+ 引用检查表</button>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeModal('addHazardModal')">取消</button>
-      <button class="btn btn-primary" onclick="closeModal('addHazardModal');showToast('危险源已创建')">保存</button>
-    </div>
-  </div>
-</div>
+<!-- 新增危险源已改为右侧表单 #view-add-hazard；原弹窗已移除 -->
+<!-- 基础模式无「区域」层，原「删除区域-迁移下属对象」弹窗已按 PRD V7.0.64 移除 -->
 
-<!-- ===== 删除区域迁移弹窗 (§6.3.5.3.4, 600px) ===== -->
-<div class="modal-overlay" id="migrateAreaModal">
-  <div class="modal-dialog" style="width:600px">
-    <div class="modal-header">
-      <span class="modal-title">删除区域 - 迁移下属对象</span>
-      <button class="modal-close" aria-label="关闭弹窗" onclick="closeModal('migrateAreaModal')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div style="padding:var(--spacing-sm) 0 var(--spacing-md);color:var(--text-secondary);font-size:var(--font-size-sm)">
-        删除区域「<strong style="color:var(--text-primary)">A区 - 生产区</strong>」前，需将以下对象迁移至其他区域或项目直属。
-      </div>
-      <div class="info-section" style="margin-bottom:var(--spacing-md)">
-        <div class="info-section-title" style="font-size:var(--font-size-sm);margin-bottom:var(--spacing-sm)">待迁移对象（3个）</div>
-        <table class="scan-config-table" style="font-size:var(--font-size-xs)">
-          <thead>
-            <tr><th>对象名称</th><th>类型</th><th>状态</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>1号生产车间</td><td><span class="tree-node-type">场所</span></td><td><span class="tag tag-green">启用</span></td></tr>
-            <tr><td>2号生产车间</td><td><span class="tree-node-type">场所</span></td><td><span class="tag tag-green">启用</span></td></tr>
-            <tr><td>电动车充电区</td><td><span class="tree-node-type" style="background:var(--warning-light);color:var(--warning)">危险源</span></td><td><span class="tag tag-green">启用</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="form-row">
-        <div class="form-col">
-          <label><span class="req">*</span> 迁移目标</label>
-          <select>
-            <option value="">请选择目标区域</option>
-            <option>项目直属（无区域）</option>
-            <option>B区 - 仓储区</option>
-            <option>C区 - 重点区域</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeModal('migrateAreaModal')">取消</button>
-      <button class="btn btn-primary" onclick="closeModal('migrateAreaModal');showToast('区域已删除，对象已迁移')">确认迁移并删除</button>
-    </div>
-  </div>
-</div>
-
+<script src="../../js/enterprise-profile.js"></script>
+<script src="../../js/enterprise-org.js"></script>
+<script src="../../js/domain-data.js"></script>
+<script src="../../js/shared/district-data.js"></script>
+<script src="../../js/key-place-data.js?v=20261029-2"></script>
 <script>
-// 视图切换
-function switchView(view) {
-  var views = ['project', 'area', 'place', 'hazard', 'keyplace', 'add-area', 'empty'];
-  var titles = {
-    'project': '创安电子科技有限公司',
-    'area': 'A区 - 生产区',
-    'place': '1号生产车间',
-    'hazard': '电动车充电区',
-    'keyplace': '2号充换电站',
-    'add-area': '新增区域',
-    'add-place': '新增场所',
-    'add-hazard': '新增危险源'
-  };
+// 场所 / 危险源详情按树节点绑定。1号生产车间、电动车充电区保持原示例；其余节点使用各自示例。
+var ENT_UNIT_NAME = '深圳市天道医药有限公司南山分厂';
+var PLACE_DEMO_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23e6f4ff' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%231676ff' font-size='11' font-family='sans-serif'%3E场所图%3C/text%3E%3C/svg%3E";
+var PLACE_DETAIL = {
+  'place-1': {
+    name: '1号生产车间', type: '生产车间', status: '启用',
+    owner: '王五', phone: '139****9002',
+    reviewers: [
+      { name: '李四', phone: '139****9001' },
+      { name: '王五', phone: '139****9002' }
+    ],
+    scans: [
+      { type: '安全生产部', person: '王五、李四', freq: '每1周检查1次', name: '日常安全检查表', holiday: '否' },
+      { type: '技术质量部', person: '李四', freq: '每1月检查1次', name: '消防安全检查表', holiday: '是' },
+      { type: '安全生产部', person: '王五', freq: '每1日检查1次', name: '设备巡检表', holiday: '否' }
+    ]
+  },
+  'place-2': {
+    name: '2号生产车间', type: '生产车间', status: '启用',
+    image: PLACE_DEMO_IMAGE,
+    owner: '李四', phone: '139****9001',
+    reviewers: [{ name: '王五', phone: '139****9002' }],
+    scans: [
+      { type: '技术质量部', person: '李四、王五', freq: '每1周检查1次', name: '2号车间日常安全检查表', holiday: '是' },
+      { type: '安全生产部', person: '王五', freq: '每1日检查1次', name: '2号车间设备巡检表', holiday: '否' }
+    ]
+  },
+  'place-3': {
+    name: '材料仓库', type: '仓储区', status: '启用',
+    owner: '王五', phone: '139****9002',
+    reviewers: [{ name: '李四', phone: '139****9001' }],
+    scans: [
+      { type: '安全生产部', person: '王五', freq: '每1周检查1次', name: '仓库安全检查表', holiday: '否' }
+    ]
+  },
+  'place-4': {
+    name: '办公楼', type: '办公区', status: '启用',
+    owner: '李四', phone: '139****9001',
+    reviewers: [{ name: '王五', phone: '139****9002' }],
+    scans: [
+      { type: '技术质量部', person: '李四', freq: '每1月检查1次', name: '办公区安全检查表', holiday: '是' }
+    ]
+  },
+  'place-5': {
+    name: '配电室', type: '其他', status: '启用',
+    owner: '王五', phone: '139****9002',
+    reviewers: [{ name: '李四', phone: '139****9001' }],
+    scans: [
+      { type: '安全生产部', person: '王五', freq: '每1日检查1次', name: '配电室巡检表', holiday: '否' }
+    ]
+  }
+};
 
-  // 处理新增弹窗（场所/危险源用弹窗，区域用内嵌表单）
-  if (view === 'add-place') { document.getElementById('addPlaceModal').style.display = 'flex'; return; }
-  if (view === 'add-hazard') { document.getElementById('addHazardModal').style.display = 'flex'; return; }
+var HAZARD_DEMO_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23fff1f0' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff4d4f' font-size='11' font-family='sans-serif'%3E危险源图%3C/text%3E%3C/svg%3E";
+var HAZARD_DETAIL = {
+  'hazard-1': {
+    name: '电动车充电区', type: '临时用电', status: '启用',
+    linkPlace: true, placeId: 'place-1', placeName: '1号生产车间',
+    owner: '王五', phone: '139****9002',
+    reviewers: [{ name: '李四', phone: '139****9001' }],
+    scans: [
+      { type: '安全生产部', person: '王五', freq: '每1周检查1次', name: '充电设施安全巡检表', holiday: '否' }
+    ]
+  },
+  'hazard-2': {
+    name: '危化品存储柜', type: '其他', status: '启用',
+    linkPlace: false, placeId: '', placeName: '',
+    image: HAZARD_DEMO_IMAGE,
+    owner: '李四', phone: '139****9001',
+    reviewers: [{ name: '王五', phone: '139****9002' }],
+    scans: [
+      { type: '技术质量部', person: '李四', freq: '每1周检查1次', name: '危化品存储安全检查表', holiday: '是' }
+    ]
+  }
+};
 
-  // 隐藏所有视图
+function setDetailText(id, text) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function renderScanRows(tbodyId, rows) {
+  var tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(function(row, i) {
+    var op = row.manual
+      ? '<button class="btn-link danger" onclick="showToast(\'删除配置\')">删除</button>'
+      : '—';
+    var typeClass = row.manual ? 'type-manual' : 'type-auto';
+    var typeText = row.manual ? '手动' : '自动';
+    return '<tr><td>' + (i + 1) + '</td><td>' + row.org + '</td><td>' + row.name + '</td><td>' + row.person +
+      '</td><td>' + row.freq + '</td><td>' + row.holiday + '</td><td>' + row.rule +
+      '</td><td><span class="' + typeClass + '">' + typeText + '</span></td><td>' + op + '</td></tr>';
+  }).join('');
+}
+
+var currentPlaceId = 'place-1';
+var editingPlaceId = null;
+var currentHazardId = 'hazard-1';
+var editingHazardId = null;
+
+function normalizePlaceReviewers(data) {
+  if (!data) return [];
+  if (Array.isArray(data.reviewers)) {
+    return data.reviewers.map(function(row) {
+      if (typeof row === 'string') {
+        var user = ENT_USERS.filter(function(item) { return item.name === row; })[0];
+        return { name: row, phone: user ? user.phone : '' };
+      }
+      return { name: row.name || '', phone: row.phone || '' };
+    }).filter(function(row) { return row.name; });
+  }
+  if (typeof data.reviewers === 'string' && data.reviewers) {
+    return data.reviewers.split('、').map(function(name) {
+      var trimmed = name.trim();
+      var user = ENT_USERS.filter(function(item) { return item.name === trimmed; })[0];
+      return { name: trimmed, phone: user ? user.phone : '' };
+    }).filter(function(row) { return row.name; });
+  }
+  return [];
+}
+
+function placeTipHtml(text) {
+  return '<span class="role-tip" tabindex="0"><span class="role-tip-icon">i</span><span class="role-tip-pop">' + scanText(text) + '</span></span>';
+}
+
+function placePersonCell(name, tip) {
+  return '<span class="place-person-name">' + scanText(name || '—') + placeTipHtml(tip) + '</span>';
+}
+
+function placePersonRow(label, name, tip, phone, ids) {
+  var nameId = ids && ids.name ? ' id="' + ids.name + '"' : '';
+  var phoneId = ids && ids.phone ? ' id="' + ids.phone + '"' : '';
+  return '<div class="place-person-row"><span class="info-label">' + label + '</span><span class="info-value"' + nameId + '>' +
+    placePersonCell(name, tip) + '</span><span class="info-label">联系电话</span><span class="info-value"' + phoneId + '>' +
+    scanText(phone || '') + '</span></div>';
+}
+
+function renderPlaceBasic(data) {
+  var grid = document.getElementById('placeBasicGrid');
+  if (!grid || !data) return;
+  var status = data.status || '启用';
+  var tagClass = status === '停用' ? 'tag-red' : 'tag-blue';
+  var html = '';
+  html += '<div class="info-row"><span class="info-label">场所类型</span><span class="info-value" id="placeType">' + scanText(data.type || '') + '</span></div>';
+  html += '<div class="info-row"><span class="info-label">场所码名称</span><span class="info-value" id="placeName">' + scanText(data.name || '') + '</span></div>';
+  if (data.image) {
+    html += '<div class="info-row"><span class="info-label">状态</span><span class="info-value" id="placeStatus"><span class="tag ' + tagClass + '">' + scanText(status) + '</span></span></div>';
+    html += '<div class="info-row"><span class="info-label">场所图片</span><span class="info-value"><div class="image-thumb" style="background-image:url(&quot;' + String(data.image).replace(/"/g, '&quot;') + '&quot;)"></div></span></div>';
+  } else {
+    html += '<div class="info-row" style="grid-column:1/-1"><span class="info-label">状态</span><span class="info-value" id="placeStatus"><span class="tag ' + tagClass + '">' + scanText(status) + '</span></span></div>';
+  }
+  html += placePersonRow('整改责任人', data.owner, '负责隐患整改闭环', data.phone, { name: 'placeOwner', phone: 'placePhone' });
+  var reviewers = normalizePlaceReviewers(data);
+  if (!reviewers.length) reviewers = [{ name: '—', phone: '—' }];
+  reviewers.forEach(function(row) {
+    html += placePersonRow('隐患复核责任人', row.name, '负责隐患整改复核', row.phone);
+  });
+  grid.innerHTML = html;
+}
+
+function renderPlaceScanRows(rows) {
+  var tbody = document.getElementById('placeScanBody');
+  if (!tbody) return;
+  if (!rows || !rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="place-empty">暂无数据</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(function(row, i) {
+    return '<tr><td>' + (i + 1) + '</td><td>' + scanText(row.type || '') + '</td><td>' + scanText(row.person || '') +
+      '</td><td>' + scanText(row.freq || '') + '</td><td>' + scanText(row.name || '') + '</td><td>' +
+      scanText(row.holiday || '') + '</td></tr>';
+  }).join('');
+}
+
+function fillPlace(nodeId) {
+  var data = PLACE_DETAIL[nodeId];
+  if (!data) return;
+  currentPlaceId = nodeId;
+  renderPlaceBasic(data);
+  renderPlaceScanRows(data.scans || []);
+}
+
+function renderHazardBasic(data) {
+  var grid = document.getElementById('hazardBasicGrid');
+  if (!grid || !data) return;
+  var status = data.status || '启用';
+  var tagClass = status === '停用' ? 'tag-red' : 'tag-blue';
+  var html = '';
+  html += '<div class="info-row"><span class="info-label">危险源类型</span><span class="info-value">' + scanText(data.type || '') + '</span></div>';
+  html += '<div class="info-row"><span class="info-label">危险源名称</span><span class="info-value">' + scanText(data.name || '') + '</span></div>';
+  html += '<div class="info-row"><span class="info-label">是否关联场所</span><span class="info-value">' + (data.linkPlace ? '是' : '否') + '</span></div>';
+  if (data.linkPlace) {
+    html += '<div class="info-row"><span class="info-label">所属场所</span><span class="info-value">' + scanText(data.placeName || '') + '</span></div>';
+  }
+  if (data.image) {
+    html += '<div class="info-row"><span class="info-label">状态</span><span class="info-value"><span class="tag ' + tagClass + '">' + scanText(status) + '</span></span></div>';
+    html += '<div class="info-row"><span class="info-label">危险源图片</span><span class="info-value"><div class="image-thumb" style="background-image:url(&quot;' + String(data.image).replace(/"/g, '&quot;') + '&quot;)"></div></span></div>';
+  } else {
+    html += '<div class="info-row" style="grid-column:1/-1"><span class="info-label">状态</span><span class="info-value"><span class="tag ' + tagClass + '">' + scanText(status) + '</span></span></div>';
+  }
+  html += placePersonRow('整改责任人', data.owner, '负责隐患整改闭环', data.phone);
+  var reviewers = normalizePlaceReviewers(data);
+  if (!reviewers.length) reviewers = [{ name: '—', phone: '—' }];
+  reviewers.forEach(function(row) {
+    html += placePersonRow('隐患复核责任人', row.name, '负责隐患整改复核', row.phone);
+  });
+  grid.innerHTML = html;
+}
+
+function renderHazardScanRows(rows) {
+  var tbody = document.getElementById('hazardScanBody');
+  if (!tbody) return;
+  if (!rows || !rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="place-empty">暂无数据</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(function(row, i) {
+    return '<tr><td>' + (i + 1) + '</td><td>' + scanText(row.type || '') + '</td><td>' + scanText(row.person || '') +
+      '</td><td>' + scanText(row.freq || '') + '</td><td>' + scanText(row.name || '') + '</td><td>' +
+      scanText(row.holiday || '') + '</td></tr>';
+  }).join('');
+}
+
+function fillHazard(nodeId) {
+  var data = HAZARD_DETAIL[nodeId];
+  if (!data) return;
+  currentHazardId = nodeId;
+  renderHazardBasic(data);
+  renderHazardScanRows(data.scans || []);
+}
+
+// 视图切换（基础模式：企业码为根，无区域层）
+// 右侧内容完全由左侧对象树选中驱动，无独立标题栏/视图 Tab
+function switchView(view, nodeId) {
+  var views = ['enterprise', 'place', 'hazard', 'keyplace', 'empty', 'add-place', 'add-hazard'];
+  if (enterpriseScanDraft) closeEnterpriseScan();
+  closeKeyplaceEdit();
+
+  if (view === 'place') fillPlace(nodeId || currentPlaceId || 'place-1');
+  if (view === 'hazard') fillHazard(nodeId || currentHazardId || 'hazard-1');
+  if (view === 'keyplace') fillKeyplace(nodeId || currentKeyplaceId);
+
   views.forEach(function(v) {
     var el = document.getElementById('view-' + v);
     if (el) el.style.display = 'none';
   });
 
-  // 显示目标视图
   var target = document.getElementById('view-' + view);
-  if (target) target.style.display = '';
+  if (target) target.style.display = view === 'keyplace' ? 'flex' : '';
+  if (view === 'add-place' || view === 'add-hazard') {
+    var body = document.querySelector('.detail-body');
+    if (body) body.scrollTop = 0;
+  }
 
-  // 更新标题
-  document.getElementById('detailTitle').textContent = titles[view] || '';
-
-  // 更新Tab高亮
-  var tabs = document.querySelectorAll('.view-tab');
-  tabs.forEach(function(tab) {
-    tab.classList.toggle('active', tab.getAttribute('data-view') === view);
-  });
+  var ev = window.event;
+  var origin = ev && ev.target && ev.target.closest ? ev.target.closest('.tree-node') : null;
+  if (origin && origin.classList.contains('tree-node')) {
+    document.querySelectorAll('.tree-body .tree-node').forEach(function(node) {
+      node.classList.remove('active');
+    });
+    origin.classList.add('active');
+  }
 }
 
 function closeModal(id) {
   document.getElementById(id).style.display = 'none';
+}
+
+var keyplaceOwnerName = '';
+var keyplaceOwnerPhone = '';
+var keyplaceStore = null;
+var currentKeyplaceId = '';
+
+function keyplaceDomains() {
+  var list = [];
+  try {
+    var stored = localStorage.getItem('sa_domain_data');
+    if (stored) list = JSON.parse(stored);
+  } catch (e) {}
+  if (!list.length && typeof DOMAIN_TABLE_DATA !== 'undefined') list = DOMAIN_TABLE_DATA;
+  return (list || []).filter(function(domain) { return domain.mode === 'special' && String(domain.status) === '1'; });
+}
+
+function ensureKeyplaceStore() {
+  if (!keyplaceStore) {
+    var list = [];
+    try {
+      var stored = localStorage.getItem('sa_domain_data');
+      if (stored) list = JSON.parse(stored);
+    } catch (e) {}
+    if (!list.length && typeof DOMAIN_TABLE_DATA !== 'undefined') list = DOMAIN_TABLE_DATA;
+    keyplaceStore = (typeof loadKeyPlaceData === 'function')
+      ? loadKeyPlaceData(list)
+      : (typeof initKeyPlaceData === 'function' ? initKeyPlaceData(list) : {});
+  }
+  return keyplaceStore;
+}
+
+function findKeyplace(id) {
+  var data = ensureKeyplaceStore();
+  var found = null;
+  Object.keys(data).forEach(function(key) {
+    (data[key] || []).forEach(function(place) {
+      if (place.id === id) found = place;
+    });
+  });
+  return found;
+}
+
+function keyplaceSelfName() {
+  var profile = window.getEnterpriseProfile ? getEnterpriseProfile() : null;
+  return (profile && profile.name) || '深圳市天道医药有限公司南山分厂';
+}
+
+function keyplacePhoneOf(name) {
+  var user = (typeof ENT_USERS !== 'undefined' ? ENT_USERS : []).filter(function(item) { return item.name === name; })[0];
+  if (user && user.phone) return user.phone;
+  var mock = (typeof KEY_PLACE_MOCK_PERSONS !== 'undefined' ? KEY_PLACE_MOCK_PERSONS : []).filter(function(item) { return item.name === name; })[0];
+  return mock ? mock.phone : '';
+}
+
+function keyplaceThumb(label) {
+  var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect fill='%23e6f4ff' width='80' height='80'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%231676ff' font-size='11' font-family='sans-serif'>" + label + "</text></svg>";
+  return '<div class="image-thumb" style="background-image:url(&quot;data:image/svg+xml,' + svg + '&quot;)"></div>';
+}
+
+function renderKeyplaceTree() {
+  var mount = document.getElementById('keyplaceTreeMount');
+  if (!mount || typeof loadKeyPlaceData !== 'function') return;
+  var entName = keyplaceSelfName();
+  var star = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  var html = '';
+  keyplaceDomains().forEach(function(domain) {
+    var places = (ensureKeyplaceStore()[domain.id] || []).filter(function(place) {
+      return keyPlaceMatchesEnterprise(place, entName);
+    });
+    if (!places.length) return;
+    html += '<div class="tree-node" onclick="toggleObjectTree(this.querySelector(\'.tree-toggle\'))"><span class="tree-toggle expanded" onclick="toggleObjectTree(this)">▶</span><span class="tree-node-icon">' + star + '</span><span class="tree-node-label" title="' + scanText(domain.name) + '">' + scanText(domain.name) + '</span></div>';
+    html += '<div class="tree-children expanded">';
+    places.forEach(function(place) {
+      var label = '重点场所码-' + place.place_name;
+      html += '<div class="tree-node" onclick="switchView(\'keyplace\',\'' + scanText(place.id) + '\')"><span class="tree-node-icon">' + star + '</span><span class="tree-node-label" title="' + scanText(label) + '">' + scanText(label) + '</span></div>';
+    });
+    html += '</div>';
+  });
+  mount.innerHTML = html;
+}
+
+function fillKeyplace(id) {
+  var place = findKeyplace(id);
+  if (!place) return;
+  currentKeyplaceId = place.id;
+  var entName = keyplaceSelfName();
+  var domain = keyplaceDomains().filter(function(item) { return item.id === place.domain_id; })[0];
+  var rel = (place.enterprises || []).filter(function(ent) { return ent.ent_id === 'ent_tiandao' || ent.ent_name === entName; })[0];
+  var nameEl = document.getElementById('keyplaceName');
+  var domainEl = document.getElementById('keyplaceDomain');
+  var typeEl = document.getElementById('keyplaceType');
+  var statusEl = document.getElementById('keyplaceStatus');
+  if (nameEl) nameEl.textContent = place.place_name || '';
+  if (domainEl) domainEl.textContent = domain ? domain.name : (place.domain_id || '');
+  if (typeEl) typeEl.textContent = rel && rel.type_name ? rel.type_name : '—';
+  if (statusEl) statusEl.innerHTML = String(place.status) === '0' ? '<span class="tag">停用</span>' : '<span class="tag tag-blue">启用</span>';
+  var images = place.images || [];
+  var imageRow = document.getElementById('keyplaceImageRow');
+  var imageBox = document.getElementById('keyplaceImages');
+  if (imageRow) imageRow.style.display = images.length ? '' : 'none';
+  if (imageBox) imageBox.innerHTML = images.map(function(_, index) { return keyplaceThumb('场所图' + (index + 1)); }).join('');
+  keyplaceOwnerName = place.hazard_handler_name || '';
+  keyplaceOwnerPhone = keyplacePhoneOf(keyplaceOwnerName);
+  var tip = '<span class="role-tip" tabindex="0"><span class="role-tip-icon">i</span><span class="role-tip-pop">负责重点场所隐患整改闭环</span></span>';
+  var nameView = document.getElementById('keyplaceOwnerView');
+  var phoneView = document.getElementById('keyplacePhoneView');
+  if (nameView) nameView.innerHTML = scanText(keyplaceOwnerName || '—') + tip;
+  if (phoneView) phoneView.textContent = keyplaceOwnerPhone || '—';
+  var body = document.getElementById('keyplaceScanBody');
+  if (body) {
+    body.innerHTML = (place.scan_configs || []).map(function(row, index) {
+      var own = row.resp_type === 'enterprise' && (row.resp_id === 'ent_tiandao' || row.resp_name === entName);
+      var ops = own
+        ? '<span class="keyplace-scan-ops-view">—</span><span class="keyplace-scan-ops-edit"><button class="btn-link" type="button" onclick="showToast(\'编辑检查表，弹窗字段待 PRD 补充\')">编辑</button> <button class="btn-link danger" type="button" onclick="showToast(\'删除企业自己的检查表\')">删除</button></span>'
+        : '—';
+      return '<tr><td>' + (index + 1) + '</td><td>' + scanText(row.resp_name) + '</td><td>' + scanText(row.scanner_name) + '</td><td>' + scanText(row.freq) + '</td><td>' + scanText(row.cl_name) + '</td><td>' + (row.skip_holiday ? '是' : '否') + '</td><td>' + ops + '</td></tr>';
+    }).join('');
+  }
+}
+
+function openKeyplaceEdit() {
+  var view = document.getElementById('view-keyplace');
+  if (view) view.classList.add('is-editing');
+  var phone = document.getElementById('keyplaceOwnerPhone');
+  if (phone) phone.value = keyplaceOwnerPhone || '';
+  renderRoleTags('keyplace-owner');
+}
+
+function closeKeyplaceEdit() {
+  var view = document.getElementById('view-keyplace');
+  if (view) view.classList.remove('is-editing');
+  closeRolePickers();
+}
+
+function confirmKeyplaceEdit() {
+  if (!keyplaceOwnerName) { showToast('请选择隐患整改人'); return; }
+  var phoneEl = document.getElementById('keyplaceOwnerPhone');
+  keyplaceOwnerPhone = phoneEl ? phoneEl.value : keyplaceOwnerPhone;
+  var tip = '<span class="role-tip" tabindex="0"><span class="role-tip-icon">i</span><span class="role-tip-pop">负责重点场所隐患整改闭环</span></span>';
+  var nameView = document.getElementById('keyplaceOwnerView');
+  var phoneView = document.getElementById('keyplacePhoneView');
+  if (nameView) nameView.innerHTML = scanText(keyplaceOwnerName) + tip;
+  if (phoneView) phoneView.textContent = keyplaceOwnerPhone || '—';
+  var place = findKeyplace(currentKeyplaceId);
+  if (place) {
+    place.hazard_handler_name = keyplaceOwnerName;
+    place.hazard_handler_type = 'enterprise';
+    saveKeyPlaceData(ensureKeyplaceStore());
+  }
+  closeKeyplaceEdit();
+  showToast('已保存重点场所配置');
+}
+
+var ENT_USERS = [
+  { name: '李四', phone: '139****9001', dept: '技术质量部', enabled: true },
+  { name: '王五', phone: '139****9002', dept: '安全生产部', enabled: true },
+  { name: '赵六', phone: '138****8002', dept: '工程技术组', enabled: false }
+];
+var addPlaceOwnerName = '';
+var addPlaceReviewers = [{ name: '', phone: '' }];
+var addPlaceChecks = [];
+var addHazardOwnerName = '';
+var addHazardReviewers = [{ name: '', phone: '' }];
+var addHazardChecks = [];
+var roleBrowse = {};
+
+function roleCompanyName() {
+  var profile = window.getEnterpriseProfile ? getEnterpriseProfile() : null;
+  if (profile && profile.name) return profile.name;
+  var root = getOrgTree()[0];
+  return (root && root.name) || '企业';
+}
+
+function entUsersIn(deptName) {
+  var users = ENT_USERS.filter(function(user) { return user.enabled; });
+  if (!deptName) return users;
+  var node = orgFindNode(deptName);
+  if (!node || node.status !== 1) return [];
+  var names = orgSubtreeNames(node).filter(function(name) {
+    var item = orgFindNode(name);
+    return item && item.status === 1;
+  });
+  return users.filter(function(user) { return names.indexOf(user.dept) !== -1; });
+}
+
+function roleKeyIndex(key) {
+  if (key.indexOf('hazard-reviewer-') === 0) return Number(key.slice('hazard-reviewer-'.length));
+  return key === 'owner' || key === 'hazard-owner' || key === 'keyplace-owner' ? -1 : Number(key.slice('reviewer-'.length));
+}
+
+function roleSelectedName(key) {
+  if (key === 'owner') return addPlaceOwnerName;
+  if (key === 'hazard-owner') return addHazardOwnerName;
+  if (key === 'keyplace-owner') return keyplaceOwnerName;
+  if (key.indexOf('hazard-reviewer-') === 0) {
+    var hzRow = addHazardReviewers[roleKeyIndex(key)];
+    return hzRow ? hzRow.name : '';
+  }
+  var row = addPlaceReviewers[roleKeyIndex(key)];
+  return row ? row.name : '';
+}
+
+function closeRolePickers() {
+  document.querySelectorAll('.role-person-panel').forEach(function(panel) { panel.classList.remove('open'); });
+}
+
+function renderRoleTags(key) {
+  var box = document.getElementById('roleTags-' + key);
+  if (!box) return;
+  var name = roleSelectedName(key);
+  if (!name) {
+    box.innerHTML = '<span class="check-person-placeholder">请选择</span>';
+    return;
+  }
+  box.innerHTML = '<span class="check-person-tag">' + scanText(name) + '<span class="tag-x" onclick="clearRoleUser(event, \'' + key + '\')">&times;</span></span>';
+}
+
+function renderRoleTree(key) {
+  var search = document.getElementById('roleSearch-' + key);
+  var keyword = search ? search.value.trim() : '';
+  var current = roleBrowse[key] || '';
+  var company = roleCompanyName();
+  var html = '<div class="check-person-dept' + (current === '' ? ' active' : '') + '" onclick="browseRoleDept(\'' + key + '\', \'\')"><span style="font-weight:600">' + scanText(company) + '</span></div>';
+  function renderNodes(nodes, level) {
+    (nodes || []).forEach(function(node) {
+      if (node.status !== 1) return;
+      var selfMatch = !keyword || node.name.indexOf(keyword) !== -1;
+      var childMatch = false;
+      if (keyword) {
+        (function scan(children) {
+          (children || []).forEach(function(child) {
+            if (child.status !== 1) return;
+            if (child.name.indexOf(keyword) !== -1) childMatch = true;
+            scan(child.children);
+          });
+        })(node.children);
+      }
+      if (keyword && !selfMatch && !childMatch) return;
+      var count = entUsersIn(node.name).length;
+      html += '<div class="check-person-dept' + (current === node.name ? ' active' : '') + '" style="padding-left:' + (12 + level * 16) + 'px" onclick="browseRoleDept(\'' + key + '\', \'' + scanText(node.name) + '\')"><span>' + scanText(node.name) + '</span><span class="dept-count">(' + count + ')</span></div>';
+      renderNodes(node.children, level + 1);
+    });
+  }
+  var orgRoot = getOrgTree()[0];
+  renderNodes(orgRoot && orgRoot.children, 0);
+  var tree = document.getElementById('roleTree-' + key);
+  if (tree) tree.innerHTML = html;
+}
+
+function renderRoleUsers(key) {
+  var browse = roleBrowse[key] || '';
+  if (browse) {
+    var browseNode = orgFindNode(browse);
+    if (!browseNode || browseNode.status !== 1) {
+      roleBrowse[key] = '';
+      browse = '';
+    }
+  }
+  var users = entUsersIn(browse);
+  var label = document.getElementById('roleDeptLabel-' + key);
+  if (label) label.textContent = browse || roleCompanyName();
+  var selected = roleSelectedName(key);
+  var html = users.map(function(user) {
+    var checked = selected === user.name;
+    return '<label class="check-person-user">' +
+      '<input type="checkbox"' + (checked ? ' checked' : '') + ' onchange="toggleRoleUser(\'' + key + '\', \'' + scanText(user.name) + '\', this.checked)">' +
+      '<span>' + scanText(user.name) + '</span><span class="user-phone">' + scanText(user.phone) + '</span></label>';
+  }).join('');
+  var box = document.getElementById('roleUsers-' + key);
+  if (box) box.innerHTML = html || '<div class="check-person-user disabled">暂无人员</div>';
+}
+
+function renderRolePickerBody(key) {
+  var panel = document.getElementById('rolePanel-' + key);
+  if (!panel || panel.getAttribute('data-ready') === '1') {
+    renderRoleTree(key);
+    renderRoleUsers(key);
+    return;
+  }
+  panel.setAttribute('data-ready', '1');
+  panel.innerHTML = '<div class="check-person-cols"><div class="check-person-left"><input class="check-person-search" id="roleSearch-' + key + '" type="text" placeholder="搜索部门" oninput="renderRoleTree(\'' + key + '\')"><div class="check-person-tree" id="roleTree-' + key + '"></div></div><div class="check-person-right"><div class="check-person-right-head"><span class="check-person-right-title" id="roleDeptLabel-' + key + '"></span></div><div class="check-person-users" id="roleUsers-' + key + '"></div></div></div>';
+  renderRoleTree(key);
+  renderRoleUsers(key);
+}
+
+function toggleRolePicker(event, key) {
+  event.stopPropagation();
+  var panel = document.getElementById('rolePanel-' + key);
+  if (!panel) return;
+  var willOpen = !panel.classList.contains('open');
+  closeRolePickers();
+  if (!willOpen) return;
+  renderRolePickerBody(key);
+  panel.classList.add('open');
+}
+
+function browseRoleDept(key, name) {
+  roleBrowse[key] = name;
+  renderRoleTree(key);
+  renderRoleUsers(key);
+}
+
+function toggleRoleUser(key, name, checked) {
+  var user = ENT_USERS.filter(function(item) { return item.name === name; })[0];
+  if (!user || !user.enabled) return;
+  var value = checked ? user : null;
+  if (key === 'owner') {
+    addPlaceOwnerName = value ? value.name : '';
+    var ownerPhone = document.getElementById('addPlaceOwnerPhone');
+    if (ownerPhone) ownerPhone.value = value ? value.phone : '';
+  } else if (key === 'hazard-owner') {
+    addHazardOwnerName = value ? value.name : '';
+    var hzOwnerPhone = document.getElementById('addHazardOwnerPhone');
+    if (hzOwnerPhone) hzOwnerPhone.value = value ? value.phone : '';
+  } else if (key === 'keyplace-owner') {
+    keyplaceOwnerName = value ? value.name : '';
+    keyplaceOwnerPhone = value ? value.phone : '';
+    var kpPhone = document.getElementById('keyplaceOwnerPhone');
+    if (kpPhone) kpPhone.value = value ? value.phone : '';
+  } else if (key.indexOf('hazard-reviewer-') === 0) {
+    var hzRow = addHazardReviewers[roleKeyIndex(key)];
+    if (hzRow) {
+      hzRow.name = value ? value.name : '';
+      hzRow.phone = value ? value.phone : '';
+    }
+    var hzPhone = document.getElementById('rolePhone-' + key);
+    if (hzPhone) hzPhone.value = value ? value.phone : '';
+  } else {
+    var row = addPlaceReviewers[roleKeyIndex(key)];
+    if (row) {
+      row.name = value ? value.name : '';
+      row.phone = value ? value.phone : '';
+    }
+    var phone = document.getElementById('rolePhone-' + key);
+    if (phone) phone.value = value ? value.phone : '';
+  }
+  renderRoleTags(key);
+  renderRoleUsers(key);
+  if (checked) closeRolePickers();
+}
+
+function clearRoleUser(event, key) {
+  event.stopPropagation();
+  toggleRoleUser(key, roleSelectedName(key), false);
+}
+
+function rolePickerHtml(key) {
+  return '<div class="check-person-select"><div class="check-person-trigger" onclick="toggleRolePicker(event, \'' + key + '\')"><div class="check-person-tags" id="roleTags-' + key + '"></div><span class="check-person-caret">&#9662;</span></div><div class="check-person-panel role-person-panel" id="rolePanel-' + key + '" onclick="event.stopPropagation()"></div></div>';
+}
+
+function renderAddPlaceReviewers() {
+  var box = document.getElementById('addPlaceReviewerRows');
+  if (!box) return;
+  box.innerHTML = addPlaceReviewers.map(function(row, index) {
+    var key = 'reviewer-' + index;
+    var isLast = index === addPlaceReviewers.length - 1;
+    var actions = '';
+    if (addPlaceReviewers.length > 1) actions += '<button class="btn btn-sm btn-default" type="button" onclick="removeAddPlaceReviewer(' + index + ')">删除</button>';
+    if (isLast) actions += '<button class="btn btn-sm btn-primary" type="button" onclick="addAddPlaceReviewer()">+ 新增</button>';
+    var label = index === 0 ? '<span class="req">*</span> 隐患复核责任人' : '隐患复核责任人';
+    return '<div class="add-place-person-row"><div class="form-col"><label>' + label + '</label>' + rolePickerHtml(key) + '</div><div class="form-col"><label>联系电话</label><input id="rolePhone-' + key + '" type="text" readonly placeholder="请输入" value="' + scanText(row.phone) + '"></div><div class="add-place-row-actions">' + actions + '</div></div>';
+  }).join('');
+  addPlaceReviewers.forEach(function(row, index) { renderRoleTags('reviewer-' + index); });
+}
+
+function addAddPlaceReviewer() {
+  addPlaceReviewers.push({ name: '', phone: '' });
+  renderAddPlaceReviewers();
+}
+
+function removeAddPlaceReviewer(index) {
+  if (addPlaceReviewers.length <= 1) return;
+  addPlaceReviewers.splice(index, 1);
+  renderAddPlaceReviewers();
+}
+
+function renderAddPlaceChecks() {
+  var body = document.getElementById('addPlaceScanBody');
+  if (!body) return;
+  if (!addPlaceChecks.length) {
+    body.innerHTML = '<tr><td colspan="7" class="add-place-empty">暂无数据</td></tr>';
+    return;
+  }
+  body.innerHTML = addPlaceChecks.map(function(row, index) {
+    return '<tr><td>' + (index + 1) + '</td><td>' + row.type + '</td><td>' + row.person + '</td><td>' + row.freq + '</td><td>' + row.name + '</td><td>' + row.holiday + '</td><td><button class="btn-link danger" type="button" onclick="removeAddPlaceCheck(' + index + ')">删除</button></td></tr>';
+  }).join('');
+}
+
+function removeAddPlaceCheck(index) {
+  addPlaceChecks.splice(index, 1);
+  renderAddPlaceChecks();
+}
+
+function resetAddPlaceForm() {
+  addPlaceOwnerName = '';
+  addPlaceReviewers = [{ name: '', phone: '' }];
+  addPlaceChecks = [];
+  roleBrowse = {};
+  var type = document.getElementById('addPlaceType');
+  var name = document.getElementById('addPlaceName');
+  var phone = document.getElementById('addPlaceOwnerPhone');
+  var status = document.querySelector('input[name="addPlaceStatus"][value="启用"]');
+  var ownerPanel = document.getElementById('rolePanel-owner');
+  if (type) type.value = '';
+  if (name) name.value = '';
+  if (phone) phone.value = '';
+  if (status) status.checked = true;
+  if (ownerPanel) {
+    ownerPanel.classList.remove('open');
+    ownerPanel.removeAttribute('data-ready');
+    ownerPanel.innerHTML = '';
+  }
+  document.querySelectorAll('.role-person-panel').forEach(function(panel) {
+    panel.classList.remove('open');
+    panel.removeAttribute('data-ready');
+    panel.innerHTML = '';
+  });
+  renderRoleTags('owner');
+  renderAddPlaceReviewers();
+  renderAddPlaceChecks();
+}
+
+function openAddPlace() {
+  editingPlaceId = null;
+  resetAddPlaceForm();
+  switchView('add-place');
+}
+
+function fillAddPlaceForm(nodeId) {
+  var data = PLACE_DETAIL[nodeId];
+  if (!data) return;
+  editingPlaceId = nodeId;
+  currentPlaceId = nodeId;
+  resetAddPlaceForm();
+  editingPlaceId = nodeId;
+  var type = document.getElementById('addPlaceType');
+  var name = document.getElementById('addPlaceName');
+  var phone = document.getElementById('addPlaceOwnerPhone');
+  var statusVal = data.status || '启用';
+  var status = document.querySelector('input[name="addPlaceStatus"][value="' + statusVal + '"]');
+  if (type) type.value = data.type || '';
+  if (name) name.value = data.name || '';
+  addPlaceOwnerName = data.owner || '';
+  if (phone) phone.value = data.phone || '';
+  if (status) status.checked = true;
+  var reviewers = normalizePlaceReviewers(data);
+  addPlaceReviewers = reviewers.length ? reviewers.map(function(row) {
+    return { name: row.name, phone: row.phone };
+  }) : [{ name: '', phone: '' }];
+  addPlaceChecks = (data.scans || []).map(function(row) {
+    return { type: row.type || '', person: row.person || '', freq: row.freq || '', name: row.name || '', holiday: row.holiday || '否' };
+  });
+  renderRoleTags('owner');
+  renderAddPlaceReviewers();
+  renderAddPlaceChecks();
+}
+
+function editPlace(nodeId) {
+  var id = nodeId || currentPlaceId;
+  if (!id || !PLACE_DETAIL[id]) {
+    showToast('未找到场所数据');
+    return;
+  }
+  fillAddPlaceForm(id);
+  switchView('add-place');
+  var body = document.querySelector('.detail-body');
+  if (body) body.scrollTop = 0;
+}
+
+function cancelAddPlace() {
+  var backId = editingPlaceId;
+  editingPlaceId = null;
+  if (backId) {
+    switchView('place', backId);
+  } else {
+    switchView('enterprise');
+  }
+}
+
+function saveAddPlace() {
+  var type = document.getElementById('addPlaceType').value;
+  var name = document.getElementById('addPlaceName').value.trim();
+  var owner = addPlaceOwnerName;
+  var hasReviewer = addPlaceReviewers.some(function(row) { return row.name; });
+  if (!type) { showToast('请选择场所类型'); return; }
+  if (!name) { showToast('请输入场所名称'); return; }
+  if (!owner) { showToast('请选择整改责任人'); return; }
+  if (!hasReviewer) { showToast('请选择隐患复核责任人'); return; }
+  var isEdit = !!editingPlaceId;
+  var placeId = editingPlaceId || currentPlaceId;
+  if (isEdit && PLACE_DETAIL[placeId]) {
+    var ownerUser = ENT_USERS.filter(function(item) { return item.name === owner; })[0];
+    var prev = PLACE_DETAIL[placeId] || {};
+    PLACE_DETAIL[placeId] = {
+      name: name,
+      type: type,
+      status: (document.querySelector('input[name="addPlaceStatus"]:checked') || {}).value || '启用',
+      owner: owner,
+      phone: ownerUser ? ownerUser.phone : (document.getElementById('addPlaceOwnerPhone').value || ''),
+      reviewers: addPlaceReviewers.filter(function(row) { return row.name; }).map(function(row) {
+        return { name: row.name, phone: row.phone };
+      }),
+      scans: addPlaceChecks.map(function(row) {
+        return { type: row.type, person: row.person, freq: row.freq, name: row.name, holiday: row.holiday };
+      })
+    };
+    if (prev.image) PLACE_DETAIL[placeId].image = prev.image;
+    editingPlaceId = null;
+    showToast('已更新场所');
+    switchView('place', placeId);
+    return;
+  }
+  editingPlaceId = null;
+  showToast('场所已创建');
+  switchView('enterprise');
+}
+
+function fillHazardPlaceOptions(selectedId) {
+  var sel = document.getElementById('addHazardPlace');
+  if (!sel) return;
+  var html = '<option value="">请选择</option>';
+  Object.keys(PLACE_DETAIL).forEach(function(id) {
+    var place = PLACE_DETAIL[id];
+    html += '<option value="' + id + '"' + (selectedId === id ? ' selected' : '') + '>' + scanText(place.name) + '</option>';
+  });
+  sel.innerHTML = html;
+}
+
+function toggleHazardPlaceField() {
+  var linkYes = document.querySelector('input[name="addHazardLinkPlace"][value="是"]');
+  var wrap = document.getElementById('addHazardPlaceWrap');
+  if (!wrap) return;
+  wrap.style.display = linkYes && linkYes.checked ? '' : 'none';
+}
+
+function renderAddHazardReviewers() {
+  var box = document.getElementById('addHazardReviewerRows');
+  if (!box) return;
+  box.innerHTML = addHazardReviewers.map(function(row, index) {
+    var key = 'hazard-reviewer-' + index;
+    var isLast = index === addHazardReviewers.length - 1;
+    var actions = '';
+    if (addHazardReviewers.length > 1) actions += '<button class="btn btn-sm btn-default" type="button" onclick="removeAddHazardReviewer(' + index + ')">删除</button>';
+    if (isLast) actions += '<button class="btn btn-sm btn-primary" type="button" onclick="addAddHazardReviewer()">+ 新增</button>';
+    var label = index === 0 ? '<span class="req">*</span> 隐患复核责任人' : '隐患复核责任人';
+    return '<div class="add-place-person-row"><div class="form-col"><label>' + label + '</label>' + rolePickerHtml(key) + '</div><div class="form-col"><label>联系电话</label><input id="rolePhone-' + key + '" type="text" readonly placeholder="请输入" value="' + scanText(row.phone) + '"></div><div class="add-place-row-actions">' + actions + '</div></div>';
+  }).join('');
+  addHazardReviewers.forEach(function(row, index) { renderRoleTags('hazard-reviewer-' + index); });
+}
+
+function addAddHazardReviewer() {
+  addHazardReviewers.push({ name: '', phone: '' });
+  renderAddHazardReviewers();
+}
+
+function removeAddHazardReviewer(index) {
+  if (addHazardReviewers.length <= 1) return;
+  addHazardReviewers.splice(index, 1);
+  renderAddHazardReviewers();
+}
+
+function renderAddHazardChecks() {
+  var body = document.getElementById('addHazardScanBody');
+  if (!body) return;
+  if (!addHazardChecks.length) {
+    body.innerHTML = '<tr><td colspan="7" class="add-place-empty">暂无数据</td></tr>';
+    return;
+  }
+  body.innerHTML = addHazardChecks.map(function(row, index) {
+    return '<tr><td>' + (index + 1) + '</td><td>' + row.type + '</td><td>' + row.person + '</td><td>' + row.freq + '</td><td>' + row.name + '</td><td>' + row.holiday + '</td><td><button class="btn-link danger" type="button" onclick="removeAddHazardCheck(' + index + ')">删除</button></td></tr>';
+  }).join('');
+}
+
+function removeAddHazardCheck(index) {
+  addHazardChecks.splice(index, 1);
+  renderAddHazardChecks();
+}
+
+function resetAddHazardForm() {
+  addHazardOwnerName = '';
+  addHazardReviewers = [{ name: '', phone: '' }];
+  addHazardChecks = [];
+  roleBrowse = {};
+  var type = document.getElementById('addHazardType');
+  var name = document.getElementById('addHazardName');
+  var phone = document.getElementById('addHazardOwnerPhone');
+  var status = document.querySelector('input[name="addHazardStatus"][value="启用"]');
+  var linkYes = document.querySelector('input[name="addHazardLinkPlace"][value="是"]');
+  var ownerPanel = document.getElementById('rolePanel-hazard-owner');
+  if (type) type.value = '';
+  if (name) name.value = '';
+  if (phone) phone.value = '';
+  if (status) status.checked = true;
+  if (linkYes) linkYes.checked = true;
+  fillHazardPlaceOptions('');
+  toggleHazardPlaceField();
+  if (ownerPanel) {
+    ownerPanel.classList.remove('open');
+    ownerPanel.removeAttribute('data-ready');
+    ownerPanel.innerHTML = '';
+  }
+  document.querySelectorAll('#view-add-hazard .role-person-panel').forEach(function(panel) {
+    panel.classList.remove('open');
+    panel.removeAttribute('data-ready');
+    panel.innerHTML = '';
+  });
+  renderRoleTags('hazard-owner');
+  renderAddHazardReviewers();
+  renderAddHazardChecks();
+}
+
+function openAddHazard(placeId) {
+  editingHazardId = null;
+  resetAddHazardForm();
+  if (placeId && PLACE_DETAIL[placeId]) {
+    var linkYes = document.querySelector('input[name="addHazardLinkPlace"][value="是"]');
+    if (linkYes) linkYes.checked = true;
+    fillHazardPlaceOptions(placeId);
+    toggleHazardPlaceField();
+  }
+  switchView('add-hazard');
+}
+
+function fillAddHazardForm(nodeId) {
+  var data = HAZARD_DETAIL[nodeId];
+  if (!data) return;
+  editingHazardId = nodeId;
+  currentHazardId = nodeId;
+  resetAddHazardForm();
+  editingHazardId = nodeId;
+  var type = document.getElementById('addHazardType');
+  var name = document.getElementById('addHazardName');
+  var phone = document.getElementById('addHazardOwnerPhone');
+  var statusVal = data.status || '启用';
+  var status = document.querySelector('input[name="addHazardStatus"][value="' + statusVal + '"]');
+  var linkVal = data.linkPlace ? '是' : '否';
+  var link = document.querySelector('input[name="addHazardLinkPlace"][value="' + linkVal + '"]');
+  if (type) type.value = data.type || '';
+  if (name) name.value = data.name || '';
+  addHazardOwnerName = data.owner || '';
+  if (phone) phone.value = data.phone || '';
+  if (status) status.checked = true;
+  if (link) link.checked = true;
+  fillHazardPlaceOptions(data.placeId || '');
+  toggleHazardPlaceField();
+  var reviewers = normalizePlaceReviewers(data);
+  addHazardReviewers = reviewers.length ? reviewers.map(function(row) {
+    return { name: row.name, phone: row.phone };
+  }) : [{ name: '', phone: '' }];
+  addHazardChecks = (data.scans || []).map(function(row) {
+    return { type: row.type || '', person: row.person || '', freq: row.freq || '', name: row.name || '', holiday: row.holiday || '否' };
+  });
+  renderRoleTags('hazard-owner');
+  renderAddHazardReviewers();
+  renderAddHazardChecks();
+}
+
+function editHazard(nodeId) {
+  var id = nodeId || currentHazardId;
+  if (!id || !HAZARD_DETAIL[id]) {
+    showToast('未找到危险源数据');
+    return;
+  }
+  fillAddHazardForm(id);
+  switchView('add-hazard');
+  var body = document.querySelector('.detail-body');
+  if (body) body.scrollTop = 0;
+}
+
+function cancelAddHazard() {
+  var backId = editingHazardId;
+  editingHazardId = null;
+  if (backId) {
+    switchView('hazard', backId);
+  } else {
+    switchView('enterprise');
+  }
+}
+
+function saveAddHazard() {
+  var type = document.getElementById('addHazardType').value;
+  var name = document.getElementById('addHazardName').value.trim();
+  var owner = addHazardOwnerName;
+  var linkYes = document.querySelector('input[name="addHazardLinkPlace"][value="是"]');
+  var linked = !!(linkYes && linkYes.checked);
+  var placeId = document.getElementById('addHazardPlace').value;
+  var hasReviewer = addHazardReviewers.some(function(row) { return row.name; });
+  if (!type) { showToast('请选择危险源类型'); return; }
+  if (!name) { showToast('请输入危险源名称'); return; }
+  if (linked && !placeId) { showToast('请选择所属场所'); return; }
+  if (!owner) { showToast('请选择整改责任人'); return; }
+  if (!hasReviewer) { showToast('请选择隐患复核责任人'); return; }
+  var isEdit = !!editingHazardId;
+  var hazardId = editingHazardId || currentHazardId;
+  if (isEdit && HAZARD_DETAIL[hazardId]) {
+    var ownerUser = ENT_USERS.filter(function(item) { return item.name === owner; })[0];
+    var prev = HAZARD_DETAIL[hazardId] || {};
+    var place = placeId && PLACE_DETAIL[placeId] ? PLACE_DETAIL[placeId] : null;
+    HAZARD_DETAIL[hazardId] = {
+      name: name,
+      type: type,
+      status: (document.querySelector('input[name="addHazardStatus"]:checked') || {}).value || '启用',
+      linkPlace: linked,
+      placeId: linked ? placeId : '',
+      placeName: linked && place ? place.name : '',
+      owner: owner,
+      phone: ownerUser ? ownerUser.phone : (document.getElementById('addHazardOwnerPhone').value || ''),
+      reviewers: addHazardReviewers.filter(function(row) { return row.name; }).map(function(row) {
+        return { name: row.name, phone: row.phone };
+      }),
+      scans: addHazardChecks.map(function(row) {
+        return { type: row.type, person: row.person, freq: row.freq, name: row.name, holiday: row.holiday };
+      })
+    };
+    if (prev.image) HAZARD_DETAIL[hazardId].image = prev.image;
+    editingHazardId = null;
+    showToast('已更新危险源');
+    switchView('hazard', hazardId);
+    return;
+  }
+  editingHazardId = null;
+  showToast('危险源已创建');
+  switchView('enterprise');
 }
 
 function showLoading() {
@@ -869,10 +1975,6 @@ function showLoading() {
 
 function hideLoading() {
   document.getElementById('detailLoading').classList.remove('show');
-}
-
-function openMigrateModal() {
-  document.getElementById('migrateAreaModal').style.display = 'flex';
 }
 
 function togglePersonSelector(id) {
@@ -911,27 +2013,933 @@ document.addEventListener('click', function(e) {
   }
 });
 
-function expandAllTree() {
-  document.querySelectorAll('.tree-toggle').forEach(function(toggle) {
-    if (toggle.textContent === '▶') {
-      toggle.textContent = '▼';
-    }
+function toggleObjectTree(el) {
+  if (window.event) window.event.stopPropagation();
+  el.classList.toggle('expanded');
+  var node = el.closest('.tree-node');
+  var next = node && node.nextElementSibling;
+  if (next && next.classList.contains('tree-children')) {
+    next.classList.toggle('expanded');
+  }
+}
+
+function setObjectTreeExpanded(expanded) {
+  document.querySelectorAll('.tree-body .tree-toggle').forEach(function(toggle) {
+    toggle.classList.toggle('expanded', expanded);
   });
-  document.querySelectorAll('.tree-node.level-1, .tree-node.level-2').forEach(function(node) {
-    node.style.display = '';
+  document.querySelectorAll('.tree-body .tree-children').forEach(function(box) {
+    box.classList.toggle('expanded', expanded);
   });
 }
 
+function expandAllTree() {
+  setObjectTreeExpanded(true);
+}
+
 function collapseAllTree() {
-  document.querySelectorAll('.tree-toggle').forEach(function(toggle) {
-    if (toggle.textContent === '▼') {
-      toggle.textContent = '▶';
+  setObjectTreeExpanded(false);
+}
+
+var SCAN_USERS = ENT_USERS;
+var CHECK_TEMPLATES = [
+  { name: '日常安全检查表', items: [
+    { name: '消防通道是否畅通', contents: [{ name: '通道内无堆放杂物' }, { name: '常闭式防火门关闭正常' }] },
+    { name: '灭火器是否在有效期', contents: [{ name: '压力表指针在绿区' }, { name: '瓶体无锈蚀、铅封完好' }] },
+    { name: '安全出口标识是否完好', contents: [{ name: '疏散标识灯常亮' }] }
+  ]},
+  { name: '消防安全专项检查表', items: [
+    { name: '消火栓是否完好', contents: [{ name: '栓体无锈蚀漏水' }, { name: '水带齐整无霉变' }] },
+    { name: '应急照明是否正常', contents: [{ name: '断电后自动点亮' }] },
+    { name: '疏散指示是否清晰', contents: [{ name: '指示方向与实际疏散路线一致' }] }
+  ]}
+];
+// 组织架构读企业组织架构管理的共享数据（js/enterprise-org.js，localStorage sa_enterprise_org）
+var checkPersonSel = { depts: [], users: [] };
+var checkPersonBrowse = '';
+var enterpriseScanSaved = {
+  owner: { name: '王五', phone: '139****9002' },
+  dispatcher: { name: '李四', phone: '139****9001' },
+  reviewers: [
+    { name: '李四', phone: '139****9001' },
+    { name: '王五', phone: '139****9002' }
+  ],
+  checks: [
+    { type: '安全生产部', person: '王五', freq: '每1月检查1次', name: '日常安全检查表', holiday: '是', complete: '任意一人完成', items: [{ name: '消防通道是否畅通' }, { name: '灭火器是否在有效期' }] },
+    { type: '安全生产部、技术质量部', person: '王五、李四', freq: '每1季检查1次', name: '消防安全专项检查表', holiday: '是', complete: '所有人都要完成', items: [{ name: '消火栓是否完好' }, { name: '应急照明是否正常' }] }
+  ]
+};
+var checkForm = null;
+var checkFormTarget = 'enterprise';
+var checkNameList = [];
+var checkDragFrom = -1;
+var enterpriseScanDraft = null;
+
+function cloneScanState(state) {
+  return {
+    owner: { name: state.owner.name, phone: state.owner.phone },
+    dispatcher: { name: state.dispatcher.name, phone: state.dispatcher.phone },
+    reviewers: state.reviewers.map(function(row) { return { name: row.name, phone: row.phone }; }),
+    checks: state.checks.map(function(row) {
+      return {
+        type: row.type,
+        person: row.person,
+        freq: row.freq,
+        name: row.name,
+        holiday: row.holiday,
+        complete: row.complete || '任意一人完成',
+        items: (row.items || []).map(copyCheckItem)
+      };
+    })
+  };
+}
+
+function copyCheckItem(item) {
+  return {
+    name: item && item.name ? item.name : '',
+    contents: ((item && item.contents) || []).map(function(content) { return { name: content.name || '' }; })
+  };
+}
+
+function scanActiveUsers() {
+  return SCAN_USERS.filter(function(user) { return user.enabled !== false; });
+}
+
+function scanUserPhone(name) {
+  for (var i = 0; i < SCAN_USERS.length; i++) {
+    if (SCAN_USERS[i].name === name) return SCAN_USERS[i].phone;
+  }
+  return '';
+}
+
+function scanRoleTip(text) {
+  return '<span class="role-tip" tabindex="0"><span class="role-tip-icon">!</span><span class="role-tip-pop">' + text + '</span></span>';
+}
+
+function scanText(text) {
+  return String(text == null ? '' : text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+}
+
+function scanViewValue(label, value) {
+  if (value) return scanText(value);
+  if (label === '企业主要负责人') return '';
+  return '-';
+}
+
+function scanViewPair(label, name, phone, tip) {
+  return '<div class="info-row"><span class="info-label">' + label + tip + '</span><span class="info-value">' + scanViewValue(label, name) + '</span></div>' +
+    '<div class="info-row"><span class="info-label">联系电话</span><span class="info-value">' + scanViewValue(label, phone) + '</span></div>';
+}
+
+function scanPersonOptions(selected) {
+  var html = '<option value="">请选择</option>';
+  scanActiveUsers().forEach(function(user) {
+    html += '<option value="' + scanText(user.name) + '"' + (user.name === selected ? ' selected' : '') + '>' + scanText(user.name) + '</option>';
+  });
+  return html;
+}
+
+function renderEnterpriseScanView() {
+  var data = enterpriseScanSaved;
+  var tipDispatch = scanRoleTip('调度分拨员：负责企业危险隐患整改及分派');
+  var tipReview = scanRoleTip('隐患复核责任人：负责企业层隐患的复核');
+  var rows = scanViewPair('企业主要负责人', data.owner.name, data.owner.phone, '');
+  rows += scanViewPair('调度分拨员', data.dispatcher.name, data.dispatcher.phone, tipDispatch);
+  if (!data.reviewers.length) {
+    rows += scanViewPair('隐患复核责任人', '', '', tipReview);
+  } else {
+    data.reviewers.forEach(function(row) {
+      rows += scanViewPair('隐患复核责任人', row.name, row.phone, tipReview);
+    });
+  }
+  document.getElementById('enterpriseScanRoleView').innerHTML = rows;
+  document.getElementById('enterpriseScanCheckView').innerHTML = data.checks.map(function(row, i) {
+    return '<tr><td>' + (i + 1) + '</td><td>' + scanText(row.type) + '</td><td>' + scanText(row.person) + '</td><td>' + scanText(row.freq) + '</td><td>' + scanText(row.name) + '</td><td>' + scanText(row.holiday) + '</td></tr>';
+  }).join('');
+}
+
+function scanEditLine(kind, index, label, tip, phoneRequired, row, action) {
+  var phoneStar = phoneRequired ? '<span class="req">*</span>' : '';
+  return '<div class="scan-edit-line">' +
+    '<div class="scan-edit-field"><label><span class="req">*</span>' + label + tip + '</label><select onchange="changeEnterpriseScanPerson(\'' + kind + '\',' + index + ',this.value)">' + scanPersonOptions(row.name) + '</select></div>' +
+    '<div class="scan-edit-field"><label>' + phoneStar + '联系电话</label><input type="text" readonly value="' + scanText(row.phone) + '"></div>' +
+    '<div class="scan-edit-slot">' + action + '</div></div>';
+}
+
+function renderEnterpriseScanEdit() {
+  var data = enterpriseScanDraft;
+  var tipDispatch = scanRoleTip('调度分拨员：负责企业危险隐患整改及分派');
+  var tipReview = scanRoleTip('隐患复核责任人：负责企业层隐患的复核');
+  var html = scanEditLine('owner', -1, '企业主要负责人', '', true, data.owner, '');
+  html += scanEditLine('dispatcher', -1, '调度分拨员', tipDispatch, false, data.dispatcher, '');
+  data.reviewers.forEach(function(row, index) {
+    var last = index === data.reviewers.length - 1;
+    var action = '<button type="button" class="btn btn-sm btn-danger" onclick="removeEnterpriseScanReviewer(' + index + ')">删除</button>';
+    if (last) action += '<button type="button" class="btn btn-sm btn-primary" onclick="addEnterpriseScanReviewer()">新增</button>';
+    html += scanEditLine('reviewer', index, '隐患复核责任人', tipReview, true, row, action);
+  });
+  document.getElementById('enterpriseScanRoleEdit').innerHTML = html;
+  document.getElementById('enterpriseScanCheckEdit').innerHTML = data.checks.map(function(row, i) {
+    return '<tr><td>' + (i + 1) + '</td><td>' + scanText(row.type) + '</td><td>' + scanText(row.person) + '</td><td>' + scanText(row.freq) + '</td><td>' + scanText(row.name) + '</td><td>' + scanText(row.holiday) + '</td><td class="col-action"><button type="button" class="btn-link" onclick="openCheckConfig(' + i + ')">编辑检查表</button> <button type="button" class="btn-link danger" onclick="removeEnterpriseScanCheck(' + i + ')">删除</button></td></tr>';
+  }).join('');
+}
+
+function changeEnterpriseScanPerson(kind, index, name) {
+  var target = kind === 'owner' ? enterpriseScanDraft.owner : kind === 'dispatcher' ? enterpriseScanDraft.dispatcher : enterpriseScanDraft.reviewers[index];
+  target.name = name;
+  target.phone = scanUserPhone(name);
+  renderEnterpriseScanEdit();
+}
+
+function addEnterpriseScanReviewer() {
+  enterpriseScanDraft.reviewers.push({ name: '', phone: '' });
+  renderEnterpriseScanEdit();
+}
+
+function removeEnterpriseScanReviewer(index) {
+  if (enterpriseScanDraft.reviewers.length <= 1) {
+    showToast('至少保留一名隐患复核责任人');
+    return;
+  }
+  enterpriseScanDraft.reviewers.splice(index, 1);
+  renderEnterpriseScanEdit();
+}
+
+function removeEnterpriseScanCheck(index) {
+  if (!window.confirm('确定删除该检查表？')) return;
+  enterpriseScanDraft.checks.splice(index, 1);
+  renderEnterpriseScanEdit();
+}
+
+function openEnterpriseScanEdit() {
+  enterpriseScanDraft = cloneScanState(enterpriseScanSaved);
+  document.getElementById('enterpriseScanView').style.display = 'none';
+  document.getElementById('enterpriseScanEdit').style.display = '';
+  document.getElementById('enterpriseScanEditBtn').style.display = 'none';
+  renderEnterpriseScanEdit();
+}
+
+function closeEnterpriseScan() {
+  closeCheckConfig();
+  enterpriseScanDraft = null;
+  var edit = document.getElementById('enterpriseScanEdit');
+  var view = document.getElementById('enterpriseScanView');
+  var btn = document.getElementById('enterpriseScanEditBtn');
+  if (edit) edit.style.display = 'none';
+  if (view) view.style.display = '';
+  if (btn) btn.style.display = '';
+}
+
+function confirmEnterpriseScan() {
+  var data = enterpriseScanDraft;
+  if (!data.owner.name) { showToast('请选择企业主要负责人'); return; }
+  if (!data.owner.phone) { showToast('企业主要负责人联系电话不能为空'); return; }
+  if (!data.dispatcher.name) { showToast('请选择调度分拨员'); return; }
+  var seen = {};
+  for (var i = 0; i < data.reviewers.length; i++) {
+    var row = data.reviewers[i];
+    if (!row.name) { showToast('请选择隐患复核责任人'); return; }
+    if (!row.phone) { showToast('隐患复核责任人联系电话不能为空'); return; }
+    if (seen[row.name]) { showToast('隐患复核责任人不能重复'); return; }
+    seen[row.name] = true;
+  }
+  enterpriseScanSaved = cloneScanState(data);
+  renderEnterpriseScanView();
+  closeEnterpriseScan();
+  showToast('扫码配置已保存');
+}
+
+function scanUserDept(name) {
+  for (var i = 0; i < SCAN_USERS.length; i++) {
+    if (SCAN_USERS[i].name === name) return SCAN_USERS[i].dept || '';
+  }
+  return '';
+}
+
+function parseCheckFreq(text) {
+  var matched = /^每(\d+)(日|周|月|季|年)检查(\d+)次$/.exec(text || '');
+  if (!matched) return { every: 1, unit: '日', times: 1 };
+  return { every: Number(matched[1]), unit: matched[2], times: Number(matched[3]) };
+}
+
+function setRadio(name, value) {
+  var inputs = document.querySelectorAll('input[name="' + name + '"]');
+  inputs.forEach(function(input) { input.checked = input.value === value; });
+}
+
+function readRadio(name) {
+  var checked = document.querySelector('input[name="' + name + '"]:checked');
+  return checked ? checked.value : '';
+}
+
+function parseCheckPerson(text) {
+  var sel = { depts: [], users: [] };
+  String(text || '').split('、').forEach(function(part) {
+    part = part.trim();
+    if (!part) return;
+    if (part.slice(-4) === '（全员）') {
+      var deptName = part.slice(0, -4);
+      if (orgFindNode(deptName)) {
+        sel.depts.push(deptName);
+        return;
+      }
+    }
+    if (SCAN_USERS.some(function(u) { return u.name === part; })) sel.users.push(part);
+  });
+  return sel;
+}
+
+function getOrgTree() {
+  return (window.getEnterpriseOrg ? getEnterpriseOrg() : null) || [];
+}
+
+function orgFindNode(name) {
+  var found = null;
+  function walk(nodes) {
+    (nodes || []).forEach(function(node) {
+      if (found) return;
+      if (node.name === name) { found = node; return; }
+      if (node.children) walk(node.children);
+    });
+  }
+  walk(getOrgTree());
+  return found;
+}
+
+function orgSubtreeNames(node) {
+  var names = [node.name];
+  (node.children || []).forEach(function(child) {
+    orgSubtreeNames(child).forEach(function(n) { names.push(n); });
+  });
+  return names;
+}
+
+function checkPersonRootName() {
+  var profile = window.getEnterpriseProfile ? getEnterpriseProfile() : null;
+  if (profile && profile.name) return profile.name;
+  var tree = getOrgTree();
+  return (tree[0] && tree[0].name) || '企业';
+}
+
+function checkPersonDeptUsers(deptName) {
+  var node = orgFindNode(deptName);
+  if (!node || node.status !== 1) return [];
+  var names = orgSubtreeNames(node).filter(function(name) {
+    var item = orgFindNode(name);
+    return item && item.status === 1;
+  });
+  return scanActiveUsers().filter(function(u) { return names.indexOf(u.dept) !== -1; }).map(function(u) { return u.name; });
+}
+
+function checkPersonBrowseUsers() {
+  if (!checkPersonBrowse) return scanActiveUsers().map(function(u) { return u.name; });
+  return checkPersonDeptUsers(checkPersonBrowse);
+}
+
+function renderCheckPersonTree() {
+  var keyword = (document.getElementById('checkPersonDeptSearch').value || '').trim();
+  var html = '<div class="check-person-dept' + (checkPersonBrowse === '' ? ' active' : '') + '" onclick="browseCheckPersonDept(\'\')"><span style="font-weight:600">' + scanText(checkPersonRootName()) + '</span></div>';
+  var rootNode = getOrgTree()[0];
+  function renderNodes(nodes, level) {
+    (nodes || []).forEach(function(node) {
+      if (node.status !== 1) return;
+      var selfMatch = !keyword || node.name.indexOf(keyword) !== -1;
+      var childMatch = false;
+      if (keyword) {
+        (function scan(children) {
+          (children || []).forEach(function(child) {
+            if (child.status !== 1) return;
+            if (child.name.indexOf(keyword) !== -1) childMatch = true;
+            scan(child.children);
+          });
+        })(node.children);
+      }
+      if (keyword && !selfMatch && !childMatch) return;
+      var checked = checkPersonSel.depts.indexOf(node.name) !== -1;
+      var active = checkPersonBrowse === node.name ? ' active' : '';
+      var count = checkPersonDeptUsers(node.name).length;
+      html += '<div class="check-person-dept' + active + '" style="padding-left:' + (12 + level * 16) + 'px" onclick="browseCheckPersonDept(\'' + scanText(node.name) + '\')">' +
+        '<input type="checkbox"' + (checked ? ' checked' : '') + ' onclick="event.stopPropagation()" onchange="toggleCheckPersonDept(this.checked, \'' + scanText(node.name) + '\')">' +
+        '<span>' + scanText(node.name) + '</span><span class="dept-count">(' + count + ')</span></div>';
+      renderNodes(node.children, level + 1);
+    });
+  }
+  if (rootNode) renderNodes(rootNode.children, 0);
+  document.getElementById('checkPersonTree').innerHTML = html;
+}
+
+function renderCheckPersonUsers() {
+  var deptMode = checkPersonSel.depts.length > 0;
+  if (checkPersonBrowse) {
+    var browseNode = orgFindNode(checkPersonBrowse);
+    if (!browseNode || browseNode.status !== 1) checkPersonBrowse = '';
+  }
+  var browsedLocked = checkPersonBrowse && checkPersonSel.depts.indexOf(checkPersonBrowse) !== -1;
+  var users = checkPersonBrowseUsers();
+  var allChecked = users.length > 0 && users.every(function(name) { return checkPersonSel.users.indexOf(name) !== -1; });
+  document.getElementById('checkPersonDeptLabel').textContent = checkPersonBrowse || checkPersonRootName();
+  var allBox = document.getElementById('checkPersonAll');
+  allBox.checked = !deptMode && users.length > 0 && allChecked;
+  allBox.disabled = deptMode;
+  var html = users.map(function(name) {
+    var phone = scanUserPhone(name);
+    var checked = browsedLocked || checkPersonSel.users.indexOf(name) !== -1;
+    var disabled = deptMode;
+    return '<label class="check-person-user' + (disabled ? ' disabled' : '') + '">' +
+      '<input type="checkbox"' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + ' onchange="toggleCheckPersonUser(this.checked, \'' + scanText(name) + '\')">' +
+      '<span>' + scanText(name) + '</span><span class="user-phone">' + scanText(phone) + '</span></label>';
+  }).join('');
+  document.getElementById('checkPersonUsers').innerHTML = html || '<div class="check-person-user disabled">暂无人员</div>';
+}
+
+function renderCheckPersonTags() {
+  var box = document.getElementById('checkPersonTags');
+  if (!checkPersonSel.depts.length && !checkPersonSel.users.length) {
+    box.innerHTML = '<span class="check-person-placeholder">请选择扫码责任人</span>';
+    return;
+  }
+  var html = '';
+  checkPersonSel.depts.forEach(function(name) {
+    html += '<span class="check-person-tag">' + scanText(name) + '（全员）<span class="tag-x" onclick="removeCheckPersonDept(event, \'' + scanText(name) + '\')">&times;</span></span>';
+  });
+  checkPersonSel.users.forEach(function(name) {
+    html += '<span class="check-person-tag">' + scanText(name) + '<span class="tag-x" onclick="removeCheckPersonUser(event, \'' + scanText(name) + '\')">&times;</span></span>';
+  });
+  html += '<span class="check-person-more"></span>';
+  box.innerHTML = html;
+  layoutCheckPersonTags(box);
+}
+
+// 人员过多时保持单行：放不下的隐藏，末尾显示 +N
+function layoutCheckPersonTags(box) {
+  var more = box.querySelector('.check-person-more');
+  var tags = [];
+  box.querySelectorAll('.check-person-tag').forEach(function(tag) { tags.push(tag); });
+  tags.forEach(function(tag) { tag.style.display = ''; });
+  more.style.display = 'none';
+  var gap = 4;
+  var available = box.clientWidth;
+  if (!available) return;
+  function totalWidth(count, chipWidth) {
+    var w = 0;
+    for (var i = 0; i < count; i++) w += tags[i].offsetWidth + gap;
+    return w + (chipWidth || 0);
+  }
+  if (totalWidth(tags.length, 0) <= available) return;
+  for (var visible = tags.length - 1; visible >= 1; visible--) {
+    more.textContent = '+' + (tags.length - visible);
+    more.style.display = '';
+    var chipWidth = more.offsetWidth + gap;
+    if (totalWidth(visible, chipWidth) <= available) {
+      for (var i = visible; i < tags.length; i++) tags[i].style.display = 'none';
+      return;
+    }
+  }
+  for (var j = 1; j < tags.length; j++) tags[j].style.display = 'none';
+  more.textContent = '+' + (tags.length - 1);
+  more.style.display = '';
+}
+
+function refreshCheckPersonPanel() {
+  renderCheckPersonTree();
+  renderCheckPersonUsers();
+  renderCheckPersonTags();
+}
+
+function toggleCheckPersonPanel(event) {
+  event.stopPropagation();
+  var panel = document.getElementById('checkPersonPanel');
+  if (panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    return;
+  }
+  refreshCheckPersonPanel();
+  panel.classList.add('open');
+}
+
+function browseCheckPersonDept(deptName) {
+  checkPersonBrowse = deptName;
+  renderCheckPersonTree();
+  renderCheckPersonUsers();
+}
+
+function toggleCheckPersonDept(checked, deptName) {
+  if (checked && checkPersonSel.users.length) {
+    showToast('不能同时选择部门和个人');
+    renderCheckPersonTree();
+    return;
+  }
+  if (checked) checkPersonSel.depts.push(deptName);
+  else checkPersonSel.depts = checkPersonSel.depts.filter(function(name) { return name !== deptName; });
+  refreshCheckPersonPanel();
+}
+
+function toggleCheckPersonUser(checked, name) {
+  if (checkPersonSel.depts.length) return;
+  if (checked) {
+    if (checkPersonSel.users.indexOf(name) === -1) checkPersonSel.users.push(name);
+  } else {
+    checkPersonSel.users = checkPersonSel.users.filter(function(u) { return u !== name; });
+  }
+  refreshCheckPersonPanel();
+}
+
+function toggleCheckPersonAll(checked) {
+  if (checkPersonSel.depts.length) return;
+  var users = checkPersonBrowseUsers();
+  users.forEach(function(name) {
+    if (checked) {
+      if (checkPersonSel.users.indexOf(name) === -1) checkPersonSel.users.push(name);
+    } else {
+      checkPersonSel.users = checkPersonSel.users.filter(function(u) { return u !== name; });
     }
   });
-  document.querySelectorAll('.tree-node.level-1, .tree-node.level-2').forEach(function(node) {
-    node.style.display = 'none';
+  refreshCheckPersonPanel();
+}
+
+function removeCheckPersonDept(event, deptName) {
+  event.stopPropagation();
+  checkPersonSel.depts = checkPersonSel.depts.filter(function(name) { return name !== deptName; });
+  refreshCheckPersonPanel();
+}
+
+function removeCheckPersonUser(event, name) {
+  event.stopPropagation();
+  checkPersonSel.users = checkPersonSel.users.filter(function(u) { return u !== name; });
+  refreshCheckPersonPanel();
+}
+
+function checkConfigList() {
+  if (checkFormTarget === 'add-place') return addPlaceChecks;
+  if (checkFormTarget === 'add-hazard') return addHazardChecks;
+  return enterpriseScanDraft && enterpriseScanDraft.checks;
+}
+
+function openCheckConfig(index, target) {
+  checkFormTarget = target || 'enterprise';
+  var list = checkConfigList();
+  if (!list) return;
+  var row = index >= 0 ? list[index] : null;
+  var freq = parseCheckFreq(row ? row.freq : '');
+  checkForm = {
+    index: index,
+    items: row && row.items && row.items.length ? row.items.map(copyCheckItem) : [{ name: '', contents: [] }]
+  };
+  document.getElementById('checkFormName').value = row ? row.name : '';
+  checkPersonSel = parseCheckPerson(row ? row.person : '');
+  checkPersonBrowse = '';
+  document.getElementById('checkPersonDeptSearch').value = '';
+  document.getElementById('checkPersonPanel').classList.remove('open');
+  renderCheckPersonTags();
+  document.getElementById('checkEvery').value = freq.every;
+  document.getElementById('checkUnit').value = freq.unit;
+  document.getElementById('checkTimes').value = freq.times;
+  setRadio('checkComplete', row ? (row.complete || '任意一人完成') : '任意一人完成');
+  setRadio('checkHoliday', row ? (row.holiday || '否') : '否');
+  renderCheckItems();
+  document.getElementById('checkNameMenu').style.display = 'none';
+  document.getElementById('checkConfigModal').style.display = 'flex';
+}
+
+function closeCheckConfig() {
+  var modal = document.getElementById('checkConfigModal');
+  var menu = document.getElementById('checkNameMenu');
+  var panel = document.getElementById('checkPersonPanel');
+  if (modal) modal.style.display = 'none';
+  if (menu) menu.style.display = 'none';
+  if (panel) panel.classList.remove('open');
+  closeCheckRecommend();
+  checkForm = null;
+  checkFormTarget = 'enterprise';
+}
+
+function checkNameOptions() {
+  var names = [];
+  function push(name) {
+    if (name && names.indexOf(name) === -1) names.push(name);
+  }
+  CHECK_TEMPLATES.forEach(function(tpl) { push(tpl.name); });
+  if (enterpriseScanDraft) enterpriseScanDraft.checks.forEach(function(row) { push(row.name); });
+  return names;
+}
+
+function toggleCheckNameMenu(event) {
+  event.stopPropagation();
+  var menu = document.getElementById('checkNameMenu');
+  if (menu.style.display === 'block') { menu.style.display = 'none'; return; }
+  checkNameList = checkNameOptions();
+  menu.innerHTML = checkNameList.map(function(name, i) {
+    return '<button type="button" class="check-name-option" onclick="pickCheckName(' + i + ')">' + scanText(name) + '</button>';
+  }).join('');
+  menu.style.display = 'block';
+}
+
+function pickCheckName(index) {
+  document.getElementById('checkFormName').value = checkNameList[index] || '';
+  document.getElementById('checkNameMenu').style.display = 'none';
+}
+
+function syncCheckItems() {
+  if (!checkForm) return;
+  var box = document.getElementById('checkItemList');
+  checkForm.items.forEach(function(item, i) {
+    var nameInput = box.querySelector('[data-item-name="' + i + '"]');
+    if (nameInput) item.name = nameInput.value;
+    (item.contents || []).forEach(function(content, j) {
+      var contentInput = box.querySelector('[data-content-name="' + i + '-' + j + '"]');
+      if (contentInput) content.name = contentInput.value;
+    });
   });
 }
+
+function renderCheckItems() {
+  var box = document.getElementById('checkItemList');
+  if (!checkForm || !checkForm.items.length) {
+    box.innerHTML = '';
+    return;
+  }
+  box.innerHTML = checkForm.items.map(function(item, i) {
+    var contents = item.contents || [];
+    var contentHtml = contents.map(function(content, j) {
+      return '<div class="check-item-row check-content-row" ondragover="event.preventDefault()" ondrop="checkContentDrop(' + i + ',' + j + ', event)">' +
+        '<span class="check-drag" draggable="true" ondragstart="checkContentDragStart(' + i + ',' + j + ', event)">⋮⋮</span>' +
+        '<input type="text" data-content-name="' + i + '-' + j + '" placeholder="请输入检查内容" value="' + scanText(content.name) + '">' +
+        '<button type="button" class="btn-link danger" onclick="removeCheckContent(' + i + ',' + j + ')">删除</button>' +
+      '</div>';
+    }).join('');
+    return '<div class="check-item-row" ondragover="event.preventDefault()" ondrop="checkItemDrop(' + i + ', event)">' +
+      '<span class="check-drag" draggable="true" ondragstart="checkItemDragStart(' + i + ', event)">⋮⋮</span>' +
+      '<input type="text" data-item-name="' + i + '" placeholder="请输入检查项名称" value="' + scanText(item.name) + '">' +
+      '<button type="button" class="btn-link" onclick="addCheckContent(' + i + ')">添加</button>' +
+      '<button type="button" class="btn-link danger" onclick="removeCheckItem(' + i + ')">删除</button>' +
+    '</div>' + contentHtml;
+  }).join('');
+}
+
+function addCheckItem() {
+  if (!checkForm) return;
+  syncCheckItems();
+  checkForm.items.push({ name: '', contents: [] });
+  renderCheckItems();
+  var inputs = document.querySelectorAll('#checkItemList [data-item-name]');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function addCheckContent(index) {
+  if (!checkForm || !checkForm.items[index]) return;
+  syncCheckItems();
+  if (!checkForm.items[index].contents) checkForm.items[index].contents = [];
+  checkForm.items[index].contents.push({ name: '' });
+  renderCheckItems();
+  var added = checkForm.items[index].contents.length - 1;
+  var input = document.querySelector('#checkItemList [data-content-name="' + index + '-' + added + '"]');
+  if (input) input.focus();
+}
+
+function removeCheckContent(itemIndex, contentIndex) {
+  if (!checkForm || !checkForm.items[itemIndex]) return;
+  syncCheckItems();
+  checkForm.items[itemIndex].contents.splice(contentIndex, 1);
+  renderCheckItems();
+}
+
+function removeCheckItem(index) {
+  if (!checkForm) return;
+  syncCheckItems();
+  checkForm.items.splice(index, 1);
+  renderCheckItems();
+}
+
+function checkItemDragStart(index, event) {
+  syncCheckItems();
+  checkDragFrom = index;
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', String(index));
+}
+
+function checkItemDrop(index, event) {
+  event.preventDefault();
+  if (!checkForm || checkDragFrom < 0 || checkDragFrom === index) return;
+  syncCheckItems();
+  var moved = checkForm.items.splice(checkDragFrom, 1)[0];
+  checkForm.items.splice(index, 0, moved);
+  checkDragFrom = -1;
+  renderCheckItems();
+}
+
+var checkContentDrag = null;
+
+function checkContentDragStart(itemIndex, contentIndex, event) {
+  event.stopPropagation();
+  syncCheckItems();
+  checkContentDrag = { itemIndex: itemIndex, contentIndex: contentIndex };
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', itemIndex + '-' + contentIndex);
+}
+
+function checkContentDrop(itemIndex, contentIndex, event) {
+  event.preventDefault();
+  event.stopPropagation();
+  if (!checkForm || !checkContentDrag || checkContentDrag.itemIndex !== itemIndex || checkContentDrag.contentIndex === contentIndex) return;
+  syncCheckItems();
+  var contents = checkForm.items[itemIndex].contents;
+  var moved = contents.splice(checkContentDrag.contentIndex, 1)[0];
+  contents.splice(contentIndex, 0, moved);
+  checkContentDrag = null;
+  renderCheckItems();
+}
+
+var checkRecommendSel = {};
+var checkTplExpanded = {};
+
+function openCheckRecommend() {
+  checkRecommendSel = {};
+  checkTplExpanded = {};
+  renderCheckRecommendList();
+  document.getElementById('checkRecommendModal').style.display = 'flex';
+}
+
+function closeCheckRecommend() {
+  var modal = document.getElementById('checkRecommendModal');
+  if (modal) modal.style.display = 'none';
+}
+
+// 勾选状态：'i-j' = 整项全选；'i-j-k' = 只选第 k 条检查内容
+function checkRecommendItemState(i, j) {
+  var item = CHECK_TEMPLATES[i].items[j];
+  var contents = item.contents || [];
+  if (checkRecommendSel[i + '-' + j]) {
+    return { full: true, contents: contents.map(function(c, k) { return k; }) };
+  }
+  var picked = [];
+  contents.forEach(function(c, k) {
+    if (checkRecommendSel[i + '-' + j + '-' + k]) picked.push(k);
+  });
+  return { full: false, contents: picked };
+}
+
+function checkRecommendPickedCount(i) {
+  var count = 0;
+  CHECK_TEMPLATES[i].items.forEach(function(item, j) {
+    var st = checkRecommendItemState(i, j);
+    if (st.full || st.contents.length) count++;
+  });
+  return count;
+}
+
+function renderCheckRecommendList() {
+  var list = document.getElementById('checkRecommendList');
+  var total = 0;
+  var html = CHECK_TEMPLATES.map(function(tpl, i) {
+    var selected = checkRecommendPickedCount(i);
+    total += selected;
+    var allSelected = selected === tpl.items.length;
+    var anySelected = selected > 0;
+    var expanded = checkTplExpanded[i];
+    var itemHtml = '';
+    if (expanded) {
+      itemHtml = tpl.items.map(function(item, j) {
+        var st = checkRecommendItemState(i, j);
+        var contentHtml = (item.contents || []).map(function(content, k) {
+          var contentChecked = st.full || st.contents.indexOf(k) !== -1;
+          return '<label class="check-recommend-content">' +
+            '<input type="checkbox"' + (contentChecked ? ' checked' : '') + ' onchange="toggleCheckRecommendContent(' + i + ',' + j + ',' + k + ', this.checked)">' +
+            '<span>' + scanText(content.name) + '</span></label>';
+        }).join('');
+        return '<label class="check-recommend-item-row">' +
+          '<input type="checkbox" data-item="' + i + '-' + j + '"' + (st.full ? ' checked' : '') + ' onchange="toggleCheckRecommendItem(' + i + ',' + j + ', this.checked)">' +
+          '<span>' + scanText(item.name) + '</span></label>' + contentHtml;
+      }).join('');
+    }
+    return '<div class="check-recommend-card">' +
+      '<div class="check-recommend-card-head">' +
+        '<span class="tree-toggle' + (expanded ? ' expanded' : '') + '" onclick="toggleCheckTplExpand(' + i + ')">&#9654;</span>' +
+        '<span class="check-recommend-card-name" onclick="toggleCheckTplExpand(' + i + ')">' + scanText(tpl.name) + '（' + selected + '/' + tpl.items.length + ' 项）</span>' +
+        '<label class="check-recommend-all"><input type="checkbox" data-all="' + i + '"' + (allSelected ? ' checked' : '') + ' onchange="toggleCheckRecommendAll(' + i + ', this.checked)"> 全选</label>' +
+      '</div>' + itemHtml + '</div>';
+  }).join('');
+  list.innerHTML = html;
+  CHECK_TEMPLATES.forEach(function(tpl, i) {
+    if (checkRecommendPickedCount(i) === tpl.items.length) return;
+    if (!checkRecommendPickedCount(i)) return;
+    var allBox = list.querySelector('input[data-all="' + i + '"]');
+    if (allBox) allBox.indeterminate = true;
+  });
+  CHECK_TEMPLATES.forEach(function(tpl, i) {
+    tpl.items.forEach(function(item, j) {
+      var st = checkRecommendItemState(i, j);
+      if (st.full || !st.contents.length) return;
+      var box = list.querySelector('input[data-item="' + i + '-' + j + '"]');
+      if (box) box.indeterminate = true;
+    });
+  });
+  var countEl = document.getElementById('checkRecommendCount');
+  if (countEl) countEl.textContent = total;
+}
+
+function toggleCheckRecommendItem(tplIndex, itemIndex, checked) {
+  var item = CHECK_TEMPLATES[tplIndex].items[itemIndex];
+  var itemKey = tplIndex + '-' + itemIndex;
+  if (checked) {
+    checkRecommendSel[itemKey] = true;
+  } else {
+    delete checkRecommendSel[itemKey];
+    (item.contents || []).forEach(function(c, k) { delete checkRecommendSel[itemKey + '-' + k]; });
+  }
+  renderCheckRecommendList();
+}
+
+function toggleCheckRecommendContent(tplIndex, itemIndex, contentIndex, checked) {
+  var item = CHECK_TEMPLATES[tplIndex].items[itemIndex];
+  var contents = item.contents || [];
+  var itemKey = tplIndex + '-' + itemIndex;
+  if (checked) {
+    var allOthers = contents.every(function(c, k) {
+      return k === contentIndex || checkRecommendSel[itemKey + '-' + k];
+    });
+    if (allOthers) {
+      contents.forEach(function(c, k) { delete checkRecommendSel[itemKey + '-' + k]; });
+      checkRecommendSel[itemKey] = true;
+    } else {
+      checkRecommendSel[itemKey + '-' + contentIndex] = true;
+    }
+  } else {
+    if (checkRecommendSel[itemKey]) {
+      delete checkRecommendSel[itemKey];
+      contents.forEach(function(c, k) {
+        if (k !== contentIndex) checkRecommendSel[itemKey + '-' + k] = true;
+      });
+    } else {
+      delete checkRecommendSel[itemKey + '-' + contentIndex];
+    }
+  }
+  renderCheckRecommendList();
+}
+
+function toggleCheckRecommendAll(tplIndex, checked) {
+  CHECK_TEMPLATES[tplIndex].items.forEach(function(item, j) {
+    var itemKey = tplIndex + '-' + j;
+    if (checked) {
+      checkRecommendSel[itemKey] = true;
+    } else {
+      delete checkRecommendSel[itemKey];
+      (item.contents || []).forEach(function(c, k) { delete checkRecommendSel[itemKey + '-' + k]; });
+    }
+  });
+  renderCheckRecommendList();
+}
+
+function toggleCheckTplExpand(tplIndex) {
+  checkTplExpanded[tplIndex] = !checkTplExpanded[tplIndex];
+  renderCheckRecommendList();
+}
+
+function applyCheckTemplateSelection() {
+  if (!checkForm) return;
+  var picked = [];
+  CHECK_TEMPLATES.forEach(function(tpl, i) {
+    tpl.items.forEach(function(item, j) {
+      var st = checkRecommendItemState(i, j);
+      if (!st.full && !st.contents.length) return;
+      picked.push({
+        tplName: tpl.name,
+        name: item.name,
+        contents: st.contents.map(function(k) { return { name: (item.contents || [])[k].name }; })
+      });
+    });
+  });
+  if (!picked.length) { showToast('请至少勾选一个检查项'); return; }
+  syncCheckItems();
+  var nameInput = document.getElementById('checkFormName');
+  if (!nameInput.value.trim()) nameInput.value = picked[0].tplName;
+  var named = checkForm.items.filter(function(item) { return item.name.trim() || (item.contents || []).some(function(content) { return content.name.trim(); }); });
+  picked.forEach(function(p) {
+    named.push({ name: p.name, contents: p.contents });
+  });
+  checkForm.items = named.length ? named : [{ name: '', contents: [] }];
+  renderCheckItems();
+  closeCheckRecommend();
+}
+
+function readPositiveInt(id) {
+  var value = document.getElementById(id).value.trim();
+  if (!/^[1-9]\d*$/.test(value)) return 0;
+  return Number(value);
+}
+
+function confirmCheckConfig() {
+  if (!checkForm) return;
+  var list = checkConfigList();
+  if (!list) return;
+  syncCheckItems();
+  var name = document.getElementById('checkFormName').value.trim();
+  var personParts = checkPersonSel.depts.map(function(deptName) { return deptName + '（全员）'; }).concat(checkPersonSel.users.slice());
+  var person = personParts.join('、');
+  var every = readPositiveInt('checkEvery');
+  var times = readPositiveInt('checkTimes');
+  var unit = document.getElementById('checkUnit').value;
+  var complete = readRadio('checkComplete');
+  var holiday = readRadio('checkHoliday');
+  var missingItemName = checkForm.items.some(function(item) {
+    return !item.name.trim() && (item.contents || []).some(function(content) { return content.name.trim(); });
+  });
+  var items = checkForm.items.filter(function(item) { return item.name.trim(); }).map(function(item) {
+    return {
+      name: item.name.trim(),
+      contents: (item.contents || []).filter(function(content) { return content.name.trim(); }).map(function(content) { return { name: content.name.trim() }; })
+    };
+  });
+  if (!name) { showToast('请填写检查表名称'); return; }
+  if (!person) { showToast('请选择扫码责任人'); return; }
+  if (!every || !times) { showToast('检查频次需为不小于 1 的整数'); return; }
+  if (!complete) { showToast('请选择完成条件'); return; }
+  if (!holiday) { showToast('请选择是否过滤节假日'); return; }
+  if (missingItemName) { showToast('请填写检查项名称'); return; }
+  if (!items.length) { showToast('请至少填写一个检查项'); return; }
+  var previous = checkForm.index >= 0 ? list[checkForm.index] : null;
+  var typeParts = [];
+  checkPersonSel.depts.forEach(function(deptName) {
+    if (typeParts.indexOf(deptName) === -1) typeParts.push(deptName);
+  });
+  checkPersonSel.users.forEach(function(userName) {
+    var deptName = scanUserDept(userName);
+    if (deptName && typeParts.indexOf(deptName) === -1) typeParts.push(deptName);
+  });
+  var type = typeParts.join('、') || (previous ? previous.type : '—');
+  var row = {
+    type: type,
+    person: person,
+    freq: '每' + every + unit + '检查' + times + '次',
+    name: name,
+    holiday: holiday,
+    complete: complete,
+    items: items
+  };
+  if (checkForm.index >= 0) list[checkForm.index] = row;
+  else list.push(row);
+  var editing = checkForm.index >= 0;
+  var target = checkFormTarget;
+  closeCheckConfig();
+  if (target === 'add-place') {
+    renderAddPlaceChecks();
+    showToast(editing ? '已更新检查表' : '已加入扫码配置');
+    return;
+  }
+  if (target === 'add-hazard') {
+    renderAddHazardChecks();
+    showToast(editing ? '已更新检查表' : '已加入扫码配置');
+    return;
+  }
+  renderEnterpriseScanEdit();
+  showToast(editing ? '已更新本次编辑，确认后保存' : '已加入本次编辑，确认后保存');
+}
+
+document.addEventListener('click', function() {
+  var menu = document.getElementById('checkNameMenu');
+  if (menu) menu.style.display = 'none';
+  var panel = document.getElementById('checkPersonPanel');
+  if (panel) panel.classList.remove('open');
+  closeRolePickers();
+});
 
 function showToast(msg) {
   var el = document.getElementById('_toast');
@@ -945,7 +2953,7 @@ function showToast(msg) {
   setTimeout(function() { el.style.opacity = '0'; }, 2000);
 }
 
-// 树搜索
+// 树搜索：命中子节点时展开父级，避免场所下的危险源被收起挡住
 document.getElementById('treeSearchInput').addEventListener('input', function(e) {
   var keyword = e.target.value.trim().toLowerCase();
   var nodes = document.querySelectorAll('.tree-body .tree-node');
@@ -953,9 +2961,66 @@ document.getElementById('treeSearchInput').addEventListener('input', function(e)
     var label = node.querySelector('.tree-node-label');
     if (!label) return;
     var text = label.textContent.toLowerCase();
-    node.style.display = (!keyword || text.indexOf(keyword) !== -1) ? '' : 'none';
+    var selfMatch = !keyword || text.indexOf(keyword) !== -1;
+    var next = node.nextElementSibling;
+    var childBox = next && next.classList.contains('tree-children') ? next : null;
+    var childMatch = false;
+    if (keyword && childBox) {
+      childBox.querySelectorAll('.tree-node-label').forEach(function(childLabel) {
+        if (childLabel.textContent.toLowerCase().indexOf(keyword) !== -1) childMatch = true;
+      });
+    }
+    node.style.display = (selfMatch || childMatch) ? '' : 'none';
+    if (childMatch && childBox) {
+      childBox.classList.add('expanded');
+      var toggle = node.querySelector('.tree-toggle');
+      if (toggle) toggle.classList.add('expanded');
+    }
   });
 });
+function renderEnterpriseProfile() {
+  var profile = window.getEnterpriseProfile ? getEnterpriseProfile() : null;
+  if (!profile) return;
+  var setText = function (id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text || '';
+  };
+  setText('entProfileName', profile.name);
+  setText('entProfileCredit', profile.creditCode);
+  setText('entProfileLegal', profile.legalPerson);
+  setText('entProfilePhone', profile.phone);
+  setText('entProfileGrid', profile.grid);
+  setText('entProfileReg', profile.regAddress);
+  setText('entProfileBiz', profile.bizAddress);
+  setText('entProfileRemark', profile.remark);
+  setText('entProfileIndustry', profile.industry || '—');
+  setText('entProfileProfessional', profile.professional || '—');
+  setText('entProfileLocal', profile.localOrg || '—');
+  var status = document.getElementById('entProfileStatus');
+  if (status) {
+    status.textContent = profile.status || '启用';
+    status.className = 'tag ' + (profile.status === '停用' ? 'tag-red' : 'tag-green');
+  }
+  var root = document.getElementById('enterpriseRootLabel');
+  if (root && profile.name) {
+    var label = '企业码-' + profile.name;
+    root.textContent = label;
+    root.setAttribute('title', label);
+  }
+}
+
+// 滚动条滚动时短暂显示
+document.querySelectorAll('.scrollbar-auto').forEach(function (el) {
+  el.addEventListener('scroll', function () {
+    el.classList.add('scrollbar-on');
+    clearTimeout(el._sbTimer);
+    el._sbTimer = setTimeout(function () { el.classList.remove('scrollbar-on'); }, 600);
+  }, { passive: true });
+});
+
+renderEnterpriseScanView();
+renderEnterpriseProfile();
+renderKeyplaceTree();
 </script>
 <script>
 (function() { 'use strict'; var CONFIG = { moduleId: 'ent-hazard-list', moduleName: '安全管控对象管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();

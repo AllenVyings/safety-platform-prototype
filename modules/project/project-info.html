@@ -14,9 +14,9 @@
     .breadcrumb-item.current { color: var(--text-primary); font-weight: 500; }
 
     /* ========== 卡片容器 ========== */
-    .detail-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .detail-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-lg); margin-bottom: 12px; }
     .detail-card:last-child { margin-bottom: 0; }
-    .detail-card.card-bg { background: url('images/ent-info-bg.png') center top / auto 200px no-repeat, var(--bg-primary); }
+    .detail-card.card-bg { background: url('../enterprise/images/ent-info-bg.png') center top / 100% 200px no-repeat, var(--bg-primary); }
 
     /* ========== 板块标题 ========== */
     .section-title { display: flex; align-items: center; font-size: 16px; font-weight: 600; color: var(--text-primary); padding: 0 0 0 12px; border-left: 4px solid var(--primary); border-radius: 0 !important; border-bottom: none !important; background: transparent !important; margin: 0 0 16px 0 !important; gap: 8px; line-height: 1.6; }
@@ -53,14 +53,11 @@
     .party-type-tag.build { background: var(--primary-light); color: var(--primary); }
     .party-type-tag.construct { background: var(--success-light); color: var(--success); }
     .party-type-tag.supervise { background: var(--warning-light); color: var(--warning); }
-    .party-type-tag.subcontract { background: var(--info-light); color: var(--info); }
+    .party-type-tag.subcontract { background: var(--accent-light); color: var(--accent); }
     .supervisor-table { width: 100%; border-collapse: collapse; }
     .supervisor-table th, .supervisor-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); }
     .supervisor-table th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-secondary); font-size: var(--font-size-xs); }
     .supervisor-table tr:last-child td { border-bottom: none; }
-    .account-row { display: flex; align-items: center; padding: var(--spacing-sm) 0; }
-    .account-row .info-label { width: 80px; flex-shrink: 0; font-size: var(--font-size-sm); color: var(--text-secondary); }
-    .account-row .info-value { font-size: var(--font-size-md); color: var(--text-primary); font-family: var(--font-family-code); font-weight: 500; }
 
     /* ========== 弹窗通用 ========== */
     .modal-form .form-group { margin-bottom: var(--spacing-md); }
@@ -197,21 +194,11 @@
       <table class="supervisor-table">
         <thead><tr><th style="width:50%;">监管类型</th><th>监管单位名称</th></tr></thead>
         <tbody>
-          <tr><td>行业监管</td><td><span class="scene-tag status-info">住建局</span></td></tr>
-          <tr><td>专业监管</td><td><span class="scene-tag status">质量安全监督站</span></td></tr>
-          <tr><td>属地监管</td><td><span class="scene-tag status-warning">粤海街道安监办</span></td></tr>
+          <tr><td>行业监管单位</td><td>住建局</td></tr>
+          <tr><td>专业监管单位</td><td>质量安全监督站</td></tr>
+          <tr><td>属地监管单位</td><td>粤海街道安监办</td></tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- 账号信息 -->
-    <div class="detail-card">
-      <div class="section-title">账号信息</div>
-      <div class="account-row"><span class="info-label">项目账号</span><span class="info-value">proj_2024001</span></div>
-      <div class="account-row"><span class="info-label">密码状态</span><span class="info-value">已设置</span></div>
-      <div style="margin-top:var(--spacing-sm);">
-        <button class="btn btn-default btn-sm" onclick="openResetPasswordModal()">🔑 重置密码</button>
-      </div>
     </div>
   </div>
 
@@ -313,20 +300,6 @@
     </div>
   </div>
 
-  <!-- 重置密码弹窗 -->
-  <div class="modal-overlay" id="modalResetPassword">
-    <div class="modal-dialog" style="width:420px;">
-      <div class="modal-header"><span class="modal-title">重置密码确认</span><button class="modal-close" onclick="closeModal('modalResetPassword')">×</button></div>
-      <div class="modal-body" style="padding:var(--spacing-lg) 20px;">
-        <p style="font-size:var(--font-size-md);color:var(--text-primary);margin:0 0 12px;">确定要重置该项目的登录密码吗？</p>
-        <p style="font-size:var(--font-size-sm);color:var(--warning);margin:0;display:flex;align-items:center;gap:6px;">
-          <span style="font-size:15px;">⚠️</span>密码将重置为默认密码：<strong style="color:var(--primary);">Abc@123456</strong>
-        </p>
-      </div>
-      <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('modalResetPassword')">取消</button><button class="btn btn-danger" onclick="confirmResetPassword()">确认重置</button></div>
-    </div>
-  </div>
-
   <!-- 地图选点弹窗 -->
   <div class="modal-overlay" id="modalMapPicker">
     <div class="modal-dialog" style="width:600px;">
@@ -355,6 +328,8 @@
   </div>
 
   <script src="../../js/shared/district-data.js"></script>
+  <script src="../../js/domain-data.js"></script>
+  <script src="../../js/shared/project-edit-dialog.js?v=20261101-pe10"></script>
   <script>
     (function() {
       'use strict';
@@ -479,16 +454,30 @@
 
       /* ========== 弹窗控制 ========== */
       window.openEditModal = function() {
-        openModal('modalEdit');
-      };
-
-      window.openResetPasswordModal = function() {
-        openModal('modalResetPassword');
-      };
-
-      window.confirmResetPassword = function() {
-        closeModal('modalResetPassword');
-        showToast('密码已重置为 Abc@123456');
+        var tag = (typeof DOMAIN_TABLE_DATA !== 'undefined')
+          ? DOMAIN_TABLE_DATA.filter(function(d) { return d.id === 'CONS_001'; })[0]
+          : null;
+        ProjectEditDialog.open({
+          role: 'project',
+          mode: 'edit',
+          preset: {
+            name: '南山科技园二期建设项目',
+            projectNo: '深施许2024-0158',
+            subtype: '主体工程',
+            loginAccount: 'ns_project_admin',
+            address: '深圳市南山区科技园南区科苑路15号',
+            supervisionGroup: '第一督导组',
+            description: '南山区科技园二期建设项目，总建筑面积约10万平方米，包含办公楼、研发中心等配套设施。',
+            region: { district: '南山区', street: '粤海街道', community: '科技园社区', grid: '科技园01' },
+            tags: tag ? [{ id: tag.id, name: tag.name, industryName: tag.industryName, mode: tag.mode }] : [],
+            parties: [
+              { kind: 'build', name: 'XX建设集团', credit: '91110000123456789X', contact: '张三', phone: '13800138001' },
+              { kind: 'construct', name: 'XX建筑工程有限公司', credit: '91110000987654321Y', contact: '李四', phone: '13900139001' },
+              { kind: 'supervise', name: 'XX监理咨询有限公司', credit: '91110000567890123Z', contact: '王五', phone: '13700137001' },
+              { kind: 'sub', name: 'XX装饰工程有限公司', credit: '91110000345678901A', contact: '赵六', phone: '13800138002' }
+            ]
+          }
+        });
       };
 
       window.openMapPicker = function() {

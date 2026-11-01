@@ -196,7 +196,7 @@ class Router {
       };
       // 缓存破坏：开发环境追加时间戳
       var sep = moduleUrl.includes('?') ? '&' : '?';
-      iframe.src = moduleUrl + sep + 't=' + Date.now();
+      iframe.src = moduleUrl + sep + 't=' + Date.now() + '&portal=' + encodeURIComponent(this.currentPortal);
 
     } catch (error) {
       console.error('[Router] 模块加载失败:', error);

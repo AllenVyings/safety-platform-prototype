@@ -1273,13 +1273,17 @@
                 <option value="government">政府人员</option>
               </select>
             </div>
-            <!-- 整改人选择器（位置随分支变化由 JS 控制插入点） -->
+            <!-- 整改人选择器（仅政府方显示；V7.0.60+ 企业方不设整改人下拉） -->
             <div id="personSelectorArea" style="margin-bottom:16px;">
               <div id="personSelectorLabel" class="kp-field-label" style="margin-bottom:6px;">整改人</div>
               <select class="kp-field-select" id="fHandlerId" style="width:300px;">
                 <option value="">请先选择整改人类型</option>
               </select>
               <div id="handlerDomainHint" style="font-size:12px; color:var(--text-tertiary); margin-top:4px;"></div>
+            </div>
+            <!-- V7.0.60+：企业方整改引导文案（替代整改人下拉，责任只落到企业维度） -->
+            <div id="enterpriseHandlerHint" style="display:none; margin-bottom:16px; font-size:12px; color:var(--text-secondary); background:var(--bg-section); border-left:3px solid var(--border-section, #d9d9d9); padding:10px 12px; border-radius:4px; line-height:1.6;">
+              企业方整改责任方在下方「关联企业」表格的"隐患整改责任方"列指定（须且仅须 1 家）。如需指定具体整改人员，请前往企业端「安全管控对象管理」模块配置。
             </div>
             <!-- 关联企业区域 -->
             <div id="placeEnterpriseSection">
@@ -1468,7 +1472,7 @@
   <script src="../../js/gov-user-data.js"></script>
   <script src="../../js/pagination.js"></script>
   <script src="../../js/shared/district-data.js"></script>
-  <script src="../../js/key-place-data.js"></script>
+  <script src="../../js/key-place-data.js?v=20261029-2"></script>
   <script>
     // ========== 从领域小类管理读取数据 ==========
     let domainData = [];
@@ -2017,28 +2021,30 @@
 
     // 解析有效的隐患责任配置（优先行业监管单位）
     // 返回最佳匹配的 config 对象，无配置时返回 null
-    function resolveEffectiveHazardConfig(domainId) {
-      var allConfigs = getAllSharedHazardConfigsByUnit(domainId);
-      var hazardConfig = null;
-      var sourceData = (typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.length) ? DOMAIN_TABLE_DATA : domainData;
-      var domain = sourceData.find(function(d) { return d.id === domainId; });
-      var supervisors = (domain && domain.supervisors) ? domain.supervisors : [];
-      // 优先找行业监管单位的配置
-      for (var s = 0; s < supervisors.length; s++) {
-        if (supervisors[s].type === 'industry') {
-          var found = allConfigs.find(function(c) { return c.orgId === supervisors[s].orgId; });
-          if (found) { hazardConfig = found.config; break; }
+    // V7.0.62+：当前登录单位 = 领域监管视角单位（localStorage 持久化，默认南山区应急管理局 NS-AMB）
+    function getCurrentLoginOrgId() {
+      try { return localStorage.getItem('gov_domain_supervise_perspective') || 'NS-AMB'; }
+      catch (e) { return 'NS-AMB'; }
+    }
+
+    // V7.0.62+：严格读取指定单位的隐患责任配置（byUnit[orgId]），未配置返回 null，不做任何回退
+    function getHazardConfigByOrgStrict(domainId, orgId) {
+      try {
+        var stored = localStorage.getItem('sa_hazard_config');
+        if (!stored) return null;
+        var all = JSON.parse(stored);
+        var domainEntry = all[domainId];
+        if (domainEntry && domainEntry.byUnit && orgId && domainEntry.byUnit[orgId]) {
+          return domainEntry.byUnit[orgId];
         }
-      }
-      // 没有行业监管配置，取第一个有配置的单位
-      if (!hazardConfig && allConfigs.length > 0) {
-        hazardConfig = allConfigs[0].config;
-      }
-      // 仍然没有，回退到领域默认值
-      if (!hazardConfig) {
-        hazardConfig = getSharedHazardConfig(domainId);
-      }
-      return hazardConfig;
+      } catch (e) {}
+      return null;
+    }
+
+    // V7.0.62+：取数统一改为"当前登录单位"，未配置返回 null（不回退行业主管/第一个单位/领域默认值）
+    function resolveEffectiveHazardConfig(domainId) {
+      var loginOrgId = getCurrentLoginOrgId();
+      return getHazardConfigByOrgStrict(domainId, loginOrgId);
     }
 
     // 从领域监管隐患责任配置读取默认值，填充到隐患处置配置表单
@@ -2085,13 +2091,8 @@
       // 只显示主管监管单位的配置（不显示全部单位）
       var hazardConfig = resolveEffectiveHazardConfig(currentDomainId);
       if (!hazardConfig) { hintEl.style.display = 'none'; return; }
-      // 获取主管单位名称
-      var sourceData = (typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.length) ? DOMAIN_TABLE_DATA : domainData;
-      var domain = sourceData.find(function(d) { return d.id === currentDomainId; });
-      var supervisors = (domain && domain.supervisors) ? domain.supervisors : [];
-      var primarySup = supervisors.find(function(s) { return s.type === 'industry'; });
-      if (!primarySup && supervisors.length > 0) primarySup = supervisors[0];
-      var unitName = primarySup ? primarySup.name : '领域配置';
+      // V7.0.62+：获取当前登录单位名称（取数已统一到登录单位）
+      var unitName = getUnitNameById(getCurrentLoginOrgId()) || '当前登录单位';
       var label = role === 'handler' ? '整改人' : '复核人';
       // 复核人类型跟随整改人类型（who submits handles review），不再单独存储 reviewerType
       var type = hazardConfig.handlerType || '';
@@ -2356,13 +2357,14 @@
       if (!region || !region.grid) { showToast('请选择所属区划（须选到网格）', 'error'); return; }
       if (!address) { showToast('请输入详细地址', 'error'); return; }
 
-      // BR-15: 关联企业必勾扫码（已硬约束 disabled，校验冗余）；BR-16: 整改人若选企业人员需勾选 is_hazard_handler
+      // V7.0.60+：企业方整改 — 校验关联企业 + 唯一隐患整改责任方；政府方保留整改人下拉（可空=责任科室全员）
       const handlerType = document.getElementById('fHandlerType').value;
-      const handlerId = document.getElementById('fHandlerId').value;
-      if (handlerType === 'enterprise' && handlerId) {
-        const handlerEntId = handlerId.split('|')[0];
-        const ok = currentFormState.enterprises.some(e => e.ent_id === handlerEntId && e.is_hazard_handler);
-        if (!ok) { showToast('该企业人员所属企业未勾选"隐患责任人"', 'error'); return; }
+      const handlerId = handlerType === 'government' ? document.getElementById('fHandlerId').value : '';
+      if (handlerType === 'enterprise') {
+        const linkedEnts = currentFormState.enterprises.filter(e => e.ent_id);
+        if (linkedEnts.length === 0) { showToast('企业方整改需先添加关联企业并指定"隐患整改责任方"', 'error'); return; }
+        const handlerCount = currentFormState.enterprises.filter(e => e.ent_id && e.is_hazard_handler).length;
+        if (handlerCount !== 1) { showToast('请在关联企业中选定且仅选定 1 家"隐患整改责任方"', 'error'); return; }
       }
       // BR-DOM-KP-30: 保存时校验supervisors至少有1个属地监管单位
       const supervisors = currentFormState.supervisors || [];
@@ -2442,6 +2444,7 @@
         showToast('新增成功，初始码色为绿码', 'success');
       }
       placeData[currentDomainId] = places;
+      saveKeyPlaceData(placeData);
       closePlaceModal();
       renderPlaceList();
       renderTree();
@@ -2509,36 +2512,28 @@
           '</tr>';
       }
 
-      // 更新 personSelectorLabel 上下文文案
+      // V7.0.60+：整改人区域显隐控制 — 企业方隐藏整改人下拉+显示引导文案；政府方显示整改人下拉
+      var personArea = document.getElementById('personSelectorArea');
+      var entHint = document.getElementById('enterpriseHandlerHint');
+      if (personArea) personArea.style.display = isEnterprise ? 'none' : '';
+      if (entHint) entHint.style.display = isEnterprise ? '' : 'none';
+
+      // 更新 personSelectorLabel 上下文文案（仅政府方有意义，企业方下拉已隐藏）
       var labelEl = document.getElementById('personSelectorLabel');
       if (labelEl) {
         labelEl.textContent = isEnterprise ? '整改人（从责任方企业员工中选择）' : '整改人（从监管单位责任科室选择）';
       }
 
-      // 更新 radio 选中状态（同步隐藏 select 的值）
+      // 更新 radio 选中状态；V7.0.60+：两个 radio 恒可用（不再因关联企业=0 而禁用）
       var radios = document.querySelectorAll('input[name="handlerTypeRadio"]');
-      radios.forEach(function(r) { r.checked = (r.value === handlerType); });
+      radios.forEach(function(r) { r.checked = (r.value === handlerType); r.disabled = false; r.parentElement.title = ''; });
 
-      // 空态处理
+      // 空态处理（仅显示空态行，不强制切换类型、不禁用 radio）
       if (!currentFormState.enterprises.length) {
         var colCount = 4;
         tbody.innerHTML = '<tr><td colspan="' + colCount + '" style="text-align:center;color:var(--text-tertiary);padding:16px;">未关联企业</td></tr>';
-        // BR-DOM-KP-25: 关联企业=0 时强制 government，radio 同步
-        if (handlerType === 'enterprise') {
-          document.getElementById('fHandlerType').value = 'government';
-          radios.forEach(function(r) { r.checked = (r.value === 'government'); });
-          renderHazardPersonOptions('handler');
-        }
-        // enterprise radio 设为 disabled（tooltip 提示）
-        radios.forEach(function(r) {
-          if (r.value === 'enterprise') { r.disabled = true; r.parentElement.title = '请先添加关联企业'; }
-          else { r.disabled = false; r.parentElement.title = ''; }
-        });
         return;
       }
-
-      // 有企业时，enterprise radio 恢复可用
-      radios.forEach(function(r) { r.disabled = false; r.parentElement.title = ''; });
 
       // 渲染行
       tbody.innerHTML = currentFormState.enterprises.map(function(row, idx) {
@@ -2585,7 +2580,7 @@
     function onHandlerTypeRadioChange(value) {
       document.getElementById('fHandlerType').value = value;
       // 切换到企业方时，如果没有企业被勾选为"隐患整改责任方"，自动勾选第一家已关联的企业
-      // 避免整改人下拉框显示为空（只有提示文字）
+      // 默认指定责任方企业（V7.0.60+：企业方不设整改人下拉，责任只落到企业维度）
       if (value === 'enterprise' && currentFormState.enterprises.length > 0) {
         var hasHandler = currentFormState.enterprises.some(function(e) { return e.is_hazard_handler && e.ent_id; });
         if (!hasHandler) {
@@ -2695,21 +2690,56 @@
           options = '<option value="">请先勾选关联企业的"隐患责任人"</option>';
         }
       } else if (type === 'government') {
-        // 动态取数：从领域监管配置的责任科室获取人员
-        var orgId = getPrimarySupervisorOrgId();
-        var deptName = orgId ? getDeptForDomainAndOrg(currentDomainId, orgId) : '';
-        var persons = resolveGovDeptPersonnel(orgId, deptName);
+        // V7.0.62+：取数统一改为"当前登录单位"（复用领域监管视角单位）；未配置则默认为空不回显
+        var orgId = getCurrentLoginOrgId();
+        var orgName = getUnitNameById(orgId) || '当前登录单位';
+        var hazardConfig = getHazardConfigByOrgStrict(currentDomainId, orgId);
 
-        if (persons.length > 0) {
-          var label = deptName || (getUnitNameById(orgId) || '监管单位');
-          options += '<optgroup label="' + label + '">';
-          persons.forEach(function(p) {
-            options += '<option value="' + p.id + '">' + p.name + '</option>';
-          });
-          options += '</optgroup>';
+        if (!hazardConfig || hazardConfig.handlerType !== 'government') {
+          // 登录单位未在该领域配置政府方隐患责任 → 默认为空，不回显（不回退其他单位/领域默认值）
+          options = '<option value="">' + escapeHtml(orgName) + ' 未配置隐患责任</option>';
         } else {
-          var hint = orgId ? '该监管单位' + (deptName ? '的"' + deptName + '"' : '') + '暂无启用人员' : '请先选择监管单位';
-          options = '<option value="">' + hint + '</option>';
+          var deptName = hazardConfig.dept || getDeptForDomainAndOrg(currentDomainId, orgId);
+          var allDept = resolveGovDeptPersonnel(orgId, deptName); // 科室全员 [{id,name}]
+          var deptLabel = deptName || orgName;
+
+          if (allDept.length === 0) {
+            options = '<option value="">该监管单位' + (deptName ? '的"' + escapeHtml(deptName) + '"' : '') + '暂无启用人员</option>';
+          } else {
+            // 读取领域监管配置的整改人姓名（级联选择器存姓名，默认全选=全科）
+            var configuredNames = hazardConfig.handlerUserIds || [];
+            var allNames = allDept.map(function(p) { return p.name; });
+            // 判定科室级：配置为空 OR 配置集合==科室全员集合
+            var isDeptLevel = (configuredNames.length === 0) ||
+              (configuredNames.length === allNames.length && configuredNames.every(function(n) { return allNames.indexOf(n) >= 0; }));
+
+            if (isDeptLevel) {
+              // 科室级：首项"科室名（全员）"(value=""，默认选中) + 全科人员，可改选
+              options = '<option value="">' + escapeHtml(deptLabel) + '（全员）</option>';
+              allDept.forEach(function(p) {
+                options += '<option value="' + p.id + '">' + escapeHtml(p.name) + '</option>';
+              });
+            } else {
+              // 人员级：仅列出已配置人员（按姓名匹配 id），默认选第一个
+              var matched = [];
+              configuredNames.forEach(function(n) {
+                var found = allDept.find(function(p) { return p.name === n; });
+                if (found && matched.indexOf(found) < 0) matched.push(found);
+              });
+              if (matched.length === 0) {
+                // fallback：配置人员在科室启用名单中匹配不到（离职/调岗），回退全科
+                options = '<option value="">' + escapeHtml(deptLabel) + '（全员）</option>';
+                allDept.forEach(function(p) {
+                  options += '<option value="' + p.id + '">' + escapeHtml(p.name) + '</option>';
+                });
+              } else {
+                options = '';
+                matched.forEach(function(p, i) {
+                  options += '<option value="' + p.id + '"' + (i === 0 ? ' selected' : '') + '>' + escapeHtml(p.name) + '</option>';
+                });
+              }
+            }
+          }
         }
       }
       personEl.innerHTML = options;
@@ -3644,6 +3674,7 @@
       if (!p) return;
       if (confirm('确定要删除重点场所"' + p.place_name + '"吗？\n注意：若该场所存在未闭环工单或未整改隐患，将不可删除。\n本操作不可恢复。')) {
         placeData[currentDomainId] = places.filter(x => x.id !== id);
+        saveKeyPlaceData(placeData);
         renderPlaceList();
         renderTree();
         renderDomainCards();
@@ -3818,8 +3849,7 @@
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
               <span class="kp-field-label" style="margin:0;">整改人类型</span>
               <span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px;${isDetailEnterprise ? 'background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff;' : 'background:#f0f5ff;color:#2f54eb;border:1px solid #adc6ff;'}">${handlerTypeText}</span>
-              <span class="kp-field-label" style="margin:0 0 0 12px;">整改人</span>
-              <span style="color:var(--text-primary, #333);">${handlerNameTxt}</span>
+              ${isDetailEnterprise ? '' : '<span class="kp-field-label" style="margin:0 0 0 12px;">整改人</span><span style="color:var(--text-primary, #333);">' + handlerNameTxt + '</span>'}
             </div>
             <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:14px;">
               💡 复核方按"谁提交谁复核"原则执行
@@ -3858,7 +3888,9 @@
 
     // ========== 初始化 ==========
     loadDomainData();
-    placeData = initKeyPlaceData(domainData);
+    placeData = (typeof loadKeyPlaceData === 'function')
+      ? loadKeyPlaceData(domainData)
+      : (typeof initKeyPlaceData === 'function' ? initKeyPlaceData(domainData) : {});
     renderDomainCards();
   </script>
   <script src="../../config/annotations.js?v=20260625-kp-bg"></script>

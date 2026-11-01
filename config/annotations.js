@@ -299,6 +299,228 @@ var ANNOTATIONS_CONFIG = {
     }
   ],
 
+  // ========== 企业端 - 安全管控对象管理（基础模式） ==========
+  'enterprise/hazard-list': [
+    {
+      id: 'ent-hl-001',
+      selector: '.tree-stats',
+      position: 'top-right',
+      title: '统计卡：企业码 / 场所码 / 危险源码',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '基础模式只放 3 张统计卡：企业码、场所码、危险源码。没有项目码，也没有区域。当前示例数量为 1 / 5 / 2，与对象树节点数量一致。',
+      prdRef: '6.3.5.3.1 对象树'
+    },
+    {
+      id: 'ent-hl-002',
+      selector: '.tree-body',
+      position: 'top-right',
+      title: '对象树：企业码为根，重点场所按领域小类分组',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '根节点是企业码。场所码、危险源码挂在企业码下；只有场所可以下挂危险源，从企业码新增的危险源与场所平级。重点场所先按领域小类分组，分组节点和重点场所都用星标。默认只展开一级。搜索命中子节点时展开父级。',
+      prdRef: '6.3.5.3.1 / BR-ENT-OBJ-15 / BR-ENT-OBJ-17'
+    },
+    {
+      id: 'ent-hl-003',
+      selector: '#view-enterprise',
+      position: 'top-right',
+      title: '企业码详情只读，由左树驱动',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '打开页面默认选中企业码。基础信息和监管单位只读，读取企业基本信息里的同一份数据，企业基本信息保存后这里一并更新。本模块不编辑企业主数据。右侧没有标题栏，也没有视图切换按钮，选中哪个树节点就显示哪一块详情。',
+      prdRef: '6.3.5.3.4.1 / BR-ENT-OBJ-09 / BR-ENT-OBJ-10 / BR-ENT-OBJ-11'
+    },
+    {
+      id: 'ent-hl-004',
+      selector: '#enterpriseScanCard',
+      position: 'top-right',
+      title: '企业码扫码配置可编辑',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '右上角蓝色「编辑」进入整张卡片的编辑态。企业主要负责人、调度分拨员、隐患复核责任人用下拉选择，电话随人员带出且只读。企业主要负责人和隐患复核责任人的电话必填。隐患复核责任人每一行都有删除，最后一行旁边还有新增。未选人的新行也可以删，只剩一行时不能再删。新增检查表和编辑检查表打开「自定义配置」。扫码责任人用两栏选人面板：左栏读企业组织架构管理的全量组织架构，整选部门（含下级）全员承担、不推送个人任务，勾个人则任务推送到移动端任务列表，部门和个人不能混选。检查项的添加会在该项下增加检查内容。确定后先写入本次编辑。检查表可删除。确认后写回只读态，关闭则放弃。',
+      prdRef: '6.3.5.3.4.1 企业码扫码配置'
+    },
+    {
+      id: 'ent-hl-005',
+      selector: '#view-place',
+      position: 'top-right',
+      title: '场所码详情随节点变化',
+      category: '示例数据',
+      categoryColor: 'info',
+      description: '点击不同场所，右侧名称、类型、场所码、整改责任人、电话、复核人、专属检查表和扫码配置跟着变。当前 5 个场所是示例数据。详情页不放检查表来源按钮，三种来源在新增场所弹窗里，弹窗字段待 PRD 补充。',
+      prdRef: '6.3.5.3.4.2 场所码'
+    },
+    {
+      id: 'ent-hl-006',
+      selector: '#view-hazard',
+      position: 'top-right',
+      title: '危险源码详情随节点变化',
+      category: '示例数据',
+      categoryColor: 'info',
+      description: '点击不同危险源，右侧名称、类型、危险源码、责任人、专属检查表和扫码配置跟着变。电动车充电区与危化品存储柜各自一套示例。检查表的编辑、删除可点。详情页不放检查表来源按钮，三种来源在新增危险源弹窗里，弹窗字段待补充。',
+      prdRef: '6.3.5.3.4.3 危险源码'
+    },
+    {
+      id: 'ent-hl-007',
+      selector: '#view-keyplace',
+      position: 'top-right',
+      title: '重点场所：基本信息只读，检查表按来源分权限',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '重点场所的基本信息和二维码只读。政府配置的检查表不提供编辑和删除。企业自己的检查表可以新增、编辑、删除。新增和编辑的弹窗字段待 PRD 补充，当前点击只提示。',
+      prdRef: '6.3.5.3.4.4 / BR-ENT-OBJ-05'
+    }
+  ],
+
+  // ========== 企业端 - 检查记录管理 ==========
+  'enterprise/check-records': [
+    {
+      id: 'ent-cr-001',
+      selector: '#objectTree',
+      position: 'top-right',
+      title: '管控对象树对齐安全管控对象',
+      category: '示例数据',
+      categoryColor: 'info',
+      description: '基础模式与安全管控对象的企业码树一致。项目模式与项目码树一致：项目码、区域、场所码、危险源码、按领域分组的重点场所。区域本身没有检查记录。不放统计卡，不放新增按钮。点分组只汇总该领域下的重点场所，点场所只含自己。',
+      prdRef: '6.3.6.3.1 管控对象树'
+    },
+    {
+      id: 'ent-cr-002',
+      selector: '.filter-card',
+      position: 'top-right',
+      title: '筛选在当前树范围内生效',
+      category: '示例数据',
+      categoryColor: 'info',
+      description: '检查表名称、管控对象、管控对象类型、检查类型、检查人、是否有隐患、开始时间至结束时间，点查询后同时生效。管控对象按名称包含匹配。空条件不限制。重置清空条件。基础模式的管控对象类型为企业、场所、危险源、重点场所；项目模式为项目、场所、危险源、重点场所。检查类型为企业自查、政府巡查。筛的是示例记录，尚未接真实检查数据。',
+      prdRef: '6.3.6.3.2 筛选栏'
+    },
+    {
+      id: 'ent-cr-003',
+      selector: '#currentNode',
+      position: 'top-right',
+      title: '当前节点',
+      category: '业务规则',
+      categoryColor: 'info',
+      description: '副标题写当前节点。企业码或项目码包含本级和下属对象。点区域只含该区域下的场所和危险源。',
+      prdRef: '6.3.6.4 BR-ENT-CR-01'
+    },
+    {
+      id: 'ent-cr-004',
+      selector: '#recordTable',
+      position: 'top-right',
+      title: '检查记录列表（示例数据）',
+      category: '示例数据',
+      categoryColor: 'info',
+      description: '一行是一次已提交检查。同一检查表可以有多条，按检查时间从新到旧。序号是当前页序号。表头和数据行高 48px。批量导出在列表卡片右上角，右边与列表对齐，顶部距卡片顶部 30px，导出当前筛选结果的全部记录，本期只提示条数。管控对象类型：企业蓝色、项目橙色，与领域监管一致；场所 #2EC9AD、危险源 #27D5E0，与统计卡同色；重点场所绿色。隐患总数为 0 时显示无隐患（绿色标签），否则显示有隐患（红色标签），已整改/隐患总数写 0/0。操作只有查看。本期没有新增自查，也没有整改跳转。',
+      prdRef: '6.3.6.3.3 检查记录列表'
+    },
+    {
+      id: 'ent-cr-005',
+      selector: '#modal-check-detail .modal-dialog',
+      position: 'top-right',
+      title: '检查详情（检查项待接入）',
+      category: '未接通功能',
+      categoryColor: 'warning',
+      description: '基础信息是左标签右内容。检查项明细为示例：序号、检查项、检查内容、结果、隐患类型、隐患描述、隐患等级。结果按该记录的隐患条数示意，有隐患为红色标签，无隐患为绿色标签。真实检查项尚未接入。',
+      prdRef: '6.3.6.3.4 检查记录详情弹窗'
+    }
+  ],
+
+  // ========== 企业端 - 隐患整改管理 ==========
+  'enterprise/hazard-fix': [
+    {
+      id: 'ent-hf-001',
+      selector: '.stats-row',
+      position: 'top-right',
+      title: '统计卡片区（示例数据）',
+      category: '示例数据',
+      categoryColor: 'info',
+      description: '顶部横排 4 卡：隐患总数(12)=蓝色、待整改(3)=黄色、已整改(8)=绿色、已逾期(1)=红色。数值为静态硬编码示例，未接真实数据源。按 PRD §6.3.7.3.1 规格，待整改含待整改+整改中状态。',
+      prdRef: '6.3.7.3.1 统计卡片区'
+    },
+    {
+      id: 'ent-hf-002',
+      selector: '.filter-card',
+      position: 'top-right',
+      title: '筛选栏（未接通功能）',
+      category: '未接通功能',
+      categoryColor: 'warning',
+      description: '3 个筛选字段（整改状态/隐患等级/关键词）+ 查询/重置按钮 + 右上「+ 上报隐患」按钮。筛选逻辑已实现（getFilteredData），但查询/重置按钮仅 toast 提示未接通，上报隐患弹窗未接真实提交。',
+      prdRef: '6.3.7.3.2 筛选栏'
+    },
+    {
+      id: 'ent-hf-003',
+      selector: '.table-wrap table',
+      position: 'top-right',
+      title: '隐患列表 8 列（示例数据）',
+      category: '示例数据',
+      categoryColor: 'info',
+      description: '8 列表格：隐患编号(HD+日期+序号)、隐患描述、隐患等级(一般=橙/重大=红)、发现来源、整改期限、整改进度(4步时间轴)、状态、操作。12 条硬编码示例数据，包含待整改/整改中/待验收/已整改/已逾期各状态，未接后端。',
+      prdRef: '6.3.7.3.3 隐患列表'
+    },
+    {
+      id: 'ent-hf-004',
+      selector: '.timeline',
+      position: 'top-right',
+      title: '整改进度时间轴（4 步）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '行内 4 步时间轴：发现 → 整改 → 验收 → 闭环。已完成步骤 .done(绿色背景)，当前步骤 .current(蓝色背景)，未到步骤灰色。按 PRD §6.3.7.3.4 逻辑：待整改/整改中=整改 current，待验收=验收 current，已整改=全部 done，已逾期=整改 current 红色。',
+      prdRef: '6.3.7.3.4 整改进度时间轴'
+    },
+    {
+      id: 'ent-hf-005',
+      selector: 'tbody .action-col',
+      position: 'top-right',
+      title: '操作按钮按状态动态显示',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '操作列按状态动态显示：整改中=填写整改/详情，待验收=申请验收/详情，已整改=查看详情，已逾期=立即整改(红色高亮)/详情。按钮已按规范渲染，但点击仅打开弹窗/toast，未接真实提交逻辑。',
+      prdRef: '6.3.7.3.5 操作按钮逻辑'
+    },
+    {
+      id: 'ent-hf-006',
+      selector: '#modal-rectify .modal-dialog',
+      position: 'top-right',
+      title: '填写整改弹窗（未接通功能）',
+      category: '未接通功能',
+      categoryColor: 'warning',
+      description: '600px 弹窗，7 个字段：整改措施*(必填)、整改结果*(必填)、整改完成日期*(必填)、整改责任人、整改投入(万元)、整改照片(最多5张)、备注。表单结构完整但提交按钮仅 toast 提示，未接后端。按 BR-ENT-HF-03 提交后应流转为「待验收」状态。',
+      prdRef: '6.3.7.3.6 填写整改弹窗'
+    },
+    {
+      id: 'ent-hf-007',
+      selector: '#modal-recheck .modal-dialog',
+      position: 'top-right',
+      title: '申请验收弹窗（未接通功能）',
+      category: '未接通功能',
+      categoryColor: 'warning',
+      description: '600px 弹窗，4 个字段：验收申请说明*(必填)、期望验收日期、联系方式、整改完成照片(最多5张)。表单结构完整但提交按钮仅 toast 提示。按 BR-ENT-HF-04 提交后应等待复核人验收。',
+      prdRef: '6.3.7.3.7 申请验收弹窗'
+    },
+    {
+      id: 'ent-hf-008',
+      selector: '#modal-hazard-detail .modal-dialog',
+      position: 'top-right',
+      title: '隐患详情弹窗（示例数据）',
+      category: '示例数据',
+      categoryColor: 'info',
+      description: '600px 弹窗，2 区域：①隐患信息(2列网格显示编号/等级/描述/来源/发现时间/整改期限)，②整改进度(纵向时间轴，圆点+文字+时间，4 节点：发现隐患/整改中/验收/闭环)。当前仅显示固定示例内容，未接 HD 编号动态回显。',
+      prdRef: '6.3.7.3.8 隐患详情弹窗'
+    },
+    {
+      id: 'ent-hf-009',
+      selector: '#modal-report .modal-dialog',
+      position: 'top-right',
+      title: '上报隐患弹窗（未接通功能）',
+      category: '未接通功能',
+      categoryColor: 'warning',
+      description: '600px 弹窗，5 个字段：隐患描述*(必填)、隐患等级*(必填，一般/重大)、发现来源*(必填，日常自查/政府检查/专项检查)、整改期限*(必填)、隐患照片(选填，最多5张)、备注。表单结构完整但提交按钮仅 toast 提示。按 BR-ENT-HF-07 用于企业自查发现的隐患主动上报。',
+      prdRef: '6.3.7.4 BR-ENT-HF-07'
+    }
+  ],
+
   // ========== 超管端 - 区域管理 ==========
   'super-admin/area-manage': [
     {
@@ -436,7 +658,7 @@ var ANNOTATIONS_CONFIG = {
       title: '责任主体配置（分支式设计）',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '顶部为分段选择器（企业方/政府方），内容区随类型切换。企业方：表格第三列=radio（单选隐患整改责任方），人员下拉=该企业员工。政府方：表格第三列=✓（扫码权限），人员下拉=区划监管单位责任科室全员。关联企业=0 时企业方 disabled。',
+      description: '分支式统一配置（V7.0.60+）：顶部分段选择器（企业方/政府方）始终可自由切换，与关联企业解耦。企业方：不设整改人下拉（显示引导文案），表格第三列=radio 单选隐患整改责任方，责任落到企业维度，具体人员由企业端安全管控对象管理配置。政府方：保留整改人下拉，取数源=当前登录单位（V7.0.62+，复用领域监管视角默认应急局），联动其「隐患责任配置」粒度——配到科室级默认"科室名（全员）"+全科可改选，配到人员级仅列已配置人员默认第一个，未配置默认为空不回退；表格第三列=✓ 扫码权限。保存时校验企业方须关联≥1家企业且仅1家责任方（BR-DOM-KP-34）。',
       prdRef: '§6.1.4.3.3.4 责任主体配置'
     },
     {
@@ -480,7 +702,7 @@ var ANNOTATIONS_CONFIG = {
       title: '责任主体配置（分支式设计）',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '分支式统一配置设计：顶部类型选择器（企业方/政府方），内容区动态切换。政府方整改时，整改人从区划监管单位责任科室全员中选择。企业方整改时，从关联企业中单选责任方。',
+      description: '分支式统一配置（V7.0.60+）：顶部类型选择器（企业方/政府方）可自由切换，与关联企业解耦。企业方整改不设整改人下拉（显示引导文案），从关联企业中单选责任方，责任落到企业维度，具体整改人员由企业端安全管控对象管理配置。政府方整改保留整改人下拉，取数源=当前登录单位（V7.0.62+，复用领域监管视角默认应急局），联动其「隐患责任配置」粒度——配到科室级默认"科室名（全员）"+全科可改选，配到人员级仅列已配置人员默认第一个，未配置默认为空不回退。保存时校验企业方须关联≥1家企业且仅1家责任方（BR-DOM-KP-34）。',
       prdRef: '§6.2.4.3.3.4 责任主体配置'
     },
     {
