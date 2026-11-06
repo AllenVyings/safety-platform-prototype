@@ -86,6 +86,9 @@
     /* ========== 级联选择器（区划+领域共用模式） ========== */
     .cascade-field { position: relative; }
     .cascade-trigger { width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--border-figma); border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary); font-size: var(--font-size-sm); cursor: pointer; text-align: left; box-sizing: border-box; line-height: 30px; display: flex; justify-content: space-between; align-items: center; }
+    #domainTrigger { height: auto; min-height: 32px; padding: 3px 8px; gap: 8px; }
+    #domainLabel { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; line-height: 22px; }
+    #domainLabel.placeholder { color: var(--text-tertiary); }
     .cascade-trigger.placeholder { color: var(--text-tertiary); }
     .cascade-trigger:hover { border-color: var(--primary); }
     .cascade-trigger .arrow { color: var(--text-tertiary); font-size: 11px; }
@@ -228,8 +231,7 @@
         <div class="edit-section">
           <div class="edit-section-title">安全场景标签库</div>
           <div class="form-group cascade-field" style="margin-bottom:0;">
-            <label class="form-label">选择领域小类（支持多选，左侧选行业大类，右侧选领域小类）</label>
-            <button type="button" class="cascade-trigger" id="domainTrigger" onclick="toggleCascade('domain')"><span id="domainLabel">请选择领域小类</span><span class="arrow">▼</span></button>
+            <button type="button" class="cascade-trigger" id="domainTrigger" onclick="toggleCascade('domain')"><span id="domainLabel" class="placeholder">请选择领域小类</span><span class="arrow">▼</span></button>
             <div class="cascade-popover" id="domainPopover" style="width:480px;">
               <input type="text" class="cascade-search" id="domainSearch" placeholder="搜索领域小类名称..." oninput="onDomainSearch()">
               <div class="cascade-cols">
@@ -237,7 +239,6 @@
                 <div class="cascade-col" id="domainColDomain"><div class="cascade-col-header">领域小类</div></div>
               </div>
             </div>
-            <div class="selected-tags-area tag-list" id="editSelectedTags"></div>
             <div class="linked-hint" id="tagLinkedHint">📍 行业/专业监管单位已根据标签变更刷新</div>
             <div style="margin-top:var(--spacing-sm);font-size:var(--font-size-xs);color:var(--text-tertiary);">
               <span style="display:inline-block;width:8px;height:8px;background:var(--info);border-radius:50%;vertical-align:middle;margin-right:4px;"></span>基础模式
@@ -497,26 +498,29 @@
       };
 
       function renderSelectedTags() {
-        var container = document.getElementById('editSelectedTags');
-        if (!container) return;
-        var html = '';
-        var firstBasic = true;
+        var label = document.getElementById('domainLabel');
+        if (!label) return;
         var sorted = domainState.selectedIds.map(function(id) { return DOMAIN_TABLE_DATA.find(function(d) { return d.id === id; }); }).filter(Boolean);
         sorted.sort(function(a, b) {
           if (a.mode === 'basic' && b.mode !== 'basic') return -1;
           if (a.mode !== 'basic' && b.mode === 'basic') return 1;
           return 0;
         });
+        if (!sorted.length) {
+          label.className = 'placeholder';
+          label.textContent = '请选择领域小类';
+          return;
+        }
+        var html = '';
+        var firstBasic = true;
         sorted.forEach(function(d) {
           var cls = d.mode === 'basic' ? 'basic' : 'special';
           html += '<span class="scene-tag ' + cls + '">';
           if (d.mode === 'basic' && firstBasic) { html += '<span class="primary-badge">主</span>'; firstBasic = false; }
-          html += d.name + '<span class="tag-remove" onclick="removeDomainTag(\'' + d.id + '\')">✕</span></span>';
+          html += d.name + '<span class="tag-remove" onclick="event.stopPropagation();removeDomainTag(\'' + d.id + '\')">×</span></span>';
         });
-        container.innerHTML = html;
-        var count = domainState.selectedIds.length;
-        document.getElementById('domainLabel').textContent = count > 0 ? '已选 ' + count + ' 个领域小类' : '请选择领域小类';
-        document.getElementById('domainLabel').className = count > 0 ? '' : 'placeholder';
+        label.className = '';
+        label.innerHTML = html;
       }
 
       window.onDomainSearch = function() {

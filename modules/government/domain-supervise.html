@@ -607,7 +607,7 @@
 
 <!-- 隐患责任配置已改为行内卡片布局，移除此弹窗 -->
 
-<script src="../../js/gov-user-data.js"></script>
+<script src="../../js/gov-user-data.js?v=20261104"></script>
 <script src="../../js/shared/district-data.js"></script>
 <script src="../../js/shared/industry-icons.js"></script>
 <script src="../../js/key-place-data.js?v=20261029-2"></script>
@@ -4292,7 +4292,16 @@
   var ALL_PERSONS = [];
 
   function rebuildOrgData() {
-    var unitName = getUnitNameById(currentPerspectiveId);
+    if (typeof getDeptsByOrgId !== 'function' || typeof getPersonnelByOrgId !== 'function') {
+      console.error('[domain-supervise] gov-user-data.js 未加载成功，组织架构数据为空。请 Ctrl+F5 强刷后重试。');
+      GOV_ORG = { id: 'gov_org', name: (typeof getUnitNameById === 'function' ? getUnitNameById(currentPerspectiveId) : '') || '', depts: [] };
+      DEPT_LIST = [];
+      PERSON_BY_DEPT = {};
+      ORG_TREE = {};
+      ALL_PERSONS = [];
+      return false;
+    }
+    var unitName = (typeof getUnitNameById === 'function' ? getUnitNameById(currentPerspectiveId) : '') || '';
     var depts = getDeptsByOrgId(currentPerspectiveId) || [];
 
     // GOV_ORG
@@ -4312,6 +4321,7 @@
       ORG_TREE[dept.name] = { persons: persons.slice(), subDepts: [] };
       persons.forEach(function(p) { if (ALL_PERSONS.indexOf(p) < 0) ALL_PERSONS.push(p); });
     });
+    return true;
   }
 
   // 初次构建组织架构数据（GOV_USER_DATA_ALL 已在此前加载）

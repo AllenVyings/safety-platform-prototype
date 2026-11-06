@@ -467,22 +467,12 @@ const MENU_CONFIG = {
       disabled: false
     },
     {
-      id: 'ent-hazard-fix',
+      id: 'ent-hazard-reform',
       name: '隐患整改管理',
       icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
-      module: 'enterprise/hazard-fix',
-      path: 'modules/enterprise/hazard-fix.html',
+      module: 'enterprise/hazard-reform',
+      path: 'modules/enterprise/hazard-reform.html',
       description: '隐患整改与反馈',
-      badge: '开发中',
-      disabled: true
-    },
-    {
-      id: 'ent-project-info',
-      name: '项目信息管理',
-      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><rect x="7" y="11" width="3" height="3" rx="0.5"/><path d="M12 12.5h5"/><rect x="7" y="16" width="3" height="3" rx="0.5"/><path d="M12 17.5h5"/></svg>',
-      module: 'project/project-info',
-      path: 'modules/project/project-info.html',
-      description: '项目信息查看（只读）',
       badge: null,
       disabled: false
     }

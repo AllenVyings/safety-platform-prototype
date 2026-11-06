@@ -521,6 +521,60 @@ var ANNOTATIONS_CONFIG = {
     }
   ],
 
+  // ========== 企业端 - 隐患整改管理（V7.0.191 填写整改/申请验收已开通） ==========
+  'enterprise/hazard-reform': [
+    {
+      id: 'ent-hr-001',
+      selector: '.stats-row',
+      position: 'top-right',
+      title: '统计卡片区',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '横排 4 卡（隐患总数/已完成/未完成/整改率）随当前树节点与筛选实时变化。已完成=已整改；总数 0 时整改率显示 0%。PRD §6.3.7.3.1。',
+      prdRef: '6.3.7.3.1 统计卡片区'
+    },
+    {
+      id: 'ent-hr-002',
+      selector: '.filter-card',
+      position: 'top-right',
+      title: '筛选栏',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '4 个筛选：隐患描述（包含）、整改状态（全部/待整改/整改中/待验收/已整改/已逾期）、是否超期、发现时间区间。查询/重置均生效。本期无「上报隐患」入口。PRD §6.3.7.3.2。',
+      prdRef: '6.3.7.3.2 筛选栏'
+    },
+    {
+      id: 'ent-hr-003',
+      selector: '#recordTable table',
+      position: 'top-right',
+      title: '隐患列表',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '8 列（序号/描述/类型/等级/方式/责任人/状态/操作），行高 48px，按状态标签着色。管控对象树全量同源，点树节点后仅展示其范围内隐患。PRD §6.3.7.3.3。',
+      prdRef: '6.3.7.3.3 隐患列表'
+    },
+    {
+      id: 'ent-hr-004',
+      selector: '.operation-col',
+      position: 'top-right',
+      title: '操作列（PC 仅查看）',
+      category: '业务逻辑',
+      categoryColor: 'success',
+      description: 'PC 端操作列固定「查看」，不提供填写整改/申请验收；整改操作统一在移动端隐患详情完成（§6.5.11）。PRD §6.3.7.3.5 / V7.0.192。',
+      prdRef: '6.3.7.3.5 操作按钮逻辑'
+    },
+    {
+      id: 'ent-hr-007',
+      selector: '#modal-hazard-detail',
+      position: 'top-right',
+      title: '隐患详情弹窗',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '1100px 只读。左三区（隐患信息/隐患整改/整改复核）始终展示，未到字段为「-」；右侧流程按实际流转追加节点（审批退回可多于四步），节点色板蓝/红/橙/绿，复核固定橙色。PRD §6.3.7.3.8。',
+      prdRef: '6.3.7.3.8 隐患详情弹窗'
+    }
+  ],
+
   // ========== 超管端 - 区域管理 ==========
   'super-admin/area-manage': [
     {
@@ -1300,23 +1354,43 @@ var ANNOTATIONS_CONFIG = {
   'mobile/hazard-detail': [
     {
       id: 'm-hd-001',
-      selector: '.hd-info',
+      selector: '#hazardInfoCard',
       position: 'top-right',
       title: '隐患基本信息',
       category: '交互说明',
       categoryColor: 'info',
-      description: '显示隐患编号（HD-YYYY-MMDD-NNN）、隐患类型、安全管控对象、责任人、整改期限、隐患描述、整改状态。',
-      prdRef: '6.3.8 隐患详情'
+      description: '隐患编号、隐患类型、隐患等级、发现时间、整改期限、整改责任人、隐患描述、隐患图片。PRD §6.5.11。',
+      prdRef: '6.5.11 隐患详情与填写整改'
     },
     {
       id: 'm-hd-002',
-      selector: '.hd-timeline',
+      selector: '#hazardTimeline',
       position: 'top-right',
-      title: '整改进度时间线',
+      title: '处理时间线',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '5节点时间线：隐患发现→整改分配→整改中→整改完成→复核确认。当前节点高亮显示。整改中状态显示"● 整改中"黄色标识。',
-      prdRef: '6.3.8 BR-HAZ-02 整改流程'
+      description: '隐患发现→整改分配→整改中→整改完成→复核确认。已完成=绿点、当前=蓝点、未到=灰点；提交整改后「整改中」转完成、「整改完成」转当前。PRD §6.5.11。',
+      prdRef: '6.5.11 隐患详情与填写整改'
+    },
+    {
+      id: 'm-hd-003',
+      selector: '#rectifyCard',
+      position: 'top-right',
+      title: '整改入口（移动端）',
+      category: '业务逻辑',
+      categoryColor: 'success',
+      description: '移动端承接整改操作：整改状态标签 + 「填写整改」按钮。PC 端不提供整改入口。提交成功后状态变待验收，按钮区替换为已提交提示。PRD §6.5.11 / BR-ENT-HF-03。',
+      prdRef: '6.5.11 隐患详情与填写整改'
+    },
+    {
+      id: 'm-hd-004',
+      selector: '#rectifyDrawer',
+      position: 'top-right',
+      title: '填写整改抽屉',
+      category: '业务逻辑',
+      categoryColor: 'success',
+      description: '底部抽屉：整改措施、整改结果、整改完成日期（默认当天）必填；整改照片最多 5 张(JPG/PNG/WEBP，单张≤5MB)；备注选填。校验不通过字段红框提示；提交后状态→待验收、清除逾期。PRD §6.5.11 / BR-ENT-HF-03/06。',
+      prdRef: '6.5.11 隐患详情与填写整改'
     }
   ],
 

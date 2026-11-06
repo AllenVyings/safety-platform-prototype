@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>隐患整改管理 - 企业端</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/framework.css">
+<style>
+html,body{height:100%;margin:0;overflow:hidden}
+.module-page.page-container{height:100%;min-height:0;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;overflow:hidden}
+.split-view{display:flex;gap:12px;flex:1;min-height:0;overflow:hidden}
+.tree-panel{width:280px;flex-shrink:0;align-self:stretch;min-height:0;background:var(--bg-primary);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card);padding:12px}
+.tree-header{padding:0 0 12px;border-bottom:1px solid var(--border-light)}
+.tree-header-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding-left:12px;border-left:4px solid var(--primary);line-height:1.6}
+.tree-search{position:relative;padding:var(--spacing-sm) 0;border-bottom:1px solid var(--border-light)}
+.tree-search .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);display:flex;pointer-events:none}
+.tree-search input{width:100%;height:32px;padding:0 12px 0 32px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);outline:none;box-sizing:border-box;background:var(--bg-section-alt)}
+.tree-search input:focus{border-color:var(--primary)}
+.tree-body{flex:1;overflow-y:auto;padding:var(--spacing-sm) 0}
+.tree-node{display:flex;align-items:center;padding:6px var(--spacing-sm);cursor:pointer;border-radius:var(--radius-md);margin:0 0 2px}
+.tree-node:hover{background:var(--bg-section-alt)}
+.tree-node.active{background:var(--primary-light);color:var(--primary)}
+.tree-node-icon{width:14px;height:14px;display:flex;align-items:center;justify-content:center;margin-right:var(--spacing-sm);flex-shrink:0}
+.tree-node-icon svg{width:14px;height:14px}
+.tree-node-label{flex:1;min-width:0;font-size:var(--font-size-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-toggle,.tree-pad{width:12px;margin-right:var(--spacing-xs);flex-shrink:0;display:inline-block;text-align:center;color:var(--text-tertiary);font-size:var(--font-size-xs)}
+.tree-toggle{cursor:pointer;transition:transform var(--duration-normal)}
+.tree-toggle.expanded{transform:rotate(90deg)}
+.tree-children{display:none;margin-left:16px}
+.tree-children.expanded{display:block}
+.right-column{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.filter-card{flex-shrink:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:16px 20px}
+.filter-card .filter-bar{display:grid;grid-template-columns:max-content max-content max-content;column-gap:32px;row-gap:12px;align-items:center;margin:0;padding:0;background:transparent;border:none;border-radius:0}
+.filter-card .filter-item{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.filter-card .filter-item-time{grid-column:1 / -1;justify-self:start}
+.filter-card .filter-item-time #btnQuery{margin-left:16px}
+.filter-card .filter-item label{flex:0 0 98px;width:98px;text-align:right;white-space:nowrap;font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary)}
+.filter-card .filter-bar select,.filter-card .filter-bar input[type="text"],.filter-card .filter-bar input[type="date"]{width:240px;flex:0 0 240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box;background:var(--bg-primary)}
+.filter-to{color:var(--text-secondary);font-size:var(--font-size-sm);padding:0 2px}
+/* 统计卡片：色条版结构对齐企业用户；白底+卡片阴影，避免与页面灰底糊成一片 */
+.stats-row{display:flex;gap:12px;flex-shrink:0}
+.stat-card{flex:1;background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) var(--spacing-lg);position:relative;overflow:hidden;display:flex;align-items:center;gap:var(--spacing-md);box-shadow:var(--shadow-card);border:none;min-height:0}
+.stat-card:hover{box-shadow:var(--shadow-card);border-color:transparent}
+.stat-card-body{flex:1}
+.stat-label{font-size:var(--font-size-xs);color:var(--text-secondary)}
+.stat-value{font-size:24px;font-weight:700;color:var(--text-primary);margin-top:2px;line-height:1.2;letter-spacing:0}
+.stat-indicator{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 2px 2px 0}
+.stat-indicator-primary{background:var(--primary)}
+.stat-indicator-success{background:var(--success)}
+.stat-indicator-warning{background:var(--warning)}
+.stat-indicator-danger{background:var(--danger)}
+.stat-value-success{color:var(--success)}
+.stat-value-warning{color:var(--warning)}
+.stat-value-danger{color:var(--danger)}
+.list-panel{position:relative;flex:1;min-width:0;min-height:0;background:var(--bg-primary);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:16px 20px;display:flex;flex-direction:column;overflow:hidden}
+.list-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);padding-left:12px;border-left:4px solid var(--primary);line-height:1.6;margin:0 0 8px}
+.list-sub{font-size:var(--font-size-sm);color:var(--text-secondary);margin-bottom:12px}
+.list-panel .table-wrap{flex:0 0 auto;min-height:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.list-panel .table-wrap.can-scroll-y{flex:0 1 auto;overflow-y:auto}
+.list-panel .table-wrap::-webkit-scrollbar{width:0;height:0}
+.list-panel .table-wrap:hover{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent}
+.list-panel .table-wrap:hover::-webkit-scrollbar{width:8px;height:8px}
+.list-panel .table-wrap:hover::-webkit-scrollbar-thumb{background:rgba(0,0,0,.28);border-radius:4px}
+.list-panel .table-wrap table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0}
+.list-panel .table-wrap th,
+.list-panel .table-wrap td{box-sizing:border-box;height:48px;padding:0 20px;vertical-align:middle}
+.list-panel .table-wrap td{white-space:nowrap}
+.list-panel .table-wrap thead th{position:sticky;top:0;z-index:12;background:var(--bg-table-header)}
+.list-panel .table-wrap th.col-index,
+.list-panel .table-wrap td.col-index{left:0;width:64px;min-width:64px;max-width:64px;padding:0 12px}
+.list-panel .table-wrap th.col-desc,
+.list-panel .table-wrap td.col-desc{width:240px;min-width:240px;max-width:240px}
+.list-panel .table-wrap td.col-desc .cell-clip{display:block;width:200px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list-panel .table-wrap th.operation-col,
+.list-panel .table-wrap td.operation-col{min-width:100px;padding:0 28px}
+.list-panel .table-wrap td.empty-row{height:auto;max-width:none;text-align:center;color:var(--text-tertiary);padding:40px 12px}
+.list-panel .pagination{flex-shrink:0;margin-top:auto;padding:16px 0 0;background:transparent;border-top:none}
+.tag-pending{background:#fff1f0;color:#ff4d4f}
+.tag-doing{background:#fff7e6;color:#fa8c16}
+.tag-review{background:#e6f4ff;color:#1677ff}
+.tag-done{background:#f6ffed;color:#52c41a}
+.tag-overdue{background:#fff1f0;color:#cf1322}
+.name-bubble{position:fixed;z-index:40;display:none;max-width:360px;padding:8px 12px;background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);font-size:var(--font-size-sm);line-height:1.5;word-break:break-all;pointer-events:none}
+.name-bubble.show{display:block}
+.modal-overlay#modal-hazard-detail{z-index:1100}
+.modal-dialog.detail-dialog{width:1100px;max-width:calc(100vw - 48px);max-height:86vh;display:flex;flex-direction:column;overflow:hidden;background:#fff;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.modal-head-title{font-size:16px;font-weight:600;color:#1f1f1f}
+.modal-head-close{background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;width:28px;height:28px}
+.modal-head-close:hover{color:#666}
+.detail-dialog .modal-body{padding:20px 24px;overflow:auto;flex:1;min-height:0;background:#fff;color:#1f1f1f}
+.detail-dialog .modal-foot{flex-shrink:0;padding:12px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;background:#fff}
+.detail-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,0.75fr);gap:28px;align-items:start;min-height:0}
+.detail-main{min-width:0}
+.detail-side{min-width:0;padding-left:24px;border-left:1px solid #f0f0f0}
+.detail-block{margin-bottom:24px}
+.detail-block:last-child{margin-bottom:0}
+.detail-section-title{font-size:15px;font-weight:600;color:#1f1f1f;padding-left:10px;border-left:3px solid #1677ff;line-height:1.4;margin:0 0 14px}
+.detail-kv{display:grid;grid-template-columns:1fr 1fr;column-gap:28px;row-gap:10px}
+.detail-kv-item{display:grid;grid-template-columns:104px minmax(0,1fr);gap:8px;align-items:start;line-height:1.6}
+.detail-kv-item.full{grid-column:1 / -1}
+.detail-kv-label{color:#1f1f1f;font-size:13px;font-weight:600;white-space:nowrap;padding-top:1px}
+.detail-kv-value{color:#1f1f1f;font-size:14px;font-weight:400;word-break:break-word}
+.detail-thumbs{display:flex;flex-wrap:wrap;gap:10px}
+.detail-thumb{width:96px;height:96px;border-radius:6px;overflow:hidden;border:1px solid #f0f0f0;background:#f5f5f5;flex-shrink:0}
+.detail-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.flow-title{font-size:15px;font-weight:600;color:#1f1f1f;margin:0 0 16px}
+.flow-list{list-style:none;margin:0;padding:0}
+.flow-item{position:relative;padding:0 0 18px 0}
+.flow-item:last-child{padding-bottom:0}
+.flow-item:not(:last-child)::before{content:'';position:absolute;left:6px;top:18px;bottom:0;border-left:2px dashed #bfbfbf}
+.flow-head{display:flex;align-items:center;gap:10px;min-height:20px;position:relative;z-index:1}
+.flow-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;box-sizing:border-box;background:#fff;position:relative;border:2px solid #d9d9d9}
+/* 已完成：外圈+内点 */
+.flow-dot.is-done.report{border-color:#1677ff;color:#1677ff}
+.flow-dot.is-done.reform{border-color:#ff4d4f;color:#ff4d4f}
+.flow-dot.is-done.review{border-color:#fa8c16;color:#fa8c16}
+.flow-dot.is-done.close{border-color:#52c41a;color:#52c41a}
+.flow-dot.is-done::after{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:currentColor}
+/* 当前节点：实心圆，更醒目 */
+.flow-dot.is-current.report{background:#1677ff;border-color:#1677ff;box-shadow:0 0 0 3px rgba(22,119,255,.2)}
+.flow-dot.is-current.reform{background:#ff4d4f;border-color:#ff4d4f;box-shadow:0 0 0 3px rgba(255,77,79,.2)}
+.flow-dot.is-current.review{background:#fa8c16;border-color:#fa8c16;box-shadow:0 0 0 3px rgba(250,140,22,.2)}
+.flow-dot.is-current.close{background:#52c41a;border-color:#52c41a;box-shadow:0 0 0 3px rgba(82,196,26,.2)}
+/* 未到达：空心淡色 */
+.flow-dot.is-pending.report{border-color:#91caff;background:#fff}
+.flow-dot.is-pending.reform{border-color:#ffa39e;background:#fff}
+.flow-dot.is-pending.review{border-color:#ffd591;background:#fff}
+.flow-dot.is-pending.close{border-color:#b7eb8f;background:#fff}
+.flow-tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:600;line-height:20px;flex-shrink:0}
+.flow-tag.is-done.report,.flow-tag.is-current.report{background:#e6f4ff;color:#1677ff}
+.flow-tag.is-done.reform,.flow-tag.is-current.reform{background:#fff1f0;color:#ff4d4f}
+.flow-tag.is-done.review,.flow-tag.is-current.review,.flow-tag.is-returned.review{background:#fff7e6;color:#fa8c16}
+.flow-tag.is-done.close,.flow-tag.is-current.close{background:#f6ffed;color:#52c41a}
+.flow-tag.is-current{box-shadow:inset 0 0 0 1px currentColor}
+.flow-tag.is-pending{background:#f5f5f5;color:#bfbfbf}
+.flow-time{font-size:12px;color:#8c8c8c;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flow-item.is-current .flow-time{color:#595959;font-weight:500}
+.flow-item.is-pending .flow-time{color:#d9d9d9}
+/* 审批退回：轴点/连线仍用复核橙色，与标签、卡片色统一 */
+.flow-dot.is-done.is-returned.review,.flow-dot.is-returned.review{border-color:#fa8c16;color:#fa8c16;background:#fff}
+.flow-dot.is-returned.review::after{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:currentColor}
+.flow-item.is-returned:not(:last-child)::before{border-left-color:#ffc069}
+.flow-body{margin:8px 0 0 24px;padding:10px 12px;background:#fafafa;border-radius:6px;border:1px solid #f0f0f0;min-width:0}
+.flow-body.is-current{background:#fff;border-color:#d9d9d9;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.flow-body.is-current.report,.flow-body.is-done.report{border-left:3px solid #1677ff}
+.flow-body.is-current.reform,.flow-body.is-done.reform{border-left:3px solid #ff4d4f}
+.flow-body.is-current.review,.flow-body.is-done.review{border-left:3px solid #fa8c16}
+.flow-body.is-current.close,.flow-body.is-done.close{border-left:3px solid #52c41a}
+.flow-body.is-pending{background:#fcfcfc;border-color:#f0f0f0}
+.flow-body.is-pending .flow-row-label,.flow-body.is-pending .flow-row-value{color:#bfbfbf}
+.flow-fields{display:flex;flex-direction:column;gap:6px}
+.flow-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:6px;align-items:start;line-height:1.55}
+.flow-row-label{color:#1f1f1f;font-size:12px;font-weight:600;white-space:nowrap}
+.flow-row-value{color:#1f1f1f;font-size:13px;font-weight:400;word-break:break-word}
+.flow-thumbs{display:flex;flex-wrap:wrap;gap:6px}
+.flow-thumbs .detail-thumb{width:64px;height:64px}
+@media (max-width:960px){
+  .detail-layout{grid-template-columns:1fr}
+  .detail-side{padding-left:0;border-left:none;border-top:1px solid #f0f0f0;padding-top:16px}
+}
+</style>
+</head>
+<body>
+<div class="module-page page-container" data-module="enterprise/hazard-reform">
+  <div class="split-view">
+    <div class="tree-panel">
+      <div class="tree-header">
+        <div class="tree-header-title">管控对象</div>
+      </div>
+      <div class="tree-search">
+        <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <input type="text" id="treeSearchInput" placeholder="搜索管控对象...">
+      </div>
+      <div class="tree-body" id="objectTree"></div>
+    </div>
+    <div class="right-column">
+      <div class="filter-card">
+        <div class="filter-bar">
+          <div class="filter-item">
+            <label>隐患描述：</label>
+            <input type="text" id="filterDesc" placeholder="请输入隐患描述">
+          </div>
+          <div class="filter-item">
+            <label>整改状态：</label>
+            <select id="filterStatus">
+              <option value="">全部</option>
+              <option value="待整改">待整改</option>
+              <option value="整改中">整改中</option>
+              <option value="待验收">待验收</option>
+              <option value="已整改">已整改</option>
+              <option value="已逾期">已逾期</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>是否超期：</label>
+            <select id="filterOverdue">
+              <option value="">全部</option>
+              <option value="yes">是</option>
+              <option value="no">否</option>
+            </select>
+          </div>
+          <div class="filter-item filter-item-time">
+            <label>发现时间：</label>
+            <input type="date" id="filterStart">
+            <span class="filter-to">至</span>
+            <input type="date" id="filterEnd">
+            <button class="btn btn-primary" id="btnQuery" type="button">查询</button>
+            <button class="btn btn-default" id="btnReset" type="button">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">隐患总数</div>
+            <div class="stat-value" id="statTotal">0</div>
+          </div>
+          <div class="stat-indicator stat-indicator-primary"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">已完成</div>
+            <div class="stat-value stat-value-success" id="statDone">0</div>
+          </div>
+          <div class="stat-indicator stat-indicator-success"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">未完成</div>
+            <div class="stat-value stat-value-danger" id="statOpen">0</div>
+          </div>
+          <div class="stat-indicator stat-indicator-danger"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-label">整改率</div>
+            <div class="stat-value" id="statRate">0%</div>
+          </div>
+          <div class="stat-indicator stat-indicator-primary"></div>
+        </div>
+      </div>
+      <div class="list-panel table-card">
+        <div class="list-title">隐患列表</div>
+        <div class="list-sub" id="currentNode"></div>
+        <div class="table-wrap" id="recordTable"></div>
+        <div class="pagination" id="pager"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="name-bubble" id="nameBubble"></div>
+
+<div class="modal-overlay" id="modal-hazard-detail">
+  <div class="modal-dialog detail-dialog">
+    <div class="modal-head">
+      <span class="modal-head-title">详情</span>
+      <button class="modal-head-close" id="btnCloseDetail" type="button">&times;</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" type="button" id="btnFootClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../js/enterprise-profile.js"></script>
+<script src="../../js/domain-data.js"></script>
+<script src="../../js/shared/district-data.js"></script>
+<script src="../../js/key-place-data.js?v=20261029-2"></script>
+<script src="../../js/pagination.js"></script>
+<script>
+(function() {
+  var ICON = {
+    enterprise: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/></svg>',
+    place: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/></svg>',
+    hazard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    project: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><rect x="7" y="11" width="3" height="3" rx="0.5"/><path d="M12 12.5h5"/><rect x="7" y="16" width="3" height="3" rx="0.5"/><path d="M12 17.5h5"/></svg>',
+    region: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg>'
+  };
+  var PREFIX = { enterprise: '企业', project: '项目', region: '区域', place: '场所', hazard: '危险源', domain: '领域', keyplace: '重点场所' };
+  var STATUS_TAG = {
+    '待整改': 'tag-pending',
+    '整改中': 'tag-doing',
+    '待验收': 'tag-review',
+    '已整改': 'tag-done',
+    '已逾期': 'tag-overdue'
+  };
+
+  function detectProjectMode() {
+    try {
+      var query = new URLSearchParams(location.search);
+      var mode = query.get('mode');
+      if (mode === 'project') return true;
+      if (mode === 'basic') return false;
+      if (query.get('portal') === 'enterprise-project') return true;
+    } catch (err) {}
+    try {
+      if (window.parent && window.parent !== window) {
+        var tab = window.parent.document.querySelector('.portal-tab.active');
+        if (tab && tab.getAttribute('data-portal') === 'enterprise-project') return true;
+      }
+    } catch (err) {}
+    return false;
+  }
+
+  var projectMode = detectProjectMode();
+  /* 基础树与 §6.3.5 / check-records 同构；重点场所由 attachKeyplaces 从 sa_key_place_data 全量挂入 */
+  var basicRoot = {
+    id: 'enterprise',
+    type: 'enterprise',
+    name: '深圳市天道医药有限公司南山分厂',
+    children: [
+      { id: 'place-1', type: 'place', name: '1号生产车间', children: [
+        { id: 'hazard-1', type: 'hazard', name: '电动车充电区' }
+      ]},
+      { id: 'place-2', type: 'place', name: '2号生产车间' },
+      { id: 'place-3', type: 'place', name: '材料仓库' },
+      { id: 'place-4', type: 'place', name: '办公楼' },
+      { id: 'place-5', type: 'place', name: '配电室' },
+      { id: 'hazard-2', type: 'hazard', name: '危化品存储柜' }
+    ]
+  };
+  var projectRoot = {
+    id: 'project',
+    type: 'project',
+    name: '南山科技园二期建设项目',
+    children: [
+      { id: 'p-place-hq', type: 'place', name: '项目总指挥部' },
+      { id: 'p-hazard-all', type: 'hazard', name: '项目整体危险源' },
+      { id: 'region-office', type: 'region', name: '办公生活区', children: [
+        { id: 'p-place-office', type: 'place', name: '办公室' },
+        { id: 'p-place-dorm', type: 'place', name: '宿舍' }
+      ]},
+      { id: 'region-work', type: 'region', name: '施工区域', children: [
+        { id: 'p-place-work', type: 'place', name: '1号施工区域' },
+        { id: 'p-place-store', type: 'place', name: '材料堆放区' },
+        { id: 'p-hazard-crane', type: 'hazard', name: '塔吊作业区' }
+      ]},
+      { id: 'domain-highrise', type: 'domain', name: '超高层建筑', domainId: 'highrise', children: [
+        { id: 'p-kp-power', type: 'keyplace', name: '配电房', domainId: 'highrise' },
+        { id: 'p-kp-fire', type: 'keyplace', name: '消防控制室', domainId: 'highrise' }
+      ]}
+    ]
+  };
+
+  var basicHazards = [
+    { id: 'h1', objectId: 'enterprise', objectName: '', desc: '厂区消防通道堆放杂物，影响疏散', hazardType: '现场环境', level: '一般隐患', method: '立即整改', person: '李四', status: '待整改', overdue: false, foundAt: '2026-10-28', deadline: '2026-11-05', source: '日常自查', reviewRejected: true, reformTime: '2026-10-29 14:24:32', reformDesc: '通道杂物已初步清理，但灭火器点位未恢复', reviewer: '王五', reviewTime: '2026-10-29 16:25:16', reviewResult: '现场仍有部分堆放物，灭火器被遮挡，退回重新整改' },
+    { id: 'h2', objectId: 'place-1', objectName: '1号生产车间', desc: '车间配电箱缺少绝缘胶垫', hazardType: '设备设施', level: '一般隐患', method: '限期整改', person: '王五', status: '整改中', overdue: false, foundAt: '2026-10-20', deadline: '2026-11-10', source: '日常自查' },
+    { id: 'h3', objectId: 'hazard-1', objectName: '电动车充电区', desc: '充电区灭火器压力不足', hazardType: '设备设施', level: '一般隐患', method: '立即整改', person: '李四', status: '待验收', overdue: false, foundAt: '2026-10-18', deadline: '2026-10-30', source: '日常自查' },
+    { id: 'h4', objectId: 'place-3', objectName: '材料仓库', desc: '危化品标识脱落', hazardType: '现场环境', level: '重大隐患', method: '立即整改', person: '王五', status: '已整改', overdue: false, foundAt: '2026-10-11', deadline: '2026-10-20', source: '政府检查' },
+    { id: 'h5', objectId: 'place-5', objectName: '配电室', desc: '应急照明灯不亮', hazardType: '设备设施', level: '一般隐患', method: '限期整改', person: '王五', status: '已逾期', overdue: true, foundAt: '2026-09-20', deadline: '2026-10-05', source: '专项检查' },
+    { id: 'h6', objectId: 'place-2', objectName: '2号生产车间', desc: '作业人员未佩戴防护眼镜', hazardType: '人员行为', level: '一般隐患', method: '立即整改', person: '李四', status: '已整改', overdue: false, foundAt: '2026-10-15', deadline: '2026-10-18', source: '日常自查' },
+    { id: 'h7', objectId: 'place-4', objectName: '办公楼', desc: '疏散指示灯方向错误', hazardType: '现场环境', level: '一般隐患', method: '限期整改', person: '王五', status: '待整改', overdue: false, foundAt: '2026-10-25', deadline: '2026-11-08', source: '日常自查' },
+    { id: 'h8', objectId: 'hazard-2', objectName: '危化品存储柜', desc: '柜门密封条老化', hazardType: '设备设施', level: '重大隐患', method: '立即整改', person: '赵六', status: '整改中', overdue: false, foundAt: '2026-10-22', deadline: '2026-11-01', source: '政府检查' },
+    { id: 'h10', objectId: 'place-1', objectName: '1号生产车间', desc: '气瓶未固定', hazardType: '设备设施', level: '重大隐患', method: '立即整改', person: '王五', status: '已整改', overdue: false, foundAt: '2026-09-28', deadline: '2026-10-05', source: '专项检查' },
+    { id: 'h11', objectId: 'enterprise', objectName: '', desc: '厂区大门应急通道被车辆占用', hazardType: '现场环境', level: '一般隐患', method: '限期整改', person: '李四', status: '已逾期', overdue: true, foundAt: '2026-09-15', deadline: '2026-09-30', source: '政府检查' }
+  ];
+  var projectHazards = [
+    { id: 'ph1', objectId: 'project', objectName: '南山科技园二期建设项目', desc: '施工区消防通道被材料占用', hazardType: '现场环境', level: '一般隐患', method: '立即整改', person: '李四', status: '待整改', overdue: false, foundAt: '2026-10-28', deadline: '2026-11-05', source: '日常自查' },
+    { id: 'ph2', objectId: 'p-place-work', objectName: '1号施工区域', desc: '临边防护缺失', hazardType: '现场环境', level: '重大隐患', method: '立即整改', person: '王五', status: '整改中', overdue: false, foundAt: '2026-10-20', deadline: '2026-11-01', source: '政府检查' },
+    { id: 'ph3', objectId: 'p-hazard-crane', objectName: '塔吊作业区', desc: '塔吊限位器异常', hazardType: '设备设施', level: '重大隐患', method: '立即整改', person: '李四', status: '待验收', overdue: false, foundAt: '2026-10-16', deadline: '2026-10-28', source: '专项检查' },
+    { id: 'ph4', objectId: 'p-place-office', objectName: '办公室', desc: '灭火器过期', hazardType: '设备设施', level: '一般隐患', method: '限期整改', person: '王五', status: '已整改', overdue: false, foundAt: '2026-10-10', deadline: '2026-10-20', source: '日常自查' },
+    { id: 'ph5', objectId: 'p-place-dorm', objectName: '宿舍', desc: '宿舍私拉电线', hazardType: '人员行为', level: '一般隐患', method: '立即整改', person: '赵六', status: '已逾期', overdue: true, foundAt: '2026-09-18', deadline: '2026-09-30', source: '日常自查' }
+  ];
+
+  var root = projectMode ? projectRoot : basicRoot;
+  var hazards = projectMode ? projectHazards : basicHazards;
+  var state = {
+    selectedId: projectMode ? 'project' : 'enterprise',
+    page: 1,
+    pageSize: 10,
+    keyword: '',
+    applied: { desc: '', status: '', overdue: '', start: '', end: '' }
+  };
+  var pager = null;
+  var nodeMap = {};
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function indexNodes(node) {
+    nodeMap[node.id] = node;
+    (node.children || []).forEach(indexNodes);
+  }
+
+  function labelOf(node) {
+    if (node.type === 'enterprise') return '企业码-' + node.name;
+    if (node.type === 'project') return '项目码-' + node.name;
+    if (node.type === 'region') return '区域-' + node.name;
+    if (node.type === 'place') return '场所码-' + node.name;
+    if (node.type === 'hazard') return '危险源码-' + node.name;
+    if (node.type === 'keyplace') return '重点场所码-' + node.name;
+    return node.name;
+  }
+
+  function iconOf(node) {
+    if (node.type === 'domain' || node.type === 'keyplace') return ICON.star;
+    return ICON[node.type] || '';
+  }
+
+  function branchHit(node, kw) {
+    if (!kw) return true;
+    if (labelOf(node).indexOf(kw) >= 0) return true;
+    return (node.children || []).some(function(child) { return branchHit(child, kw); });
+  }
+
+  function renderBranch(nodes, kw, parentHit) {
+    var html = '';
+    nodes.forEach(function(node) {
+      var selfHit = !kw || labelOf(node).indexOf(kw) >= 0;
+      var childHit = (node.children || []).some(function(child) { return branchHit(child, kw); });
+      if (kw && !parentHit && !selfHit && !childHit) return;
+      var kids = node.children || [];
+      var open = !!(kw || node.open !== false);
+      html += '<div class="tree-node' + (node.id === state.selectedId ? ' active' : '') + '" data-id="' + esc(node.id) + '">';
+      if (kids.length) html += '<span class="tree-toggle' + (open ? ' expanded' : '') + '" data-toggle="' + esc(node.id) + '">▶</span>';
+      else html += '<span class="tree-pad"></span>';
+      html += '<span class="tree-node-icon">' + iconOf(node) + '</span>';
+      html += '<span class="tree-node-label" title="' + esc(labelOf(node)) + '">' + esc(labelOf(node)) + '</span></div>';
+      if (kids.length) {
+        html += '<div class="tree-children' + (open ? ' expanded' : '') + '">';
+        html += renderBranch(kids, kw, parentHit || selfHit);
+        html += '</div>';
+      }
+    });
+    return html;
+  }
+
+  function renderTree() {
+    document.getElementById('objectTree').innerHTML = renderBranch([root], state.keyword.trim(), false);
+  }
+
+  function findNode(id) {
+    return nodeMap[id] || root;
+  }
+
+  function collectIds(node, bag) {
+    bag[node.id] = true;
+    (node.children || []).forEach(function(child) { collectIds(child, bag); });
+  }
+
+  function inScope(row, node) {
+    if (!node || node.type === 'enterprise' || node.type === 'project') return true;
+    if (node.type === 'domain') {
+      var bag = {};
+      (node.children || []).forEach(function(child) { collectIds(child, bag); });
+      return !!bag[row.objectId];
+    }
+    if (node.type === 'region') {
+      var regionBag = {};
+      (node.children || []).forEach(function(child) { collectIds(child, regionBag); });
+      return !!regionBag[row.objectId];
+    }
+    return row.objectId === node.id;
+  }
+
+  function matched() {
+    var node = findNode(state.selectedId);
+    var applied = state.applied;
+    return hazards.filter(function(row) {
+      if (!inScope(row, node)) return false;
+      if (applied.desc && row.desc.indexOf(applied.desc) < 0) return false;
+      if (applied.status && row.status !== applied.status) return false;
+      if (applied.overdue === 'yes' && !row.overdue) return false;
+      if (applied.overdue === 'no' && row.overdue) return false;
+      if (applied.start && row.foundAt < applied.start) return false;
+      if (applied.end && row.foundAt > applied.end) return false;
+      return true;
+    }).sort(function(a, b) {
+      if (a.foundAt === b.foundAt) return 0;
+      return a.foundAt < b.foundAt ? 1 : -1;
+    });
+  }
+
+  function isDone(status) {
+    return status === '已整改';
+  }
+
+  function renderStats(rows) {
+    var total = rows.length;
+    var done = rows.filter(function(row) { return isDone(row.status); }).length;
+    var open = total - done;
+    var rate = total ? Math.round(done * 100 / total) : 0;
+    document.getElementById('statTotal').textContent = String(total);
+    document.getElementById('statDone').textContent = String(done);
+    document.getElementById('statOpen').textContent = String(open);
+    document.getElementById('statRate').textContent = rate + '%';
+  }
+
+  function syncPager(total) {
+    if (!pager) {
+      pager = new Pagination('pager', {
+        total: total,
+        size: state.pageSize,
+        current: state.page,
+        onChange: function(page, size) {
+          state.page = page;
+          state.pageSize = size;
+          renderList();
+        }
+      });
+    } else if (pager.page !== state.page) {
+      pager.setPage(state.page);
+    }
+    pager.setTotal(total);
+    state.page = pager.page;
+    state.pageSize = pager.size;
+  }
+
+  function statusTag(status) {
+    return '<span class="tag ' + (STATUS_TAG[status] || 'tag-gray') + '">' + esc(status) + '</span>';
+  }
+
+  function levelTag(level) {
+    return '<span class="tag ' + (level === '重大隐患' ? 'tag-red' : 'tag-orange') + '">' + esc(level) + '</span>';
+  }
+
+  /* 整改操作在移动端进行（§6.5 移动端隐患详情/填写整改）；PC 端操作列仅提供只读「查看」 */
+  function actionHtml(row) {
+    var id = esc(row.id);
+    return '<button class="btn-link" type="button" data-view="' + id + '">查看</button>';
+  }
+
+  function renderList() {
+    var node = findNode(state.selectedId);
+    document.getElementById('currentNode').textContent = PREFIX[node.type] + '：' + node.name;
+    var rows = matched();
+    renderStats(rows);
+    syncPager(rows.length);
+    var start = (state.page - 1) * state.pageSize;
+    var pageRows = rows.slice(start, start + state.pageSize);
+    var html = '<table><thead><tr><th class="col-index">序号</th><th class="col-desc">隐患描述</th><th>隐患类型</th><th>隐患等级</th><th>整改方式</th><th>整改责任人</th><th>整改状态</th><th class="operation-col">操作</th></tr></thead><tbody>';
+    if (!pageRows.length) {
+      html += '<tr><td class="empty-row" colspan="8">暂无隐患记录</td></tr>';
+    } else {
+      pageRows.forEach(function(row, index) {
+        html += '<tr>';
+        html += '<td class="col-index">' + (start + index + 1) + '</td>';
+        html += '<td class="col-desc"><span class="cell-clip">' + esc(row.desc) + '</span></td>';
+        html += '<td>' + esc(row.hazardType) + '</td>';
+        html += '<td>' + levelTag(row.level) + '</td>';
+        html += '<td>' + esc(row.method) + '</td>';
+        html += '<td>' + esc(row.person) + '</td>';
+        html += '<td>' + statusTag(row.status) + '</td>';
+        html += '<td class="operation-col"><div class="table-action-group">' + actionHtml(row) + '</div></td>';
+        html += '</tr>';
+      });
+    }
+    html += '</tbody></table>';
+    document.getElementById('recordTable').innerHTML = html;
+    syncTableScroll();
+  }
+
+  function syncTableScroll() {
+    var wrap = document.getElementById('recordTable');
+    var table = wrap.querySelector('table');
+    if (!table) return;
+    wrap.classList.remove('can-scroll-y');
+    var panel = wrap.parentElement;
+    var pagerEl = document.getElementById('pager');
+    var title = panel.querySelector('.list-title');
+    var sub = panel.querySelector('.list-sub');
+    var note = panel.querySelector('.list-note');
+    var panelStyle = getComputedStyle(panel);
+    var available = panel.clientHeight
+      - parseFloat(panelStyle.paddingTop) - parseFloat(panelStyle.paddingBottom)
+      - title.offsetHeight - sub.offsetHeight - (note ? note.offsetHeight : 0) - pagerEl.offsetHeight
+      - 8 - 12;
+    if (table.offsetHeight > available + 1) wrap.classList.add('can-scroll-y');
+  }
+
+  function applyQuery() {
+    state.applied = {
+      desc: document.getElementById('filterDesc').value.trim(),
+      status: document.getElementById('filterStatus').value,
+      overdue: document.getElementById('filterOverdue').value,
+      start: document.getElementById('filterStart').value,
+      end: document.getElementById('filterEnd').value
+    };
+    state.page = 1;
+    renderList();
+  }
+
+  function resetQuery() {
+    document.getElementById('filterDesc').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterOverdue').value = '';
+    document.getElementById('filterStart').value = '';
+    document.getElementById('filterEnd').value = '';
+    applyQuery();
+  }
+
+  function sourceLabel(source) {
+    if (source === '日常自查') return '企业自查';
+    return source || '—';
+  }
+
+  /* 有真实上传照片则展示实图，否则用示意缩略图 */
+  function photoThumbs(list, cls, fallbackKind) {
+    if (list && list.length) {
+      return '<div class="' + cls + '">' + list.map(function(src) {
+        return '<div class="detail-thumb"><img src="' + src + '" alt=""></div>';
+      }).join('') + '</div>';
+    }
+    return '<div class="' + cls + '">' + thumbHtml(fallbackKind) + '</div>';
+  }
+
+  function thumbHtml(kind) {
+    /* 示意缩略图：对齐样例「隐患图 / 整改图」实景感 */
+    var svg = kind === 'reform'
+      ? "<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'><rect width='96' height='96' fill='#2f3542'/><rect x='18' y='14' width='60' height='68' rx='4' fill='#1e2430' stroke='#5c677a' stroke-width='2'/><rect x='26' y='22' width='20' height='12' rx='2' fill='#ff6b6b'/><rect x='50' y='22' width='20' height='12' rx='2' fill='#51cf66'/><rect x='26' y='40' width='44' height='8' rx='2' fill='#748094'/><rect x='26' y='52' width='44' height='8' rx='2' fill='#748094'/><rect x='26' y='64' width='28' height='8' rx='2' fill='#4dabf7'/><circle cx='70' cy='68' r='5' fill='#fcc419'/></svg>"
+      : "<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'><rect width='96' height='96' fill='#dfe6ee'/><rect x='0' y='58' width='96' height='38' fill='#b7c0cc'/><rect x='8' y='12' width='18' height='46' fill='#8b95a3'/><rect x='70' y='12' width='18' height='46' fill='#8b95a3'/><rect x='30' y='40' width='36' height='22' rx='2' fill='#e9ecef' stroke='#adb5bd'/><rect x='34' y='46' width='10' height='14' fill='#ced4da'/><rect x='46' y='46' width='10' height='14' fill='#ced4da'/><rect x='58' y='46' width='4' height='14' fill='#adb5bd'/><path d='M12 70h72' stroke='#868e96' stroke-width='2'/></svg>";
+    return '<div class="detail-thumb"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(svg) + '"></div>';
+  }
+
+  function kv(label, valueHtml, full, valueClass) {
+    var name = String(label || '');
+    if (name && name.slice(-1) !== '：' && name.slice(-1) !== ':') name += '：';
+    return '<div class="detail-kv-item' + (full ? ' full' : '') + '"><div class="detail-kv-label">' + esc(name) + '</div><div class="detail-kv-value' + (valueClass ? ' ' + valueClass : '') + '">' + valueHtml + '</div></div>';
+  }
+
+  function buildDetail(row) {
+    var status = row.status;
+    var rejected = !!row.reviewRejected;
+    var closed = status === '已整改';
+    /* 有历史整改：进行中/待验收/已整改，或复核不通过退回后仍保留上一轮 */
+    var showReform = status === '整改中' || status === '待验收' || closed || rejected;
+    /* 有历史复核：待验收/已整改，或复核不通过退回后仍保留复核记录 */
+    var showReview = status === '待验收' || closed || rejected;
+    var reporter = row.reporter || (row.person === '王五' ? '李四' : '王五');
+    var reportTime = row.reportTime || (row.foundAt + ' 10:49:25');
+    var reformTime = row.reformTime || (row.foundAt + ' 14:24:32');
+    var reformDesc = row.reformDesc || (row.desc.replace(/堆放|堵塞|不足|脱落|不亮|错误|老化|占用|缺失|异常|过期|私拉/, '已处理') + '，现场已清理到位');
+    var reviewer = row.reviewer || (row.person === '李四' ? '王五' : '李四');
+    var reviewTime = row.reviewTime || (row.foundAt + ' 16:25:16');
+    var reviewResult = row.reviewResult || (rejected ? '现场仍有部分堆放物，灭火器被遮挡，退回重新整改' : '已按要求进行整改，隐患消除');
+    var approveResult = closed ? '同意' : (rejected ? '退回' : '');
+    var law = row.law || '《中华人民共和国消防法》';
+    var clause = row.clause || '第二十八条 任何单位、个人不得损坏、挪用或者擅自拆除、停用消防设施、器材，不得埋压、圈占、遮挡消火栓或者占用防火间距，不得占用、堵塞、封闭疏散通道、安全出口、消防车通道。';
+    var html = '<div class="detail-layout"><div class="detail-main">';
+    html += '<div class="detail-block"><div class="detail-section-title">隐患信息</div><div class="detail-kv">';
+    html += kv('隐患来源', esc(sourceLabel(row.source)));
+    html += kv('安全管控对象', esc(row.objectName || root.name));
+    html += kv('隐患类型', esc(row.hazardType));
+    html += kv('隐患等级', esc(row.level));
+    html += kv('隐患描述', esc(row.desc), true);
+    html += kv('法规依据', esc(law));
+    html += kv('隐患状态', statusTag(status));
+    html += kv('依据条款', esc(clause), true);
+    html += kv('上报人', esc(reporter));
+    html += kv('上报时间', esc(reportTime));
+    html += kv('整改方式', esc(row.method));
+    html += kv('整改期限', esc(row.deadline));
+    html += '<div class="detail-kv-item full"><div class="detail-kv-label">隐患图片：</div><div class="detail-kv-value"><div class="detail-thumbs">' + thumbHtml('hazard') + '</div></div></div>';
+    html += '</div></div>';
+
+    html += '<div class="detail-block"><div class="detail-section-title">隐患整改</div><div class="detail-kv">';
+    if (showReform) {
+      html += kv('整改人', esc(row.person));
+      html += kv('整改时间', esc(reformTime));
+      html += kv('整改描述', esc(reformDesc), true);
+      html += '<div class="detail-kv-item full"><div class="detail-kv-label">整改图片：</div><div class="detail-kv-value">' + photoThumbs(row.rectifyPhotos, 'detail-thumbs', 'reform') + '</div></div>';
+    } else {
+      html += kv('整改人', '-');
+      html += kv('整改时间', '-');
+      html += kv('整改描述', '-', true);
+      html += '<div class="detail-kv-item full"><div class="detail-kv-label">整改图片：</div><div class="detail-kv-value">-</div></div>';
+    }
+    html += '</div></div>';
+
+    html += '<div class="detail-block"><div class="detail-section-title">整改复核</div><div class="detail-kv">';
+    if (showReview) {
+      html += kv('审批结果', esc(approveResult || '-'));
+      if (closed) {
+        html += kv('整改完成时间', esc(row.closeTime || reviewTime));
+        html += kv('核实情况', esc(reviewResult), true);
+      } else if (rejected) {
+        html += kv('复核人', esc(reviewer));
+        html += kv('复核时间', esc(reviewTime));
+        html += kv('核实情况', esc(reviewResult), true);
+      } else {
+        html += kv('复核人', esc(reviewer));
+        html += kv('复核时间', esc(reviewTime));
+        html += kv('核实情况', esc(reviewResult), true);
+      }
+    } else {
+      html += kv('审批结果', '-');
+      html += kv('复核人', '-');
+      html += kv('复核时间', '-');
+      html += kv('核实情况', '-', true);
+    }
+    html += '</div></div>';
+
+    html += '</div><div class="detail-side"><div class="flow-title">流程记录</div><ul class="flow-list">';
+
+    function flowRow(label, valueHtml) {
+      return '<div class="flow-row"><div class="flow-row-label">' + esc(label) + '：</div><div class="flow-row-value">' + valueHtml + '</div></div>';
+    }
+
+    /* phase: done | current | pending；axisExtra（如 returned）作用圆点+标签色块，不改变内容卡样式 */
+    function flowNode(tagClass, tagText, phase, timeText, rowsHtml, axisExtra) {
+      var extra = axisExtra ? ' is-' + axisExtra : '';
+      var item = '<li class="flow-item is-' + phase + extra + '">';
+      item += '<div class="flow-head">';
+      item += '<span class="flow-dot ' + tagClass + ' is-' + phase + extra + '"></span>';
+      item += '<span class="flow-tag ' + tagClass + ' is-' + phase + extra + '">' + esc(tagText) + '</span>';
+      item += '<span class="flow-time">' + esc(timeText || '-') + '</span>';
+      item += '</div>';
+      item += '<div class="flow-body is-' + phase + ' ' + tagClass + '"><div class="flow-fields">' + rowsHtml + '</div></div>';
+      item += '</li>';
+      return item;
+    }
+
+    var dash = '-';
+    var closeTime = closed ? (row.closeTime || reviewTime) : dash;
+    var emptyReformRows =
+      flowRow('整改人', dash) +
+      flowRow('整改描述', dash) +
+      flowRow('整改图片', dash);
+    var emptyReviewRows =
+      flowRow('审批结果', dash) +
+      flowRow('核实情况', dash);
+
+    html += flowNode('report', '隐患上报', 'done', reportTime,
+      flowRow('上报人', esc(reporter)) +
+      flowRow('隐患描述', esc(row.desc))
+    );
+
+    /*
+     * 审批退回：上一轮整改/整改复核节点保留（复核已办结，非操作态）；
+     * 轴上 returned 仅标圆点/连线；自复核再流向新的空「隐患整改」。
+     */
+    if (rejected && !closed) {
+      html += flowNode('reform', '隐患整改', 'done', reformTime,
+        flowRow('整改人', esc(row.person)) +
+        flowRow('整改描述', esc(reformDesc)) +
+        flowRow('整改图片', photoThumbs(row.rectifyPhotos, 'flow-thumbs', 'reform'))
+      );
+      html += flowNode('review', '整改复核', 'done', reviewTime,
+        flowRow('审批结果', '退回') +
+        flowRow('复核人', esc(reviewer)) +
+        flowRow('核实情况', esc(reviewResult)),
+        'returned'
+      );
+      html += flowNode('reform', '隐患整改', 'current', dash, emptyReformRows);
+      html += flowNode('review', '整改复核', 'pending', dash, emptyReviewRows);
+      html += flowNode('close', '隐患销号', 'pending', dash,
+        flowRow('说明', dash)
+      );
+    } else {
+      var reformPhase;
+      var reviewPhase;
+      var closePhase = closed ? 'done' : 'pending';
+      if (closed) {
+        reformPhase = 'done';
+        reviewPhase = 'done';
+      } else if (status === '待验收') {
+        reformPhase = 'done';
+        reviewPhase = 'current';
+      } else if (status === '整改中' || status === '待整改' || status === '已逾期') {
+        reformPhase = 'current';
+        reviewPhase = 'pending';
+      } else {
+        reformPhase = 'pending';
+        reviewPhase = 'pending';
+      }
+
+      html += flowNode('reform', '隐患整改', reformPhase, showReform ? reformTime : dash,
+        flowRow('整改人', showReform ? esc(row.person) : dash) +
+        flowRow('整改描述', showReform ? esc(reformDesc) : dash) +
+        flowRow('整改图片', showReform ? photoThumbs(row.rectifyPhotos, 'flow-thumbs', 'reform') : dash)
+      );
+
+      var reviewRows;
+      if (closed) {
+        reviewRows =
+          flowRow('审批结果', '同意') +
+          flowRow('整改完成时间', esc(row.closeTime || reviewTime)) +
+          flowRow('核实情况', esc(reviewResult));
+      } else if (showReview) {
+        reviewRows =
+          flowRow('审批结果', dash) +
+          flowRow('复核人', esc(reviewer)) +
+          flowRow('核实情况', dash);
+      } else {
+        reviewRows = emptyReviewRows;
+      }
+
+      html += flowNode('review', '整改复核', reviewPhase, showReview || closed ? reviewTime : dash, reviewRows);
+
+      html += flowNode('close', '隐患销号', closePhase, closed ? closeTime : dash,
+        flowRow('说明', closed ? '隐患已闭环销号' : dash)
+      );
+    }
+
+    html += '</ul></div></div>';
+    return html;
+  }
+
+  function openDetail(id) {
+    var row = hazards.filter(function(item) { return item.id === id; })[0];
+    if (!row) return;
+    document.getElementById('detailBody').innerHTML = buildDetail(row);
+    document.getElementById('modal-hazard-detail').classList.add('show');
+  }
+
+  function closeDetail() {
+    document.getElementById('modal-hazard-detail').classList.remove('show');
+  }
+
+  function bind() {
+    document.getElementById('objectTree').addEventListener('click', function(event) {
+      var toggle = event.target.closest('[data-toggle]');
+      if (toggle) {
+        event.stopPropagation();
+        var toggled = findNode(toggle.getAttribute('data-toggle'));
+        toggled.open = toggled.open === false;
+        renderTree();
+        return;
+      }
+      var nodeEl = event.target.closest('.tree-node');
+      if (!nodeEl) return;
+      state.selectedId = nodeEl.getAttribute('data-id');
+      state.page = 1;
+      renderTree();
+      renderList();
+    });
+    document.getElementById('treeSearchInput').addEventListener('input', function(event) {
+      state.keyword = event.target.value;
+      renderTree();
+    });
+    document.getElementById('btnQuery').addEventListener('click', applyQuery);
+    document.getElementById('btnReset').addEventListener('click', resetQuery);
+    document.getElementById('recordTable').addEventListener('click', function(event) {
+      var viewBtn = event.target.closest('[data-view]');
+      if (viewBtn) { openDetail(viewBtn.getAttribute('data-view')); }
+    });
+    var nameBubble = document.getElementById('nameBubble');
+    var recordTable = document.getElementById('recordTable');
+    function hideNameBubble() { nameBubble.classList.remove('show'); }
+    function placeNameBubble(cell) {
+      nameBubble.textContent = cell.textContent;
+      nameBubble.classList.add('show');
+      var rect = cell.getBoundingClientRect();
+      nameBubble.style.left = rect.left + 'px';
+      nameBubble.style.top = (rect.bottom + 6) + 'px';
+      var bubbleRect = nameBubble.getBoundingClientRect();
+      if (bubbleRect.right > window.innerWidth - 8) {
+        nameBubble.style.left = Math.max(8, window.innerWidth - bubbleRect.width - 8) + 'px';
+      }
+      if (bubbleRect.bottom > window.innerHeight - 8) {
+        nameBubble.style.top = Math.max(8, rect.top - bubbleRect.height - 6) + 'px';
+      }
+    }
+    recordTable.addEventListener('mouseover', function(event) {
+      var clip = event.target.closest('.cell-clip');
+      if (!clip || clip.scrollWidth <= clip.clientWidth + 1) {
+        hideNameBubble();
+        return;
+      }
+      placeNameBubble(clip);
+    });
+    recordTable.addEventListener('mouseout', function(event) {
+      var clip = event.target.closest('.cell-clip');
+      if (!clip) return;
+      var next = event.relatedTarget && event.relatedTarget.closest ? event.relatedTarget.closest('.cell-clip') : null;
+      if (next !== clip) hideNameBubble();
+    });
+    recordTable.addEventListener('scroll', hideNameBubble);
+    document.getElementById('btnCloseDetail').addEventListener('click', closeDetail);
+    document.getElementById('btnFootClose').addEventListener('click', closeDetail);
+    document.getElementById('modal-hazard-detail').addEventListener('click', function(event) {
+      if (event.target.id === 'modal-hazard-detail') closeDetail();
+    });
+    document.addEventListener('keydown', function(event) {
+      if (event.key !== 'Escape') return;
+      closeDetail();
+    });
+    window.addEventListener('resize', syncTableScroll);
+  }
+
+  function keyplaceDomains() {
+    var list = [];
+    try {
+      var stored = localStorage.getItem('sa_domain_data');
+      if (stored) list = JSON.parse(stored);
+    } catch (err) {}
+    if (!list.length && typeof DOMAIN_TABLE_DATA !== 'undefined') list = DOMAIN_TABLE_DATA;
+    return (list || []).filter(function(domain) { return domain.mode === 'special' && String(domain.status) === '1'; });
+  }
+
+  /* 与检查记录 / 安全管控对象同源：挂入本企业关联的全部重点场所 */
+  function attachKeyplaces() {
+    if (typeof loadKeyPlaceData !== 'function' || typeof keyPlaceMatchesEnterprise !== 'function') return;
+    var list = [];
+    try {
+      var stored = localStorage.getItem('sa_domain_data');
+      if (stored) list = JSON.parse(stored);
+    } catch (err) {}
+    if (!list.length && typeof DOMAIN_TABLE_DATA !== 'undefined') list = DOMAIN_TABLE_DATA;
+    var store = loadKeyPlaceData(list);
+    var entName = root.name;
+    var statuses = ['待整改', '整改中', '待验收', '已整改', '已逾期'];
+    var foundAts = ['2026-10-27', '2026-10-22', '2026-10-18', '2026-10-11', '2026-09-28'];
+    var deadlines = ['2026-11-03', '2026-11-01', '2026-10-30', '2026-10-20', '2026-10-05'];
+    var seq = 0;
+    keyplaceDomains().forEach(function(domain) {
+      var places = (store[domain.id] || []).filter(function(place) {
+        return keyPlaceMatchesEnterprise(place, entName);
+      });
+      if (!places.length) return;
+      var group = { id: 'domain-' + domain.id, type: 'domain', name: domain.name, domainId: domain.id, children: [] };
+      places.forEach(function(place) {
+        group.children.push({ id: place.id, type: 'keyplace', name: place.place_name, domainId: domain.id });
+        var status = statuses[seq % statuses.length];
+        hazards.push({
+          id: 'hkp-' + place.id,
+          objectId: place.id,
+          objectName: place.place_name,
+          desc: place.place_name + '现场存在待闭环隐患',
+          hazardType: seq % 2 ? '设备设施' : '现场环境',
+          level: seq % 3 === 0 ? '重大隐患' : '一般隐患',
+          method: seq % 2 ? '限期整改' : '立即整改',
+          person: seq % 2 ? '王五' : '李四',
+          status: status,
+          overdue: status === '已逾期',
+          foundAt: foundAts[seq % foundAts.length],
+          deadline: deadlines[seq % deadlines.length],
+          source: seq % 2 ? '日常自查' : '政府检查'
+        });
+        seq += 1;
+      });
+      root.children.push(group);
+    });
+  }
+
+  function init() {
+    if (!projectMode) {
+      var profile = window.getEnterpriseProfile ? getEnterpriseProfile() : null;
+      if (profile && profile.name) root.name = profile.name;
+      hazards.forEach(function(row) {
+        if (row.objectId === 'enterprise') row.objectName = root.name;
+      });
+      attachKeyplaces();
+    }
+    indexNodes(root);
+    bind();
+    renderTree();
+    renderList();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

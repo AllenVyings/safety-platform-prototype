@@ -16,125 +16,243 @@
     .btn-danger:hover{background:var(--danger-light);border-color:var(--danger)}
 
 
-    /* ========== 筛选栏控件统一 ========== */
-    .filter-bar select,
-    .filter-bar input[type="text"] {
+    /* ========== 页面布局：对齐企业端隐患整改视觉（单栏：统计→筛选→列表） ========== */
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    .module-page.page-container[data-module="super-admin/domain-manage"] {
+      height: 100%;
+      min-height: 0;
+      box-sizing: border-box;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .module-page.page-container[data-module="super-admin/domain-manage"] > .stats-row,
+    .module-page.page-container[data-module="super-admin/domain-manage"] > .filter-card {
+      flex-shrink: 0;
+    }
+
+    /* 统计卡：白底阴影 + 左侧色条（对齐隐患整改） */
+    .stats-row {
+      display: flex;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .stat-card {
+      flex: 1;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      box-shadow: var(--shadow-card);
+      border: none;
+      min-height: 0;
+      cursor: pointer;
+    }
+    .stat-card:hover {
+      box-shadow: var(--shadow-card);
+      border-color: transparent;
+    }
+    .stat-card-body { flex: 1; display: block; }
+    .stat-label { font-size: var(--font-size-xs); color: var(--text-secondary); }
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 2px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .stat-value-success { color: var(--success); }
+    .stat-value-muted { color: var(--text-tertiary); }
+    .stat-indicator {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 0 2px 2px 0;
+    }
+    .stat-indicator-primary { background: var(--primary); }
+    .stat-indicator-success { background: var(--success); }
+    .stat-indicator-muted { background: var(--text-tertiary); }
+
+    /* 筛选栏：字段名全角冒号 + 控件 240×32 */
+    .filter-card {
+      flex-shrink: 0;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 16px 20px;
+    }
+    .filter-card .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 32px;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+    }
+    .filter-card .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+    .filter-card .filter-item label {
+      flex: 0 0 auto;
+      white-space: nowrap;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .filter-card .filter-bar select,
+    .filter-card .filter-bar input[type="text"] {
+      width: 240px;
+      flex: 0 0 240px;
       height: 32px;
       padding: 0 10px;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       font-size: var(--font-size-sm);
+      box-sizing: border-box;
       background: var(--bg-primary);
       color: var(--text-primary);
-      line-height: 32px;
       outline: none;
-      transition: border-color var(--duration-fast);
     }
-    .filter-bar select:focus,
-    .filter-bar input[type="text"]:focus {
+    .filter-card .filter-bar select { padding-right: 24px; }
+    .filter-card .filter-bar select:focus,
+    .filter-card .filter-bar input[type="text"]:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(22,119,255,0.1);
     }
-    .filter-bar select { width: 240px; padding-right: 24px; }
-    .filter-bar input[type="text"] { width: 240px; }
+    .filter-card .filter-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 0;
+    }
 
-    .table-wrap {
+    /* 列表卡：蓝竖条标题 + 白底阴影 */
+    .list-panel {
+      position: relative;
       flex: 1;
-      flex-shrink: 0;  /* §8.8 防止表格被 flex 压缩 */
+      min-width: 0;
       min-height: 0;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: none;
+    }
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+    .list-title {
+      font-size: var(--font-size-md);
+      font-weight: 600;
+      color: var(--text-primary);
+      padding-left: 12px;
+      border-left: 4px solid var(--primary);
+      line-height: 1.6;
+      margin: 0;
+    }
+    .list-toolbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .list-panel .table-wrap {
+      flex: 0 1 auto;
+      min-height: 0;
+      overflow-x: auto;
+      overflow-y: auto;
       box-shadow: none;
+      background: transparent;
+      border-radius: 0;
+      scrollbar-width: thin;
     }
-    .table-wrap table {
-      min-width: 980px;
+    .list-panel .table-wrap table {
+      width: 100%;
+      min-width: 100%;
+      table-layout: auto;
+      border-collapse: separate;
+      border-spacing: 0;
     }
-    .table-wrap td:not(.operation-col) {
+    .list-panel .table-wrap th,
+    .list-panel .table-wrap td {
+      box-sizing: border-box;
+      height: 48px;
+      padding: 0 20px;
+      vertical-align: middle;
+      text-align: left;
+    }
+    .list-panel .table-wrap td:not(.operation-col) {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      text-align: left;
     }
-    .table-wrap .domain-name {
-      min-width: 180px;
-      max-width: 260px;
+    .list-panel .table-wrap thead th {
+      position: sticky;
+      top: 0;
+      z-index: 12;
+      background: var(--bg-table-header);
     }
-    .table-wrap .domain-name-cell {
+    .list-panel .table-wrap thead th.col-check,
+    .list-panel .table-wrap thead th.col-index,
+    .list-panel .table-wrap thead th.operation-col {
+      z-index: 14;
+    }
+    .list-panel .table-wrap th.col-check,
+    .list-panel .table-wrap td.col-check {
+      left: 0;
+      width: 48px;
+      min-width: 48px;
+      max-width: 48px;
+      padding: 0 12px;
+      text-align: center;
+    }
+    .list-panel .table-wrap th.col-index,
+    .list-panel .table-wrap td.col-index {
+      left: 48px;
+      width: 64px;
+      min-width: 64px;
+      max-width: 64px;
+      padding: 0 12px;
+    }
+    .list-panel .table-wrap .domain-name {
+      min-width: 160px;
+    }
+    .list-panel .table-wrap .domain-name-cell {
       color: var(--primary);
       font-weight: 600;
       cursor: pointer;
     }
-
-    /* ========== 页面布局：占满视窗 ========== */
-    .page-container[data-module="super-admin/domain-manage"] {
-      min-height: 100vh;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-md);  /* §8.8 纵向卡片间距统一 16px */
-      overflow: hidden;
-      padding: 20px;  /* §8.8 页面边距统一 */
+    .list-panel .table-wrap th.operation-col,
+    .list-panel .table-wrap td.operation-col {
+      min-width: 160px;
+      padding: 0 20px;
     }
-    .page-container[data-module="super-admin/domain-manage"] > .stats-row,
-    .page-container[data-module="super-admin/domain-manage"] > .filter-bar,
-    .page-container[data-module="super-admin/domain-manage"] > .filter-card {
+    .list-panel .pagination {
       flex-shrink: 0;
-    }
-    /* §8.8 统计卡行内间距统一 */
-    .page-container[data-module="super-admin/domain-manage"] > .stats-row {
-      gap: var(--spacing-md);
-    }
-    /* §8.8 分页可见性 */
-    .table-card > .pagination {
-      flex-shrink: 0;
-    }
-    /* 表头左对齐 */
-    .table-wrap th {
-      text-align: left;
-    }
-
-    .table-card {
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md);
-      flex: 1;
-      overflow: hidden;
-      border: 1px solid var(--border-section);
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
-    .table-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: var(--spacing-md);
-      flex-shrink: 0;
-    }
-    .table-toolbar-title {
-      font-size: var(--font-size-sm);
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .table-toolbar-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    /* ========== 筛选栏卡片化（深圳港风格） ========== */
-    .filter-card {
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: var(--shadow-sm, var(--shadow-card));
-      flex-shrink: 0;
-    }
-    .filter-card .filter-bar {
-      margin-bottom: 0;
+      margin-top: auto;
+      padding: 16px 0 0;
       background: transparent;
-      padding: 0;
-      border: none;
-      border-radius: 0;
+      border-top: none;
     }
-
     /* ========== 标签样式 ========== */
     .tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500; }
     .tag-green { background: var(--success-light); color: var(--success); }
@@ -2140,29 +2258,29 @@
 <body>
   <script src="../../js/domain-data.js"></script>
   <script src="../../js/pagination.js"></script>
-  <div class="page-container" data-module="super-admin/domain-manage">
-    <!-- 统计卡片 -->
-    <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+  <div class="module-page page-container" data-module="super-admin/domain-manage">
+    <!-- 统计卡片（在查询字段上方） -->
+    <div class="stats-row">
       <div class="stat-card" onclick="filterByStatus('')">
         <div class="stat-card-body">
           <div class="stat-label">领域总数</div>
           <div class="stat-value" id="totalCount">24</div>
         </div>
-        <div class="stat-indicator" style="background: var(--primary);"></div>
+        <div class="stat-indicator stat-indicator-primary"></div>
       </div>
       <div class="stat-card" onclick="filterByStatus('1')">
         <div class="stat-card-body">
           <div class="stat-label">启用中</div>
-          <div class="stat-value" id="enabledCount">23</div>
+          <div class="stat-value stat-value-success" id="enabledCount">23</div>
         </div>
-        <div class="stat-indicator" style="background: var(--success);"></div>
+        <div class="stat-indicator stat-indicator-success"></div>
       </div>
       <div class="stat-card" onclick="filterByStatus('0')">
         <div class="stat-card-body">
           <div class="stat-label">停用中</div>
-          <div class="stat-value" id="disabledCount">1</div>
+          <div class="stat-value stat-value-muted" id="disabledCount">1</div>
         </div>
-        <div class="stat-indicator" style="background: var(--text-tertiary);"></div>
+        <div class="stat-indicator stat-indicator-muted"></div>
       </div>
     </div>
 
@@ -2194,17 +2312,19 @@
           <label>关键词：</label>
           <input type="text" id="filterKeyword" placeholder="搜索领域名称、编码">
         </div>
-        <button class="btn btn-primary" onclick="filterTable()">查询</button>
-        <button class="btn btn-default" onclick="resetFilter()">重置</button>
+        <div class="filter-actions">
+          <button class="btn btn-primary" onclick="filterTable()">查询</button>
+          <button class="btn btn-default" onclick="resetFilter()">重置</button>
+        </div>
       </div>
     </div>
 
     <!-- 数据表格 -->
-    <div class="table-card">
-      <div class="table-toolbar">
-        <span class="table-toolbar-title">领域小类列表</span>
-        <div class="table-toolbar-actions">
-          <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 新增领域小类</button>
+    <div class="list-panel">
+      <div class="list-toolbar">
+        <div class="list-title">领域小类列表</div>
+        <div class="list-toolbar-actions">
+          <button class="btn btn-primary" onclick="showAddModal()">+ 新增领域小类</button>
         </div>
       </div>
       <div class="table-wrap">

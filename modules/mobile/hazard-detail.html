@@ -34,12 +34,85 @@
     .rectify-action .m-btn { padding: var(--wc-gap-md) var(--wc-page-padding); font-size: 13px; width: auto; display: inline-block; }
     .m-btn-primary { background: var(--brand-blue); }
     .m-btn-primary:active { background: var(--brand-blue-active); }
+
+    /* ========== 填写整改抽屉 ========== */
+    .hd-drawer-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 50; }
+    .hd-drawer-mask.show { display: block; }
+    .hd-drawer {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 51; background: var(--wc-card-bg);
+      border-radius: var(--wc-radius-lg) var(--wc-radius-lg) 0 0; max-height: 88vh;
+      transform: translateY(100%); transition: transform 0.28s ease; display: flex; flex-direction: column;
+    }
+    .hd-drawer.show { transform: translateY(0); }
+    .hd-drawer-header {
+      padding: var(--wc-page-padding); display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 0.5px solid var(--wc-track-bg); flex-shrink: 0;
+    }
+    .hd-drawer-title { font-size: var(--wc-font-title); font-weight: 600; color: var(--wc-text-primary); }
+    .hd-drawer-close {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--wc-bg-gray);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; color: var(--wc-text-placeholder); border: none; cursor: pointer;
+    }
+    .hd-drawer-body { padding: var(--wc-page-padding); overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+    .hd-field { margin-bottom: 14px; }
+    .hd-field-label { font-size: 13px; color: var(--wc-text-tertiary); margin-bottom: 6px; }
+    .hd-field-label .req { color: var(--code-red); margin-right: 2px; }
+    .hd-textarea {
+      width: 100%; height: 72px; border: 1px solid var(--wc-divider); border-radius: var(--wc-btn-radius);
+      padding: 10px; font-size: 13px; resize: none; box-sizing: border-box; outline: none; font-family: inherit;
+      color: var(--wc-text-primary); background: var(--wc-card-bg);
+    }
+    .hd-textarea.hd-h2 { height: 52px; }
+    .hd-input {
+      width: 100%; height: 36px; border: 1px solid var(--wc-divider); border-radius: var(--wc-btn-radius);
+      padding: 0 10px; font-size: 13px; box-sizing: border-box; outline: none; font-family: inherit;
+      color: var(--wc-text-primary); background: var(--wc-card-bg);
+    }
+    .hd-textarea:focus, .hd-input:focus { border-color: var(--brand-blue); }
+    .hd-error { display: none; font-size: 12px; color: var(--code-red); margin-top: 4px; }
+    .hd-field.has-error .hd-textarea, .hd-field.has-error .hd-input { border-color: var(--code-red); }
+    .hd-field.has-error .hd-error { display: block; }
+    .hd-photos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .hd-photo {
+      position: relative; width: 64px; height: 64px; border-radius: 6px; overflow: hidden;
+      border: 1px solid var(--wc-divider); background: var(--wc-track-bg);
+    }
+    .hd-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hd-photo-del {
+      position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border: none;
+      border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff; font-size: 12px;
+      line-height: 18px; padding: 0; cursor: pointer;
+    }
+    .hd-photo-add {
+      width: 64px; height: 64px; border: 1px dashed var(--wc-divider); border-radius: 6px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; color: var(--wc-text-placeholder); font-size: 11px; background: #fafafa; cursor: pointer;
+    }
+    .hd-drawer-footer {
+      padding: var(--wc-gap-xl) var(--wc-page-padding); border-top: 0.5px solid var(--wc-track-bg);
+      flex-shrink: 0; display: flex; gap: var(--wc-gap-lg);
+    }
+    .hd-btn-cancel {
+      flex: 1; padding: var(--wc-gap-xl) 0; border-radius: var(--wc-btn-radius); font-size: 14px;
+      background: var(--wc-card-bg); color: var(--wc-text-tertiary); border: 1px solid var(--wc-divider); cursor: pointer;
+    }
+    .hd-btn-confirm {
+      flex: 2; padding: var(--wc-gap-xl) 0; border-radius: var(--wc-btn-radius); font-size: 14px;
+      font-weight: 500; background: var(--brand-blue); color: var(--wc-card-bg); border: none; cursor: pointer;
+    }
+    .hd-btn-confirm:active { background: var(--brand-blue-active); }
+    .rectify-status.review { background: var(--primary-light); color: var(--primary); }
+    .rectify-submitted {
+      margin-top: var(--wc-gap-lg); padding: 10px 12px; border-radius: 6px;
+      background: var(--primary-light); color: var(--primary); font-size: 13px; text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="m-page">
     <!-- 基本信息卡片 -->
-    <div class="m-card">
+    <div class="m-card" id="hazardInfoCard">
       <div class="m-card-title">隐患信息</div>
       <div class="info-row">
         <span class="info-label">隐患编号</span>
@@ -80,7 +153,7 @@
     </div>
 
     <!-- 隐患生命周期 -->
-    <div class="m-card">
+    <div class="m-card" id="hazardTimeline">
       <div class="m-card-title">处理时间线</div>
       <div class="timeline">
         <div class="tl-item">
@@ -105,22 +178,22 @@
         </div>
         <div class="tl-item">
           <div class="tl-dot-col">
-            <div class="tl-dot active"></div>
+            <div class="tl-dot active" id="tlReformDot"></div>
             <div class="tl-line"></div>
           </div>
           <div class="tl-content">
             <div class="tl-title">整改中</div>
-            <div class="tl-time" style="color:var(--primary);">进行中 · 王操作</div>
+            <div class="tl-time" id="tlReformTime" style="color:var(--primary);">进行中 · 王操作</div>
           </div>
         </div>
         <div class="tl-item">
           <div class="tl-dot-col">
-            <div class="tl-dot"></div>
+            <div class="tl-dot" id="tlDoneDot"></div>
             <div class="tl-line"></div>
           </div>
           <div class="tl-content">
-            <div class="tl-title pending">整改完成</div>
-            <div class="tl-time" style="color:var(--wc-text-pending);">待处理</div>
+            <div class="tl-title pending" id="tlDoneTitle">整改完成</div>
+            <div class="tl-time" id="tlDoneTime" style="color:var(--wc-text-pending);">待处理</div>
           </div>
         </div>
         <div class="tl-item">
@@ -136,15 +209,15 @@
     </div>
 
     <!-- 整改信息 -->
-    <div class="m-card">
+    <div class="m-card" id="rectifyCard">
       <div class="section-label">整改</div>
       <div class="rectify-card">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <span style="font-size:14px;color:var(--wc-text-primary);">整改状态</span>
-          <span class="rectify-status pending">● 整改中</span>
+          <span class="rectify-status pending" id="rectifyStatusText">● 整改中</span>
         </div>
-        <div class="rectify-action">
-          <button class="m-btn m-btn-primary" onclick="handleRectify()">填写整改</button>
+        <div class="rectify-action" id="rectifyAction">
+          <button class="m-btn m-btn-primary" type="button" onclick="openRectify()">填写整改</button>
         </div>
       </div>
     </div>
@@ -177,11 +250,153 @@
     <div style="height:20px;"></div>
   </div>
 
-  <script>
+  <!-- 填写整改抽屉（整改操作在移动端进行） -->
+  <div class="hd-drawer-mask" id="rectifyMask" onclick="closeRectify()"></div>
+  <div class="hd-drawer" id="rectifyDrawer">
+    <div class="hd-drawer-header">
+      <div class="hd-drawer-title">填写整改</div>
+      <button class="hd-drawer-close" type="button" onclick="closeRectify()">✕</button>
+    </div>
+    <div class="hd-drawer-body">
+      <div class="hd-field" data-field="measure">
+        <div class="hd-field-label"><span class="req">*</span>整改措施</div>
+        <textarea class="hd-textarea" id="rectifyMeasure" placeholder="请输入整改措施"></textarea>
+        <div class="hd-error">请输入整改措施</div>
+      </div>
+      <div class="hd-field" data-field="result">
+        <div class="hd-field-label"><span class="req">*</span>整改结果</div>
+        <textarea class="hd-textarea" id="rectifyResult" placeholder="请输入整改结果"></textarea>
+        <div class="hd-error">请输入整改结果</div>
+      </div>
+      <div class="hd-field" data-field="date">
+        <div class="hd-field-label"><span class="req">*</span>整改完成日期</div>
+        <input class="hd-input" type="date" id="rectifyDate">
+        <div class="hd-error">请选择整改完成日期</div>
+      </div>
+      <div class="hd-field">
+        <div class="hd-field-label">整改照片（最多 5 张）</div>
+        <div class="hd-photos" id="rectifyPhotos"></div>
+      </div>
+      <div class="hd-field">
+        <div class="hd-field-label">备注说明</div>
+        <textarea class="hd-textarea hd-h2" id="rectifyRemark" placeholder="选填"></textarea>
+      </div>
+    </div>
+    <div class="hd-drawer-footer">
+      <button class="hd-btn-cancel" type="button" onclick="closeRectify()">取消</button>
+      <button class="hd-btn-confirm" type="button" onclick="submitRectify()">提交整改</button>
+    </div>
+  </div>
+  <input type="file" id="rectifyPhotoInput" accept="image/jpeg,image/png,image/webp" multiple style="display:none">
 
-// showToast 已统一到 mobile-session.js 全局函数
-    function handleRectify() {
-      showToast('打开整改提交页面（原型演示）', 'info');
+  <script>
+    /* ========== 填写整改（整改操作在移动端进行，§6.5） ========== */
+    var rectifyPhotoList = [];
+    var MAX_RECTIFY_PHOTOS = 5;
+    var RECTIFY_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+    var RECTIFY_PHOTO_MAX_SIZE = 5 * 1024 * 1024;
+
+    function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function todayValue() {
+      var d = new Date();
+      return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    }
+
+    function nowText() {
+      var d = new Date();
+      return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' +
+        pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    }
+
+    function openRectify() {
+      document.getElementById('rectifyMask').classList.add('show');
+      document.getElementById('rectifyDrawer').classList.add('show');
+      if (!document.getElementById('rectifyDate').value) {
+        document.getElementById('rectifyDate').value = todayValue();
+      }
+      renderRectifyPhotos();
+    }
+
+    function closeRectify() {
+      document.getElementById('rectifyMask').classList.remove('show');
+      document.getElementById('rectifyDrawer').classList.remove('show');
+    }
+
+    function renderRectifyPhotos() {
+      var html = '';
+      rectifyPhotoList.forEach(function(src, i) {
+        html += '<div class="hd-photo"><img src="' + src + '" alt=""><button class="hd-photo-del" type="button" onclick="removeRectifyPhoto(' + i + ')">×</button></div>';
+      });
+      if (rectifyPhotoList.length < MAX_RECTIFY_PHOTOS) {
+        html += '<div class="hd-photo-add" onclick="document.getElementById(\'rectifyPhotoInput\').click()">+<span>上传</span></div>';
+      }
+      document.getElementById('rectifyPhotos').innerHTML = html;
+    }
+
+    function removeRectifyPhoto(index) {
+      rectifyPhotoList.splice(index, 1);
+      renderRectifyPhotos();
+    }
+
+    document.getElementById('rectifyPhotoInput').addEventListener('change', function(event) {
+      var files = event.target.files || [];
+      var rejected = 0;
+      Array.prototype.forEach.call(files, function(file) {
+        if (rectifyPhotoList.length >= MAX_RECTIFY_PHOTOS) { rejected += 1; return; }
+        if (RECTIFY_PHOTO_TYPES.indexOf(file.type) < 0) { rejected += 1; return; }
+        if (file.size > RECTIFY_PHOTO_MAX_SIZE) { rejected += 1; return; }
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+          if (rectifyPhotoList.length >= MAX_RECTIFY_PHOTOS) { rejected += 1; return; }
+          rectifyPhotoList.push(String(ev.target.result));
+          renderRectifyPhotos();
+          if (rejected) showToast(rejected + ' 张图片未通过校验', 'warning');
+        };
+        reader.readAsDataURL(file);
+      });
+      if (rejected && !files.length) showToast('图片未通过校验', 'warning');
+      event.target.value = '';
+    });
+
+    function setFieldError(field, on) {
+      field.classList.toggle('has-error', !!on);
+    }
+
+    function submitRectify() {
+      var measureEl = document.getElementById('rectifyMeasure');
+      var resultEl = document.getElementById('rectifyResult');
+      var dateEl = document.getElementById('rectifyDate');
+      var measure = measureEl.value.trim();
+      var result = resultEl.value.trim();
+      var date = dateEl.value;
+      var ok = true;
+      setFieldError(measureEl.closest('.hd-field'), !measure);
+      if (!measure) ok = false;
+      setFieldError(resultEl.closest('.hd-field'), !result);
+      if (!result) ok = false;
+      setFieldError(dateEl.closest('.hd-field'), !date);
+      if (!date) ok = false;
+      if (!ok) return;
+
+      /* BR-ENT-HF-03：提交后流转「待验收」，逾期标记清除 */
+      var statusEl = document.getElementById('rectifyStatusText');
+      statusEl.textContent = '● 待验收';
+      statusEl.className = 'rectify-status review';
+      document.getElementById('rectifyAction').innerHTML =
+        '<div class="rectify-submitted">整改已提交，等待复核人验收</div>';
+
+      /* 时间线：整改中→已完成，整改完成→当前 */
+      document.getElementById('tlReformDot').className = 'tl-dot done';
+      document.getElementById('tlReformTime').textContent = '已完成 · 王操作';
+      document.getElementById('tlReformTime').style.color = 'var(--wc-text-placeholder)';
+      document.getElementById('tlDoneDot').className = 'tl-dot active';
+      document.getElementById('tlDoneTitle').className = 'tl-title';
+      document.getElementById('tlDoneTime').textContent = nowText();
+      document.getElementById('tlDoneTime').style.color = 'var(--primary)';
+
+      closeRectify();
+      showToast('整改已提交，等待复核人验收', 'success');
     }
   </script>
 <script src="../../js/mobile-session.js"></script>

@@ -2,8 +2,16 @@
   "_meta": {
     "version": "1.2",
     "description": "原型模块注册表：追踪 PRD 章节与 HTML 模块的对应关系、标注状态和完成度。由 align-prd / prototype-annotation / module-dev 技能自动读取。",
-    "lastUpdated": "2026-08-01",
+    "lastUpdated": "2026-11-06",
     "changeLog": [
+      {
+        "date": "2026-11-06",
+        "action": "隐患整改操作迁移至移动端（PRD V7.0.192）：enterprise/hazard-reform 撤销填写整改/申请验收（操作列仅「查看」，删除两个弹窗与相关 JS/CSS，标注 ent-hr-004 改为 PC 仅查看、移除 ent-hr-005/006）；mobile/hazard-detail 补全填写整改抽屉（措施/结果/日期必填、照片≤5 张，提交后状态→待验收、时间线推进），标注 m-hd-001~004 重写（选择器对齐实际结构），prd 改为 §6.5.11。"
+      },
+      {
+        "date": "2026-11-06",
+        "action": "隐患整改（企业端基础模式）填写整改/申请验收开通（PRD V7.0.191）：新增 enterprise/hazard-reform 注册条目（§6.3.7，aligned，标注 ent-hr-001~007）；操作列按状态渲染；新增 600px 填写整改/申请验收弹窗与状态流转；enterprise/hazard-fix 改为项目模式占位（placeholder）。"
+      },
       {
         "date": "2026-08-01",
         "action": "系统配置 §6.1.10.2/4/5/6/7/8/9 PRD 补写完成（V7.0.46）：补写菜单管理/字典管理/参数设置/日历管理/操作日志/登录日志/区域管理 7 节，新增 44 条业务规则（BR-MENU/DICT/CFG/CAL/LOG/SESS/AREA-*）；更新 super-admin/menu-manage, dict-manage, param-setting, calendar-manage, operation-log, login-log, area-manage 的 prd 字段从'待新建'指向 §6.1.10 对应章节，status 从 placeholder 改为 prd-complete"
@@ -215,11 +223,17 @@
       "status": "aligned",
       "note": "企业端基础模式安全管控对象（注意：filename 为 hazard-list，与隐患库无关）。2026-10-27 按 PRD V7.0.64 修正口径：统计卡改为企业码/场所码/危险源码三张（原含项目码+区域），树根改企业码、移除区域层与相关视图/弹窗，场所与危险源表单去掉「所属区域」；企业视图改为复用 ent-info「企业基本信息」基础信息卡片设计（detail-card.card-bg + info-row 120px 标签列 + supervisor-table 监管单位），字段与企业基本信息详情页完全一致且只读。2026-10-27 按 PRD V7.0.65 补充右侧交互口径：右侧详情面板扁平化（去外层白卡）、移除标题栏与视图 Tab，视图切换由左树选中驱动；载入默认选中企业码根节点并展示企业视图，空状态仅兜底（对应 BR-ENT-OBJ-10/11）。2026-10-28 修复核查缺陷：5 个场所和 2 个危险源详情按节点绑定示例数据；补标注 ent-hl-001~007；重点场所增加新增/编辑入口；检查表三种来源按钮只放在新增场所、新增危险源弹窗，详情页不放。企业码扫码配置的「编辑」为蓝色主按钮。L1 无障碍、L2 备份文件未动。2026-10-28 合入扫码配置角色区：调度分拨员、隐患复核责任人带说明图标；隐患复核责任人每人一行。PRD V7.0.73。2026-10-29 后续 V7.0.74~98：检查项下加检查内容行、扫码责任人选人面板（部门/个人互斥、读全量组织架构 sa_enterprise_org）、推荐检查表按项勾选+默认收起+手输名称保留、回显框单行收纳 +N、滚动条滚动时显示；新增场所改右侧表单（不用弹窗，无专属检查表/监管单位）；新增场所责任人改两栏选人面板（当前企业根节点，停用隐藏，V7.0.92/93/96）；新增检查表扫码责任人数据对齐企业用户与组织架构（SCAN_USERS 改用 ENT_USERS，V7.0.97）；存量场所/危险源/重点场所示例数据对齐当前企业（李四/王五+天道医药，政府行赵六保留，V7.0.98）。V7.0.99~101：场所码详情按样例对齐（标签：值、图片有无、扫码列）；底纹统一 100% 200px + scrollbar-gutter:stable；危险源新增废弹窗→右侧表单（是否关联场所/所属场所，无监管单位），详情与新增同构（去二维码/危险源码/专属检查表），编辑回填；场所/危险源新增检查表复用企业码自定义配置弹窗。V7.0.102：重点场所详情浮动三卡（基础信息只读、隐患配置、扫码配置新列；去二维码/场所码编号；政府行只读企业行可编删）。V7.0.103：扫码非编辑隐藏「+新增检查表」；末卡 #keyplaceScanCard flex 拉高与左树底对齐（勿用 :last-child，标注层会插尾）。V7.0.104：编辑入口在隐患配置；编辑态可改隐患整改人；扫码新增在标题下、确认/关闭居中表底。PRD 当前 V7.0.104。"
     },
-    "enterprise/hazard-fix": {
+    "enterprise/hazard-reform": {
       "prd": "§6.3.7 隐患整改管理（企业端）",
       "annotations": "complete",
       "status": "aligned",
-      "note": "隐患整改（已对齐 PRD V7.0：HD 编号、一般/重大隐患等级、待验收/已整改/已逾期状态、整改/验收/闭环时间轴、验收申请字段）。2026-10-22 补齐 9 条标注 ent-hf-001~009（统计卡/筛选栏/列表/时间轴/操作按钮/填写整改/申请验收/详情/上报弹窗），语法验证通过。"
+      "note": "隐患整改（基础模式，enterprise/hazard-reform.html）。左树右表与 §6.3.5/§6.3.6 同构；对象树全量含重点场所；统计卡 4 张随树与筛选变化；筛选 4 字段；列表 8 列行高 48px。2026-11-06 V7.0.192 按产品口径调整：**PC 端仅查看，不提供整改操作**；操作列固定「查看」，已删除填写整改/申请验收两个弹窗及相关 JS/CSS。整改操作迁移至移动端隐患详情（mobile/hazard-detail.html，PRD §6.5.11）。标注 ent-hr-001~004/007。上报隐患、行内时间轴未开通。"
+    },
+    "enterprise/hazard-fix": {
+      "prd": "§6.3.7 隐患整改管理（企业端）- 项目模式占位",
+      "annotations": "none",
+      "status": "placeholder",
+      "note": "旧版隐患整改页（2026-08-12 遗存）。基础模式已由 enterprise/hazard-reform.html 取代；项目模式菜单 ent-hazard-fix 仍 disabled+开发中，页面为占位。原 ent-hf-001~009 标注为旧页描述，已随新页废弃。"
     },
     "enterprise/check-records": {
       "prd": "§6.3.6 检查记录管理（企业端）",
@@ -645,10 +659,10 @@
       "note": "移动端 PRD V7.0 对齐完成：术语统一（主要负责人/安全管理人员/从业人员、待整改、企业码/场所码/危险源码/重点场所码），码色配色对齐（green/yellow/red/blue/orange），状态色对齐（待整改=red、整改中=orange、已整改=green、待验收=blue）；config/annotations.js 已写入 21 模块标注；2026-06-30 HIGH 差异全部修复；2026-07-01 MEDIUM/LOW 差异修复（术语/配色/字段名/任务编号/隐患编号格式/复核意见/已超期卡/期限默认等）"
     },
     "mobile/hazard-detail": {
-      "prd": "§6.2.5 隐患记录管理",
+      "prd": "§6.5.11 隐患详情与填写整改",
       "annotations": "complete",
       "status": "aligned",
-      "note": "移动端 PRD V7.0 对齐完成：术语统一（主要负责人/安全管理人员/从业人员、待整改、企业码/场所码/危险源码/重点场所码），码色配色对齐（green/yellow/red/blue/orange），状态色对齐（待整改=red、整改中=orange、已整改=green、待验收=blue）；config/annotations.js 已写入 21 模块标注；2026-06-30 HIGH 差异全部修复；2026-07-01 MEDIUM/LOW 差异修复（术语/配色/字段名/任务编号/隐患编号格式/复核意见/已超期卡/期限默认等）"
+      "note": "移动端隐患详情（modules/mobile/hazard-detail.html），承接隐患整改操作。2026-11-06 V7.0.192：将原占位「填写整改」按钮补全为底部抽屉真实提交——整改措施/整改结果/整改完成日期必填（日期默认当天）、整改照片≤5 张(JPG/PNG/WEBP≤5MB)、备注选填；提交后状态「整改中」→「待验收」，按钮区替换为「整改已提交，等待复核人验收」，时间线「整改中」转 done、「整改完成」转当前，Toast 提示。PC 端不提供整改入口。标注 m-hd-001~004（选择器对齐 #hazardInfoCard/#hazardTimeline/#rectifyCard/#rectifyDrawer）。申请验收本期未开通。"
     },
     "mobile/hazard-stats": {
       "prd": "§6.2.5 隐患记录管理",
