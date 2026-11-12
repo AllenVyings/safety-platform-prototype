@@ -73,7 +73,7 @@ html,body{height:100%;margin:0;overflow:hidden}
 .list-panel .table-wrap td.col-desc{width:240px;min-width:240px;max-width:240px}
 .list-panel .table-wrap td.col-desc .cell-clip{display:block;width:200px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .list-panel .table-wrap th.operation-col,
-.list-panel .table-wrap td.operation-col{min-width:100px;padding:0 28px}
+.list-panel .table-wrap td.operation-col{min-width:120px;padding:0 28px}
 .list-panel .table-wrap td.empty-row{height:auto;max-width:none;text-align:center;color:var(--text-tertiary);padding:40px 12px}
 .list-panel .pagination{flex-shrink:0;margin-top:auto;padding:16px 0 0;background:transparent;border-top:none}
 .tag-pending{background:#fff1f0;color:#ff4d4f}
@@ -156,6 +156,117 @@ html,body{height:100%;margin:0;overflow:hidden}
 .flow-row-value{color:#1f1f1f;font-size:13px;font-weight:400;word-break:break-word}
 .flow-thumbs{display:flex;flex-wrap:wrap;gap:6px}
 .flow-thumbs .detail-thumb{width:64px;height:64px}
+/* 任务流转弹窗（§6.3.7.3.10） */
+.modal-overlay#modal-hazard-transfer{z-index:1100}
+.modal-dialog.transfer-dialog{width:640px;max-width:calc(100vw - 48px);max-height:86vh;display:flex;flex-direction:column;overflow:hidden;background:#fff;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.transfer-dialog .modal-body{padding:20px 24px;overflow:auto;flex:1;min-height:0}
+.transfer-dialog .modal-foot{flex-shrink:0;padding:12px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:12px;background:#fff}
+.tf-field{margin-bottom:16px}
+.tf-field:last-child{margin-bottom:0}
+.tf-label{display:block;font-size:13px;font-weight:600;color:#1f1f1f;margin-bottom:6px}
+.tf-label .req{color:#ff4d4f;margin-right:2px}
+.tf-static{font-size:14px;color:#1f1f1f;line-height:1.6;word-break:break-word}
+.transfer-dialog select{width:100%;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box;background:var(--bg-primary);outline:none}
+.transfer-dialog select:focus{border-color:var(--primary)}
+.transfer-dialog select:disabled{background:var(--bg-section-alt);color:var(--text-tertiary);cursor:not-allowed}
+.transfer-dialog textarea{width:100%;height:80px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box;resize:vertical;outline:none;font-family:inherit}
+.transfer-dialog textarea:focus{border-color:var(--primary)}
+.tf-tip{font-size:12px;color:var(--text-tertiary);margin-top:4px}
+.tf-count{font-size:12px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+/* 选人组件：对齐安全管控对象管理（hazard-list）check-person-* 同款 */
+.check-person-select{position:relative}
+.check-person-trigger{height:32px;display:flex;align-items:center;gap:8px;padding:2px 8px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;background:var(--bg-primary);font-size:var(--font-size-sm);box-sizing:border-box}
+.check-person-trigger:hover{border-color:var(--primary)}
+.check-person-trigger.disabled{background:var(--bg-section-alt);color:var(--text-tertiary);cursor:not-allowed}
+.check-person-trigger.disabled:hover{border-color:var(--border)}
+.check-person-placeholder{color:var(--text-placeholder)}
+.check-person-caret{color:var(--text-tertiary);font-size:12px;flex-shrink:0}
+.check-person-tags{display:flex;flex-wrap:nowrap;gap:4px;flex:1;min-width:0;overflow:hidden}
+.check-person-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--radius-sm);font-size:var(--font-size-xs);background:var(--primary-light);color:var(--primary);flex-shrink:0;max-width:160px;overflow:hidden;white-space:nowrap}
+.check-person-tag .tag-x{cursor:pointer;font-weight:700}
+.check-person-tag .tag-x:hover{color:var(--danger)}
+/* 面板在弹窗内原位展开（文档流），下方字段随之下移，不遮挡表单 */
+.check-person-panel{display:none;width:100%;margin-top:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-card);box-sizing:border-box}
+.check-person-panel.open{display:block}
+.check-person-cols{display:flex;height:280px}
+.check-person-left{width:220px;flex-shrink:0;border-right:1px solid var(--border-light);display:flex;flex-direction:column}
+.check-person-search{margin:8px;padding:0 10px;height:30px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-xs);outline:none;box-sizing:border-box}
+.check-person-tree{flex:1;overflow-y:auto;padding:4px 0}
+.check-person-dept{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:var(--font-size-sm)}
+.check-person-dept:hover{background:var(--bg-section)}
+.check-person-dept.active{background:var(--primary-light);color:var(--primary)}
+.check-person-dept .dept-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.check-person-dept .dept-count{margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary);flex-shrink:0}
+.check-person-dept input,.check-person-user input{accent-color:var(--primary);flex-shrink:0}
+.check-person-right{flex:1;display:flex;flex-direction:column;min-width:0}
+.check-person-right-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border-light);font-size:var(--font-size-sm)}
+.check-person-right-title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.check-person-users{flex:1;overflow-y:auto}
+.check-person-user{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:var(--font-size-sm);cursor:pointer}
+.check-person-user:hover{background:var(--bg-section)}
+.check-person-user.disabled{color:var(--text-tertiary);cursor:default}
+.check-person-user.disabled:hover{background:none}
+.check-person-user .user-phone{margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+/* 列表标题行：标题与批量导出按钮同行 */
+.list-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.list-head-left{flex:1;min-width:0}
+.list-head-actions{display:flex;gap:8px;flex-shrink:0}
+.list-head .btn{flex-shrink:0;display:inline-flex;align-items:center;gap:6px}
+.list-head .btn svg{width:14px;height:14px}
+.task-badge{display:none;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--danger);color:#fff;font-size:11px;line-height:16px;text-align:center;box-sizing:border-box}
+.task-badge.show{display:inline-block}
+/* 导出设置弹窗（§6.3.7.3.11） */
+.modal-overlay#modal-hazard-export{z-index:1150}
+.modal-dialog.export-dialog{width:600px;max-width:calc(100vw - 48px);max-height:86vh;display:flex;flex-direction:column;overflow:hidden;background:#fff;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.export-dialog .modal-body{padding:20px 24px;overflow:auto;flex:1;min-height:0}
+.export-dialog .modal-foot{flex-shrink:0;padding:12px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:12px;background:#fff}
+.ex-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}
+.ex-grid select{width:100%;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box;background:var(--bg-primary);outline:none}
+.ex-grid select:focus{border-color:var(--primary)}
+.ex-switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;height:32px}
+.ex-switch input{display:none}
+.ex-slider{width:36px;height:20px;border-radius:10px;background:#d9d9d9;position:relative;transition:background .2s;flex-shrink:0}
+.ex-slider::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.ex-switch input:checked + .ex-slider{background:var(--primary)}
+.ex-switch input:checked + .ex-slider::after{left:18px}
+.ex-switch-text{font-size:var(--font-size-sm);color:var(--text-secondary)}
+/* 数据范围信息条：只读上下文，与可编辑控件区分 */
+.ex-scope{background:var(--bg-section-alt);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:18px}
+.ex-scope-label{font-size:var(--font-size-xs);color:var(--text-tertiary);margin-bottom:4px}
+.ex-scope-value{font-size:var(--font-size-sm);color:var(--text-primary);line-height:1.6;word-break:break-word}
+.ex-scope-count{font-size:var(--font-size-sm);color:var(--text-secondary);margin-top:6px}
+.ex-scope-count b{color:var(--primary);font-size:18px;font-weight:700;padding:0 2px}
+.ex-section-title{font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary);padding-left:10px;border-left:3px solid var(--primary);line-height:1.4;margin:0 0 12px}
+.ex-grid .tf-field{margin-bottom:12px}
+/* 照片开关独立整行，避免与下拉网格高度失衡 */
+.ex-photo-row{display:flex;align-items:center;gap:12px;border-top:1px solid var(--border-light);margin-top:6px;padding-top:14px}
+.ex-photo-row .tf-label{margin-bottom:0}
+.ex-photo-tip{margin-left:auto;font-size:var(--font-size-xs);color:var(--text-tertiary)}
+/* 导出记录任务中心：批量导出内嵌顶部，列表固定列宽、文件名省略 */
+.modal-overlay#modal-export-tasks{z-index:1100}
+.modal-overlay#modal-task-delete{z-index:1200}
+#modal-export-tasks .modal-dialog{width:760px}
+.ex-task-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:14px}
+.ex-task-table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm);table-layout:fixed}
+.ex-task-table th{background:var(--bg-table-header);text-align:left;padding:10px 12px;font-weight:600;color:var(--text-primary);white-space:nowrap}
+.ex-task-table td{padding:12px;border-bottom:1px solid var(--border-light);vertical-align:middle;color:var(--text-primary)}
+.ex-task-table th:nth-child(2),.ex-task-table td:nth-child(2){width:64px}
+.ex-task-table th:nth-child(3),.ex-task-table td:nth-child(3){width:132px}
+.ex-task-table th:nth-child(4),.ex-task-table td:nth-child(4){width:104px}
+.ex-task-table th:nth-child(5),.ex-task-table td:nth-child(5){width:112px}
+.ex-task-table td:nth-child(n+2){white-space:nowrap}
+.ex-task-table .tag{white-space:nowrap}
+.ex-task-table .task-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-task-table .task-scope{color:var(--text-secondary);font-size:var(--font-size-xs);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-task-table .task-progress{color:var(--text-tertiary);font-size:var(--font-size-xs)}
+.task-actions{display:flex;gap:12px;white-space:nowrap}
+.ex-task-empty{text-align:center;color:var(--text-tertiary);padding:40px 12px}
+/* 删除任务确认弹窗 */
+.modal-dialog.confirm-dialog{width:400px;max-width:calc(100vw - 48px);display:flex;flex-direction:column;overflow:hidden;background:#fff;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.confirm-dialog .modal-body{padding:20px 24px}
+.confirm-dialog .modal-foot{flex-shrink:0;padding:12px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:12px}
+.confirm-text{font-size:var(--font-size-sm);color:var(--text-primary);line-height:1.7;word-break:break-word}
+#_toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:2000;padding:10px 20px;background:rgba(0,0,0,.78);color:#fff;font-size:14px;border-radius:6px;opacity:0;transition:opacity .3s;pointer-events:none}
 @media (max-width:960px){
   .detail-layout{grid-template-columns:1fr}
   .detail-side{padding-left:0;border-left:none;border-top:1px solid #f0f0f0;padding-top:16px}
@@ -242,8 +353,15 @@ html,body{height:100%;margin:0;overflow:hidden}
         </div>
       </div>
       <div class="list-panel table-card">
-        <div class="list-title">隐患列表</div>
-        <div class="list-sub" id="currentNode"></div>
+        <div class="list-head">
+          <div class="list-head-left">
+            <div class="list-title">隐患列表</div>
+            <div class="list-sub" id="currentNode"></div>
+          </div>
+          <div class="list-head-actions">
+            <button class="btn btn-default" type="button" id="btnTaskList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>导出记录<span class="task-badge" id="taskBadge"></span></button>
+          </div>
+        </div>
         <div class="table-wrap" id="recordTable"></div>
         <div class="pagination" id="pager"></div>
       </div>
@@ -265,11 +383,138 @@ html,body{height:100%;margin:0;overflow:hidden}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-hazard-transfer">
+  <div class="modal-dialog transfer-dialog">
+    <div class="modal-head">
+      <span class="modal-head-title">任务流转</span>
+      <button class="modal-head-close" id="btnCloseTransfer" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="tf-field">
+        <span class="tf-label">隐患描述</span>
+        <div class="tf-static" id="tfDesc"></div>
+      </div>
+      <div class="tf-field">
+        <span class="tf-label">当前节点</span>
+        <div class="tf-static" id="tfNode"></div>
+      </div>
+      <div class="tf-field">
+        <span class="tf-label">当前处理人</span>
+        <div class="tf-static" id="tfPerson"></div>
+      </div>
+      <div class="tf-field">
+        <span class="tf-label"><span class="req">*</span>转交给</span>
+        <div class="check-person-select" id="tfTargetPicker">
+          <div class="check-person-trigger" id="tfTargetTrigger">
+            <div class="check-person-tags" id="tfTargetTags"><span class="check-person-placeholder">请选择转交对象</span></div>
+            <span class="check-person-caret">&#9662;</span>
+          </div>
+          <div class="check-person-panel role-person-panel" id="tfTargetPanel"></div>
+        </div>
+        <div class="tf-tip" id="tfTargetTip"></div>
+      </div>
+      <div class="tf-field">
+        <label class="tf-label" for="tfReason"><span class="req">*</span>流转原因</label>
+        <textarea id="tfReason" maxlength="200" placeholder="请填写流转原因（200字以内）"></textarea>
+        <div class="tf-count"><span id="tfReasonCount">0</span>/200</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-default" type="button" id="btnCancelTransfer">取消</button>
+      <button class="btn btn-primary" type="button" id="btnConfirmTransfer">确认流转</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-hazard-export">
+  <div class="modal-dialog export-dialog">
+    <div class="modal-head">
+      <span class="modal-head-title">导出隐患记录</span>
+      <button class="modal-head-close" id="btnCloseExport" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="ex-scope">
+        <div class="ex-scope-label">数据范围</div>
+        <div class="ex-scope-value" id="exScope"></div>
+        <div class="ex-scope-count">当前条件共 <b id="exCountNum">0</b> 条<span id="exEmptyTip"></span></div>
+      </div>
+      <div class="ex-section-title">补充筛选</div>
+      <div class="ex-grid">
+        <div class="tf-field">
+          <label class="tf-label" for="exLevel">隐患等级</label>
+          <select id="exLevel"><option value="">全部</option><option>一般隐患</option><option>重大事故隐患</option></select>
+        </div>
+        <div class="tf-field">
+          <label class="tf-label" for="exMethod">整改方式</label>
+          <select id="exMethod"><option value="">全部</option><option>立即整改</option><option>限期整改</option></select>
+        </div>
+        <div class="tf-field">
+          <label class="tf-label" for="exPerson">整改人</label>
+          <select id="exPerson"></select>
+        </div>
+        <div class="tf-field">
+          <label class="tf-label" for="exReviewer">复核人</label>
+          <select id="exReviewer"></select>
+        </div>
+        <div class="tf-field">
+          <label class="tf-label" for="exSource">检查分类</label>
+          <select id="exSource"><option value="">全部</option><option>企业自查</option><option>政府巡查</option></select>
+        </div>
+      </div>
+      <div class="ex-photo-row">
+        <span class="tf-label">是否导出照片</span>
+        <label class="ex-switch"><input type="checkbox" id="exPhotos"><span class="ex-slider"></span><span class="ex-switch-text" id="exPhotosText">否</span></label>
+        <span class="ex-photo-tip">开启后内嵌隐患照片/整改照片列</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-default" type="button" id="btnCancelExport">取消</button>
+      <button class="btn btn-primary" type="button" id="btnDoExport">提交导出任务</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-export-tasks">
+  <div class="modal-dialog export-dialog">
+    <div class="modal-head">
+      <span class="modal-head-title">导出记录</span>
+      <button class="modal-head-close" id="btnCloseTasks" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="ex-task-toolbar">
+        <button class="btn btn-primary" type="button" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>批量导出</button>
+      </div>
+      <div id="taskListBody"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" type="button" id="btnFootCloseTasks">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-task-delete">
+  <div class="modal-dialog confirm-dialog">
+    <div class="modal-head">
+      <span class="modal-head-title">删除导出任务</span>
+      <button class="modal-head-close" id="btnCloseDelete" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-text" id="deleteTaskText"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-default" type="button" id="btnCancelDelete">取消</button>
+      <button class="btn btn-danger" type="button" id="btnConfirmDelete">删除</button>
+    </div>
+  </div>
+</div>
+
 <script src="../../js/enterprise-profile.js"></script>
+<script src="../../js/enterprise-org.js"></script>
 <script src="../../js/domain-data.js"></script>
 <script src="../../js/shared/district-data.js"></script>
 <script src="../../js/key-place-data.js?v=20261029-2"></script>
 <script src="../../js/pagination.js"></script>
+<script src="../../js/vendor/exceljs.min.js"></script>
 <script>
 (function() {
   var ICON = {
@@ -288,6 +533,12 @@ html,body{height:100%;margin:0;overflow:hidden}
     '已整改': 'tag-done',
     '已逾期': 'tag-overdue'
   };
+  /* 与 hazard-list ENT_USERS 同源：本企业用户管理（§6.3.4）启用用户；停用用户不可作为转交对象 */
+  var ENT_USERS = [
+    { name: '李四', phone: '139****9001', dept: '技术质量部', enabled: true },
+    { name: '王五', phone: '139****9002', dept: '安全生产部', enabled: true },
+    { name: '赵六', phone: '138****8002', dept: '工程技术组', enabled: false }
+  ];
 
   function detectProjectMode() {
     try {
@@ -523,10 +774,76 @@ html,body{height:100%;margin:0;overflow:hidden}
     return '<span class="tag ' + (level === '重大隐患' ? 'tag-red' : 'tag-orange') + '">' + esc(level) + '</span>';
   }
 
-  /* 整改操作在移动端进行（§6.5 移动端隐患详情/填写整改）；PC 端操作列仅提供只读「查看」 */
+  function reporterOf(row) {
+    return row.reporter || (row.person === '王五' ? '李四' : '王五');
+  }
+
+  function reviewerOf(row) {
+    return row.reviewer || (row.person === '李四' ? '王五' : '李四');
+  }
+
+  /* 当前节点：待整改/整改中/已逾期→隐患整改；待验收→整改复核；已整改已闭环不可流转（§6.3.7.3.10） */
+  function currentNodeOf(row) {
+    if (row.status === '待验收') return { node: '整改复核', person: reviewerOf(row) };
+    if (row.status === '待整改' || row.status === '整改中' || row.status === '已逾期') return { node: '隐患整改', person: row.person };
+    return null;
+  }
+
+  function canTransfer(row) {
+    return !!currentNodeOf(row);
+  }
+
+  /* 组织架构与企业组织架构管理同源（js/enterprise-org.js，localStorage sa_enterprise_org） */
+  function getOrgTree() {
+    return (window.getEnterpriseOrg ? getEnterpriseOrg() : null) || [];
+  }
+
+  function orgFindNode(name) {
+    var found = null;
+    function walk(nodes) {
+      (nodes || []).forEach(function(node) {
+        if (found) return;
+        if (node.name === name) { found = node; return; }
+        if (node.children) walk(node.children);
+      });
+    }
+    walk(getOrgTree());
+    return found;
+  }
+
+  function orgSubtreeNames(node) {
+    var names = [node.name];
+    (node.children || []).forEach(function(child) {
+      orgSubtreeNames(child).forEach(function(n) { names.push(n); });
+    });
+    return names;
+  }
+
+  function tfCompanyName() {
+    var profile = window.getEnterpriseProfile ? getEnterpriseProfile() : null;
+    if (profile && profile.name) return profile.name;
+    var tree = getOrgTree();
+    return (tree[0] && tree[0].name) || '企业';
+  }
+
+  function tfUsersIn(deptName) {
+    var users = ENT_USERS.filter(function(user) { return user.enabled; });
+    if (!deptName) return users;
+    var node = orgFindNode(deptName);
+    if (!node || node.status !== 1) return [];
+    var names = orgSubtreeNames(node).filter(function(name) {
+      var item = orgFindNode(name);
+      return item && item.status === 1;
+    });
+    return users.filter(function(user) { return names.indexOf(user.dept) !== -1; });
+  }
+
+  /* 整改操作在移动端进行（§6.5.11）；PC 端提供查看 + 任务流转（§6.3.7.3.10） */
   function actionHtml(row) {
     var id = esc(row.id);
-    return '<button class="btn-link" type="button" data-view="' + id + '">查看</button>';
+    var html = '<button class="btn-link" type="button" data-view="' + id + '">查看</button>';
+    if (canTransfer(row)) html += '<button class="btn-link" type="button" data-transfer="' + id + '">流转</button>';
+    return html;
   }
 
   function renderList() {
@@ -613,12 +930,16 @@ html,body{height:100%;margin:0;overflow:hidden}
     return '<div class="' + cls + '">' + thumbHtml(fallbackKind) + '</div>';
   }
 
-  function thumbHtml(kind) {
+  function svgOf(kind) {
     /* 示意缩略图：对齐样例「隐患图 / 整改图」实景感 */
     var svg = kind === 'reform'
       ? "<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'><rect width='96' height='96' fill='#2f3542'/><rect x='18' y='14' width='60' height='68' rx='4' fill='#1e2430' stroke='#5c677a' stroke-width='2'/><rect x='26' y='22' width='20' height='12' rx='2' fill='#ff6b6b'/><rect x='50' y='22' width='20' height='12' rx='2' fill='#51cf66'/><rect x='26' y='40' width='44' height='8' rx='2' fill='#748094'/><rect x='26' y='52' width='44' height='8' rx='2' fill='#748094'/><rect x='26' y='64' width='28' height='8' rx='2' fill='#4dabf7'/><circle cx='70' cy='68' r='5' fill='#fcc419'/></svg>"
       : "<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'><rect width='96' height='96' fill='#dfe6ee'/><rect x='0' y='58' width='96' height='38' fill='#b7c0cc'/><rect x='8' y='12' width='18' height='46' fill='#8b95a3'/><rect x='70' y='12' width='18' height='46' fill='#8b95a3'/><rect x='30' y='40' width='36' height='22' rx='2' fill='#e9ecef' stroke='#adb5bd'/><rect x='34' y='46' width='10' height='14' fill='#ced4da'/><rect x='46' y='46' width='10' height='14' fill='#ced4da'/><rect x='58' y='46' width='4' height='14' fill='#adb5bd'/><path d='M12 70h72' stroke='#868e96' stroke-width='2'/></svg>";
-    return '<div class="detail-thumb"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(svg) + '"></div>';
+    return svg;
+  }
+
+  function thumbHtml(kind) {
+    return '<div class="detail-thumb"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(svgOf(kind)) + '"></div>';
   }
 
   function kv(label, valueHtml, full, valueClass) {
@@ -635,11 +956,11 @@ html,body{height:100%;margin:0;overflow:hidden}
     var showReform = status === '整改中' || status === '待验收' || closed || rejected;
     /* 有历史复核：待验收/已整改，或复核不通过退回后仍保留复核记录 */
     var showReview = status === '待验收' || closed || rejected;
-    var reporter = row.reporter || (row.person === '王五' ? '李四' : '王五');
+    var reporter = reporterOf(row);
     var reportTime = row.reportTime || (row.foundAt + ' 10:49:25');
     var reformTime = row.reformTime || (row.foundAt + ' 14:24:32');
     var reformDesc = row.reformDesc || (row.desc.replace(/堆放|堵塞|不足|脱落|不亮|错误|老化|占用|缺失|异常|过期|私拉/, '已处理') + '，现场已清理到位');
-    var reviewer = row.reviewer || (row.person === '李四' ? '王五' : '李四');
+    var reviewer = reviewerOf(row);
     var reviewTime = row.reviewTime || (row.foundAt + ' 16:25:16');
     var reviewResult = row.reviewResult || (rejected ? '现场仍有部分堆放物，灭火器被遮挡，退回重新整改' : '已按要求进行整改，隐患消除');
     var approveResult = closed ? '同意' : (rejected ? '退回' : '');
@@ -705,6 +1026,15 @@ html,body{height:100%;margin:0;overflow:hidden}
       return '<div class="flow-row"><div class="flow-row-label">' + esc(label) + '：</div><div class="flow-row-value">' + valueHtml + '</div></div>';
     }
 
+    /* 任务流转留痕：仅当前节点卡片展示，多次流转按顺序追加（§6.3.7.3.8） */
+    function transferRows(nodeName) {
+      var list = (row.transfers || []).filter(function(t) { return t.node === nodeName; });
+      if (!list.length) return '';
+      return flowRow('流转记录', list.map(function(t) {
+        return esc(t.time + ' ' + t.from + '→' + t.to + '：' + t.reason);
+      }).join('<br>'));
+    }
+
     /* phase: done | current | pending；axisExtra（如 returned）作用圆点+标签色块，不改变内容卡样式 */
     function flowNode(tagClass, tagText, phase, timeText, rowsHtml, axisExtra) {
       var extra = axisExtra ? ' is-' + axisExtra : '';
@@ -750,7 +1080,7 @@ html,body{height:100%;margin:0;overflow:hidden}
         flowRow('核实情况', esc(reviewResult)),
         'returned'
       );
-      html += flowNode('reform', '隐患整改', 'current', dash, emptyReformRows);
+      html += flowNode('reform', '隐患整改', 'current', dash, emptyReformRows + transferRows('隐患整改'));
       html += flowNode('review', '整改复核', 'pending', dash, emptyReviewRows);
       html += flowNode('close', '隐患销号', 'pending', dash,
         flowRow('说明', dash)
@@ -776,7 +1106,8 @@ html,body{height:100%;margin:0;overflow:hidden}
       html += flowNode('reform', '隐患整改', reformPhase, showReform ? reformTime : dash,
         flowRow('整改人', showReform ? esc(row.person) : dash) +
         flowRow('整改描述', showReform ? esc(reformDesc) : dash) +
-        flowRow('整改图片', showReform ? photoThumbs(row.rectifyPhotos, 'flow-thumbs', 'reform') : dash)
+        flowRow('整改图片', showReform ? photoThumbs(row.rectifyPhotos, 'flow-thumbs', 'reform') : dash) +
+        (reformPhase === 'current' ? transferRows('隐患整改') : '')
       );
 
       var reviewRows;
@@ -794,7 +1125,8 @@ html,body{height:100%;margin:0;overflow:hidden}
         reviewRows = emptyReviewRows;
       }
 
-      html += flowNode('review', '整改复核', reviewPhase, showReview || closed ? reviewTime : dash, reviewRows);
+      html += flowNode('review', '整改复核', reviewPhase, showReview || closed ? reviewTime : dash,
+        reviewRows + (reviewPhase === 'current' ? transferRows('整改复核') : ''));
 
       html += flowNode('close', '隐患销号', closePhase, closed ? closeTime : dash,
         flowRow('说明', closed ? '隐患已闭环销号' : dash)
@@ -814,6 +1146,531 @@ html,body{height:100%;margin:0;overflow:hidden}
 
   function closeDetail() {
     document.getElementById('modal-hazard-detail').classList.remove('show');
+  }
+
+  var transferId = null;
+
+  function nowText() {
+    var d = new Date();
+    function pad(n) { return n < 10 ? '0' + n : String(n); }
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  function showToast(msg) {
+    var el = document.getElementById('_toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = '_toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._timer);
+    el._timer = setTimeout(function() { el.style.opacity = '0'; }, 2000);
+  }
+
+  var tfTargetName = '';
+  var tfBrowse = '';
+  var tfCurrentPerson = '';
+
+  function renderTfTags() {
+    var box = document.getElementById('tfTargetTags');
+    if (!tfTargetName) {
+      box.innerHTML = '<span class="check-person-placeholder">请选择转交对象</span>';
+      return;
+    }
+    box.innerHTML = '<span class="check-person-tag">' + esc(tfTargetName) + '<span class="tag-x" data-clear="1">&times;</span></span>';
+  }
+
+  function renderTfTree() {
+    var search = document.getElementById('tfDeptSearch');
+    var keyword = search ? search.value.trim() : '';
+    var company = tfCompanyName();
+    var html = '<div class="check-person-dept' + (tfBrowse === '' ? ' active' : '') + '" data-dept="" title="' + esc(company) + '"><span class="dept-name" style="font-weight:600">' + esc(company) + '</span></div>';
+    function renderNodes(nodes, level) {
+      (nodes || []).forEach(function(node) {
+        if (node.status !== 1) return;
+        var selfMatch = !keyword || node.name.indexOf(keyword) !== -1;
+        var childMatch = false;
+        if (keyword) {
+          (function scan(children) {
+            (children || []).forEach(function(child) {
+              if (child.status !== 1) return;
+              if (child.name.indexOf(keyword) !== -1) childMatch = true;
+              scan(child.children);
+            });
+          })(node.children);
+        }
+        if (keyword && !selfMatch && !childMatch) return;
+        var count = tfUsersIn(node.name).length;
+        html += '<div class="check-person-dept' + (tfBrowse === node.name ? ' active' : '') + '" style="padding-left:' + (12 + level * 16) + 'px" data-dept="' + esc(node.name) + '" title="' + esc(node.name) + '"><span class="dept-name">' + esc(node.name) + '</span><span class="dept-count">(' + count + ')</span></div>';
+        renderNodes(node.children, level + 1);
+      });
+    }
+    var orgRoot = getOrgTree()[0];
+    renderNodes(orgRoot && orgRoot.children, 0);
+    var tree = document.getElementById('tfTree');
+    if (tree) tree.innerHTML = html;
+  }
+
+  function renderTfUsers() {
+    if (tfBrowse) {
+      var browseNode = orgFindNode(tfBrowse);
+      if (!browseNode || browseNode.status !== 1) tfBrowse = '';
+    }
+    var users = tfUsersIn(tfBrowse);
+    var label = document.getElementById('tfDeptLabel');
+    if (label) label.textContent = tfBrowse || tfCompanyName();
+    var html = users.map(function(user) {
+      if (user.name === tfCurrentPerson) {
+        return '<label class="check-person-user disabled"><input type="checkbox" disabled><span>' + esc(user.name) + '</span><span class="user-phone">' + esc(user.phone) + ' · 当前处理人</span></label>';
+      }
+      var checked = tfTargetName === user.name;
+      return '<label class="check-person-user"><input type="checkbox" data-name="' + esc(user.name) + '"' + (checked ? ' checked' : '') + '><span>' + esc(user.name) + '</span><span class="user-phone">' + esc(user.phone) + '</span></label>';
+    }).join('');
+    var box = document.getElementById('tfUsers');
+    if (box) box.innerHTML = html || '<div class="check-person-user disabled">暂无人员</div>';
+  }
+
+  function renderTfPickerBody() {
+    var panel = document.getElementById('tfTargetPanel');
+    if (panel.getAttribute('data-ready') !== '1') {
+      panel.setAttribute('data-ready', '1');
+      panel.innerHTML = '<div class="check-person-cols"><div class="check-person-left"><input class="check-person-search" id="tfDeptSearch" type="text" placeholder="搜索部门"><div class="check-person-tree" id="tfTree"></div></div><div class="check-person-right"><div class="check-person-right-head"><span class="check-person-right-title" id="tfDeptLabel"></span></div><div class="check-person-users" id="tfUsers"></div></div></div>';
+    }
+    renderTfTree();
+    renderTfUsers();
+  }
+
+  function closeTfPanel() {
+    document.getElementById('tfTargetPanel').classList.remove('open');
+  }
+
+  function toggleTfPicker() {
+    var trigger = document.getElementById('tfTargetTrigger');
+    if (trigger.classList.contains('disabled')) return;
+    var panel = document.getElementById('tfTargetPanel');
+    var willOpen = !panel.classList.contains('open');
+    closeTfPanel();
+    if (!willOpen) return;
+    renderTfPickerBody();
+    panel.classList.add('open');
+  }
+
+  function selectTfUser(name, checked) {
+    var user = ENT_USERS.filter(function(item) { return item.name === name; })[0];
+    if (!user || !user.enabled || user.name === tfCurrentPerson) return;
+    tfTargetName = checked ? user.name : '';
+    renderTfTags();
+    renderTfUsers();
+    if (checked) closeTfPanel();
+  }
+
+  function openTransfer(id) {
+    var row = hazards.filter(function(item) { return item.id === id; })[0];
+    var cur = row && currentNodeOf(row);
+    if (!row || !cur) return;
+    transferId = id;
+    document.getElementById('tfDesc').textContent = row.desc;
+    document.getElementById('tfNode').innerHTML = cur.node === '整改复核'
+      ? '<span class="tag tag-orange">整改复核</span>'
+      : '<span class="tag tag-red">隐患整改</span>';
+    document.getElementById('tfPerson').textContent = cur.person;
+    tfCurrentPerson = cur.person;
+    tfTargetName = '';
+    tfBrowse = '';
+    renderTfTags();
+    closeTfPanel();
+    var candidates = ENT_USERS.filter(function(user) { return user.enabled && user.name !== cur.person; });
+    var trigger = document.getElementById('tfTargetTrigger');
+    var confirmBtn = document.getElementById('btnConfirmTransfer');
+    if (!candidates.length) {
+      trigger.classList.add('disabled');
+      confirmBtn.disabled = true;
+      document.getElementById('tfTargetTip').textContent = '暂无可转交的用户（启用用户中除当前处理人外无其他人）';
+    } else {
+      trigger.classList.remove('disabled');
+      confirmBtn.disabled = false;
+      document.getElementById('tfTargetTip').textContent = '';
+    }
+    document.getElementById('tfReason').value = '';
+    document.getElementById('tfReasonCount').textContent = '0';
+    document.getElementById('modal-hazard-transfer').classList.add('show');
+  }
+
+  function closeTransfer() {
+    closeTfPanel();
+    document.getElementById('modal-hazard-transfer').classList.remove('show');
+    transferId = null;
+  }
+
+  function confirmTransfer() {
+    var row = hazards.filter(function(item) { return item.id === transferId; })[0];
+    var cur = row && currentNodeOf(row);
+    if (!row || !cur) return;
+    var target = tfTargetName;
+    var reason = document.getElementById('tfReason').value.trim();
+    if (!target) { showToast('请选择转交对象'); return; }
+    if (!reason) { showToast('请填写流转原因'); return; }
+    /* 固化上报人/复核人派生值，避免整改责任人变更后演示数据漂移 */
+    row.reporter = reporterOf(row);
+    row.reviewer = reviewerOf(row);
+    if (cur.node === '隐患整改') row.person = target;
+    else row.reviewer = target;
+    if (!row.transfers) row.transfers = [];
+    row.transfers.push({ node: cur.node, from: cur.person, to: target, reason: reason, time: nowText() });
+    closeTransfer();
+    renderList();
+    showToast('已流转给' + target);
+  }
+
+  /* ========== 批量导出（§6.3.7.3.11，模板依据《安全码2.0系统导出模板设计文档》企业侧隐患记录） ========== */
+  var EXPORT_HEADERS = ['企业名称', '领域大类', '领域小类', '所属街道', '所属社区', '所属网格', '管控对象', '检查表名称', '检查内容', '检查时间', '检查人', '检查分类', '隐患类型', '隐患描述', '隐患等级', '隐患照片', '整改方式', '整改人', '整改时间', '整改照片', '整改反馈', '整改依据', '复核人', '复核结果', '复核意见', '复核时间'];
+
+  function exportSourceLabel(source) {
+    return source === '日常自查' ? '企业自查' : '政府巡查';
+  }
+
+  function exportLevel(level) {
+    return level === '重大隐患' ? '重大事故隐患' : level;
+  }
+
+  function exportMethod(row) {
+    if (row.method !== '限期整改') return row.method;
+    var days = Math.round((new Date(row.deadline) - new Date(row.foundAt)) / 86400000);
+    return '限期整改（' + days + '天）';
+  }
+
+  function regionParts() {
+    var profile = window.getEnterpriseProfile ? getEnterpriseProfile() : null;
+    var parts = profile && profile.grid ? profile.grid.split('/').map(function(s) { return s.trim(); }) : [];
+    return { street: parts[1] || '—', community: parts[2] || '—', grid: parts[3] || '—' };
+  }
+
+  function exportFilterRows() {
+    var level = document.getElementById('exLevel').value;
+    var method = document.getElementById('exMethod').value;
+    var person = document.getElementById('exPerson').value;
+    var reviewer = document.getElementById('exReviewer').value;
+    var source = document.getElementById('exSource').value;
+    return matched().filter(function(row) {
+      if (level && exportLevel(row.level) !== level) return false;
+      if (method && row.method !== method) return false;
+      if (person && row.person !== person) return false;
+      if (reviewer && reviewerOf(row) !== reviewer) return false;
+      if (source && exportSourceLabel(row.source) !== source) return false;
+      return true;
+    });
+  }
+
+  function exportRowValues(row, withPhotos) {
+    var region = regionParts();
+    var closed = row.status === '已整改';
+    var rejected = !!row.reviewRejected;
+    var showReform = row.status === '整改中' || row.status === '待验收' || closed || rejected;
+    var showReview = row.status === '待验收' || closed || rejected;
+    var gov = row.source !== '日常自查';
+    var vals = [
+      root.name, '—', '—', region.street, region.community, region.grid,
+      row.objectName || root.name, '—', '—',
+      row.foundAt + ' 10:49',
+      gov ? '陈海海（南山街道办）' : reporterOf(row),
+      exportSourceLabel(row.source),
+      row.hazardType, row.desc, exportLevel(row.level)
+    ];
+    if (withPhotos) vals.push('');
+    vals.push(exportMethod(row), row.person, showReform ? (row.reformTime || row.foundAt + ' 14:24') : '—');
+    if (withPhotos) vals.push('');
+    vals.push(
+      showReform ? (row.reformDesc || '已按要求整改，现场清理到位') : '—',
+      '—',
+      showReview ? reviewerOf(row) : '—',
+      closed ? '同意' : (rejected ? '不同意' : '—'),
+      showReview ? (row.reviewResult || (rejected ? '退回重新整改' : '已按要求整改，隐患消除')) : '—',
+      showReview ? (row.reviewTime || row.foundAt + ' 16:25') : '—'
+    );
+    return vals;
+  }
+
+  function scopeSummary() {
+    var node = findNode(state.selectedId);
+    var a = state.applied;
+    var parts = [PREFIX[node.type] + '：' + node.name];
+    if (a.desc) parts.push('描述含「' + a.desc + '」');
+    if (a.status) parts.push('状态=' + a.status);
+    if (a.overdue) parts.push(a.overdue === 'yes' ? '超期' : '未超期');
+    if (a.start || a.end) parts.push('发现时间 ' + (a.start || '…') + ' 至 ' + (a.end || '…'));
+    return parts.join('；');
+  }
+
+  function updateExportCount() {
+    var n = exportFilterRows().length;
+    document.getElementById('exCountNum').textContent = String(n);
+    document.getElementById('exEmptyTip').textContent = n ? '' : '，暂无可导出记录';
+    document.getElementById('btnDoExport').disabled = n === 0;
+  }
+
+  function openExport() {
+    document.getElementById('exScope').textContent = scopeSummary();
+    var users = ENT_USERS.map(function(u) { return u.name; });
+    ['exPerson', 'exReviewer'].forEach(function(id) {
+      document.getElementById(id).innerHTML = '<option value="">全部</option>' + users.map(function(n) {
+        return '<option value="' + esc(n) + '">' + esc(n) + '</option>';
+      }).join('');
+    });
+    document.getElementById('exLevel').value = '';
+    document.getElementById('exMethod').value = '';
+    document.getElementById('exSource').value = '';
+    document.getElementById('exPhotos').checked = false;
+    document.getElementById('exPhotosText').textContent = '否';
+    updateExportCount();
+    document.getElementById('modal-hazard-export').classList.add('show');
+  }
+
+  function closeExport() {
+    document.getElementById('modal-hazard-export').classList.remove('show');
+  }
+
+  /* ========== 导出任务（异步打包：提交→排队→打包→完成→下载，§6.3.7.3.12） ========== */
+  var EXPORT_TASKS_KEY = 'sa_hazard_export_tasks';
+  var taskTimer = null;
+
+  function loadTasks() {
+    try { return JSON.parse(localStorage.getItem(EXPORT_TASKS_KEY)) || []; } catch (err) { return []; }
+  }
+
+  function saveTasks(tasks) {
+    try { localStorage.setItem(EXPORT_TASKS_KEY, JSON.stringify(tasks)); } catch (err) {}
+  }
+
+  function taskActive(t) {
+    return t.status === 'queued' || t.status === 'packaging';
+  }
+
+  function tickTasks() {
+    var tasks = loadTasks();
+    var now = Date.now();
+    var changed = false;
+    tasks.forEach(function(t) {
+      if (t.status === 'queued' && now - t.createdAt >= 1000) {
+        t.status = 'packaging'; t.progress = 0; changed = true;
+      } else if (t.status === 'packaging') {
+        t.progress = Math.min(100, Math.round((now - t.createdAt - 1000) / 40));
+        if (t.progress >= 100) { t.status = 'completed'; t.completedAt = now; }
+        changed = true;
+      }
+    });
+    if (changed) {
+      saveTasks(tasks);
+      renderTaskBadge();
+      if (document.getElementById('modal-export-tasks').classList.contains('show')) renderTaskList();
+    }
+    if (!tasks.some(taskActive) && taskTimer) { clearInterval(taskTimer); taskTimer = null; }
+  }
+
+  function ensureTaskTimer() {
+    if (!taskTimer) taskTimer = setInterval(tickTasks, 500);
+  }
+
+  function renderTaskBadge() {
+    var n = loadTasks().filter(function(t) { return t.status === 'completed' && !t.downloaded; }).length;
+    var badge = document.getElementById('taskBadge');
+    badge.textContent = n > 99 ? '99+' : String(n);
+    badge.classList.toggle('show', n > 0);
+  }
+
+  function taskStatusTag(t) {
+    if (t.status === 'queued') return '<span class="tag tag-review">排队中</span>';
+    if (t.status === 'packaging') return '<span class="tag tag-doing">打包中</span> <span class="task-progress">' + (t.progress || 0) + '%</span>';
+    if (t.status === 'completed') return '<span class="tag tag-done">已完成</span>';
+    return '<span class="tag tag-pending">失败</span>';
+  }
+
+  function renderTaskList() {
+    var tasks = loadTasks();
+    var box = document.getElementById('taskListBody');
+    if (!tasks.length) {
+      box.innerHTML = '<div class="ex-task-empty">暂无导出任务</div>';
+      return;
+    }
+    var html = '<table class="ex-task-table"><thead><tr><th>文件名</th><th>条数</th><th>提交时间</th><th>状态</th><th>操作</th></tr></thead><tbody>';
+    tasks.forEach(function(t) {
+      var action = '';
+      if (t.status === 'completed') action += '<button class="btn-link" type="button" data-task-download="' + esc(t.id) + '">下载</button>';
+      else if (t.status === 'failed') action += '<button class="btn-link" type="button" data-task-retry="' + esc(t.id) + '">重试</button>';
+      action += '<button class="btn-link danger" type="button" data-task-delete="' + esc(t.id) + '">删除</button>';
+      html += '<tr><td><div class="task-name" title="' + esc(t.fileName) + '">' + esc(t.fileName) + '</div><div class="task-scope" title="' + esc(t.scope) + '">' + esc(t.scope) + '</div></td>' +
+        '<td>' + t.count + '</td><td>' + esc(t.createdAtText) + '</td><td>' + taskStatusTag(t) + '</td><td><div class="task-actions">' + action + '</div></td></tr>';
+    });
+    html += '</tbody></table>';
+    box.innerHTML = html;
+  }
+
+  function openTaskList() {
+    renderTaskList();
+    document.getElementById('modal-export-tasks').classList.add('show');
+  }
+
+  function closeTaskList() {
+    document.getElementById('modal-export-tasks').classList.remove('show');
+  }
+
+  function retryTask(id) {
+    var tasks = loadTasks();
+    var t = tasks.filter(function(item) { return item.id === id; })[0];
+    if (!t || t.status !== 'failed') return;
+    t.status = 'queued'; t.progress = 0; t.createdAt = Date.now();
+    saveTasks(tasks);
+    ensureTaskTimer();
+    renderTaskList();
+  }
+
+  var pendingDeleteId = null;
+
+  function askDeleteTask(id) {
+    var t = loadTasks().filter(function(item) { return item.id === id; })[0];
+    if (!t) return;
+    pendingDeleteId = id;
+    var tip = (t.status === 'queued' || t.status === 'packaging')
+      ? '该任务正在处理中，删除将取消打包。'
+      : '删除后该任务记录将移除，已下载的文件不受影响。';
+    document.getElementById('deleteTaskText').textContent = '确定删除导出任务「' + t.fileName + '」？' + tip;
+    document.getElementById('modal-task-delete').classList.add('show');
+  }
+
+  function closeDeleteConfirm() {
+    document.getElementById('modal-task-delete').classList.remove('show');
+    pendingDeleteId = null;
+  }
+
+  function confirmDeleteTask() {
+    if (!pendingDeleteId) return;
+    var tasks = loadTasks().filter(function(item) { return item.id !== pendingDeleteId; });
+    saveTasks(tasks);
+    closeDeleteConfirm();
+    renderTaskBadge();
+    renderTaskList();
+    showToast('已删除导出任务');
+  }
+
+  /* 示意 SVG 转 PNG，供 xlsx 内嵌（ExcelJS 仅支持 jpeg/png/gif） */
+  function rasterizeSvg(svg) {
+    return new Promise(function(resolve) {
+      var img = new Image();
+      img.onload = function() {
+        try {
+          var c = document.createElement('canvas');
+          c.width = 96; c.height = 96;
+          c.getContext('2d').drawImage(img, 0, 0, 96, 96);
+          resolve(c.toDataURL('image/png'));
+        } catch (err) { resolve(null); }
+      };
+      img.onerror = function() { resolve(null); };
+      img.src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    });
+  }
+
+  /* 由任务快照构建 xlsx（表头冻结加粗、照片内嵌），返回 buffer Promise */
+  function buildXlsx(headers, values, withPhotos) {
+    var workbook = new ExcelJS.Workbook();
+    var ws = workbook.addWorksheet('隐患记录');
+    ws.views = [{ state: 'frozen', ySplit: 1 }];
+    var headerRow = ws.addRow(headers);
+    headerRow.font = { bold: true };
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F4FF' } };
+    headerRow.alignment = { vertical: 'middle' };
+    ws.columns.forEach(function(col, i) {
+      col.width = headers[i] === '隐患描述' ? 42 : (headers[i].indexOf('照片') >= 0 ? 14 : 16);
+    });
+    var photoColHazard = headers.indexOf('隐患照片');
+    var photoColReform = headers.indexOf('整改照片');
+    var reformTimeCol = headers.indexOf('整改时间');
+    var tasks = [];
+    values.forEach(function(vals, i) {
+      var dataRow = ws.addRow(vals);
+      dataRow.alignment = { vertical: 'middle', wrapText: true };
+      if (!withPhotos) return;
+      dataRow.height = 72;
+      tasks.push(rasterizeSvg(svgOf('hazard')).then(function(png) {
+        if (png) ws.addImage(workbook.addImage({ base64: png, extension: 'png' }), { tl: { col: photoColHazard, row: i + 1 }, ext: { width: 72, height: 72 } });
+      }));
+      /* 已发生整改（整改时间非「—」）才内嵌整改图 */
+      if (reformTimeCol >= 0 && vals[reformTimeCol] !== '—') {
+        tasks.push(rasterizeSvg(svgOf('reform')).then(function(png) {
+          if (png) ws.addImage(workbook.addImage({ base64: png, extension: 'png' }), { tl: { col: photoColReform, row: i + 1 }, ext: { width: 72, height: 72 } });
+        }));
+      }
+    });
+    return Promise.all(tasks).then(function() { return workbook.xlsx.writeBuffer(); });
+  }
+
+  function triggerDownload(buffer, fileName) {
+    var blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function timeText(d) {
+    function pad(n) { return n < 10 ? '0' + n : String(n); }
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  /* 导出统一生成打包任务（不同步下载），完成后到导出记录下载 */
+  function doExport() {
+    var rows = exportFilterRows();
+    if (!rows.length) { showToast('当前范围暂无隐患记录'); return; }
+    var withPhotos = document.getElementById('exPhotos').checked;
+    var headers = EXPORT_HEADERS.filter(function(h) {
+      return withPhotos || (h !== '隐患照片' && h !== '整改照片');
+    });
+    var values = rows.map(function(row) { return exportRowValues(row, withPhotos); });
+    var d = new Date();
+    function pad(n) { return n < 10 ? '0' + n : String(n); }
+    var stamp = '' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes());
+    var task = {
+      id: 'EX' + d.getTime(),
+      fileName: '隐患记录_' + root.name + '_' + stamp + '.xlsx',
+      scope: scopeSummary(),
+      count: rows.length,
+      withPhotos: withPhotos,
+      headers: headers,
+      values: values,
+      status: 'queued',
+      progress: 0,
+      createdAt: d.getTime(),
+      createdAtText: timeText(d),
+      downloaded: false
+    };
+    var tasks = loadTasks();
+    tasks.unshift(task);
+    saveTasks(tasks);
+    ensureTaskTimer();
+    renderTaskBadge();
+    closeExport();
+    if (document.getElementById('modal-export-tasks').classList.contains('show')) renderTaskList();
+    showToast('已提交打包任务，完成后可在「导出记录」下载');
+  }
+
+  function downloadTask(id) {
+    var tasks = loadTasks();
+    var t = tasks.filter(function(item) { return item.id === id; })[0];
+    if (!t || t.status !== 'completed') return;
+    buildXlsx(t.headers, t.values, t.withPhotos).then(function(buffer) {
+      triggerDownload(buffer, t.fileName);
+      t.downloaded = true;
+      saveTasks(tasks);
+      renderTaskBadge();
+      renderTaskList();
+      showToast('已开始下载');
+    }).catch(function() {
+      showToast('下载失败，请重试');
+    });
   }
 
   function bind() {
@@ -841,7 +1698,9 @@ html,body{height:100%;margin:0;overflow:hidden}
     document.getElementById('btnReset').addEventListener('click', resetQuery);
     document.getElementById('recordTable').addEventListener('click', function(event) {
       var viewBtn = event.target.closest('[data-view]');
-      if (viewBtn) { openDetail(viewBtn.getAttribute('data-view')); }
+      if (viewBtn) { openDetail(viewBtn.getAttribute('data-view')); return; }
+      var transferBtn = event.target.closest('[data-transfer]');
+      if (transferBtn) { openTransfer(transferBtn.getAttribute('data-transfer')); }
     });
     var nameBubble = document.getElementById('nameBubble');
     var recordTable = document.getElementById('recordTable');
@@ -880,9 +1739,82 @@ html,body{height:100%;margin:0;overflow:hidden}
     document.getElementById('modal-hazard-detail').addEventListener('click', function(event) {
       if (event.target.id === 'modal-hazard-detail') closeDetail();
     });
+    document.getElementById('btnCloseTransfer').addEventListener('click', closeTransfer);
+    document.getElementById('btnCancelTransfer').addEventListener('click', closeTransfer);
+    document.getElementById('btnConfirmTransfer').addEventListener('click', confirmTransfer);
+    document.getElementById('modal-hazard-transfer').addEventListener('click', function(event) {
+      if (event.target.id === 'modal-hazard-transfer') closeTransfer();
+    });
+    document.getElementById('tfReason').addEventListener('input', function(event) {
+      document.getElementById('tfReasonCount').textContent = String(event.target.value.length);
+    });
+    document.getElementById('tfTargetTrigger').addEventListener('click', function(event) {
+      event.stopPropagation();
+      toggleTfPicker();
+    });
+    document.getElementById('tfTargetTags').addEventListener('click', function(event) {
+      if (event.target.closest('[data-clear]')) {
+        event.stopPropagation();
+        selectTfUser(tfTargetName, false);
+      }
+    });
+    document.getElementById('tfTargetPanel').addEventListener('click', function(event) {
+      event.stopPropagation();
+      var dept = event.target.closest('[data-dept]');
+      if (dept) {
+        tfBrowse = dept.getAttribute('data-dept');
+        renderTfTree();
+        renderTfUsers();
+      }
+    });
+    document.getElementById('tfTargetPanel').addEventListener('change', function(event) {
+      var input = event.target.closest('input[data-name]');
+      if (input) selectTfUser(input.getAttribute('data-name'), input.checked);
+    });
+    document.getElementById('tfTargetPanel').addEventListener('input', function(event) {
+      if (event.target.id === 'tfDeptSearch') renderTfTree();
+    });
+    document.addEventListener('click', function() { closeTfPanel(); });
+    document.getElementById('btnExport').addEventListener('click', openExport);
+    document.getElementById('btnCloseExport').addEventListener('click', closeExport);
+    document.getElementById('btnCancelExport').addEventListener('click', closeExport);
+    document.getElementById('btnDoExport').addEventListener('click', doExport);
+    document.getElementById('modal-hazard-export').addEventListener('click', function(event) {
+      if (event.target.id === 'modal-hazard-export') closeExport();
+    });
+    ['exLevel', 'exMethod', 'exPerson', 'exReviewer', 'exSource'].forEach(function(id) {
+      document.getElementById(id).addEventListener('change', updateExportCount);
+    });
+    document.getElementById('exPhotos').addEventListener('change', function(event) {
+      document.getElementById('exPhotosText').textContent = event.target.checked ? '是' : '否';
+    });
+    document.getElementById('btnTaskList').addEventListener('click', openTaskList);
+    document.getElementById('btnCloseTasks').addEventListener('click', closeTaskList);
+    document.getElementById('btnFootCloseTasks').addEventListener('click', closeTaskList);
+    document.getElementById('modal-export-tasks').addEventListener('click', function(event) {
+      if (event.target.id === 'modal-export-tasks') closeTaskList();
+    });
+    document.getElementById('taskListBody').addEventListener('click', function(event) {
+      var dl = event.target.closest('[data-task-download]');
+      if (dl) { downloadTask(dl.getAttribute('data-task-download')); return; }
+      var retry = event.target.closest('[data-task-retry]');
+      if (retry) { retryTask(retry.getAttribute('data-task-retry')); return; }
+      var del = event.target.closest('[data-task-delete]');
+      if (del) askDeleteTask(del.getAttribute('data-task-delete'));
+    });
+    document.getElementById('btnCloseDelete').addEventListener('click', closeDeleteConfirm);
+    document.getElementById('btnCancelDelete').addEventListener('click', closeDeleteConfirm);
+    document.getElementById('btnConfirmDelete').addEventListener('click', confirmDeleteTask);
+    document.getElementById('modal-task-delete').addEventListener('click', function(event) {
+      if (event.target.id === 'modal-task-delete') closeDeleteConfirm();
+    });
     document.addEventListener('keydown', function(event) {
       if (event.key !== 'Escape') return;
+      closeDeleteConfirm();
       closeDetail();
+      closeTransfer();
+      closeExport();
+      closeTaskList();
     });
     window.addEventListener('resize', syncTableScroll);
   }
@@ -955,6 +1887,8 @@ html,body{height:100%;margin:0;overflow:hidden}
     bind();
     renderTree();
     renderList();
+    renderTaskBadge();
+    if (loadTasks().some(taskActive)) ensureTaskTimer();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
