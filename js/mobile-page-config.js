@@ -408,33 +408,77 @@ var MobilePageConfig = (function() {
         }
       ];
     }
-    // basic / other：通用模拟场所
+    // basic / other：与企业端「安全管控对象管理」(hazard-list.html PLACE_DETAIL) 同套数据
+    // 场所 5 个，负责人王五/李四；码色：1号生产车间红（下属电动车充电区红）、材料仓库黄，其余绿
+    var QUICK_PLACE = [
+      { icon: '📋', label: '基本信息', color: 'blue' },
+      { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
+      { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
+      { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
+    ];
     return [
-      { id: 'PLACE_001', name: 'A栋生产车间', parentName: entName, qrTime: '2025-01-15 08:00',
-        quickActions: [
-          { icon: '📋', label: '基本信息', color: 'blue' },
-          { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
-          { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
-          { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
+      { id: 'PLACE_001', name: '1号生产车间', parentName: entName, qrTime: '2025-01-15 08:00',
+        codeColor: 'red', owner: '王五', phone: '139****9002',
+        quickActions: QUICK_PLACE,
+        stats: { total: 1, green: 0, yellow: 0, red: 1 },
+        hazardStats: { total: 2, pending: 0, fixing: 1, done: 1 },
+        scanPersons: [
+          { dept: '安全生产部', name: '王五、李四', freq: '每1周检查1次', done: true },
+          { dept: '技术质量部', name: '李四', freq: '每1月检查1次', done: false },
+          { dept: '安全生产部', name: '王五', freq: '每1日检查1次', done: true }
         ],
-        stats: { total: 3, green: 1, yellow: 1, red: 1 },
-        hazardStats: { total: 4, pending: 1, fixing: 1, done: 2 },
         dutyPersons: [
-          { name: '李安全', pos: '区域责任人', dept: '安全管理部', progress: '2/3', progressPct: 67 },
-          { name: '赵巡检', pos: '扫码责任人', dept: '安全管理部', progress: '2/2', progressPct: 100 }
+          { name: '王五', pos: '区域责任人', dept: '安全生产部', progress: '2/3', progressPct: 67 },
+          { name: '李四', pos: '扫码责任人', dept: '技术质量部', progress: '1/1', progressPct: 100 }
         ]
       },
-      { id: 'PLACE_002', name: 'B栋仓储区', parentName: entName, qrTime: '2025-01-15 09:00',
-        quickActions: [
-          { icon: '📊', label: '基本信息', color: 'blue' },
-          { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
-          { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
-          { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' }
+      { id: 'PLACE_002', name: '2号生产车间', parentName: entName, qrTime: '2025-01-15 09:00',
+        codeColor: 'green', owner: '李四', phone: '139****9001',
+        quickActions: QUICK_PLACE,
+        stats: { total: 0, green: 0, yellow: 0, red: 0 },
+        hazardStats: { total: 0, pending: 0, fixing: 0, done: 0 },
+        scanPersons: [
+          { dept: '技术质量部', name: '李四、王五', freq: '每1周检查1次', done: true },
+          { dept: '安全生产部', name: '王五', freq: '每1日检查1次', done: true }
         ],
-        stats: { total: 2, green: 2, yellow: 0, red: 0 },
-        hazardStats: { total: 2, pending: 0, fixing: 1, done: 1 },
         dutyPersons: [
-          { name: '陈仓管', pos: '区域责任人', dept: '仓储管理部', progress: '1/1', progressPct: 100 }
+          { name: '李四', pos: '区域责任人', dept: '技术质量部', progress: '1/1', progressPct: 100 }
+        ]
+      },
+      { id: 'PLACE_003', name: '材料仓库', parentName: entName, qrTime: '2025-01-15 09:00',
+        codeColor: 'yellow', owner: '王五', phone: '139****9002',
+        quickActions: QUICK_PLACE,
+        stats: { total: 0, green: 0, yellow: 0, red: 0 },
+        hazardStats: { total: 1, pending: 1, fixing: 0, done: 0 },
+        scanPersons: [
+          { dept: '安全生产部', name: '王五', freq: '每1周检查1次', done: false }
+        ],
+        dutyPersons: [
+          { name: '王五', pos: '区域责任人', dept: '安全生产部', progress: '0/1', progressPct: 0 }
+        ]
+      },
+      { id: 'PLACE_004', name: '办公楼', parentName: entName, qrTime: '2025-01-15 09:00',
+        codeColor: 'green', owner: '李四', phone: '139****9001',
+        quickActions: QUICK_PLACE,
+        stats: { total: 0, green: 0, yellow: 0, red: 0 },
+        hazardStats: { total: 0, pending: 0, fixing: 0, done: 0 },
+        scanPersons: [
+          { dept: '技术质量部', name: '李四', freq: '每1月检查1次', done: true }
+        ],
+        dutyPersons: [
+          { name: '李四', pos: '区域责任人', dept: '技术质量部', progress: '1/1', progressPct: 100 }
+        ]
+      },
+      { id: 'PLACE_005', name: '配电室', parentName: entName, qrTime: '2025-01-15 09:00',
+        codeColor: 'green', owner: '王五', phone: '139****9002',
+        quickActions: QUICK_PLACE,
+        stats: { total: 0, green: 0, yellow: 0, red: 0 },
+        hazardStats: { total: 1, pending: 1, fixing: 0, done: 0 },
+        scanPersons: [
+          { dept: '安全生产部', name: '王五', freq: '每1日检查1次', done: false }
+        ],
+        dutyPersons: [
+          { name: '王五', pos: '区域责任人', dept: '安全生产部', progress: '0/1', progressPct: 0 }
         ]
       }
     ];
@@ -482,7 +526,7 @@ var MobilePageConfig = (function() {
             { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
             { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
             { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
-            { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
+            { icon: '🔄', label: '异常记录', color: 'blue', nav: 'code-change' }
           ],
           hazardStats: { total: 5, pending: 2, fixing: 1, done: 2 },
           dutyPersons: [
@@ -496,7 +540,7 @@ var MobilePageConfig = (function() {
             { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
             { icon: '📊', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
             { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
-            { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
+            { icon: '🔄', label: '异常记录', color: 'blue', nav: 'code-change' }
           ],
           hazardStats: { total: 3, pending: 0, fixing: 1, done: 2 },
           dutyPersons: [
@@ -513,7 +557,7 @@ var MobilePageConfig = (function() {
             { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
             { icon: '📊', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
             { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
-            { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
+            { icon: '🔄', label: '异常记录', color: 'blue', nav: 'code-change' }
           ],
           hazardStats: { total: 2, pending: 0, fixing: 1, done: 1 },
           dutyPersons: [
@@ -522,33 +566,37 @@ var MobilePageConfig = (function() {
         }
       ];
     }
-    // basic / other：通用模拟危险源
+    // basic / other：与企业端「安全管控对象管理」(hazard-list.html HAZARD_DETAIL) 同套数据
+    // 危险源 2 个：电动车充电区（挂 1号生产车间下，红）、危化品存储柜（独立，绿），负责人王五/李四
+    var QUICK_HAZARD = [
+      { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
+      { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
+      { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
+      { icon: '🔄', label: '异常记录', color: 'blue', nav: 'code-change' }
+    ];
     return [
-      { id: 'HAZ_001', name: '危化品存储区', level: '重大', levelColor: 'red', rValue: 25,
-        dept: '生产运营部', qrTime: '2025-01-15 08:00',
-        quickActions: [
-          { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
-          { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
-          { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
-          { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
+      { id: 'HAZ_001', name: '电动车充电区', level: '重大', levelColor: 'red', rValue: 25,
+        dept: '安全生产部', parentName: '1号生产车间', qrTime: '2025-01-15 08:00',
+        owner: '王五', phone: '139****9002',
+        quickActions: QUICK_HAZARD,
+        hazardStats: { total: 2, pending: 0, fixing: 1, done: 1 },
+        scanPersons: [
+          { dept: '安全生产部', name: '王五', freq: '每1周检查1次', done: false }
         ],
-        hazardStats: { total: 5, pending: 2, fixing: 1, done: 2 },
         dutyPersons: [
-          { name: '王操作', pos: '区域责任人', dept: '生产运营部', progress: '1/3', progressPct: 33 },
-          { name: '赵巡检', pos: '扫码责任人', dept: '安全管理部', freq: '每日1次', status: '未完成', statusColor: 'var(--code-yellow)', progress: '1/2', progressPct: 50 }
+          { name: '王五', pos: '区域责任人', dept: '安全生产部', freq: '每1周检查1次', status: '未完成', statusColor: 'var(--code-yellow)', progress: '1/2', progressPct: 50 }
         ]
       },
-      { id: 'HAZ_002', name: '冲压设备区', level: '一般', levelColor: 'green', rValue: 4,
-        dept: '生产运营部', qrTime: '2025-01-15 09:00',
-        quickActions: [
-          { icon: '🔎', label: '码上排查', color: 'orange', nav: 'check-list' },
-          { icon: '⚠️', label: '隐患记录', color: 'green', nav: 'hazard-stats' },
-          { icon: '📄', label: '检查记录', color: 'purple', nav: 'inspection-stats' },
-          { icon: '🔄', label: '变码记录', color: 'blue', nav: 'code-change' }
+      { id: 'HAZ_002', name: '危化品存储柜', level: '一般', levelColor: 'green', rValue: 4,
+        dept: '技术质量部', parentName: null, qrTime: '2025-01-15 09:00',
+        owner: '李四', phone: '139****9001',
+        quickActions: QUICK_HAZARD,
+        hazardStats: { total: 0, pending: 0, fixing: 0, done: 0 },
+        scanPersons: [
+          { dept: '技术质量部', name: '李四', freq: '每1周检查1次', done: true }
         ],
-        hazardStats: { total: 1, pending: 0, fixing: 0, done: 1 },
         dutyPersons: [
-          { name: '刘机修', pos: '区域责任人', dept: '设备维护部', progress: '1/1', progressPct: 100 }
+          { name: '李四', pos: '区域责任人', dept: '技术质量部', progress: '1/1', progressPct: 100 }
         ]
       }
     ];

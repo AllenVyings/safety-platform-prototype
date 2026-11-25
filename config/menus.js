@@ -589,10 +589,10 @@ const MENU_CONFIG = {
         },
         {
           id: 'mobile-code-change',
-          name: '变码记录',
+          name: '异常记录',
           module: 'mobile/code-change',
           path: 'modules/mobile/code-change.html',
-          description: '码色变更记录',
+          description: '管控对象异常记录',
           badge: null,
           disabled: false
         },
