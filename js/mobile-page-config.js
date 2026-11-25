@@ -314,31 +314,20 @@ var MobilePageConfig = (function() {
     var mode = ctx.mode || 'basic';
 
     // 常用功能（按 portalType + mode 差异化）
+    var sampleFunctions = [
+      { icon: '🔎', img: '../../安全码小程序/quick-check.png', label: '码上排查', color: 'blue', nav: 'check-list' },
+      { icon: '📄', img: '../../安全码小程序/wb-work.png', label: '码上作业', color: 'orange' },
+      { icon: '⚠️', img: '../../安全码小程序/quick-hazard.png', label: '隐患整改', color: 'orange', nav: 'my-hazards' },
+      { icon: '📊', img: '../../安全码小程序/quick-inspect.png', label: '检查记录', color: 'blue', nav: 'inspection-stats' },
+      { icon: '🏷️', img: '../../安全码小程序/wb-code.png', label: '动态赋码', color: 'red' },
+      { icon: '⚠️', img: '../../安全码小程序/wb-my-hazard.png', label: '我的隐患', color: 'orange', nav: 'my-hazards' },
+      { icon: '🔍', img: '../../安全码小程序/wb-my-check.png', label: '我的检查', color: 'blue', nav: 'my-inspections' }
+    ];
     var commonFunctions = {
-      gov: [
-        { icon: '🔎', label: '码上排查', color: 'blue', nav: 'check-list' },
-        { icon: '🛠️', label: '隐患排查', color: 'green', nav: 'my-hazards' },
-        { icon: '📋', label: '任务管理', color: 'orange', nav: 'task-list' },
-        { icon: '🎯', label: '监管对象', color: 'purple', nav: 'control-list' }
-      ],
-      basic: [
-        { icon: '🔎', label: '码上排查', color: 'blue', nav: 'check-list' },
-        { icon: '🛠️', label: '隐患排查', color: 'green', nav: 'my-hazards' },
-        { icon: '📋', label: '任务管理', color: 'orange', nav: 'task-list' },
-        { icon: '🎯', label: '安全管控对象', color: 'purple', nav: 'control-list' }
-      ],
-      project: [
-        { icon: '🔎', label: '码上排查', color: 'blue', nav: 'check-list' },
-        { icon: '🛠️', label: '隐患排查', color: 'green', nav: 'my-hazards' },
-        { icon: '📋', label: '任务管理', color: 'orange', nav: 'task-list' },
-        { icon: '🎯', label: '项目管控对象', color: 'purple', nav: 'control-list' }
-      ],
-      special: [
-        { icon: '🔎', label: '码上排查', color: 'blue', nav: 'check-list' },
-        { icon: '🛠️', label: '隐患排查', color: 'green', nav: 'my-hazards' },
-        { icon: '📋', label: '任务管理', color: 'orange', nav: 'task-list' },
-        { icon: '🎯', label: '场所管控对象', color: 'purple', nav: 'control-list' }
-      ],
+      gov: sampleFunctions,
+      basic: sampleFunctions,
+      project: sampleFunctions,
+      special: sampleFunctions,
       other: [
         { icon: '🔎', label: '巡查记录', color: 'blue', nav: 'check-list' },
         { icon: '⚠️', label: '问题上报', color: 'green', nav: 'my-hazards' },

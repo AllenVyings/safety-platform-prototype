@@ -6,110 +6,260 @@
   <title>隐患统计</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
-    .hs-card { background: var(--wc-card-bg); border-radius: 12px; padding: 14px var(--wc-page-padding); margin: var(--wc-gap-lg) var(--wc-page-padding); box-shadow: var(--wc-shadow-card); }
-    .hs-card-title { font-size: var(--wc-font-body); font-weight: 600; color: var(--wc-text-primary); margin-bottom: var(--wc-gap-xl); display: flex; align-items: center; justify-content: space-between; }
-    .hs-chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--wc-gap-xl); }
-    .hs-chart-item { text-align: center; padding: var(--wc-gap-lg) 0; background: var(--wc-page-bg); border-radius: var(--wc-btn-radius); }
-    .hs-chart-ring { margin: 0 auto 6px; }
-    .hs-chart-label { font-size: var(--wc-font-small); color: var(--wc-text-tertiary); }
-    .hs-filter-bar { display: flex; gap: var(--wc-gap-md); padding: var(--wc-gap-md) var(--wc-page-padding); overflow-x: auto; background: var(--wc-card-bg); border-bottom: 0.5px solid var(--wc-track-bg); }
-    .hs-filter-chip { white-space: nowrap; padding: 5px 14px; border-radius: 14px; font-size: 13px; background: var(--wc-bg-gray); color: var(--wc-text-tertiary); cursor: pointer; transition: all 0.2s ease; }
-    .hs-filter-chip.active { background: var(--brand-blue); color: var(--wc-card-bg); }
-    .hs-list-item { display: flex; align-items: center; padding: var(--wc-gap-xl) var(--wc-page-padding); background: var(--wc-card-bg); border-bottom: 0.5px solid var(--wc-bg-gray); cursor: pointer; }
-    .hs-list-item:active { background: var(--wc-page-bg); }
-    .hs-urgency { width: var(--wc-gap-sm); height: 32px; border-radius: 2px; margin-right: var(--wc-gap-lg); flex-shrink: 0; }
-    .hs-list-info { flex: 1; }
-    .hs-list-name { font-size: var(--wc-font-caption); color: var(--wc-text-primary); font-weight: 500; }
-    .hs-list-meta { font-size: var(--wc-font-small); color: #888; margin-top: 2px; }
-    .hs-list-badge { font-size: var(--wc-font-tiny); padding: 2px var(--wc-gap-md); border-radius: var(--wc-btn-radius); }
+    body { background: #f5f7fb; }
+    .hs-top {
+      display: flex; align-items: center; height: 44px; padding: 0 12px;
+      background: #2f7bff; color: #fff; position: sticky; top: 0; z-index: 20;
+    }
+    .hs-back {
+      width: 32px; height: 32px; border: 0; background: transparent; color: #fff;
+      display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer;
+    }
+    .hs-title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; margin-right: 32px; }
+    .hs-card {
+      background: #fff; border-radius: 12px; margin: 12px 16px;
+      padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .hs-total { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .hs-total span { font-size: 16px; font-weight: 600; color: #2f7bff; }
+    .hs-total b { font-size: 28px; line-height: 1; color: #2f7bff; }
+    .hs-levels { display: flex; gap: 10px; }
+    .hs-level { flex: 1; border-radius: 10px; padding: 12px; min-width: 0; }
+    .hs-level.normal { background: #f3f7ff; }
+    .hs-level.major { background: #fff1f0; }
+    .hs-level-name { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: #1d2129; }
+    .hs-level-name i { width: 3px; height: 12px; border-radius: 2px; }
+    .hs-level.normal .hs-level-name i { background: #2f7bff; }
+    .hs-level.major .hs-level-name i { background: #ff4d4f; }
+    .hs-level-num { margin: 8px 0 4px; font-size: 28px; line-height: 1; font-weight: 700; }
+    .hs-level.normal .hs-level-num { color: #1d2129; }
+    .hs-level.major .hs-level-num { color: #1d2129; }
+    .hs-level-sub { font-size: 12px; color: #86909c; }
+    .hs-bar-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .hs-bar { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.8); overflow: hidden; }
+    .hs-bar span { display: block; height: 100%; border-radius: 3px; }
+    .hs-level.normal .hs-bar span { background: #2f7bff; }
+    .hs-level.major .hs-bar span { background: #ff4d4f; }
+    .hs-pct { font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .hs-level.normal .hs-pct { color: #2f7bff; }
+    .hs-level.major .hs-pct { color: #ff4d4f; }
+    .hs-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .hs-sec-title { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: #1d2129; }
+    .hs-sec-title i { width: 3px; height: 14px; border-radius: 2px; background: #2f7bff; }
+    .hs-sub { margin-top: 4px; font-size: 12px; color: #86909c; }
+    .hs-tools { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .hs-switch, .hs-chips { display: flex; background: #f2f3f5; border-radius: 8px; padding: 2px; }
+    .hs-switch button, .hs-chips button {
+      border: 0; background: transparent; color: #4e5969; cursor: pointer;
+      height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12px; white-space: nowrap;
+    }
+    .hs-switch button.on, .hs-chips button.on { background: #2f7bff; color: #fff; }
+    .hs-row { margin-top: 16px; }
+    .hs-row-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .hs-row-name { font-size: 15px; font-weight: 600; color: #1d2129; }
+    .hs-row-meta { font-size: 13px; color: #86909c; }
+    .hs-row-meta b { color: #52c41a; font-weight: 600; }
+    .hs-row .hs-bar { background: #eef1f6; margin-top: 8px; }
+    .hs-row .hs-bar span { background: linear-gradient(90deg, #2f7bff, #3dcb9a); }
+    .hs-row.major .hs-bar span { background: #ff4d4f; }
+    .hs-dist {
+      display: flex; margin: 0 16px; background: #eef1f6; border-radius: 10px; padding: 3px;
+    }
+    .hs-dist button {
+      flex: 1; height: 34px; border: 0; background: transparent; border-radius: 8px;
+      color: #4e5969; font-size: 14px; cursor: pointer;
+    }
+    .hs-dist button.on { background: #fff; color: #1d2129; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .hs-rank-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .hs-rank-value { font-size: 20px; font-weight: 700; color: #2f7bff; }
+    .hs-rank .hs-bar span { background: #2f7bff; }
+    .hs-rank-meta { display: flex; gap: 12px; margin-top: 6px; font-size: 12px; color: #86909c; }
+    .hs-rank-meta b { color: #2f7bff; font-weight: 600; }
+    .hs-list { padding-bottom: 16px; }
   </style>
 </head>
 <body>
   <div class="m-page">
-    <!-- 总览图表 -->
-    <div class="hs-card">
-      <div class="hs-card-title">隐患总览</div>
-      <div class="stat-row" style="padding:0;margin-bottom:12px;">
-        <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">总数</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--code-red)">2</div><div class="stat-label">待整改</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--code-yellow)">3</div><div class="stat-label">整改中</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--brand-blue)">1</div><div class="stat-label">待验收</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--code-green)">5</div><div class="stat-label">已整改</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--code-red,#cf1322)">1</div><div class="stat-label">已超期</div></div>
-      </div>
-      <div class="hs-chart-grid">
-        <div class="hs-chart-item">
-          <div class="hs-chart-ring ring-chart" style="width:70px;height:70px;background:conic-gradient(var(--code-red) 0% 25%, var(--code-yellow) 25% 50%, var(--code-green) 50% 100%);">
-            <div class="ring-chart-inner" style="top:12px;left:12px;width:46px;height:46px;font-size:12px;">12</div>
-          </div>
-          <div class="hs-chart-label">状态分布</div>
-        </div>
-        <div class="hs-chart-item">
-          <div class="hs-chart-ring ring-chart" style="width:70px;height:70px;background:conic-gradient(var(--code-red) 0% 33%, var(--code-orange,#fa8c16) 33% 100%);">
-            <div class="ring-chart-inner" style="top:12px;left:12px;width:46px;height:46px;font-size:12px;">4:8</div>
-          </div>
-          <div class="hs-chart-label">重大:一般</div>
-        </div>
-        <div class="hs-chart-item">
-          <div class="hs-chart-ring ring-chart" style="width:70px;height:70px;background:conic-gradient(var(--brand-blue) 0% 30%, #fa8c16 30% 60%, var(--code-red) 60% 80%, #722ed1 80% 100%);">
-            <div class="ring-chart-inner" style="top:12px;left:12px;width:46px;height:46px;font-size:12px;">4类</div>
-          </div>
-          <div class="hs-chart-label">类型分布</div>
-        </div>
-        <div class="hs-chart-item">
-          <div class="hs-chart-ring ring-chart" style="width:70px;height:70px;background:conic-gradient(var(--brand-blue) 0% 40%, var(--code-red) 40% 55%, var(--code-yellow) 55% 75%, var(--code-green) 75% 100%);">
-            <div class="ring-chart-inner" style="top:12px;left:12px;width:46px;height:46px;font-size:12px;">4处</div>
-          </div>
-          <div class="hs-chart-label">高发部位</div>
-        </div>
-      </div>
+    <div class="hs-top" id="hsTop">
+      <button class="hs-back" type="button" onclick="hsBack()" aria-label="返回">
+        <svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10L10 18" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="hs-title">隐患统计</div>
     </div>
-
-    <!-- 隐患列表 -->
-    <div class="hs-filter-bar">
-      <span class="hs-filter-chip active" onclick="filterHazard(this)">全部</span>
-      <span class="hs-filter-chip" onclick="filterHazard(this)">待整改</span>
-      <span class="hs-filter-chip" onclick="filterHazard(this)">整改中</span>
-      <span class="hs-filter-chip" onclick="filterHazard(this)">待验收</span>
-      <span class="hs-filter-chip" onclick="filterHazard(this)">已整改</span>
-      <span class="hs-filter-chip" onclick="filterHazard(this)">已超期</span>
-    </div>
-    <div class="hs-list-item" onclick="navTo('hazard-detail')">
-      <div class="hs-urgency" style="background:var(--code-red)"></div>
-      <div class="hs-list-info"><div class="hs-list-name">配电房灭火器过期</div><div class="hs-list-meta">消防 · 重大 · 期限 2024-01-15</div></div>
-      <span class="hs-list-badge code-badge red">待整改</span>
-    </div>
-    <div class="hs-list-item" onclick="navTo('hazard-detail')">
-      <div class="hs-urgency" style="background:var(--code-red)"></div>
-      <div class="hs-list-info"><div class="hs-list-name">电气线路绝缘层破损</div><div class="hs-list-meta">电气 · 重大 · 期限 2024-01-25</div></div>
-      <span class="hs-list-badge code-badge red">待整改</span>
-    </div>
-    <div class="hs-list-item" onclick="navTo('hazard-detail')">
-      <div class="hs-urgency" style="background:var(--code-yellow)"></div>
-      <div class="hs-list-info"><div class="hs-list-name">仓库安全出口标识缺失</div><div class="hs-list-meta">标志 · 一般 · 期限 2024-01-20</div></div>
-      <span class="hs-list-badge code-badge yellow">整改中</span>
-    </div>
-    <div class="hs-list-item" onclick="navTo('hazard-detail')">
-      <div class="hs-urgency" style="background:var(--code-yellow)"></div>
-      <div class="hs-list-info"><div class="hs-list-name">危化品存储区通风不良</div><div class="hs-list-meta">设备 · 一般 · 期限 2024-02-01</div></div>
-      <span class="hs-list-badge code-badge yellow">整改中</span>
-    </div>
-    <div class="hs-list-item">
-      <div class="hs-urgency" style="background:var(--code-yellow)"></div>
-      <div class="hs-list-info"><div class="hs-list-name">实验室化学品未分类存放</div><div class="hs-list-meta">危化品 · 一般 · 期限 2024-01-30</div></div>
-      <span class="hs-list-badge code-badge yellow">整改中</span>
-    </div>
-
-    <div style="height:32px;"></div>
+    <div class="hs-card hs-summary" id="hsSummary"></div>
+    <div class="hs-card" id="hsTypes"></div>
+    <div class="hs-dist" id="hsDist"></div>
+    <div class="hs-card hs-rank" id="hsRank"></div>
+    <div class="hs-list"></div>
   </div>
 
   <script>
-    function filterHazard(el) {
-      document.querySelectorAll('.hs-filter-chip').forEach(function(c){c.classList.remove('active');});
-      el.classList.add('active');
+    var LEVELS = {
+      general: {
+        name: '一般隐患',
+        types: [
+          { name: '现场环境', total: 4, fixed: 4 },
+          { name: '管理制度', total: 2, fixed: 1 },
+          { name: '标志标线', total: 1, fixed: 1 },
+          { name: '防火分区', total: 1, fixed: 0 }
+        ]
+      },
+      major: {
+        name: '重大隐患',
+        types: [
+          { name: '现场环境', total: 2, fixed: 1 },
+          { name: '违规充电', total: 1, fixed: 0 },
+          { name: '基坑、边坡工程', total: 1, fixed: 0 }
+        ]
+      }
+    };
+    var PLACES = [
+      { name: '危废品储区', total: 2, fixed: 2 },
+      { name: '消防控制室', total: 1, fixed: 1 },
+      { name: '废气治理设施', total: 6, fixed: 3 },
+      { name: '配电房', total: 3, fixed: 1 }
+    ];
+    var SOURCES = [
+      { name: '危化品存储区', total: 5, fixed: 3 },
+      { name: '锅炉房', total: 4, fixed: 2 },
+      { name: '污水站', total: 3, fixed: 2 }
+    ];
+    var level = 'general';
+    var typeMetric = 'rate';
+    var rankMetric = 'rate';
+    var rankBy = 'place';
+
+    function sum(list, key) {
+      return list.reduce(function(n, item) { return n + item[key]; }, 0);
     }
+    function levelTotal(key) { return sum(LEVELS[key].types, 'total'); }
+    function levelFixed(key) { return sum(LEVELS[key].types, 'fixed'); }
+    function pct(fixed, total) {
+      if (!total) return '0%';
+      var n = Math.round(fixed / total * 1000) / 10;
+      return (n % 1 === 0 ? String(n) : n.toFixed(1)) + '%';
+    }
+    function metricValue(item, metric) {
+      if (metric === 'count') return item.total;
+      if (metric === 'fixed') return item.fixed;
+      return item.total ? item.fixed / item.total : 0;
+    }
+    function metricLabel(item, metric) {
+      if (metric === 'count') return String(item.total);
+      if (metric === 'fixed') return String(item.fixed);
+      return pct(item.fixed, item.total);
+    }
+    function barWidth(item, metric, list) {
+      if (metric === 'rate') return item.total ? (item.fixed / item.total * 100) : 0;
+      var max = 0;
+      list.forEach(function(row) { max = Math.max(max, metricValue(row, metric)); });
+      if (!max) return 0;
+      return metricValue(item, metric) / max * 100;
+    }
+    function sortRows(list, metric) {
+      return list.slice().sort(function(a, b) {
+        return metricValue(b, metric) - metricValue(a, metric);
+      });
+    }
+    function chips(which, current) {
+      return '<div class="hs-chips" data-which="' + which + '">' +
+        '<button type="button" data-metric="count"' + (current === 'count' ? ' class="on"' : '') + '>隐患数</button>' +
+        '<button type="button" data-metric="fixed"' + (current === 'fixed' ? ' class="on"' : '') + '>整改数</button>' +
+        '<button type="button" data-metric="rate"' + (current === 'rate' ? ' class="on"' : '') + '>整改率</button>' +
+        '</div>';
+    }
+    function levelCard(key, klass) {
+      var total = levelTotal(key);
+      var fixed = levelFixed(key);
+      return '<div class="hs-level ' + klass + '">' +
+        '<div class="hs-level-name"><i></i>' + LEVELS[key].name + '</div>' +
+        '<div class="hs-level-num">' + total + '</div>' +
+        '<div class="hs-level-sub">已整改 ' + fixed + ' / 未整改 ' + (total - fixed) + '</div>' +
+        '<div class="hs-bar-row"><div class="hs-bar"><span style="width:' + (total ? fixed / total * 100 : 0) + '%"></span></div><div class="hs-pct">' + pct(fixed, total) + '</div></div>' +
+        '</div>';
+    }
+    function renderSummary() {
+      var total = levelTotal('general') + levelTotal('major');
+      document.getElementById('hsSummary').innerHTML =
+        '<div class="hs-total"><span>隐患总数</span><b>' + total + '</b></div>' +
+        '<div class="hs-levels">' + levelCard('general', 'normal') + levelCard('major', 'major') + '</div>';
+    }
+    function renderTypes() {
+      var rows = sortRows(LEVELS[level].types, typeMetric);
+      var body = rows.map(function(item) {
+        return '<div class="hs-row' + (level === 'major' ? ' major' : '') + '">' +
+          '<div class="hs-row-top"><div class="hs-row-name">' + item.name + '</div>' +
+          '<div class="hs-row-meta">已改<b>' + item.fixed + '</b> 共' + item.total + '</div></div>' +
+          '<div class="hs-bar-row"><div class="hs-bar"><span style="width:' + barWidth(item, typeMetric, rows) + '%"></span></div>' +
+          '<div class="hs-pct">' + metricLabel(item, typeMetric) + '</div></div></div>';
+      }).join('');
+      document.getElementById('hsTypes').innerHTML =
+        '<div class="hs-head"><div><div class="hs-sec-title"><i></i>隐患类型分析</div><div class="hs-sub">按隐患类型统计整改情况</div></div>' +
+        '<div class="hs-tools"><div class="hs-switch" id="hsLevelSwitch">' +
+        '<button type="button" data-level="general"' + (level === 'general' ? ' class="on"' : '') + '>一般隐患</button>' +
+        '<button type="button" data-level="major"' + (level === 'major' ? ' class="on"' : '') + '>重大隐患</button>' +
+        '</div>' + chips('type', typeMetric) + '</div></div>' + body;
+    }
+    function renderDist() {
+      document.getElementById('hsDist').innerHTML =
+        '<button type="button" data-by="place"' + (rankBy === 'place' ? ' class="on"' : '') + '>按场所分布</button>' +
+        '<button type="button" data-by="source"' + (rankBy === 'source' ? ' class="on"' : '') + '>按危险源分布</button>';
+    }
+    function renderRank() {
+      var list = rankBy === 'place' ? PLACES : SOURCES;
+      var rows = sortRows(list, rankMetric);
+      var title = rankBy === 'place' ? '场所排名' : '危险源排名';
+      var sub = rankBy === 'place' ? '按场所统计隐患与整改情况' : '按危险源统计隐患与整改情况';
+      var body = rows.map(function(item) {
+        return '<div class="hs-row">' +
+          '<div class="hs-rank-top"><div class="hs-row-name">' + item.name + '</div><div class="hs-rank-value">' + metricLabel(item, rankMetric) + '</div></div>' +
+          '<div class="hs-bar"><span style="width:' + barWidth(item, rankMetric, rows) + '%"></span></div>' +
+          '<div class="hs-rank-meta"><span>总隐患 ' + item.total + '</span><span>已整改 ' + item.fixed + '</span><span>整改率 <b>' + pct(item.fixed, item.total) + '</b></span></div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('hsRank').innerHTML =
+        '<div class="hs-head"><div><div class="hs-sec-title"><i></i>' + title + '</div><div class="hs-sub">' + sub + '</div></div>' +
+        chips('rank', rankMetric) + '</div>' + body;
+    }
+    function render() {
+      renderSummary();
+      renderTypes();
+      renderDist();
+      renderRank();
+    }
+    function hsBack() {
+      if (window.parent && window.parent !== window && typeof window.parent.mobileBack === 'function') {
+        window.parent.mobileBack();
+      } else {
+        location.href = 'enterprise-code.html';
+      }
+    }
+    document.getElementById('hsTypes').addEventListener('click', function(event) {
+      var levelBtn = event.target.closest('[data-level]');
+      var metricBtn = event.target.closest('#hsTypes [data-metric]');
+      if (levelBtn) level = levelBtn.getAttribute('data-level');
+      if (metricBtn) typeMetric = metricBtn.getAttribute('data-metric');
+      if (levelBtn || metricBtn) renderTypes();
+    });
+    document.getElementById('hsDist').addEventListener('click', function(event) {
+      var btn = event.target.closest('[data-by]');
+      if (!btn) return;
+      rankBy = btn.getAttribute('data-by');
+      renderDist();
+      renderRank();
+    });
+    document.getElementById('hsRank').addEventListener('click', function(event) {
+      var metricBtn = event.target.closest('[data-metric]');
+      if (!metricBtn) return;
+      rankMetric = metricBtn.getAttribute('data-metric');
+      renderRank();
+    });
+    if (window.parent && window.parent !== window) {
+      document.getElementById('hsTop').style.display = 'none';
+    }
+    render();
   </script>
-<script src="../../js/mobile-session.js"></script>
-<script src="../../js/annotations.js"></script>
+  <script src="../../js/mobile-session.js"></script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

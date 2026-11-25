@@ -6,1459 +6,1465 @@
   <link rel="stylesheet" href="../../css/framework.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>隐患库管理 - 超管端</title>
-  
   <style>
-    /* ========== 页面容器 ========== */
+    html, body { height: 100%; margin: 0; overflow: hidden; }
     .page-container {
-      height: 100vh;
+      height: 100%;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      padding: var(--spacing-md);
     }
+    .layout-split { display: flex; gap: var(--spacing-lg); flex: 1; min-height: 0; }
 
-    /* ========== 分屏布局 ========== */
-    .layout-split {
-      display: flex;
-      gap: var(--spacing-lg);
-      flex: 1;
-      min-height: 0;
-    }
-
-    /* ========== 左侧面板 ========== */
     .tree-panel {
-      width: 260px;
-      height: 100%;
+      width: 260px; flex-shrink: 0; height: 100%;
       background: var(--bg-primary);
+      border: 1px solid var(--border-section);
       border-radius: var(--radius-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; overflow: hidden;
     }
-
-    /* ========== 右侧面板 ========== */
-    .right-panel {
-      flex: 1;
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: var(--shadow-sm);
-    }
-
-    /* ========== 面板头部 ========== */
     .panel-header {
       padding: var(--spacing-md);
       border-bottom: 1px solid var(--border-section);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       background: var(--bg-section);
     }
     .panel-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
-
-    /* ========== 树搜索框 ========== */
-    .tree-search {
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-bottom: 1px solid var(--border-section);
-    }
+    .tree-search { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid var(--border-section); }
     .tree-search input {
-      width: 100%;
-      padding: var(--spacing-sm);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      font-size: var(--font-size-sm);
-      outline: none;
-      transition: border-color var(--duration-normal);
+      width: 100%; height: 32px; box-sizing: border-box;
+      padding: 0 var(--spacing-sm);
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      font-size: var(--font-size-sm); outline: none;
     }
     .tree-search input:focus { border-color: var(--primary); }
-
-    /* ========== 树形列表 ========== */
-    .tree-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: var(--spacing-sm) 0;
-      min-height: 0;
-    }
+    .tree-content { flex: 1; min-height: 0; overflow-y: auto; padding: var(--spacing-sm) 0; }
     .tree-node {
-      display: flex;
-      align-items: center;
-      padding: var(--spacing-sm) var(--spacing-md);
-      cursor: pointer;
-      transition: all var(--duration-fast);
-      font-size: var(--font-size-sm);
+      display: flex; align-items: center;
+      padding: 6px var(--spacing-md); cursor: pointer;
+      font-size: var(--font-size-sm); color: var(--text-primary);
     }
     .tree-node:hover { background: var(--bg-hover); }
     .tree-node.selected { background: var(--primary-light); color: var(--primary); }
-    .tree-node .expand-icon {
-      width: var(--spacing-lg);
-      height: var(--spacing-lg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-tertiary);
-      font-size: var(--font-size-xs);
+    .tree-node.depth-2 { padding-left: 28px; }
+    .tree-node.depth-3 { padding-left: 46px; }
+    .expand-icon {
+      width: 16px; height: 16px; flex-shrink: 0; margin-right: 2px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-tertiary); font-size: 10px;
       transition: transform var(--duration-normal);
-      flex-shrink: 0;
-      cursor: pointer;
-      margin-right: var(--spacing-xs);
     }
-    .tree-node .expand-icon.expanded { transform: rotate(90deg); }
-    .tree-node .expand-icon.leaf { visibility: hidden; }
-    .tree-node .node-icon {
-      width: 18px; height: 18px;
-      margin-right: var(--spacing-xs);
-      flex-shrink: 0;
-      font-size: var(--font-size-md);
-    }
-    .tree-node .node-name {
-      flex: 1; min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .tree-node .node-count {
-      font-size: var(--font-size-xs);
-      color: var(--primary);
-      margin-left: var(--spacing-sm);
-      background: var(--primary-light);
-      padding: var(--spacing-xs);
-      border-radius: var(--radius-full);
+    .expand-icon.expanded { transform: rotate(90deg); }
+    .expand-icon.leaf { visibility: hidden; }
+    .node-icon { width: 16px; height: 16px; margin-right: 6px; flex-shrink: 0; color: var(--text-secondary); display: flex; }
+    .node-icon svg { display: block; }
+    .tree-node.selected .node-icon { color: var(--primary); }
+    .node-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .node-count {
+      font-size: var(--font-size-xs); color: var(--primary);
+      margin-left: var(--spacing-sm); background: var(--primary-light);
+      padding: 0 6px; border-radius: var(--radius-full); flex-shrink: 0;
     }
     .tree-node.is-category { font-weight: 600; }
     .tree-children { display: none; }
     .tree-children.show { display: block; }
 
-    /* ========== 右侧内容区 ========== */
-    .content-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-    }
+    .right-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+    .stat-cards { flex-shrink: 0; margin-bottom: var(--spacing-md); }
+    .page-container .stat-card { padding: 12px 16px; }
+    .stat-card.selected { outline: 2px solid var(--primary); outline-offset: -2px; }
 
-    /* ========== 筛选条件栏 ========== */
     .filter-card {
+      flex-shrink: 0;
       background: var(--bg-primary);
+      border: 1px solid var(--border-section);
       border-radius: var(--radius-lg);
       padding: var(--spacing-md) var(--spacing-lg);
-      border: 1px solid var(--border-section);
       margin-bottom: var(--spacing-md);
     }
-    .filter-card .filter-bar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); background: transparent; }
-    .filter-card .filter-item { display: flex; align-items: center; gap: var(--spacing-xs); }
+    .filter-card .filter-bar {
+      display: flex; align-items: center; flex-wrap: nowrap; gap: var(--spacing-sm);
+      margin: 0; padding: 0; background: transparent; border: none; border-radius: 0;
+    }
+    .filter-card .filter-item { display: flex; align-items: center; gap: 4px; min-width: 0; flex: 1; }
+    .filter-card .filter-item label { flex-shrink: 0; font-size: var(--font-size-sm); color: var(--text-primary); white-space: nowrap; }
     .filter-card .filter-bar select,
-    .filter-card .filter-bar input { width: 240px; height: 32px; padding: 0 var(--spacing-sm); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); box-sizing: border-box; }
-    .filter-bar select,
-    .filter-bar input[type="text"] { padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); outline: none; transition: border-color var(--duration-normal); }
-    .filter-bar select:focus,
-    .filter-bar input[type="text"]:focus { border-color: var(--primary); }
-    .filter-bar select { min-width: 120px; }
-    .filter-bar input[type="text"] { width: 180px; }
+    .filter-card .filter-bar input[type="text"] {
+      flex: 1; min-width: 0; width: auto; max-width: 240px; height: 32px;
+      padding: 0 var(--spacing-sm); border: 1px solid var(--border);
+      border-radius: var(--radius-md); font-size: var(--font-size-sm); box-sizing: border-box;
+    }
+    .filter-card .filter-bar select:focus,
+    .filter-card .filter-bar input:focus { border-color: var(--primary); outline: none; }
+    .filter-card .filter-actions { display: flex; gap: var(--spacing-sm); flex-shrink: 0; }
 
-    /* ========== 操作按钮栏 ========== */
-    .action-bar { padding: var(--spacing-sm) var(--spacing-lg); border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-    .action-bar .left-actions { display: flex; gap: var(--spacing-sm); }
-    .action-bar .right-actions { display: flex; gap: var(--spacing-sm); }
-
-    .batch-bar { padding: var(--spacing-sm) var(--spacing-lg); background: var(--bg-secondary); border-bottom: 1px solid var(--border-section); display: none; align-items: center; gap: var(--spacing-md); flex-shrink: 0; }
+    .hz-list-card {
+      flex: 1; min-height: 0; display: flex; flex-direction: column;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-section);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .action-bar {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-bottom: 1px solid var(--border-section);
+      display: flex; align-items: center; flex-shrink: 0;
+    }
+    .batch-bar {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: var(--bg-secondary); border-bottom: 1px solid var(--border-section);
+      display: none; align-items: center; gap: var(--spacing-md); flex-shrink: 0;
+    }
     .batch-bar.show { display: flex; }
     .batch-bar .selected-info { font-size: var(--font-size-sm); color: var(--primary); }
     .batch-bar .batch-actions { display: flex; gap: var(--spacing-sm); margin-left: auto; }
 
-    /* ========== 表格列宽（结构由 framework.css .table-wrap 提供） ========== */
-    table .hazard-name { min-width: 200px; max-width: 300px; }
-    table .hazard-category { width: 100px; }
-    table .hazard-level { width: 90px; }
-    table .hazard-domain { min-width: 150px; max-width: 200px; }
-    table .hazard-checkitems { width: 100px; }
-    table .hazard-regulations { width: 100px; }
-    table .hazard-status { width: 70px; }
-    table .hazard-time { width: 140px; }
-    table .operation-col { width: 200px; }
-    table td.operation-col .btn-link:last-child { margin-right: 0; }
+    .hz-list-card .table-wrap {
+      flex: 1; min-height: 0; overflow: auto;
+      margin: 12px 20px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-page-solid);
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .hz-list-card .table-wrap thead th { background: var(--bg-page-solid); position: sticky; top: 0; z-index: 1; }
+    .hz-list-card .table-wrap tbody td { background: var(--bg-primary); }
+    .hz-list-card .table-wrap tbody tr:nth-child(even),
+    .hz-list-card .table-wrap tbody tr:nth-child(even) td { background: var(--bg-primary); }
+    .hz-list-card .table-wrap tbody tr:hover td { background: var(--bg-hover); }
+    .hz-list-card .pagination { flex-shrink: 0; border-top: 1px solid var(--border-section); }
 
-    .truncate-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+    .tag { white-space: nowrap; }
+    .name-link { text-align: left; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
+    .btn-link.danger { color: var(--danger); }
+    .hz-status {
+      border: 1px solid var(--border); background: var(--bg-primary);
+      border-radius: var(--radius-full); padding: 2px 10px; cursor: pointer;
+      font-size: var(--font-size-xs);
+    }
+    .hz-status.on { color: var(--success); border-color: var(--success); }
+    .hz-status.off { color: var(--text-tertiary); }
 
-    /* ========== 表单补充样式 ========== */
-    .form-group input,
-    .form-group select,
-    .form-group textarea { width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: var(--font-size-sm); outline: none; transition: border-color var(--duration-normal); }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus { border-color: var(--primary); }
-    .form-group--last { margin-bottom: var(--spacing-md); }
+    table .hazard-name { min-width: 180px; text-align: left; }
+    table .operation-col { width: 180px; white-space: nowrap; }
+    .truncate-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; display: inline-block; }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border);
+      border-radius: var(--radius-md); font-size: var(--font-size-sm); outline: none; box-sizing: border-box;
+    }
+    .form-group textarea { resize: vertical; min-height: 72px; }
     .form-label .required { color: var(--danger); margin-left: 2px; }
-    .form-group textarea { resize: vertical; min-height: 80px; }
-    .radio-group { gap: var(--spacing-lg); }
-    .radio-item input { width: 16px; height: 16px; cursor: pointer; }
-
-    /* ========== 关联选择区 ========== */
-    .association-section { margin-bottom: var(--spacing-md); }
-    .association-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); }
-    .association-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
-
-    .recommend-result { background: var(--bg-secondary); border-radius: var(--radius-md); padding: var(--spacing-sm); margin-bottom: var(--spacing-sm); }
-    .recommend-header { font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-sm); }
-    .recommend-item { display: flex; align-items: center; padding: var(--spacing-sm); background: var(--bg-primary); border-radius: var(--radius-sm); margin-bottom: var(--spacing-xs); }
-    .recommend-item:last-child { margin-bottom: 0; }
-    .recommend-match { width: 50px; font-size: var(--font-size-xs); font-weight: 600; color: var(--primary); }
-    .recommend-name { flex: 1; font-size: var(--font-size-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .recommend-action { margin-left: var(--spacing-sm); }
-
-    .added-list { background: var(--bg-secondary); border-radius: var(--radius-md); padding: var(--spacing-sm); }
-    .added-item { display: flex; align-items: center; padding: var(--spacing-xs) 0; border-bottom: 1px solid var(--border-section); }
-    .added-item:last-child { border-bottom: none; }
-    .added-item .item-name { flex: 1; font-size: var(--font-size-sm); }
-    .added-item .item-tag { margin-right: var(--spacing-sm); }
-    .added-item .item-remove { color: var(--text-tertiary); cursor: pointer; transition: color var(--duration-normal); }
-    .added-item .item-remove:hover { color: var(--danger); }
-
-    .add-link { margin-top: var(--spacing-sm); }
-
-    /* ========== 详情弹窗 ========== */
+    .radio-group { display: flex; gap: var(--spacing-lg); }
+    .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .suggest-days { font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: 6px; }
+    .similar-box, .recommend-box { margin-top: 6px; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 8px; font-size: var(--font-size-sm); }
+    .similar-box button, .recommend-box button { margin-left: 8px; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
+    .pick-tag { display: inline-flex; align-items: center; gap: 4px; background: var(--primary-light); color: var(--primary); border-radius: var(--radius-full); padding: 2px 8px; font-size: var(--font-size-xs); }
+    .pick-tag .x { cursor: pointer; }
+    .picker-grid { display: grid; grid-template-columns: 180px 1fr; gap: 12px; min-height: 240px; }
+    .picker-col { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: auto; max-height: 320px; }
+    .picker-item { display: flex; align-items: center; gap: 6px; padding: 6px 10px; cursor: pointer; font-size: var(--font-size-sm); }
+    .picker-item.active { background: var(--primary-light); color: var(--primary); }
+    .picker-item label { display: flex; align-items: center; gap: 6px; width: 100%; cursor: pointer; }
+    .link-count { background: none; border: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+    .link-count.empty { color: var(--text-tertiary); }
     .detail-section { margin-bottom: var(--spacing-lg); }
-    .detail-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--border-section); }
+    .detail-section-title { font-size: var(--font-size-md); font-weight: 600; margin-bottom: var(--spacing-sm); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--border-section); }
     .detail-row { display: flex; margin-bottom: var(--spacing-sm); font-size: var(--font-size-sm); }
-    .detail-label { width: 80px; color: var(--text-secondary); flex-shrink: 0; }
+    .detail-label { width: 88px; color: var(--text-secondary); flex-shrink: 0; }
     .detail-value { flex: 1; color: var(--text-primary); }
-    .detail-desc { font-size: var(--font-size-sm); color: var(--text-primary); line-height: 1.6; }
-    .detail-suggestion { font-size: var(--font-size-sm); color: var(--text-primary); line-height: 1.8; }
-
     .detail-list { background: var(--bg-secondary); border-radius: var(--radius-md); padding: var(--spacing-sm); }
-    .detail-list-item { display: flex; align-items: center; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-section); font-size: var(--font-size-sm); }
+    .detail-list-item { padding: 6px 0; border-bottom: 1px solid var(--border-section); font-size: var(--font-size-sm); }
     .detail-list-item:last-child { border-bottom: none; }
-    .detail-list-item .item-dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; margin-right: var(--spacing-sm); }
-
-    /* 法规条款展开项 */
-    .detail-reg-item { border-bottom: 1px solid var(--border-section); cursor: pointer; }
-    .detail-reg-item:last-child { border-bottom: none; }
-    .detail-reg-header { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) 0; cursor: pointer; }
-    .detail-reg-toggle { font-size: var(--font-size-xs); color: var(--text-tertiary); flex-shrink: 0; width: 16px; text-align: center; }
-    .detail-reg-name { font-size: var(--font-size-sm); color: var(--text-primary); }
-    .detail-reg-content { background: var(--bg-tertiary); border-radius: var(--radius-sm); margin-bottom: var(--spacing-sm); }
-    .detail-reg-body { font-size: var(--font-size-xs); color: var(--text-secondary); line-height: 1.8; padding: var(--spacing-sm); }
-
-    /* ========== 删除确认 ========== */
-    .delete-warning { background: var(--warning-light); border: 1px solid var(--warning-light); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .delete-warning-icon { color: var(--warning); margin-right: var(--spacing-sm); }
-    .delete-detail-list { background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: var(--spacing-sm); margin-top: var(--spacing-sm); font-size: var(--font-size-xs); color: var(--text-secondary); }
-    .delete-hint { margin: var(--spacing-md) 0 var(--spacing-sm); font-size: var(--font-size-sm); color: var(--text-secondary); }
-    .delete-confirm-text { font-size: var(--font-size-md); color: var(--text-primary); }
-
-    /* ========== 批量删除 ========== */
-    .batch-summary { margin-bottom: var(--spacing-sm); font-size: var(--font-size-md); }
-    .batch-detail-list { margin: 0 0 var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.8; }
-    .batch-confirm-text { margin-top: var(--spacing-md); font-size: var(--font-size-md); }
-
-    /* ========== 文件上传区 ========== */
-    .import-dropzone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: center; margin-bottom: var(--spacing-md); cursor: pointer; transition: border-color var(--duration-fast); }
-    .import-dropzone:hover { border-color: var(--primary); }
-    .import-dropzone .dropzone-icon { font-size: 36px; margin-bottom: var(--spacing-sm); }
-    .import-dropzone .dropzone-text { font-size: var(--font-size-md); color: var(--text-primary); margin-bottom: var(--spacing-xs); }
-    .import-dropzone .dropzone-hint { font-size: var(--font-size-xs); color: var(--text-tertiary); }
-    .import-dropzone .dropzone-link { font-size: var(--font-size-xs); color: var(--primary); margin-top: var(--spacing-sm); cursor: pointer; }
-
-    .import-file-info { display: none; background: var(--bg-secondary); border-radius: var(--radius-md); padding: var(--spacing-sm); margin-bottom: var(--spacing-sm); }
-    .import-file-info .file-meta { display: flex; align-items: center; gap: var(--spacing-sm); }
-    .import-file-info .file-name { font-size: var(--font-size-sm); color: var(--text-primary); }
-    .import-file-info .file-size { font-size: var(--font-size-xs); color: var(--text-tertiary); }
-
-    .import-notice { background: var(--warning-light); border: 1px solid var(--warning-light); border-radius: var(--radius-md); padding: var(--spacing-sm); font-size: var(--font-size-xs); color: var(--warning); line-height: 1.6; }
-
-    /* ========== 空状态 ========== */
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-tertiary); padding: var(--spacing-xxl); }
-    .empty-state .icon { font-size: 48px; margin-bottom: var(--spacing-md); }
-    .empty-state .text { font-size: var(--font-size-md); }
-
+    .delete-warning { background: var(--warning-light); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); margin-bottom: var(--spacing-md); }
     .empty-placeholder { padding: var(--spacing-sm); color: var(--text-tertiary); font-size: var(--font-size-sm); }
+    .import-dropzone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: center; margin-bottom: var(--spacing-md); cursor: pointer; }
+    .import-notice { background: var(--warning-light); border-radius: var(--radius-md); padding: var(--spacing-sm); font-size: var(--font-size-xs); color: var(--warning); line-height: 1.6; }
   </style>
 </head>
 <body>
   <div class="page-container" data-module="super-admin/hazard-lib">
-    <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
-      <span class="breadcrumb-prefix">当前位置：</span>
-      <span class="breadcrumb-item">超管端</span>
-      <span class="breadcrumb-separator">&gt;</span>
       <span class="breadcrumb-item current">隐患库管理</span>
     </div>
-    
-    <!-- 分屏布局 -->
     <div class="layout-split">
-      <!-- 左侧行业领域树 -->
       <div class="tree-panel">
-        <div class="panel-header">
-          <span class="panel-title">行业领域</span>
-        </div>
+        <div class="panel-header"><span class="panel-title">行业领域</span></div>
         <div class="tree-search">
           <input type="text" placeholder="搜索领域..." id="treeSearchInput">
         </div>
-        <div class="tree-content" id="treeContent">
-          <!-- 树节点由JS生成 -->
-        </div>
+        <div class="tree-content" id="treeContent"></div>
       </div>
-      
-      <!-- 右侧隐患列表 -->
       <div class="right-panel">
-        <div class="content-area">
-          <!-- 统计卡片 -->
-          <div class="stat-cards" style="grid-template-columns: repeat(3, 1fr); margin-bottom: var(--spacing-md);">
-            <div class="stat-card">
-              <div class="stat-card-body">
-                <div class="stat-label">隐患总数</div>
-                <div class="stat-value" id="totalCount">245</div>
-              </div>
-              <div class="stat-indicator" style="background: var(--primary);"></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-card-body">
-                <div class="stat-label">一般隐患</div>
-                <div class="stat-value" id="normalCount">198</div>
-              </div>
-              <div class="stat-indicator" style="background: var(--warning);"></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-card-body">
-                <div class="stat-label">重大隐患</div>
-                <div class="stat-value" id="majorCount">47</div>
-              </div>
-              <div class="stat-indicator" style="background: var(--danger);"></div>
-            </div>
+        <div class="stat-cards" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="stat-card" id="statCardAll" data-stat="all" style="cursor:pointer;">
+            <div class="stat-card-body"><div class="stat-label">隐患总数</div><div class="stat-value" id="totalCount">0</div></div>
+            <div class="stat-indicator" style="background: var(--primary);"></div>
           </div>
-          
-          <!-- 筛选条件 -->
-          <div class="filter-card">
-            <div class="filter-bar">
-              <div class="filter-item"><label>隐患类别：</label><select id="filterCategory">
-                <option value="">全部</option>
-                <option value="设备类">设备类</option>
-                <option value="管理类">管理类</option>
-                <option value="作业类">作业类</option>
-                <option value="环境类">环境类</option>
-              </select></div>
-              <div class="filter-item"><label>隐患级别：</label><select id="filterLevel">
+          <div class="stat-card" id="statCardNormal" data-stat="normal" style="cursor:pointer;">
+            <div class="stat-card-body"><div class="stat-label">一般隐患</div><div class="stat-value" id="normalCount">0</div></div>
+            <div class="stat-indicator" style="background: var(--warning);"></div>
+          </div>
+          <div class="stat-card" id="statCardMajor" data-stat="major" style="cursor:pointer;">
+            <div class="stat-card-body"><div class="stat-label">重大隐患</div><div class="stat-value" id="majorCount">0</div></div>
+            <div class="stat-indicator" style="background: var(--danger);"></div>
+          </div>
+        </div>
+        <div class="filter-card">
+          <div class="filter-bar">
+            <div class="filter-item"><label>隐患类别：</label>
+              <select id="filterCategory"><option value="">全部</option></select>
+            </div>
+            <div class="filter-item"><label>隐患级别：</label>
+              <select id="filterLevel">
                 <option value="">全部</option>
                 <option value="一般隐患">一般隐患</option>
                 <option value="重大隐患">重大隐患</option>
-              </select></div>
-              <div class="filter-item"><label>状态：</label><select id="filterStatus">
+              </select>
+            </div>
+            <div class="filter-item"><label>状态：</label>
+              <select id="filterStatus">
                 <option value="">全部</option>
                 <option value="启用">启用</option>
                 <option value="停用">停用</option>
-              </select></div>
-              <div class="filter-item"><label>关键词：</label><input type="text" placeholder="搜索名称、描述" id="searchInput"></div>
-              <button class="btn btn-primary" onclick="filterHazardList()">查询</button>
-              <button class="btn btn-default" onclick="resetFilters()">重置</button>
+              </select>
+            </div>
+            <div class="filter-item"><label>关联情况：</label>
+              <select id="filterLink">
+                <option value="">全部</option>
+                <option value="no-check">未关联检查项</option>
+                <option value="no-reg">未关联法规</option>
+                <option value="no-suggestion">未填整改建议</option>
+              </select>
+            </div>
+            <div class="filter-item"><label>关键词：</label>
+              <input type="text" placeholder="搜索名称、描述、别名" id="searchInput">
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary" id="btnQuery">查询</button>
+              <button class="btn btn-default" id="btnReset">重置</button>
             </div>
           </div>
-          
-          <!-- 操作按钮 -->
+        </div>
+        <div class="hz-list-card">
           <div class="action-bar">
-            <div class="left-actions">
-              <button class="btn btn-primary" onclick="openAddModal()">+ 新增隐患</button>
-              <button class="btn btn-default" onclick="openImportModal()">批量导入</button>
-              <button class="btn btn-default" onclick="exportData()">批量导出</button>
-            </div>
+            <button class="btn btn-primary" id="btnAdd">+ 新增隐患</button>
+            <button class="btn btn-default" id="btnImport" style="margin-left:8px;">批量导入</button>
+            <button class="btn btn-default" id="btnExport" style="margin-left:8px;">批量导出</button>
           </div>
-          
-          <!-- 批量操作栏 -->
           <div class="batch-bar" id="batchBar">
             <span class="selected-info">已选择 <span id="selectedCount">0</span> 条</span>
             <div class="batch-actions">
-              <button class="btn btn-default" onclick="batchEnable()">批量启用</button>
-              <button class="btn btn-default" onclick="batchDisable()">批量停用</button>
-              <button class="btn btn-danger" onclick="batchDelete()">批量删除</button>
-              <button class="btn btn-link" onclick="clearSelection()">取消选择</button>
+              <button class="btn btn-default" id="btnBatchOn">批量启用</button>
+              <button class="btn btn-default" id="btnBatchOff">批量停用</button>
+              <button class="btn btn-default" id="btnBatchChecks">批量关联检查项</button>
+              <button class="btn btn-default" id="btnBatchRegs">批量关联法规</button>
+              <button class="btn btn-default" id="btnBatchDomains">批量补领域</button>
+              <button class="btn btn-default" id="btnBatchCategory">批量改类别</button>
+              <button class="btn btn-danger" id="btnBatchDel">批量删除</button>
+              <button class="btn btn-link" id="btnClearSel">取消选择</button>
             </div>
           </div>
-          
-          <!-- 数据表格 -->
           <div class="table-wrap">
-            <div class="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th class="col-checkbox"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
-                    <th style="width:60px">序号</th>
-                    <th class="hazard-name">隐患名称</th>
-                    <th class="hazard-category">隐患类别</th>
-                    <th class="hazard-level">隐患级别</th>
-                    <th class="hazard-domain">适用领域</th>
-                    <th class="hazard-checkitems">关联检查项</th>
-                    <th class="hazard-regulations">关联法规</th>
-                    <th class="hazard-status">状态</th>
-                    <th class="hazard-time">更新时间</th>
-                    <th class="operation-col">操作</th>
-                  </tr>
-                </thead>
-                <tbody id="tableBody">
-                  <!-- 数据由JS生成 -->
-                </tbody>
-              </table>
-            </div>
-            <!-- 分页 -->
-            <div class="pagination" id="paginationBar"></div>
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-checkbox"><input type="checkbox" id="selectAll"></th>
+                  <th style="width:56px">序号</th>
+                  <th class="hazard-name">隐患名称</th>
+                  <th>隐患类别</th>
+                  <th>隐患级别</th>
+                  <th>建议期限</th>
+                  <th>适用领域</th>
+                  <th>关联检查项</th>
+                  <th>关联法规</th>
+                  <th>状态</th>
+                  <th>更新时间</th>
+                  <th class="operation-col">操作</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
           </div>
+          <div class="pagination" id="paginationBar"></div>
         </div>
       </div>
     </div>
   </div>
-  
-  <!-- 新增/编辑隐患弹窗 -->
+
   <div class="modal-overlay" id="editModal">
-    <div class="modal-dialog" style="width: 900px;">
+    <div class="modal-dialog" style="width: 960px;">
       <div class="modal-header">
         <span class="modal-title" id="modalTitle">新增隐患</span>
-        <button class="modal-close" onclick="closeModal('editModal')">×</button>
+        <button class="modal-close" data-close="editModal">×</button>
       </div>
       <div class="modal-body">
-        <!-- 基本信息 -->
-        <div class="detail-section">
-          <div class="detail-section-title">基本信息</div>
-          <div class="form-row">
+        <div class="edit-grid">
+          <div>
             <div class="form-group">
               <label class="form-label">隐患名称<span class="required">*</span></label>
-              <input type="text" id="hazardName" placeholder="请输入隐患名称">
+              <input type="text" id="hazardName" placeholder="请输入隐患名称，如：灭火器">
+              <div class="similar-box" id="similarBox" style="display:none;"></div>
             </div>
             <div class="form-group">
-              <label class="form-label">隐患类别<span class="required">*</span></label>
-              <select id="hazardCategory">
-                <option value="">请选择类别</option>
-                <option value="设备类">设备类</option>
-                <option value="管理类">管理类</option>
-                <option value="作业类">作业类</option>
-                <option value="环境类">环境类</option>
-              </select>
+              <label class="form-label">别名</label>
+              <input type="text" id="hazardAlias" placeholder="多个用顿号分隔，如：灭火筒、干粉灭火器">
             </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">隐患级别<span class="required">*</span></label>
-              <div class="radio-group">
-                <label class="radio-item">
-                  <input type="radio" name="hazardLevel" value="一般隐患" checked>
-                  <span>一般隐患</span>
-                </label>
-                <label class="radio-item">
-                  <input type="radio" name="hazardLevel" value="重大隐患">
-                  <span>重大隐患</span>
-                </label>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">隐患类别<span class="required">*</span></label>
+                <select id="hazardCategory"><option value="">请选择类别</option></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">隐患级别<span class="required">*</span></label>
+                <div class="radio-group">
+                  <label class="radio-item"><input type="radio" name="hazardLevel" value="一般隐患" checked> 一般隐患</label>
+                  <label class="radio-item"><input type="radio" name="hazardLevel" value="重大隐患"> 重大隐患</label>
+                </div>
+                <div class="suggest-days" id="suggestDays">建议整改期限：15天（可在现场录入时修改）</div>
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">状态<span class="required">*</span></label>
               <div class="radio-group">
-                <label class="radio-item">
-                  <input type="radio" name="hazardStatus" value="启用" checked>
-                  <span>启用</span>
-                </label>
-                <label class="radio-item">
-                  <input type="radio" name="hazardStatus" value="停用">
-                  <span>停用</span>
-                </label>
+                <label class="radio-item"><input type="radio" name="hazardStatus" value="启用" checked> 启用</label>
+                <label class="radio-item"><input type="radio" name="hazardStatus" value="停用"> 停用</label>
               </div>
             </div>
-          </div>
-          <div class="form-group form-group--last">
-            <label class="form-label">隐患描述</label>
-            <textarea id="hazardDesc" placeholder="请输入隐患描述" rows="3"></textarea>
-          </div>
-        </div>
-        
-        <!-- 适用领域 -->
-        <div class="association-section">
-          <div class="association-header">
-            <span class="association-title">适用领域<span class="required">*</span></span>
-          </div>
-          <div class="added-list" id="domainList">
-            <div class="added-item">
-              <span class="item-name">生产车间</span>
-              <span class="item-remove" onclick="removeDomain(this)">×</span>
+            <div class="form-group">
+              <label class="form-label">隐患描述</label>
+              <textarea id="hazardDesc" rows="3" placeholder="请输入隐患描述"></textarea>
             </div>
-            <div class="added-item">
-              <span class="item-name">充换电设施</span>
-              <span class="item-remove" onclick="removeDomain(this)">×</span>
+            <div class="form-group">
+              <label class="form-label">适用领域<span class="required">*</span></label>
+              <div class="tag-list" id="domainTags"></div>
+              <button class="btn btn-link" type="button" id="btnPickDomains">选择领域</button>
+            </div>
+            <div class="form-group">
+              <label class="form-label">整改建议</label>
+              <textarea id="rectifySuggestion" rows="3" placeholder="请输入整改建议"></textarea>
             </div>
           </div>
-          <button class="btn btn-link add-link" onclick="openDomainSelect()">+ 添加领域</button>
-        </div>
-        
-        <!-- 关联检查项 -->
-        <div class="association-section">
-          <div class="association-header">
-            <span class="association-title">关联检查项</span>
-          </div>
-          <!-- 精准推荐结果 -->
-          <div class="recommend-result" id="recommendResult">
-            <div class="recommend-header">精准推荐（根据隐患内容自动推荐）</div>
-            <div class="recommend-item">
-              <span class="recommend-match">92%</span>
-              <span class="recommend-name">电梯年度检验是否在有效期内</span>
-              <button class="btn btn-link recommend-action" onclick="addCheckItem(this)">+添加</button>
+          <div>
+            <div class="form-group">
+              <label class="form-label">关联检查项</label>
+              <div class="recommend-box" id="recommendBox">输入名称或描述后推荐检查项</div>
+              <div class="tag-list" id="checkTags"></div>
+              <button class="btn btn-link" type="button" id="btnPickChecks">选择检查项</button>
             </div>
-            <div class="recommend-item">
-              <span class="recommend-match">85%</span>
-              <span class="recommend-name">电梯内是否张贴检验合格标志</span>
-              <button class="btn btn-link recommend-action" onclick="addCheckItem(this)">+添加</button>
-            </div>
-            <div class="recommend-item">
-              <span class="recommend-match">78%</span>
-              <span class="recommend-name">电梯维保记录是否完整</span>
-              <button class="btn btn-link recommend-action" onclick="addCheckItem(this)">+添加</button>
+            <div class="form-group">
+              <label class="form-label">关联法规</label>
+              <div class="tag-list" id="regTags"></div>
+              <button class="btn btn-link" type="button" id="btnPickRegs">选择法规</button>
+              <button class="btn btn-link" type="button" id="btnBringRegs">从已关联检查项带入法规</button>
             </div>
           </div>
-          <!-- 已添加检查项 -->
-          <div class="added-list" id="checkItemList">
-            <div class="added-item">
-              <span class="item-name">电梯年度检验是否在有效期内</span>
-              <span class="tag tag-red item-tag">重点项</span>
-              <span class="item-remove" onclick="removeCheckItem(this)">×</span>
-            </div>
-            <div class="added-item">
-              <span class="item-name">电梯内是否张贴检验合格标志</span>
-              <span class="tag tag-gray item-tag">常规项</span>
-              <span class="item-remove" onclick="removeCheckItem(this)">×</span>
-            </div>
-          </div>
-          <button class="btn btn-link add-link" onclick="openCheckItemSelect()">+ 手动添加检查项</button>
-        </div>
-        
-        <!-- 关联法规条款 -->
-        <div class="association-section">
-          <div class="association-header">
-            <span class="association-title">关联法规条款</span>
-            <button class="btn btn-link" onclick="openRegulationAdvanced()">高级选择</button>
-          </div>
-          <div class="added-list" id="regulationList">
-            <div class="added-item">
-              <span class="item-name">《特种设备安全法》第二十五条 - 检验要求</span>
-              <span class="item-remove" onclick="removeRegulation(this)">×</span>
-            </div>
-          </div>
-          <button class="btn btn-link add-link" onclick="openRegulationSelect()">+ 添加法规条款</button>
-        </div>
-        
-        <!-- 整改建议 -->
-        <div class="form-group">
-          <label class="form-label">整改建议</label>
-          <textarea id="rectifySuggestion" placeholder="请输入整改建议" rows="4"></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('editModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveHazard()">保存</button>
+        <button class="btn btn-default" data-close="editModal">取消</button>
+        <button class="btn btn-default" id="btnSaveNext">保存并继续新增</button>
+        <button class="btn btn-primary" id="btnSave">保存</button>
       </div>
     </div>
   </div>
-  
-  <!-- 详情弹窗 -->
+
+  <div class="modal-overlay" id="domainModal">
+    <div class="modal-dialog" style="width: 640px;">
+      <div class="modal-header"><span class="modal-title">选择适用领域</span><button class="modal-close" data-close="domainModal">×</button></div>
+      <div class="modal-body"><div class="picker-grid"><div class="picker-col" id="dpLeft"></div><div class="picker-col" id="dpRight"></div></div></div>
+      <div class="modal-footer"><button class="btn btn-default" data-close="domainModal">取消</button><button class="btn btn-primary" id="btnDomainOk">确定</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="checkModal">
+    <div class="modal-dialog" style="width: 560px;">
+      <div class="modal-header"><span class="modal-title">选择检查项</span><button class="modal-close" data-close="checkModal">×</button></div>
+      <div class="modal-body">
+        <div class="filter-item" style="margin-bottom:8px;"><label><input type="checkbox" id="checkScope" checked> 仅当前领域</label></div>
+        <input type="text" id="checkSearch" placeholder="搜索检查项" style="width:100%;height:32px;margin-bottom:8px;box-sizing:border-box;">
+        <div class="picker-col" id="checkList"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-default" data-close="checkModal">取消</button><button class="btn btn-primary" id="btnCheckOk">确定</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="regModal">
+    <div class="modal-dialog" style="width: 560px;">
+      <div class="modal-header"><span class="modal-title">选择法规条款</span><button class="modal-close" data-close="regModal">×</button></div>
+      <div class="modal-body">
+        <input type="text" id="regSearch" placeholder="搜索法规名称或条款" style="width:100%;height:32px;margin-bottom:8px;box-sizing:border-box;">
+        <div class="picker-col" id="regList"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-default" data-close="regModal">取消</button><button class="btn btn-primary" id="btnRegOk">确定</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="relModal">
+    <div class="modal-dialog" style="width: 480px;">
+      <div class="modal-header"><span class="modal-title" id="relTitle">关联清单</span><button class="modal-close" data-close="relModal">×</button></div>
+      <div class="modal-body" id="relBody"></div>
+      <div class="modal-footer"><button class="btn btn-default" data-close="relModal">关闭</button></div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="detailModal">
-    <div class="modal-dialog" style="width: 900px;">
+    <div class="modal-dialog" style="width: 760px;">
       <div class="modal-header">
         <span class="modal-title">隐患详情</span>
-        <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+        <button class="modal-close" data-close="detailModal">×</button>
       </div>
-      <div class="modal-body">
-        <!-- 基本信息 -->
-        <div class="detail-section">
-          <div class="detail-section-title">基本信息</div>
-          <div class="detail-row">
-            <span class="detail-label">隐患名称</span>
-            <span class="detail-value">电梯未按规定进行年度检验</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">隐患类别</span>
-            <span class="detail-value"><span class="tag tag-blue">设备类</span></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">隐患级别</span>
-            <span class="detail-value"><span class="tag tag-red">重大隐患</span></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">状态</span>
-            <span class="detail-value"><span class="tag tag-green">启用</span></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">适用领域</span>
-            <span class="detail-value">特种设备、人员密集场所</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">更新时间</span>
-            <span class="detail-value">2026-04-18 10:30:00</span>
-          </div>
-        </div>
-        
-        <!-- 隐患描述 -->
-        <div class="detail-section">
-          <div class="detail-section-title">隐患描述</div>
-          <p class="detail-desc">电梯超过检验有效期仍在使用，存在重大安全隐患。可能导致电梯故障、人员被困或伤亡事故。</p>
-        </div>
-        
-        <!-- 关联检查项 -->
-        <div class="detail-section">
-          <div class="detail-section-title" onclick="toggleDetailSection('checkItems')" style="cursor:pointer;user-select:none;">
-            <span id="detailCiToggle">▼</span>&nbsp;关联检查项（<span id="detailCiCount">3</span>个）
-          </div>
-          <div class="detail-list" id="detailCiList">
-            <div class="detail-list-item">
-              <span class="item-dot"></span>
-              <span>电梯年度检验是否在有效期内</span>
-              <span class="tag tag-red" style="margin-left: var(--spacing-sm);">重点项</span>
-            </div>
-            <div class="detail-list-item">
-              <span class="item-dot"></span>
-              <span>电梯内是否张贴检验合格标志</span>
-              <span class="tag tag-gray" style="margin-left: var(--spacing-sm);">常规项</span>
-            </div>
-            <div class="detail-list-item">
-              <span class="item-dot"></span>
-              <span>电梯维保记录是否完整</span>
-              <span class="tag tag-gray" style="margin-left: var(--spacing-sm);">常规项</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 关联法规条款 -->
-        <div class="detail-section">
-          <div class="detail-section-title" onclick="toggleDetailSection('regulations')" style="cursor:pointer;user-select:none;">
-            <span id="detailRegToggle">▼</span>&nbsp;关联法规条款（<span id="detailRegCount">2</span>条）
-          </div>
-          <div class="detail-list" id="detailRegList">
-            <div class="detail-reg-item" onclick="toggleRegDetailItem(this, 'reg-001')">
-              <div class="detail-reg-header">
-                <span class="detail-reg-toggle">▶</span>
-                <span class="detail-reg-name">《特种设备安全法》第二十五条 - 检验要求</span>
-              </div>
-              <div class="detail-reg-content" style="display:none;">
-                <div class="detail-reg-body">
-                  <p><strong>条款编号：</strong>第二十五条</p>
-                  <p><strong>条款标题：</strong>检验要求</p>
-                  <p><strong>条款内容：</strong>特种设备应当按照规定进行定期检验，未经定期检验或者检验不合格的特种设备，不得继续使用。</p>
-                </div>
-              </div>
-            </div>
-            <div class="detail-reg-item" onclick="toggleRegDetailItem(this, 'reg-002')">
-              <div class="detail-reg-header">
-                <span class="detail-reg-toggle">▶</span>
-                <span class="detail-reg-name">《安全生产法》第三十六条 - 设备管理</span>
-              </div>
-              <div class="detail-reg-content" style="display:none;">
-                <div class="detail-reg-body">
-                  <p><strong>条款编号：</strong>第三十六条</p>
-                  <p><strong>条款标题：</strong>设备管理</p>
-                  <p><strong>条款内容：</strong>生产经营单位应当对特种设备进行经常性维护、保养和定期检测，保证正常运转。</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 整改建议 -->
-        <div class="detail-section">
-          <div class="detail-section-title">整改建议</div>
-          <div class="detail-suggestion">
-            1. 立即停用超期电梯，设置警示标志<br>
-            2. 联系有资质的检验机构进行检验<br>
-            3. 检验合格后方可恢复使用<br>
-            4. 建立电梯检验台账，提前30天申请复检
-          </div>
-        </div>
-      </div>
+      <div class="modal-body" id="detailBody"></div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('detailModal')">关闭</button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- 批量导入弹窗 -->
-  <div class="modal-overlay" id="modal-import">
-    <div class="modal-dialog" style="width: 520px;">
-      <div class="modal-header">
-        <span class="modal-title">批量导入隐患</span>
-        <button class="modal-close" onclick="closeModal('modal-import')">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="import-dropzone" id="importDropZone" onclick="document.getElementById('importFileInput').click()">
-          <div class="dropzone-icon">📂</div>
-          <div class="dropzone-text">点击选择文件或拖拽文件到此处</div>
-          <div class="dropzone-hint">支持 .csv、.xlsx、.xls 格式，单次最多导入 500 条</div>
-          <div class="dropzone-link" onclick="event.stopPropagation(); downloadImportTemplate()">下载导入模板</div>
-        </div>
-        <input type="file" id="importFileInput" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleImportFile(this)">
-        <div id="importFileInfo" class="import-file-info">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div class="file-meta">
-              <span style="font-size: var(--font-size-xl);">📄</span>
-              <div>
-                <div class="file-name" id="importFileName">-</div>
-                <div class="file-size" id="importFileSize">-</div>
-              </div>
-            </div>
-            <button class="btn btn-link danger" onclick="clearImportFile()">移除</button>
-          </div>
-        </div>
-        <div class="import-notice">
-          ⚠️ 导入说明：<br>
-          1. 请按模板格式填写数据，必填字段：隐患名称、隐患类别、隐患级别<br>
-          2. 重复名称的隐患将自动跳过，不会覆盖已有数据<br>
-          3. 导入后状态默认为"启用"
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modal-import')">取消</button>
-        <button class="btn btn-primary" onclick="confirmImport()" id="importConfirmBtn" disabled>确认导入</button>
+        <button class="btn btn-default" data-close="detailModal">关闭</button>
       </div>
     </div>
   </div>
 
-  <!-- 删除确认弹窗 -->
   <div class="modal-overlay" id="deleteModal">
-    <div class="modal-dialog" style="width: 460px;">
+    <div class="modal-dialog" style="width: 480px;">
       <div class="modal-header">
         <span class="modal-title">删除确认</span>
-        <button class="modal-close" onclick="closeModal('deleteModal')">×</button>
+        <button class="modal-close" data-close="deleteModal">×</button>
       </div>
       <div class="modal-body">
-        <div class="delete-warning">
-          <span class="delete-warning-icon">⚠️</span>
-          <span>该隐患已关联：</span>
-        </div>
-        <div class="delete-detail-list">
-          <div>• 3 个检查项</div>
-          <div>• 2 条法规条款</div>
-        </div>
-        <p class="delete-hint">删除后将自动解除所有关联关系，已生成的检查记录不受影响。</p>
-        <p class="delete-confirm-text">确定要删除"<strong>电梯未年检</strong>"吗？</p>
+        <div class="delete-warning">该隐患已关联 <span id="deleteChecks">0</span> 个检查项、<span id="deleteRegs">0</span> 条法规<span id="deleteRefCount"></span>。</div>
+        <div class="delete-warning" id="deleteSuggestDisable" style="display:none;">该隐患存在关联关系，删除后关联同时解除。建议<a href="javascript:void(0)" id="deleteDisableLink">停用</a>（停用后关联保留，现场录入不再展示）。</div>
+        <p class="delete-confirm-text">确定要删除“<strong id="deleteName"></strong>”吗？删除后关联关系解除。</p>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('deleteModal')">取消</button>
-        <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+        <button class="btn btn-default" data-close="deleteModal">取消</button>
+        <button class="btn btn-danger" id="btnConfirmDelete">确认删除</button>
       </div>
     </div>
   </div>
-  
-  <!-- 批量删除确认弹窗 -->
-  <div class="modal-overlay" id="batchDeleteModal">
-    <div class="modal-dialog" style="width: 520px;">
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-dialog" style="width: 420px;">
       <div class="modal-header">
-        <span class="modal-title">批量删除确认</span>
-        <button class="modal-close" onclick="closeModal('batchDeleteModal')">×</button>
+        <span class="modal-title">操作确认</span>
+        <button class="modal-close" data-close="confirmModal">×</button>
       </div>
-      <div class="modal-body">
-        <p class="batch-summary">已选择 <strong>5</strong> 条隐患，其中：</p>
-        <ul class="batch-detail-list">
-          <li>3 条无关联，可直接删除</li>
-          <li>2 条有关联，删除后自动解除关联</li>
-        </ul>
-        <div class="delete-warning">
-          <span class="delete-warning-icon">⚠️</span>
-          <span>关联详情：</span>
-        </div>
-        <div class="delete-detail-list">
-          <div>电梯未年检：关联3个检查项、2条法规</div>
-          <div>消防通道堵塞：关联2个检查项、1条法规</div>
-        </div>
-        <p class="batch-confirm-text">确定删除选中的 5 条隐患吗？</p>
-      </div>
+      <div class="modal-body"><p id="confirmText"></p></div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('batchDeleteModal')">取消</button>
-        <button class="btn btn-danger" onclick="confirmBatchDelete()">确认删除</button>
+        <button class="btn btn-default" data-close="confirmModal">取消</button>
+        <button class="btn btn-primary" id="btnConfirmOk">确定</button>
       </div>
     </div>
   </div>
-  
+
+  <div class="modal-overlay" id="categoryModal">
+    <div class="modal-dialog" style="width: 420px;">
+      <div class="modal-header">
+        <span class="modal-title">批量修改隐患类别</span>
+        <button class="modal-close" data-close="categoryModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="import-notice" style="margin-bottom:12px;">将把选中的 <strong id="categoryCount">0</strong> 条隐患的类别统一修改为：</div>
+        <div class="form-group">
+          <label class="form-label">目标类别<span class="required">*</span></label>
+          <select id="categoryTarget"><option value="">请选择类别</option></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-close="categoryModal">取消</button>
+        <button class="btn btn-primary" id="btnCategoryOk">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-import">
+    <div class="modal-dialog" style="width: 560px;">
+      <div class="modal-header">
+        <span class="modal-title">批量导入隐患</span>
+        <button class="modal-close" data-close="modal-import">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="import-dropzone" id="importDropZone">
+          <div>点击选择文件</div>
+          <div class="dropzone-hint">支持 .csv，单次最多 500 条</div>
+        </div>
+        <input type="file" id="importFileInput" accept=".csv,.xlsx,.xls" style="display:none;">
+        <div class="import-notice">必填：隐患名称、隐患类别、隐患级别、适用领域（须为领域小类管理中的名称）。选填：别名、隐患描述、关联检查项（填检查项编码，如 CI001，多个用逗号分隔）、关联法规（填法规名称+条款号，如 消防法第二十八条，多个用逗号分隔）、整改建议、状态。按名称+类别+领域组合判重。</div>
+        <div style="text-align:right;margin-top:8px;"><button class="btn btn-link" type="button" id="btnDownloadTpl">下载导入模板</button></div>
+        <div id="importResult" style="display:none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-close="modal-import">取消</button>
+        <button class="btn btn-primary" id="importConfirmBtn" disabled>确认导入</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/checklist-data.js?v=20261119"></script>
+  <script src="../../js/hazard-lib-data.js?v=20261119"></script>
+  <script src="../../js/domain-data.js"></script>
+  <script src="../../js/shared/industry-icons.js"></script>
   <script src="../../js/pagination.js"></script>
   <script>
+  (function () {
+    'use strict';
 
-function showToast(msg, type) {
-  type = type || 'info';
-  var container = document.getElementById('toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toast-container';
-    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
-    document.body.appendChild(container);
-  }
-  var toast = document.createElement('div');
-  toast.className = 'toast toast-' + type;
-  toast.style.cssText = 'padding:10px 20px;margin-bottom: var(--spacing-sm);border-radius: var(--radius-sm);background:var(--primary);color:var(--bg-primary);font-size: var(--font-size-md);box-shadow: var(--shadow-md);';
-  if (type === 'success') toast.style.background = 'var(--success)';
-  if (type === 'warning') toast.style.background = 'var(--warning)';
-  if (type === 'error') toast.style.background = 'var(--danger)';
-  toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(function() { toast.remove(); }, 3000);
-}
-    // ========== 数据定义 ==========
-    
-    // 行业领域树数据（与领域小类管理 domain-manage.html 保持一致）
-    const domainTreeData = [
-      {
-        id: 'IND',
-        name: '工业制造类',
-        isCategory: true,
-        children: [
-          { id: 'IND_001', name: '生产车间', count: 45 },
-          { id: 'IND_002', name: '充换电设施', count: 32 }
-        ]
-      },
-      {
-        id: 'CITY',
-        name: '城市运行类',
-        isCategory: true,
-        children: [
-          { id: 'CITY_001', name: '超高层建筑', count: 28 },
-          { id: 'CITY_002', name: '大型综合体', count: 35 }
-        ]
-      },
-      {
-        id: 'CONS',
-        name: '建设工程类',
-        isCategory: true,
-        children: [
-          { id: 'CONS_001', name: '建筑施工现场', count: 20 }
-        ]
-      },
-      {
-        id: 'CHEM',
-        name: '危险化学品类',
-        isCategory: true,
-        children: [
-          { id: 'CHEM_001', name: '危化品仓储', count: 15 }
-        ]
-      },
-      {
-        id: 'TRANS',
-        name: '交通运输类',
-        isCategory: true,
-        children: [
-          { id: 'TRANS_001', name: '道路运输', count: 22 },
-          { id: 'TRANS_002', name: '轨道交通', count: 18 }
-        ]
-      },
-      {
-        id: 'COMM',
-        name: '公共场所类',
-        isCategory: true,
-        children: [
-          { id: 'COMM_001', name: '人员密集场所', count: 40 },
-          { id: 'COMM_002', name: '特种设备', count: 25 }
-        ]
-      },
-      {
-        id: 'OTH',
-        name: '其他类',
-        isCategory: true,
-        children: [
-          { id: 'OTH_001', name: '定制业务', count: 8 }
-        ]
+    var INDUSTRY_ORDER = ['IND', 'CITY', 'CONS', 'CHEM', 'TRANS', 'COMM', 'OTH'];
+    var hazardData = HAZARD_LIB.map(function (h) { return JSON.parse(JSON.stringify(h)); });
+
+    var treeSel = { kind: 'all' };
+    var statFilter = null; // 4.5 统计卡口径：null=全部 / 'normal'=一般 / 'major'=重大
+    var selectedHazards = {};
+    var editingId = null;
+    var deleteId = null;
+    var pendingAction = null;
+    var importFile = null;
+    var expanded = {};
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+    function isSanxiao(name) { return name.indexOf('"三小"场所（') === 0; }
+    function sanxiaoShort(name) {
+      var m = name.match(/^"三小"场所（(.+)）$/);
+      return m ? m[1] : name;
+    }
+    function findHazard(id) {
+      for (var i = 0; i < hazardData.length; i++) if (hazardData[i].id === id) return hazardData[i];
+      return null;
+    }
+    function domainOf(name) {
+      for (var i = 0; i < DOMAIN_TABLE_DATA.length; i++) if (DOMAIN_TABLE_DATA[i].name === name) return DOMAIN_TABLE_DATA[i];
+      return null;
+    }
+    function industryOf(name) {
+      var d = domainOf(name);
+      return d ? d.industry : '';
+    }
+    function domainsOf(code) {
+      return DOMAIN_TABLE_DATA.filter(function (d) { return d.industry === code; });
+    }
+    function asList(v) { return Array.isArray(v) ? v : []; }
+    function asCount(v) { return Array.isArray(v) ? v.length : (parseInt(v, 10) || 0); }
+    function findCheck(id) { for (var i = 0; i < CHECK_ITEMS.length; i++) if (CHECK_ITEMS[i].id === id) return CHECK_ITEMS[i]; return null; }
+    function findReg(id) { for (var i = 0; i < REG_DATA.length; i++) if (REG_DATA[i].id === id) return REG_DATA[i]; return null; }
+    function checkName(id) { var c = findCheck(id); return c ? c.name : id; }
+    function regName(id) { var r = findReg(id); return r ? ('《' + r.law + '》' + r.no + ' ' + r.title) : id; }
+    function suggestText(level) { return (SUGGEST_DAYS[level] || 15) + '天'; }
+    function union(a, b) { var s = {}; asList(a).concat(asList(b)).forEach(function (x) { s[x] = 1; }); return Object.keys(s); }
+    var formState = { domains: [], checks: [], regs: [] };
+    var pickerMode = 'form';
+    var pickerDraft = [];
+    var dpBrowse = 'COMM';
+    function showToast(msg, type) {
+      var container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+        document.body.appendChild(container);
       }
-    ];
-    
-    // 隐患数据
-    const hazardData = [
-      { id: 'HZ001', name: '电梯未按规定进行年度检验', category: '设备类', level: '重大隐患', domains: ['特种设备'], checkItems: 3, regulations: 2, status: '启用', updateTime: '2026-04-18 10:30' },
-      { id: 'HZ002', name: '消防通道被堵塞', category: '管理类', level: '重大隐患', domains: ['公共场所'], checkItems: 2, regulations: 1, status: '启用', updateTime: '2026-04-17 14:20' },
-      { id: 'HZ003', name: '安全出口上锁', category: '管理类', level: '重大隐患', domains: ['人员密集场所'], checkItems: 1, regulations: 1, status: '启用', updateTime: '2026-04-17 09:15' },
-      { id: 'HZ004', name: '灭火器超过有效期', category: '设备类', level: '一般隐患', domains: ['消防设施'], checkItems: 2, regulations: 3, status: '停用', updateTime: '2026-04-16 16:45' },
-      { id: 'HZ005', name: '配电箱无接地保护', category: '设备类', level: '一般隐患', domains: ['电气设施'], checkItems: 1, regulations: 2, status: '启用', updateTime: '2026-04-16 11:30' },
-      { id: 'HZ006', name: '特种作业人员无证上岗', category: '管理类', level: '重大隐患', domains: ['特种设备'], checkItems: 3, regulations: 2, status: '启用', updateTime: '2026-04-15 15:20' },
-      { id: 'HZ007', name: '安全警示标识缺失', category: '管理类', level: '一般隐患', domains: ['生产车间'], checkItems: 2, regulations: 1, status: '启用', updateTime: '2026-04-15 10:10' },
-      { id: 'HZ008', name: '应急预案未备案', category: '管理类', level: '一般隐患', domains: ['所有场所'], checkItems: 1, regulations: 2, status: '启用', updateTime: '2026-04-14 14:30' },
-      { id: 'HZ009', name: '高处作业无防护措施', category: '作业类', level: '重大隐患', domains: ['建筑施工现场'], checkItems: 2, regulations: 3, status: '启用', updateTime: '2026-04-14 09:25' },
-      { id: 'HZ010', name: '化学品存放不规范', category: '环境类', level: '重大隐患', domains: ['危化品仓储'], checkItems: 4, regulations: 2, status: '启用', updateTime: '2026-04-13 16:40' },
-      { id: 'HZ011', name: '消防栓无水', category: '设备类', level: '重大隐患', domains: ['消防设施'], checkItems: 2, regulations: 1, status: '启用', updateTime: '2026-04-12 11:20' },
-      { id: 'HZ012', name: '应急照明灯故障', category: '设备类', level: '一般隐患', domains: ['公共场所'], checkItems: 1, regulations: 1, status: '启用', updateTime: '2026-04-12 09:45' },
-      { id: 'HZ013', name: '压力容器未年检', category: '设备类', level: '重大隐患', domains: ['特种设备'], checkItems: 3, regulations: 2, status: '启用', updateTime: '2026-04-11 15:30' },
-      { id: 'HZ014', name: '安全培训记录缺失', category: '管理类', level: '一般隐患', domains: ['所有场所'], checkItems: 1, regulations: 1, status: '启用', updateTime: '2026-04-11 10:15' },
-      { id: 'HZ015', name: '燃气管道泄漏', category: '设备类', level: '重大隐患', domains: ['燃气设施'], checkItems: 2, regulations: 3, status: '启用', updateTime: '2026-04-10 16:50' },
-      { id: 'HZ016', name: '脚手架搭设不规范', category: '作业类', level: '重大隐患', domains: ['建筑施工现场'], checkItems: 3, regulations: 2, status: '启用', updateTime: '2026-04-10 14:20' },
-      { id: 'HZ017', name: '电气线路老化', category: '设备类', level: '一般隐患', domains: ['电气设施'], checkItems: 2, regulations: 1, status: '启用', updateTime: '2026-04-09 11:40' },
-      { id: 'HZ018', name: '防护栏杆缺失', category: '作业类', level: '重大隐患', domains: ['建筑施工现场'], checkItems: 1, regulations: 2, status: '启用', updateTime: '2026-04-09 09:30' },
-      { id: 'HZ019', name: '有限空间未通风', category: '作业类', level: '重大隐患', domains: ['工业生产'], checkItems: 2, regulations: 3, status: '启用', updateTime: '2026-04-08 15:10' },
-      { id: 'HZ020', name: '安全帽未佩戴', category: '管理类', level: '一般隐患', domains: ['生产车间'], checkItems: 1, regulations: 1, status: '启用', updateTime: '2026-04-08 10:25' },
-      { id: 'HZ021', name: '叉车超载作业', category: '作业类', level: '重大隐患', domains: ['物流仓储'], checkItems: 2, regulations: 2, status: '启用', updateTime: '2026-04-07 14:55' }
-    ];
-    
-    // 当前状态
-    let selectedDomain = null;
-    let selectedHazards = new Set();
-    let currentPage = 1;
-    
-    // ========== 树渲染 ==========
-    
+      var toast = document.createElement('div');
+      toast.style.cssText = 'padding:10px 16px;margin-bottom:8px;border-radius:4px;color:#fff;font-size:14px;background:#1677ff;';
+      if (type === 'success') toast.style.background = '#52c41a';
+      if (type === 'warning') toast.style.background = '#faad14';
+      if (type === 'error') toast.style.background = '#ff4d4f';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(function () { toast.remove(); }, 2500);
+    }
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function hazardMatchesIndustry(h, code) {
+      return h.domains.some(function (n) { return industryOf(n) === code; });
+    }
+    function countFor(pred) {
+      var n = 0;
+      hazardData.forEach(function (h) { if (pred(h)) n++; });
+      return n;
+    }
+
+    function formatDomains(names) {
+      var set = {};
+      names.forEach(function (n) { set[n] = 1; });
+      var used = {};
+      var parts = [];
+      INDUSTRY_ORDER.forEach(function (code) {
+        var all = domainsOf(code);
+        var hit = all.filter(function (d) { return set[d.name]; });
+        if (!hit.length) return;
+        if (hit.length === all.length && all.length > 1) {
+          parts.push(DOMAIN_INDUSTRY_MAP[code] + '（全部）');
+          hit.forEach(function (d) { used[d.name] = 1; });
+          return;
+        }
+        if (code === 'COMM') {
+          var san = all.filter(function (d) { return isSanxiao(d.name); });
+          var sanHit = san.filter(function (d) { return set[d.name]; });
+          if (san.length && sanHit.length === san.length) {
+            parts.push('"三小"场所（全部）');
+            sanHit.forEach(function (d) { used[d.name] = 1; });
+          }
+        }
+      });
+      names.forEach(function (n) { if (!used[n]) parts.push(n); });
+      return parts.join('、');
+    }
+
+    function nodeHtml(opts) {
+      var cls = 'tree-node depth-' + opts.depth + (opts.category ? ' is-category' : '') + (isSelected(opts) ? ' selected' : '');
+      var icon = opts.leaf
+        ? '<span class="expand-icon leaf"></span>'
+        : '<span class="expand-icon' + (opts.open ? ' expanded' : '') + '" data-toggle="' + esc(opts.key) + '">▶</span>';
+      var glyph = opts.industry ? (DOMAIN_ICONS[opts.industry] || DOMAIN_ICONS.OTH) : (opts.kind === 'domain' ? DOMAIN_ICONS.TAG : DOMAIN_ICONS.FOLDER);
+      return '<div class="' + cls + '" data-kind="' + opts.kind + '" data-key="' + esc(opts.key) + '"'
+        + (opts.industry ? ' data-industry="' + opts.industry + '"' : '')
+        + (opts.domain ? ' data-domain="' + esc(opts.domain) + '"' : '')
+        + ' title="' + esc(opts.title || opts.label) + '">'
+        + icon + '<span class="node-icon">' + glyph + '</span>'
+        + '<span class="node-name">' + esc(opts.label) + '</span>'
+        + '<span class="node-count">' + opts.count + '</span></div>';
+    }
+    function isSelected(opts) {
+      if (opts.kind === 'all') return treeSel.kind === 'all';
+      if (opts.kind === 'industry') return treeSel.kind === 'industry' && treeSel.industry === opts.industry;
+      if (opts.kind === 'sanxiao') return treeSel.kind === 'sanxiao';
+      if (opts.kind === 'domain') return treeSel.kind === 'domain' && treeSel.domain === opts.domain;
+      return false;
+    }
+
     function renderTree() {
-      const container = document.getElementById('treeContent');
-      let html = `
-        <div class="tree-node" data-id="all" onclick="selectDomain('all')">
-          <span class="expand-icon leaf"></span>
-          <span class="node-icon">📂</span>
-          <span class="node-name">全部</span>
-          <span class="node-count">245</span>
-        </div>
-      `;
-      
-      domainTreeData.forEach(category => {
-        html += `
-          <div class="tree-node is-category" data-id="${category.id}" onclick="toggleTree(this)">
-            <span class="expand-icon">▶</span>
-            <span class="node-icon">🏭</span>
-            <span class="node-name">${category.name}</span>
-          </div>
-          <div class="tree-children">
-        `;
-        
-        category.children.forEach(domain => {
-          html += `
-            <div class="tree-node" data-id="${domain.id}" onclick="selectDomain('${domain.id}')">
-              <span class="expand-icon leaf"></span>
-              <span class="node-icon">📄</span>
-              <span class="node-name">${domain.name}</span>
-              <span class="node-count">${domain.count}</span>
-            </div>
-          `;
+      var kw = (document.getElementById('treeSearchInput').value || '').trim();
+      var html = nodeHtml({ kind: 'all', key: 'all', depth: 1, leaf: true, label: '全部', count: hazardData.length, category: false });
+      INDUSTRY_ORDER.forEach(function (code) {
+        var all = domainsOf(code);
+        var name = DOMAIN_INDUSTRY_MAP[code];
+        var san = all.filter(function (d) { return isSanxiao(d.name); });
+        var plain = all.filter(function (d) { return !isSanxiao(d.name); });
+        var visiblePlain = plain.filter(function (d) { return !kw || d.name.indexOf(kw) >= 0; });
+        var visibleSan = san.filter(function (d) { return !kw || d.name.indexOf(kw) >= 0 || sanxiaoShort(d.name).indexOf(kw) >= 0; });
+        if (kw && name.indexOf(kw) < 0 && !visiblePlain.length && !visibleSan.length) return;
+        var open = !!kw || expanded[code] !== false;
+        html += nodeHtml({ kind: 'industry', key: code, depth: 1, category: true, industry: code, label: name, count: countFor(function (h) { return hazardMatchesIndustry(h, code); }), open: open });
+        html += '<div class="tree-children' + (open ? ' show' : '') + '">';
+        (kw ? visiblePlain : plain).forEach(function (d) {
+          html += nodeHtml({ kind: 'domain', key: d.id, depth: 2, leaf: true, domain: d.name, label: d.name, title: d.name, count: countFor(function (h) { return h.domains.indexOf(d.name) >= 0; }) });
         });
-        
+        if (!kw || visibleSan.length || name.indexOf(kw) >= 0) {
+          if (san.length) {
+            var sanOpen = expanded.sanxiao !== false;
+            html += nodeHtml({ kind: 'sanxiao', key: 'sanxiao', depth: 2, group: true, label: '"三小"场所', title: '"三小"场所', count: countFor(function (h) { return h.domains.some(isSanxiao); }), open: sanOpen });
+            html += '<div class="tree-children' + (sanOpen ? ' show' : '') + '">';
+            (kw ? visibleSan : san).forEach(function (d) {
+              html += nodeHtml({ kind: 'domain', key: d.id, depth: 3, leaf: true, domain: d.name, label: sanxiaoShort(d.name), title: d.name, count: countFor(function (h) { return h.domains.indexOf(d.name) >= 0; }) });
+            });
+            html += '</div>';
+          }
+        }
         html += '</div>';
       });
-      
-      container.innerHTML = html;
+      document.getElementById('treeContent').innerHTML = html;
     }
-    
-    function toggleTree(node) {
-      const icon = node.querySelector('.expand-icon');
-      const children = node.nextElementSibling;
-      
-      if (icon.classList.contains('expanded')) {
-        icon.classList.remove('expanded');
-        children.classList.remove('show');
-      } else {
-        icon.classList.add('expanded');
-        children.classList.add('show');
-      }
+
+    function getFiltered() {
+      var list = hazardData.slice();
+      if (treeSel.kind === 'industry') list = list.filter(function (h) { return hazardMatchesIndustry(h, treeSel.industry); });
+      else if (treeSel.kind === 'domain') list = list.filter(function (h) { return h.domains.indexOf(treeSel.domain) >= 0; });
+      else if (treeSel.kind === 'sanxiao') list = list.filter(function (h) { return h.domains.some(isSanxiao); });
+      var cat = document.getElementById('filterCategory').value;
+      var level = document.getElementById('filterLevel').value;
+      var status = document.getElementById('filterStatus').value;
+      var link = document.getElementById('filterLink').value;
+      var kw = document.getElementById('searchInput').value.trim().toLowerCase();
+      if (cat) list = list.filter(function (h) { return h.category === cat; });
+      if (statFilter === 'normal') list = list.filter(function (h) { return h.level === '一般隐患'; });
+      else if (statFilter === 'major') list = list.filter(function (h) { return h.level === '重大隐患'; });
+      if (level) list = list.filter(function (h) { return h.level === level; });
+      if (status) list = list.filter(function (h) { return h.status === status; });
+      if (link === 'no-check') list = list.filter(function (h) { return !asCount(h.checkItems); });
+      else if (link === 'no-reg') list = list.filter(function (h) { return !asCount(h.regulations); });
+      else if (link === 'no-suggestion') list = list.filter(function (h) { return !(h.suggestion || '').trim(); });
+      if (kw) list = list.filter(function (h) { return (h.name + ' ' + (h.alias || '') + ' ' + (h.desc || '')).toLowerCase().indexOf(kw) >= 0; });
+      return list;
     }
-    
-    function selectDomain(domainId) {
-      selectedDomain = domainId;
-      
-      // 更新选中状态
-      document.querySelectorAll('.tree-node').forEach(node => {
-        node.classList.remove('selected');
-        if (node.dataset.id === domainId) {
-          node.classList.add('selected');
-        }
-      });
-      
-      // 筛选数据
-      filterHazardList();
-    }
-    
-    // ========== 分页组件 ==========
+
     var pg = new Pagination('paginationBar', {
       total: 0,
-      onChange: function(page, size) {
-        pgState.page = page;
-        pgState.size = size;
-        filterHazardList();
-      }
+      onChange: function () { renderTable(getFiltered()); }
     });
-    var pgState = { page: 1, size: 10, total: 0 };
-    
-    // ========== 表格渲染 ==========
-    
+
     function renderTable(data) {
-      pgState.total = data.length;
-      const start = (pgState.page - 1) * pgState.size;
-      const pageData = data.slice(start, start + pgState.size);
-
-      const tbody = document.getElementById('tableBody');
-
-      if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" class="empty-state" style="padding: var(--spacing-xxl) 0;">暂无数据</td></tr>';
-        updateStats(data);
-        pg.setTotal(0);
-        return;
+      pg.setTotal(data.length);
+      var start = (pg.page - 1) * pg.size;
+      var pageData = data.slice(start, start + pg.size);
+      var tbody = document.getElementById('tableBody');
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="12" style="padding:48px 0;color:var(--text-tertiary);">暂无数据</td></tr>';
+      } else {
+        tbody.innerHTML = pageData.map(function (h, idx) {
+          var levelText = h.level === '重大隐患' ? '重大' : '一般';
+          var levelClass = h.level === '重大隐患' ? 'tag-red' : 'tag-orange';
+          var domainText = formatDomains(h.domains);
+          return '<tr data-id="' + h.id + '">'
+            + '<td class="col-checkbox"><input type="checkbox" class="row-check" data-id="' + h.id + '"' + (selectedHazards[h.id] ? ' checked' : '') + '></td>'
+            + '<td>' + (start + idx + 1) + '</td>'
+            + '<td class="hazard-name"><button class="btn btn-link name-link" data-act="detail" data-id="' + h.id + '" title="' + esc(h.name) + '">' + esc(h.name) + '</button></td>'
+            + '<td>' + esc(h.category) + '</td>'
+            + '<td><span class="tag ' + levelClass + '">' + levelText + '</span></td>'
+            + '<td>' + suggestText(h.level) + '</td>'
+            + '<td><span class="truncate-cell" title="' + esc(h.domains.join('、')) + '">' + esc(domainText) + '</span></td>'
+            + '<td><button class="link-count' + (asCount(h.checkItems) ? '' : ' empty') + '" data-act="checks" data-id="' + h.id + '">' + (asCount(h.checkItems) ? asCount(h.checkItems) + '个' : '去关联') + '</button></td>'
+            + '<td><button class="link-count' + (asCount(h.regulations) ? '' : ' empty') + '" data-act="regs" data-id="' + h.id + '">' + (asCount(h.regulations) ? asCount(h.regulations) + '条' : '去关联') + '</button></td>'
+            + '<td><button class="hz-status ' + (h.status === '启用' ? 'on' : 'off') + '" data-act="toggle" data-id="' + h.id + '">' + h.status + '</button></td>'
+            + '<td>' + esc(h.updateTime) + '</td>'
+            + '<td class="operation-col">'
+            + '<button class="btn btn-link" data-act="edit" data-id="' + h.id + '">编辑</button>'
+            + '<button class="btn btn-link" data-act="copy" data-id="' + h.id + '">复制</button>'
+            + '<button class="btn btn-link" data-act="detail" data-id="' + h.id + '">详情</button>'
+            + '<button class="btn btn-link danger" data-act="delete" data-id="' + h.id + '">删除</button>'
+            + '</td></tr>';
+        }).join('');
       }
-
-      let html = '';
-      
-      pageData.forEach((hazard, idx) => {
-        const levelClass = hazard.level === '重大隐患' ? 'tag-red' : 'tag-orange';
-        const statusClass = hazard.status === '启用' ? 'tag-green' : 'tag-gray';
-        
-        html += `
-          <tr data-id="${hazard.id}">
-            <td class="col-checkbox">
-              <input type="checkbox" onchange="toggleSelect('${hazard.id}')" ${selectedHazards.has(hazard.id) ? 'checked' : ''}>
-            </td>
-            <td>${start + idx + 1}</td>
-            <td class="hazard-name">
-              <span class="truncate-cell" title="${hazard.name}">${hazard.name}</span>
-            </td>
-            <td class="hazard-category">
-              <span class="tag tag-blue">${hazard.category}</span>
-            </td>
-            <td class="hazard-level">
-              <span class="tag ${levelClass}">${hazard.level}</span>
-            </td>
-            <td class="hazard-domain">
-              <span class="truncate-cell" title="${hazard.domains.join('、')}">${hazard.domains.join('、')}</span>
-            </td>
-            <td class="hazard-checkitems">
-              <a href="#" class="btn-link" onclick="showCheckItems('${hazard.id}')">${hazard.checkItems}个</a>
-            </td>
-            <td class="hazard-regulations">
-              <a href="#" class="btn-link" onclick="showRegulations('${hazard.id}')">${hazard.regulations}条</a>
-            </td>
-            <td class="hazard-status">
-              <span class="tag ${statusClass}">${hazard.status}</span>
-            </td>
-            <td class="hazard-time">${hazard.updateTime}</td>
-            <td class="operation-col">
-              <button class="btn btn-link" onclick="openEditModal('${hazard.id}')">编辑</button>
-              <button class="btn btn-link" onclick="openDeleteModal('${hazard.id}')">删除</button>
-              <button class="btn btn-link" onclick="openDetailModal('${hazard.id}')">详情</button>
-            </td>
-          </tr>
-        `;
-      });
-      
-      tbody.innerHTML = html;
-      updateStats(data);
-      pg.setTotal(pgState.total);
-    }
-    
-    function updateStats(data) {
       document.getElementById('totalCount').textContent = data.length;
-      document.getElementById('normalCount').textContent = data.filter(h => h.level === '一般隐患').length;
-      document.getElementById('majorCount').textContent = data.filter(h => h.level === '重大隐患').length;
-    }
-    
-    function filterHazardList() {
-      let filtered = [...hazardData];
-      
-      // 领域筛选
-      if (selectedDomain && selectedDomain !== 'all') {
-        filtered = filtered.filter(h => h.domains.some(d => d.includes(selectedDomain)));
-      }
-      
-      // 类别筛选
-      const category = document.getElementById('filterCategory').value;
-      if (category) {
-        filtered = filtered.filter(h => h.category === category);
-      }
-      
-      // 级别筛选
-      const level = document.getElementById('filterLevel').value;
-      if (level) {
-        filtered = filtered.filter(h => h.level === level);
-      }
-      
-      // 状态筛选
-      const status = document.getElementById('filterStatus').value;
-      if (status) {
-        filtered = filtered.filter(h => h.status === status);
-      }
-      
-      // 关键词搜索
-      const keyword = document.getElementById('searchInput').value.toLowerCase();
-      if (keyword) {
-        filtered = filtered.filter(h => h.name.toLowerCase().includes(keyword));
-      }
-      
-      renderTable(filtered);
-    }
-    
-    function resetFilters() {
-      document.getElementById('filterCategory').value = '';
-      document.getElementById('filterLevel').value = '';
-      document.getElementById('filterStatus').value = '';
-      document.getElementById('searchInput').value = '';
-      selectedDomain = null;
-      document.querySelectorAll('.tree-node').forEach(node => node.classList.remove('selected'));
-      pgState.page = 1;
-      pg.setPage(1);
-      filterHazardList();
+      document.getElementById('normalCount').textContent = data.filter(function (h) { return h.level === '一般隐患'; }).length;
+      document.getElementById('majorCount').textContent = data.filter(function (h) { return h.level === '重大隐患'; }).length;
+      document.getElementById('statCardAll').classList.toggle('selected', !statFilter);
+      document.getElementById('statCardNormal').classList.toggle('selected', statFilter === 'normal');
+      document.getElementById('statCardMajor').classList.toggle('selected', statFilter === 'major');
+      var all = document.getElementById('selectAll');
+      var boxes = tbody.querySelectorAll('.row-check');
+      all.checked = boxes.length > 0 && Array.prototype.every.call(boxes, function (b) { return b.checked; });
     }
 
-    // ========== 分页逻辑已由 pagination.js 组件接管 ==========
+    function refresh(resetPage) {
+      if (resetPage) pg.page = 1;
+      renderTree();
+      renderTable(getFiltered());
+      updateBatchBar();
+    }
 
-    // ========== 选择与批量操作 ==========
-    
-    function toggleSelect(id) {
-      if (selectedHazards.has(id)) {
-        selectedHazards.delete(id);
-      } else {
-        selectedHazards.add(id);
-      }
-      updateBatchBar();
-    }
-    
-    function toggleSelectAll() {
-      const selectAll = document.getElementById('selectAll');
-      const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
-      
-      if (selectAll.checked) {
-        checkboxes.forEach(cb => {
-          const id = cb.closest('tr').dataset.id;
-          selectedHazards.add(id);
-          cb.checked = true;
-        });
-      } else {
-        selectedHazards.clear();
-        checkboxes.forEach(cb => cb.checked = false);
-      }
-      updateBatchBar();
-    }
-    
     function updateBatchBar() {
-      const batchBar = document.getElementById('batchBar');
-      const selectedCount = document.getElementById('selectedCount');
-      
-      if (selectedHazards.size > 0) {
-        batchBar.classList.add('show');
-        selectedCount.textContent = selectedHazards.size;
-      } else {
-        batchBar.classList.remove('show');
-      }
+      var n = Object.keys(selectedHazards).length;
+      document.getElementById('batchBar').classList.toggle('show', n > 0);
+      document.getElementById('selectedCount').textContent = n;
     }
-    
-    function clearSelection() {
-      selectedHazards.clear();
-      document.querySelectorAll('#tableBody input[type="checkbox"]').forEach(cb => cb.checked = false);
-      document.getElementById('selectAll').checked = false;
-      updateBatchBar();
+
+    function renderTags() {
+      document.getElementById('domainTags').innerHTML = formState.domains.length
+        ? formState.domains.map(function (n) { return '<span class="pick-tag">' + esc(isSanxiao(n) ? sanxiaoShort(n) : n) + '<span class="x" data-rm="domain" data-v="' + esc(n) + '">×</span></span>'; }).join('')
+        : '<span class="empty-placeholder">未选择</span>';
+      document.getElementById('checkTags').innerHTML = formState.checks.length
+        ? formState.checks.map(function (id) { return '<span class="pick-tag">' + esc(checkName(id)) + '<span class="x" data-rm="check" data-v="' + id + '">×</span></span>'; }).join('')
+        : '<span class="empty-placeholder">未关联</span>';
+      document.getElementById('regTags').innerHTML = formState.regs.length
+        ? formState.regs.map(function (id) { return '<span class="pick-tag">' + esc(regName(id)) + '<span class="x" data-rm="reg" data-v="' + id + '">×</span></span>'; }).join('')
+        : '<span class="empty-placeholder">未关联</span>';
     }
-    
-    function batchEnable() {
-      selectedHazards.forEach(id => {
-        const hazard = hazardData.find(h => h.id === id);
-        if (hazard) hazard.status = '启用';
-      });
-      clearSelection();
-      filterHazardList();
-      showToast('批量启用成功', 'success');
+    function updateSuggest() {
+      var level = document.querySelector('input[name="hazardLevel"]:checked');
+      document.getElementById('suggestDays').textContent = '建议整改期限：' + suggestText(level ? level.value : '一般隐患') + '（可在现场录入时修改）';
     }
-    
-    function batchDisable() {
-      selectedHazards.forEach(id => {
-        const hazard = hazardData.find(h => h.id === id);
-        if (hazard) hazard.status = '停用';
-      });
-      clearSelection();
-      filterHazardList();
-      showToast('批量停用成功', 'success');
+    function sameDomains(a, b) {
+      if (a.length !== b.length) return false;
+      var sa = a.slice().sort().join('|');
+      var sb = b.slice().sort().join('|');
+      return sa === sb;
     }
-    
-    function batchDelete() {
-      openModal('batchDeleteModal');
+    function nowText() {
+      var d = new Date();
+      function p(n) { return n < 10 ? '0' + n : '' + n; }
+      return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
     }
-    
-    // ========== 弹窗操作 ==========
-    
-    function openModal(modalId) {
-      document.getElementById(modalId).classList.add('show');
+
+    function fillForm(h) {
+      document.getElementById('hazardName').value = h ? h.name : '';
+      document.getElementById('hazardAlias').value = h ? (h.alias || '') : '';
+      document.getElementById('hazardCategory').value = h ? h.category : '';
+      document.getElementById('hazardDesc').value = h ? (h.desc || '') : '';
+      document.getElementById('rectifySuggestion').value = h ? (h.suggestion || '') : '';
+      var level = h ? h.level : '一般隐患';
+      var status = h ? h.status : '启用';
+      var lv = document.querySelector('input[name="hazardLevel"][value="' + level + '"]');
+      if (lv) lv.checked = true;
+      var st = document.querySelector('input[name="hazardStatus"][value="' + status + '"]');
+      if (st) st.checked = true;
+      formState.domains = h ? h.domains.slice() : [];
+      formState.checks = h ? asList(h.checkItems).slice() : [];
+      formState.regs = h ? asList(h.regulations).slice() : [];
+      updateSuggest();
+      renderTags();
+      renderSimilar();
+      renderRecommend();
     }
-    
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
-    }
-    
-    function openAddModal() {
+    function openAdd() {
+      editingId = null;
       document.getElementById('modalTitle').textContent = '新增隐患';
-      document.getElementById('hazardName').value = '';
-      document.getElementById('hazardCategory').value = '';
-      document.getElementById('hazardDesc').value = '';
-      document.getElementById('rectifySuggestion').value = '';
-      // 清空关联数据
-      document.getElementById('domainList').innerHTML = '<div class="empty-placeholder">暂无领域</div>';
-      document.getElementById('checkItemList').innerHTML = '<div class="empty-placeholder">暂无关联检查项</div>';
-      document.getElementById('regulationList').innerHTML = '<div class="empty-placeholder">暂无关联法规</div>';
-      document.getElementById('recommendResult').style.display = 'none';
-      // 重置单选
-      document.querySelector('input[name="hazardLevel"][value="一般隐患"]').checked = true;
-      document.querySelector('input[name="hazardStatus"][value="启用"]').checked = true;
+      fillForm(null);
       openModal('editModal');
     }
-    
-    function openEditModal(id) {
+    function openEdit(id) {
+      var h = findHazard(id);
+      if (!h) return;
+      editingId = id;
       document.getElementById('modalTitle').textContent = '编辑隐患';
-      const hazard = hazardData.find(h => h.id === id);
-      if (hazard) {
-        document.getElementById('hazardName').value = hazard.name;
-        document.getElementById('hazardCategory').value = hazard.category;
-        document.getElementById('hazardDesc').value = hazard.name;
-      }
+      fillForm(h);
       openModal('editModal');
     }
-    
-    function openDetailModal(id) {
-      // 重置展开状态（每次打开详情时回到展开态）
-      detailCiExpanded = true;
-      detailRegExpanded = true;
-      updateDetailSectionUI();
+    function openCopy(id) {
+      var h = findHazard(id);
+      if (!h) return;
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '复制为新隐患';
+      fillForm(h);
+      document.getElementById('hazardName').value = h.name + '（副本）';
+      renderSimilar();
+      openModal('editModal');
+    }
+    function saveHazard(cont) {
+      var name = document.getElementById('hazardName').value.trim();
+      var category = document.getElementById('hazardCategory').value;
+      var domains = formState.domains.slice();
+      if (!name) { showToast('请输入隐患名称', 'warning'); return; }
+      if (!category) { showToast('请选择隐患类别', 'warning'); return; }
+      if (!domains.length) { showToast('请至少选择一个适用领域', 'warning'); return; }
+      var dup = hazardData.some(function (h) {
+        return h.id !== editingId && h.name === name && h.category === category && sameDomains(h.domains, domains);
+      });
+      if (dup) { showToast('该隐患已存在（相同名称、类别、领域组合）', 'warning'); return; }
+      var level = document.querySelector('input[name="hazardLevel"]:checked').value;
+      var status = document.querySelector('input[name="hazardStatus"]:checked').value;
+      var payload = {
+        name: name, alias: document.getElementById('hazardAlias').value.trim(),
+        category: category, level: level, status: status, domains: domains,
+        desc: document.getElementById('hazardDesc').value.trim(),
+        suggestion: document.getElementById('rectifySuggestion').value.trim(),
+        checkItems: formState.checks.slice(), regulations: formState.regs.slice(),
+        updateTime: nowText()
+      };
+      if (editingId) {
+        var h = findHazard(editingId);
+        Object.keys(payload).forEach(function (k) { h[k] = payload[k]; });
+      } else {
+        payload.id = 'HZ' + String(Date.now()).slice(-6);
+        hazardData.unshift(payload);
+      }
+      showToast(cont ? '已保存，可继续新增' : '保存成功', 'success');
+      if (cont) {
+        editingId = null;
+        document.getElementById('modalTitle').textContent = '新增隐患';
+        document.getElementById('hazardName').value = '';
+        document.getElementById('hazardAlias').value = '';
+        document.getElementById('hazardDesc').value = '';
+        document.getElementById('rectifySuggestion').value = '';
+        formState.checks = [];
+        formState.regs = [];
+        renderTags();
+        renderSimilar();
+        renderRecommend();
+        refresh(false);
+      } else {
+        closeModal('editModal');
+        refresh(true);
+      }
+    }
+
+    function openDetail(id) {
+      var h = findHazard(id);
+      if (!h) return;
+      var checks = asList(h.checkItems);
+      var regs = asList(h.regulations);
+      var cls = checklistsOfHazard(h.id);
+      var levelText = h.level === '重大隐患' ? '重大' : '一般';
+      var html = '<div class="detail-section"><div class="detail-section-title">基本信息</div>'
+        + row('隐患名称', esc(h.name))
+        + row('隐患类别', esc(h.category))
+        + row('别名', esc(h.alias || '无'))
+        + row('隐患级别', '<span class="tag ' + (h.level === '重大隐患' ? 'tag-red' : 'tag-orange') + '">' + levelText + '</span>')
+        + row('建议期限', suggestText(h.level))
+        + row('状态', esc(h.status))
+        + row('适用领域', esc(formatDomains(h.domains)))
+        + row('引用情况', cls.length ? ('被 ' + cls.length + ' 个检查表引用（' + esc(cls.map(function (c) { return c.name; }).join('、')) + '）') : '暂无检查表引用')
+        + row('更新时间', esc(h.updateTime))
+        + '</div>'
+        + '<div class="detail-section"><div class="detail-section-title">隐患描述</div><div class="detail-value">' + esc(h.desc || '无') + '</div></div>'
+        + '<div class="detail-section"><div class="detail-section-title">整改建议</div><div class="detail-value">' + esc(h.suggestion || '无') + '</div></div>'
+        + '<div class="detail-section"><div class="detail-section-title">关联检查项（' + asCount(h.checkItems) + '个）</div><div class="detail-list">'
+        + (checks.length ? checks.map(function (n) { return '<div class="detail-list-item">' + esc(checkName(n)) + '</div>'; }).join('') : '<div class="empty-placeholder">暂无</div>')
+        + '</div></div>'
+        + '<div class="detail-section"><div class="detail-section-title">关联法规（' + asCount(h.regulations) + '条）</div><div class="detail-list">'
+        + (regs.length ? regs.map(function (n) { return '<div class="detail-list-item">' + esc(regName(n)) + '</div>'; }).join('') : '<div class="empty-placeholder">暂无</div>')
+        + '</div></div>';
+      document.getElementById('detailBody').innerHTML = html;
       openModal('detailModal');
     }
-
-    // 详情弹窗关联项展开/收起状态
-    let detailCiExpanded = true;
-    let detailRegExpanded = true;
-
-    function toggleDetailSection(type) {
-      if (type === 'checkItems') {
-        detailCiExpanded = !detailCiExpanded;
-      } else if (type === 'regulations') {
-        detailRegExpanded = !detailRegExpanded;
-      }
-      updateDetailSectionUI();
+    function row(label, valueHtml) {
+      return '<div class="detail-row"><span class="detail-label">' + label + '</span><span class="detail-value">' + valueHtml + '</span></div>';
     }
 
-    function toggleRegDetailItem(itemEl, regId) {
-      const content = itemEl.querySelector('.detail-reg-content');
-      const toggle = itemEl.querySelector('.detail-reg-toggle');
-      const isOpen = content.style.display !== 'none';
-      content.style.display = isOpen ? 'none' : 'block';
-      toggle.textContent = isOpen ? '▶' : '▼';
-      // 关闭其他已展开项
-      itemEl.parentElement.querySelectorAll('.detail-reg-item').forEach(el => {
-        if (el !== itemEl) {
-          el.querySelector('.detail-reg-content').style.display = 'none';
-          el.querySelector('.detail-reg-toggle').textContent = '▶';
-        }
-      });
-    }
-
-    function updateDetailSectionUI() {
-      // 关联检查项
-      const ciToggle = document.getElementById('detailCiToggle');
-      const ciList = document.getElementById('detailCiList');
-      if (ciToggle) ciToggle.textContent = detailCiExpanded ? '▼' : '▶';
-      if (ciList) ciList.style.display = detailCiExpanded ? '' : 'none';
-
-      // 关联法规条款
-      const regToggle = document.getElementById('detailRegToggle');
-      const regList = document.getElementById('detailRegList');
-      if (regToggle) regToggle.textContent = detailRegExpanded ? '▼' : '▶';
-      if (regList) regList.style.display = detailRegExpanded ? '' : 'none';
-    }
-    
-    function openDeleteModal(id) {
+    function openDelete(id) {
+      var h = findHazard(id);
+      if (!h) return;
+      deleteId = id;
+      document.getElementById('deleteName').textContent = h.name;
+      document.getElementById('deleteChecks').textContent = asCount(h.checkItems);
+      document.getElementById('deleteRegs').textContent = asCount(h.regulations);
+      // 4.7 引用数：被 N 个检查表引用
+      var cls = checklistsOfHazard(h.id);
+      document.getElementById('deleteRefCount').textContent = cls.length ? ('，被 ' + cls.length + ' 个检查表引用') : '';
+      // 4.6 删除引导停用：有关联（检查项/法规/检查表引用）时提示建议停用
+      var hasLink = asCount(h.checkItems) || asCount(h.regulations) || cls.length;
+      var box = document.getElementById('deleteSuggestDisable');
+      box.style.display = hasLink ? 'block' : 'none';
+      document.getElementById('deleteDisableLink').onclick = function () {
+        pendingAction = { type: 'toggle', id: id, next: '停用' };
+        closeModal('deleteModal');
+        runPending();
+      };
       openModal('deleteModal');
     }
-    
     function confirmDelete() {
+      var idx = -1;
+      hazardData.forEach(function (h, i) { if (h.id === deleteId) idx = i; });
+      if (idx >= 0) hazardData.splice(idx, 1);
+      delete selectedHazards[deleteId];
       closeModal('deleteModal');
       showToast('删除成功', 'success');
-      filterHazardList();
+      refresh(false);
     }
-    
-    function confirmBatchDelete() {
-      selectedHazards.clear();
-      closeModal('batchDeleteModal');
-      clearSelection();
-      filterHazardList();
-      showToast('批量删除成功', 'success');
+
+    function askToggle(id) {
+      var h = findHazard(id);
+      if (!h) return;
+      pendingAction = { type: 'toggle', id: id, next: h.status === '启用' ? '停用' : '启用' };
+      document.getElementById('confirmText').textContent = '确定将“' + h.name + '”' + pendingAction.next + '？';
+      openModal('confirmModal');
     }
-    
-    function saveHazard() {
-      const name = document.getElementById('hazardName').value;
-      const category = document.getElementById('hazardCategory').value;
-      
-      if (!name) {
-        showToast('请输入隐患名称', 'warning');
-        return;
+    function runPending() {
+      if (!pendingAction) return;
+      if (pendingAction.type === 'toggle') {
+        var h = findHazard(pendingAction.id);
+        if (h) h.status = pendingAction.next;
+        showToast('已' + pendingAction.next, 'success');
+      } else if (pendingAction.type === 'batch-delete') {
+        pendingAction.ids.forEach(function (id) {
+          var idx = -1;
+          hazardData.forEach(function (item, i) { if (item.id === id) idx = i; });
+          if (idx >= 0) hazardData.splice(idx, 1);
+        });
+        selectedHazards = {};
+        showToast('已删除 ' + pendingAction.ids.length + ' 条', 'success');
       }
-      if (!category) {
-        showToast('请选择隐患类别', 'warning');
-        return;
-      }
-      
-      closeModal('editModal');
-      showToast('保存成功', 'success');
-      filterHazardList();
-    }
-    
-    // ========== 其他操作 ==========
-
-    var importFileSelected = null;
-
-    function openImportModal() {
-      importFileSelected = null;
-      document.getElementById('importFileInput').value = '';
-      document.getElementById('importFileInfo').style.display = 'none';
-      document.getElementById('importDropZone').style.borderColor = 'var(--border)';
-      document.getElementById('importConfirmBtn').disabled = true;
-      openModal('modal-import');
-    }
-
-    function handleImportFile(input) {
-      var file = input.files[0];
-      if (!file) return;
-      var ext = file.name.split('.').pop().toLowerCase();
-      if (!['csv', 'xlsx', 'xls'].includes(ext)) {
-        showToast('请选择 .csv、.xlsx 或 .xls 格式的文件', 'warning');
-        input.value = '';
-        return;
-      }
-      importFileSelected = file;
-      document.getElementById('importFileName').textContent = file.name;
-      document.getElementById('importFileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
-      document.getElementById('importFileInfo').style.display = 'block';
-      document.getElementById('importDropZone').style.borderColor = 'var(--primary)';
-      document.getElementById('importConfirmBtn').disabled = false;
-    }
-
-    function clearImportFile() {
-      importFileSelected = null;
-      document.getElementById('importFileInput').value = '';
-      document.getElementById('importFileInfo').style.display = 'none';
-      document.getElementById('importDropZone').style.borderColor = 'var(--border)';
-      document.getElementById('importConfirmBtn').disabled = true;
-    }
-
-    function confirmImport() {
-      if (!importFileSelected) {
-        showToast('请先选择文件', 'warning');
-        return;
-      }
-      var reader = new FileReader();
-      reader.onload = function(event) {
-        try {
-          var content = event.target.result;
-          var lines = content.split('\n');
-          var imported = 0;
-          var skipped = 0;
-          for (var i = 1; i < lines.length; i++) {
-            if (!lines[i].trim()) continue;
-            var vals = lines[i].split(',');
-            if (vals.length >= 3) {
-              var name = vals[0].trim();
-              if (hazardData.some(function(h) { return h.name === name; })) { skipped++; continue; }
-              hazardData.push({
-                id: 'HZ' + String(hazardData.length + 1).padStart(3, '0'),
-                name: name,
-                category: vals[1].trim(),
-                level: vals[2].trim().indexOf('重大') > -1 ? '重大隐患' : '一般隐患',
-                domains: vals[3] ? [vals[3].trim()] : ['所有场所'],
-                checkItems: parseInt(vals[4]) || 0,
-                regulations: parseInt(vals[5]) || 0,
-                status: '启用',
-                updateTime: new Date().toLocaleDateString('zh-CN') + ' ' + new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})
-              });
-              imported++;
-            }
-          }
-          closeModal('modal-import');
-          filterHazardList();
-          if (imported > 0) {
-            showToast('成功导入 ' + imported + ' 条隐患' + (skipped > 0 ? '，跳过 ' + skipped + ' 条重复' : ''), 'success');
-          } else {
-            showToast('未导入任何数据，请检查文件格式', 'warning');
-          }
-        } catch (err) {
-          showToast('导入失败，请检查文件格式', 'error');
-        }
-      };
-      reader.readAsText(importFileSelected);
-    }
-
-    function downloadImportTemplate() {
-      var headers = '隐患名称,隐患类别,隐患级别,适用领域,关联检查项数,关联法规数';
-      var sample1 = '电梯未按规定检验,设备类,重大隐患,特种设备,3,2';
-      var sample2 = '灭火器过期未检,设备类,一般隐患,公共场所,1,1';
-      var csvContent = headers + '\n' + sample1 + '\n' + sample2;
-      var blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
-      var link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = '隐患导入模板.csv';
-      link.click();
-      showToast('模板已下载', 'success');
+      pendingAction = null;
+      closeModal('confirmModal');
+      refresh(false);
     }
 
     function exportData() {
-      var headers = ['隐患名称', '隐患类别', '隐患级别', '适用领域', '关联检查项', '关联法规', '状态', '更新时间'];
-      var rows = hazardData.map(function(h) {
-        return [h.name, h.category, h.level, h.domains.join('、'), h.checkItems, h.regulations, h.status, h.updateTime];
+      var rows = getFiltered().map(function (h) {
+        // PRD §6.1.7.7.3 列顺序：hazard_id → 名称 → 类别 → 级别 → 领域 → 描述 → 关联检查项 → 关联法规 → 整改建议 → 状态
+        return [
+          h.id, h.name, h.category, h.level, h.domains.join('、'), h.desc || '',
+          asList(h.checkItems).join(','),
+          asList(h.regulations).map(function (id) { var r = findReg(id); return r ? (r.law + r.no) : id; }).join(','),
+          h.suggestion || '', h.status
+        ];
       });
-      var csvContent = [headers.join(','), rows.map(function(r) { return r.join(','); }).join('\n')].join('\n');
-      var blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      var csv = '隐患ID,隐患名称,隐患类别,隐患级别,适用领域,隐患描述,关联检查项,关联法规,整改建议,状态\n'
+        + rows.map(function (r) {
+          return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+        }).join('\n');
+      var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
       var link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = '隐患库导出_' + new Date().toLocaleDateString('zh-CN') + '.csv';
+      var d = new Date();
+      function p2(n) { return n < 10 ? '0' + n : '' + n; }
+      link.download = '隐患库导出_' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '_' + p2(d.getHours()) + p2(d.getMinutes()) + p2(d.getSeconds()) + '.csv';
       link.click();
-      showToast('导出成功', 'success');
+      showToast('已按当前筛选导出', 'success');
     }
-    
-    function showCheckItems(id) {
-      showToast('显示关联检查项列表', 'info');
+
+    function renderSimilar() {
+      var box = document.getElementById('similarBox');
+      var q = document.getElementById('hazardName').value.trim();
+      if (q.length < 2) { box.style.display = 'none'; return; }
+      var hits = hazardData.filter(function (h) {
+        if (h.id === editingId) return false;
+        return h.name.indexOf(q) >= 0 || (h.alias || '').indexOf(q) >= 0 || (h.desc || '').indexOf(q) >= 0;
+      }).slice(0, 5);
+      if (!hits.length) { box.style.display = 'none'; return; }
+      box.style.display = 'block';
+      box.innerHTML = '已有 ' + hits.length + ' 条相关隐患：' + hits.map(function (h) {
+        return '<div>' + esc(h.name) + '<button type="button" class="btn btn-link" data-sim="view" data-id="' + h.id + '">查看</button><button type="button" class="btn btn-link" data-sim="copy" data-id="' + h.id + '">复制为新隐患</button></div>';
+      }).join('');
     }
-    
-    function showRegulations(id) {
-      showToast('显示关联法规条款列表', 'info');
+    function recommendHits() {
+      var text = [document.getElementById('hazardName').value, document.getElementById('hazardAlias').value, document.getElementById('hazardDesc').value].join(' ');
+      if (text.trim().length < 2) return [];
+      return CHECK_ITEMS.map(function (it) {
+        var core = it.name.replace(/是否.+$/, '');
+        var score = 0;
+        if (text.indexOf(core) >= 0) score = 92;
+        else if (core.length >= 2 && text.indexOf(core.slice(0, 2)) >= 0) score = 76;
+        return { item: it, score: score };
+      }).filter(function (x) { return x.score >= 70; });
     }
-    
-    function openDomainSelect() {
-      showToast('选择适用领域', 'info');
+    function renderRecommend() {
+      var box = document.getElementById('recommendBox');
+      var hits = recommendHits();
+      var text = document.getElementById('hazardName').value.trim() + document.getElementById('hazardDesc').value.trim();
+      if (text.length < 2) { box.innerHTML = '输入名称或描述后推荐检查项'; return; }
+      if (!hits.length) { box.innerHTML = '暂无匹配的检查项推荐'; return; }
+      box.innerHTML = hits.map(function (h) {
+        return '<label><input type="checkbox" class="rec-check" data-id="' + h.item.id + '" checked> ' + h.score + '% ' + esc(h.item.name) + '</label>';
+      }).join('') + '<div><button type="button" class="btn btn-link" id="btnConfirmRec">确认加入</button></div>';
     }
-    
-    function openCheckItemSelect() {
-      showToast('选择关联检查项', 'info');
+    function domainIndustries() {
+      var set = {};
+      formState.domains.forEach(function (n) { var c = industryOf(n); if (c) set[c] = 1; });
+      return set;
     }
-    
-    function openRegulationSelect() {
-      showToast('选择关联法规条款', 'info');
+    function renderDp() {
+      var left = '';
+      INDUSTRY_ORDER.forEach(function (code) {
+        if (!domainsOf(code).length) return;
+        left += '<div class="picker-item' + (dpBrowse === code ? ' active' : '') + '" data-dp="' + code + '">' + esc(DOMAIN_INDUSTRY_MAP[code]) + '</div>';
+      });
+      if (domainsOf('COMM').some(function (d) { return isSanxiao(d.name); })) {
+        left += '<div class="picker-item' + (dpBrowse === 'sanxiao' ? ' active' : '') + '" data-dp="sanxiao">"三小"场所</div>';
+      }
+      document.getElementById('dpLeft').innerHTML = left;
+      var list = dpBrowse === 'sanxiao'
+        ? domainsOf('COMM').filter(function (d) { return isSanxiao(d.name); })
+        : domainsOf(dpBrowse).filter(function (d) { return dpBrowse !== 'COMM' || !isSanxiao(d.name); });
+      var allOn = list.length && list.every(function (d) { return pickerDraft.indexOf(d.name) >= 0; });
+      var right = '<div class="picker-item"><label><input type="checkbox" id="dpAll"' + (allOn ? ' checked' : '') + '> 全选本组</label></div>';
+      list.forEach(function (d) {
+        var on = pickerDraft.indexOf(d.name) >= 0;
+        right += '<div class="picker-item"><label title="' + esc(d.name) + '"><input type="checkbox" class="dp-one" value="' + esc(d.name) + '"' + (on ? ' checked' : '') + '>' + esc(isSanxiao(d.name) ? sanxiaoShort(d.name) : d.name) + '</label></div>';
+      });
+      document.getElementById('dpRight').innerHTML = right;
     }
-    
-    function openRegulationAdvanced() {
-      showToast('打开法规高级选择弹窗（树形）', 'info');
+    function renderCheckList() {
+      var q = document.getElementById('checkSearch').value.trim();
+      var scoped = document.getElementById('checkScope').checked;
+      var inds = {};
+      var domainNames = pickerMode === 'batch'
+        ? Object.keys(selectedHazards).reduce(function (arr, id) {
+          var h = findHazard(id); return h ? arr.concat(h.domains) : arr;
+        }, [])
+        : formState.domains;
+      domainNames.forEach(function (n) { var c = industryOf(n); if (c) inds[c] = 1; });
+      var list = CHECK_ITEMS.filter(function (it) {
+        if (q && it.name.indexOf(q) < 0) return false;
+        if (!scoped || !domainNames.length) return true;
+        return it.industries.some(function (c) { return inds[c]; });
+      });
+      list.sort(function (a, b) { return (pickerDraft.indexOf(a.id) >= 0 ? 0 : 1) - (pickerDraft.indexOf(b.id) >= 0 ? 0 : 1); });
+      document.getElementById('checkList').innerHTML = list.length ? list.map(function (it) {
+        var on = pickerDraft.indexOf(it.id) >= 0;
+        return '<div class="picker-item"><label><input type="checkbox" class="ck-one" value="' + it.id + '"' + (on ? ' checked' : '') + '>' + esc(it.name) + '</label></div>';
+      }).join('') : '<div class="empty-placeholder">没有符合的检查项</div>';
     }
-    
-    function removeDomain(btn) {
-      btn.closest('.added-item').remove();
+    function renderRegList() {
+      var q = document.getElementById('regSearch').value.trim();
+      var laws = [];
+      REG_DATA.forEach(function (r) { if (laws.indexOf(r.law) < 0) laws.push(r.law); });
+      var html = '';
+      laws.forEach(function (law) {
+        var clauses = REG_DATA.filter(function (r) { return r.law === law && (!q || (law + r.no + r.title).indexOf(q) >= 0); });
+        if (!clauses.length) return;
+        html += '<div class="picker-item" style="font-weight:600;">《' + esc(law) + '》</div>';
+        clauses.forEach(function (r) {
+          var on = pickerDraft.indexOf(r.id) >= 0;
+          html += '<div class="picker-item"><label><input type="checkbox" class="rg-one" value="' + r.id + '"' + (on ? ' checked' : '') + '>' + esc(r.no + ' ' + r.title) + '</label></div>';
+        });
+      });
+      document.getElementById('regList').innerHTML = html || '<div class="empty-placeholder">没有符合的法规</div>';
     }
-    
-    function removeCheckItem(btn) {
-      btn.closest('.added-item').remove();
+    function applyBatch(key, values) {
+      var n = 0;
+      Object.keys(selectedHazards).forEach(function (id) {
+        var h = findHazard(id);
+        if (!h) return;
+        h[key] = union(h[key], values);
+        h.updateTime = nowText();
+        n++;
+      });
+      showToast('已为 ' + n + ' 条隐患补充关联', 'success');
+      refresh(false);
     }
-    
-    function removeRegulation(btn) {
-      btn.closest('.added-item').remove();
+
+    document.getElementById('treeContent').addEventListener('click', function (e) {
+      var toggle = e.target.closest('[data-toggle]');
+      if (toggle && e.target.closest('.expand-icon')) {
+        var key = toggle.getAttribute('data-toggle');
+        expanded[key] = expanded[key] === false;
+        renderTree();
+        return;
+      }
+      var node = e.target.closest('.tree-node');
+      if (!node) return;
+      var kind = node.getAttribute('data-kind');
+      if (kind === 'all') treeSel = { kind: 'all' };
+      else if (kind === 'industry') treeSel = { kind: 'industry', industry: node.getAttribute('data-industry') };
+      else if (kind === 'sanxiao') treeSel = { kind: 'sanxiao' };
+      else if (kind === 'domain') treeSel = { kind: 'domain', domain: node.getAttribute('data-domain') };
+      refresh(true);
+    });
+
+    document.getElementById('tableBody').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-act]');
+      if (!btn) return;
+      var id = btn.getAttribute('data-id');
+      var act = btn.getAttribute('data-act');
+      if (act === 'detail') openDetail(id);
+      else if (act === 'edit') openEdit(id);
+      else if (act === 'copy') openCopy(id);
+      else if (act === 'delete') openDelete(id);
+      else if (act === 'toggle') askToggle(id);
+      else if (act === 'checks' || act === 'regs') {
+        var h = findHazard(id);
+        if (!h) return;
+        var list = act === 'checks' ? asList(h.checkItems) : asList(h.regulations);
+        if (!list.length) { openEdit(id); return; }
+        document.getElementById('relTitle').textContent = act === 'checks' ? '关联检查项' : '关联法规';
+        document.getElementById('relBody').innerHTML = '<div class="detail-list">' + list.map(function (x) {
+          return '<div class="detail-list-item">' + esc(act === 'checks' ? checkName(x) : regName(x)) + '</div>';
+        }).join('') + '</div>';
+        openModal('relModal');
+      }
+    });
+    document.getElementById('tableBody').addEventListener('change', function (e) {
+      if (!e.target.classList.contains('row-check')) return;
+      var id = e.target.getAttribute('data-id');
+      if (e.target.checked) selectedHazards[id] = 1;
+      else delete selectedHazards[id];
+      updateBatchBar();
+      renderTable(getFiltered());
+    });
+    document.getElementById('selectAll').addEventListener('change', function () {
+      document.querySelectorAll('#tableBody .row-check').forEach(function (b) {
+        var id = b.getAttribute('data-id');
+        if (document.getElementById('selectAll').checked) selectedHazards[id] = 1;
+        else delete selectedHazards[id];
+      });
+      renderTable(getFiltered());
+      updateBatchBar();
+    });
+
+    document.getElementById('btnQuery').addEventListener('click', function () { refresh(true); });
+    // 4.5 统计卡可点击：点击即按该口径筛选；再点已选中的卡取消
+    ['statCardAll', 'statCardNormal', 'statCardMajor'].forEach(function (id) {
+      document.getElementById(id).addEventListener('click', function () {
+        var v = this.getAttribute('data-stat');
+        statFilter = (statFilter === v || v === 'all') ? null : v;
+        refresh(true);
+      });
+    });
+    document.getElementById('btnReset').addEventListener('click', function () {
+      document.getElementById('filterCategory').value = '';
+      document.getElementById('filterLevel').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterLink').value = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('treeSearchInput').value = '';
+      treeSel = { kind: 'all' };
+      statFilter = null;
+      refresh(true);
+    });
+    document.getElementById('searchInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') refresh(true);
+    });
+    document.getElementById('treeSearchInput').addEventListener('input', renderTree);
+    document.getElementById('btnAdd').addEventListener('click', openAdd);
+    document.getElementById('btnSave').addEventListener('click', function () { saveHazard(false); });
+    document.getElementById('btnSaveNext').addEventListener('click', function () { saveHazard(true); });
+    document.getElementById('hazardName').addEventListener('input', function () { clearTimeout(window.__sim); window.__sim = setTimeout(function () { renderSimilar(); renderRecommend(); }, 300); });
+    document.getElementById('hazardDesc').addEventListener('input', function () { clearTimeout(window.__rec); window.__rec = setTimeout(renderRecommend, 400); });
+    document.getElementById('hazardAlias').addEventListener('input', function () { clearTimeout(window.__rec); window.__rec = setTimeout(renderRecommend, 400); });
+    document.querySelectorAll('input[name="hazardLevel"]').forEach(function (el) { el.addEventListener('change', updateSuggest); });
+    document.getElementById('similarBox').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-sim]');
+      if (!b) return;
+      if (b.getAttribute('data-sim') === 'view') openDetail(b.getAttribute('data-id'));
+      else openCopy(b.getAttribute('data-id'));
+    });
+    document.getElementById('recommendBox').addEventListener('click', function (e) {
+      if (e.target.id !== 'btnConfirmRec') return;
+      var ids = Array.prototype.map.call(document.querySelectorAll('.rec-check:checked'), function (el) { return el.getAttribute('data-id'); });
+      formState.checks = union(formState.checks, ids);
+      renderTags();
+      showToast(ids.length ? '已加入 ' + ids.length + ' 个检查项' : '请先勾选推荐项', ids.length ? 'success' : 'warning');
+    });
+    document.getElementById('editModal').addEventListener('click', function (e) {
+      var x = e.target.closest('[data-rm]');
+      if (!x) return;
+      var kind = x.getAttribute('data-rm');
+      var v = x.getAttribute('data-v');
+      var key = kind === 'domain' ? 'domains' : (kind === 'check' ? 'checks' : 'regs');
+      formState[key] = formState[key].filter(function (item) { return item !== v; });
+      renderTags();
+    });
+    document.getElementById('btnPickDomains').addEventListener('click', function () { pickerMode = 'form'; pickerDraft = formState.domains.slice(); renderDp(); openModal('domainModal'); });
+    document.getElementById('dpLeft').addEventListener('click', function (e) {
+      var item = e.target.closest('[data-dp]');
+      if (!item) return;
+      dpBrowse = item.getAttribute('data-dp');
+      renderDp();
+    });
+    document.getElementById('dpRight').addEventListener('change', function (e) {
+      if (e.target.id === 'dpAll') {
+        document.querySelectorAll('.dp-one').forEach(function (box) {
+          box.checked = e.target.checked;
+          var name = box.value;
+          var i = pickerDraft.indexOf(name);
+          if (e.target.checked && i < 0) pickerDraft.push(name);
+          if (!e.target.checked && i >= 0) pickerDraft.splice(i, 1);
+        });
+        return;
+      }
+      if (!e.target.classList.contains('dp-one')) return;
+      var name = e.target.value;
+      var i = pickerDraft.indexOf(name);
+      if (e.target.checked && i < 0) pickerDraft.push(name);
+      if (!e.target.checked && i >= 0) pickerDraft.splice(i, 1);
+      renderDp();
+    });
+    document.getElementById('btnDomainOk').addEventListener('click', function () {
+      closeModal('domainModal');
+      if (pickerMode === 'batch') applyBatch('domains', pickerDraft);
+      else { formState.domains = pickerDraft.slice(); renderTags(); }
+    });
+    document.getElementById('btnPickChecks').addEventListener('click', function () { pickerMode = 'form'; pickerDraft = formState.checks.slice(); renderCheckList(); openModal('checkModal'); });
+    document.getElementById('checkSearch').addEventListener('input', renderCheckList);
+    document.getElementById('checkScope').addEventListener('change', renderCheckList);
+    document.getElementById('checkList').addEventListener('change', function (e) {
+      if (!e.target.classList.contains('ck-one')) return;
+      var id = e.target.value;
+      var i = pickerDraft.indexOf(id);
+      if (e.target.checked && i < 0) pickerDraft.push(id);
+      if (!e.target.checked && i >= 0) pickerDraft.splice(i, 1);
+    });
+    document.getElementById('btnCheckOk').addEventListener('click', function () {
+      closeModal('checkModal');
+      if (pickerMode === 'batch') applyBatch('checkItems', pickerDraft);
+      else { formState.checks = pickerDraft.slice(); renderTags(); }
+    });
+    document.getElementById('btnPickRegs').addEventListener('click', function () { pickerMode = 'form'; pickerDraft = formState.regs.slice(); renderRegList(); openModal('regModal'); });
+    document.getElementById('regSearch').addEventListener('input', renderRegList);
+    document.getElementById('regList').addEventListener('change', function (e) {
+      if (!e.target.classList.contains('rg-one')) return;
+      var id = e.target.value;
+      var i = pickerDraft.indexOf(id);
+      if (e.target.checked && i < 0) pickerDraft.push(id);
+      if (!e.target.checked && i >= 0) pickerDraft.splice(i, 1);
+    });
+    document.getElementById('btnRegOk').addEventListener('click', function () {
+      closeModal('regModal');
+      if (pickerMode === 'batch') applyBatch('regulations', pickerDraft);
+      else { formState.regs = pickerDraft.slice(); renderTags(); }
+    });
+    document.getElementById('btnBringRegs').addEventListener('click', function () {
+      var extra = [];
+      formState.checks.forEach(function (id) { var c = findCheck(id); if (c) extra = extra.concat(c.regs); });
+      var before = formState.regs.length;
+      formState.regs = union(formState.regs, extra);
+      renderTags();
+      showToast(formState.regs.length > before ? '已带入法规' : '当前检查项没有可带入的法规', formState.regs.length > before ? 'success' : 'warning');
+    });
+    document.getElementById('btnBatchChecks').addEventListener('click', function () { pickerMode = 'batch'; pickerDraft = []; renderCheckList(); openModal('checkModal'); });
+    document.getElementById('btnBatchRegs').addEventListener('click', function () { pickerMode = 'batch'; pickerDraft = []; renderRegList(); openModal('regModal'); });
+    document.getElementById('btnBatchDomains').addEventListener('click', function () { pickerMode = 'batch'; pickerDraft = []; renderDp(); openModal('domainModal'); });
+    // 4.9 批量改类别
+    document.getElementById('btnBatchCategory').addEventListener('click', function () {
+      var n = Object.keys(selectedHazards).length;
+      if (!n) return;
+      document.getElementById('categoryCount').textContent = n;
+      document.getElementById('categoryTarget').value = '';
+      openModal('categoryModal');
+    });
+    document.getElementById('btnCategoryOk').addEventListener('click', function () {
+      var target = document.getElementById('categoryTarget').value;
+      if (!target) { showToast('请选择目标类别', 'warning'); return; }
+      var n = 0;
+      Object.keys(selectedHazards).forEach(function (id) {
+        var h = findHazard(id);
+        if (!h) return;
+        h.category = target;
+        h.updateTime = nowText();
+        n++;
+      });
+      closeModal('categoryModal');
+      selectedHazards = {};
+      showToast('已将 ' + n + ' 条隐患类别改为「' + target + '」', 'success');
+      refresh(false);
+    });
+    document.getElementById('btnConfirmDelete').addEventListener('click', confirmDelete);
+    document.getElementById('btnConfirmOk').addEventListener('click', runPending);
+    document.getElementById('btnExport').addEventListener('click', exportData);
+    document.getElementById('btnBatchOn').addEventListener('click', function () {
+      Object.keys(selectedHazards).forEach(function (id) { var h = findHazard(id); if (h) h.status = '启用'; });
+      selectedHazards = {};
+      showToast('批量启用成功', 'success');
+      refresh(false);
+    });
+    document.getElementById('btnBatchOff').addEventListener('click', function () {
+      Object.keys(selectedHazards).forEach(function (id) { var h = findHazard(id); if (h) h.status = '停用'; });
+      selectedHazards = {};
+      showToast('批量停用成功', 'success');
+      refresh(false);
+    });
+    document.getElementById('btnBatchDel').addEventListener('click', function () {
+      var ids = Object.keys(selectedHazards);
+      if (!ids.length) return;
+      pendingAction = { type: 'batch-delete', ids: ids };
+      document.getElementById('confirmText').textContent = '确定删除选中的 ' + ids.length + ' 条隐患吗？';
+      openModal('confirmModal');
+    });
+    document.getElementById('btnClearSel').addEventListener('click', function () {
+      selectedHazards = {};
+      refresh(false);
+    });
+    document.getElementById('btnImport').addEventListener('click', function () {
+      document.getElementById('importResult').style.display = 'none';
+      importFile = null;
+      document.getElementById('importConfirmBtn').disabled = true;
+      openModal('modal-import');
+    });
+    document.getElementById('importDropZone').addEventListener('click', function () { document.getElementById('importFileInput').click(); });
+    document.getElementById('importFileInput').addEventListener('change', function () {
+      importFile = this.files[0] || null;
+      document.getElementById('importConfirmBtn').disabled = !importFile;
+      document.getElementById('importResult').style.display = 'none';
+    });
+    document.getElementById('btnDownloadTpl').addEventListener('click', function () {
+      var tpl = '隐患名称,隐患类别,隐患级别,适用领域,别名,隐患描述,关联检查项,关联法规,整改建议,状态\n'
+        + '示例-疏散通道堆物,疏散通道,重大隐患,商业综合体,消防通道堵塞,通道堆放货物,CI001,消防法第二十八条,立即清理并设禁放标识,启用\n'
+        + '示例-灭火器压力不足,设备设施,一般隐患,加油站,,压力表指针红区,CI002,建筑灭火器配置验收及检查规范5.2,送检或更换,启用';
+      var blob = new Blob(['﻿' + tpl], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '隐患库导入模板.csv';
+      link.click();
+    });
+    // 解析“法规名称+条款号”：去掉书名号后按“名称+条款”匹配 REG_DATA
+    function parseRegRef(text) {
+      var clean = text.replace(/《/g, '').replace(/》/g, '').trim();
+      for (var i = 0; i < REG_DATA.length; i++) {
+        var r = REG_DATA[i];
+        if ((r.law + r.no) === clean || (r.law + r.no + r.title) === clean || (r.law + ' ' + r.no) === clean) return r.id;
+      }
+      // 兜底：法规名与条款号分别包含
+      for (var j = 0; j < REG_DATA.length; j++) {
+        var rr = REG_DATA[j];
+        if (clean.indexOf(rr.law) >= 0 && clean.indexOf(rr.no) >= 0) return rr.id;
+      }
+      return null;
     }
-    
-    function addCheckItem(btn) {
-      const item = btn.closest('.recommend-item');
-      const name = item.querySelector('.recommend-name').textContent;
-      showToast('添加检查项: ' + name, 'info');
-    }
-    
-    function goToPage(page) {
-      currentPage = page;
-      showToast('跳转到第 ' + page + ' 页', 'info');
-    }
-    
-    // ========== 初始化 ==========
-    
-    window.onload = function() {
-      renderTree();
-      renderTable(hazardData);
-      
-      // 绑定筛选事件
-      document.getElementById('filterCategory').addEventListener('change', filterHazardList);
-      document.getElementById('filterLevel').addEventListener('change', filterHazardList);
-      document.getElementById('filterStatus').addEventListener('change', filterHazardList);
-      document.getElementById('searchInput').addEventListener('input', filterHazardList);
-      
-      // 默认选中"全部"
-      selectDomain('all');
-    };
+    document.getElementById('importConfirmBtn').addEventListener('click', function () {
+      if (!importFile) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        var lines = String(ev.target.result).split(/\r?\n/);
+        var ok = 0, dup = 0, err = 0;
+        var errors = []; // {row, reason}
+        var seen = {};   // 本次文件内组合判重
+        for (var i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          var rowNo = i + 1;
+          var vals = lines[i].split(',');
+          var name = (vals[0] || '').trim();
+          var category = (vals[1] || '').trim();
+          var levelRaw = (vals[2] || '').trim();
+          var domains = (vals[3] || '').split('、').map(function (s) { return s.trim(); }).filter(Boolean);
+          var alias = (vals[4] || '').trim();
+          var desc = (vals[5] || '').trim();
+          var checkRefs = (vals[6] || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+          var regRefs = (vals[7] || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+          var suggestion = (vals[8] || '').trim();
+          var status = (vals[9] || '').trim() || '启用';
+          // 校验（PRD §6.1.7.7.2）
+          if (!name) { err++; errors.push({ row: rowNo, reason: '隐患名称为空' }); continue; }
+          if (name.length > 200) { err++; errors.push({ row: rowNo, reason: '隐患名称超过 200 字符' }); continue; }
+          if (!category) { err++; errors.push({ row: rowNo, reason: '隐患类别为空' }); continue; }
+          if (HAZARD_CATEGORIES.indexOf(category) < 0) { err++; errors.push({ row: rowNo, reason: '隐患类别“' + category + '”不在系统字典中' }); continue; }
+          if (levelRaw !== '一般隐患' && levelRaw !== '重大隐患') { err++; errors.push({ row: rowNo, reason: '隐患级别“' + levelRaw + '”须为一般隐患或重大隐患' }); continue; }
+          if (!domains.length) { err++; errors.push({ row: rowNo, reason: '适用领域为空' }); continue; }
+          var badDomain = domains.filter(function (n) { return !domainOf(n); });
+          if (badDomain.length) { err++; errors.push({ row: rowNo, reason: '适用领域“' + badDomain.join('、') + '”不在领域小类中' }); continue; }
+          var badChecks = checkRefs.filter(function (c) { return !findCheck(c); });
+          if (badChecks.length) { err++; errors.push({ row: rowNo, reason: '检查项编码“' + badChecks.join('、') + '”不存在' }); continue; }
+          var badRegs = [];
+          var regIds = regRefs.map(function (t) { var id = parseRegRef(t); if (!id) badRegs.push(t); return id; }).filter(Boolean);
+          if (badRegs.length) { err++; errors.push({ row: rowNo, reason: '法规“' + badRegs.join('、') + '”无法识别（应为法规名称+条款号）' }); continue; }
+          var key = name + '|' + category + '|' + domains.slice().sort().join(',');
+          if (seen[key]) { dup++; errors.push({ row: rowNo, reason: '与第 ' + seen[key] + ' 行重复（相同名称+类别+领域）', kind: 'dup' }); continue; }
+          if (hazardData.some(function (h) { return h.name === name && h.category === category && sameDomains(h.domains, domains); })) {
+            dup++; errors.push({ row: rowNo, reason: '库中已存在相同名称+类别+领域的隐患', kind: 'dup' }); continue;
+          }
+          seen[key] = rowNo;
+          hazardData.unshift({
+            id: 'HZ' + String(Date.now()).slice(-6) + i,
+            name: name, alias: alias, category: category, level: levelRaw, domains: domains,
+            desc: desc, suggestion: suggestion,
+            checkItems: checkRefs, regulations: regIds,
+            status: status === '停用' ? '停用' : '启用', updateTime: nowText()
+          });
+          ok++;
+        }
+        // 结果汇总（4.2）
+        var box = document.getElementById('importResult');
+        box.style.display = 'block';
+        box.innerHTML = '<div class="import-notice" style="color:var(--text-primary);background:var(--bg-secondary);">'
+          + '导入完成：成功 <strong>' + ok + '</strong> 条，重复 <strong>' + dup + '</strong> 条，错误 <strong>' + err + '</strong> 条'
+          + (errors.length ? ' <button class="btn btn-link" type="button" id="btnErrDetail">下载错误明细</button>' : '')
+          + '</div>';
+        if (errors.length) {
+          document.getElementById('btnErrDetail').addEventListener('click', function () {
+            var csv = '行号,类型,原因\n' + errors.map(function (e) { return e.row + ',' + (e.kind === 'dup' ? '重复' : '错误') + ',' + '"' + e.reason.replace(/"/g, '""') + '"'; }).join('\n');
+            var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '隐患库导入错误明细.csv';
+            link.click();
+          });
+        }
+        document.getElementById('importConfirmBtn').disabled = true;
+        importFile = null;
+        document.getElementById('importFileInput').value = '';
+        showToast('导入完成：成功 ' + ok + ' 条，重复 ' + dup + ' 条，错误 ' + err + ' 条', ok ? 'success' : 'warning');
+        refresh(true);
+      };
+      reader.readAsText(importFile);
+    });
+
+    document.body.addEventListener('click', function (e) {
+      var c = e.target.closest('[data-close]');
+      if (c) closeModal(c.getAttribute('data-close'));
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(function (m) { m.classList.remove('show'); });
+    });
+
+    ['filterCategory', 'hazardCategory', 'categoryTarget'].forEach(function (id) {
+      var sel = document.getElementById(id);
+      HAZARD_CATEGORIES.forEach(function (c) { sel.appendChild(new Option(c, c)); });
+    });
+    INDUSTRY_ORDER.forEach(function (code) {
+      expanded[code] = countFor(function (h) { return hazardMatchesIndustry(h, code); }) > 0;
+    });
+    expanded.sanxiao = true;
+    refresh(true);
+  })();
   </script>
-<script>
-(function() { 'use strict'; var CONFIG = { moduleId: 'sa-hazard-lib', moduleName: '隐患库管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
-</script>
-<script src="../../js/annotations.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    var state = { initialized: false };
+    function init() { if (state.initialized) return; state.initialized = true; }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+    window.destroyModule = function () { state.initialized = false; };
+  })();
+  </script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

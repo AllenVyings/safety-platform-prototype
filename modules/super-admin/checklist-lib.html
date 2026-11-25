@@ -1614,15 +1614,26 @@ var checklistTableData = [
 ];
 
 var checkitemTableData = [
-  { id: 'CI001', name: '消防通道是否畅通', category: '基础设施', type: '常规项', status: '启用', hazardCount: 3, lawCount: 2, createTime: '2026-04-20 10:30' },
-  { id: 'CI002', name: '灭火器压力是否正常', category: '基础设施', type: '常规项', status: '启用', hazardCount: 2, lawCount: 1, createTime: '2026-04-19 14:20' },
-  { id: 'CI003', name: '应急照明是否完好', category: '基础设施', type: '重点项', status: '启用', hazardCount: 1, lawCount: 1, createTime: '2026-04-18 09:15' },
-  { id: 'CI004', name: '配电箱是否有警示标识', category: '电气安全', type: '常规项', status: '停用', hazardCount: 2, lawCount: 2, createTime: '2026-04-17 16:45' },
-  { id: 'CI005', name: '接地保护是否有效', category: '电气安全', type: '常规项', status: '启用', hazardCount: 3, lawCount: 1, createTime: '2026-04-16 11:30' },
-  { id: 'CI006', name: '安全出口标识是否清晰', category: '基础设施', type: '重点项', status: '启用', hazardCount: 1, lawCount: 1, createTime: '2026-04-15 13:20' },
-  { id: 'CI007', name: '电缆线路是否规范敷设', category: '电气安全', type: '重点项', status: '启用', hazardCount: 2, lawCount: 2, createTime: '2026-04-14 10:00' },
-  { id: 'CI008', name: '应急预案是否制定并演练', category: '运营管理', type: '重点项', status: '启用', hazardCount: 1, lawCount: 3, createTime: '2026-04-13 15:30' }
+  { id: 'CI001', name: '消防通道是否畅通', category: '基础设施', type: '常规项', status: '启用', lawCount: 2, createTime: '2026-04-20 10:30' },
+  { id: 'CI002', name: '灭火器压力是否正常', category: '基础设施', type: '常规项', status: '启用', lawCount: 1, createTime: '2026-04-19 14:20' },
+  { id: 'CI003', name: '应急照明是否完好', category: '基础设施', type: '重点项', status: '启用', lawCount: 1, createTime: '2026-04-18 09:15' },
+  { id: 'CI004', name: '配电箱是否有警示标识', category: '电气安全', type: '常规项', status: '停用', lawCount: 2, createTime: '2026-04-17 16:45' },
+  { id: 'CI005', name: '接地保护是否有效', category: '电气安全', type: '常规项', status: '启用', lawCount: 1, createTime: '2026-04-16 11:30' },
+  { id: 'CI006', name: '安全出口标识是否清晰', category: '基础设施', type: '重点项', status: '启用', lawCount: 1, createTime: '2026-04-15 13:20' },
+  { id: 'CI007', name: '电缆线路是否规范敷设', category: '电气安全', type: '重点项', status: '启用', lawCount: 2, createTime: '2026-04-14 10:00' },
+  { id: 'CI008', name: '应急预案是否制定并演练', category: '运营管理', type: '重点项', status: '启用', lawCount: 3, createTime: '2026-04-13 15:30' }
 ];
+
+/* ===== 第四期 4.8 关联共用：隐患↔检查项关联从 HAZARD_LIB 实时计算（双向读写同一份数据） ===== */
+
+// 检查项关联的隐患（含停用——关联关系保留，见 PRD BR-HZ-07）
+function hazardsOfCheckItem(ciId) {
+  return HAZARD_LIB.filter(function (h) { return (h.checkItems || []).indexOf(ciId) >= 0; });
+}
+function hazardCountOf(ciId) { return hazardsOfCheckItem(ciId).length; }
+
+// 检查项列表/详情中 hazardCount 实时取值（checklistsOfHazard 见 js/checklist-data.js）
+function hzCount(item) { return item && item.id ? hazardCountOf(item.id) : 0; }
 
 var libGroupsData = [
   {
@@ -1795,7 +1806,7 @@ function renderCheckitemList() {
       <div style="width: 80px; text-align: center;">
         <span style="padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); ${item.type === '重点项' ? 'background: var(--danger-light); color: var(--danger);' : 'background: var(--primary-light); color: var(--primary);'}">${item.type}</span>
       </div>
-      <div style="width: 80px; text-align: center; color: var(--primary); cursor: pointer;" onclick="showRelatedHazards('${item.id}')" title="点击查看关联隐患">${item.hazardCount || 0}个</div>
+      <div style="width: 80px; text-align: center; color: var(--primary); cursor: pointer;" onclick="showRelatedHazards('${item.id}')" title="点击查看关联隐患">${hzCount(item)}个</div>
       <div style="width: 80px; text-align: center; color: var(--primary); cursor: pointer;" onclick="showRelatedLaws('${item.id}')" title="点击查看关联法规">${item.lawCount || 0}条</div>
       <div style="width: 140px; text-align: center; color: var(--text-secondary);">${item.createTime || '-'}</div>
       <div style="width: 180px; text-align: center;">
@@ -1873,22 +1884,17 @@ function updateCheckitemSelection() {
   }
 }
 
-// 显示关联隐患弹窗
+// 显示关联隐患弹窗（第四期 4.8：读 HAZARD_LIB 真实关联，双向读写同一份数据）
 function showRelatedHazards(itemId) {
   const item = checkitemTableData.find(i => i.id === itemId);
   if (!item) return;
-  
-  // 模拟隐患数据
-  const hazards = [
-    { id: 'H001', name: '消防通道堵塞', level: '一般' },
-    { id: 'H002', name: '灭火器过期未检', level: '重大' },
-    { id: 'H003', name: '应急照明损坏', level: '一般' }
-  ].slice(0, item.hazardCount || 0);
-  
+
+  const hazards = hazardsOfCheckItem(itemId);
+
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
   modal.style.cssText = 'display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center;';
-  
+
   modal.innerHTML = `
     <div style="background: var(--bg-primary); border-radius: var(--radius-lg); width: 480px; max-height: 70vh; overflow: hidden; display: flex; flex-direction: column;">
       <div style="padding: var(--spacing-md) 20px; border-bottom: 1px solid var(--border-section); display: flex; justify-content: space-between; align-items: center;">
@@ -1898,8 +1904,8 @@ function showRelatedHazards(itemId) {
       <div style="flex: 1; overflow-y: auto; padding: 12px 16px;">
         ${hazards.map(h => `
           <div style="display: flex; align-items: center; padding: 10px 12px; border: 1px solid var(--border-section); border-radius: var(--radius-md); margin-bottom: var(--spacing-sm);">
-            <span style="flex: 1; font-size: var(--font-size-sm); color: var(--text-primary);">${h.name}</span>
-            <span style="padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); ${h.level === '重大' ? 'background: var(--danger-light); color: var(--danger);' : 'background: var(--primary-light); color: var(--primary);'}">${h.level}</span>
+            <span style="flex: 1; font-size: var(--font-size-sm); color: var(--text-primary);">${h.name}${h.status === '停用' ? ' <span style="color:var(--text-tertiary);font-size:var(--font-size-xs);">（停用）</span>' : ''}</span>
+            <span style="padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); ${h.level === '重大隐患' ? 'background: var(--danger-light); color: var(--danger);' : 'background: var(--primary-light); color: var(--primary);'}">${h.level === '重大隐患' ? '重大' : '一般'}</span>
           </div>
         `).join('') || '<div style="text-align: center; padding: var(--spacing-xl); color: var(--text-tertiary);">暂无关联隐患</div>'}
       </div>
@@ -1908,7 +1914,7 @@ function showRelatedHazards(itemId) {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
 }
 
@@ -2633,13 +2639,6 @@ function showDetail(id) {
 
 // ========== 隐患选择弹窗 ==========
 var currentHazardSelections = [];
-var hazardData = [
-  { id: 'H001', name: '消防通道堵塞', category: '消防隐患', level: '一般' },
-  { id: 'H002', name: '灭火器过期未检', category: '消防隐患', level: '重大' },
-  { id: 'H003', name: '配电箱无警示标识', category: '电气隐患', level: '一般' },
-  { id: 'H004', name: '接地保护失效', category: '电气隐患', level: '重大' },
-  { id: 'H005', name: '危险化学品混存', category: '化学隐患', level: '重大' }
-];
 
 function openHazardSelectorModal() {
   currentHazardSelections = [];
@@ -2655,23 +2654,25 @@ function closeHazardSelectorModal() {
 function renderHazardSelectorList() {
   const searchTerm = document.getElementById('hazardSelectorSearch').value.toLowerCase();
   const list = document.getElementById('hazardSelectorList');
-  
-  const filtered = hazardData.filter(h => 
-    h.name.toLowerCase().includes(searchTerm) || 
-    h.category.toLowerCase().includes(searchTerm)
+
+  // 第四期 4.8：读隐患库启用记录（停用不出现，与移动端现场口径一致）
+  const filtered = HAZARD_LIB.filter(h =>
+    h.status === '启用' &&
+    (h.name.toLowerCase().includes(searchTerm) ||
+    h.category.toLowerCase().includes(searchTerm))
   );
-  
+
   if (filtered.length === 0) {
     list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-tertiary);">暂无匹配隐患</div>';
     return;
   }
-  
+
   list.innerHTML = filtered.map(h => `
     <div style="padding:10px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="toggleHazardSelection('${h.id}')">
       <input type="checkbox" ${currentHazardSelections.includes(h.id) ? 'checked' : ''} style="cursor:pointer;" onclick="event.stopPropagation();toggleHazardSelection('${h.id}')">
       <div style="flex:1;">
         <div style="font-size: var(--font-size-md);color:var(--text-primary);">${h.name}</div>
-        <div style="font-size: var(--font-size-xs);color:var(--text-tertiary);">${h.category} · ${h.level}</div>
+        <div style="font-size: var(--font-size-xs);color:var(--text-tertiary);">${h.category} · ${h.level === '重大隐患' ? '重大' : '一般'}</div>
       </div>
     </div>
   `).join('');
@@ -2687,18 +2688,29 @@ function toggleHazardSelection(id) {
   renderHazardSelectorList();
 }
 
+// 第四期 4.8：确定后双向写回——把选中的隐患 checkItems 加上当前编辑的检查项 ID
 function confirmAddHazards() {
-  const selected = hazardData.filter(h => currentHazardSelections.includes(h.id));
-  const currentTags = Array.from(document.querySelectorAll('#hazardTags .hazard-tag')).map(tag => ({
-    id: tag.dataset.id,
-    name: tag.dataset.name
-  }));
-  
-  const newTags = selected.filter(s => !currentTags.some(c => c.id === s.id));
-  const allTags = [...currentTags, ...newTags];
-  
-  renderHazardTags(allTags);
+  const ciId = editingCheckItem ? editingCheckItem.id : document.getElementById('editCheckItemId').value;
+  if (ciId) {
+    HAZARD_LIB.forEach(function (h) {
+      const list = h.checkItems || [];
+      const shouldLink = currentHazardSelections.includes(h.id);
+      const has = list.indexOf(ciId) >= 0;
+      if (shouldLink && !has) { list.push(ciId); h.updateTime = formatNow(); }
+      if (!shouldLink && has && h.status === '启用') { h.checkItems = list.filter(x => x !== ciId); h.updateTime = formatNow(); }
+    });
+    // 页面上已渲染的标签同步（编辑弹窗关闭后重新打开时即取实时数据）
+    showToast(`已更新关联隐患 ${currentHazardSelections.length} 条`);
+  } else {
+    showToast(`已选择 ${currentHazardSelections.length} 条隐患`);
+  }
   closeHazardSelectorModal();
+}
+
+function formatNow() {
+  const d = new Date();
+  const p = n => (n < 10 ? '0' : '') + n;
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
 function renderHazardTags(tags) {
@@ -3886,6 +3898,8 @@ function setupGraphInteraction(canvas, svg, nodes, links) {
 <script>
 (function() { 'use strict'; var CONFIG = { moduleId: 'sa-checklist-lib', moduleName: '检查库管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
 </script>
+<script src="../../js/checklist-data.js?v=20261119"></script>
+<script src="../../js/hazard-lib-data.js?v=20261119"></script>
 <script src="../../js/annotations.js"></script>
 </body>
 </html>

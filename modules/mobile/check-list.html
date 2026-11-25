@@ -150,7 +150,7 @@
 
   <script>
     var objMap = {
-      'enterprise-code': { name: '创安电子科技有限公司', location: '深圳市南山区科技园' },
+      'enterprise-code': { name: '深圳市天道医药有限公司', location: '深圳市南山区粤海街道麻岭社区' },
       'place-code':      { name: 'A栋生产车间', location: '深圳市南山区科技园A栋' },
       'hazard-code':     { name: '危化品存储区', location: 'A栋B1层危化品仓库' }
     };
@@ -173,6 +173,18 @@
           if (stack && stack.length > 1) src = stack[stack.length - 2];
         }
         var info = objMap[src];
+        if (src === 'enterprise-code') {
+          var shownName = '';
+          try { shownName = localStorage.getItem('checkHomeEntityName') || ''; } catch (e) {}
+          var baseName = info && info.name;
+          if (baseName && shownName.indexOf(baseName) === 0 && /^\d+$/.test(shownName.slice(baseName.length).trim())) {
+            shownName = baseName;
+            try { localStorage.setItem('checkHomeEntityName', shownName); } catch (e) {}
+          }
+          if (shownName) {
+            info = { name: shownName, location: (info && info.location) || '深圳市南山区粤海街道麻岭社区' };
+          }
+        }
         if (info) {
           var nameEl = document.getElementById('objName');
           var locEl = document.getElementById('objLocation');

@@ -3,199 +3,256 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>检查统计</title>
+  <title>检查记录</title>
   <link rel="stylesheet" href="../../css/mobile.css">
   <style>
-    .is-card { background: var(--wc-card-bg); border-radius: var(--wc-card-radius); padding: 14px var(--wc-page-padding); margin: var(--wc-gap-lg) var(--wc-page-padding); box-shadow: var(--wc-shadow-card); }
-    .is-card-title { font-size: var(--wc-font-body); font-weight: 600; color: var(--wc-text-primary); margin-bottom: var(--wc-gap-xl); display: flex; align-items: center; justify-content: space-between; }
-    .is-stat-row { display: flex; gap: var(--wc-gap-md); margin-bottom: var(--wc-gap-xl); }
-    .is-stat { flex: 1; text-align: center; padding: var(--wc-gap-lg) 0; background: var(--wc-page-bg); border-radius: var(--wc-btn-radius); }
-    .is-stat-num { font-size: 20px; font-weight: 700; }
-    .is-stat-label { font-size: var(--wc-font-tiny); color: var(--wc-text-placeholder); margin-top: 2px; }
-    .is-chart-row { display: flex; align-items: center; justify-content: center; gap: var(--wc-page-padding); }
-    .is-list-item { display: flex; align-items: center; padding: var(--wc-gap-xl) 0; border-bottom: 0.5px solid var(--wc-track-bg); cursor: pointer; }
-    .is-list-item:last-child { border-bottom: none; }
-    .is-list-item:active { background: var(--wc-page-bg); }
-    .is-list-icon { width: 36px; height: 36px; border-radius: var(--wc-btn-radius); display: flex; align-items: center; justify-content: center; font-size: var(--wc-gap-lg); margin-right: var(--wc-gap-xl); flex-shrink: 0; }
-    .is-list-info { flex: 1; }
-    .is-list-name { font-size: var(--wc-font-caption); color: var(--wc-text-primary); font-weight: 500; }
-    .is-list-meta { font-size: var(--wc-font-small); color: var(--wc-text-placeholder); margin-top: 2px; }
-    .is-list-arrow { color: var(--wc-text-disabled); font-size: var(--wc-font-caption); }
-    .is-full-btn { display: block; width: 100%; padding: var(--wc-gap-xl); background: var(--wc-page-bg); border: 0.5px solid var(--wc-divider); border-radius: var(--wc-btn-radius); font-size: var(--wc-font-caption); color: var(--wc-blue); text-align: center; cursor: pointer; margin-top: var(--wc-page-padding); }
-    .is-full-btn:active { background: var(--wc-icon-btn-active); }
-    /* 弹窗 */
-    .is-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: flex-end; justify-content: center; }
-    .is-overlay.show { display: flex; }
-    .is-modal { background: var(--wc-card-bg); border-radius: var(--wc-radius-lg) var(--wc-radius-lg) 0 0; width: 100%; max-height: 70vh; overflow-y: auto; padding: 20px var(--wc-page-padding) 32px; }
-    .is-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--wc-page-padding); }
-    .is-modal-title { font-size: var(--wc-font-title); font-weight: 600; color: var(--wc-text-primary); }
-    .is-modal-close { width: 28px; height: 28px; border-radius: 50%; background: var(--wc-track-bg); display: flex; align-items: center; justify-content: center; font-size: var(--wc-gap-lg); cursor: pointer; color: var(--wc-text-placeholder); }
-    .is-modal-close:active { background: var(--wc-pressed-bg-alt); }
-    .is-modal-item { display: flex; align-items: flex-start; padding: var(--wc-gap-xl) 0; border-bottom: 0.5px solid var(--wc-track-bg); }
-    .is-modal-item:last-child { border-bottom: none; }
-    .is-modal-icon { width: 36px; height: 36px; border-radius: var(--wc-btn-radius); display: flex; align-items: center; justify-content: center; font-size: var(--wc-gap-lg); margin-right: var(--wc-gap-xl); flex-shrink: 0; }
-    .is-modal-info { flex: 1; min-width: 0; }
-    .is-modal-name { font-size: var(--wc-font-caption); color: var(--wc-text-primary); font-weight: 500; margin-bottom: 3px; }
-    .is-modal-meta { font-size: var(--wc-font-small); color: var(--wc-text-placeholder); line-height: 1.6; }
-    .is-modal-tag { display: inline-block; font-size: var(--wc-font-tiny); padding: 1px 6px; border-radius: 3px; margin-right: var(--wc-gap-sm); }
-    .is-modal-tag.gov { background: var(--wc-icon-bg-blue); color: var(--brand-blue); }
-    .is-modal-tag.ent { background: var(--wc-code-bg-green); color: var(--success); }
-    .is-modal-tag.pass { background: var(--wc-code-bg-green); color: var(--success); }
-    .is-modal-tag.hazard { background: var(--wc-icon-bg-blue); color: var(--brand-blue); }
-    .is-modal-section-title { font-size: var(--wc-font-small); font-weight: 600; color: var(--wc-text-tertiary); padding: var(--wc-gap-lg) 0 6px; margin-top: var(--wc-gap-sm); }
-    .is-modal-item:first-child .is-modal-section-title { margin-top: 0; }
+    body { background: #f5f7fb; }
+    .ir-top {
+      display: flex; align-items: center; height: 44px; padding: 0 12px;
+      background: #2f7bff; color: #fff; position: sticky; top: 0; z-index: 20;
+    }
+    .ir-back {
+      width: 32px; height: 32px; border: 0; background: transparent; color: #fff;
+      display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer;
+    }
+    .ir-title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; margin-right: 32px; }
+    .ir-tabs { display: flex; background: #fff; }
+    .ir-tab {
+      flex: 1; height: 44px; border: 0; background: #fff; color: #86909c;
+      font-size: 15px; position: relative; cursor: pointer;
+    }
+    .ir-tab.on { color: #2f7bff; font-weight: 600; }
+    .ir-tab.on::after {
+      content: ''; position: absolute; left: 50%; bottom: 0; width: 28px; height: 2px;
+      margin-left: -14px; background: #2f7bff; border-radius: 1px;
+    }
+    .ir-card {
+      background: #fff; border-radius: 12px; margin: 12px 16px;
+      padding: 14px 16px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative;
+    }
+    .ir-chart { min-height: 196px; }
+    .ir-filter {
+      position: absolute; top: 12px; right: 12px; width: 28px; height: 28px;
+      border: 0; background: transparent; color: #4e5969; cursor: pointer; padding: 0;
+    }
+    .ir-chart-main { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 28px 28px 0 0; }
+    .ir-tip {
+      position: static; flex: 0 0 auto; min-width: 88px;
+      background: #fff; border-radius: 8px; padding: 8px 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12); text-align: left;
+    }
+    .ir-tip-name { font-size: 13px; color: #1d2129; }
+    .ir-tip-num { font-size: 16px; font-weight: 700; color: #1d2129; line-height: 1.3; }
+    .ir-tip-pct { font-size: 16px; font-weight: 700; color: #1d2129; }
+    .ir-donut-wrap { width: 150px; height: 150px; position: relative; flex: 0 0 auto; }
+    .ir-donut-wrap svg { width: 100%; height: 100%; display: block; }
+    .ir-donut-wrap path { cursor: pointer; }
+    .ir-center {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 700; color: #1d2129; pointer-events: none;
+    }
+    .ir-legend { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; padding-top: 4px; }
+    .ir-legend button {
+      border: 0; background: none; display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; color: #4e5969; cursor: pointer; padding: 0;
+    }
+    .ir-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .ir-sec-title { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: #1d2129; }
+    .ir-sec-title i { width: 3px; height: 14px; border-radius: 2px; background: #2f7bff; }
+    .ir-sub { margin: 8px 0 10px; font-size: 14px; color: #4e5969; }
+    .ir-row + .ir-row { margin-top: 14px; }
+    .ir-row-name { font-size: 14px; color: #1d2129; margin-bottom: 8px; }
+    .ir-metrics { display: grid; gap: 8px; }
+    .ir-metrics.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .ir-metrics.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .ir-metric { background: #f4f6f8; border-radius: 8px; text-align: center; padding: 10px 2px 8px; }
+    .ir-metric b { display: block; font-size: 18px; line-height: 1.2; font-weight: 700; }
+    .ir-metric span { display: block; margin-top: 4px; font-size: 12px; color: #86909c; }
+    .ir-list { padding-bottom: 16px; }
   </style>
 </head>
 <body>
   <div class="m-page">
-    <!-- 总览 -->
-    <div class="is-card">
-      <div class="is-card-title">检查占比</div>
-      <div class="is-stat-row">
-        <div class="is-stat"><div class="is-stat-num">45</div><div class="is-stat-label">总检查次数</div></div>
-        <div class="is-stat"><div class="is-stat-num" style="color:var(--brand-blue)">18</div><div class="is-stat-label">政府巡查</div></div>
-        <div class="is-stat"><div class="is-stat-num" style="color:var(--success)">27</div><div class="is-stat-label">企业自查</div></div>
-      </div>
-      <div class="is-chart-row">
-        <div class="ring-chart" style="background:conic-gradient(var(--brand-blue) 0% 40%, var(--success) 40% 100%);">
-          <div class="ring-chart-inner">40%</div>
-        </div>
-        <div style="font-size:var(--wc-font-small);color:var(--wc-text-tertiary);line-height:2;">
-          <span style="color:var(--brand-blue)">●</span> 政府巡查 18次<br>
-          <span style="color:var(--success)">●</span> 企业自查 27次
-        </div>
-      </div>
+    <div class="ir-top" id="irTop">
+      <button class="ir-back" type="button" onclick="irBack()" aria-label="返回">
+        <svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10L10 18" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="ir-title">检查记录</div>
     </div>
-
-    <!-- 政府巡查列表 -->
-    <div class="is-card">
-      <div class="is-card-title">政府巡查 <span style="font-size:var(--wc-font-small);color:var(--wc-blue);font-weight:400;cursor:pointer;">查看全部 ›</span></div>
-      <div class="is-list-item">
-        <div class="is-list-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
-        <div class="is-list-info"><div class="is-list-name">龙华区应急管理局</div><div class="is-list-meta">专项检查 3次 · 发现隐患 2项</div></div>
-        <span class="is-list-arrow">›</span>
-      </div>
-      <div class="is-list-item">
-        <div class="is-list-icon" style="background:var(--wc-icon-bg-orange);">🏢</div>
-        <div class="is-list-info"><div class="is-list-name">民治街道安监办</div><div class="is-list-meta">日常巡查 5次 · 发现隐患 1项</div></div>
-        <span class="is-list-arrow">›</span>
-      </div>
-    </div>
-
-    <!-- 企业自查列表 -->
-    <div class="is-card">
-      <div class="is-card-title">企业自查 <span style="font-size:var(--wc-font-small);color:var(--wc-blue);font-weight:400;cursor:pointer;">查看全部 ›</span></div>
-      <div class="is-list-item" onclick="navTo('check-detail')">
-        <div class="is-list-icon" style="background:var(--wc-code-bg-green);">🏭</div>
-        <div class="is-list-info"><div class="is-list-name">创安电子科技</div><div class="is-list-meta">自查 12次 · 发现隐患 3项</div></div>
-        <span class="is-list-arrow">›</span>
-      </div>
-      <div class="is-list-item">
-        <div class="is-list-icon" style="background:var(--wc-icon-bg-purple);">📦</div>
-        <div class="is-list-info"><div class="is-list-name">龙华化工</div><div class="is-list-meta">自查 8次 · 发现隐患 5项</div></div>
-        <span class="is-list-arrow">›</span>
-      </div>
-    </div>
-
-    <!-- 完整检查列表入口 -->
-    <div style="padding:0 var(--wc-page-padding);">
-      <button class="is-full-btn" onclick="showFullList()">查看完整检查列表</button>
-    </div>
-
-    <div style="height:32px;"></div>
-  </div>
-
-  <!-- 完整检查列表弹窗 -->
-  <div class="is-overlay" id="fullListOverlay" onclick="if(event.target===this)closeFullList()">
-    <div class="is-modal">
-      <div class="is-modal-header">
-        <span class="is-modal-title">完整检查列表</span>
-        <span class="is-modal-close" onclick="closeFullList()">✕</span>
-      </div>
-      <div class="is-modal-section-title">🏛 政府巡查</div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">龙华区应急管理局</div>
-          <div class="is-modal-meta">危化品存储区 · 2025-01-15<br>检查人：张建国 <span class="is-modal-tag gov">专项检查</span><span class="is-modal-tag hazard">发现隐患</span></div>
-        </div>
-      </div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">龙华区应急管理局</div>
-          <div class="is-modal-meta">A栋生产车间 · 2025-01-10<br>检查人：张建国 <span class="is-modal-tag gov">专项检查</span><span class="is-modal-tag pass">合格</span></div>
-        </div>
-      </div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-icon-bg-orange);">🏢</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">民治街道安监办</div>
-          <div class="is-modal-meta">B栋仓库 · 2025-01-14<br>检查人：李维东 <span class="is-modal-tag gov">日常巡查</span><span class="is-modal-tag hazard">发现隐患</span></div>
-        </div>
-      </div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-icon-bg-orange);">🏢</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">民治街道安监办</div>
-          <div class="is-modal-meta">危化品存储区 · 2025-01-08<br>检查人：李维东 <span class="is-modal-tag gov">日常巡查</span><span class="is-modal-tag pass">合格</span></div>
-        </div>
-      </div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">深圳市应急管理局</div>
-          <div class="is-modal-meta">全厂区 · 2025-01-10<br>检查人：王志强 <span class="is-modal-tag gov">专项检查</span><span class="is-modal-tag hazard">发现隐患</span></div>
-        </div>
-      </div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-icon-bg-blue);">🏛</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">龙华区消防大队</div>
-          <div class="is-modal-meta">消防设施 · 2025-01-05<br>检查人：刘明辉 <span class="is-modal-tag gov">专项检查</span><span class="is-modal-tag pass">合格</span></div>
-        </div>
-      </div>
-      <div class="is-modal-section-title">🏭 企业自查</div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-code-bg-green);">🏭</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">A栋生产车间</div>
-          <div class="is-modal-meta">生产设备 · 2025-01-13<br>检查人：陈志远 <span class="is-modal-tag ent">企业自查</span><span class="is-modal-tag pass">合格</span></div>
-        </div>
-      </div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-icon-bg-purple);">📦</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">B栋仓库</div>
-          <div class="is-modal-meta">仓储管理 · 2025-01-12<br>检查人：赵志明 <span class="is-modal-tag ent">企业自查</span><span class="is-modal-tag hazard">发现隐患</span></div>
-        </div>
-      </div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-code-bg-red);">⚡</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">危化品存储区</div>
-          <div class="is-modal-meta">危化品管理 · 2025-01-11<br>检查人：周国安 <span class="is-modal-tag ent">企业自查</span><span class="is-modal-tag hazard">发现隐患</span></div>
-        </div>
-      </div>
-      <div class="is-modal-item">
-        <div class="is-modal-icon" style="background:var(--wc-code-bg-green);">🔧</div>
-        <div class="is-modal-info">
-          <div class="is-modal-name">配电房</div>
-          <div class="is-modal-meta">电气安全 · 2025-01-09<br>检查人：陈志远 <span class="is-modal-tag ent">企业自查</span><span class="is-modal-tag pass">合格</span></div>
-        </div>
-      </div>
-    </div>
+    <div class="ir-tabs" id="irTabs"></div>
+    <div class="ir-card ir-chart" id="irChart"></div>
+    <div id="irList" class="ir-list"></div>
   </div>
 
   <script>
-    function showFullList() {
-      document.getElementById('fullListOverlay').classList.add('show');
+    var GOV = [
+      { name: '行业监管', color: '#22c55e', org: '南山区应急管理局', checks: 6, hazards: 4, rate: 75 },
+      { name: '属地监管', color: '#2f7bff', org: '粤海街道办', checks: 4, hazards: 2, rate: 50 },
+      { name: '专业监管', color: '#8aa0b8', org: '区消防救援大队', checks: 7, hazards: 3, rate: 67 }
+    ];
+    var ENT_SELF = { name: '企业检查', color: '#22c55e', checks: 50, hazards: 20, rate: 40 };
+    var PLACES = [
+      { name: '储罐区', checks: 12, hazards: 8, pending: 2 },
+      { name: '危化品中间仓库', checks: 10, hazards: 6, pending: 3 },
+      { name: '污水站', checks: 8, hazards: 4, pending: 1 },
+      { name: '消防水泵及水箱', checks: 9, hazards: 5, pending: 2 },
+      { name: '配电房', checks: 7, hazards: 3, pending: 0 },
+      { name: '锅炉房', checks: 6, hazards: 4, pending: 1 }
+    ];
+    var HAZARDS = [
+      { name: '危险源名称1', checks: 14, hazards: 9, pending: 3 },
+      { name: '危险源名称2', checks: 12, hazards: 5, pending: 1 },
+      { name: '危险源名称3', checks: 12, hazards: 7, pending: 4 }
+    ];
+
+    var tab = 'gov';
+    var active = 0;
+
+    function sumChecks(list) {
+      return list.reduce(function(n, item) { return n + item.checks; }, 0);
     }
-    function closeFullList() {
-      document.getElementById('fullListOverlay').classList.remove('show');
+    function rateOf(item) {
+      if (!item.hazards) return 0;
+      return Math.round((item.hazards - item.pending) / item.hazards * 100);
     }
+    function pctText(part, total) {
+      if (!total) return '0%';
+      var n = Math.round(part / total * 1000) / 10;
+      return (n % 1 === 0 ? String(n) : n.toFixed(1)) + '%';
+    }
+    function slicesOf(which) {
+      if (which === 'gov') {
+        return GOV.map(function(item) {
+          return { name: item.name, color: item.color, checks: item.checks };
+        });
+      }
+      return [
+        { name: ENT_SELF.name, color: ENT_SELF.color, checks: ENT_SELF.checks },
+        { name: '场所检查', color: '#2f7bff', checks: sumChecks(PLACES) },
+        { name: '危险源检查', color: '#8aa0b8', checks: sumChecks(HAZARDS) }
+      ];
+    }
+    function totalOf(which) {
+      return sumChecks(slicesOf(which));
+    }
+    function arcPath(cx, cy, r, start, end) {
+      var s = (start - 90) * Math.PI / 180;
+      var e = (end - 90) * Math.PI / 180;
+      var x1 = cx + r * Math.cos(s);
+      var y1 = cy + r * Math.sin(s);
+      var x2 = cx + r * Math.cos(e);
+      var y2 = cy + r * Math.sin(e);
+      var large = end - start > 180 ? 1 : 0;
+      return 'M ' + x1.toFixed(2) + ' ' + y1.toFixed(2) + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2);
+    }
+    function metric(value, label, color) {
+      return '<div class="ir-metric"><b style="color:' + color + '">' + value + '</b><span>' + label + '</span></div>';
+    }
+    function threeMetrics(checks, hazards, rate) {
+      return '<div class="ir-metrics cols-3">' +
+        metric(checks, '检查次数', '#2f7bff') +
+        metric(hazards, '隐患数', '#fa8c16') +
+        metric(rate + '%', '整改率', '#52c41a') +
+        '</div>';
+    }
+    function fourMetrics(item) {
+      return '<div class="ir-metrics cols-4">' +
+        metric(item.checks, '检查次数', '#2f7bff') +
+        metric(item.hazards, '隐患数', '#fa8c16') +
+        metric(item.pending, '待整改', '#ff4d4f') +
+        metric(rateOf(item) + '%', '整改率', '#52c41a') +
+        '</div>';
+    }
+    function renderTabs() {
+      var govN = totalOf('gov');
+      var entN = totalOf('ent');
+      document.getElementById('irTabs').innerHTML =
+        '<button type="button" class="ir-tab' + (tab === 'gov' ? ' on' : '') + '" data-tab="gov">政府巡查 (' + govN + ')</button>' +
+        '<button type="button" class="ir-tab' + (tab === 'ent' ? ' on' : '') + '" data-tab="ent">企业自查 (' + entN + ')</button>';
+    }
+    function renderChart() {
+      var slices = slicesOf(tab);
+      var total = totalOf(tab);
+      var current = slices[active] || slices[0];
+      var cx = 80, cy = 80, r = 56, gap = 3;
+      var usable = 360 - gap * slices.length;
+      var cursor = 0;
+      var paths = '';
+      slices.forEach(function(slice, index) {
+        var sweep = total ? usable * slice.checks / total : 0;
+        var start = cursor + gap / 2;
+        var end = start + Math.max(sweep, 0.01);
+        cursor += sweep + gap;
+        var width = index === active ? 20 : 16;
+        paths += '<path d="' + arcPath(cx, cy, r, start, end) + '" stroke="' + slice.color + '" stroke-width="' + width + '" fill="none" stroke-linecap="butt" data-i="' + index + '"></path>';
+      });
+      var legend = slices.map(function(slice, index) {
+        return '<button type="button" data-i="' + index + '"><i class="ir-dot" style="background:' + slice.color + '"></i>' + slice.name + '</button>';
+      }).join('');
+      document.getElementById('irChart').innerHTML =
+        '<button type="button" class="ir-filter" id="irFilter" aria-label="筛选">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5h16l-6 7v6l-4 2v-8L4 5z"/></svg>' +
+        '</button>' +
+        '<div class="ir-chart-main"><div class="ir-donut-wrap"><svg viewBox="0 0 160 160">' + paths + '</svg><div class="ir-center">' + total + '</div></div>' +
+        '<div class="ir-tip"><div class="ir-tip-name">' + current.name + '</div><div class="ir-tip-num">' + current.checks + '</div><div class="ir-tip-pct">' + pctText(current.checks, total) + '</div></div></div>' +
+        '<div class="ir-legend">' + legend + '</div>';
+    }
+    function renderList() {
+      var html = '';
+      if (tab === 'gov') {
+        GOV.forEach(function(item) {
+          html += '<div class="ir-card ir-block"><div class="ir-sec-title"><i></i>' + item.name + '</div>' +
+            '<div class="ir-sub">' + item.org + '</div>' + threeMetrics(item.checks, item.hazards, item.rate) + '</div>';
+        });
+      } else {
+        html += '<div class="ir-card"><div class="ir-sec-title"><i></i>企业检查</div><div style="height:10px"></div>' +
+          threeMetrics(ENT_SELF.checks, ENT_SELF.hazards, ENT_SELF.rate) + '</div>';
+        html += '<div class="ir-card"><div class="ir-sec-title"><i></i>场所检查</div>';
+        PLACES.forEach(function(item) {
+          html += '<div class="ir-row"><div class="ir-row-name">' + item.name + '</div>' + fourMetrics(item) + '</div>';
+        });
+        html += '</div>';
+        html += '<div class="ir-card"><div class="ir-sec-title"><i></i>危险源检查</div>';
+        HAZARDS.forEach(function(item) {
+          html += '<div class="ir-row"><div class="ir-row-name">' + item.name + '</div>' + fourMetrics(item) + '</div>';
+        });
+        html += '</div>';
+      }
+      document.getElementById('irList').innerHTML = html;
+    }
+    function render() {
+      var slices = slicesOf(tab);
+      if (active >= slices.length) active = 0;
+      renderTabs();
+      renderChart();
+      renderList();
+    }
+    function irBack() {
+      if (window.parent && window.parent !== window && typeof window.parent.mobileBack === 'function') {
+        window.parent.mobileBack();
+      } else {
+        location.href = 'enterprise-code.html';
+      }
+    }
+    document.getElementById('irTabs').addEventListener('click', function(event) {
+      var btn = event.target.closest('.ir-tab');
+      if (!btn) return;
+      tab = btn.getAttribute('data-tab');
+      active = 0;
+      render();
+    });
+    document.getElementById('irChart').addEventListener('click', function(event) {
+      var hit = event.target.closest('[data-i]');
+      if (!hit) return;
+      active = Number(hit.getAttribute('data-i'));
+      renderChart();
+    });
+    if (window.parent && window.parent !== window) {
+      document.getElementById('irTop').style.display = 'none';
+    }
+    render();
   </script>
-<script src="../../js/mobile-session.js"></script>
-<script src="../../js/annotations.js"></script>
+  <script src="../../js/mobile-session.js"></script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

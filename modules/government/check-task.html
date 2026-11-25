@@ -7,648 +7,917 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-/* ========== 页面标题栏 ========== */
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--spacing-md);
-      background: var(--bg-primary);
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-    }
-    .page-title { font-size: var(--font-size-lg); font-weight: 600; }
+html, body { height: 100%; margin: 0; overflow: hidden; }
 
-    /* ========== 统计卡片 ========== */
-    .stats-row { grid-template-columns: repeat(5, 1fr); }
+/* 整页弹性布局：列表卡占满剩余视口 */
+.module-page.page-container {
+  height: 100%; min-height: 0; box-sizing: border-box;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+#view-list { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
-    /* ========== 筛选栏 ========== */
-    .filter-bar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section)}
-    .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
-    .filter-card .filter-item{display:flex;align-items:center;gap:6px}
-    .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
-    .filter-item select, .filter-item input {
-      padding: 6px 10px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      font-size: var(--font-size-sm);
-      background: var(--bg-primary);
-    }
-    .filter-item select:focus, .filter-item input:focus {
-      border-color: var(--primary);
-      outline: none;
-    }
+/* ========== 筛选卡 ========== */
+.filter-card {
+  flex-shrink: 0;
+  background: #ffffff; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card); padding: 16px 20px; margin-bottom: 16px;
+}
+.filter-card .filter-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin: 0; padding: 0; background: transparent; border: none; border-radius: 0;
+}
+.filter-item { display: flex; align-items: center; gap: 6px; }
+.filter-item label { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+.filter-bar select, .filter-bar input[type="text"], .filter-bar input[type="date"] {
+  height: 32px; padding: 0 10px; border: 1px solid var(--border);
+  border-radius: var(--radius-md); font-size: var(--font-size-sm); box-sizing: border-box; background: transparent;
+}
+.filter-bar select, .filter-bar input[type="text"] { width: 240px; }
+.filter-bar input[type="date"] { width: 150px; }
+.filter-bar select:focus, .filter-bar input:focus { border-color: var(--primary); outline: none; }
+.filter-actions { display: flex; gap: 8px; margin-left: 4px; }
+.date-sep { color: var(--text-secondary); font-size: 12px; }
 
-    /* ========== 表格容器 ========== */
-    .table-wrap {
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-card);
-    }
-    .table-scroll { overflow-x: auto; }
-    .table-scroll table { width: 100%; min-width: 1100px; border-collapse: collapse; }
-    .table-scroll thead tr { background: var(--bg-section); }
-    .table-scroll th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
-    .table-scroll td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
-    .table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
-    .table-scroll tbody tr:hover td { background: var(--bg-hover); }
-    .ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-    .action-col .btn-link { margin-right: 4px; }
-    .action-col .btn-link:last-child { margin-right: 0; }
+/* ========== 领域小类 左右两栏选择器 ========== */
+.dp { position: relative; }
+.dp-trigger {
+  width: 240px; height: 32px; padding: 0 10px; box-sizing: border-box;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: transparent; color: var(--text-primary); font-size: var(--font-size-sm);
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  cursor: pointer; transition: border-color .2s;
+}
+.dp-trigger:hover, .dp.open .dp-trigger { border-color: var(--primary); outline: none; }
+.dp-value-clip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp-caret { width: 12px; height: 12px; flex-shrink: 0; color: var(--text-tertiary); transition: transform .2s; }
+.dp.open .dp-caret { transform: rotate(180deg); }
+.dp-panel {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 300;
+  background: var(--bg-primary); border: 1px solid var(--border);
+  border-radius: var(--radius-md); box-shadow: 0 4px 16px rgba(0,0,0,.12); overflow: hidden;
+}
+.dp.open .dp-panel { display: flex; }
+.dp-col { max-height: 264px; overflow-y: auto; }
+.dp-col-left { width: 132px; flex-shrink: 0; border-right: 1px solid var(--border-light); background: var(--bg-section, #f5f7fa); }
+.dp-col-right { min-width: 280px; }
+.dp-item {
+  padding: 8px 12px; font-size: var(--font-size-sm); color: var(--text-primary);
+  cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.dp-item:hover { background: var(--bg-hover); }
+.dp-item.active { color: var(--primary); font-weight: 600; background: var(--primary-light); }
+.dp-item .dp-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp-item .dp-sub { font-size: 12px; color: var(--text-tertiary); font-weight: 400; flex-shrink: 0; }
+.dp-item-all { color: var(--text-secondary); }
 
-    /* 分页 - .pagination 由 framework.css 提供 */
+/* ========== 列表卡 ========== */
+.cr-list-card {
+  flex: 1; min-height: 0;
+  background: var(--bg-primary); border: 1px solid var(--border-section); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column;
+}
+.cr-list-header {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border-light);
+}
+.cr-list-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cr-bar { width: 4px; height: 16px; border-radius: 2px; background: var(--primary); flex-shrink: 0; }
+.cr-list-title-text { font-size: var(--font-size-md); font-weight: 600; white-space: nowrap; }
+.cr-list-sub { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cr-list-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.cr-list-actions .btn { display: inline-flex; align-items: center; gap: 6px; }
+.cr-list-actions .btn svg { width: 14px; height: 14px; }
+.cr-table-scroll {
+  flex: 1; min-height: 0; overflow: auto;
+  margin: 12px 20px 16px;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--bg-page-solid);
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.cr-list-card > .pagination { flex-shrink: 0; }
+.cr-table { width: 100%; min-width: 1200px; border-collapse: separate; border-spacing: 0; }
+.cr-table thead th {
+  position: sticky; top: 0; z-index: 2; background: #f0f2f5;
+  text-align: left; padding: 12px 16px; font-size: var(--font-size-sm); font-weight: 600;
+  color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap;
+}
+.cr-table thead th:first-child { width: 60px; text-align: center; }
+.cr-table thead th:nth-child(2) { width: 50px; text-align: center; }
+.cr-table tbody td {
+  padding: 12px 16px; height: 48px; box-sizing: border-box; font-size: var(--font-size-sm);
+  color: var(--text-primary); border-bottom: 1px solid var(--border-light); vertical-align: middle;
+  background: var(--bg-primary);
+}
+.cr-table tbody td:first-child { text-align: center; color: var(--text-secondary); }
+.cr-table tbody td:nth-child(2) { text-align: center; }
+.cr-table tbody tr:hover td { background: var(--bg-hover); }
+.cr-cell-clip { display: block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cr-action-col { white-space: nowrap; }
+.cr-empty-row td { text-align: center; padding: 56px 16px !important; color: var(--text-tertiary); }
+.hz-count { color: var(--text-primary); font-weight: 600; }
+.hz-count.zero { color: var(--text-tertiary); font-weight: 400; }
 
-    /* ========== 标签样式 ========== */
-    .tag { display: inline-block; padding: 2px var(--spacing-sm); border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
-    .tag-green { background: var(--success-light); color: var(--success); }
-    .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
-    .tag-orange { background: var(--warning-light); color: var(--warning); }
-    .tag-red { background: var(--danger-light); color: var(--danger); }
-    .tag-blue { background: var(--primary-light); color: var(--primary); }
-    .tag-yellow { background: #fadb14; color: #8c6900; }
-    .tag-purple { background: var(--accent-light); color: var(--accent); }
-    .btn-link { padding: var(--spacing-xs) var(--spacing-sm); border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
-    .btn-link:hover { text-decoration: underline; }
+/* ========== 复选框样式 ========== */
+.cr-checkbox { width: 16px; height: 16px; cursor: pointer; }
+.cr-checkbox-all { width: 16px; height: 16px; cursor: pointer; }
 
-    /* ========== 弹窗样式 ========== */
-    .modal-container {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 1000;
-      display: none;
-    }
-    .modal-container.active { display: flex; }
-    .modal-container .modal-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.45);
-    }
-    .modal-container .modal-dialog {
-      position: relative;
-      margin: auto;
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .modal-container .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-bottom: 1px solid var(--border-light);
-    }
-    .modal-container .modal-title { font-size: var(--font-size-lg); font-weight: 600; }
-    .modal-container .modal-close { background: none; border: none; font-size: var(--font-size-xxl); cursor: pointer; color: var(--text-secondary); padding: 0 var(--spacing-xs); }
-    .modal-container .modal-close:hover { color: var(--text-primary); }
-    .modal-container .modal-body { padding: 20px var(--spacing-lg); overflow-y: auto; flex: 1; }
-    .modal-container .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: var(--spacing-sm);
-      padding: 12px var(--spacing-lg);
-      border-top: 1px solid var(--border-light);
-    }
-    .modal-form .form-group { margin-bottom: 16px; }
-    .modal-form .form-label { display: block; font-size: var(--font-size-md); font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
-    .modal-form .form-input, .modal-form .form-select {
-      width: 100%;
-      padding: var(--spacing-sm) 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      font-size: var(--font-size-md);
-      background: var(--bg-primary);
-      box-sizing: border-box;
-    }
-    .modal-form .form-input:focus, .modal-form .form-select:focus {
-      border-color: var(--primary);
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(22,119,255,0.1);
-    }
-    .modal-form .form-row { display: flex; gap: var(--spacing-md); }
-    .modal-form .form-row .form-group { flex: 1; }
-    .modal-form textarea.form-input { resize: vertical; }
-    .required { color: var(--danger); }
+/* ========== 标签 ========== */
+.tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
+.tag-green { background: var(--success-light); color: var(--success); }
+.tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
+.tag-orange { background: var(--warning-light); color: var(--warning); }
+.tag-red { background: var(--danger-light); color: var(--danger); }
+.tag-blue { background: var(--info-light); color: var(--info); }
+.tag-yellow { background: #fadb14; color: #8c6900; }
 
-    /* ========== 任务详情弹窗 ========== */
-    .detail-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .detail-info-item { display: flex; flex-direction: column; gap: 4px; }
-    .detail-info-label { font-size: 13px; color: var(--text-secondary); }
-    .detail-info-value { font-size: 14px; color: var(--text-primary); font-weight: 500; }
-    .detail-timeline { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-light); }
-    .detail-timeline-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
-    .timeline-list { list-style: none; padding: 0; margin: 0; }
-    .timeline-item { display: flex; gap: 12px; padding-bottom: 16px; position: relative; }
-    .timeline-item:not(:last-child)::before {
-      content: '';
-      position: absolute;
-      left: 7px;
-      top: 20px;
-      bottom: 0;
-      width: 2px;
-      background: var(--border-light);
-    }
-    .timeline-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
-    .timeline-dot-blue { background: var(--primary); }
-    .timeline-dot-green { background: var(--success); }
-    .timeline-dot-red { background: var(--danger); }
-    .timeline-dot-gray { background: var(--text-secondary); }
-    .timeline-dot-yellow { background: #fadb14; }
-    .timeline-dot-orange { background: var(--warning); }
-    .timeline-content { flex: 1; }
-    .timeline-text { font-size: 14px; color: var(--text-primary); }
-    .timeline-time { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+/* ========== 链接按钮 / Toast ========== */
+.btn-link { padding: 0; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+.btn-link:hover { text-decoration: underline; }
+.toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 12px 20px; border-radius: var(--radius-md); background: var(--bg-primary);
+  box-shadow: 0 4px 16px rgba(0,0,0,.12); font-size: var(--font-size-sm);
+  color: var(--text-primary); border-left: 4px solid var(--primary);
+  animation: toastIn .3s ease; max-width: 420px;
+}
+.toast.out { animation: toastOut .3s ease forwards; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
+
+/* ========== 整页详情 ========== */
+.cr-detail { display: none; }
+.cr-detail.show { display: block; flex: 1; min-height: 0; overflow-y: auto; }
+.cr-detail-top {
+  display: flex; align-items: center; gap: 16px; background: var(--bg-primary);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 16px 20px; margin-bottom: 16px;
+}
+.cr-detail-title { display: flex; align-items: center; gap: 8px; font-size: var(--font-size-lg); font-weight: 600; min-width: 0; }
+.cr-detail-card {
+  background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+  padding: 20px 24px; margin-bottom: 16px;
+}
+.cr-section-title { font-size: 15px; font-weight: 600; margin: 0 0 16px; padding-left: 10px; border-left: 3px solid var(--primary); line-height: 1.4; }
+.cr-kv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; row-gap: 12px; }
+.cr-kv { display: flex; gap: 8px; font-size: 14px; line-height: 1.6; min-width: 0; }
+.cr-kv.full { grid-column: 1 / -1; }
+.cr-kv-label { flex: 0 0 128px; color: var(--text-secondary); text-align: right; }
+.cr-kv-value { flex: 1; min-width: 0; color: var(--text-primary); word-break: break-word; }
+.cr-photo-row { display: flex; gap: 16px; margin-top: 12px; }
+.cr-photo-box { width: 96px; }
+.cr-photo-box img { width: 96px; height: 96px; border-radius: var(--radius-md); border: 1px solid var(--border-light); display: block; }
+.cr-photo-caption { margin-top: 4px; font-size: 12px; color: var(--text-tertiary); text-align: center; }
+
+/* ========== 隐患明细块 ========== */
+.cr-hazard-block { border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
+.cr-hazard-block:last-child { margin-bottom: 0; }
+.cr-hazard-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: 600; }
+.cr-hazard-head .id { color: var(--text-secondary); font-weight: 500; font-size: 13px; }
+.cr-empty-hazard { color: var(--text-tertiary); font-size: 14px; padding: 8px 0; }
+
+@media (max-width: 1100px) {
+  .cr-kv-grid { grid-template-columns: 1fr; }
+  .cr-kv-label { flex-basis: 100px; }
+}
   </style>
 </head>
 <body>
+  <div class="toast-container" id="toastContainer"></div>
+
   <div class="module-page page-container" data-module="government/check-task">
-    <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
-      <span class="breadcrumb-item current">政府端</span>
+      <span class="breadcrumb-item">政府端</span>
+      <span class="breadcrumb-separator">&gt;</span>
+      <span class="breadcrumb-item current">检查记录管理</span>
     </div>
 
     <!-- ========== 列表视图 ========== -->
     <div id="view-list">
-      <div class="stats-row">
-        <div class="stat-card" onclick="filterByStatus('all')"><div class="stat-card-body"><div class="stat-label">任务总数</div><div class="stat-value">28</div></div><div class="stat-indicator" style="background: var(--info);"></div></div>
-        <div class="stat-card" onclick="filterByStatus('待执行')"><div class="stat-card-body"><div class="stat-label">待执行</div><div class="stat-value">3</div></div><div class="stat-indicator" style="background: var(--primary);"></div></div>
-        <div class="stat-card" onclick="filterByStatus('执行中')"><div class="stat-card-body"><div class="stat-label">执行中</div><div class="stat-value">2</div></div><div class="stat-indicator" style="background: var(--warning);"></div></div>
-        <div class="stat-card" onclick="filterByStatus('已完成')"><div class="stat-card-body"><div class="stat-label">已完成</div><div class="stat-value">20</div></div><div class="stat-indicator" style="background: var(--success);"></div></div>
-        <div class="stat-card" onclick="filterByStatus('已逾期')"><div class="stat-card-body"><div class="stat-label">已逾期</div><div class="stat-value">3</div></div><div class="stat-indicator" style="background: var(--danger);"></div></div>
+      <div class="filter-card">
+        <div class="filter-bar">
+          <div class="filter-item">
+            <label>检查分类：</label>
+            <select id="filterCheckType">
+              <option>全部</option><option>政府巡查</option><option>企业自查</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>领域小类：</label>
+            <div class="dp" id="domainPicker">
+              <button type="button" class="dp-trigger" id="dpTrigger">
+                <span class="dp-value-clip" id="dpValue">全部</span>
+                <svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="dp-panel" id="dpPanel">
+                <div class="dp-col dp-col-left" id="dpColIndustry"></div>
+                <div class="dp-col dp-col-right" id="dpColDomain"></div>
+              </div>
+            </div>
+          </div>
+          <div class="filter-item">
+            <label>检查时间：</label>
+            <input type="date" id="filterDateStart">
+            <span class="date-sep">至</span>
+            <input type="date" id="filterDateEnd">
+          </div>
+          <div class="filter-item">
+            <label>关键词：</label>
+            <input type="text" id="filterKeyword" placeholder="搜索企业、管控对象、检查人">
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" type="button" id="btnQuery">查询</button>
+            <button class="btn btn-default" type="button" id="btnReset">重置</button>
+          </div>
+        </div>
       </div>
 
-      <div class="filter-card"><div class="filter-bar">
-        <div class="filter-item"><label>任务类型：</label><select id="filterType"><option value="">全部</option><option>履职任务</option><option>专项任务</option></select></div>
-        <div class="filter-item"><label>任务状态：</label><select id="filterStatus"><option value="">全部</option><option>待执行</option><option>执行中</option><option>已完成</option><option>已逾期</option><option>已取消</option></select></div>
-        <div class="filter-item"><label>时间：</label><input type="date" id="filterDateStart"> <span style="color:var(--text-secondary)">至</span> <input type="date" id="filterDateEnd"></div>
-        <div class="filter-item"><label>领域小类：</label><select id="filterDomain"><option value="">全部</option><option>充换电设施</option><option>农贸市场</option><option>建筑施工现场</option><option>危险化学品仓储</option><option>城镇燃气</option><option>消防安全</option></select></div>
-        <div class="filter-item"><input type="text" id="filterSearch" placeholder="搜索管控对象名称"></div>
-        <button class="btn btn-default" onclick="resetFilters()">重置</button>
-        <div style="flex: 1;"></div>
-        <button class="btn btn-primary" onclick="openModal('modal-add-plan')">+ 新建专项任务</button>
-      </div></div>
-
-      <div class="table-wrap">
-        <div class="table-scroll">
-          <table>
+      <div class="cr-list-card">
+        <div class="cr-list-header">
+          <div class="cr-list-title">
+            <span class="cr-bar"></span>
+            <span class="cr-list-title-text">检查记录</span>
+            <span class="cr-list-sub" id="listSubtitle">共 0 条检查记录</span>
+          </div>
+          <div class="cr-list-actions">
+            <button class="btn btn-default" type="button" id="btnEcEntry">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              导出记录
+            </button>
+          </div>
+        </div>
+        <div class="cr-table-scroll">
+          <table class="cr-table">
             <thead>
               <tr>
-                <th>任务编号</th>
-                <th>任务类型</th>
+                <th><input type="checkbox" class="cr-checkbox-all" id="checkAll" onclick="toggleAllCheckboxes(this)"></th>
+                <th>序号</th>
+                <th>检查时间</th>
+                <th>企业名称</th>
                 <th>管控对象</th>
-                <th>领域小类</th>
-                <th>计划日期</th>
+                <th>检查表名称</th>
                 <th>检查人</th>
-                <th>检查表</th>
-                <th>状态</th>
-                <th class="action-col">操作</th>
+                <th>检查分类</th>
+                <th>隐患数</th>
+                <th class="cr-action-col">操作</th>
               </tr>
             </thead>
-            <tbody id="taskTableBody">
-              <tr>
-                <td>ZX2026040201</td>
-                <td><span class="tag tag-orange">专项任务</span></td>
-                <td>创安电子科技有限公司</td>
-                <td>充换电设施</td>
-                <td>2026-04-02</td>
-                <td>王科</td>
-                <td>充换电设施安全检查表</td>
-                <td><span class="tag tag-orange">执行中</span></td>
-                <td class="action-col"><button class="btn-link" onclick="viewTask('ZX2026040201')">查看详情</button></td>
-              </tr>
-              <tr>
-                <td>PC2026040101</td>
-                <td><span class="tag tag-blue">履职任务</span></td>
-                <td>深圳市场管理公司</td>
-                <td>农贸市场</td>
-                <td>2026-04-01</td>
-                <td>张科</td>
-                <td>农贸市场日常检查表</td>
-                <td><span class="tag tag-green">已完成</span></td>
-                <td class="action-col"><button class="btn-link" onclick="viewTask('PC2026040101')">查看详情</button></td>
-              </tr>
-              <tr>
-                <td>ZX2026033101</td>
-                <td><span class="tag tag-orange">专项任务</span></td>
-                <td>新兴化工有限公司</td>
-                <td>危险化学品仓储</td>
-                <td>2026-03-31</td>
-                <td>李科</td>
-                <td>危化品仓储检查表</td>
-                <td><span class="tag tag-red">已逾期</span></td>
-                <td class="action-col"><button class="btn-link" onclick="viewTask('ZX2026033101')">查看详情</button><button class="btn-link" onclick="cancelTask('ZX2026033101')">取消</button></td>
-              </tr>
-              <tr>
-                <td>PC2026032801</td>
-                <td><span class="tag tag-blue">履职任务</span></td>
-                <td>深圳港物流有限公司</td>
-                <td>建筑施工现场</td>
-                <td>2026-04-01</td>
-                <td>赵科</td>
-                <td>建筑施工安全检查表</td>
-                <td><span class="tag tag-blue">待执行</span></td>
-                <td class="action-col"><button class="btn-link" onclick="viewTask('PC2026032801')">查看详情</button><button class="btn-link" onclick="cancelTask('PC2026032801')">取消</button></td>
-              </tr>
-              <tr>
-                <td>ZX2026032501</td>
-                <td><span class="tag tag-orange">专项任务</span></td>
-                <td>安达运输公司</td>
-                <td>城镇燃气</td>
-                <td>2026-03-25</td>
-                <td>李科</td>
-                <td>燃气安全检查表</td>
-                <td><span class="tag tag-red">已逾期</span></td>
-                <td class="action-col"><button class="btn-link" onclick="viewTask('ZX2026032501')">查看详情</button><button class="btn-link" onclick="cancelTask('ZX2026032501')">取消</button></td>
-              </tr>
-              <tr>
-                <td>PC2026032001</td>
-                <td><span class="tag tag-blue">履职任务</span></td>
-                <td>创安电子科技有限公司</td>
-                <td>消防安全</td>
-                <td>2026-03-20</td>
-                <td>王科</td>
-                <td>消防安全日常检查表</td>
-                <td><span class="tag tag-gray">已取消</span></td>
-                <td class="action-col"><button class="btn-link" onclick="viewTask('PC2026032001')">查看详情</button></td>
-              </tr>
-              <tr>
-                <td>PC2026031501</td>
-                <td><span class="tag tag-blue">履职任务</span></td>
-                <td>深圳港物流有限公司</td>
-                <td>危险化学品仓储</td>
-                <td>2026-03-15</td>
-                <td>赵科</td>
-                <td>危化品仓储检查表</td>
-                <td><span class="tag tag-green">已完成</span></td>
-                <td class="action-col"><button class="btn-link" onclick="viewTask('PC2026031501')">查看详情</button></td>
-              </tr>
-            </tbody>
+            <tbody id="recordTableBody"></tbody>
           </table>
         </div>
-        <div class="pagination">
-          <span class="pg-info">共 7 条</span>
-          <select class="pg-size">
-            <option value="10" selected>10 条/页</option>
-            <option value="20">20 条/页</option>
-            <option value="50">50 条/页</option>
-          </select>
-          <button class="pg" disabled>上一页</button>
-          <button class="pg active">1</button>
-          <button class="pg" disabled>下一页</button>
-          <span class="pg-jump">前往 <input class="pg-jump-input" type="number" min="1" max="1" value="1"> 页</span>
-        </div>
+        <div class="pagination" id="paginationBar"></div>
       </div>
     </div>
 
-    <!-- ========== 检查任务执行视图（PC端不展示，检查执行在移动端完成） ========== -->
-
-    <!-- ========== 任务详情弹窗 ========== -->
-    <div class="modal-container" id="modal-task-detail">
-      <div class="modal-overlay" onclick="closeModal('modal-task-detail')"></div>
-      <div class="modal-dialog" style="width: 680px;">
-        <div class="modal-header">
-          <span class="modal-title" id="taskDetailTitle">任务详情</span>
-          <button class="modal-close" onclick="closeModal('modal-task-detail')">&times;</button>
-        </div>
-        <div class="modal-body" id="taskDetailBody"></div>
-        <div class="modal-footer">
-          <button class="btn btn-default" onclick="closeModal('modal-task-detail')">关闭</button>
+    <!-- ========== 整页详情 ========== -->
+    <div class="cr-detail" id="view-detail">
+      <div class="cr-detail-top">
+        <button class="btn btn-default" type="button" id="btnBackList">← 返回列表</button>
+        <div class="cr-detail-title">
+          <span class="cr-bar"></span>
+          <span id="detailTitle">检查记录详情</span>
+          <span id="detailTypeTag"></span>
         </div>
       </div>
-    </div>
-
-    <!-- ========== 新增检查计划弹窗 ========== -->
-    <div class="modal-container" id="modal-add-plan">
-      <div class="modal-overlay" onclick="closeModal('modal-add-plan')"></div>
-      <div class="modal-dialog" style="width: 640px;">
-        <div class="modal-header">
-          <span class="modal-title">新建专项任务</span>
-          <button class="modal-close" onclick="closeModal('modal-add-plan')">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form id="addPlanForm" class="modal-form">
-            <div class="form-group">
-              <label class="form-label"><span class="required">*</span> 管控对象</label>
-              <select class="form-select" name="targetObject" required>
-                <option value="">请选择管控对象</option>
-                <option>创安电子科技有限公司</option>
-                <option>深圳市场管理公司</option>
-                <option>新兴化工有限公司</option>
-                <option>深圳港物流有限公司</option>
-                <option>安达运输公司</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label"><span class="required">*</span> 领域小类</label>
-                <select class="form-select" name="domainType" id="addDomainType" required onchange="onDomainChange()">
-                  <option value="">请选择领域小类</option>
-                  <option>充换电设施</option>
-                  <option>农贸市场</option>
-                  <option>建筑施工现场</option>
-                  <option>危险化学品仓储</option>
-                  <option>城镇燃气</option>
-                  <option>消防安全</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label"><span class="required">*</span> 检查表模板</label>
-                <select class="form-select" name="checklistTemplate" id="addChecklistTemplate" required>
-                  <option value="">请先选择领域小类</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label"><span class="required">*</span> 计划日期</label>
-                <input type="date" class="form-input" name="planDate" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label"><span class="required">*</span> 检查人</label>
-                <select class="form-select" name="inspector" required>
-                  <option value="">请选择检查人</option>
-                  <option>张科</option>
-                  <option>李科</option>
-                  <option>王科</option>
-                  <option>赵科</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">任务描述</label>
-              <textarea class="form-input" name="taskDesc" rows="3" placeholder="请输入任务描述（选填）" style="resize: vertical;"></textarea>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-default" onclick="closeModal('modal-add-plan')">取消</button>
-          <button class="btn btn-primary" onclick="submitAddPlan()">确认创建</button>
-        </div>
-      </div>
+      <div id="detailBody"></div>
     </div>
   </div>
 
+  <script src="../../js/pagination.js"></script>
+  <script src="../../js/vendor/exceljs.min.js"></script>
+  <script src="../../js/domain-data.js"></script>
+  <script src="../../js/shared/gov-export-data.js"></script>
+  <script src="../../js/shared/export-center.js"></script>
   <script>
-    (function() {
+    (function () {
       'use strict';
 
-      var CONFIG = {
-        moduleId: 'gov-check-task',
-        moduleName: '检查任务管理'
-      };
+      var CONFIG = { moduleId: 'gov-check-task', moduleName: '检查记录管理' };
+      var D = window.GovExportData;
 
       var state = {
-        initialized: false
+        initialized: false,
+        currentPage: 1,
+        pageSize: 10,
+        detailId: null,
+        filtered: []
       };
 
-      // ========== 任务数据 ==========
-      var taskData = {
-        'ZX2026040201': { id: 'ZX2026040201', type: '专项任务', typeTag: 'tag-orange', target: '创安电子科技有限公司', domain: '充换电设施', planDate: '2026-04-02', inspector: '王科', checklist: '充换电设施安全检查表', status: '执行中', statusTag: 'tag-orange' },
-        'PC2026040101': { id: 'PC2026040101', type: '履职任务', typeTag: 'tag-blue', target: '深圳市场管理公司', domain: '农贸市场', planDate: '2026-04-01', inspector: '张科', checklist: '农贸市场日常检查表', status: '已完成', statusTag: 'tag-green' },
-        'ZX2026033101': { id: 'ZX2026033101', type: '专项任务', typeTag: 'tag-orange', target: '新兴化工有限公司', domain: '危险化学品仓储', planDate: '2026-03-31', inspector: '李科', checklist: '危化品仓储检查表', status: '已逾期', statusTag: 'tag-red' },
-        'PC2026032801': { id: 'PC2026032801', type: '履职任务', typeTag: 'tag-blue', target: '深圳港物流有限公司', domain: '建筑施工现场', planDate: '2026-04-01', inspector: '赵科', checklist: '建筑施工安全检查表', status: '待执行', statusTag: 'tag-blue' },
-        'ZX2026032501': { id: 'ZX2026032501', type: '专项任务', typeTag: 'tag-orange', target: '安达运输公司', domain: '城镇燃气', planDate: '2026-03-25', inspector: '李科', checklist: '燃气安全检查表', status: '已逾期', statusTag: 'tag-red' },
-        'PC2026032001': { id: 'PC2026032001', type: '履职任务', typeTag: 'tag-blue', target: '创安电子科技有限公司', domain: '消防安全', planDate: '2026-03-20', inspector: '王科', checklist: '消防安全日常检查表', status: '已取消', statusTag: 'tag-gray' },
-        'PC2026031501': { id: 'PC2026031501', type: '履职任务', typeTag: 'tag-blue', target: '深圳港物流有限公司', domain: '危险化学品仓储', planDate: '2026-03-15', inspector: '赵科', checklist: '危化品仓储检查表', status: '已完成', statusTag: 'tag-green' }
+      var REGION_POOL = [
+        '南山区-南山街道-南山社区',
+        '南山区-粤海街道-科技园社区',
+        '南山区-沙河街道-白石洲社区',
+        '南山区-南头街道-南头城社区',
+        '南山区-招商街道-蛇口社区'
+      ];
+      var GOV_CHECKERS = ['陈海海（南山街道办）', '林晓峰（南山区应急管理局）', '周敏（粤海街道办）', '黄志强（沙河街道办）'];
+      var GOV_REVIEWERS = ['陈海海（南山街道办）', '林晓峰（南山区应急管理局）', '周敏（粤海街道办）'];
+      var ENT_USERS = ['李四', '王五'];
+      var ENT_REVIEWER = '王五（安全生产部）';
+      var HAZARD_TYPES = ['设备设施', '消防安全', '电气', '作业行为', '安全管理'];
+
+      /* ========== 检查记录种子（一行一次检查，hazards 为该次检查发现的隐患） ========== */
+      var RAW_CHECKS = [
+        { id:'CR2026040201', enterprise:'创安电子科技有限公司', object:'创安电子科技有限公司', objectType:'企业', domain:'电动自行车充电场所', domainKey:'charging', checkType:'政府巡查', checkTime:'2026-04-02 09:30', checklist:'充电设施每日巡检表', hazards:[
+          { id:'HD2026040201', desc:'电动车充电区消防器材过期，灭火器压力不足', level:'一般隐患', type:'设备设施', status:'待整改' }
+        ]},
+        { id:'CR2026040101', enterprise:'深圳港物流有限公司', object:'深圳港物流有限公司', objectType:'企业', domain:'医药化工', domainKey:'chem-storage', checkType:'政府巡查', checkTime:'2026-04-01 14:00', checklist:'医药化工安全检查表', hazards:[
+          { id:'HD2026040101', desc:'危化品仓库通风设备故障，部分排风扇无法启动', level:'重大隐患', type:'设备设施', status:'待复核' }
+        ]},
+        { id:'CR2026032801', enterprise:'安达运输公司', object:'安达运输公司', objectType:'企业', domain:'劝导路口', domainKey:'charging', checkType:'企业自查', checkTime:'2026-03-28 11:00', checklist:'交通安全劝导检查表', hazards:[
+          { id:'HD2026032801', desc:'停车场安全标识缺失，多处限速和禁停标识损坏', level:'一般隐患', type:'安全管理', status:'已整改' }
+        ]},
+        { id:'CR2026040501', enterprise:'南山区中心农贸市场', object:'南山区中心农贸市场', objectType:'重点场所', domain:'商业综合体', domainKey:'market', checkType:'政府巡查', checkTime:'2026-04-05 10:00', checklist:'消防安全检查表', hazards:[
+          { id:'HD2026040501', desc:'市场内消防栓被遮挡，部分灭火器过期未更换', level:'重大隐患', type:'消防安全', status:'待整改' }
+        ]},
+        { id:'CR2026040401', enterprise:'中石化南山加油站', object:'中石化南山加油站', objectType:'重点场所', domain:'加油站', domainKey:'gas-station', checkType:'企业自查', checkTime:'2026-04-04 15:00', checklist:'加油站安全检查表', hazards:[
+          { id:'HD2026040401', desc:'加油站卸油区静电接地装置失效', level:'一般隐患', type:'设备设施', status:'待复核' }
+        ]},
+        { id:'CR2026040601', enterprise:'华鑫工贸有限公司', object:'华鑫工贸有限公司', objectType:'企业', domain:'"三小"场所（小生产加工企业）', domainKey:'trade', checkType:'企业自查', checkTime:'2026-04-06 09:00', checklist:'生产安全检查表', hazards:[
+          { id:'HD2026040601', desc:'车间机械设备防护罩缺失，操作人员有受伤风险', level:'一般隐患', type:'设备设施', status:'待整改' }
+        ]},
+        { id:'CR2026040701', enterprise:'南山消防安全重点单位', object:'南山消防安全重点单位', objectType:'重点场所', domain:'超高层建筑', domainKey:'fire', checkType:'政府巡查', checkTime:'2026-04-07 10:30', checklist:'高层建筑消防检查表', hazards:[
+          { id:'HD2026040701', desc:'消防控制室值班记录不完整，值班人员脱岗', level:'一般隐患', type:'安全管理', status:'已整改' }
+        ]},
+        { id:'CR2026040801', enterprise:'深圳湾科技生态园项目', object:'深圳湾科技生态园项目', objectType:'项目', domain:'房屋建设工程', domainKey:'building', checkType:'政府巡查', checkTime:'2026-04-08 09:40', checklist:'建筑施工安全检查表', hazards:[
+          { id:'HD2026040801', desc:'施工升降机限位装置失效，存在坠落风险', level:'重大隐患', type:'设备设施', status:'待复核' }
+        ]},
+        { id:'CR2026040901', enterprise:'南头城燃气站', object:'南头城燃气站', objectType:'重点场所', domain:'"三小"场所（小餐饮（燃气））', domainKey:'gas', checkType:'企业自查', checkTime:'2026-04-09 14:20', checklist:'燃气安全检查表', hazards:[
+          { id:'HD2026040901', desc:'燃气储罐区可燃气体报警器未按期检定', level:'重大隐患', type:'设备设施', status:'已整改' }
+        ]},
+        { id:'CR2026041101', enterprise:'南山区危险品运输公司', object:'南山区危险品运输公司', objectType:'企业', domain:'医药化工', domainKey:'chem-storage', checkType:'政府巡查', checkTime:'2026-04-11 10:10', checklist:'医药化工安全检查表', hazards:[
+          { id:'HD2026041101', desc:'危化品运输车辆停放区未设置防静电接地设施', level:'一般隐患', type:'电气', status:'已整改' }
+        ]},
+        { id:'CR2026041201', enterprise:'南山工业园', object:'南山工业园', objectType:'企业', domain:'"三小"场所（小生产加工企业）', domainKey:'trade', checkType:'企业自查', checkTime:'2026-04-12 09:50', checklist:'生产安全检查表', hazards:[
+          { id:'HD2026041201', desc:'有限空间作业未落实审批和监护制度', level:'重大隐患', type:'作业行为', status:'待复核' }
+        ]},
+        { id:'CR2026040602', enterprise:'深圳港物流有限公司', object:'深圳港物流有限公司', objectType:'企业', domain:'危险边坡', domainKey:'chem-storage', checkType:'政府巡查', checkTime:'2026-04-06 15:30', checklist:'边坡安全巡查表', hazards:[] },
+        { id:'CR2026040802', enterprise:'创安电子科技有限公司', object:'创安电子科技有限公司', objectType:'企业', domain:'电动自行车充电场所', domainKey:'charging', checkType:'企业自查', checkTime:'2026-04-08 10:20', checklist:'充电设施每日巡检表', hazards:[
+          { id:'HD2026041301', desc:'充电桩接地保护失效，存在触电风险', level:'一般隐患', type:'电气', status:'待整改' },
+          { id:'HD2026041302', desc:'充电区域未配置消防沙箱和灭火毯', level:'重大隐患', type:'消防安全', status:'待复核' }
+        ]},
+        { id:'CR2026041002', enterprise:'粤海街道商业广场', object:'粤海街道商业广场', objectType:'重点场所', domain:'商业综合体', domainKey:'market', checkType:'政府巡查', checkTime:'2026-04-10 11:15', checklist:'消防安全检查表', hazards:[
+          { id:'HD2026041401', desc:'商场疏散通道被商户货物占用，宽度不足', level:'一般隐患', type:'消防安全', status:'已超期' }
+        ]}
+      ];
+
+      function pad2(n) { return n < 10 ? '0' + n : String(n); }
+
+      function esc(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      function creditCode(seed) {
+        var text = D.hash(seed).toString(36).toUpperCase();
+        while (text.length < 8) text = '0' + text;
+        return '91440300MA' + text.slice(0, 8);
+      }
+
+      function buildHazard(raw, check) {
+        var hazard = Object.assign({}, raw);
+        var seed = raw.id;
+        var hasReform = raw.status === '待复核' || raw.status === '已整改' || raw.status === '已超期';
+        var hasReview = raw.status === '已整改' || raw.status === '已超期';
+        var baseDate = check.checkTime.slice(0, 10);
+        hazard.type = raw.type || D.pick(seed + 't', HAZARD_TYPES);
+        hazard.hasReform = hasReform;
+        hazard.hasReview = hasReview;
+        hazard.overdue = raw.status === '已超期' ? '已超期' : '未超期';
+        hazard.method = raw.level === '重大隐患' ? '立即整改' : D.pick(seed + 'm', ['立即整改', '限期整改（3天）', '限期整改（7天）']);
+        hazard.rectifyPerson = hasReform ? D.pick(seed + 'p', ENT_USERS) : '—';
+        hazard.rectifyTime = hasReform ? D.addDays(baseDate, D.int(seed, 1, 3)) + ' ' + pad2(D.int(seed + 'h', 9, 17)) + ':' + pad2(D.int(seed + 'mi', 0, 59)) : '—';
+        hazard.rectifyFeedback = hasReform ? '已按检查要求完成整改，现场复查符合要求。' : '—';
+        hazard.rectifyBasis = '《中华人民共和国安全生产法》第三十六条';
+        hazard.reviewer = hasReform ? (check.checkType === '企业自查' ? ENT_REVIEWER : D.pick(seed + 'rv', GOV_REVIEWERS)) : '—';
+        hazard.reviewResult = raw.status === '已整改' ? '同意' : (raw.status === '已超期' ? '不同意' : '—');
+        hazard.reviewOpinion = hazard.reviewResult === '同意'
+          ? '已按要求整改，隐患消除，同意闭环。'
+          : (hazard.reviewResult === '不同意' ? '现场整改不到位，退回重新整改。' : '—');
+        hazard.reviewTime = hasReview ? D.addDays(baseDate, D.int(seed + 'x', 3, 6)) + ' ' + pad2(D.int(seed + 'rh', 9, 17)) + ':' + pad2(D.int(seed + 'rm', 0, 59)) : '—';
+        hazard.hazardPhoto = D.photoSvg('hazard', seed);
+        hazard.reformPhoto = hasReform ? D.photoSvg('reform', seed) : null;
+        return hazard;
+      }
+
+      var DOMAIN_NAME_META = {};
+      (window.DOMAIN_TABLE_DATA || []).forEach(function (d) { DOMAIN_NAME_META[d.name] = d; });
+
+      function buildCheck(raw) {
+        var record = Object.assign({}, raw);
+        record.region = D.regionParts(D.pick(raw.id, REGION_POOL));
+        record.creditCode = creditCode(raw.id);
+        var domainMeta = DOMAIN_NAME_META[raw.domain];
+        record.domainBig = domainMeta ? domainMeta.industryName : D.bigDomain(raw.domain);
+        record.checker = raw.checkType === '政府巡查'
+          ? D.pick(raw.id + 'c', GOV_CHECKERS)
+          : D.pick(raw.id + 'e', ENT_USERS) + '（企业安全员）';
+        record.codeState = D.codeState(raw.id);
+        record.photo = D.photoSvg('check', raw.id);
+        record.hazards = (raw.hazards || []).map(function (hazard) { return buildHazard(hazard, record); });
+        return record;
+      }
+
+      var checkRecords = RAW_CHECKS.map(buildCheck);
+
+      /* ========== 筛选 ========== */
+      /* 领域小类选择状态：{ type:'all' } | { type:'industry', industry } | { type:'domain', name } */
+      var domainFilter = { type: 'all', industry: null, name: null };
+
+      function readPageFilters() {
+        return {
+          checkType: document.getElementById('filterCheckType').value,
+          domain: domainFilter,
+          dateStart: document.getElementById('filterDateStart').value,
+          dateEnd: document.getElementById('filterDateEnd').value,
+          keyword: document.getElementById('filterKeyword').value.trim().toLowerCase()
+        };
+      }
+
+      function checkText(record) {
+        var parts = [record.enterprise, record.object, record.checker, record.checklist, record.domain];
+        record.hazards.forEach(function (hazard) { parts.push(hazard.desc); });
+        return parts.join(' ').toLowerCase();
+      }
+
+      function getFilteredData() {
+        var filters = readPageFilters();
+        return checkRecords.filter(function (record) {
+          if (filters.checkType !== '全部' && record.checkType !== filters.checkType) return false;
+          if (filters.domain.type === 'industry' && record.domainBig !== filters.domain.industry) return false;
+          if (filters.domain.type === 'domain' && record.domain !== filters.domain.name) return false;
+          var date = record.checkTime.slice(0, 10);
+          if (filters.dateStart && date < filters.dateStart) return false;
+          if (filters.dateEnd && date > filters.dateEnd) return false;
+          if (filters.keyword && checkText(record).indexOf(filters.keyword) < 0) return false;
+          return true;
+        });
+      }
+
+      function typeClass(type) {
+        return type === '政府巡查' ? 'tag-blue' : 'tag-green';
+      }
+
+      function levelClass(level) {
+        return level === '重大隐患' ? 'tag-red' : 'tag-yellow';
+      }
+
+      function statusClass(status) {
+        if (status === '待整改') return 'tag-blue';
+        if (status === '待复核') return 'tag-orange';
+        if (status === '已整改') return 'tag-green';
+        if (status === '已超期') return 'tag-red';
+        return 'tag-gray';
+      }
+
+      function renderTable() {
+        var tbody = document.getElementById('recordTableBody');
+        var data = state.filtered;
+        if (!data.length) {
+          tbody.innerHTML = '<tr class="cr-empty-row"><td colspan="10">暂无检查记录</td></tr>';
+          return;
+        }
+        var start = (state.currentPage - 1) * state.pageSize;
+        var rows = data.slice(start, start + state.pageSize);
+        var html = '';
+        rows.forEach(function (record, index) {
+          var count = record.hazards.length;
+          var rowNum = start + index + 1;
+          html += '<tr>' +
+            '<td><input type="checkbox" class="cr-checkbox" data-id="' + esc(record.id) + '"></td>' +
+            '<td>' + rowNum + '</td>' +
+            '<td>' + esc(record.checkTime) + '</td>' +
+            '<td><span class="cr-cell-clip" title="' + esc(record.enterprise) + '">' + esc(record.enterprise) + '</span></td>' +
+            '<td><span class="cr-cell-clip" title="' + esc(record.object) + '">' + esc(record.object) + '</span></td>' +
+            '<td><span class="cr-cell-clip" title="' + esc(record.checklist) + '">' + esc(record.checklist) + '</span></td>' +
+            '<td>' + esc(record.checker) + '</td>' +
+            '<td><span class="tag ' + typeClass(record.checkType) + '">' + esc(record.checkType) + '</span></td>' +
+            '<td><span class="hz-count' + (count ? '' : ' zero') + '">' + count + '</span></td>' +
+            '<td class="cr-action-col"><button class="btn-link" type="button" data-view="' + esc(record.id) + '">查看</button></td>' +
+          '</tr>';
+        });
+        tbody.innerHTML = html;
+      }
+
+      var pg = null;
+
+      function applyFilter(resetPage) {
+        if (resetPage) state.currentPage = 1;
+        state.filtered = getFilteredData();
+        document.getElementById('listSubtitle').textContent = '共 ' + state.filtered.length + ' 条检查记录';
+        if (pg) pg.setTotal(state.filtered.length);
+        var maxPage = Math.ceil(state.filtered.length / state.pageSize) || 1;
+        if (state.currentPage > maxPage) state.currentPage = maxPage;
+        renderTable();
+        if (pg) pg.setPage(state.currentPage);
+      }
+
+      /* ========== 详情 ========== */
+      function findRecord(id) {
+        for (var i = 0; i < checkRecords.length; i++) {
+          if (checkRecords[i].id === id) return checkRecords[i];
+        }
+        return null;
+      }
+
+      function kv(label, valueHtml, full) {
+        return '<div class="cr-kv' + (full ? ' full' : '') + '"><span class="cr-kv-label">' + esc(label) + '：</span><span class="cr-kv-value">' + valueHtml + '</span></div>';
+      }
+
+      function photoBox(svg, caption) {
+        if (!svg) return '';
+        return '<div class="cr-photo-box"><img alt="' + esc(caption) + '" src="data:image/svg+xml,' + encodeURIComponent(svg) + '"><div class="cr-photo-caption">' + esc(caption) + '</div></div>';
+      }
+
+      function renderHazardBlock(hazard, index) {
+        var html = '<div class="cr-hazard-block">';
+        html += '<div class="cr-hazard-head">隐患 ' + (index + 1) +
+          ' <span class="id">' + esc(hazard.id) + '</span>' +
+          '<span class="tag ' + levelClass(hazard.level) + '">' + esc(hazard.level) + '</span>' +
+          '<span class="tag ' + statusClass(hazard.status) + '">' + esc(hazard.status) + '</span></div>';
+        html += '<div class="cr-kv-grid">';
+        html += kv('隐患描述', esc(hazard.desc), true);
+        html += kv('隐患类型', esc(hazard.type));
+        html += kv('整改是否超期', '<span class="tag ' + (hazard.overdue === '已超期' ? 'tag-red' : 'tag-gray') + '">' + esc(hazard.overdue) + '</span>');
+        html += kv('整改方式', esc(hazard.method));
+        html += kv('整改隐患整改人', esc(hazard.rectifyPerson));
+        html += kv('整改时间', esc(hazard.rectifyTime));
+        html += kv('整改反馈', esc(hazard.rectifyFeedback), true);
+        html += kv('整改依据', esc(hazard.rectifyBasis), true);
+        html += kv('复核人', esc(hazard.reviewer));
+        html += kv('复核结果', hazard.reviewResult === '—' ? '—' : '<span class="tag ' + (hazard.reviewResult === '同意' ? 'tag-green' : 'tag-red') + '">' + esc(hazard.reviewResult) + '</span>');
+        html += kv('复核时间', esc(hazard.reviewTime));
+        html += kv('复核意见', esc(hazard.reviewOpinion), true);
+        html += '</div>';
+        html += '<div class="cr-photo-row">' + photoBox(hazard.hazardPhoto, '隐患照片') + photoBox(hazard.reformPhoto, '整改照片') + '</div>';
+        html += '</div>';
+        return html;
+      }
+
+      function renderDetail(record) {
+        document.getElementById('detailTitle').textContent = '检查记录详情 · ' + record.id;
+        document.getElementById('detailTypeTag').innerHTML = '<span class="tag ' + typeClass(record.checkType) + '">' + esc(record.checkType) + '</span>';
+
+        var html = '';
+        html += '<div class="cr-detail-card"><div class="cr-section-title">检查信息</div><div class="cr-kv-grid">';
+        html += kv('企业名称', esc(record.enterprise));
+        html += kv('统一社会信用代码', esc(record.creditCode));
+        html += kv('领域大类', esc(record.domainBig));
+        html += kv('领域小类', esc(record.domain));
+        html += kv('所属街道', esc(record.region.street));
+        html += kv('所属社区', esc(record.region.community));
+        html += kv('所属网格', esc(record.region.grid));
+        html += kv('管控对象', esc(record.object));
+        html += kv('管控对象类型', esc(record.objectType));
+        html += kv('检查表名称', esc(record.checklist));
+        html += kv('检查时间', esc(record.checkTime));
+        html += kv('检查人', esc(record.checker));
+        html += kv('检查分类', '<span class="tag ' + typeClass(record.checkType) + '">' + esc(record.checkType) + '</span>');
+        html += kv('安全码状态', '<span class="tag ' + (record.codeState === '绿码' ? 'tag-green' : record.codeState === '黄码' ? 'tag-yellow' : record.codeState === '红码' ? 'tag-red' : 'tag-gray') + '">' + esc(record.codeState) + '</span>');
+        html += kv('隐患数', '<span class="hz-count' + (record.hazards.length ? '' : ' zero') + '">' + record.hazards.length + '</span>');
+        html += '</div><div class="cr-photo-row">' + photoBox(record.photo, '检查照片') + '</div></div>';
+
+        html += '<div class="cr-detail-card"><div class="cr-section-title">隐患信息</div>';
+        if (!record.hazards.length) {
+          html += '<div class="cr-empty-hazard">本次检查未发现隐患。</div>';
+        } else {
+          record.hazards.forEach(function (hazard, index) { html += renderHazardBlock(hazard, index); });
+        }
+        html += '</div>';
+        document.getElementById('detailBody').innerHTML = html;
+      }
+
+      function openDetail(id) {
+        var record = findRecord(id);
+        if (!record) return;
+        state.detailId = id;
+        renderDetail(record);
+        document.getElementById('view-list').style.display = 'none';
+        document.getElementById('view-detail').classList.add('show');
+        window.scrollTo(0, 0);
+      }
+
+      function closeDetail() {
+        state.detailId = null;
+        document.getElementById('view-detail').classList.remove('show');
+        document.getElementById('view-list').style.display = '';
+        applyFilter(false);
+      }
+
+      /* ========== 导出 ========== */
+      var EXPORT_FILTER_DEFS = [
+        { id: 'checkType', label: '检查分类', options: ['政府巡查', '企业自查'] },
+        { id: 'domainBig', label: '领域大类', options: ['公共场所类', '建设工程类', '危险化学品类', '交通运输类', '其他类'] },
+        { id: 'street', label: '所属街道', options: ['南山街道', '粤海街道', '沙河街道', '南头街道', '招商街道'] },
+        { id: 'enterprise', label: '企业名称', type: 'text', placeholder: '按包含匹配' },
+        { id: 'creditCode', label: '统一社会信用代码', type: 'text', placeholder: '支持部分匹配' },
+        { id: 'object', label: '管控对象名称', type: 'text', placeholder: '按包含匹配' },
+        { id: 'checker', label: '检查人', type: 'text', placeholder: '姓名 / 单位' },
+        { id: 'checkDate', label: '检查时间', type: 'dateRange' },
+        { id: 'codeState', label: '安全码状态', options: ['绿码', '黄码', '红码', '灰码'] }
+      ];
+
+      function exportFilterRecords(filters) {
+        return getFilteredData().filter(function (record) {
+          if (filters.checkType && record.checkType !== filters.checkType) return false;
+          if (filters.domainBig && record.domainBig !== filters.domainBig) return false;
+          if (filters.street && record.region.street !== filters.street) return false;
+          if (filters.enterprise && record.enterprise.indexOf(filters.enterprise) < 0) return false;
+          if (filters.creditCode && record.creditCode.indexOf(filters.creditCode) < 0) return false;
+          if (filters.object && record.object.indexOf(filters.object) < 0) return false;
+          if (filters.checker && record.checker.indexOf(filters.checker) < 0) return false;
+          if (filters.codeState && record.codeState !== filters.codeState) return false;
+          var date = record.checkTime.slice(0, 10);
+          if (filters.checkDateStart && date < filters.checkDateStart) return false;
+          if (filters.checkDateEnd && date > filters.checkDateEnd) return false;
+          return true;
+        });
+      }
+
+      function exportHeaders(withPhotos) {
+        var headers = ['企业名称', '领域大类', '领域小类', '所属街道', '所属社区', '所属网格', '管控对象', '检查表名称', '检查时间'];
+        if (withPhotos) headers.push('检查照片');
+        headers = headers.concat(['检查人', '检查分类', '隐患描述', '隐患等级', '整改隐患整改人', '整改时间']);
+        if (withPhotos) headers.push('整改照片');
+        headers = headers.concat(['整改反馈', '整改依据', '复核人', '复核结果', '复核意见', '复核时间']);
+        return headers;
+      }
+
+      function exportBaseValues(record) {
+        return [
+          record.enterprise, record.domainBig, record.domain,
+          record.region.street, record.region.community, record.region.grid,
+          record.object, record.checklist, record.checkTime
+        ];
+      }
+
+      function exportRowValues(record, hazard, withPhotos) {
+        var values = exportBaseValues(record);
+        if (withPhotos) values.push('');
+        values = values.concat([record.checker, record.checkType]);
+        if (hazard) {
+          values = values.concat([hazard.desc, hazard.level, hazard.rectifyPerson, hazard.rectifyTime]);
+          if (withPhotos) values.push('');
+          values = values.concat([hazard.rectifyFeedback, hazard.rectifyBasis, hazard.reviewer, hazard.reviewResult, hazard.reviewOpinion, hazard.reviewTime]);
+        } else {
+          values = values.concat(['—', '—', '—', '—']);
+          if (withPhotos) values.push('');
+          values = values.concat(['—', '—', '—', '—', '—', '—']);
+        }
+        return values;
+      }
+
+      function exportScopeSummary(filters) {
+        var page = readPageFilters();
+        var parts = [];
+        if (page.checkType !== '全部') parts.push('检查分类=' + page.checkType);
+        if (page.domain.type === 'industry') parts.push('领域大类=' + page.domain.industry);
+        if (page.domain.type === 'domain') parts.push('领域小类=' + page.domain.name);
+        if (page.dateStart || page.dateEnd) parts.push('检查时间 ' + (page.dateStart || '…') + ' 至 ' + (page.dateEnd || '…'));
+        if (page.keyword) parts.push('关键词「' + page.keyword + '」');
+        if (filters.checkType) parts.push('检查分类=' + filters.checkType);
+        if (filters.domainBig) parts.push('领域大类=' + filters.domainBig);
+        if (filters.street) parts.push('所属街道=' + filters.street);
+        if (filters.enterprise) parts.push('企业含「' + filters.enterprise + '」');
+        if (filters.creditCode) parts.push('信用代码含「' + filters.creditCode + '」');
+        if (filters.object) parts.push('对象含「' + filters.object + '」');
+        if (filters.checker) parts.push('检查人含「' + filters.checker + '」');
+        if (filters.codeState) parts.push('码色=' + filters.codeState);
+        if (filters.checkDateStart || filters.checkDateEnd) parts.push('检查时间 ' + (filters.checkDateStart || '…') + ' 至 ' + (filters.checkDateEnd || '…'));
+        return parts.length ? parts.join('；') : '全部检查记录';
+      }
+
+      function initExport() {
+        if (!window.ExportCenter) return;
+        window.ExportCenter.init({
+          moduleKey: 'gov-check-task',
+          moduleName: '检查记录',
+          exportTitle: '导出检查记录',
+          filePrefix: '检查记录',
+          entryButtonId: 'btnEcEntry',
+          filters: EXPORT_FILTER_DEFS,
+          scopeSummary: exportScopeSummary,
+          photoTip: '开启后内嵌检查照片 / 整改照片列',
+          emptyText: '暂无可导出检查记录',
+          getData: function (filters, withPhotos) {
+            var records = exportFilterRecords(filters);
+            var headers = exportHeaders(withPhotos);
+            var values = [];
+            var photoSvgs = [];
+            records.forEach(function (record) {
+              var list = record.hazards.length ? record.hazards : [null];
+              list.forEach(function (hazard) {
+                values.push(exportRowValues(record, hazard, withPhotos));
+                var arr = headers.map(function () { return null; });
+                if (withPhotos) {
+                  var checkPhotoIndex = headers.indexOf('检查照片');
+                  var reformPhotoIndex = headers.indexOf('整改照片');
+                  if (checkPhotoIndex >= 0) arr[checkPhotoIndex] = record.photo;
+                  if (reformPhotoIndex >= 0 && hazard && hazard.reformPhoto) arr[reformPhotoIndex] = hazard.reformPhoto;
+                }
+                photoSvgs.push(arr);
+              });
+            });
+            return { headers: headers, values: values, photoSvgs: photoSvgs };
+          }
+        });
+      }
+
+      /* ========== Toast / 事件 / 初始化 ========== */
+      window.showToast = function (message) {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(function () { toast.classList.add('out'); }, 2400);
+        setTimeout(function () { toast.remove(); }, 2750);
       };
 
-      // ========== 已完成任务检查结果统计 ==========
-      var completedStats = {
-        'PC2026040101': { total: 6, pass: 5, fail: 1, na: 0, hazards: [{ desc: '农贸市场消防通道堆放杂物，影响疏散', level: '一般', deadline: '2026-04-15' }] },
-        'PC2026031501': { total: 8, pass: 7, fail: 1, na: 0, hazards: [{ desc: '危化品仓储区域安全标识不清，部分缺失', level: '一般', deadline: '2026-03-30' }] }
-      };
+      function bind() {
+        document.getElementById('btnQuery').addEventListener('click', function () { applyFilter(true); });
+        document.getElementById('btnReset').addEventListener('click', function () {
+          document.getElementById('filterCheckType').value = '全部';
+          resetDomainPicker();
+          document.getElementById('filterDateStart').value = '';
+          document.getElementById('filterDateEnd').value = '';
+          document.getElementById('filterKeyword').value = '';
+          applyFilter(true);
+        });
+        document.getElementById('recordTableBody').addEventListener('click', function (event) {
+          var view = event.target.closest('[data-view]');
+          if (view) openDetail(view.getAttribute('data-view'));
+        });
+        document.getElementById('btnBackList').addEventListener('click', closeDetail);
+      }
 
-      // ========== 领域检查表模板映射 ==========
-      var domainChecklistMap = {
-        '充换电设施': ['充换电设施安全检查表'],
-        '农贸市场': ['农贸市场日常检查表', '农贸市场专项检查表'],
-        '建筑施工现场': ['建筑施工安全检查表'],
-        '危险化学品仓储': ['危化品仓储检查表', '危化品企业综合检查表'],
-        '城镇燃气': ['燃气安全检查表'],
-        '消防安全': ['消防安全日常检查表', '消防安全专项检查表']
-      };
+      /* ========== 领域小类 左右两栏选择器（数据源：js/domain-data.js 领域小类管理公共数据） ========== */
+      var dpBrowse = null; // 左栏当前浏览的大类（null = 全部大类）
+
+      function domainGroups() {
+        var groups = [];
+        var map = {};
+        (window.DOMAIN_TABLE_DATA || []).forEach(function (d) {
+          if (!map[d.industryName]) {
+            map[d.industryName] = [];
+            groups.push({ industry: d.industryName, list: map[d.industryName] });
+          }
+          map[d.industryName].push(d);
+        });
+        return groups;
+      }
+
+      function dpLabel() {
+        if (domainFilter.type === 'industry') return domainFilter.industry + '（全部）';
+        if (domainFilter.type === 'domain') return domainFilter.name;
+        return '全部';
+      }
+
+      function dpSyncTrigger() {
+        document.getElementById('dpValue').textContent = dpLabel();
+      }
+
+      function dpSetActive(list, match) {
+        var items = list.querySelectorAll('.dp-item');
+        items.forEach(function (el) {
+          el.classList.toggle('active', match(el));
+        });
+      }
+
+      function dpRenderLeft() {
+        var groups = domainGroups();
+        var html = '<div class="dp-item dp-item-all" data-industry="">'
+          + '<span class="dp-name">全部大类</span>'
+          + '<span class="dp-sub">' + (window.DOMAIN_TABLE_DATA || []).length + '</span></div>';
+        groups.forEach(function (g) {
+          html += '<div class="dp-item" data-industry="' + esc(g.industry) + '" title="' + esc(g.industry) + '">'
+            + '<span class="dp-name">' + esc(g.industry) + '</span>'
+            + '<span class="dp-sub">' + g.list.length + '</span></div>';
+        });
+        var col = document.getElementById('dpColIndustry');
+        col.innerHTML = html;
+        dpSetActive(col, function (el) {
+          return el.getAttribute('data-industry') === (dpBrowse || '');
+        });
+      }
+
+      function dpRenderRight() {
+        var col = document.getElementById('dpColDomain');
+        var html = '';
+        if (dpBrowse) {
+          var group = domainGroups().filter(function (g) { return g.industry === dpBrowse; })[0];
+          html += '<div class="dp-item dp-item-all" data-scope="industry" data-industry="' + esc(dpBrowse) + '">'
+            + '<span class="dp-name">全部「' + esc(dpBrowse) + '」</span><span class="dp-sub">大类</span></div>';
+          (group ? group.list : []).forEach(function (d) {
+            html += '<div class="dp-item" data-scope="domain" data-name="' + esc(d.name) + '" title="' + esc(d.name) + '">'
+              + '<span class="dp-name">' + esc(d.name) + '</span>'
+              + '<span class="dp-sub">' + esc((DOMAIN_NAME_META[d.name] && DOMAIN_NAME_META[d.name].mode === 'basic' ? '基础' : DOMAIN_NAME_META[d.name].mode === 'project' ? '项目' : DOMAIN_NAME_META[d.name].mode === 'special' ? '重点' : '其他')) + '</span></div>';
+          });
+        } else {
+          (window.DOMAIN_TABLE_DATA || []).forEach(function (d) {
+            html += '<div class="dp-item" data-scope="domain" data-name="' + esc(d.name) + '" title="' + esc(d.name) + '">'
+              + '<span class="dp-name">' + esc(d.name) + '</span>'
+              + '<span class="dp-sub">' + esc(d.industryName) + '</span></div>';
+          });
+        }
+        col.innerHTML = html;
+        dpSetActive(col, function (el) {
+          if (domainFilter.type === 'industry' && el.getAttribute('data-scope') === 'industry') {
+            return el.getAttribute('data-industry') === domainFilter.industry;
+          }
+          if (domainFilter.type === 'domain') {
+            return el.getAttribute('data-name') === domainFilter.name;
+          }
+          return false;
+        });
+      }
+
+      function dpOpenPanel(open) {
+        var dp = document.getElementById('domainPicker');
+        dp.classList.toggle('open', open);
+        if (open) { dpRenderLeft(); dpRenderRight(); }
+      }
+
+      function resetDomainPicker() {
+        domainFilter = { type: 'all', industry: null, name: null };
+        dpBrowse = null;
+        dpSyncTrigger();
+        dpOpenPanel(false);
+      }
+
+      function initDomainPicker() {
+        var dp = document.getElementById('domainPicker');
+        document.getElementById('dpTrigger').addEventListener('click', function (event) {
+          event.stopPropagation();
+          dpOpenPanel(!dp.classList.contains('open'));
+        });
+        document.getElementById('dpColIndustry').addEventListener('click', function (event) {
+          var item = event.target.closest('.dp-item');
+          if (!item) return;
+          var industry = item.getAttribute('data-industry');
+          dpBrowse = industry || null;
+          dpRenderLeft();
+          dpRenderRight();
+        });
+        document.getElementById('dpColDomain').addEventListener('click', function (event) {
+          var item = event.target.closest('.dp-item');
+          if (!item) return;
+          var scope = item.getAttribute('data-scope');
+          if (scope === 'industry') {
+            domainFilter = { type: 'industry', industry: item.getAttribute('data-industry'), name: null };
+          } else {
+            domainFilter = { type: 'domain', industry: null, name: item.getAttribute('data-name') };
+          }
+          dpSyncTrigger();
+          dpOpenPanel(false);
+        });
+        document.addEventListener('click', function (event) {
+          if (!dp.contains(event.target)) dpOpenPanel(false);
+        });
+        document.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') dpOpenPanel(false);
+        });
+        dpSyncTrigger();
+      }
+
+      function pushBreadcrumb() {
+        try {
+          if (window.parent && window.parent.postMessage) {
+            window.parent.postMessage({
+              type: 'breadcrumb',
+              moduleId: CONFIG.moduleId,
+              moduleName: CONFIG.moduleName,
+              path: [{ label: '政府端' }, { label: '检查记录管理' }]
+            }, '*');
+          }
+        } catch (err) { /* iframe 跨域忽略 */ }
+      }
+
+      function toggleAllCheckboxes(checkbox) {
+        var checkboxes = document.querySelectorAll('.cr-checkbox');
+        for (var i = 0; i < checkboxes.length; i++) {
+          checkboxes[i].checked = checkbox.checked;
+        }
+      }
 
       function init() {
         if (state.initialized) return;
-        console.log('[' + CONFIG.moduleId + '] 模块初始化');
         state.initialized = true;
+        initDomainPicker();
+        pg = new Pagination('paginationBar', {
+          total: 0,
+          size: state.pageSize,
+          onChange: function (page, size) {
+            state.currentPage = page;
+            state.pageSize = size;
+            renderTable();
+          }
+        });
+        bind();
+        applyFilter(true);
+        initExport();
+        pushBreadcrumb();
       }
-
-      // ========== 弹窗控制 ==========
-      window.openModal = function(modalId) {
-        var modal = document.getElementById(modalId);
-        if (modal) modal.classList.add('active');
-      };
-
-      window.closeModal = function(modalId) {
-        var modal = document.getElementById(modalId);
-        if (modal) modal.classList.remove('active');
-      };
-
-      // ========== 领域小类变更 -> 更新检查表模板 ==========
-      window.onDomainChange = function() {
-        var domainSelect = document.getElementById('addDomainType');
-        var templateSelect = document.getElementById('addChecklistTemplate');
-        var domain = domainSelect.value;
-
-        templateSelect.innerHTML = '';
-        if (!domain || !domainChecklistMap[domain]) {
-          templateSelect.innerHTML = '<option value="">请先选择领域小类</option>';
-          return;
-        }
-
-        templateSelect.innerHTML = '<option value="">请选择检查表模板</option>';
-        domainChecklistMap[domain].forEach(function(tpl) {
-          var opt = document.createElement('option');
-          opt.textContent = tpl;
-          opt.value = tpl;
-          templateSelect.appendChild(opt);
-        });
-      };
-
-      // ========== 查看任务详情 ==========
-      window.viewTaskDetail = function(taskId) {
-        var task = taskData[taskId];
-        if (!task) {
-          showToast('未找到任务信息：' + taskId);
-          return;
-        }
-
-        var titleEl = document.getElementById('taskDetailTitle');
-        titleEl.textContent = '任务详情 — ' + taskId;
-
-        var timeline = [];
-        var createWay = task.type === '履职任务' ? '履职自动生成' : '专项手动创建';
-        timeline.push({ text: '任务创建（' + createWay + '）', time: task.planDate + ' 09:00', dot: 'timeline-dot-blue' });
-
-        if (task.status === '执行中') {
-          timeline.push({ text: '开始执行', time: task.planDate + ' 14:30', dot: 'timeline-dot-orange' });
-        } else if (task.status === '已完成') {
-          timeline.push({ text: '开始执行', time: task.planDate + ' 10:00', dot: 'timeline-dot-orange' });
-          timeline.push({ text: '提交结果', time: task.planDate + ' 16:00', dot: 'timeline-dot-green' });
-          var stats = completedStats[taskId];
-          if (stats && stats.hazards && stats.hazards.length > 0) {
-            timeline.push({ text: '发现隐患（' + stats.hazards.length + ' 条，已联动创建至隐患记录管理）', time: task.planDate + ' 16:05', dot: 'timeline-dot-red' });
-          }
-        } else if (task.status === '已逾期') {
-          timeline.push({ text: '任务已逾期，未在计划日期内完成', time: '已逾期', dot: 'timeline-dot-red' });
-        } else if (task.status === '已取消') {
-          timeline.push({ text: '任务已取消', time: task.planDate + ' 11:00', dot: 'timeline-dot-gray' });
-        } else if (task.status === '待执行') {
-          timeline.push({ text: '等待执行', time: '计划日期：' + task.planDate, dot: 'timeline-dot-blue' });
-        }
-
-        var timelineHtml = '';
-        timeline.forEach(function(item) {
-          timelineHtml += '<li class="timeline-item">'
-            + '<div class="timeline-dot ' + item.dot + '"></div>'
-            + '<div class="timeline-content">'
-            + '<div class="timeline-text">' + item.text + '</div>'
-            + '<div class="timeline-time">' + item.time + '</div>'
-            + '</div></li>';
-        });
-
-        var bodyHtml = '<div class="detail-info-grid">'
-          + '<div class="detail-info-item"><span class="detail-info-label">任务编号</span><span class="detail-info-value">' + task.id + '</span></div>'
-          + '<div class="detail-info-item"><span class="detail-info-label">任务类型</span><span class="detail-info-value"><span class="tag ' + task.typeTag + '">' + task.type + '</span></span></div>'
-          + '<div class="detail-info-item"><span class="detail-info-label">管控对象</span><span class="detail-info-value">' + task.target + '</span></div>'
-          + '<div class="detail-info-item"><span class="detail-info-label">领域小类</span><span class="detail-info-value">' + task.domain + '</span></div>'
-          + '<div class="detail-info-item"><span class="detail-info-label">计划日期</span><span class="detail-info-value">' + task.planDate + '</span></div>'
-          + '<div class="detail-info-item"><span class="detail-info-label">检查人</span><span class="detail-info-value">' + task.inspector + '</span></div>'
-          + '<div class="detail-info-item"><span class="detail-info-label">检查表</span><span class="detail-info-value">' + task.checklist + '</span></div>'
-          + '<div class="detail-info-item"><span class="detail-info-label">状态</span><span class="detail-info-value"><span class="tag ' + task.statusTag + '">' + task.status + '</span></span></div>'
-          + '</div>';
-
-        // 已完成任务追加检查结果统计区
-        if (task.status === '已完成') {
-          var stats = completedStats[taskId] || { total: 0, pass: 0, fail: 0, na: 0, hazards: [] };
-          bodyHtml += '<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light);">'
-            + '<div style="font-size:15px;font-weight:600;margin-bottom:12px;">检查结果统计</div>'
-            + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">'
-            + '<div style="background:var(--bg-section);border-radius:var(--radius-md);padding:12px;text-align:center;">'
-            + '<div style="font-size:20px;font-weight:600;color:var(--text-primary);">' + stats.total + '</div>'
-            + '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">检查项总数</div></div>'
-            + '<div style="background:var(--success-light);border-radius:var(--radius-md);padding:12px;text-align:center;">'
-            + '<div style="font-size:20px;font-weight:600;color:var(--success);">' + stats.pass + '</div>'
-            + '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">合格项数</div></div>'
-            + '<div style="background:var(--danger-light);border-radius:var(--radius-md);padding:12px;text-align:center;">'
-            + '<div style="font-size:20px;font-weight:600;color:var(--danger);">' + stats.fail + '</div>'
-            + '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">不合格项数</div></div>'
-            + '<div style="background:var(--bg-section-alt);border-radius:var(--radius-md);padding:12px;text-align:center;">'
-            + '<div style="font-size:20px;font-weight:600;color:var(--text-secondary);">' + stats.na + '</div>'
-            + '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">不适用项数</div></div>'
-            + '</div>';
-
-          if (stats.hazards && stats.hazards.length > 0) {
-            bodyHtml += '<div style="font-size:14px;font-weight:600;margin-bottom:8px;">隐患记录</div>';
-            stats.hazards.forEach(function(h) {
-              bodyHtml += '<div style="display:flex;align-items:center;padding:8px 12px;background:var(--bg-section);border-radius:var(--radius-md);border:1px solid var(--border-light);margin-bottom:6px;">'
-                + '<div style="flex:1;min-width:0;">'
-                + '<div style="font-size:13px;color:var(--text-primary);">' + h.desc + '</div>'
-                + '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">等级：<span class="tag ' + (h.level === '重大' ? 'tag-red' : 'tag-yellow') + '">' + h.level + '</span> · 整改期限：' + h.deadline + '</div>'
-                + '</div>'
-                + '<span class="tag tag-orange">整改中</span>'
-                + '</div>';
-            });
-          }
-          bodyHtml += '</div>';
-        }
-
-        bodyHtml += '<div class="detail-timeline">'
-          + '<div class="detail-timeline-title">任务时间线</div>'
-          + '<ul class="timeline-list">' + timelineHtml + '</ul>'
-          + '</div>';
-
-        document.getElementById('taskDetailBody').innerHTML = bodyHtml;
-        openModal('modal-task-detail');
-      };
-
-      // ========== 查看任务（调用详情弹窗） ==========
-      window.viewTask = function(taskId) {
-        viewTaskDetail(taskId);
-      };
-
-      // ========== 取消任务 ==========
-      window.cancelTask = function(taskId) {
-        showToast('任务已取消');
-      };
-
-      // ========== 统计卡筛选 ==========
-      window.filterByStatus = function(status) {
-        var select = document.getElementById('filterStatus');
-        if (select) {
-          select.value = (status === 'all') ? '' : status;
-          showToast('已筛选：' + (status === 'all' ? '全部' : status));
-        }
-      };
-
-      // ========== 筛选重置 ==========
-      window.resetFilters = function() {
-        document.getElementById('filterStatus').value = '';
-        document.getElementById('filterType').value = '';
-        document.getElementById('filterDateStart').value = '';
-        document.getElementById('filterDateEnd').value = '';
-        document.getElementById('filterDomain').value = '';
-        document.getElementById('filterSearch').value = '';
-        showToast('筛选条件已重置');
-      };
-
-      // ========== 督办任务 ==========
-      window.superviseTask = function(taskId) {
-        console.log('督办任务：' + taskId);
-        showToast('已发送督办通知：' + taskId);
-      };
-
-      // ========== 新增检查计划 ==========
-      window.submitAddPlan = function() {
-        var form = document.getElementById('addPlanForm');
-        var targetObject = form.querySelector('[name="targetObject"]').value;
-        var domainType = form.querySelector('[name="domainType"]').value;
-        var checklistTemplate = form.querySelector('[name="checklistTemplate"]').value;
-        var planDate = form.querySelector('[name="planDate"]').value;
-        var inspector = form.querySelector('[name="inspector"]').value;
-
-        if (!targetObject) { showToast('请选择管控对象'); return; }
-        if (!domainType) { showToast('请选择领域小类'); return; }
-        if (!checklistTemplate) { showToast('请选择检查表模板'); return; }
-        if (!planDate) { showToast('请选择计划日期'); return; }
-        if (!inspector) { showToast('请选择检查人'); return; }
-
-        closeModal('modal-add-plan');
-        showToast('专项任务已创建成功');
-        form.reset();
-        var templateSelect = document.getElementById('addChecklistTemplate');
-        if (templateSelect) {
-          templateSelect.innerHTML = '<option value="">请先选择领域小类</option>';
-        }
-      };
-
-      // ========== Toast ==========
-      window.showToast = function(msg) {
-        var existing = document.querySelector('.toast-msg');
-        if (existing) existing.remove();
-
-        var toast = document.createElement('div');
-        toast.className = 'toast-msg';
-        toast.textContent = msg;
-        toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--text-primary);color:var(--bg-primary);padding:10px 24px;border-radius:var(--radius-lg);font-size:var(--font-size-md);z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity var(--duration-normal);';
-        document.body.appendChild(toast);
-        setTimeout(function() {
-          toast.style.opacity = '0';
-          setTimeout(function() { toast.remove(); }, 300);
-        }, 2500);
-      };
 
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
@@ -656,12 +925,9 @@
         init();
       }
 
-      window.destroyModule = function() {
-        console.log('[' + CONFIG.moduleId + '] 模块销毁');
-        state.initialized = false;
-      };
+      window.destroyModule = function () { state.initialized = false; };
     })();
   </script>
-<script src="../../js/annotations.js"></script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

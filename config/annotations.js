@@ -754,6 +754,26 @@ var ANNOTATIONS_CONFIG = {
       categoryColor: 'danger',
       description: '基础信息区为弹窗首个区块，场所名称为首项；区块不得使用与弹窗背景冲突的纯白底，需通过浅蓝灰底、边框和标题色条体现层级。',
       prdRef: '§6.1.4.3.3.1 区域一：基础信息'
+    },
+    {
+      id: 'gov-kp-exp-01',
+      selector: '#btnEcEntry',
+      position: 'bottom-left',
+      title: '重点场所清单导出',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '卡片视图页头「导出记录」打开全政府端统一任务中心；「批量导出」打开二级条件弹窗，支持领域/区域/场所名称/状态/码色/现实与极端风险筛选。导出 16 列按 c.docx 重点场所模板，异步打包完成后下载。',
+      prdRef: '6.2.4.9 数据导出'
+    },
+    {
+      id: 'gov-kp-exp-02',
+      selector: '#btnEcEntryDrill',
+      position: 'bottom-left',
+      title: '下钻范围导出',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '下钻到某领域后，导出范围为当前领域 + 区划树选中街道/社区 + 页面筛选；返回卡片视图后恢复为全部重点场所领域。',
+      prdRef: '6.2.4.9 数据导出'
     }
   ],
 
@@ -1088,6 +1108,16 @@ var ANNOTATIONS_CONFIG = {
       categoryColor: 'info',
       description: '企业档案聚合展示企业基础信息、经营信息、关联领域小类、监管信息、账号信息、安全码档案、检查/隐患历史记录。政府端仅查看本辖区企业档案。',
       prdRef: '6.2.7.3 企业档案'
+    },
+    {
+      id: 'gov-ent-exp-01',
+      selector: '#btnEcEntry',
+      position: 'bottom-left',
+      title: '企业清单导出',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '企业列表工具栏「导出记录」→ 统一任务中心 → 批量导出二级条件弹窗。导出 18 列：企业基础信息、区划、场所/危险源/检查表数量、三类监管单位、码色状态；补充筛选单位名称/信用代码/街道/状态/码色/安全场景标签。',
+      prdRef: '6.2.2.9 数据导出'
     }
   ],
 
@@ -1231,8 +1261,8 @@ var ANNOTATIONS_CONFIG = {
       title: '工作台首页',
       category: '交互说明',
       categoryColor: 'info',
-      description: '登录后默认首页。顶部显示企业名称+用户角色（主要负责人/安全管理人员/从业人员），下方统计今日待办（待排查/隐患待整改/超期任务）。常用功能入口4个。',
-      prdRef: '6.3.2 工作台'
+      description: '登录后的功能入口页。自上而下三个卡片：常用功能（7 项）、安全知识库（6 项）、监测预警（3 项）。不再显示企业名称、角色和今日待办统计。',
+      prdRef: '6.5.7 工作台'
     },
     {
       id: 'm-wb-002',
@@ -1241,8 +1271,8 @@ var ANNOTATIONS_CONFIG = {
       title: '功能卡片',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '包含常用功能、安全档案、安全知识库、监测预警等卡片模块。',
-      prdRef: '6.3.2 功能入口'
+      description: '三个卡片模块：常用功能、安全知识库、监测预警。原「安全档案」卡片已去掉；知识库和监测预警在 other 模式下隐藏。',
+      prdRef: '6.5.7 工作台'
     },
     {
       id: 'm-wb-003',
@@ -1251,18 +1281,18 @@ var ANNOTATIONS_CONFIG = {
       title: '常用功能',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '4个常用入口：码上排查（scan）、隐患排查（my-hazards）、任务管理（task-list）、安全管控对象（control-list）。按角色权限动态显示，从业人员隐藏任务管理。',
-      prdRef: '6.3.2 功能入口'
+      description: '常用功能 7 个入口：码上排查、码上作业、隐患整改、检查记录、动态赋码、我的隐患、我的检查。码上排查进检查表；隐患整改、我的隐患进我的隐患；检查记录进检查记录页；我的检查进我的检查；码上作业、动态赋码暂无页面，点击不跳转。图标为样例图片 48px 圆角方块。知识库 6 项与监测预警 3 项同样暂不跳转。',
+      prdRef: '6.5.7 工作台'
     },
     {
       id: 'm-wb-004',
       selector: '#wbCommonGrid',
       position: 'top-right',
-      title: 'Session 驱动工作台差异化（V1.2 新增）',
+      title: 'Session 驱动常用功能（V1.2 新增）',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '工作台根据 session 的 portalType 和 mode 动态渲染：常用功能按模式差异化（other 模式显示巡查记录/问题上报/劝导记录），安全档案标题按端类型变化（监管档案/安全档案），other 模式隐藏安全知识库和监测预警。由 MobilePageConfig.getWorkbenchConfig() 提供数据。',
-      prdRef: '重构方案 §3.5 other 模式特殊处理'
+      description: '常用功能网格由 MobilePageConfig.getWorkbenchConfig() 按 portalType+mode 重绘：政府端与企业端 basic/project/special 使用上述 7 项样例图标；other 模式为巡查记录、问题上报、任务管理、劝导记录 4 项（无样例图标，回退为表情图标）。页面 HTML 中的 7 项是 basic 默认。配置中的 archiveSectionTitle 因页面已无安全档案标题元素而不再生效。',
+      prdRef: '6.5.7 工作台 / 重构方案 §3.5 other 模式'
     }
   ],
 
@@ -1427,23 +1457,23 @@ var ANNOTATIONS_CONFIG = {
   'mobile/hazard-stats': [
     {
       id: 'm-hs-001',
-      selector: '.hs-card',
+      selector: '.hs-summary',
       position: 'top-right',
       title: '隐患统计',
       category: '交互说明',
       categoryColor: 'info',
-      description: '统计当前用户负责的隐患：总数、待整改（red）、整改中（yellow）、待验收（blue）、已整改（green）。',
-      prdRef: '6.3.9 隐患统计'
+      description: '隐患总数等于一般隐患与重大隐患之和。每张等级卡的已整改加未整改等于该等级总数，进度等于已整改除以该等级总数。',
+      prdRef: '6.5.3.2 隐患统计'
     },
     {
       id: 'm-hs-002',
-      selector: '.hs-filter-bar',
+      selector: '.hs-rank',
       position: 'top-right',
-      title: '隐患筛选',
+      title: '分布排名',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '按状态筛选隐患列表：全部/待整改/整改中/待验收/已整改。',
-      prdRef: '6.3.9 BR-HAZ-03 等级配色'
+      description: '按场所分布、按危险源分布切换排名。两类分布的总隐患、已整改分别与全页合计一致。隐患数、整改数、整改率切换排序和右侧数字。',
+      prdRef: '6.5.3.2 隐患统计'
     }
   ],
 
@@ -1498,7 +1528,7 @@ var ANNOTATIONS_CONFIG = {
       title: 'Session 驱动差异化（V1.2 新增）',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '首页根据 MobileSession 的 portalType 和 activeDomainId 动态渲染：政府端显示监管码+监管单位名称，企业端根据 mode（basic/project/special/other）显示企业码/项目码/场所码/管理码+企业名称。背景渐变、码边框颜色、统计数据、快捷入口均按模式差异化。由 js/mobile-page-config.js 提供配置数据。',
+      description: '首页企业名固定按样例「深圳市天道医药有限公司」展示，不被登录会话身份覆盖。其余按 MobileSession 的 portalType 和 activeDomainId 动态渲染：政府端显示监管码+监管单位名称，企业端根据 mode（basic/project/special/other）显示企业码/项目码/场所码/管理码。码边框颜色、统计数据、快捷入口均按模式差异化。由 js/mobile-page-config.js 提供配置数据。',
       prdRef: '重构方案 §3.3 页面差异化策略'
     }
   ],
@@ -1575,33 +1605,43 @@ var ANNOTATIONS_CONFIG = {
   'mobile/control-list': [
     {
       id: 'm-ctrl-001',
-      selector: '.cl-tabs',
+      selector: '.cl-header-tabs',
       position: 'top-right',
-      title: '管控对象树',
+      title: '管控列表页签',
       category: '交互说明',
       categoryColor: 'info',
-      description: '默认显示"对象"Tab：树形结构展示企业码（ent蓝色）→场所码（place绿色）→危险源码（hazard红色）→重点场所码（keyplace橙色）。点击树节点进入对应码详情。',
-      prdRef: '6.3.15 安全管控对象'
+      description: '顶部两个页签：风险列表（默认）、企业人员，白底固定在顶部。风险列表按场所/危险源分组展示卡片：场所卡可展开危险源子卡，另有独立危险源卡和不可展开的独立场所卡，每张卡显示名称、责任人和跟随码色的二维码图标。企业人员按角色分层展示人员卡。',
+      prdRef: '6.5.5 管控列表'
     },
     {
       id: 'm-ctrl-002',
       selector: '.cl-sub-tab',
       position: 'top-right',
-      title: '人员分类',
+      title: '人员角色分层',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '"人员"Tab按 PRD 角色分类：主要负责人/安全管理人员/从业人员。每位人员显示姓名+岗位+角色。重点部位标记为"重点场所码"。',
-      prdRef: '6.3.15 BR-MOB-CTRL 角色术语'
+      description: '企业人员页签下三层角色切换：主要负责人、安全管理人员、从业人员，选中态为蓝色文字加下划线。人员卡显示姓名、岗位 · 角色和码色徽标，点击进入「我的」页。切换角色只显示该层人员。',
+      prdRef: '6.5.5 管控列表'
     },
     {
       id: 'm-ctrl-003',
-      selector: '#listRootName',
+      selector: '#filterAreaRisk',
       position: 'top-right',
-      title: 'Session 驱动列表差异化（V1.2 新增）',
+      title: '风险筛选（人数按列表统计）',
       category: '业务规则',
       categoryColor: 'warning',
-      description: '列表页根据 session 动态调整：政府端显示全部管控对象（根节点=监管单位名称+监管码），企业端根据 activeDomainId 显示本企业/项目管控对象（根节点=企业名称+企业码/项目码/场所码）。搜索框 placeholder 也按模式变化。',
-      prdRef: '重构方案 §3.3 页面差异化策略'
+      description: '风险列表两组筛选标签：场所 (2) 与危险源 (5)，各自后跟红码/黄码/绿码数量，圆角 6px。人数由当前列表卡片实时统计：场所 2 张全绿；危险源 5 = 公用系统下 3 个绿码 + 独立黄码 1 + 独立绿码 1，红码均为 0，不按样例另编。选中类型再加码色后只显示该类型下这些码色的卡片；取消类型则该类型不显示。企业人员页签的筛选（全部 152 / 红 10 / 黄 20 / 绿 122）用设计稿人数，只切换选中态，不过滤下方人员卡片。',
+      prdRef: '6.5.5 管控列表（V7.0.238–241）'
+    },
+    {
+      id: 'm-ctrl-004',
+      selector: '#listSearchInput',
+      position: 'top-right',
+      title: 'Session 驱动搜索占位（V1.2 新增）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '搜索框占位按 session 模式变化：政府端「搜索监管对象名称」；企业端 basic/project/special/other 分别为「搜索安全管控对象名称 / 项目管控对象名称 / 场所管控对象名称 / 管控对象名称」。切到企业人员页签时显示「请输入姓名」。由 MobilePageConfig.getListConfig().searchPlaceholder 提供，页面原占位「请输入场所码或危险源」仅在未加载配置时兜底。',
+      prdRef: '6.5.5 管控列表 / 重构方案 §3.3 页面差异化策略'
     }
   ],
 
@@ -1687,12 +1727,12 @@ var ANNOTATIONS_CONFIG = {
   'mobile/inspection-stats': [
     {
       id: 'm-is-001',
-      selector: '.is-chart-row',
+      selector: '.ir-chart',
       position: 'top-right',
-      title: '检查统计',
+      title: '检查记录',
       category: '交互说明',
       categoryColor: 'info',
-      description: '统计当前用户的检查情况：总检查次数、政府巡查、企业自查。支持按周/月/季度切换。',
+      description: '首页检查统计进入本页。页签分政府巡查、企业自查。环图中心等于该页签检查次数合计。政府侧按行业、属地、专业监管拆单位；企业侧按企业、场所、危险源拆。当前为示例数据，筛选和明细未接入。',
       prdRef: '6.3.19 检查统计'
     }
   ],
@@ -1721,6 +1761,118 @@ var ANNOTATIONS_CONFIG = {
       description: '预览安全码二维码：码类型（企业码/场所码/危险源码/重点场所码）、码色（green/yellow/red）、对象名称、扫码次数。支持下载/打印。',
       prdRef: '6.3.21 二维码预览'
     }
-  ]
+  ],
+
+  // ========== 政府端 - 检查记录管理 ==========
+  'government/check-task': [
+    {
+      id: 'gov-cr-001',
+      selector: '.filter-card',
+      position: 'bottom-left',
+      title: '检查记录筛选区',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '检查分类（政府巡查/企业自查）、领域小类（左右两栏选择器：左栏行业大类、右栏该大类下领域小类，数据读取领域小类管理公共数据源 domain-data.js；选大类按领域大类过滤、选小类精确过滤）、检查时间范围、关键词；查询/重置按钮。控件宽 240×32，日期控件 150×32。',
+      prdRef: '6.2.8.3.2 筛选区'
+    },
+    {
+      id: 'gov-cr-002',
+      selector: '.cr-list-card',
+      position: 'top-right',
+      title: '检查记录列表',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '一行一次已完成检查，8 列：检查时间/企业名称/管控对象/检查表名称/检查人/检查分类/隐患数/操作。不设统计卡，行高 48、表头吸顶。',
+      prdRef: '6.2.8.3.3 列表字段'
+    },
+    {
+      id: 'gov-cr-003',
+      selector: '#view-detail',
+      position: 'bottom-left',
+      title: '检查记录整页详情',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '检查信息（含信用代码、码色、隐患数）+ 检查照片 + 隐患分块（描述/类型/等级/状态/整改/复核/照片）；无隐患提示。只读，返回列表。',
+      prdRef: '6.2.8.3.4 检查记录详情'
+    },
+    {
+      id: 'gov-cr-004',
+      selector: '#btnEcEntry',
+      position: 'bottom-left',
+      title: '检查记录导出（23 列）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '每条隐患一行，检查信息重复；无隐患检查单独一行。开启照片 23 列、关闭 21 列。检查分类统一政府巡查/企业自查，异步任务中心统一管理。',
+      prdRef: '6.2.8.3.5 数据导出'
+    }
+  ],
+
+  // ========== 政府端 - 隐患记录管理 ==========
+  'government/hazard-manage': [
+    {
+      id: 'gov-hz-001',
+      selector: '.hz-stats',
+      position: 'bottom-left',
+      title: '隐患统计卡',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '5 卡：隐患总数/待整改/待复核/已整改/已超期；白底阴影+左侧色条，点击联动状态筛选。统计口径为左侧树 + 页面筛选（忽略导出补充条件）。',
+      prdRef: '6.2.9.3.2 统计卡'
+    },
+    {
+      id: 'gov-hz-002',
+      selector: '.hz-list-card',
+      position: 'top-right',
+      title: '隐患记录列表',
+      category: '验收标准',
+      categoryColor: 'danger',
+      description: '9 列：隐患编号/管控对象/隐患描述/隐患等级/隐患来源/发现日期/整改期限/状态/操作。行高 48、表头吸顶；待整改/已超期→督办，待复核→催办+复核，已整改→查看。',
+      prdRef: '6.2.9.3.4 列表字段'
+    },
+    {
+      id: 'gov-hz-003',
+      selector: '#view-detail',
+      position: 'bottom-left',
+      title: '隐患整页详情',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '基础信息（25 列模板字段）+ 隐患/整改/复核信息 + 照片 + 4 节点处理时间线；待复核记录可在详情发起复核（同意/不同意 + 意见必填）。',
+      prdRef: '6.2.9.3.6 详情页'
+    },
+    {
+      id: 'gov-hz-004',
+      selector: '#btnEcEntry',
+      position: 'bottom-left',
+      title: '隐患记录导出（28 列）',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '26 模板列 + 状态 + 整改是否超期。状态列仅待整改/待复核/已整改；超期单列已超期/未超期。照片开关默认否，开启内嵌隐患/整改照片；全政府端统一异步任务中心。',
+      prdRef: '6.2.9.9 数据导出'
+    }
+  ],
+
+  // ========== 政府端 - 项目信息管理 ==========
+  'government/project-manage': [
+    {
+      id: 'gov-prj-001',
+      selector: '#btnEcEntry',
+      position: 'bottom-left',
+      title: '项目清单导出（31 列）',
+      category: '交互说明',
+      categoryColor: 'info',
+      description: '项目列表标题行「导出记录」→ 统一任务中心 → 批量导出条件弹窗。31 列含项目基础、四方责任体各 4 字段、三类监管单位；运营项目全部导出并保留运营状态。',
+      prdRef: '6.2.3.9 数据导出'
+    },
+    {
+      id: 'gov-prj-002',
+      selector: '.list-head',
+      position: 'top-right',
+      title: '导出与列表范围',
+      category: '业务规则',
+      categoryColor: 'warning',
+      description: '导出范围 = 左侧区划/领域树 + 页面项目类型/状态/领域/关键词 + 补充条件；补充条件含领域大类/小类、街道、项目名称/编码、7 种项目状态、码色、执法监督组、注册时间。',
+      prdRef: '6.2.3.9 数据导出'
+    }
+  ],
 
 };

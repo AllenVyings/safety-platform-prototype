@@ -212,6 +212,7 @@ tbody tr:hover td:nth-child(11){background:var(--bg-section)}
       <div class="list-head">
         <div class="list-title">项目列表</div>
         <div class="list-actions">
+          <button class="btn btn-default" type="button" id="btnEcEntry">导出记录</button>
           <button class="btn btn-default" type="button" style="position:relative" onclick="openApprovalList()">审批列表<span style="position:absolute;top:-6px;right:-8px;background:#fa8c16;color:#fff;font-size:11px;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center;line-height:14px;">2</span></button>
           <button class="btn btn-primary" type="button" onclick="openAddModal()">+ 新增项目</button>
         </div>
@@ -1256,6 +1257,177 @@ renderTable();
 </script>
 <script>
 (function() { 'use strict'; var CONFIG = { moduleId: 'gov-project-manage', moduleName: '项目信息管理' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/vendor/exceljs.min.js"></script>
+<script src="../../js/shared/gov-export-data.js"></script>
+<script src="../../js/shared/export-center.js"></script>
+<script>
+(function () {
+  'use strict';
+  var D = window.GovExportData;
+  var INDUSTRY_BY_DOMAIN = {
+    '房屋建设工程': '南山区住房和建设局',
+    '市政工程': '南山区城市管理和综合执法局',
+    '公路工程': '南山区交通运输局',
+    '水利工程': '南山区水务局'
+  };
+
+  function codeLabel(project) {
+    var color = project.codeColor || 'green';
+    if (color === 'yellow') return '黄码';
+    if (color === 'red') return '红码';
+    if (color === 'gray') return '灰码';
+    return '绿码';
+  }
+
+  function statusName(project) {
+    if (project.projectCategory === '2') return window.operationStatusMap[project.projectStatus] || '—';
+    return window.statusMap[project.projectStatus] || '—';
+  }
+
+  function baseRows() {
+    var data = (window.filteredProjects || []).slice();
+    var typeVal = document.getElementById('filterType').value;
+    var statusVal = document.getElementById('filterStatus').value;
+    var domainVal = document.getElementById('filterDomain').value;
+    var keyword = document.getElementById('filterKeyword').value.trim().toLowerCase();
+    return data.filter(function (project) {
+      if (typeVal && project.projectCategory !== typeVal) return false;
+      if (statusVal && project.projectStatus !== statusVal) return false;
+      if (domainVal && project.domainId !== domainVal) return false;
+      if (keyword && (String(project.projectName).toLowerCase().indexOf(keyword) < 0 &&
+        String(project.projectNo).toLowerCase().indexOf(keyword) < 0)) return false;
+      return true;
+    });
+  }
+
+  function party(project, type) {
+    var parties = project.parties || [];
+    for (var i = 0; i < parties.length; i++) {
+      if (parties[i].partyType === type) return parties[i];
+    }
+    return {};
+  }
+
+  function partyValues(project, type) {
+    var item = party(project, type);
+    return [item.partyName || '—', item.creditCode || '—', item.contactName || '—', item.contactPhone || '—'];
+  }
+
+  function exportRows(filters) {
+    return baseRows().filter(function (project) {
+      var date = String(project.createTime || '').slice(0, 10);
+      if (filters.domainBig && D.bigDomain(project.domainName) !== filters.domainBig) return false;
+      if (filters.domainName && project.domainName !== filters.domainName) return false;
+      if (filters.street && project.streetName !== filters.street) return false;
+      if (filters.projectName && String(project.projectName).indexOf(filters.projectName) < 0) return false;
+      if (filters.projectNo && String(project.projectNo).indexOf(filters.projectNo) < 0) return false;
+      if (filters.status && statusName(project) !== filters.status) return false;
+      if (filters.codeState && codeLabel(project) !== filters.codeState) return false;
+      if (filters.group && project.supervisionGroupName !== filters.group) return false;
+      if (filters.regStart && date < filters.regStart) return false;
+      if (filters.regEnd && date > filters.regEnd) return false;
+      return true;
+    });
+  }
+
+  var HEADERS = ['项目名称', '项目编码', '领域大类', '领域小类', '场所数量', '危险源数量', '检查表数量', '码色状态',
+    '执法监督组', '具体地址', '所属街道', '所属社区',
+    '建设单位名称', '建设单位统一社会信用代码', '建设单位主要负责人', '建设单位联系电话',
+    '监理单位名称', '监理单位统一社会信用代码', '监理单位主要负责人', '监理单位联系电话',
+    '施工单位名称', '施工单位统一社会信用代码', '施工单位主要负责人', '施工单位联系电话',
+    '分包单位名称', '分包单位统一社会信用代码', '分包单位主要负责人', '分包单位联系电话',
+    '行业监管单位', '专业监管单位', '属地监管单位'];
+
+  function rowValues(project) {
+    var values = [
+      project.projectName, project.projectNo, D.bigDomain(project.domainName), project.domainName,
+      D.count(project.projectNo, 'place'), D.count(project.projectNo, 'hazard'), D.count(project.projectNo, 'checklist'),
+      codeLabel(project), project.supervisionGroupName || '—', project.address || '—',
+      project.streetName || '—', project.communityName || '—'
+    ];
+    values = values.concat(partyValues(project, 1));
+    values = values.concat(partyValues(project, 3));
+    values = values.concat(partyValues(project, 2));
+    values = values.concat(partyValues(project, 4));
+    values = values.concat([
+      INDUSTRY_BY_DOMAIN[project.domainName] || '—',
+      '南山区应急管理局',
+      project.streetName ? project.streetName + '办' : '—'
+    ]);
+    return values;
+  }
+
+  function scopeSummary(filters) {
+    var parts = [];
+    var typeVal = document.getElementById('filterType').value;
+    var statusVal = document.getElementById('filterStatus').value;
+    var domainVal = document.getElementById('filterDomain').value;
+    var keyword = document.getElementById('filterKeyword').value.trim();
+    if (typeVal === '1') parts.push('在建项目');
+    if (typeVal === '2') parts.push('运营项目');
+    if (statusVal) parts.push('状态=' + (window.statusMap[statusVal] || window.operationStatusMap[statusVal] || statusVal));
+    if (domainVal) parts.push('领域=' + domainVal);
+    if (keyword) parts.push('关键词「' + keyword + '」');
+    if (filters.domainBig) parts.push('领域大类=' + filters.domainBig);
+    if (filters.domainName) parts.push('领域小类=' + filters.domainName);
+    if (filters.street) parts.push('街道=' + filters.street);
+    if (filters.projectName) parts.push('项目名含「' + filters.projectName + '」');
+    if (filters.projectNo) parts.push('编码含「' + filters.projectNo + '」');
+    if (filters.status) parts.push('状态=' + filters.status);
+    if (filters.codeState) parts.push('码色=' + filters.codeState);
+    if (filters.group) parts.push('监督组=' + filters.group);
+    if (filters.regStart || filters.regEnd) parts.push('注册时间 ' + (filters.regStart || '…') + ' 至 ' + (filters.regEnd || '…'));
+    return parts.length ? parts.join('；') : '辖区全部项目';
+  }
+
+  function uniqueValues(list, getter) {
+    var seen = {};
+    var result = [];
+    list.forEach(function (item) {
+      var value = getter(item);
+      if (value && !seen[value]) { seen[value] = true; result.push(value); }
+    });
+    return result;
+  }
+
+  var projects = window.allProjects || [];
+  var STATUS_OPTIONS = ['未开工', '在建', '停工', '竣工', '正常运营', '暂停运营', '关闭'];
+  var DOMAIN_OPTIONS = uniqueValues(projects, function (p) { return p.domainName; });
+  var GROUP_OPTIONS = uniqueValues(projects, function (p) { return p.supervisionGroupName; });
+  var STREET_OPTIONS = uniqueValues(projects, function (p) { return p.streetName; });
+
+  if (!window.ExportCenter) return;
+  window.ExportCenter.init({
+    moduleKey: 'gov-project-manage',
+    moduleName: '项目清单',
+    exportTitle: '导出项目清单',
+    filePrefix: '项目清单',
+    entryButtonId: 'btnEcEntry',
+    showPhotoSwitch: false,
+    filters: [
+      { id: 'domainBig', label: '领域大类', options: ['建设工程', '公共场所', '危险化学品', '工业制造业', '城市运行'] },
+      { id: 'domainName', label: '领域小类', options: DOMAIN_OPTIONS },
+      { id: 'street', label: '所属街道', options: STREET_OPTIONS },
+      { id: 'projectName', label: '项目名称', type: 'text', placeholder: '按包含匹配' },
+      { id: 'projectNo', label: '项目编码', type: 'text', placeholder: '支持部分匹配' },
+      { id: 'status', label: '项目状态', options: STATUS_OPTIONS },
+      { id: 'codeState', label: '码色状态', options: ['绿码', '黄码', '红码', '灰码'] },
+      { id: 'group', label: '执法监督组', options: GROUP_OPTIONS },
+      { id: 'regDate', label: '注册时间', type: 'dateRange' }
+    ],
+    scopeSummary: scopeSummary,
+    emptyText: '暂无可导出项目',
+    getData: function (filters) {
+      var rows = exportRows(filters);
+      return {
+        headers: HEADERS.slice(),
+        values: rows.map(rowValues),
+        photoSvgs: rows.map(function () { return HEADERS.map(function () { return null; }); })
+      };
+    }
+  });
+})();
 </script>
 <script src="../../js/annotations.js"></script>
 </body>

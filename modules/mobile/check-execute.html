@@ -182,6 +182,18 @@
     .ce-field { margin-bottom: 14px; }
     .ce-field-label { font-size: 13px; color: var(--wc-text-tertiary); margin-bottom: 6px; }
     .ce-field-label .req { color: var(--code-red); }
+    .ce-lib-search {
+      width: 100%; height: 36px; border: 1px solid var(--wc-divider); border-radius: var(--wc-btn-radius);
+      padding: 0 10px; font-size: 13px; box-sizing: border-box; color: var(--wc-text-primary);
+    }
+    .ce-lib-list { margin-top: 8px; max-height: 148px; overflow: auto; border: 1px solid var(--wc-divider); border-radius: 8px; }
+    .ce-lib-item { padding: 8px 10px; border-bottom: 0.5px solid var(--wc-track-bg); cursor: pointer; }
+    .ce-lib-item:last-child { border-bottom: none; }
+    .ce-lib-item.active { background: #e6f4ff; }
+    .ce-lib-name { font-size: 13px; color: var(--wc-text-primary); }
+    .ce-lib-sub { font-size: 11px; color: var(--wc-text-tertiary); margin-top: 2px; }
+    .ce-lib-empty { padding: 8px 10px; font-size: 12px; color: var(--wc-text-tertiary); }
+    .ce-lib-basis { margin-top: 6px; font-size: 12px; color: var(--wc-text-secondary); line-height: 1.5; }
     .ce-field-select {
       width: 100%; height: 36px; border: 1px solid var(--wc-divider); border-radius: var(--wc-btn-radius);
       padding: 0 var(--wc-gap-lg); font-size: 13px; color: var(--wc-text-secondary); background: var(--wc-card-bg); appearance: none;
@@ -497,6 +509,12 @@
     </div>
     <div class="ce-drawer-body">
       <div class="ce-field">
+        <div class="ce-field-label">引用隐患库</div>
+        <input class="ce-lib-search" id="dLibSearch" placeholder="搜索隐患库，如：灭火器">
+        <div class="ce-lib-list" id="dLibList"></div>
+        <div class="ce-lib-basis" id="dLibBasis"></div>
+      </div>
+      <div class="ce-field">
         <div class="ce-field-label">隐患类型</div>
         <select class="ce-field-select" id="dType">
           <option value="">请选择</option>
@@ -613,17 +631,21 @@
     </div>
   </div>
 
+  <script src="../../js/domain-data.js"></script>
+  <script src="../../js/checklist-data.js?v=20261119"></script>
+  <script src="../../js/hazard-lib-data.js?v=20261119"></script>
   <script>
 
 // showToast 已统一到 mobile-session.js 全局函数
     /* ========== 数据模型 ========== */
     var checkItems = [
-      { idx:0, name:'消防设施检查', judgment:'' },
-      { idx:1, name:'安全出口检查', judgment:'' },
-      { idx:2, name:'电气线路检查', judgment:'' },
-      { idx:3, name:'灭火器检查', judgment:'' },
-      { idx:4, name:'安全标识检查', judgment:'' }
+      { idx:0, name:'消防设施检查', judgment:'', checkIds:['CI002','CI003','CI014'] },
+      { idx:1, name:'安全出口检查', judgment:'', checkIds:['CI001','CI006'] },
+      { idx:2, name:'电气线路检查', judgment:'', checkIds:['CI005'] },
+      { idx:3, name:'灭火器检查', judgment:'', checkIds:['CI002'] },
+      { idx:4, name:'安全标识检查', judgment:'', checkIds:['CI013','CI006'] }
     ];
+    var placeDomain = '商业综合体';
     var hazards = [];
     var naReasons = {};
     var sitePhotos = [];
@@ -635,6 +657,8 @@
     var drawerLevel = '';
     var drawerDeadlineMode = '';
     var drawerDays = 1;
+    var drawerLibId = '';
+    var drawerLibSnap = null;
 
     /* ========== 页签切换 ========== */
     function switchTab(tab) {
@@ -695,6 +719,100 @@
     }
 
     /* ========== 抽屉操作 ========== */
+    function libEsc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+
+    function currentCheckIds() {
+      if (currentDrawerItemIdx < 0 || !checkItems[currentDrawerItemIdx]) return [];
+      return checkItems[currentDrawerItemIdx].checkIds || [];
+    }
+
+    function libLinked(h) {
+      var ids = currentCheckIds();
+      return (h.checkItems || []).some(function(id) { return ids.indexOf(id) >= 0; });
+    }
+
+    function libRank(h) {
+      if (libLinked(h)) return 0;
+      if ((h.domains || []).indexOf(placeDomain) >= 0) return 1;
+      return 2;
+    }
+
+    function regText(ids) {
+      return (ids || []).map(function(id) {
+        var r = REG_DATA.filter(function(x) { return x.id === id; })[0];
+        return r ? '《' + r.law + '》' + r.no : id;
+      }).join('、');
+    }
+
+    function searchLib(q) {
+      q = (q || '').trim();
+      var list = HAZARD_LIB.filter(function(h) { return h.status !== '停用'; });
+      if (!q) {
+        list = list.filter(function(h) {
+          return currentDrawerItemIdx >= 0 ? libLinked(h) : (h.domains || []).indexOf(placeDomain) >= 0;
+        });
+      } else {
+        list = list.filter(function(h) {
+          return (h.name + ' ' + (h.alias || '') + ' ' + (h.desc || '')).indexOf(q) >= 0;
+        });
+      }
+      list.sort(function(a, b) { return libRank(a) - libRank(b); });
+      return list.slice(0, 8);
+    }
+
+    function renderLibList() {
+      var box = document.getElementById('dLibList');
+      var q = document.getElementById('dLibSearch').value;
+      var list = searchLib(q);
+      if (!list.length) {
+        box.innerHTML = '<div class="ce-lib-empty">' + (q.trim() ? '没有匹配的隐患，可继续手写' : '当前检查项暂无关联隐患') + '</div>';
+        return;
+      }
+      box.innerHTML = list.map(function(h) {
+        var days = SUGGEST_DAYS[h.level] || 15;
+        var level = h.level === '重大隐患' ? '重大' : '一般';
+        return '<div class="ce-lib-item' + (drawerLibId === h.id ? ' active' : '') + '" data-hid="' + h.id + '">' +
+          '<div class="ce-lib-name">' + libEsc(h.name) + '</div>' +
+          '<div class="ce-lib-sub">' + libEsc(h.category) + ' · ' + level + ' · 建议' + days + '天</div></div>';
+      }).join('');
+    }
+
+    function applyLib(h) {
+      drawerLibId = h.id;
+      document.getElementById('dType').value = h.category;
+      document.getElementById('dDesc').value = h.desc || h.name;
+      var level = h.level === '重大隐患' ? 'major' : 'normal';
+      var levelBtn = document.querySelector('#drawer .ce-field-radio.' + level);
+      if (levelBtn) selectLevel(levelBtn, level);
+      var limitedBtn = document.querySelectorAll('#drawer .ce-deadline-row .ce-field-radio')[1];
+      if (limitedBtn) selectDeadline(limitedBtn, 'limited');
+      drawerDays = SUGGEST_DAYS[h.level] || 15;
+      document.getElementById('dStepperValue').textContent = String(drawerDays);
+      document.getElementById('dStepperMinus').disabled = drawerDays <= 1;
+      var basis = regText(h.regulations);
+      document.getElementById('dLibBasis').textContent = basis ? ('法规依据：' + basis) : '';
+      drawerLibSnap = { type: h.category, desc: h.desc || h.name, level: level, days: drawerDays };
+      renderLibList();
+    }
+
+    function libTrace() {
+      var type = document.getElementById('dType').value || '';
+      var desc = document.getElementById('dDesc').value.trim();
+      var days = drawerDeadlineMode === 'limited' ? drawerDays : 0;
+      var modified = false;
+      if (drawerLibId && drawerLibSnap) {
+        modified = type !== drawerLibSnap.type || desc !== drawerLibSnap.desc || drawerLevel !== drawerLibSnap.level || days !== drawerLibSnap.days;
+      }
+      return {
+        hazardLibId: drawerLibId || '',
+        isModified: drawerLibId ? modified : false,
+        libSnap: drawerLibSnap,
+        libBasis: document.getElementById('dLibBasis').textContent || ''
+      };
+    }
+
     function openDrawer(itemIdx) {
       currentDrawerItemIdx = itemIdx;
       editingHazardId = -1;
@@ -716,6 +834,11 @@
       // 重置图片
       drawerPhotos = [];
       renderDrawerPhotos();
+      drawerLibId = '';
+      drawerLibSnap = null;
+      document.getElementById('dLibSearch').value = '';
+      document.getElementById('dLibBasis').textContent = '';
+      renderLibList();
 
       // 显示抽屉
       document.getElementById('drawerMask').classList.add('show');
@@ -726,7 +849,7 @@
       var h = hazards.find(function(item) { return item.id === hazardId; });
       if (!h) return;
       editingHazardId = hazardId;
-      currentDrawerItemIdx = h.sourceItemIdx || -1;
+      currentDrawerItemIdx = typeof h.sourceItemIdx === 'number' ? h.sourceItemIdx : -1;
 
       document.getElementById('drawerTitle').textContent = '编辑隐患';
 
@@ -766,6 +889,11 @@
       // 图片
       drawerPhotos = (h.photos || []).slice();
       renderDrawerPhotos();
+      drawerLibId = h.hazardLibId || '';
+      drawerLibSnap = h.libSnap || null;
+      document.getElementById('dLibSearch').value = '';
+      document.getElementById('dLibBasis').textContent = h.libBasis || '';
+      renderLibList();
 
       document.getElementById('drawerMask').classList.add('show');
       document.getElementById('drawer').classList.add('show');
@@ -879,6 +1007,11 @@
           h.deadlineMode = drawerDeadlineMode;
           h.deadlineDate = deadlineDisplay;
           h.photos = drawerPhotos.slice();
+          var trace = libTrace();
+          h.hazardLibId = trace.hazardLibId;
+          h.isModified = trace.isModified;
+          h.libSnap = trace.libSnap;
+          h.libBasis = trace.libBasis;
         }
         editingHazardId = -1;
         updateHazardBadge();
@@ -889,6 +1022,7 @@
       }
 
       // 新增模式
+      var traceNew = libTrace();
       var hazard = {
         id: ++hazardIdCounter,
         sourceItemIdx: currentDrawerItemIdx,
@@ -899,7 +1033,11 @@
         deadlineMode: drawerDeadlineMode,
         deadlineDate: deadlineDisplay,
         foundDate: now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0'),
-        photos: drawerPhotos.slice()
+        photos: drawerPhotos.slice(),
+        hazardLibId: traceNew.hazardLibId,
+        isModified: traceNew.isModified,
+        libSnap: traceNew.libSnap,
+        libBasis: traceNew.libBasis
       };
 
       hazards.push(hazard);
@@ -980,6 +1118,8 @@
         // 来源标签（统一展示）
         if (isAi) {
           html += '<span class="ce-hc-source-tag ai">🤖 AI识别</span>';
+        } else if (h.hazardLibId) {
+          html += '<span class="ce-hc-source-tag manual">隐患库' + (h.isModified ? '·已修改' : '') + '</span>';
         } else {
           html += '<span class="ce-hc-source-tag manual">手动新增</span>';
         }
@@ -1174,6 +1314,14 @@
       updateSubmitSteps();
     }
 
+    document.getElementById('dLibSearch').addEventListener('input', renderLibList);
+    document.getElementById('dLibList').addEventListener('click', function(e) {
+      var item = e.target.closest('.ce-lib-item');
+      if (!item) return;
+      var picked = HAZARD_LIB.filter(function(x) { return x.id === item.getAttribute('data-hid'); })[0];
+      if (picked) applyLib(picked);
+    });
+
     /* ========== 初始化信息区 ========== */
     (function() {
       // 检查时间
@@ -1190,7 +1338,7 @@
         var objName = localStorage.getItem('checkObjName') || '';
         if (!objName) {
           var objMap = {
-            'enterprise-code': '创安电子科技有限公司',
+            'enterprise-code': '深圳市天道医药有限公司',
             'place-code': 'A栋生产车间',
             'hazard-code': '危化品存储区'
           };
@@ -1198,6 +1346,9 @@
           objName = objMap[src] || '';
         }
         if (objName) document.getElementById('infoObjName').textContent = objName;
+        if (objName && typeof DOMAIN_TABLE_DATA !== 'undefined' && DOMAIN_TABLE_DATA.some(function(d) { return d.name === objName; })) {
+          placeDomain = objName;
+        }
 
         // 检查表名称
         var tableName = localStorage.getItem('checkTableName') || '';

@@ -299,3 +299,11 @@ function showToast(msg, type, duration) {
     setTimeout(function() { t.remove(); }, 300);
   }, duration);
 }
+
+/** 码卡片「更新时间」：打开页面时的当前时间，精确到分钟 */
+function codeUpdateTimeLabel() {
+  var now = new Date();
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  return '更新时间：' + now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate())
+    + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+}

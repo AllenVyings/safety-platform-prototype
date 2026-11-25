@@ -7,246 +7,216 @@
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
-/* ========== 页面标题栏 ========== */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-md);
-  background: var(--bg-primary);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+/* ========== 页面布局 ========== */
+html, body { height: auto; min-height: 100%; }
+.hz-layout { display: flex; gap: 20px; align-items: flex-start; }
+.hz-tree-panel {
+  width: 280px; flex-shrink: 0; background: var(--bg-primary);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; position: sticky; top: 16px;
+  max-height: calc(100vh - 140px); overflow: hidden;
 }
-.page-title { font-size: var(--font-size-lg); font-weight: 600; }
+.hz-tree-head {
+  padding: 14px 16px; border-bottom: 1px solid var(--border-light);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.hz-tree-title { font-size: var(--font-size-md); font-weight: 600; }
+.hz-tree-tools { display: flex; gap: 8px; }
+.hz-tree-tools button { border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; padding: 0; }
+.hz-tree-search { padding: 10px 12px; border-bottom: 1px solid var(--border-light); }
+.hz-tree-search input {
+  width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--border);
+  border-radius: var(--radius-md); font-size: var(--font-size-sm); box-sizing: border-box;
+}
+.hz-tree-search input:focus { border-color: var(--primary); outline: none; }
+.hz-tree-body { flex: 1; overflow-y: auto; padding: 6px 0 10px; }
+.hz-tree-node {
+  display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+  margin: 0 4px; border-radius: var(--radius-sm); cursor: pointer;
+  user-select: none; font-size: var(--font-size-sm); color: var(--text-primary);
+}
+.hz-tree-node:hover { background: var(--bg-hover); }
+.hz-tree-node.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.hz-tree-toggle {
+  width: 16px; height: 16px; flex-shrink: 0; display: flex;
+  align-items: center; justify-content: center; color: var(--text-tertiary);
+  transition: transform .2s;
+}
+.hz-tree-toggle.open { transform: rotate(90deg); }
+.hz-tree-toggle.leaf { visibility: hidden; }
+.hz-tree-toggle svg { width: 12px; height: 12px; }
+.hz-tree-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+.hz-tree-icon svg { width: 15px; height: 15px; }
+.hz-tree-node.active .hz-tree-icon { color: var(--primary); }
+.hz-tree-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hz-tree-children { display: none; }
+.hz-tree-children.open { display: block; }
 
-/* ========== 统计卡片 ========== */
-.stats-row { grid-template-columns: repeat(5, 1fr); }
+.hz-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
 
-/* ========== 分屏视图 ========== */
-.split-view {
-  display: flex;
-  gap: 20px;
-  height: calc(100vh - 300px);
-  min-height: 400px;
+/* ========== 筛选卡 ========== */
+.filter-card {
+  background: var(--bg-primary); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card); padding: 16px 20px;
 }
+.filter-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.filter-item { display: flex; align-items: center; gap: 6px; }
+.filter-item label { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+.filter-bar select, .filter-bar input[type="text"] {
+  width: 240px; height: 32px; padding: 0 10px; border: 1px solid var(--border);
+  border-radius: var(--radius-md); font-size: var(--font-size-sm); box-sizing: border-box; background: var(--bg-primary);
+}
+.filter-bar select:focus, .filter-bar input[type="text"]:focus { border-color: var(--primary); outline: none; }
+.filter-actions { display: flex; gap: 8px; margin-left: 4px; }
 
-/* ========== 左侧树形面板 ========== */
-.tree-panel {
-  width: 280px;
-  flex-shrink: 0;
-  background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-sm);
+/* ========== 统计卡 ========== */
+.hz-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.hz-stat {
+  position: relative; background: var(--bg-primary); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card); padding: 16px 20px; overflow: hidden; cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
 }
-.tree-header {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--border-section);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--bg-section);
-}
-.tree-title { font-size: var(--font-size-md); font-weight: 600; }
-.tree-body { flex: 1; overflow-y: auto; padding: var(--spacing-sm) 0; }
+.hz-stat:hover { transform: translateY(-1px); box-shadow: var(--shadow-elevated); }
+.hz-stat::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--primary); }
+.hz-stat.c-warning::before { background: var(--warning); }
+.hz-stat.c-success::before { background: var(--success); }
+.hz-stat.c-danger::before { background: var(--danger); }
+.hz-stat-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.hz-stat-value { font-size: 24px; font-weight: 700; line-height: 1.1; }
 
-/* ========== 右侧列表面板 ========== */
-.detail-panel {
-  flex: 1;
-  background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-sm);
+/* ========== 列表卡 ========== */
+.hz-list-card {
+  background: var(--bg-primary); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column;
 }
-.detail-header {
-  padding: var(--spacing-md) 20px;
-  border-bottom: 1px solid var(--border-section);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--bg-section);
+.hz-list-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border-light);
 }
-.detail-title { font-size: var(--font-size-lg); font-weight: 600; }
-.detail-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.hz-list-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.hz-bar { width: 4px; height: 16px; border-radius: 2px; background: var(--primary); flex-shrink: 0; }
+.hz-list-title-text { font-size: var(--font-size-md); font-weight: 600; white-space: nowrap; }
+.hz-list-sub { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hz-list-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.hz-list-actions .btn { display: inline-flex; align-items: center; gap: 6px; }
+.hz-list-actions .btn svg { width: 14px; height: 14px; }
+.hz-table-scroll { overflow: auto; max-height: calc(100vh - 400px); min-height: 280px; }
+.hz-table { width: 100%; min-width: 1040px; border-collapse: separate; border-spacing: 0; }
+.hz-table thead th {
+  position: sticky; top: 0; z-index: 2; background: var(--bg-table-header, #f5f7fa);
+  text-align: left; padding: 12px 16px; font-size: var(--font-size-sm); font-weight: 600;
+  color: var(--text-primary); border-bottom: 1px solid var(--border-light); white-space: nowrap;
+}
+.hz-table tbody td {
+  padding: 12px 16px; height: 48px; box-sizing: border-box; font-size: var(--font-size-sm);
+  color: var(--text-primary); border-bottom: 1px solid var(--border-light); vertical-align: middle;
+}
+.hz-table tbody tr:hover td { background: var(--bg-hover); }
+.hz-cell-clip { display: block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hz-action-col { white-space: nowrap; }
+.hz-action-col .btn-link { margin-right: 8px; }
+.hz-action-col .btn-link:last-child { margin-right: 0; }
+.hz-empty-row td { text-align: center; padding: 48px 16px !important; color: var(--text-tertiary); }
 
-/* ========== 树节点样式 ========== */
-.tree-node {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  margin: 0 4px;
-  transition: all var(--duration-fast);
-  user-select: none;
-}
-.tree-node:hover { background: var(--bg-hover); }
-.tree-node.active { background: var(--primary-light); color: var(--primary); }
-.tree-toggle {
-  width: 20px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: transform 0.2s;
-  flex-shrink: 0;
-}
-.tree-toggle.expanded { transform: rotate(90deg); }
-.tree-toggle.leaf { visibility: hidden; }
-.tree-node-icon { margin: 0 6px; font-size: 14px; flex-shrink: 0; }
-.tree-node-label {
-  font-size: var(--font-size-sm);
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.tree-children { display: none; padding-left: 16px; }
-.tree-children.show { display: block; }
-
-/* ========== 筛选栏 ========== */
-.filter-bar {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
-  flex-wrap: wrap;
-}
-.filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section)}
-.filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:transparent}
-.filter-card .filter-item{display:flex;align-items:center;gap:6px}
-.filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
-.filter-item select, .filter-item input {
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  background: var(--bg-primary);
-}
-.filter-item select:focus, .filter-item input:focus {
-  border-color: var(--primary);
-  outline: none;
-}
-
-/* ========== 表格容器 ========== */
-.table-wrap {
-  background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-}
-.table-scroll { overflow-x: auto; }
-.table-scroll table { width: 100%; min-width: 1000px; border-collapse: collapse; }
-.table-scroll thead tr { background: var(--bg-section); }
-.table-scroll th { padding: 12px var(--spacing-md); text-align: left; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
-.table-scroll td { padding: 12px var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--border-light); }
-.table-scroll tbody tr:nth-child(even) { background: var(--bg-section-alt); }
-.table-scroll tbody tr:hover td { background: var(--bg-hover); }
-.ellipsis-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-.action-col .btn-link { margin-right: 4px; }
-.action-col .btn-link:last-child { margin-right: 0; }
-
-/* ========== 标签样式 ========== */
-.tag { display: inline-block; padding: 2px var(--spacing-sm); border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
+/* ========== 标签 ========== */
+.tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
 .tag-green { background: var(--success-light); color: var(--success); }
 .tag-gray { background: var(--bg-section-alt); color: var(--text-secondary); }
 .tag-orange { background: var(--warning-light); color: var(--warning); }
 .tag-red { background: var(--danger-light); color: var(--danger); }
 .tag-blue { background: var(--info-light); color: var(--info); }
-.tag-info { background: var(--info-light); color: var(--info); }
-.tag-warning { background: var(--warning-light); color: var(--warning); }
-.tag-error { background: var(--danger-light); color: var(--danger); }
-.tag-yellow { background: var(--warning-light); color: var(--warning); }
-
-/* ========== 弹窗 ========== */
-.modal-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; display: none; }
-.modal-container.show { display: flex; align-items: center; justify-content: center; }
-.modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); }
-.modal-dialog { position: relative; background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-elevated); max-height: 90vh; display: flex; flex-direction: column; animation: modalSlideIn 0.3s ease-out; }
-@keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
-.modal-title { font-size: var(--font-size-lg); font-weight: 500; color: var(--text-primary); }
-.modal-close { width: 32px; height: 32px; border: none; background: transparent; font-size: var(--font-size-xxl); color: var(--text-tertiary); cursor: pointer; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; transition: background-color var(--duration-fast), color var(--duration-fast); }
-.modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-.modal-body { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
-.modal-footer { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border-light); }
+.tag-yellow { background: #fadb14; color: #8c6900; }
 
 /* ========== 链接按钮 ========== */
-.btn-link { padding: var(--spacing-xs) var(--spacing-sm); border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
+.btn-link { padding: 0; border: none; background: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-sm); }
 .btn-link:hover { text-decoration: underline; }
 .btn-link.danger { color: var(--danger); }
 
 /* ========== Toast ========== */
-.toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: var(--spacing-sm); }
-.toast { padding: 12px 20px; border-radius: var(--radius-md); background: var(--bg-primary); box-shadow: 0 4px 16px rgba(0,0,0,0.12); font-size: var(--font-size-sm); color: var(--text-primary); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: var(--spacing-sm); border-left: 4px solid var(--primary); max-width: 420px; }
-.toast.out { animation: toastOut 0.3s ease forwards; }
+.toast-container { position: fixed; top: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 12px 20px; border-radius: var(--radius-md); background: var(--bg-primary);
+  box-shadow: 0 4px 16px rgba(0,0,0,.12); font-size: var(--font-size-sm);
+  color: var(--text-primary); border-left: 4px solid var(--primary);
+  animation: toastIn .3s ease; max-width: 420px;
+}
+.toast.out { animation: toastOut .3s ease forwards; }
 @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
 
-/* ========== 详情行 ========== */
-.detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
-.detail-row:last-child { border-bottom: none; }
-.detail-label { width: 100px; flex-shrink: 0; color: var(--text-secondary); font-size: var(--font-size-sm); }
-.detail-value { flex: 1; font-size: var(--font-size-sm); color: var(--text-primary); min-width: 0; overflow-wrap: break-word; }
-
-/* ========== 详情分区标题 ========== */
-.detail-section-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); margin: var(--spacing-lg) 0 var(--spacing-sm) 0; padding-bottom: var(--spacing-xs); border-bottom: 2px solid var(--primary); display: inline-block; }
-.detail-section-title:first-child { margin-top: 0; }
-
-/* ========== 时间轴（4节点） ========== */
-.timeline { padding: var(--spacing-sm) 0 var(--spacing-sm) var(--spacing-md); border-left: 2px solid var(--border); margin-left: 6px; }
-.timeline-item { position: relative; padding: 0 0 var(--spacing-md) var(--spacing-md); }
-.timeline-item:last-child { padding-bottom: 0; }
-.timeline-item::before { content: ''; position: absolute; left: -21px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 2px solid var(--bg-primary); box-shadow: 0 0 0 2px var(--primary-light); }
-.timeline-item.done::before { background: var(--success); box-shadow: 0 0 0 2px var(--success-light); }
-.timeline-item.warn::before { background: var(--warning); box-shadow: 0 0 0 2px var(--warning-light); }
-.timeline-item.error::before { background: var(--danger); box-shadow: 0 0 0 2px var(--danger-light); }
-.timeline-item.current::before { background: var(--info); box-shadow: 0 0 0 2px var(--info-light); animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 2px var(--info-light); } 50% { box-shadow: 0 0 0 6px var(--info-light); } }
-.timeline-time { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 2px; }
-.timeline-content { font-size: var(--font-size-sm); color: var(--text-primary); }
-.timeline-tag { display: inline-block; padding: 1px 6px; border-radius: var(--radius-sm); font-size: 11px; margin-right: 4px; }
-
-/* ========== 树搜索 ========== */
-.tree-search {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-bottom: 1px solid var(--border-section);
+/* ========== 弹窗 ========== */
+.modal-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; display: none; }
+.modal-container.show { display: flex; align-items: center; justify-content: center; }
+.modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); }
+.modal-dialog {
+  position: relative; background: var(--bg-primary); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated); max-height: 90vh; display: flex; flex-direction: column;
 }
-.tree-search input {
-  width: 100%;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  background: var(--bg-primary);
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-light); }
+.modal-title { font-size: var(--font-size-lg); font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 24px; line-height: 1; color: var(--text-tertiary); cursor: pointer; }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--border-light); }
+.modal-form .form-group { margin-bottom: 16px; }
+.modal-form .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.modal-form .form-input, .modal-form .form-select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-md);
+  font-size: 14px; box-sizing: border-box; background: var(--bg-primary);
 }
-.tree-search input:focus {
-  border-color: var(--primary);
-  outline: none;
-}
+.modal-form .form-input:focus, .modal-form .form-select:focus { border-color: var(--primary); outline: none; }
+.required { color: var(--danger); }
 
-/* ========== 空状态 ========== */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  color: var(--text-tertiary);
+/* ========== 整页详情 ========== */
+.hz-detail { display: none; }
+.hz-detail.show { display: block; }
+.hz-detail-top {
+  display: flex; align-items: center; gap: 16px; background: var(--bg-primary);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 16px 20px; margin-bottom: 16px;
 }
-.empty-icon { font-size: 48px; margin-bottom: 12px; }
-.empty-text { font-size: var(--font-size-md); }
+.hz-detail-title { display: flex; align-items: center; gap: 8px; font-size: var(--font-size-lg); font-weight: 600; min-width: 0; }
+.hz-detail-actions { margin-left: auto; display: flex; gap: 8px; }
+.hz-detail-card {
+  background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+  padding: 20px 24px; margin-bottom: 16px;
+}
+.hz-section-title { font-size: 15px; font-weight: 600; margin: 0 0 16px; padding-left: 10px; border-left: 3px solid var(--primary); line-height: 1.4; }
+.hz-kv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; row-gap: 12px; }
+.hz-kv { display: flex; gap: 8px; font-size: 14px; line-height: 1.6; min-width: 0; }
+.hz-kv.full { grid-column: 1 / -1; }
+.hz-kv-label { flex: 0 0 128px; color: var(--text-secondary); text-align: right; }
+.hz-kv-value { flex: 1; min-width: 0; color: var(--text-primary); word-break: break-word; }
+.hz-photo-row { display: flex; gap: 16px; margin-top: 12px; }
+.hz-photo-box { width: 96px; }
+.hz-photo-box img { width: 96px; height: 96px; border-radius: var(--radius-md); border: 1px solid var(--border-light); display: block; }
+.hz-photo-caption { margin-top: 4px; font-size: 12px; color: var(--text-tertiary); text-align: center; }
+.hz-timeline { padding-left: 20px; border-left: 2px solid var(--border); margin-left: 6px; }
+.hz-tl-item { position: relative; padding: 0 0 18px 14px; }
+.hz-tl-item:last-child { padding-bottom: 0; }
+.hz-tl-item::before {
+  content: ''; position: absolute; left: -21px; top: 4px; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--text-tertiary); border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--border-light);
+}
+.hz-tl-item.done::before { background: var(--success); box-shadow: 0 0 0 2px var(--success-light); }
+.hz-tl-item.current::before { background: var(--info); box-shadow: 0 0 0 2px var(--info-light); }
+.hz-tl-item.error::before { background: var(--danger); box-shadow: 0 0 0 2px var(--danger-light); }
+.hz-tl-time { font-size: 12px; color: var(--text-tertiary); margin-bottom: 2px; }
+.hz-tl-content { font-size: 14px; color: var(--text-primary); }
+.hz-tl-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px; margin-right: 6px; background: var(--primary-light); color: var(--primary); }
+
+@media (max-width: 1100px) {
+  .hz-layout { flex-direction: column; }
+  .hz-tree-panel { width: 100%; position: static; max-height: 320px; }
+  .hz-stats { grid-template-columns: repeat(2, 1fr); }
+  .hz-kv-grid { grid-template-columns: 1fr; }
+  .hz-kv-label { flex-basis: 96px; }
+}
   </style>
 </head>
 <body>
   <div class="toast-container" id="toastContainer"></div>
 
   <div class="module-page page-container" data-module="government/hazard-manage">
-    <!-- 面包屑导航 -->
     <div class="breadcrumb" id="breadcrumb">
       <span class="breadcrumb-prefix">当前位置：</span>
       <span class="breadcrumb-item">政府端</span>
@@ -254,89 +224,94 @@
       <span class="breadcrumb-item current">隐患记录管理</span>
     </div>
 
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <h1 class="page-title">隐患记录管理</h1>
-      <div style="display: flex; gap: var(--spacing-sm);">
-        <button class="btn btn-default" onclick="exportReport()">导出报表</button>
-      </div>
-    </div>
-
-    <!-- 统计卡片 -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-card-body">
-          <div class="stat-label">隐患总数</div>
-          <div class="stat-value" style="color: var(--primary);" id="statTotal">42</div>
-        </div>
-        <div class="stat-indicator" style="background: var(--primary);"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-body">
-          <div class="stat-label">待整改</div>
-          <div class="stat-value" style="color: var(--primary);" id="statPending">12</div>
-        </div>
-        <div class="stat-indicator" style="background: var(--primary);"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-body">
-          <div class="stat-label">待复核</div>
-          <div class="stat-value" style="color: var(--warning);" id="statReview">8</div>
-        </div>
-        <div class="stat-indicator" style="background: var(--warning);"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-body">
-          <div class="stat-label">已整改</div>
-          <div class="stat-value" style="color: var(--success);" id="statDone">18</div>
-        </div>
-        <div class="stat-indicator" style="background: var(--success);"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-body">
-          <div class="stat-label">已超期</div>
-          <div class="stat-value" style="color: var(--danger);" id="statOverdue">2</div>
-        </div>
-        <div class="stat-indicator" style="background: var(--danger);"></div>
-      </div>
-    </div>
-
-    <!-- 左树右列布局 -->
-    <div class="split-view">
-      <!-- 左侧树形面板 -->
-      <div class="tree-panel">
-        <div class="tree-header">
-          <span class="tree-title">行业领域</span>
-          <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
-            <button class="btn btn-link" onclick="expandAll()" style="font-size: var(--font-size-xs);">展开</button>
-            <button class="btn btn-link" onclick="collapseAll()" style="font-size: var(--font-size-xs);">收起</button>
+    <!-- ========== 列表视图 ========== -->
+    <div id="view-list">
+      <div class="hz-layout">
+        <aside class="hz-tree-panel">
+          <div class="hz-tree-head">
+            <span class="hz-tree-title">行业领域</span>
+            <div class="hz-tree-tools">
+              <button type="button" id="btnExpandAll">展开</button>
+              <button type="button" id="btnCollapseAll">收起</button>
+            </div>
           </div>
-        </div>
-        <div class="tree-search">
-          <input type="text" id="treeSearchInput" placeholder="搜索行业/领域" oninput="filterTree(this.value)">
-        </div>
-        <div class="tree-body" id="hazardTree"></div>
-      </div>
+          <div class="hz-tree-search">
+            <input type="text" id="treeSearchInput" placeholder="搜索行业/领域">
+          </div>
+          <div class="hz-tree-body" id="hazardTree"></div>
+        </aside>
 
-      <!-- 右侧列表面板 -->
-      <div class="detail-panel">
-        <div class="detail-header">
-          <span class="detail-title" id="detailTitle">全部隐患</span>
-        </div>
-        <div class="detail-body">
-          <!-- 筛选栏 -->
-          <div class="filter-card"><div class="filter-bar">
-            <div class="filter-item"><label>隐患状态：</label><select id="filterStatus" onchange="applyFilter()"><option>全部</option><option>待整改</option><option>待复核</option><option>已整改</option><option>已超期</option></select></div>
-            <div class="filter-item"><label>隐患等级：</label><select id="filterLevel" onchange="applyFilter()"><option>全部</option><option>一般隐患</option><option>重大隐患</option></select></div>
-            <div class="filter-item"><label>隐患来源：</label><select id="filterSource" onchange="applyFilter()"><option>全部</option><option>政府检查</option><option>企业自查</option><option>群众举报</option></select></div>
-            <div class="filter-item"><input type="text" id="searchInput" placeholder="搜索管控对象名称" oninput="applyFilter()"></div>
-            <button class="btn btn-default" onclick="resetFilter()">重置</button>
-          </div></div>
+        <section class="hz-main">
+          <div class="filter-card">
+            <div class="filter-bar">
+              <div class="filter-item">
+                <label>隐患状态：</label>
+                <select id="filterStatus">
+                  <option>全部</option><option>待整改</option><option>待复核</option><option>已整改</option><option>已超期</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label>隐患等级：</label>
+                <select id="filterLevel">
+                  <option>全部</option><option>一般隐患</option><option>重大隐患</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label>隐患来源：</label>
+                <select id="filterSource">
+                  <option>全部</option><option>政府巡查</option><option>企业自查</option><option>群众举报</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label>关键词：</label>
+                <input type="text" id="filterKeyword" placeholder="搜索管控对象、企业名称">
+              </div>
+              <div class="filter-actions">
+                <button class="btn btn-primary" type="button" id="btnQuery">查询</button>
+                <button class="btn btn-default" type="button" id="btnReset">重置</button>
+              </div>
+            </div>
+          </div>
 
-          <!-- 隐患表格 -->
-          <div class="table-wrap">
-            <div class="table-scroll">
-              <table>
+          <div class="hz-stats" id="statsRow">
+            <div class="hz-stat" data-status="全部">
+              <div class="hz-stat-label">隐患总数</div>
+              <div class="hz-stat-value" style="color: var(--primary);" id="statTotal">0</div>
+            </div>
+            <div class="hz-stat" data-status="待整改">
+              <div class="hz-stat-label">待整改</div>
+              <div class="hz-stat-value" style="color: var(--info);" id="statPending">0</div>
+            </div>
+            <div class="hz-stat c-warning" data-status="待复核">
+              <div class="hz-stat-label">待复核</div>
+              <div class="hz-stat-value" style="color: var(--warning);" id="statReview">0</div>
+            </div>
+            <div class="hz-stat c-success" data-status="已整改">
+              <div class="hz-stat-label">已整改</div>
+              <div class="hz-stat-value" style="color: var(--success);" id="statDone">0</div>
+            </div>
+            <div class="hz-stat c-danger" data-status="已超期">
+              <div class="hz-stat-label">已超期</div>
+              <div class="hz-stat-value" style="color: var(--danger);" id="statOverdue">0</div>
+            </div>
+          </div>
+
+          <div class="hz-list-card">
+            <div class="hz-list-head">
+              <div class="hz-list-title">
+                <span class="hz-bar"></span>
+                <span class="hz-list-title-text">隐患记录</span>
+                <span class="hz-list-sub" id="listSubtitle">南山区应急管理局 - 全部隐患</span>
+              </div>
+              <div class="hz-list-actions">
+                <button class="btn btn-default" type="button" id="btnEcEntry">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  导出记录
+                </button>
+              </div>
+            </div>
+            <div class="hz-table-scroll">
+              <table class="hz-table">
                 <thead>
                   <tr>
                     <th>隐患编号</th>
@@ -347,577 +322,842 @@
                     <th>发现日期</th>
                     <th>整改期限</th>
                     <th>状态</th>
-                    <th class="action-col">操作</th>
+                    <th class="hz-action-col">操作</th>
                   </tr>
                 </thead>
-                <tbody id="hazardTableBody">
-                  <!-- 动态渲染 -->
-                </tbody>
+                <tbody id="hazardTableBody"></tbody>
               </table>
             </div>
             <div class="pagination" id="paginationBar"></div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
-  </div>
 
-  <!-- ========== 隐患详情弹窗 ========== -->
-  <div class="modal-container" id="modal-hazard-detail">
-    <div class="modal-overlay" onclick="closeModal('modal-hazard-detail')"></div>
-    <div class="modal-dialog" style="width: 680px;">
-      <div class="modal-header">
-        <span class="modal-title">隐患详情</span>
-        <button class="modal-close" onclick="closeModal('modal-hazard-detail')">&times;</button>
+    <!-- ========== 整页详情 ========== -->
+    <div class="hz-detail" id="view-detail">
+      <div class="hz-detail-top">
+        <button class="btn btn-default" type="button" id="btnBackList">← 返回列表</button>
+        <div class="hz-detail-title">
+          <span class="hz-bar"></span>
+          <span id="detailTitle">隐患详情</span>
+          <span id="detailStatusTag"></span>
+        </div>
+        <div class="hz-detail-actions" id="detailActions"></div>
       </div>
-      <div class="modal-body" id="hazardDetailBody">
-        <!-- 动态渲染 -->
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modal-hazard-detail')">关闭</button>
-      </div>
+      <div id="detailBody"></div>
     </div>
   </div>
 
   <!-- ========== 督办弹窗 ========== -->
   <div class="modal-container" id="modal-supervise">
-    <div class="modal-overlay" onclick="closeModal('modal-supervise')"></div>
+    <div class="modal-overlay" data-close="modal-supervise"></div>
     <div class="modal-dialog" style="width: 520px;">
       <div class="modal-header">
         <span class="modal-title">督办意见</span>
-        <button class="modal-close" onclick="closeModal('modal-supervise')">&times;</button>
+        <button class="modal-close" type="button" data-close="modal-supervise">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="superviseForm" class="modal-form">
+        <form class="modal-form" id="superviseForm">
           <div class="form-group">
-            <label class="form-label"><span style="color: var(--danger);">*</span> 督办意见</label>
-            <textarea class="form-input form-textarea" id="superviseOpinion" rows="5" placeholder="请填写督办意见，提交后将通知企业方加速整改" required style="resize: vertical;"></textarea>
+            <label class="form-label"><span class="required">*</span> 督办意见</label>
+            <textarea class="form-input" id="superviseOpinion" rows="5" placeholder="请填写督办意见，提交后将通知企业方加速整改" style="resize: vertical;"></textarea>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modal-supervise')">取消</button>
-        <button class="btn btn-primary" onclick="submitSupervise()">提交督办</button>
+        <button class="btn btn-default" type="button" data-close="modal-supervise">取消</button>
+        <button class="btn btn-primary" type="button" id="btnSubmitSupervise">提交督办</button>
       </div>
     </div>
   </div>
 
+  <!-- ========== 复核弹窗 ========== -->
+  <div class="modal-container" id="modal-review">
+    <div class="modal-overlay" data-close="modal-review"></div>
+    <div class="modal-dialog" style="width: 520px;">
+      <div class="modal-header">
+        <span class="modal-title">隐患复核</span>
+        <button class="modal-close" type="button" data-close="modal-review">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form class="modal-form" id="reviewForm">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span> 复核结果</label>
+            <select class="form-select" id="reviewResult">
+              <option value="">请选择复核结果</option>
+              <option>同意</option>
+              <option>不同意</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span> 复核意见</label>
+            <textarea class="form-input" id="reviewOpinion" rows="4" placeholder="请填写复核意见（必填，最多 200 字）" maxlength="200" style="resize: vertical;"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" type="button" data-close="modal-review">取消</button>
+        <button class="btn btn-primary" type="button" id="btnSubmitReview">提交复核</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/pagination.js"></script>
+  <script src="../../js/vendor/exceljs.min.js"></script>
+  <script src="../../js/shared/gov-export-data.js"></script>
+  <script src="../../js/shared/export-center.js"></script>
   <script>
-    (function() {
+    (function () {
       'use strict';
 
-      var CONFIG = {
-        moduleId: 'gov-hazard-manage',
-        moduleName: '隐患记录管理'
-      };
+      var CONFIG = { moduleId: 'gov-hazard-manage', moduleName: '隐患记录管理' };
+      var D = window.GovExportData;
 
       var state = {
         initialized: false,
         currentPage: 1,
+        pageSize: 10,
+        selectedTreeNode: 'root',
+        selectedTreeLabel: '南山区应急管理局 - 全部隐患',
+        treeKeyword: '',
         currentHazardId: null,
-        selectedTreeNode: null,   // 当前选中的树节点 key
-        selectedTreeLabel: '全部隐患'
+        detailId: null,
+        filtered: []
       };
 
-      // ========== 左侧树数据 ==========
+      var GOV_CHECKERS = ['陈海海（南山街道办）', '林晓峰（南山区应急管理局）', '周敏（粤海街道办）', '黄志强（沙河街道办）'];
+      var GOV_REVIEWERS = ['陈海海（南山街道办）', '林晓峰（南山区应急管理局）', '周敏（粤海街道办）'];
+      var ENT_USERS = ['李四', '王五'];
+      var ENT_REVIEWER = '王五（安全生产部）';
+      var HAZARD_TYPES = ['设备设施', '消防安全', '电气', '作业行为', '安全管理'];
+      var CHECK_CONTENTS = [
+        '灭火器压力及有效期检查',
+        '消防通道与安全出口畅通检查',
+        '电气线路敷设与漏电保护检查',
+        '特种设备运行与维护记录检查',
+        '作业人员防护用品佩戴检查',
+        '安全警示标识设置检查'
+      ];
+      var REGION_POOL = [
+        '南山区-南山街道-南山社区',
+        '南山区-粤海街道-科技园社区',
+        '南山区-沙河街道-白石洲社区',
+        '南山区-南头街道-南头城社区',
+        '南山区-招商街道-蛇口社区'
+      ];
+
+      /* ========== 领域树 ========== */
+      var ICONS = {
+        root: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>',
+        public: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+        construction: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M2 12h20"/></svg>',
+        chemical: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+        industry: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l6 4V8l6 4V8l6 4v9z"/><path d="M7 21v-4"/><path d="M13 21v-4"/><path d="M19 21v-4"/></svg>',
+        urban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg>',
+        leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/></svg>'
+      };
+
       var TREE_DATA = {
-        key: 'root',
-        name: '南山区应急管理局',
-        icon: '\u{1F3E2}',
+        key: 'root', name: '南山区应急管理局', icon: 'root',
         children: [
-          { key: 'public', name: '公共场所', icon: '\u{1F3EA}', children: [
-            { key: 'charging', name: '充换电设施', icon: '\u{26A1}' },
-            { key: 'market', name: '农贸市场', icon: '\u{1F6D2}' }
+          { key: 'public', name: '公共场所', icon: 'public', children: [
+            { key: 'charging', name: '充换电设施', icon: 'leaf' },
+            { key: 'market', name: '农贸市场', icon: 'leaf' }
           ]},
-          { key: 'construction', name: '建设工程', icon: '\u{1F3D7}', children: [
-            { key: 'building', name: '建筑施工现场', icon: '\u{1F3D7}' },
-            { key: 'railway', name: '轨道交通施工', icon: '\u{1F685}' }
+          { key: 'construction', name: '建设工程', icon: 'construction', children: [
+            { key: 'building', name: '建筑施工现场', icon: 'leaf' },
+            { key: 'railway', name: '轨道交通施工', icon: 'leaf' }
           ]},
-          { key: 'chemical', name: '危险化学品', icon: '\u{2622}', children: [
-            { key: 'chem-storage', name: '危险化学品仓储', icon: '\u{1F4E6}' },
-            { key: 'gas-station', name: '加油站', icon: '\u{26FD}' }
+          { key: 'chemical', name: '危险化学品', icon: 'chemical', children: [
+            { key: 'chem-storage', name: '危险化学品仓储', icon: 'leaf' },
+            { key: 'gas-station', name: '加油站', icon: 'leaf' }
           ]},
-          { key: 'industry', name: '工业制造业', icon: '\u{1F3ED}', children: [
-            { key: 'melting', name: '高温熔融企业', icon: '\u{1F525}' },
-            { key: 'trade', name: '工贸企业', icon: '\u{1F3ED}' }
+          { key: 'industry', name: '工业制造业', icon: 'industry', children: [
+            { key: 'melting', name: '高温熔融企业', icon: 'leaf' },
+            { key: 'trade', name: '工贸企业', icon: 'leaf' }
           ]},
-          { key: 'urban', name: '城市运行', icon: '\u{1F30D}', children: [
-            { key: 'gas', name: '城镇燃气', icon: '\u{1F525}' },
-            { key: 'fire', name: '消防安全', icon: '\u{1F692}' }
+          { key: 'urban', name: '城市运行', icon: 'urban', children: [
+            { key: 'gas', name: '城镇燃气', icon: 'leaf' },
+            { key: 'fire', name: '消防安全', icon: 'leaf' }
           ]}
         ]
       };
 
-      // ========== 隐患模拟数据 ==========
-      var hazardList = [
-        {
-          id: 'HD2026040201', target: '创安电子科技有限公司', desc: '电动车充电区消防器材过期，灭火器压力不足',
-          level: '一般隐患', source: '政府检查', foundDate: '2026-04-02', deadline: '2026-04-09',
-          status: '待整改', domain: 'charging', category: 'public',
-          rectifyReq: '限期更换所有过期消防器材，确保灭火器压力正常',
-          timeline: [
-            { time: '2026-04-02 09:30', content: '隐患提交', tag: '提交', type: 'done' },
-            { time: '', content: '隐患整改', tag: '整改', type: '' },
-            { time: '', content: '隐患复核', tag: '复核', type: '' },
-            { time: '', content: '已完成', tag: '完成', type: '' }
-          ]
-        },
-        {
-          id: 'HD2026040101', target: '深圳港物流有限公司', desc: '危化品仓库通风设备故障，部分排风扇无法启动',
-          level: '重大隐患', source: '政府检查', foundDate: '2026-04-01', deadline: '2026-04-05',
-          status: '待复核', domain: 'chem-storage', category: 'chemical',
-          rectifyReq: '立即停用故障通风设备，3日内完成全部排风扇更换',
-          timeline: [
-            { time: '2026-04-01 14:00', content: '隐患提交', tag: '提交', type: 'done' },
-            { time: '2026-04-03 10:00', content: '隐患整改', tag: '整改', type: 'done' },
-            { time: '', content: '隐患复核', tag: '复核', type: 'current' },
-            { time: '', content: '已完成', tag: '完成', type: '' }
-          ]
-        },
-        {
-          id: 'HD2026032801', target: '安达运输公司', desc: '停车场安全标识缺失，多处限速和禁停标识损坏',
-          level: '一般隐患', source: '企业自查', foundDate: '2026-03-28', deadline: '2026-04-04',
-          status: '已整改', domain: 'charging', category: 'public',
-          rectifyReq: '补全所有缺失和损坏的安全标识',
-          timeline: [
-            { time: '2026-03-28 11:00', content: '隐患提交', tag: '提交', type: 'done' },
-            { time: '2026-04-01 16:00', content: '隐患整改', tag: '整改', type: 'done' },
-            { time: '2026-04-02 09:00', content: '隐患复核', tag: '复核', type: 'done' },
-            { time: '2026-04-02 09:30', content: '已完成', tag: '完成', type: 'done' }
-          ]
-        },
-        {
-          id: 'HD2026032001', target: '新兴化工有限公司', desc: '安全通道堆放杂物，影响紧急疏散',
-          level: '一般隐患', source: '群众举报', foundDate: '2026-03-20', deadline: '2026-03-27',
-          status: '已超期', domain: 'chem-storage', category: 'chemical',
-          rectifyReq: '立即清理安全通道杂物，恢复消防通道畅通',
-          overdueCycles: 2,
-          timeline: [
-            { time: '2026-03-20 08:45', content: '隐患提交', tag: '提交', type: 'done' },
-            { time: '2026-03-22 10:00', content: '隐患整改', tag: '整改', type: 'done' },
-            { time: '2026-03-23 14:00', content: '隐患复核', tag: '复核', type: 'error' },
-            { time: '', content: '已完成', tag: '完成', type: '' }
-          ]
-        },
-        {
-          id: 'HD2026040501', target: '南山区中心农贸市场', desc: '市场内消防栓被遮挡，部分灭火器过期未更换',
-          level: '重大隐患', source: '政府检查', foundDate: '2026-04-05', deadline: '2026-04-12',
-          status: '待整改', domain: 'market', category: 'public',
-          rectifyReq: '移除消防栓遮挡物，更换过期灭火器',
-          timeline: [
-            { time: '2026-04-05 10:00', content: '隐患提交', tag: '提交', type: 'done' },
-            { time: '', content: '隐患整改', tag: '整改', type: '' },
-            { time: '', content: '隐患复核', tag: '复核', type: '' },
-            { time: '', content: '已完成', tag: '完成', type: '' }
-          ]
-        },
-        {
-          id: 'HD2026040301', target: '龙华建筑工地', desc: '建筑施工现场脚手架未按规定设置安全网',
-          level: '重大隐患', source: '群众举报', foundDate: '2026-04-03', deadline: '2026-04-06',
-          status: '已超期', domain: 'building', category: 'construction',
-          rectifyReq: '立即停工，按规范搭设安全网后方可复工',
-          overdueCycles: 1,
-          timeline: [
-            { time: '2026-04-03 08:00', content: '隐患提交', tag: '提交', type: 'done' },
-            { time: '2026-04-05 09:00', content: '隐患整改', tag: '整改', type: 'done' },
-            { time: '2026-04-06 11:00', content: '隐患复核（不通过）', tag: '复核', type: 'error' },
-            { time: '', content: '已完成', tag: '完成', type: '' }
-          ]
-        },
-        {
-          id: 'HD2026040401', target: '中石化南山加油站', desc: '加油站卸油区静电接地装置失效',
-          level: '一般隐患', source: '企业自查', foundDate: '2026-04-04', deadline: '2026-04-10',
-          status: '待复核', domain: 'gas-station', category: 'chemical',
-          rectifyReq: '修复静电接地装置，确保卸油作业安全',
-          timeline: [
-            { time: '2026-04-04 15:00', content: '隐患提交', tag: '提交', type: 'done' },
-            { time: '2026-04-07 10:00', content: '隐患整改', tag: '整改', type: 'done' },
-            { time: '', content: '隐患复核', tag: '复核', type: 'current' },
-            { time: '', content: '已完成', tag: '完成', type: '' }
-          ]
-        },
-        {
-          id: 'HD2026040601', target: '华鑫工贸有限公司', desc: '车间机械设备防护罩缺失，操作人员有受伤风险',
-          level: '一般隐患', source: '企业自查', foundDate: '2026-04-06', deadline: '2026-04-13',
-          status: '待整改', domain: 'trade', category: 'industry',
-          rectifyReq: '安装机械设备防护罩，确保操作人员安全',
-          timeline: [
-            { time: '2026-04-06 09:00', content: '隐患提交', tag: '提交', type: 'done' },
-            { time: '', content: '隐患整改', tag: '整改', type: '' },
-            { time: '', content: '隐患复核', tag: '复核', type: '' },
-            { time: '', content: '已完成', tag: '完成', type: '' }
-          ]
-        }
+      var TREE_OPEN = { root: true };
+
+      /* ========== 隐患种子数据（字段由 buildRecord 确定性补齐） ========== */
+      var RAW_HAZARDS = [
+        { id:'HD2026040201', target:'创安电子科技有限公司', domain:'充换电设施', domainKey:'charging', category:'public', desc:'电动车充电区消防器材过期，灭火器压力不足', level:'一般隐患', source:'政府巡查', foundDate:'2026-04-02', deadline:'2026-04-09', status:'待整改', rectifyReq:'限期更换所有过期消防器材，确保灭火器压力正常' },
+        { id:'HD2026040101', target:'深圳港物流有限公司', domain:'危险化学品仓储', domainKey:'chem-storage', category:'chemical', desc:'危化品仓库通风设备故障，部分排风扇无法启动', level:'重大隐患', source:'政府巡查', foundDate:'2026-04-01', deadline:'2026-04-05', status:'待复核', rectifyReq:'立即停用故障通风设备，3日内完成全部排风扇更换' },
+        { id:'HD2026032801', target:'安达运输公司', domain:'充换电设施', domainKey:'charging', category:'public', desc:'停车场安全标识缺失，多处限速和禁停标识损坏', level:'一般隐患', source:'企业自查', foundDate:'2026-03-28', deadline:'2026-04-04', status:'已整改', rectifyReq:'补全所有缺失和损坏的安全标识' },
+        { id:'HD2026032001', target:'新兴化工有限公司', domain:'危险化学品仓储', domainKey:'chem-storage', category:'chemical', desc:'安全通道堆放杂物，影响紧急疏散', level:'一般隐患', source:'群众举报', foundDate:'2026-03-20', deadline:'2026-03-27', status:'已超期', rectifyReq:'立即清理安全通道杂物，恢复消防通道畅通' },
+        { id:'HD2026040501', target:'南山区中心农贸市场', domain:'农贸市场', domainKey:'market', category:'public', desc:'市场内消防栓被遮挡，部分灭火器过期未更换', level:'重大隐患', source:'政府巡查', foundDate:'2026-04-05', deadline:'2026-04-12', status:'待整改', rectifyReq:'移除消防栓遮挡物，更换过期灭火器' },
+        { id:'HD2026040301', target:'南山科技园建筑工地', domain:'建筑施工现场', domainKey:'building', category:'construction', desc:'建筑施工现场脚手架未按规定设置安全网', level:'重大隐患', source:'群众举报', foundDate:'2026-04-03', deadline:'2026-04-06', status:'已超期', rectifyReq:'立即停工，按规范搭设安全网后方可复工' },
+        { id:'HD2026040401', target:'中石化南山加油站', domain:'加油站', domainKey:'gas-station', category:'chemical', desc:'加油站卸油区静电接地装置失效', level:'一般隐患', source:'企业自查', foundDate:'2026-04-04', deadline:'2026-04-10', status:'待复核', rectifyReq:'修复静电接地装置，确保卸油作业安全' },
+        { id:'HD2026040601', target:'华鑫工贸有限公司', domain:'工贸企业', domainKey:'trade', category:'industry', desc:'车间机械设备防护罩缺失，操作人员有受伤风险', level:'一般隐患', source:'企业自查', foundDate:'2026-04-06', deadline:'2026-04-13', status:'待整改', rectifyReq:'安装机械设备防护罩，确保操作人员安全' },
+        { id:'HD2026040701', target:'南山消防安全重点单位', domain:'消防安全', domainKey:'fire', category:'urban', desc:'消防控制室值班记录不完整，值班人员脱岗', level:'一般隐患', source:'政府巡查', foundDate:'2026-04-07', deadline:'2026-04-14', status:'已整改', rectifyReq:'完善值班记录，落实 24 小时值班制度' },
+        { id:'HD2026040801', target:'深圳湾科技生态园项目', domain:'建筑施工现场', domainKey:'building', category:'construction', desc:'施工升降机限位装置失效，存在坠落风险', level:'重大隐患', source:'政府巡查', foundDate:'2026-04-08', deadline:'2026-04-12', status:'待复核', rectifyReq:'立即停用施工升降机，修复限位装置并检测合格后恢复使用' },
+        { id:'HD2026040901', target:'南头城燃气站', domain:'城镇燃气', domainKey:'gas', category:'urban', desc:'燃气储罐区可燃气体报警器未按期检定', level:'重大隐患', source:'企业自查', foundDate:'2026-04-09', deadline:'2026-04-13', status:'已整改', rectifyReq:'联系检定机构完成报警器检定，建立检定台账' },
+        { id:'HD2026041001', target:'粤海街道商业广场', domain:'农贸市场', domainKey:'market', category:'public', desc:'商场疏散通道被商户货物占用，宽度不足', level:'一般隐患', source:'群众举报', foundDate:'2026-04-10', deadline:'2026-04-17', status:'待整改', rectifyReq:'清理疏散通道货物，划定禁放区域并加强巡查' },
+        { id:'HD2026041101', target:'南山区危险品运输公司', domain:'危险化学品仓储', domainKey:'chem-storage', category:'chemical', desc:'危化品运输车辆停放区未设置防静电接地设施', level:'一般隐患', source:'政府巡查', foundDate:'2026-04-11', deadline:'2026-04-18', status:'已整改', rectifyReq:'增设防静电接地设施，完善车辆停放管理' },
+        { id:'HD2026041201', target:'南山工业园', domain:'工贸企业', domainKey:'trade', category:'industry', desc:'有限空间作业未落实审批和监护制度', level:'重大隐患', source:'企业自查', foundDate:'2026-04-12', deadline:'2026-04-16', status:'待复核', rectifyReq:'严格执行有限空间作业审批制度，落实专人监护' }
       ];
 
-      // ========== 统计数据 ==========
-      function computeStats(data) {
-        var total = data.length;
-        var pending = 0, review = 0, done = 0, overdue = 0;
-        for (var i = 0; i < data.length; i++) {
-          if (data[i].status === '待整改') pending++;
-          else if (data[i].status === '待复核') review++;
-          else if (data[i].status === '已整改') done++;
-          else if (data[i].status === '已超期') overdue++;
-        }
-        document.getElementById('statTotal').textContent = total;
-        document.getElementById('statPending').textContent = pending;
-        document.getElementById('statReview').textContent = review;
-        document.getElementById('statDone').textContent = done;
-        document.getElementById('statOverdue').textContent = overdue;
+      function pad2(n) { return n < 10 ? '0' + n : String(n); }
+
+      function esc(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       }
 
-      // ========== 树渲染 ==========
-      function renderTree() {
-        var container = document.getElementById('hazardTree');
-        container.innerHTML = renderTreeNodes([TREE_DATA], 0);
-        bindTreeEvents();
+      function creditCode(seed) {
+        var text = D.hash(seed).toString(36).toUpperCase();
+        while (text.length < 8) text = '0' + text;
+        return '91440300MA' + text.slice(0, 8);
+      }
+
+      function timeOf(seed, dateStr) {
+        return dateStr + ' ' + pad2(D.int(seed, 8, 17)) + ':' + pad2(D.int(seed + 'm', 0, 59));
+      }
+
+      function buildRecord(raw) {
+        var record = Object.assign({}, raw);
+        var seed = raw.id;
+        var hasReform = raw.status === '待复核' || raw.status === '已整改' || raw.status === '已超期';
+        var hasReview = raw.status === '已整改' || raw.status === '已超期';
+        record.region = D.regionParts(D.pick(seed, REGION_POOL));
+        record.enterprise = raw.target;
+        record.creditCode = creditCode(seed);
+        record.domainBig = D.bigDomain(raw.domain);
+        record.checklist = raw.domain + '安全检查表';
+        record.checkContent = D.pick(seed + 'c', CHECK_CONTENTS);
+        record.checkTime = timeOf(seed, raw.foundDate);
+        record.checkType = raw.source === '群众举报' ? '—' : raw.source;
+        record.checker = raw.source === '政府巡查'
+          ? D.pick(seed + 'g', GOV_CHECKERS)
+          : (raw.source === '企业自查' ? D.pick(seed + 'e', ENT_USERS) + '（企业安全员）' : '12345 热线转办');
+        record.hazardType = D.pick(seed + 't', HAZARD_TYPES);
+        record.method = raw.level === '重大隐患' ? '立即整改' : D.pick(seed + 'm', ['立即整改', '限期整改（3天）', '限期整改（7天）']);
+        record.rectifyPerson = hasReform ? D.pick(seed + 'p', ENT_USERS) : '—';
+        record.rectifyTime = hasReform ? timeOf(seed + 'rt', D.addDays(raw.foundDate, D.int(seed, 1, 3))) : '—';
+        record.rectifyFeedback = hasReform ? '已按督办要求完成整改，现场复查符合要求。' : '—';
+        record.rectifyBasis = '《中华人民共和国安全生产法》第三十六条';
+        record.reviewer = hasReform ? (raw.source === '企业自查' ? ENT_REVIEWER : D.pick(seed + 'rv', GOV_REVIEWERS)) : '—';
+        record.reviewResult = raw.status === '已整改' ? '同意' : (raw.status === '已超期' ? '不同意' : '—');
+        record.reviewOpinion = record.reviewResult === '同意'
+          ? '已按要求整改，隐患消除，同意闭环。'
+          : (record.reviewResult === '不同意' ? '现场整改不到位，部分问题仍然存在，退回重新整改。' : '—');
+        record.reviewTime = hasReview ? timeOf(seed + 'rv', D.addDays(raw.foundDate, D.int(seed + 'x', 2, 5))) : '—';
+        record.overdue = raw.status === '已超期' ? '已超期' : '未超期';
+        record.baseStatus = raw.status === '已超期' ? '待整改' : raw.status;
+        record.hazardPhoto = D.photoSvg('hazard', seed);
+        record.reformPhoto = hasReform ? D.photoSvg('reform', seed) : null;
+        record.hasReform = hasReform;
+        record.hasReview = hasReview;
+        record.timeline = buildTimeline(record);
+        return record;
+      }
+
+      function buildTimeline(record) {
+        var items = [{ time: record.checkTime, content: '隐患提交', tag: '提交', type: 'done' }];
+        if (record.hasReform) {
+          items.push({ time: record.rectifyTime, content: '隐患整改', tag: '整改', type: 'done' });
+        } else {
+          items.push({ time: '', content: '隐患整改', tag: '整改', type: '' });
+        }
+        if (record.status === '待复核') {
+          items.push({ time: '', content: '隐患复核', tag: '复核', type: 'current' });
+        } else if (record.hasReview) {
+          items.push({
+            time: record.reviewTime,
+            content: record.reviewResult === '同意' ? '隐患复核（同意）' : '隐患复核（不通过）',
+            tag: '复核',
+            type: record.reviewResult === '同意' ? 'done' : 'error'
+          });
+        } else {
+          items.push({ time: '', content: '隐患复核', tag: '复核', type: '' });
+        }
+        items.push({
+          time: record.status === '已整改' ? record.reviewTime : '',
+          content: '已完成',
+          tag: '完成',
+          type: record.status === '已整改' ? 'done' : ''
+        });
+        return items;
+      }
+
+      var hazardList = RAW_HAZARDS.map(buildRecord);
+
+      /* ========== 树渲染 ========== */
+      function nodeMatches(node, keyword) {
+        if (!keyword) return true;
+        if (String(node.name).toLowerCase().indexOf(keyword) >= 0) return true;
+        var children = node.children || [];
+        for (var i = 0; i < children.length; i++) {
+          if (nodeMatches(children[i], keyword)) return true;
+        }
+        return false;
       }
 
       function renderTreeNodes(nodes, level) {
         var html = '';
+        var keyword = state.treeKeyword;
         for (var i = 0; i < nodes.length; i++) {
           var node = nodes[i];
-          var hasChildren = node.children && node.children.length > 0;
-          var icon = node.icon || '\u{1F4C1}';
-          html += '<div class="tree-node" data-key="' + node.key + '" style="padding-left: ' + (12 + level * 20) + 'px">';
-          html += '<span class="tree-toggle ' + (hasChildren ? '' : 'leaf') + '" data-key="' + node.key + '">▶</span>';
-          html += '<span class="tree-node-icon">' + icon + '</span>';
-          html += '<span class="tree-node-label">' + node.name + '</span>';
+          if (!nodeMatches(node, keyword)) continue;
+          var children = node.children || [];
+          var hasChildren = children.length > 0;
+          var open = !!TREE_OPEN[node.key];
+          html += '<div class="hz-tree-node' + (state.selectedTreeNode === node.key ? ' active' : '') + '" data-key="' + esc(node.key) + '" style="padding-left:' + (12 + level * 18) + 'px">';
+          html += '<span class="hz-tree-toggle ' + (hasChildren ? (open ? 'open' : '') : 'leaf') + '" data-toggle="' + esc(node.key) + '">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>';
+          html += '<span class="hz-tree-icon">' + (ICONS[node.icon] || ICONS.leaf) + '</span>';
+          html += '<span class="hz-tree-label" title="' + esc(node.name) + '">' + esc(node.name) + '</span>';
           html += '</div>';
           if (hasChildren) {
-            html += '<div class="tree-children" data-parent="' + node.key + '">';
-            html += renderTreeNodes(node.children, level + 1);
+            html += '<div class="hz-tree-children' + (open ? ' open' : '') + '" data-children="' + esc(node.key) + '">';
+            html += renderTreeNodes(children, level + 1);
             html += '</div>';
           }
         }
         return html;
       }
 
-      function bindTreeEvents() {
-        // 点击节点选中
-        var treeNodes = document.querySelectorAll('#hazardTree .tree-node');
-        for (var i = 0; i < treeNodes.length; i++) {
-          treeNodes[i].addEventListener('click', function(e) {
-            if (!e.target.classList.contains('tree-toggle')) {
-              selectTreeNode(this.getAttribute('data-key'));
-            }
-          });
-        }
-        // 点击展开/收起
-        var toggles = document.querySelectorAll('#hazardTree .tree-toggle:not(.leaf)');
-        for (var i = 0; i < toggles.length; i++) {
-          toggles[i].addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleTreeNode(this.getAttribute('data-key'));
-          });
-        }
+      function renderTree() {
+        document.getElementById('hazardTree').innerHTML = renderTreeNodes([TREE_DATA], 0);
       }
 
-      function toggleTreeNode(key) {
-        var toggle = document.querySelector('#hazardTree .tree-toggle[data-key="' + key + '"]');
-        var children = document.querySelector('#hazardTree .tree-children[data-parent="' + key + '"]');
-        if (toggle && children) {
-          toggle.classList.toggle('expanded');
-          children.classList.toggle('show');
-        }
-      }
-
-      function selectTreeNode(key) {
-        // 清除所有选中
-        var nodes = document.querySelectorAll('#hazardTree .tree-node');
-        for (var i = 0; i < nodes.length; i++) {
-          nodes[i].classList.remove('active');
-        }
-        // 设置当前选中
-        var el = document.querySelector('#hazardTree .tree-node[data-key="' + key + '"]');
-        if (el) el.classList.add('active');
-
-        state.selectedTreeNode = key;
-        state.selectedTreeLabel = getTreeNodeName(key);
-        document.getElementById('detailTitle').textContent = state.selectedTreeLabel;
-        applyFilter();
-      }
-
-      function getTreeNodeName(key) {
-        if (key === 'root') return TREE_DATA.name + ' - 全部隐患';
-        return findTreeNodeName(TREE_DATA.children, key);
-      }
-
-      function findTreeNodeName(nodes, key) {
-        for (var i = 0; i < nodes.length; i++) {
-          if (nodes[i].key === key) return nodes[i].name;
-          if (nodes[i].children) {
-            var found = findTreeNodeName(nodes[i].children, key);
+      function findNode(key) {
+        function walk(node) {
+          if (node.key === key) return node;
+          var children = node.children || [];
+          for (var i = 0; i < children.length; i++) {
+            var found = walk(children[i]);
             if (found) return found;
           }
+          return null;
         }
-        return '全部隐患';
+        return walk(TREE_DATA);
       }
 
-      // 获取选中树节点对应的隐患过滤 key 列表
+      function selectedNodeName(key) {
+        var node = findNode(key);
+        if (!node) return '全部隐患';
+        return key === 'root' ? node.name + ' - 全部隐患' : node.name;
+      }
+
       function getSelectedDomainKeys() {
         var key = state.selectedTreeNode;
-        if (!key || key === 'root') return null; // 全部
+        if (!key || key === 'root') return null;
+        var node = findNode(key);
+        if (!node) return null;
         var keys = [];
-        collectChildKeys(TREE_DATA, key, keys);
+        (function collect(item) {
+          keys.push(item.key);
+          var children = item.children || [];
+          for (var i = 0; i < children.length; i++) collect(children[i]);
+        })(node);
         return keys;
       }
 
-      function collectChildKeys(node, targetKey, result) {
-        if (node.key === targetKey) {
-          result.push(node.key);
-          if (node.children) {
-            for (var i = 0; i < node.children.length; i++) {
-              collectAllKeys(node.children[i], result);
-            }
+      /* ========== 筛选 ========== */
+      function readPageFilters() {
+        return {
+          status: document.getElementById('filterStatus').value,
+          level: document.getElementById('filterLevel').value,
+          source: document.getElementById('filterSource').value,
+          keyword: document.getElementById('filterKeyword').value.trim().toLowerCase()
+        };
+      }
+
+      function getTreeScopedData() {
+        var domainKeys = getSelectedDomainKeys();
+        if (!domainKeys) return hazardList.slice();
+        return hazardList.filter(function (item) {
+          return domainKeys.indexOf(item.domainKey) >= 0 || domainKeys.indexOf(item.category) >= 0;
+        });
+      }
+
+      function getFilteredData() {
+        var filters = readPageFilters();
+        return getTreeScopedData().filter(function (item) {
+          if (filters.status !== '全部' && item.status !== filters.status) return false;
+          if (filters.level !== '全部' && item.level !== filters.level) return false;
+          if (filters.source !== '全部' && item.source !== filters.source) return false;
+          if (filters.keyword) {
+            var text = (item.target + ' ' + item.enterprise).toLowerCase();
+            if (text.indexOf(filters.keyword) < 0) return false;
           }
           return true;
-        }
-        if (node.children) {
-          for (var i = 0; i < node.children.length; i++) {
-            if (collectChildKeys(node.children[i], targetKey, result)) return true;
-          }
-        }
-        return false;
+        });
       }
 
-      function collectAllKeys(node, result) {
-        result.push(node.key);
-        if (node.children) {
-          for (var i = 0; i < node.children.length; i++) {
-            collectAllKeys(node.children[i], result);
-          }
-        }
+      function computeStats(data) {
+        var counts = { '待整改': 0, '待复核': 0, '已整改': 0, '已超期': 0 };
+        data.forEach(function (item) { if (counts[item.status] != null) counts[item.status]++; });
+        document.getElementById('statTotal').textContent = String(data.length);
+        document.getElementById('statPending').textContent = String(counts['待整改']);
+        document.getElementById('statReview').textContent = String(counts['待复核']);
+        document.getElementById('statDone').textContent = String(counts['已整改']);
+        document.getElementById('statOverdue').textContent = String(counts['已超期']);
       }
 
-      function expandAll() {
-        var toggles = document.querySelectorAll('#hazardTree .tree-toggle:not(.leaf)');
-        var children = document.querySelectorAll('#hazardTree .tree-children');
-        for (var i = 0; i < toggles.length; i++) toggles[i].classList.add('expanded');
-        for (var i = 0; i < children.length; i++) children[i].classList.add('show');
+      function levelClass(level) {
+        return level === '重大隐患' ? 'tag-red' : (level === '一般隐患' ? 'tag-yellow' : 'tag-gray');
       }
 
-      function collapseAll() {
-        var toggles = document.querySelectorAll('#hazardTree .tree-toggle');
-        var children = document.querySelectorAll('#hazardTree .tree-children');
-        for (var i = 0; i < toggles.length; i++) toggles[i].classList.remove('expanded');
-        for (var i = 0; i < children.length; i++) children[i].classList.remove('show');
-      }
-
-      function filterTree(keyword) {
-        keyword = keyword.trim().toLowerCase();
-        var nodes = document.querySelectorAll('#hazardTree .tree-node');
-        for (var i = 0; i < nodes.length; i++) {
-          var label = nodes[i].querySelector('.tree-node-label');
-          if (!label) continue;
-          if (!keyword) {
-            nodes[i].style.display = '';
-          } else {
-            var text = label.textContent.toLowerCase();
-            nodes[i].style.display = text.indexOf(keyword) >= 0 ? '' : 'none';
-          }
-        }
-      }
-
-      // ========== 筛选与表格渲染 ==========
-      function getFilteredData() {
-        var domainKeys = getSelectedDomainKeys();
-        var filterStatus = document.getElementById('filterStatus').value;
-        var filterLevel = document.getElementById('filterLevel').value;
-        var filterSource = document.getElementById('filterSource').value;
-        var search = document.getElementById('searchInput').value.trim().toLowerCase();
-
-        var result = [];
-        for (var i = 0; i < hazardList.length; i++) {
-          var h = hazardList[i];
-          // 树过滤
-          if (domainKeys && domainKeys.indexOf(h.domain) < 0 && domainKeys.indexOf(h.category) < 0) continue;
-          // 状态筛选
-          if (filterStatus !== '全部' && h.status !== filterStatus) continue;
-          // 等级筛选
-          if (filterLevel !== '全部' && h.level !== filterLevel) continue;
-          // 来源筛选
-          if (filterSource !== '全部' && h.source !== filterSource) continue;
-          // 搜索
-          if (search && h.target.toLowerCase().indexOf(search) < 0) continue;
-          result.push(h);
-        }
-        return result;
-      }
-
-      function renderTable(data) {
-        var tbody = document.getElementById('hazardTableBody');
-        if (data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--text-tertiary);">暂无隐患数据</td></tr>';
-          return;
-        }
-        var html = '';
-        for (var i = 0; i < data.length; i++) {
-          var h = data[i];
-          html += '<tr>';
-          html += '<td>' + h.id + '</td>';
-          html += '<td class="ellipsis-col" title="' + h.target + '">' + h.target + '</td>';
-          html += '<td class="ellipsis-col" title="' + h.desc + '">' + h.desc + '</td>';
-          html += '<td><span class="tag ' + getLevelClass(h.level) + '">' + h.level + '</span></td>';
-          html += '<td><span class="tag ' + getSourceClass(h.source) + '">' + h.source + '</span></td>';
-          html += '<td>' + h.foundDate + '</td>';
-          html += '<td>' + h.deadline + '</td>';
-          html += '<td><span class="tag ' + getStatusClass(h.status, h.overdueCycles) + '">' + h.status + '</span></td>';
-          html += '<td class="action-col">' + getActionButtons(h) + '</td>';
-          html += '</tr>';
-        }
-        tbody.innerHTML = html;
-      }
-
-      function getLevelClass(level) {
-        if (level === '重大隐患') return 'tag-red';
-        if (level === '一般隐患') return 'tag-orange';
-        return 'tag-gray';
-      }
-
-      function getSourceClass(source) {
-        if (source === '政府检查') return 'tag-blue';
+      function sourceClass(source) {
+        if (source === '政府巡查') return 'tag-blue';
         if (source === '企业自查') return 'tag-green';
         if (source === '群众举报') return 'tag-orange';
         return 'tag-gray';
       }
 
-      var DOMAIN_LABELS = { 'charging': '充换电设施', 'market': '农贸市场', 'construction': '建筑施工现场', 'rail': '轨道交通施工', 'chem-storage': '危险化学品仓储', 'gas-station': '加油站', 'melting': '高温熔融企业', 'trade': '工贸企业', 'gas': '城镇燃气', 'fire': '消防安全' };
-
-      function getStatusClass(status, overdueCycles) {
+      function statusClass(status) {
         if (status === '待整改') return 'tag-blue';
         if (status === '待复核') return 'tag-orange';
         if (status === '已整改') return 'tag-green';
-        if (status === '已超期') {
-          return (overdueCycles >= 2) ? 'tag-red' : 'tag-yellow';
-        }
+        if (status === '已超期') return 'tag-red';
         return 'tag-gray';
       }
 
-      function getActionButtons(h) {
-        var btns = '<button class="btn-link" onclick="viewHazard(\'' + h.id + '\')">查看</button>';
-        if (h.status === '待整改') {
-          btns += '<button class="btn-link" onclick="superviseHazard(\'' + h.id + '\')">督办</button>';
-        } else if (h.status === '待复核') {
-          btns += '<button class="btn-link" onclick="urgeHazard(\'' + h.id + '\')">催办</button>';
-        } else if (h.status === '已超期') {
-          btns += '<button class="btn-link danger" onclick="superviseHazard(\'' + h.id + '\')">督办</button>';
+      function actionButtons(item) {
+        var html = '<button class="btn-link" type="button" data-view="' + esc(item.id) + '">查看</button>';
+        if (item.status === '待整改') {
+          html += '<button class="btn-link" type="button" data-supervise="' + esc(item.id) + '">督办</button>';
+        } else if (item.status === '待复核') {
+          html += '<button class="btn-link" type="button" data-urge="' + esc(item.id) + '">催办</button>';
+          html += '<button class="btn-link" type="button" data-review="' + esc(item.id) + '">复核</button>';
+        } else if (item.status === '已超期') {
+          html += '<button class="btn-link danger" type="button" data-supervise="' + esc(item.id) + '">督办</button>';
         }
-        // 已整改只有查看按钮
-        return btns;
+        return html;
       }
 
-      window.applyFilter = function() {
-        var data = getFilteredData();
-        renderTable(data);
-        computeStats(data);
-        if (typeof pg !== 'undefined') {
-          pg.setTotal(data.length);
-          pg.setPage(1);
+      function renderTable() {
+        var tbody = document.getElementById('hazardTableBody');
+        var data = state.filtered;
+        if (!data.length) {
+          tbody.innerHTML = '<tr class="hz-empty-row"><td colspan="9">暂无隐患数据</td></tr>';
+          return;
         }
-      };
+        var start = (state.currentPage - 1) * state.pageSize;
+        var rows = data.slice(start, start + state.pageSize);
+        var html = '';
+        rows.forEach(function (item) {
+          html += '<tr>' +
+            '<td>' + esc(item.id) + '</td>' +
+            '<td><span class="hz-cell-clip" title="' + esc(item.target) + '">' + esc(item.target) + '</span></td>' +
+            '<td><span class="hz-cell-clip" title="' + esc(item.desc) + '">' + esc(item.desc) + '</span></td>' +
+            '<td><span class="tag ' + levelClass(item.level) + '">' + esc(item.level) + '</span></td>' +
+            '<td><span class="tag ' + sourceClass(item.source) + '">' + esc(item.source) + '</span></td>' +
+            '<td>' + esc(item.foundDate) + '</td>' +
+            '<td>' + esc(item.deadline) + '</td>' +
+            '<td><span class="tag ' + statusClass(item.status) + '">' + esc(item.status) + '</span></td>' +
+            '<td class="hz-action-col">' + actionButtons(item) + '</td>' +
+          '</tr>';
+        });
+        tbody.innerHTML = html;
+      }
 
-      window.resetFilter = function() {
-        document.getElementById('filterStatus').value = '全部';
-        document.getElementById('filterLevel').value = '全部';
-        document.getElementById('filterSource').value = '全部';
-        document.getElementById('searchInput').value = '';
-        applyFilter();
-      };
+      var pg = null;
 
-      // ========== 弹窗控制 ==========
-      window.openModal = function(id) {
-        document.getElementById(id).classList.add('show');
-      };
-      window.closeModal = function(id) {
-        document.getElementById(id).classList.remove('show');
-      };
+      function applyFilter(resetPage) {
+        if (resetPage) state.currentPage = 1;
+        state.filtered = getFilteredData();
+        computeStats(getTreeScopedData());
+        document.getElementById('listSubtitle').textContent = state.selectedTreeLabel;
+        if (pg) pg.setTotal(state.filtered.length);
+        var maxPage = Math.ceil(state.filtered.length / state.pageSize) || 1;
+        if (state.currentPage > maxPage) state.currentPage = maxPage;
+        renderTable();
+        if (pg) pg.setPage(state.currentPage);
+      }
 
-      // ========== Toast ==========
-      window.showToast = function(msg) {
-        var container = document.getElementById('toastContainer');
-        var toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = msg;
-        container.appendChild(toast);
-        setTimeout(function() { toast.classList.add('out'); }, 2500);
-        setTimeout(function() { toast.remove(); }, 2800);
-      };
-
-      // ========== 查看隐患详情 ==========
-      window.viewHazard = function(id) {
-        var h = getHazardById(id);
-        if (!h) return;
-        renderHazardDetail(h);
-        openModal('modal-hazard-detail');
-      };
-
-      function getHazardById(id) {
+      /* ========== 详情 ========== */
+      function findHazard(id) {
         for (var i = 0; i < hazardList.length; i++) {
           if (hazardList[i].id === id) return hazardList[i];
         }
         return null;
       }
 
-      function renderHazardDetail(h) {
-        var html = '';
-        // 基础信息区
-        html += '<div class="detail-section-title">基础信息</div>';
-        html += '<div class="detail-row"><span class="detail-label">隐患编号</span><span class="detail-value">' + h.id + '</span></div>';
-        html += '<div class="detail-row"><span class="detail-label">管控对象</span><span class="detail-value">' + h.target + '</span></div>';
-        html += '<div class="detail-row"><span class="detail-label">隐患描述</span><span class="detail-value">' + h.desc + '</span></div>';
-        html += '<div class="detail-row"><span class="detail-label">隐患等级</span><span class="detail-value"><span class="tag ' + getLevelClass(h.level) + '">' + h.level + '</span></span></div>';
-        html += '<div class="detail-row"><span class="detail-label">隐患来源</span><span class="detail-value"><span class="tag ' + getSourceClass(h.source) + '">' + h.source + '</span></span></div>';
-        html += '<div class="detail-row"><span class="detail-label">所属领域小类</span><span class="detail-value">' + (DOMAIN_LABELS[h.domain] || h.domain) + '</span></div>';
-        html += '<div class="detail-row"><span class="detail-label">发现日期</span><span class="detail-value">' + h.foundDate + '</span></div>';
-        html += '<div class="detail-row"><span class="detail-label">整改期限</span><span class="detail-value">' + h.deadline + '</span></div>';
-
-        // 处理记录时间轴（4节点）
-        html += '<div class="detail-section-title">处理记录</div>';
-        html += '<div class="timeline">';
-        var stageLabels = ['隐患提交', '隐患整改', '隐患复核', '已完成'];
-        for (var i = 0; i < stageLabels.length; i++) {
-          var tl = h.timeline[i];
-          var type = tl.type || '';
-          var time = tl.time || '—';
-          var content = tl.content || stageLabels[i];
-          var tag = tl.tag || '';
-          html += '<div class="timeline-item ' + type + '">';
-          html += '<div class="timeline-time">' + time + '</div>';
-          html += '<div class="timeline-content"><span class="timeline-tag tag tag-blue">' + tag + '</span>' + content + '</div>';
-          html += '</div>';
-        }
-        html += '</div>';
-
-        document.getElementById('hazardDetailBody').innerHTML = html;
+      function kv(label, valueHtml, full) {
+        return '<div class="hz-kv' + (full ? ' full' : '') + '"><span class="hz-kv-label">' + esc(label) + '：</span><span class="hz-kv-value">' + valueHtml + '</span></div>';
       }
 
-      // ========== 督办 ==========
-      window.superviseHazard = function(id) {
+      function photoBox(svg, caption) {
+        if (!svg) return '';
+        return '<div class="hz-photo-box"><img alt="' + esc(caption) + '" src="data:image/svg+xml,' + encodeURIComponent(svg) + '"><div class="hz-photo-caption">' + esc(caption) + '</div></div>';
+      }
+
+      function renderDetail(item) {
+        document.getElementById('detailTitle').textContent = '隐患详情 · ' + item.id;
+        document.getElementById('detailStatusTag').innerHTML = '<span class="tag ' + statusClass(item.status) + '">' + esc(item.status) + '</span>';
+        var actions = '';
+        if (item.status === '待整改' || item.status === '已超期') {
+          actions += '<button class="btn btn-primary" type="button" data-supervise="' + esc(item.id) + '">督办</button>';
+        } else if (item.status === '待复核') {
+          actions += '<button class="btn btn-default" type="button" data-urge="' + esc(item.id) + '">催办</button>';
+          actions += '<button class="btn btn-primary" type="button" data-review="' + esc(item.id) + '">复核</button>';
+        }
+        document.getElementById('detailActions').innerHTML = actions;
+
+        var html = '';
+        html += '<div class="hz-detail-card"><div class="hz-section-title">基础信息</div><div class="hz-kv-grid">';
+        html += kv('隐患编号', esc(item.id));
+        html += kv('状态', '<span class="tag ' + statusClass(item.status) + '">' + esc(item.status) + '</span>');
+        html += kv('隐患来源', '<span class="tag ' + sourceClass(item.source) + '">' + esc(item.source) + '</span>');
+        html += kv('管控对象', esc(item.target));
+        html += kv('企业名称', esc(item.enterprise));
+        html += kv('统一社会信用代码', esc(item.creditCode));
+        html += kv('领域大类', esc(item.domainBig));
+        html += kv('领域小类', esc(item.domain));
+        html += kv('所属街道', esc(item.region.street));
+        html += kv('所属社区', esc(item.region.community));
+        html += kv('所属网格', esc(item.region.grid));
+        html += kv('检查表名称', esc(item.checklist));
+        html += kv('检查内容', esc(item.checkContent));
+        html += kv('检查时间', esc(item.checkTime));
+        html += kv('检查人', esc(item.checker));
+        html += kv('检查分类', esc(item.checkType));
+        html += kv('隐患类型', esc(item.hazardType));
+        html += kv('隐患等级', '<span class="tag ' + levelClass(item.level) + '">' + esc(item.level) + '</span>');
+        html += kv('发现日期', esc(item.foundDate));
+        html += kv('整改期限', esc(item.deadline));
+        html += kv('整改是否超期', '<span class="tag ' + (item.overdue === '已超期' ? 'tag-red' : 'tag-gray') + '">' + esc(item.overdue) + '</span>');
+        html += '</div></div>';
+
+        html += '<div class="hz-detail-card"><div class="hz-section-title">隐患信息</div><div class="hz-kv-grid">';
+        html += kv('隐患描述', esc(item.desc), true);
+        html += kv('整改要求', esc(item.rectifyReq), true);
+        html += '</div><div class="hz-photo-row">' + photoBox(item.hazardPhoto, '隐患照片') + '</div></div>';
+
+        html += '<div class="hz-detail-card"><div class="hz-section-title">整改信息</div><div class="hz-kv-grid">';
+        html += kv('整改方式', esc(item.method));
+        html += kv('整改人', esc(item.rectifyPerson));
+        html += kv('整改时间', esc(item.rectifyTime));
+        html += kv('整改反馈', esc(item.rectifyFeedback), true);
+        html += kv('整改依据', esc(item.rectifyBasis), true);
+        html += '</div><div class="hz-photo-row">' + photoBox(item.reformPhoto, '整改照片') + '</div></div>';
+
+        html += '<div class="hz-detail-card"><div class="hz-section-title">复核信息</div><div class="hz-kv-grid">';
+        html += kv('复核人', esc(item.reviewer));
+        html += kv('复核结果', item.reviewResult === '—' ? '—' : '<span class="tag ' + (item.reviewResult === '同意' ? 'tag-green' : 'tag-red') + '">' + esc(item.reviewResult) + '</span>');
+        html += kv('复核时间', esc(item.reviewTime));
+        html += kv('复核意见', esc(item.reviewOpinion), true);
+        html += '</div></div>';
+
+        html += '<div class="hz-detail-card"><div class="hz-section-title">处理时间线</div><div class="hz-timeline">';
+        item.timeline.forEach(function (node) {
+          html += '<div class="hz-tl-item ' + (node.type || '') + '">' +
+            '<div class="hz-tl-time">' + esc(node.time || '—') + '</div>' +
+            '<div class="hz-tl-content"><span class="hz-tl-tag">' + esc(node.tag) + '</span>' + esc(node.content) + '</div></div>';
+        });
+        html += '</div></div>';
+        document.getElementById('detailBody').innerHTML = html;
+      }
+
+      function openDetail(id) {
+        var item = findHazard(id);
+        if (!item) return;
+        state.detailId = id;
+        renderDetail(item);
+        document.getElementById('view-list').style.display = 'none';
+        document.getElementById('view-detail').classList.add('show');
+        window.scrollTo(0, 0);
+      }
+
+      function closeDetail() {
+        state.detailId = null;
+        document.getElementById('view-detail').classList.remove('show');
+        document.getElementById('view-list').style.display = '';
+        applyFilter(false);
+      }
+
+      /* ========== 督办 / 催办 / 复核 ========== */
+      function openModal(id) { document.getElementById(id).classList.add('show'); }
+      function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+      function superviseHazard(id) {
         state.currentHazardId = id;
         document.getElementById('superviseOpinion').value = '';
         openModal('modal-supervise');
-      };
+      }
 
-      window.submitSupervise = function() {
-        var opinion = document.getElementById('superviseOpinion').value;
-        if (!opinion.trim()) { showToast('请填写督办意见'); return; }
+      function submitSupervise() {
+        var opinion = document.getElementById('superviseOpinion').value.trim();
+        if (!opinion) { showToast('请填写督办意见'); return; }
+        var item = findHazard(state.currentHazardId);
+        if (item) {
+          item.timeline.unshift({ time: nowText(), content: '督办：' + opinion, tag: '督办', type: 'warn' });
+        }
         closeModal('modal-supervise');
         showToast('督办意见已提交，系统已通知企业方');
+        if (state.detailId) renderDetail(item);
+      }
+
+      function urgeHazard(id) {
+        var item = findHazard(id);
+        if (item) {
+          item.timeline.unshift({ time: nowText(), content: '催办：已发送催办通知，提醒复核方尽快处理', tag: '催办', type: 'warn' });
+        }
+        showToast('催办通知已发送，系统已通知复核方');
+        if (state.detailId) renderDetail(item);
+      }
+
+      function openReview(id) {
+        state.currentHazardId = id;
+        document.getElementById('reviewResult').value = '';
+        document.getElementById('reviewOpinion').value = '';
+        openModal('modal-review');
+      }
+
+      function submitReview() {
+        var item = findHazard(state.currentHazardId);
+        if (!item) return;
+        var result = document.getElementById('reviewResult').value;
+        var opinion = document.getElementById('reviewOpinion').value.trim();
+        if (!result) { showToast('请选择复核结果'); return; }
+        if (!opinion) { showToast('请填写复核意见'); return; }
+        item.reviewResult = result;
+        item.reviewOpinion = opinion;
+        item.reviewTime = nowText();
+        item.status = result === '同意' ? '已整改' : '待整改';
+        item.overdue = '未超期';
+        item.baseStatus = item.status;
+        item.timeline = buildTimeline(item);
+        closeModal('modal-review');
+        showToast(result === '同意' ? '复核通过，隐患已闭环' : '复核不通过，已退回重新整改');
+        if (state.detailId) {
+          renderDetail(item);
+        } else {
+          applyFilter(false);
+        }
+      }
+
+      function nowText() {
+        var d = new Date();
+        return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+      }
+
+      /* ========== Toast ========== */
+      window.showToast = function (message) {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(function () { toast.classList.add('out'); }, 2400);
+        setTimeout(function () { toast.remove(); }, 2750);
       };
 
-      // ========== 催办 ==========
-      window.urgeHazard = function(id) {
-        showToast('催办通知已发送，系统已通知企业方加速整改');
-      };
+      /* ========== 导出 ========== */
+      var EXPORT_FILTER_DEFS = [
+        { id: 'checkType', label: '检查分类', options: ['政府巡查', '企业自查'] },
+        { id: 'method', label: '整改方式', options: ['立即整改', '限期整改（3天）', '限期整改（7天）'] },
+        { id: 'rectifier', label: '整改人', options: ENT_USERS },
+        { id: 'reviewer', label: '复核人', options: GOV_REVIEWERS.concat([ENT_REVIEWER]) },
+        { id: 'overdue', label: '整改是否超期', options: ['已超期', '未超期'] },
+        { id: 'checkDate', label: '检查时间', type: 'dateRange' },
+        { id: 'enterprise', label: '企业名称', type: 'text', placeholder: '按包含匹配' },
+        { id: 'creditCode', label: '统一社会信用代码', type: 'text', placeholder: '支持部分匹配' },
+        { id: 'checker', label: '检查人', type: 'text', placeholder: '姓名 / 单位' },
+        { id: 'desc', label: '隐患描述', type: 'text', placeholder: '按包含匹配' }
+      ];
 
-      // ========== 导出报表 ==========
-      window.exportReport = function() {
-        showToast('隐患报表导出中，完成后将自动下载');
-      };
+      function exportFilterRows(filters) {
+        return getFilteredData().filter(function (item) {
+          if (filters.checkType && item.checkType !== filters.checkType) return false;
+          if (filters.method && item.method !== filters.method) return false;
+          if (filters.rectifier && item.rectifyPerson !== filters.rectifier) return false;
+          if (filters.reviewer && item.reviewer !== filters.reviewer) return false;
+          if (filters.overdue && item.overdue !== filters.overdue) return false;
+          var checkDate = item.checkTime.slice(0, 10);
+          if (filters.checkDateStart && checkDate < filters.checkDateStart) return false;
+          if (filters.checkDateEnd && checkDate > filters.checkDateEnd) return false;
+          if (filters.enterprise && item.enterprise.indexOf(filters.enterprise) < 0) return false;
+          if (filters.creditCode && item.creditCode.indexOf(filters.creditCode) < 0) return false;
+          if (filters.checker && item.checker.indexOf(filters.checker) < 0) return false;
+          if (filters.desc && item.desc.indexOf(filters.desc) < 0) return false;
+          return true;
+        });
+      }
 
-      // ========== 面包屑推送 ==========
+      function exportHeaders(withPhotos) {
+        var headers = ['企业名称', '领域大类', '领域小类', '所属街道', '所属社区', '所属网格', '管控对象', '检查表名称', '检查内容', '检查时间', '检查人', '检查分类', '隐患类型', '隐患描述', '隐患等级'];
+        if (withPhotos) headers.push('隐患照片');
+        headers = headers.concat(['整改方式', '整改隐患整改人', '整改时间']);
+        if (withPhotos) headers.push('整改照片');
+        headers = headers.concat(['整改反馈', '整改依据', '复核人', '复核结果', '复核意见', '复核时间', '状态', '整改是否超期']);
+        return headers;
+      }
+
+      function exportRowValues(item, withPhotos) {
+        var values = [
+          item.enterprise, item.domainBig, item.domain,
+          item.region.street, item.region.community, item.region.grid,
+          item.target, item.checklist, item.checkContent, item.checkTime,
+          item.checker, item.checkType, item.hazardType, item.desc, item.level
+        ];
+        if (withPhotos) values.push('');
+        values = values.concat([item.method, item.rectifyPerson, item.rectifyTime]);
+        if (withPhotos) values.push('');
+        values = values.concat([
+          item.rectifyFeedback, item.rectifyBasis,
+          item.reviewer, item.reviewResult, item.reviewOpinion, item.reviewTime,
+          item.status === '已超期' ? item.baseStatus : item.status,
+          item.overdue
+        ]);
+        return values;
+      }
+
+      function exportScopeSummary(filters) {
+        var parts = [state.selectedTreeLabel];
+        var page = readPageFilters();
+        if (page.status !== '全部') parts.push('状态=' + page.status);
+        if (page.level !== '全部') parts.push('等级=' + page.level);
+        if (page.source !== '全部') parts.push('来源=' + page.source);
+        if (page.keyword) parts.push('关键词「' + page.keyword + '」');
+        var extra = [];
+        if (filters.checkType) extra.push('检查分类=' + filters.checkType);
+        if (filters.method) extra.push('整改方式=' + filters.method);
+        if (filters.rectifier) extra.push('整改人=' + filters.rectifier);
+        if (filters.reviewer) extra.push('复核人=' + filters.reviewer);
+        if (filters.overdue) extra.push(filters.overdue);
+        if (filters.checkDateStart || filters.checkDateEnd) {
+          extra.push('检查时间 ' + (filters.checkDateStart || '…') + ' 至 ' + (filters.checkDateEnd || '…'));
+        }
+        if (filters.enterprise) extra.push('企业含「' + filters.enterprise + '」');
+        if (filters.creditCode) extra.push('信用代码含「' + filters.creditCode + '」');
+        if (filters.checker) extra.push('检查人含「' + filters.checker + '」');
+        if (filters.desc) extra.push('描述含「' + filters.desc + '」');
+        if (extra.length) parts.push('补充：' + extra.join('；'));
+        return parts.join('；');
+      }
+
+      function initExport() {
+        if (!window.ExportCenter) return;
+        window.ExportCenter.init({
+          moduleKey: 'gov-hazard-manage',
+          moduleName: '隐患记录',
+          exportTitle: '导出隐患记录',
+          filePrefix: '隐患记录',
+          entryButtonId: 'btnEcEntry',
+          filters: EXPORT_FILTER_DEFS,
+          scopeSummary: exportScopeSummary,
+          photoTip: '开启后内嵌隐患照片 / 整改照片列',
+          emptyText: '暂无可导出隐患记录',
+          getData: function (filters, withPhotos) {
+            var rows = exportFilterRows(filters);
+            var headers = exportHeaders(withPhotos);
+            var values = rows.map(function (item) { return exportRowValues(item, withPhotos); });
+            var photoSvgs = rows.map(function (item) {
+              var arr = headers.map(function () { return null; });
+              if (!withPhotos) return arr;
+              var hazardIndex = headers.indexOf('隐患照片');
+              var reformIndex = headers.indexOf('整改照片');
+              if (hazardIndex >= 0) arr[hazardIndex] = item.hazardPhoto;
+              if (reformIndex >= 0 && item.reformPhoto) arr[reformIndex] = item.reformPhoto;
+              return arr;
+            });
+            return { headers: headers, values: values, photoSvgs: photoSvgs };
+          }
+        });
+      }
+
+      /* ========== 事件绑定 ========== */
+      function bind() {
+        document.getElementById('hazardTree').addEventListener('click', function (event) {
+          var toggle = event.target.closest('.hz-tree-toggle');
+          if (toggle && !toggle.classList.contains('leaf')) {
+            var toggleKey = toggle.getAttribute('data-toggle');
+            TREE_OPEN[toggleKey] = !TREE_OPEN[toggleKey];
+            renderTree();
+            return;
+          }
+          var node = event.target.closest('.hz-tree-node');
+          if (!node) return;
+          state.selectedTreeNode = node.getAttribute('data-key');
+          state.selectedTreeLabel = selectedNodeName(state.selectedTreeNode);
+          renderTree();
+          applyFilter(true);
+        });
+
+        document.getElementById('treeSearchInput').addEventListener('input', function () {
+          state.treeKeyword = this.value.trim().toLowerCase();
+          renderTree();
+        });
+
+        document.getElementById('btnExpandAll').addEventListener('click', function () {
+          TREE_OPEN.root = true;
+          TREE_DATA.children.forEach(function (node) { TREE_OPEN[node.key] = true; });
+          renderTree();
+        });
+
+        document.getElementById('btnCollapseAll').addEventListener('click', function () {
+          TREE_DATA.children.forEach(function (node) { TREE_OPEN[node.key] = false; });
+          renderTree();
+        });
+
+        document.getElementById('btnQuery').addEventListener('click', function () { applyFilter(true); });
+        document.getElementById('btnReset').addEventListener('click', function () {
+          document.getElementById('filterStatus').value = '全部';
+          document.getElementById('filterLevel').value = '全部';
+          document.getElementById('filterSource').value = '全部';
+          document.getElementById('filterKeyword').value = '';
+          applyFilter(true);
+        });
+
+        document.getElementById('statsRow').addEventListener('click', function (event) {
+          var card = event.target.closest('.hz-stat');
+          if (!card) return;
+          var status = card.getAttribute('data-status');
+          document.getElementById('filterStatus').value = status === '全部' ? '全部' : status;
+          applyFilter(true);
+        });
+
+        document.getElementById('hazardTableBody').addEventListener('click', function (event) {
+          var view = event.target.closest('[data-view]');
+          if (view) { openDetail(view.getAttribute('data-view')); return; }
+          var supervise = event.target.closest('[data-supervise]');
+          if (supervise) { superviseHazard(supervise.getAttribute('data-supervise')); return; }
+          var urge = event.target.closest('[data-urge]');
+          if (urge) { urgeHazard(urge.getAttribute('data-urge')); return; }
+          var review = event.target.closest('[data-review]');
+          if (review) { openReview(review.getAttribute('data-review')); }
+        });
+
+        document.getElementById('detailBody').addEventListener('click', function (event) {
+          var supervise = event.target.closest('[data-supervise]');
+          if (supervise) { superviseHazard(supervise.getAttribute('data-supervise')); return; }
+          var urge = event.target.closest('[data-urge]');
+          if (urge) { urgeHazard(urge.getAttribute('data-urge')); return; }
+          var review = event.target.closest('[data-review]');
+          if (review) { openReview(review.getAttribute('data-review')); }
+        });
+
+        document.getElementById('btnBackList').addEventListener('click', closeDetail);
+        document.getElementById('detailActions').addEventListener('click', function (event) {
+          var supervise = event.target.closest('[data-supervise]');
+          if (supervise) { superviseHazard(supervise.getAttribute('data-supervise')); return; }
+          var urge = event.target.closest('[data-urge]');
+          if (urge) { urgeHazard(urge.getAttribute('data-urge')); return; }
+          var review = event.target.closest('[data-review]');
+          if (review) { openReview(review.getAttribute('data-review')); }
+        });
+
+        document.querySelectorAll('[data-close]').forEach(function (btn) {
+          btn.addEventListener('click', function () { closeModal(btn.getAttribute('data-close')); });
+        });
+
+        document.getElementById('btnSubmitSupervise').addEventListener('click', submitSupervise);
+        document.getElementById('btnSubmitReview').addEventListener('click', submitReview);
+      }
+
+      /* ========== 面包屑 / 初始化 ========== */
       function pushBreadcrumb() {
         try {
           if (window.parent && window.parent.postMessage) {
@@ -925,42 +1165,30 @@
               type: 'breadcrumb',
               moduleId: CONFIG.moduleId,
               moduleName: CONFIG.moduleName,
-              path: [
-                { label: '政府端' },
-                { label: '隐患记录管理' }
-              ]
+              path: [{ label: '政府端' }, { label: '隐患记录管理' }]
             }, '*');
           }
-        } catch (e) { /* iframe 跨域忽略 */ }
+        } catch (err) { /* iframe 跨域忽略 */ }
       }
-
-      // ========== 初始化 ==========
-      var pg = null;
 
       function init() {
         if (state.initialized) return;
-        console.log('[' + CONFIG.moduleId + '] 模块初始化');
         state.initialized = true;
-
-        // 渲染树
+        TREE_DATA.children.forEach(function (node) { if (TREE_OPEN[node.key] == null) TREE_OPEN[node.key] = true; });
         renderTree();
-
-        // 默认选中根节点并展开第一级
-        expandAll();
-        selectTreeNode('root');
-
-        // 初始化分页
+        state.selectedTreeLabel = selectedNodeName('root');
         pg = new Pagination('paginationBar', {
-          total: hazardList.length,
-          onChange: function(page, size) {
+          total: 0,
+          size: state.pageSize,
+          onChange: function (page, size) {
             state.currentPage = page;
+            state.pageSize = size;
+            renderTable();
           }
         });
-
-        // 初始渲染
-        applyFilter();
-
-        // 面包屑
+        bind();
+        applyFilter(true);
+        initExport();
         pushBreadcrumb();
       }
 
@@ -970,13 +1198,11 @@
         init();
       }
 
-      window.destroyModule = function() {
-        console.log('[' + CONFIG.moduleId + '] 模块销毁');
+      window.destroyModule = function () {
         state.initialized = false;
       };
     })();
   </script>
-<script src="../../js/pagination.js"></script>
-<script src="../../js/annotations.js"></script>
+  <script src="../../js/annotations.js"></script>
 </body>
 </html>

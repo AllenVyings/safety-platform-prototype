@@ -14,7 +14,7 @@
   <!-- 配置文件 -->
   <script src="config/constants.js"></script>
   <script src="config/menus.js?v=20261030-crp"></script>
-  <script src="config/annotations.js?v=20261101-cro"></script>
+  <script src="config/annotations.js?v=20261125b"></script>
   
   <!-- 核心脚本 -->
   <script src="js/utils.js"></script>
@@ -700,8 +700,8 @@
       'check-list':     {section:'6.5.2.3', name:'码上排查', isTab:false, navTitle:'码上排查'},
       'check-execute':  {section:'6.5.2.3', name:'码上排查执行', isTab:false, navTitle:'码上排查'},
       'ai-analysis':    {section:'6.5.2.4', name:'AI智能分析', isTab:false, navTitle:'AI智能分析'},
-      'hazard-stats':   {section:'6.5.2.5', name:'隐患记录', isTab:false, navTitle:'隐患记录'},
-      'inspection-stats':{section:'6.5.2.6', name:'检查记录', isTab:false, navTitle:'检查记录'},
+      'hazard-stats':   {section:'6.5.3.2', name:'隐患统计', isTab:false, navTitle:'隐患统计', blueNav:true},
+      'inspection-stats':{section:'6.5.3.1', name:'检查记录', isTab:false, navTitle:'检查记录', blueNav:true},
       'hazard-detail':  {section:'6.5.6.5.3', name:'隐患详情', isTab:false, navTitle:'隐患详情'},
       'check-detail':   {section:'6.5.6.4.5', name:'检查详情', isTab:false, navTitle:'检查详情'},
       'code-change':    {section:'6.5.2.7', name:'变码记录', isTab:false, navTitle:'变码记录'},
@@ -745,6 +745,7 @@
         navBar.style.background = 'transparent';
         navBar.style.borderBottom = 'none';
         titleEl.style.color = '#fff';
+        titleEl.style.fontWeight = (mod === 'enterprise-code') ? '700' : '';
         sysStatus.style.background = 'transparent';
         sysStatus.style.color = '#fff';
         sysStatus.style.position = 'absolute';
@@ -765,12 +766,21 @@
         sysStatus.querySelector('.mobile-sys-battery-fill').style.background = '#fff';
         sysStatus.querySelector('.mobile-sys-battery-body').style.borderColor = '#fff';
         sysStatus.querySelector('.mobile-sys-battery-cap').style.background = '#fff';
-        document.querySelector('.mobile-capsule').style.borderColor = 'rgba(255,255,255,0.25)';
-        document.querySelector('.mobile-capsule-divider').style.background = 'rgba(255,255,255,0.25)';
-        document.querySelectorAll('.mobile-capsule svg *').forEach(function(el) {
-          if (el.getAttribute('fill') && el.getAttribute('fill').indexOf('0,0,0') > -1) el.setAttribute('fill', 'rgba(255,255,255,0.7)');
-          if (el.getAttribute('stroke') && el.getAttribute('stroke').indexOf('0,0,0') > -1) el.setAttribute('stroke', 'rgba(255,255,255,0.7)');
-        });
+        if (mod === 'enterprise-code') {
+          document.querySelector('.mobile-capsule').style.borderColor = 'rgba(0,0,0,0.55)';
+          document.querySelector('.mobile-capsule-divider').style.background = 'rgba(0,0,0,0.25)';
+          document.querySelectorAll('.mobile-capsule svg *').forEach(function(el) {
+            if (el.getAttribute('fill') && el.getAttribute('fill') !== 'none') el.setAttribute('fill', 'rgba(0,0,0,0.9)');
+            if (el.getAttribute('stroke') && el.getAttribute('stroke') !== 'none') el.setAttribute('stroke', 'rgba(0,0,0,0.9)');
+          });
+        } else {
+          document.querySelector('.mobile-capsule').style.borderColor = 'rgba(255,255,255,0.25)';
+          document.querySelector('.mobile-capsule-divider').style.background = 'rgba(255,255,255,0.25)';
+          document.querySelectorAll('.mobile-capsule svg *').forEach(function(el) {
+            if (el.getAttribute('fill') && el.getAttribute('fill').indexOf('0,0,0') > -1) el.setAttribute('fill', 'rgba(255,255,255,0.7)');
+            if (el.getAttribute('stroke') && el.getAttribute('stroke').indexOf('0,0,0') > -1) el.setAttribute('stroke', 'rgba(255,255,255,0.7)');
+          });
+        }
         var backSvg = leftEl.querySelector('.mobile-nav-back svg path');
         if (backSvg) backSvg.setAttribute('stroke', '#fff');
       }
@@ -821,6 +831,40 @@
         // Back button white
         var backSvg = leftEl.querySelector('.mobile-nav-back svg path');
         if (backSvg) backSvg.setAttribute('stroke', '#fff');
+      }
+      else if (info.blueNav) {
+        navBar.style.background = '#2f7bff';
+        navBar.style.borderBottom = 'none';
+        navBar.style.position = '';
+        navBar.style.top = '';
+        navBar.style.left = '';
+        navBar.style.right = '';
+        navBar.style.zIndex = '';
+        titleEl.style.color = '#fff';
+        titleEl.style.fontWeight = '600';
+        sysStatus.style.background = '#2f7bff';
+        sysStatus.style.color = '#fff';
+        sysStatus.style.position = '';
+        sysStatus.style.top = '';
+        sysStatus.style.left = '';
+        sysStatus.style.right = '';
+        sysStatus.style.zIndex = '';
+        sysStatus.querySelectorAll('svg path, svg rect, svg circle').forEach(function(el) {
+          if (el.getAttribute('fill') === '#000') el.setAttribute('fill', '#fff');
+          if (el.getAttribute('stroke') === '#000') el.setAttribute('stroke', '#fff');
+        });
+        sysStatus.querySelector('.mobile-sys-time').style.color = '#fff';
+        sysStatus.querySelector('.mobile-sys-battery-fill').style.background = '#fff';
+        sysStatus.querySelector('.mobile-sys-battery-body').style.borderColor = '#fff';
+        sysStatus.querySelector('.mobile-sys-battery-cap').style.background = '#fff';
+        document.querySelector('.mobile-capsule').style.borderColor = 'rgba(255,255,255,0.35)';
+        document.querySelector('.mobile-capsule-divider').style.background = 'rgba(255,255,255,0.35)';
+        document.querySelectorAll('.mobile-capsule svg *').forEach(function(el) {
+          if (el.getAttribute('fill') && el.getAttribute('fill').indexOf('0,0,0') > -1) el.setAttribute('fill', 'rgba(255,255,255,0.85)');
+          if (el.getAttribute('stroke') && el.getAttribute('stroke').indexOf('0,0,0') > -1) el.setAttribute('stroke', 'rgba(255,255,255,0.85)');
+        });
+        var backSvgBlue = leftEl.querySelector('.mobile-nav-back svg path');
+        if (backSvgBlue) backSvgBlue.setAttribute('stroke', '#fff');
       } else {
         navBar.style.background = '';
         navBar.style.borderBottom = '';
@@ -830,6 +874,7 @@
         navBar.style.right = '';
         navBar.style.zIndex = '';
         titleEl.style.color = '';
+        titleEl.style.fontWeight = '';
         sysStatus.style.background = '';
         sysStatus.style.color = '';
         sysStatus.style.position = '';
@@ -874,7 +919,7 @@
       try { localStorage.setItem('checkListSource', previousModule); } catch(e) {}
       var frame = document.getElementById('mobileFrame');
       if (!frame) return;
-      frame.src = 'modules/mobile/' + mod + '.html';
+      frame.src = 'modules/mobile/' + mod + '.html?t=' + Date.now();
       var info = mobilePageInfo[mod] || {};
       var secEl = document.getElementById('mobileInfoSection');
       var pageEl = document.getElementById('mobileInfoPage');
@@ -956,6 +1001,7 @@
           navBar.style.background = '#fff';
           navBar.style.borderBottom = '0.5px solid rgba(0,0,0,0.08)';
           titleEl.style.color = '#000';
+          titleEl.style.fontWeight = (currentMod === 'enterprise-code') ? '700' : '';
           sysStatus.style.background = '#fff';
           sysStatus.style.color = '#000';
           sysStatus.querySelectorAll('svg path, svg rect, svg circle').forEach(function(el) {
@@ -978,6 +1024,7 @@
           navBar.style.background = 'transparent';
           navBar.style.borderBottom = 'none';
           titleEl.style.color = '#fff';
+          titleEl.style.fontWeight = (currentMod === 'enterprise-code') ? '700' : '';
           sysStatus.style.background = 'transparent';
           sysStatus.style.color = '#fff';
           sysStatus.querySelectorAll('svg path, svg rect, svg circle').forEach(function(el) {
@@ -988,12 +1035,21 @@
           sysStatus.querySelector('.mobile-sys-battery-fill').style.background = '#fff';
           sysStatus.querySelector('.mobile-sys-battery-body').style.borderColor = '#fff';
           sysStatus.querySelector('.mobile-sys-battery-cap').style.background = '#fff';
-          document.querySelector('.mobile-capsule').style.borderColor = 'rgba(255,255,255,0.25)';
-          document.querySelector('.mobile-capsule-divider').style.background = 'rgba(255,255,255,0.25)';
-          document.querySelectorAll('.mobile-capsule svg *').forEach(function(el) {
-            if (el.getAttribute('fill') && el.getAttribute('fill').indexOf('0,0,0') > -1) el.setAttribute('fill', 'rgba(255,255,255,0.7)');
-            if (el.getAttribute('stroke') && el.getAttribute('stroke').indexOf('0,0,0') > -1) el.setAttribute('stroke', 'rgba(255,255,255,0.7)');
-          });
+          if (currentMod === 'enterprise-code') {
+            document.querySelector('.mobile-capsule').style.borderColor = 'rgba(0,0,0,0.55)';
+            document.querySelector('.mobile-capsule-divider').style.background = 'rgba(0,0,0,0.25)';
+            document.querySelectorAll('.mobile-capsule svg *').forEach(function(el) {
+              if (el.getAttribute('fill') && el.getAttribute('fill') !== 'none') el.setAttribute('fill', 'rgba(0,0,0,0.9)');
+              if (el.getAttribute('stroke') && el.getAttribute('stroke') !== 'none') el.setAttribute('stroke', 'rgba(0,0,0,0.9)');
+            });
+          } else {
+            document.querySelector('.mobile-capsule').style.borderColor = 'rgba(255,255,255,0.25)';
+            document.querySelector('.mobile-capsule-divider').style.background = 'rgba(255,255,255,0.25)';
+            document.querySelectorAll('.mobile-capsule svg *').forEach(function(el) {
+              if (el.getAttribute('fill') && el.getAttribute('fill').indexOf('0,0,0') > -1) el.setAttribute('fill', 'rgba(255,255,255,0.7)');
+              if (el.getAttribute('stroke') && el.getAttribute('stroke').indexOf('0,0,0') > -1) el.setAttribute('stroke', 'rgba(255,255,255,0.7)');
+            });
+          }
           if (backSvg) backSvg.setAttribute('stroke', '#fff');
           if (settingBtn) settingBtn.style.color = '#fff';
         }

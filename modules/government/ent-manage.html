@@ -498,7 +498,7 @@
               <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 新增企业</button>
               <button class="btn btn-default btn-sm btn-with-badge" onclick="showAuditList()">审批列表<span class="btn-badge">5</span></button>
               <button class="btn btn-default btn-sm" onclick="openBatchImport()">批量导入</button>
-              <button class="btn btn-default btn-sm" onclick="alert('批量导出（演示）')">批量导出</button>
+              <button class="btn btn-default btn-sm" type="button" id="btnEcEntry">导出记录</button>
             </div>
           </div>
           <div class="table-wrap">
@@ -2552,6 +2552,127 @@ window.submitEdit = function() {
 };
 
 (function() { 'use strict'; var CONFIG = { moduleId: 'gov-ent-manage', moduleName: '企业基本信息' }; var state = { initialized: false }; function init() { if (state.initialized) return; console.log('[' + CONFIG.moduleId + '] 模块初始化'); state.initialized = true; } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); } window.destroyModule = function() { console.log('[' + CONFIG.moduleId + '] 模块销毁'); state.initialized = false; }; })();
+</script>
+<script src="../../js/vendor/exceljs.min.js"></script>
+<script src="../../js/shared/gov-export-data.js"></script>
+<script src="../../js/shared/export-center.js"></script>
+<script>
+(function () {
+  'use strict';
+  var D = window.GovExportData;
+  var SCENE_TAGS = ['超高层建筑', '医药化工', '充电场所', '人员密集场所', '燃气使用'];
+  var STREETS = ['南山街道', '粤海街道', '沙河街道', '南头街道', '招商街道'];
+
+  function codeLabel(ent) {
+    var color = ent.codeColor || 'green';
+    if (color === 'green') return '绿码';
+    if (color === 'yellow') return '黄码';
+    if (color === 'red') return '红码';
+    return '灰码';
+  }
+
+  function sceneTag(ent) {
+    return D.pick(ent.code + 'scene', SCENE_TAGS);
+  }
+
+  function baseRows() {
+    var data = (window.enterpriseData || []).slice();
+    var node = window.selectedNode;
+    var tab = window.currentTab;
+    if (node) {
+      if (tab === 'district') {
+        data = data.filter(function (ent) { return ent.gridId && ent.gridId.indexOf(node.id) === 0; });
+      } else {
+        data = data.filter(function (ent) { return ent.domainId && ent.domainId.indexOf(node.id) === 0; });
+      }
+    }
+    var status = document.getElementById('filterStatus').value;
+    var grid = document.getElementById('filterGrid').value;
+    var keyword = document.getElementById('filterKeyword').value.trim().toLowerCase();
+    return data.filter(function (ent) {
+      if (status !== '全部' && ent.status !== status) return false;
+      if (grid !== '全部' && String(ent.grid || '').indexOf(grid) < 0) return false;
+      if (keyword && String(ent.name + ' ' + ent.code).toLowerCase().indexOf(keyword) < 0) return false;
+      return true;
+    });
+  }
+
+  function exportRows(filters) {
+    return baseRows().filter(function (ent) {
+      var region = D.regionParts(ent.grid);
+      if (filters.name && String(ent.name || '').indexOf(filters.name) < 0) return false;
+      if (filters.code && String(ent.code || '').indexOf(filters.code) < 0) return false;
+      if (filters.street && region.street !== filters.street) return false;
+      if (filters.status && ent.status !== filters.status) return false;
+      if (filters.codeState && codeLabel(ent) !== filters.codeState) return false;
+      if (filters.tag && sceneTag(ent) !== filters.tag) return false;
+      return true;
+    });
+  }
+
+  var HEADERS = ['企业名称', '统一社会信用代码', '法定代表人', '联系电话', '领域大类', '领域小类', '启用状态',
+    '所属街道', '所属社区', '所属网格', '经营详细地址', '场所数量', '危险源数量', '检查表数量',
+    '行业监管单位', '专业监管单位', '属地监管单位', '码色状态'];
+
+  function rowValues(ent) {
+    var region = D.regionParts(ent.grid);
+    return [
+      ent.name, ent.code, ent.leader || '—', ent.phone || '—',
+      D.bigDomain(ent.domain), ent.domain || '—', ent.status,
+      region.street, region.community, region.grid, ent.bizAddr || '—',
+      D.count(ent.code, 'place'), D.count(ent.code, 'hazard'), D.count(ent.code, 'checklist'),
+      ent.industryDept || '—', ent.professionalDept || '—', ent.localDept || '—',
+      codeLabel(ent)
+    ];
+  }
+
+  function scopeSummary(filters) {
+    var parts = [];
+    var node = window.selectedNode;
+    if (node && node.name) parts.push('范围：' + node.name);
+    var status = document.getElementById('filterStatus').value;
+    var grid = document.getElementById('filterGrid').value;
+    var keyword = document.getElementById('filterKeyword').value.trim();
+    if (status !== '全部') parts.push('状态=' + status);
+    if (grid !== '全部') parts.push('归属=' + grid);
+    if (keyword) parts.push('关键词「' + keyword + '」');
+    if (filters.name) parts.push('单位含「' + filters.name + '」');
+    if (filters.code) parts.push('信用代码含「' + filters.code + '」');
+    if (filters.street) parts.push('街道=' + filters.street);
+    if (filters.status) parts.push('状态=' + filters.status);
+    if (filters.codeState) parts.push('码色=' + filters.codeState);
+    if (filters.tag) parts.push('场景标签=' + filters.tag);
+    return parts.length ? parts.join('；') : '辖区全部企业';
+  }
+
+  if (!window.ExportCenter) return;
+  window.ExportCenter.init({
+    moduleKey: 'gov-ent-manage',
+    moduleName: '企业清单',
+    exportTitle: '导出企业清单',
+    filePrefix: '企业清单',
+    entryButtonId: 'btnEcEntry',
+    showPhotoSwitch: false,
+    filters: [
+      { id: 'name', label: '单位名称', type: 'text', placeholder: '按包含匹配' },
+      { id: 'code', label: '统一社会信用代码', type: 'text', placeholder: '支持部分匹配' },
+      { id: 'street', label: '所属街道', options: STREETS },
+      { id: 'status', label: '启用状态', options: ['启用', '停用'] },
+      { id: 'codeState', label: '码色状态', options: ['绿码', '黄码', '红码', '灰码'] },
+      { id: 'tag', label: '安全场景标签', options: SCENE_TAGS }
+    ],
+    scopeSummary: scopeSummary,
+    emptyText: '暂无可导出企业',
+    getData: function (filters) {
+      var rows = exportRows(filters);
+      return {
+        headers: HEADERS.slice(),
+        values: rows.map(rowValues),
+        photoSvgs: rows.map(function () { return HEADERS.map(function () { return null; }); })
+      };
+    }
+  });
+})();
 </script>
 <script src="../../js/annotations.js"></script>
 </body>

@@ -8,8 +8,9 @@
   <link rel="stylesheet" href="../../css/framework.css">
   <style>
     /* ========== 页面布局（覆盖 framework.css 默认值） ========== */
-    .page-container{padding:20px}
-    .main-layout{display:flex;flex-direction:column;gap:var(--spacing-md);height:calc(100vh - 40px)}
+    html,body{height:100%;margin:0;overflow:hidden}
+    .page-container{padding:20px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden}
+    .main-layout{display:flex;flex-direction:column;gap:var(--spacing-md);flex:1;min-height:0}
 
     /* ========== 领域小类级联下拉面板 ========== */
     .cascade-dropdown{position:relative;display:inline-block}
@@ -29,17 +30,18 @@
     .cascade-option.all-option{color:var(--text-secondary);font-style:italic}
 
     /* ========== 筛选栏（卡片版） ========== */
-    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;border:1px solid var(--border-section);flex-shrink:0}
+    .filter-card{background:var(--bg-primary);border-radius:var(--radius-lg);padding:var(--spacing-md) 20px;box-shadow:var(--shadow-card);flex-shrink:0}
     .filter-card .filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px 20px;background:transparent;border:none}
     .filter-card .filter-item{display:flex;align-items:center;gap:6px}
     .filter-card .filter-bar select,.filter-card .filter-bar input{width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box}
     .filter-card .filter-bar select:focus,.filter-card .filter-bar input:focus{border-color:var(--primary);outline:none}
 
     /* ========== 表格卡片（flex约束，确保分页可见） ========== */
-    .table-card{display:flex;flex-direction:column;min-height:0;flex:1}
+    .table-card{display:flex;flex-direction:column;min-height:0;flex:1;background:var(--bg-primary);border:1px solid var(--border-section);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);overflow:hidden}
     .table-header{display:flex;justify-content:space-between;align-items:center;padding:var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--border-light);flex-shrink:0}
-    .table-header-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary)}
-    .table-container{flex:1;min-height:0;overflow:auto}
+    .table-header-title{font-size:var(--font-size-md);font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+    .table-header-title::before{content:'';width:4px;height:16px;border-radius:2px;background:var(--primary);flex-shrink:0}
+    .table-container{flex:1;min-height:0;overflow:auto;margin:12px 20px 16px;background:var(--bg-page-solid);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:0 1px 4px rgba(0,0,0,.05)}
     .table-card>.pagination{flex-shrink:0}
 
     /* 操作列溢出覆盖（防止按钮被截断） */
@@ -48,8 +50,20 @@
     tbody td .tag{white-space:nowrap}
 
     /* ========== 表格冻结 ========== */
-    /* 表头冻结（framework.css 未提供，页面自定义） */
-    thead th{position:sticky;top:0;background:var(--bg-table-header);z-index:10;border-bottom:2px solid var(--border)}
+    /* 表头冻结（framework.css 未提供，页面自定义）；冻结列背景与画布统一 #f0f2f5 */
+    .table-container thead th{position:sticky;top:0;background:#f0f2f5;z-index:10;border-bottom:2px solid var(--border)}
+    .table-container thead th.col-check,
+    .table-container thead th.col-index,
+    .table-container thead th.col-no,
+    .table-container thead th.action-col{background:#f0f2f5}
+    .table-container tbody td{background:var(--bg-primary)}
+    .table-container tbody tr:nth-child(even) td.col-check,
+    .table-container tbody tr:nth-child(even) td.col-index,
+    .table-container tbody tr:nth-child(even) td.col-no{background:var(--bg-primary)}
+    .table-container tbody tr:hover td{background:var(--bg-section-alt)}
+    .table-container tbody tr:hover td.col-check,
+    .table-container tbody tr:hover td.col-index,
+    .table-container tbody tr:hover td.col-no{background:var(--bg-section-alt)}
 
     /* ========== 标签扩展（紫色用于专项调度） ========== */
     .tag-purple{background:var(--accent-light);color:var(--accent)}
@@ -106,7 +120,6 @@
 
     /* ========== 表格行可点击 ========== */
     tbody tr{cursor:pointer}
-    tbody tr:hover{background:var(--bg-section-alt)}
     tbody tr td:first-child{cursor:default}
 
     /* ========== 活跃筛选标签 ========== */
@@ -596,23 +609,29 @@
   }
 
   // ========== 领域小类级联面板初始化 ==========
-  var INDUSTRY_ORDER = ['公共场所类', '建设工程类', '交通运输类', '危险化学品类', '工业制造类', '城市运行类', '其他类'];
+  // 行业大类从领域小类管理公共数据（domain-data.js）动态分组，只列出有数据的大类
+  var INDUSTRY_ORDER = [];
+  DOMAIN_TABLE_DATA.forEach(function(d) {
+    if (INDUSTRY_ORDER.indexOf(d.industryName) < 0) INDUSTRY_ORDER.push(d.industryName);
+  });
   var selectedIndustry = '';  // 当前级联面板选中的行业
   var selectedDomain = '';    // 当前级联面板选中的领域
 
   function initIndustryFilter() {
-    // 初始化级联面板左栏（行业大类，全量7个）
+    // 初始化级联面板左栏（行业大类，按公共数据分组，带小类计数）
     var industryCol = document.getElementById('cascadeIndustryCol');
     INDUSTRY_ORDER.forEach(function(name) {
+      var count = DOMAIN_TABLE_DATA.filter(function(d) { return d.industryName === name; }).length;
       var div = document.createElement('div');
       div.className = 'cascade-option';
       div.setAttribute('data-industry', name);
       div.textContent = name;
+      div.title = name + '（' + count + ' 个领域小类）';
       div.onclick = function() { selectIndustry(div, name); };
       industryCol.appendChild(div);
     });
 
-    // 初始化新增任务弹窗的行业下拉（复用全量数据）
+    // 初始化新增任务弹窗的行业下拉（同公共数据口径）
     var addSelect = document.getElementById('addIndustry');
     INDUSTRY_ORDER.forEach(function(name) {
       var opt = document.createElement('option');
@@ -779,7 +798,7 @@
       }
     });
 
-    // ESC 键关闭弹窗
+    // ESC 键关闭弹窗与级联面板
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         ['modal-add-task', 'modal-task-detail', 'modal-edit-task'].forEach(function(id) {
@@ -788,6 +807,7 @@
         });
         var confirm = document.getElementById('confirmDialog');
         if (confirm && confirm.classList.contains('show')) closeConfirm(false);
+        closeCascadePanel();
       }
     });
 

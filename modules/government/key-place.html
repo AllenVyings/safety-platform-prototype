@@ -1034,6 +1034,7 @@
           <div class="page-title">重点场所管理<span class="scope-tip" id="scopeTipCard">🛡 监管单位：南山区应急管理局</span></div>
           <div class="page-subtitle">按领域小类（重点场所模式）卡片下钻管理辖区内重点场所档案</div>
         </div>
+        <button class="btn btn-default" type="button" id="btnEcEntry">导出记录</button>
       </div>
 
       <div class="page-body" style="display:block;">
@@ -1070,10 +1071,13 @@
         <!-- 头部：钻取标题（左）+ 返回按钮（右） -->
         <div class="drill-header">
           <h2 class="drill-title" id="drillTitle">重点场所列表</h2>
-          <button class="btn-back" onclick="goBackToCards()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            返回
-          </button>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button class="btn btn-default" type="button" id="btnEcEntryDrill">导出记录</button>
+            <button class="btn-back" onclick="goBackToCards()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              返回
+            </button>
+          </div>
         </div>
 
         <!-- 双栏布局：左树 + 右主区 -->
@@ -3892,6 +3896,213 @@
       ? loadKeyPlaceData(domainData)
       : (typeof initKeyPlaceData === 'function' ? initKeyPlaceData(domainData) : {});
     renderDomainCards();
+  </script>
+  <script src="../../js/vendor/exceljs.min.js"></script>
+  <script src="../../js/shared/gov-export-data.js"></script>
+  <script src="../../js/shared/export-center.js"></script>
+  <script>
+(function () {
+  'use strict';
+  var D = window.GovExportData;
+  var RISK_LEVELS = ['重大风险', '较大风险', '一般风险', '低风险'];
+
+  function domainName(id) {
+    var list = (typeof domainData !== 'undefined' && domainData) ? domainData : [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) return list[i].name;
+    }
+    return '—';
+  }
+
+  function codeLabel(place) {
+    var color = place.code_state || 'green';
+    if (color === 'yellow') return '黄码';
+    if (color === 'red') return '红码';
+    if (color === 'gray') return '灰码';
+    return '绿码';
+  }
+
+  function realRisk(place) { return D.pick(place.id + 'real', RISK_LEVELS); }
+  function extremeRisk(place) { return D.pick(place.id + 'extreme', RISK_LEVELS); }
+
+  function contactName(place) {
+    var ent = (place.enterprises || [])[0];
+    if (!ent) return '—';
+    return D.pick(ent.ent_name + 'contact', ['张伟', '李娜', '王强', '刘洋', '陈雪', '赵磊']);
+  }
+
+  function contactPhone(place) {
+    var ent = (place.enterprises || [])[0];
+    if (!ent) return '—';
+    var num = 10000000 + (D.hash(ent.ent_id + 'phone') % 90000000);
+    return '138' + String(num);
+  }
+
+  function relatedEnterprises(place) {
+    var names = (place.enterprises || []).map(function (ent) { return ent.ent_name; });
+    return names.length ? names.join('、') : '—';
+  }
+
+  function isResponsible(place) {
+    if (place.hazard_handler_type === 'enterprise') return '是';
+    return (place.enterprises || []).some(function (ent) { return ent.is_hazard_handler; }) ? '是' : '否';
+  }
+
+  function supervisor(place, type) {
+    var list = place.supervisors || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].type === type) return list[i].name || '—';
+    }
+    return '—';
+  }
+
+  function collectPlaces() {
+    var result = [];
+    var data = (typeof placeData !== 'undefined' && placeData) ? placeData : {};
+    var ids = (typeof currentDomainId !== 'undefined' && currentDomainId) ? [currentDomainId] : Object.keys(data);
+    ids.forEach(function (id) {
+      (data[id] || []).forEach(function (place) { result.push({ place: place, domainId: id }); });
+    });
+
+    var region = (typeof selectedRegion !== 'undefined') ? selectedRegion : null;
+    if (region && region.type === 'street') {
+      result = result.filter(function (item) { return item.place.street_code === region.code; });
+    } else if (region && region.type === 'community') {
+      var parts = String(region.code).split('_');
+      result = result.filter(function (item) {
+        return item.place.street_code === parts[0] && item.place.community === parts[1];
+      });
+    }
+
+    var domainKeyword = document.getElementById('filterDomainName');
+    if (domainKeyword && domainKeyword.value.trim()) {
+      var dk = domainKeyword.value.trim().toLowerCase();
+      result = result.filter(function (item) { return domainName(item.domainId).toLowerCase().indexOf(dk) >= 0; });
+    }
+
+    var keywordEl = document.getElementById('filterKeyword');
+    var statusEl = document.getElementById('filterStatus');
+    var keyword = keywordEl ? keywordEl.value.trim().toLowerCase() : '';
+    var status = statusEl ? statusEl.value : '';
+    if (keyword) result = result.filter(function (item) { return String(item.place.place_name).toLowerCase().indexOf(keyword) >= 0; });
+    if (status) result = result.filter(function (item) { return item.place.status === status; });
+    return result;
+  }
+
+  function exportRows(filters) {
+    return collectPlaces().filter(function (item) {
+      var place = item.place;
+      var domain = domainName(item.domainId);
+      if (filters.domainBig && D.bigDomain(domain) !== filters.domainBig) return false;
+      if (filters.domainName && domain !== filters.domainName) return false;
+      if (filters.street && place.street !== filters.street) return false;
+      if (filters.placeName && String(place.place_name).indexOf(filters.placeName) < 0) return false;
+      if (filters.status && place.status !== (filters.status === '启用' ? '1' : '0')) return false;
+      if (filters.codeState && codeLabel(place) !== filters.codeState) return false;
+      if (filters.realRisk && realRisk(place) !== filters.realRisk) return false;
+      if (filters.extremeRisk && extremeRisk(place) !== filters.extremeRisk) return false;
+      return true;
+    });
+  }
+
+  var HEADERS = ['场所名称', '领域大类', '领域小类', '检查表数量', '启用状态', '地址', '所属街道', '所属社区',
+    '所属网格', '关联企业', '是否隐患整改责任方', '企业联系人', '企业联系电话',
+    '行业监管单位', '专业监管单位', '属地监管单位'];
+
+  function rowValues(item) {
+    var place = item.place;
+    var domain = domainName(item.domainId);
+    return [
+      place.place_name, D.bigDomain(domain), domain, (place.scan_configs || []).length,
+      place.status === '1' ? '启用' : '停用', place.detail_address || '—',
+      place.street || '—', place.community || '—', '—',
+      relatedEnterprises(place), isResponsible(place), contactName(place), contactPhone(place),
+      supervisor(place, 'industry'), supervisor(place, 'professional'), supervisor(place, 'local')
+    ];
+  }
+
+  function uniqueValues(items, getter) {
+    var seen = {};
+    var result = [];
+    items.forEach(function (item) {
+      var value = getter(item);
+      if (value && value !== '—' && !seen[value]) { seen[value] = true; result.push(value); }
+    });
+    return result;
+  }
+
+  var allItems = collectPlaces();
+  var DOMAIN_NAMES = uniqueValues(allItems, function (item) { return domainName(item.domainId); });
+  var STREETS = uniqueValues(allItems, function (item) { return item.place.street; });
+
+  function scopeSummary(filters) {
+    var parts = [];
+    if (typeof currentDomainId !== 'undefined' && currentDomainId) parts.push('领域：' + domainName(currentDomainId));
+    else parts.push('全部重点场所领域');
+    var region = (typeof selectedRegion !== 'undefined') ? selectedRegion : null;
+    if (region && region.type === 'street') parts.push('街道=' + region.name);
+    if (region && region.type === 'community') parts.push('社区=' + region.name);
+    var domainKeywordEl = document.getElementById('filterDomainName');
+    if (domainKeywordEl && domainKeywordEl.value.trim()) parts.push('领域含「' + domainKeywordEl.value.trim() + '」');
+    var keywordEl = document.getElementById('filterKeyword');
+    if (keywordEl && keywordEl.value.trim()) parts.push('场所含「' + keywordEl.value.trim() + '」');
+    var statusEl = document.getElementById('filterStatus');
+    if (statusEl && statusEl.value) parts.push('状态=' + (statusEl.value === '1' ? '启用' : '停用'));
+    if (filters.domainBig) parts.push('领域大类=' + filters.domainBig);
+    if (filters.domainName) parts.push('领域小类=' + filters.domainName);
+    if (filters.street) parts.push('街道=' + filters.street);
+    if (filters.placeName) parts.push('场所含「' + filters.placeName + '」');
+    if (filters.status) parts.push('状态=' + filters.status);
+    if (filters.codeState) parts.push('码色=' + filters.codeState);
+    if (filters.realRisk) parts.push('现实风险=' + filters.realRisk);
+    if (filters.extremeRisk) parts.push('极端风险=' + filters.extremeRisk);
+    return parts.join('；');
+  }
+
+  if (!window.ExportCenter) return;
+  window.ExportCenter.init({
+    moduleKey: 'gov-key-place',
+    moduleName: '重点场所清单',
+    exportTitle: '导出重点场所清单',
+    filePrefix: '重点场所清单',
+    entryButtonId: 'btnEcEntry',
+    showPhotoSwitch: false,
+    filters: [
+      { id: 'domainBig', label: '领域大类', options: ['公共场所', '建设工程', '危险化学品', '工业制造业', '城市运行'] },
+      { id: 'domainName', label: '领域小类', options: DOMAIN_NAMES },
+      { id: 'street', label: '所属街道', options: STREETS },
+      { id: 'placeName', label: '场所名称', type: 'text', placeholder: '按包含匹配' },
+      { id: 'status', label: '场所状态', options: ['启用', '停用'] },
+      { id: 'codeState', label: '码色状态', options: ['绿码', '黄码', '红码', '灰码'] },
+      { id: 'realRisk', label: '现实风险等级', options: RISK_LEVELS },
+      { id: 'extremeRisk', label: '极端风险等级', options: RISK_LEVELS }
+    ],
+    scopeSummary: scopeSummary,
+    emptyText: '暂无可导出重点场所',
+    getData: function (filters) {
+      var rows = exportRows(filters);
+      return {
+        headers: HEADERS.slice(),
+        values: rows.map(rowValues),
+        photoSvgs: rows.map(function () { return HEADERS.map(function () { return null; }); })
+      };
+    }
+  });
+
+  var drillBtn = document.getElementById('btnEcEntryDrill');
+  if (drillBtn) {
+    if (!drillBtn.querySelector('.ec-badge')) {
+      var badge = document.createElement('span');
+      badge.className = 'ec-badge';
+      drillBtn.appendChild(badge);
+    }
+    drillBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      window.ExportCenter.openTaskCenter();
+    });
+    window.ExportCenter.renderBadge();
+  }
+})();
   </script>
   <script src="../../config/annotations.js?v=20260625-kp-bg"></script>
   <script src="../../js/annotations.js"></script>

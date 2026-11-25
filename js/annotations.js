@@ -24,7 +24,7 @@
       return;
     }
     var script = document.createElement('script');
-    script.src = '../../config/annotations.js';
+    script.src = '../../config/annotations.js?v=20261125b';
     script.onload = function() { onReady(); };
     script.onerror = function() { console.warn('[Annotations] Failed to load config/annotations.js'); };
     document.head.appendChild(script);
