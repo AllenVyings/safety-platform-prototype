@@ -21,10 +21,33 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: .
+          # v4 起默认排除 dotfiles（.git/.github 无论如何都排除）；站点不依赖隐藏文件，保持默认
+          include-hidden-files: false
+
+      # artifact finalize 后，ListArtifacts 索引存在最终一致性延迟。
+      # deploy-pages 的 getArtifactMetadata 在查到 0 个 artifact 时会立即抛错、不重试
+      # （其 error_count 重试只覆盖部署状态轮询），因此这里显式等待并校验 artifact 可见。
+      - name: Wait until pages artifact is queryable
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 20); do
+            count=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+              --jq '[.artifacts[] | select(.name == "github-pages")] | length')
+            if [ "$count" = "1" ]; then
+              echo "artifact github-pages is queryable (attempt $i)"
+              exit 0
+            fi
+            echo "attempt $i: artifact not queryable yet, wait 3s"
+            sleep 3
+          done
+          echo "::error::artifact github-pages still not queryable after 60s"
+          exit 1
+
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
